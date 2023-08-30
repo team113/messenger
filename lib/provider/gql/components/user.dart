@@ -1143,6 +1143,8 @@ mixin UserGraphQlMixin {
     FcmRegistrationToken token,
     String? locale,
   ) async {
+    print('[FCM] Token is: $token');
+
     final variables = RegisterFcmDeviceArguments(token: token);
     final query = MutationOptions(
       operationName: 'RegisterFcmDevice',

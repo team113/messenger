@@ -6,12 +6,9 @@ btn_sign_in = Ingresa
 btn_one_time_account =
     Cuenta
     desechable
-btn_work_with_us =
-    Trabaja con
-    nosotros
-btn_download_application =
-    Descargar
-    aplicación
+btn_work = Trabaja con nosotros
+btn_work_with_us = Trabajar
+btn_download_application = Descargar aplicación
 btn_proceed = Continuar
 label_sign_up = Regístrate
 label_email = Correo electrónico

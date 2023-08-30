@@ -1,5 +1,4 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:messenger/themes.dart';
@@ -35,10 +34,11 @@ class GitHubIssueWidget extends StatelessWidget {
               bottomRight:
                   expanded ? Radius.zero : style.cardRadius.bottomRight,
             ),
-            border: style.cardBorder,
+            // border: style.cardBorder,
             color: style.colors.transparent,
           ),
           child: InkWellWithHover(
+            border: style.cardBorder,
             borderRadius: style.cardRadius.copyWith(
               bottomLeft: expanded ? Radius.zero : style.cardRadius.bottomLeft,
               bottomRight:

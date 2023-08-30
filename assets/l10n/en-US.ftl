@@ -1016,12 +1016,9 @@ btn_sign_in = Sign in
 btn_one_time_account =
     One-time
     account
-btn_work_with_us =
-    Work
-    with us
-btn_download_application =
-    Download
-    application
+btn_work_with_us = Work with us
+btn_work = Work
+btn_download_application = Download application
 label_sign_up = Sign up
 btn_continue_with_email = Continue with email
 btn_continue_with_phone =

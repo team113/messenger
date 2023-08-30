@@ -204,6 +204,7 @@ class Themes {
         primaryIconTheme: const IconThemeData.fallback().copyWith(
           color: colors.secondary,
         ),
+        splashColor: colors.transparent,
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
         textTheme: Typography.blackCupertino.copyWith(
           displayLarge: fonts.displayLarge,

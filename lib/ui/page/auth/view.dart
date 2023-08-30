@@ -18,9 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/language/view.dart';
-import 'package:messenger/ui/page/home/widget/rmb_detector.dart';
 import 'package:messenger/ui/page/login/controller.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -32,7 +30,6 @@ import '/ui/page/login/view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
@@ -48,152 +45,73 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb || true;
-
-        Widget? icon;
-
-        if (isWeb) {
-          icon = Obx(() {
-            switch (c.system.value) {
-              case 0:
-                return SvgImage.asset(
-                  'assets/icons/app_store.svg',
-                  width: 23,
-                  height: 23,
-                );
-
-              case 1:
-                return SvgImage.asset(
-                  'assets/icons/apple7.svg',
-                  width: 21.07,
-                  height: 27,
-                );
-
-              case 2:
-                return SvgImage.asset(
-                  'assets/icons/google_play.svg',
-                  width: 21.26,
-                  height: 23.02,
-                );
-
-              case 3:
-                return SvgImage.asset(
-                  'assets/icons/linux4.svg',
-                  width: 20.57,
-                  height: 24,
-                );
-
-              case 4:
-                return SvgImage.asset(
-                  'assets/icons/windows5.svg',
-                  width: 23.93,
-                  height: 24,
-                );
-            }
-
-            return const SizedBox();
-          });
-        }
-
         final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
           color: style.colors.onBackground,
         );
 
         final Widget status = Column(
           children: [
-            // StyledCupertinoButton(
-            //   label: 'btn_download_application'.l10n,
-            //   color: style.colors.secondary,
-            //   onPressed: () => _download(context),
-            // ),
-            // const SizedBox(height: 16),
+            StyledCupertinoButton(
+              label: 'btn_download_application'.l10n,
+              // color: style.colors.secondary,
+              onPressed: () => _download(context),
+            ),
+            const SizedBox(height: 16),
             Container(
-              color: style.colors.onBackgroundOpacity7,
+              color: style.colors.onBackgroundOpacity7.withOpacity(0.03),
               width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                child: Center(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Flex(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      direction: Axis.horizontal,
-                      children: [
-                        const SizedBox(width: 16),
-                        StyledCupertinoButton(
-                          label: 'btn_download_application'.l10n,
-                          color: style.colors.secondary,
-                          onPressed: () => _download(context),
-                        ),
-                        Container(
-                          width: 1,
-                          height: 16,
-                          color: style.colors.secondary,
-                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
-                        ),
-                        // const SizedBox(width: 24),
-                        StyledCupertinoButton(
-                          color: style.colors.secondary,
-                          label: 'btn_work_with_us'.l10n,
-                          onPressed: () => router.vacancy(null, push: true),
-                        ),
-
-                        Container(
-                          width: 1,
-                          height: 16,
-                          color: style.colors.secondary,
-                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
-                        ),
-                        StyledCupertinoButton(
-                          key: c.languageKey,
-                          label: 'label_language_entry'.l10nfmt({
-                            'code': L10n.chosen.value!.locale.countryCode,
-                            'name': L10n.chosen.value!.name,
-                          }),
-                          color: style.colors.secondary,
-                          onPressed: () =>
-                              LanguageSelectionView.show(context, null),
-                        ),
-                        Container(
-                          width: 1,
-                          height: 16,
-                          color: style.colors.secondary,
-                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
-                        ),
-                        StyledCupertinoButton(
-                          label: 'btn_terms_and_conditions'.l10n,
-                          color: style.colors.secondary,
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 16),
-
-                        // Expanded(
-                        //   child: WidgetButton(
-                        //     child: Icon(
-                        //       Icons.menu_rounded,
-                        //       color: style.colors.secondary,
-                        //     ),
-                        //   ),
-                        // ),
-                        if (false) ...[
-                          StyledCupertinoButton(
-                            key: c.languageKey,
-                            label: 'label_language_entry'.l10nfmt({
-                              'code': L10n.chosen.value!.locale.countryCode,
-                              'name': L10n.chosen.value!.name,
-                            }),
-                            onPressed: () =>
-                                LanguageSelectionView.show(context, null),
-                          ),
-                          StyledCupertinoButton(
-                            label: 'btn_terms_and_conditions'.l10n,
-                            color: style.colors.secondary,
-                            onPressed: () {},
-                          ),
-                        ],
-                      ],
-                    ),
+              height: 32,
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: Center(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 16),
+                      // StyledCupertinoButton(
+                      //   label: 'btn_download_application'.l10n,
+                      //   color: style.colors.secondary,
+                      //   onPressed: () => _download(context),
+                      // ),
+                      // Container(
+                      //   width: 1,
+                      //   height: 16,
+                      //   color: style.colors.secondary,
+                      //   margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                      // ),
+                      StyledCupertinoButton(
+                        color: style.colors.secondary,
+                        label: 'btn_work_with_us'.l10n,
+                        onPressed: () => router.vacancy(null, push: true),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 16,
+                        color: style.colors.secondary,
+                        margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                      ),
+                      StyledCupertinoButton(
+                        label: 'label_language_entry'.l10nfmt({
+                          'code': L10n.chosen.value!.locale.countryCode,
+                          'name': L10n.chosen.value!.name,
+                        }),
+                        color: style.colors.secondary,
+                        onPressed: () =>
+                            LanguageSelectionView.show(context, null),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 16,
+                        color: style.colors.secondary,
+                        margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                      ),
+                      StyledCupertinoButton(
+                        color: style.colors.secondary,
+                        label: 'btn_terms_and_conditions'.l10n,
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 16),
+                    ],
                   ),
                 ),
               ),
@@ -284,37 +202,6 @@ class AuthView extends StatelessWidget {
               c.register();
             },
           ),
-          if (false) ...[
-            const SizedBox(height: 15),
-            OutlinedRoundedButton(
-              subtitle: Text('btn_work_with_us'.l10n),
-              maxWidth: 210,
-              height: 46,
-              leading: Transform.translate(
-                offset: const Offset(2, 0),
-                child: SvgImage.asset(
-                  'assets/icons/work7.svg',
-                  width: 26,
-                  height: 23,
-                ),
-              ),
-              onPressed: () => router.vacancy(null, push: true),
-            ),
-            const SizedBox(height: 15),
-            RmbDetector(
-              onPressed: c.systemUp,
-              child: OutlinedRoundedButton(
-                subtitle: Text('btn_download_application'.l10n),
-                maxWidth: 210,
-                height: 46,
-                leading: Transform.translate(
-                  offset: const Offset(5, 0),
-                  child: icon,
-                ),
-                onPressed: () => _download(context),
-              ),
-            ),
-          ],
         ];
 
         final Widget column = Column(

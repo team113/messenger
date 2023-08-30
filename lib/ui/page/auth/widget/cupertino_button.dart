@@ -53,10 +53,11 @@ class StyledCupertinoButton extends StatelessWidget {
 
     return WidgetButton(
       onPressed: onPressed,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-        child: Text(label, style: thin),
-      ),
+      child: Text(label, style: thin),
+      // child: Padding(
+      //   padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      //   child: Text(label, style: thin),
+      // ),
     );
 
     return MouseRegion(

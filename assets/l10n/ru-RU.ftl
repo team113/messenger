@@ -1048,12 +1048,9 @@ btn_sign_in = Вход
 btn_one_time_account =
     Одноразовый
     аккаунт
-btn_work_with_us =
-    Работайте
-    с нами
-btn_download_application =
-    Скачать
-    приложение
+btn_work = Работа
+btn_work_with_us = Работайте с нами
+btn_download_application = Скачать приложение
 label_sign_up = Регистрация
 btn_continue_with_email = Продолжить с e-mail
 btn_continue_with_phone =

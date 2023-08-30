@@ -415,6 +415,7 @@ class NotificationService extends DisposableService {
 
       _token =
           await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
+      print('[FCM] token generated (${Config.vapidKey}, key: $_token)');
 
       _onTokenRefresh =
           FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
