@@ -83,6 +83,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
     final Attachment attachment = widget.attachment;
 
     final bool isImage = (attachment is ImageAttachment ||
@@ -184,10 +185,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: Center(
-                    child: Icon(
-                      Icons.download,
-                      color: style.colors.onPrimary,
-                    ),
+                    child: Icon(Icons.download, color: style.colors.onPrimary),
                   ),
                 ),
               ),

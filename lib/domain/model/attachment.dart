@@ -212,6 +212,7 @@ class FileAttachment extends Attachment {
           original.size,
           path!,
         );
+
         if (original.checksum != null) {
           CacheWorker.instance.downloadings[original.checksum!] =
               downloading.value!;
@@ -234,10 +235,12 @@ class FileAttachment extends Attachment {
           original.size,
           path!,
         );
+
         if (original.checksum != null) {
           CacheWorker.instance.downloadings[original.checksum!] =
               downloading.value!;
         }
+
         onSave?.call();
       } else {
         if (path != null) {
