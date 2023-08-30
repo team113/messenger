@@ -59,6 +59,7 @@ class TypographyView extends StatelessWidget {
       (style.fonts.bodyLarge, 'bodyLarge'),
       (style.fonts.bodyMedium, 'bodyMedium'),
       (style.fonts.bodySmall, 'bodySmall'),
+      (style.fonts.bodyTiny, 'bodyTiny'),
     ];
 
     final Iterable<(TextStyle, String)> fonts = [
@@ -118,6 +119,8 @@ class TypographyView extends StatelessWidget {
       (style.fonts.bodySmallOnPrimary, 'bodySmallOnPrimary'),
       (style.fonts.bodySmallPrimary, 'bodySmallPrimary'),
       (style.fonts.bodySmallSecondary, 'bodySmallSecondary'),
+      (style.fonts.bodyTiny, 'bodyTiny'),
+      (style.fonts.bodyTinyOnPrimary, 'bodyTinyOnPrimary'),
     ];
 
     final List<(FontWeight, String)> families = [
