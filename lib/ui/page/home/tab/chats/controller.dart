@@ -161,8 +161,12 @@ class ChatsTabController extends GetxController {
   /// Returns the [RxStatus] of the [chats] fetching and initialization.
   Rx<RxStatus> get status => _chatService.status;
 
+  /// Indicates whether the [chats] has a next page.
+  RxBool get hasNext => _chatService.hasNext;
+
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
     chats = RxList<RxChat>(_chatService.chats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
@@ -242,6 +246,7 @@ class ChatsTabController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    scrollController.removeListener(_scrollListener);
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -635,6 +640,18 @@ class ChatsTabController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Uploads next page of [Chat]s based on the [ScrollController.position]
+  /// value.
+  void _scrollListener() {
+    if (scrollController.hasClients &&
+        hasNext.isTrue &&
+        _chatService.nextLoading.isFalse &&
+        scrollController.position.pixels >
+            scrollController.position.maxScrollExtent - 500) {
+      _chatService.next();
+    }
   }
 
   /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if

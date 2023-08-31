@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -52,6 +54,12 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Indicates whether the [chats] have next page.
+  RxBool get hasNext => _chatRepository.hasNext;
+
+  /// Indicates whether the [chats] have next page.
+  RxBool get nextLoading => _chatRepository.nextLoading;
+
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
   ChatId get monolog => _chatRepository.monolog;
@@ -69,6 +77,9 @@ class ChatService extends DisposableService {
 
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
+
+  /// Fetches the next [chats] page.
+  FutureOr<void> next() => _chatRepository.next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///

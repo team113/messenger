@@ -286,12 +286,12 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 /// [HiveLazyProvider] with [Iterable] functionality support.
 ///
 /// Intended to be used as a source for [Pagination] items persisted.
-mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
+mixin IterableHiveProviderMixin<T extends Object, K> {
   /// Returns a list of [K] keys stored in the [Hive].
   Iterable<K> get keys;
 
   /// Returns a list of [T] items from [Hive].
-  Future<Iterable<T>> get values => valuesSafe;
+  FutureOr<Iterable<T>> get values;
 
   /// Puts the provided [item] to [Hive].
   Future<void> put(T item);
@@ -301,6 +301,9 @@ mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
 
   /// Removes a [T] item from [Hive] by the provided [key].
   Future<void> remove(K key);
+
+  /// Removes all entries from [Hive].
+  Future<void> clear();
 }
 
 extension HiveRegisterAdapter on HiveInterface {

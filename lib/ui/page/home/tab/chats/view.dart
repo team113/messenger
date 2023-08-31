@@ -889,8 +889,9 @@ class ChatsTabView extends StatelessWidget {
                                   sliver: SliverList(
                                     delegate: SliverChildListDelegate.fixed(
                                       chats.mapIndexed((i, e) {
-                                        return AnimationConfiguration
-                                            .staggeredList(
+                                        final Widget widget =
+                                            AnimationConfiguration
+                                                .staggeredList(
                                           position: i,
                                           duration: const Duration(
                                             milliseconds: 375,
@@ -902,6 +903,23 @@ class ChatsTabView extends StatelessWidget {
                                             ),
                                           ),
                                         );
+
+                                        if (chats.length - 1 == i) {
+                                          return Obx(() {
+                                            if (c.hasNext.isTrue) {
+                                              return Column(
+                                                children: [
+                                                  widget,
+                                                  const CustomProgressIndicator(),
+                                                ],
+                                              );
+                                            } else {
+                                              return widget;
+                                            }
+                                          });
+                                        } else {
+                                          return widget;
+                                        }
                                       }).toList(),
                                     ),
                                   ),

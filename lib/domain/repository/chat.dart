@@ -45,6 +45,12 @@ abstract class AbstractChatRepository {
   /// [MyUser], if any.
   ChatId get monolog;
 
+  /// Indicates whether the [chats] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [chats] is loading.
+  RxBool get nextLoading;
+
   /// Initializes this repository.
   ///
   /// Callback [onMemberRemoved] should be called once an [User] is removed from
@@ -61,6 +67,9 @@ abstract class AbstractChatRepository {
 
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
+
+  /// Fetches the next [chats] page.
+  Future<void> next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///

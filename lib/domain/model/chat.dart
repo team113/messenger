@@ -271,7 +271,7 @@ class LastChatRead {
 
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
-class ChatId extends NewType<String> {
+class ChatId extends NewType<String> implements Comparable<ChatId> {
   const ChatId(super.val);
 
   /// Constructs a local [ChatId] from the [id] of the [User] with whom the
@@ -289,6 +289,9 @@ class ChatId extends NewType<String> {
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
   /// equals the provided [id].
   bool isLocalWith(UserId? id) => isLocal && userId == id;
+
+  @override
+  int compareTo(ChatId other) => val.compareTo(other.val);
 }
 
 /// Name of a [Chat].
