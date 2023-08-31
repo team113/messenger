@@ -84,6 +84,86 @@ class VacancyBodyView extends StatelessWidget {
     );
   }
 
+  Widget _project(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    const double multiplier = 0.8;
+
+    return Block(
+      children: [
+        Text(
+          'Messenger',
+          style: style.fonts.titleLargeSecondary
+              .copyWith(fontSize: 27 * multiplier),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        const SizedBox(height: 2 * multiplier),
+        Text(
+          'by Gapopa',
+          style: style.fonts.titleLargeSecondary
+              .copyWith(fontSize: 21 * multiplier),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        const SizedBox(height: 25 * multiplier),
+        const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
+        const SizedBox(height: 7),
+      ],
+    );
+  }
+
+  Widget _source(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Block(
+      title: 'Исходный код',
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text.rich(
+            TextSpan(
+              text: '- GitHub repository',
+              style: style.fonts.bodyMediumPrimary,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrlString(
+                      'https://github.com/team113/messenger',
+                    ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text.rich(
+            TextSpan(
+              text: '- Styles page',
+              style: style.fonts.bodyMediumPrimary,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrlString(
+                      'https://gapopa.net/style',
+                    ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text.rich(
+            TextSpan(
+              text: '- GraphQL API',
+              style: style.fonts.bodyMediumPrimary,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => launchUrlString(
+                      'https://messenger.soc.stg.t11913.org/api/graphql/playground',
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   List<Widget> _content(
     BuildContext context,
     Vacancy vacancy,
@@ -91,38 +171,13 @@ class VacancyBodyView extends StatelessWidget {
   ) {
     final style = Theme.of(context).style;
 
-    const double multiplier = 0.8;
-
     switch (vacancy.id) {
       case 'dart':
         return [
-          Block(
-            children: [
-              Text(
-                'Messenger',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 27 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 2 * multiplier),
-              Text(
-                'by Gapopa',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 21 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 25 * multiplier),
-              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
-              const SizedBox(height: 16 * multiplier),
-              const VacancyDescription('https://github.com/team113/messenger'),
-            ],
-          ),
+          _project(context),
           const Block(
             title: 'Условия',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- ежедневная оплата;
@@ -135,6 +190,7 @@ class VacancyBodyView extends StatelessWidget {
           ),
           const Block(
             title: 'Требования',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- понимание принципов UX дизайна;
@@ -148,6 +204,7 @@ class VacancyBodyView extends StatelessWidget {
           ),
           const Block(
             title: 'Стек технологий',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- Язык - Dart;
@@ -161,13 +218,29 @@ class VacancyBodyView extends StatelessWidget {
               ),
             ],
           ),
-          const Block(
+          _source(context),
+          Block(
             // title: 'Курс для самостоятельного обучения',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              VacancyDescription(
-                '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Dart/Flutter, Вы можете воспользоваться нашей корпоративной песочницей.
-
-https://github.com/team113/flutter-incubator''',
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей ',
+                      style: style.fonts.bodyMedium,
+                    ),
+                    TextSpan(
+                      text: 'корпоративной песочницей.',
+                      style: style.fonts.bodyMediumPrimary,
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => launchUrlString(
+                              'https://github.com/team113/flutter-incubator',
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -176,33 +249,10 @@ https://github.com/team113/flutter-incubator''',
 
       case 'backend':
         return [
-          Block(
-            children: [
-              Text(
-                'Messenger',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 27 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 2 * multiplier),
-              Text(
-                'by Gapopa',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 21 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 25 * multiplier),
-              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
-              const SizedBox(height: 16 * multiplier),
-              const VacancyDescription('https://github.com/team113/messenger'),
-            ],
-          ),
+          _project(context),
           const Block(
             title: 'Условия',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- ежедневная оплата;
@@ -215,6 +265,7 @@ https://github.com/team113/flutter-incubator''',
           ),
           const Block(
             title: 'Требуется',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- знание языка Rust;
@@ -231,6 +282,7 @@ https://github.com/team113/flutter-incubator''',
           ),
           const Block(
             title: 'Приветствуется',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- навык работы с языками C, C++;
@@ -242,11 +294,10 @@ https://github.com/team113/flutter-incubator''',
           ),
           const Block(
             title: 'Стек технологий',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: VacancyDescription(
-                  '''- Язык - Rust;
+              VacancyDescription(
+                '''- Язык - Rust;
 - actix-web - веб-фреймворк;
 - CockroachDB - база данных;
 - baza - файловое хранилище;
@@ -254,17 +305,31 @@ https://github.com/team113/flutter-incubator''',
 - Firebase - push уведомления;
 - GraphQL - API;
 - Cucumber - E2E тестирование.''',
-                ),
               ),
             ],
           ),
-          const Block(
+          Block(
+            crossAxisAlignment: CrossAxisAlignment.start,
             // title: 'Курс для самостоятельного обучения',
             children: [
-              VacancyDescription(
-                '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей корпоративной песочницей.
-
-https://github.com/instrumentisto/rust-incubator''',
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей ',
+                      style: style.fonts.bodyMedium,
+                    ),
+                    TextSpan(
+                      text: 'корпоративной песочницей.',
+                      style: style.fonts.bodyMediumPrimary,
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => launchUrlString(
+                              'https://github.com/instrumentisto/rust-incubator',
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -273,41 +338,15 @@ https://github.com/instrumentisto/rust-incubator''',
 
       case 'freelance':
         return [
-          Block(
-            children: [
-              Text(
-                'Messenger',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 27 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 2 * multiplier),
-              Text(
-                'by Gapopa',
-                style: style.fonts.titleLargeSecondary
-                    .copyWith(fontSize: 21 * multiplier),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              const SizedBox(height: 25 * multiplier),
-              const InteractiveLogo(height: (190 * 0.75 + 25) * multiplier),
-              const SizedBox(height: 16 * multiplier),
-              const VacancyDescription('https://github.com/team113/messenger'),
-            ],
-          ),
+          _project(context),
           const Block(
             title: 'Деньги',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: VacancyDescription(
-                  '''- оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
+              VacancyDescription(
+                '''- оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
 - оплата отправляется на основании договора о предоставлении услуг и/или инвойса;
 - оплата осуществляется криптовалютой USDT (TRC-20).''',
-                ),
               ),
             ],
           ),
@@ -364,6 +403,7 @@ https://github.com/instrumentisto/rust-incubator''',
           ),
           const Block(
             title: 'Ревью',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''- выполненная задача должна пройти ревью кода;
@@ -373,6 +413,7 @@ https://github.com/instrumentisto/rust-incubator''',
           ),
           const Block(
             title: 'Регламент',
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               VacancyDescription(
                 '''1. Выбрать задачу из списка ниже
@@ -384,6 +425,47 @@ https://github.com/instrumentisto/rust-incubator''',
     - предполагаемый способ решения задачи
 4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
 5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа''',
+              ),
+            ],
+          ),
+          const Block(
+            title: 'Стек технологий',
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VacancyDescription(
+                '''- Язык - Dart;
+- Flutter - фреймворк;
+- GetX - Dependency Injection и State Management;
+- Navigator 2.0 (Router) - навигация;
+- Hive - локальная база данных;
+- Firebase - push уведомления;
+- GraphQL и Artemis - связь с бэкэндом;
+- Gherkin - E2E тестирование.''',
+              ),
+            ],
+          ),
+          _source(context),
+          Block(
+            // title: 'Курс для самостоятельного обучения',
+            children: [
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей ',
+                      style: style.fonts.bodyMedium,
+                    ),
+                    TextSpan(
+                      text: 'корпоративной песочницей.',
+                      style: style.fonts.bodyMediumPrimary,
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => launchUrlString(
+                              'https://github.com/team113/flutter-incubator',
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -439,15 +521,6 @@ https://github.com/instrumentisto/rust-incubator''',
               }).toList(),
             );
           }),
-          const Block(
-            children: [
-              VacancyDescription(
-                '''В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Dart/Flutter, Вы можете воспользоваться нашей корпоративной песочницей.
-
-https://github.com/team113/flutter-incubator''',
-              ),
-            ],
-          ),
           _button(
             context,
             c,

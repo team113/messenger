@@ -30,9 +30,13 @@ class StyledCupertinoButton extends StatelessWidget {
     this.onPressed,
     this.color,
     this.enlarge = false,
+    this.dense = false,
+    this.tiny = false,
   });
 
   final bool enlarge;
+  final bool dense;
+  final bool tiny;
 
   /// Label to display.
   final String label;
@@ -47,7 +51,13 @@ class StyledCupertinoButton extends StatelessWidget {
     final Style style = Theme.of(context).style;
 
     final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-      fontSize: enlarge ? 17 : 15,
+      fontSize: tiny
+          ? 9
+          : dense
+              ? 13
+              : enlarge
+                  ? 17
+                  : 15,
       color: color ?? style.colors.primary,
     );
 

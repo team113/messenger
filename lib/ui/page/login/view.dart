@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
@@ -790,6 +791,13 @@ class LoginView extends StatelessWidget {
                   onPressed: c.continueWithGitHub,
                 ),
                 const SizedBox(height: 25 / 2),
+                Center(
+                  child: StyledCupertinoButton(
+                    // color: style.colors.secondary,
+                    label: 'btn_terms_and_conditions'.l10n,
+                    onPressed: () {},
+                  ),
+                ),
               ];
               break;
 

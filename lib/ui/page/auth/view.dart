@@ -15,10 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/language/view.dart';
 import 'package:messenger/ui/page/login/controller.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/config.dart';
@@ -51,71 +55,141 @@ class AuthView extends StatelessWidget {
 
         final Widget status = Column(
           children: [
+            const SizedBox(height: 4),
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
               // color: style.colors.secondary,
               onPressed: () => _download(context),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 4),
             Container(
-              color: style.colors.onBackgroundOpacity7.withOpacity(0.03),
+              // color: style.colors.onBackgroundOpacity7.withOpacity(0.03),
               width: double.infinity,
               height: 32,
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Center(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 16),
-                      // StyledCupertinoButton(
-                      //   label: 'btn_download_application'.l10n,
-                      //   color: style.colors.secondary,
-                      //   onPressed: () => _download(context),
-                      // ),
-                      // Container(
-                      //   width: 1,
-                      //   height: 16,
-                      //   color: style.colors.secondary,
-                      //   margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
-                      // ),
-                      StyledCupertinoButton(
-                        color: style.colors.secondary,
-                        label: 'btn_work_with_us'.l10n,
-                        onPressed: () => router.vacancy(null, push: true),
+              child: Row(
+                children: [
+                  // const SizedBox(width: 16),
+                  // Opacity(
+                  //   opacity: 0,
+                  //   child: Flag.fromString(
+                  //     L10n.chosen.value?.locale.countryCode ?? '',
+                  //     width: 24,
+                  //     height: 24,
+                  //     borderRadius: 4,
+                  //   ),
+                  // ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            StyledCupertinoButton(
+                              color: style.colors.secondary,
+                              label: 'btn_work_with_us'.l10n,
+                              dense: true,
+                              onPressed: () => router.vacancy(null, push: true),
+                            ),
+                          ],
+                        ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 16,
-                        color: style.colors.secondary,
-                        margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
-                      ),
-                      StyledCupertinoButton(
-                        label: 'label_language_entry'.l10nfmt({
-                          'code': L10n.chosen.value!.locale.countryCode,
-                          'name': L10n.chosen.value!.name,
-                        }),
-                        color: style.colors.secondary,
-                        onPressed: () =>
-                            LanguageSelectionView.show(context, null),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 16,
-                        color: style.colors.secondary,
-                        margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
-                      ),
-                      StyledCupertinoButton(
-                        color: style.colors.secondary,
-                        label: 'btn_terms_and_conditions'.l10n,
-                        onPressed: () {},
-                      ),
-                      const SizedBox(width: 16),
-                    ],
+                    ),
+                  ),
+                  // const SizedBox(width: 16),
+                  // StyledCupertinoButton(
+                  //   label: 'label_language_entry'.l10nfmt({
+                  //     'code': L10n.chosen.value!.locale.countryCode,
+                  //     'name': L10n.chosen.value!.name,
+                  //   }),
+                  //   color: style.colors.secondary,
+                  //   onPressed: () => LanguageSelectionView.show(context, null),
+                  // ),
+                  // WidgetButton(
+                  //   onPressed: () => LanguageSelectionView.show(context, null),
+                  //   child: Flag.fromString(
+                  //     L10n.chosen.value?.locale.countryCode ?? '',
+                  //     width: 18,
+                  //     height: 18,
+                  //     borderRadius: 4,
+                  //   ),
+                  // ),
+                  const SizedBox(width: 16),
+                ],
+              ),
+            ),
+            const SizedBox(height: 4),
+            StyledCupertinoButton(
+              label: 'label_language_entry'.l10nfmt({
+                'code': L10n.chosen.value!.locale.countryCode,
+                'name': L10n.chosen.value!.name,
+              }),
+              tiny: true,
+              color: style.colors.secondary,
+              onPressed: () => LanguageSelectionView.show(context, null),
+            ),
+            const SizedBox(height: 8),
+            if (false)
+              Container(
+                color: style.colors.onBackgroundOpacity7.withOpacity(0.03),
+                width: double.infinity,
+                height: 32,
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Center(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        // StyledCupertinoButton(
+                        //   label: 'btn_download_application'.l10n,
+                        //   color: style.colors.secondary,
+                        //   onPressed: () => _download(context),
+                        // ),
+                        // Container(
+                        //   width: 1,
+                        //   height: 16,
+                        //   color: style.colors.secondary,
+                        //   margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                        // ),
+                        StyledCupertinoButton(
+                          color: style.colors.secondary,
+                          label: 'btn_work_with_us'.l10n,
+                          onPressed: () => router.vacancy(null, push: true),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: style.colors.secondary,
+                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                        ),
+                        StyledCupertinoButton(
+                          label: 'label_language_entry'.l10nfmt({
+                            'code': L10n.chosen.value!.locale.countryCode,
+                            'name': L10n.chosen.value!.name,
+                          }),
+                          color: style.colors.secondary,
+                          onPressed: () =>
+                              LanguageSelectionView.show(context, null),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: style.colors.secondary,
+                          margin: const EdgeInsets.fromLTRB(12, 2, 12, 0),
+                        ),
+                        StyledCupertinoButton(
+                          color: style.colors.secondary,
+                          label: 'btn_terms_and_conditions'.l10n,
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 16),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         );
 
@@ -249,6 +323,63 @@ class AuthView extends StatelessWidget {
                       hasScrollBody: false,
                       child: Column(
                         children: [
+                          // const SizedBox(height: 8),
+                          // Row(
+                          //   children: [
+                          //     const SizedBox(width: 8),
+                          //     ContextMenuRegion(
+                          //       enablePrimaryTap: true,
+                          //       enableSecondaryTap: false,
+                          //       enableLongTap: false,
+                          //       actions: [
+                          //         ContextMenuButton(
+                          //           label: 'Язык',
+                          //           onPressed: () {},
+                          //         ),
+                          //       ],
+                          //       child: Icon(
+                          //         Icons.menu_rounded,
+                          //         color: style.colors.secondary,
+                          //       ),
+                          //     ),
+                          //     // WidgetButton(
+                          //     //   onPressed: () =>
+                          //     //       LanguageSelectionView.show(context, null),
+                          //     //   child: Flag.fromString(
+                          //     //     L10n.chosen.value?.locale.countryCode ?? '',
+                          //     //     width: 24,
+                          //     //     height: 24,
+                          //     //     borderRadius: 4,
+                          //     //   ),
+                          //     // ),
+
+                          //     const Spacer(),
+                          //   ],
+                          // ),
+                          // const SizedBox(height: 8),
+                          // Row(
+                          //   children: [
+                          //     const SizedBox(width: 8),
+                          //     // const Spacer(),
+                          //     Expanded(
+                          //       child: Center(
+                          //         child: StyledCupertinoButton(
+                          //           label: 'label_language_entry'.l10nfmt({
+                          //             'code':
+                          //                 L10n.chosen.value!.locale.countryCode,
+                          //             'name': L10n.chosen.value!.name,
+                          //           }),
+                          //           dense: true,
+                          //           color: style.colors.secondary,
+                          //           onPressed: () => LanguageSelectionView.show(
+                          //               context, null),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     const SizedBox(width: 8),
+                          //   ],
+                          // ),
+
                           const SizedBox(height: 8),
                           Expanded(child: Center(child: column)),
                           const SizedBox(height: 8),

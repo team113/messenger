@@ -7,7 +7,9 @@ btn_one_time_account =
     Cuenta
     desechable
 btn_work = Trabaja con nosotros
-btn_work_with_us = Trabajar
+btn_work_with_us =
+    Trabaja con
+    nosotros
 btn_download_application = Descargar aplicación
 btn_proceed = Continuar
 label_sign_up = Regístrate
