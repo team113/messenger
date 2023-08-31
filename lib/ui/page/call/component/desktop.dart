@@ -39,6 +39,7 @@ import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
+import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -248,11 +249,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SpinKitDoubleBounce(
-                      color: style.colors.secondaryHighlightDark,
-                      size: 100 / 1.5,
-                      duration: const Duration(milliseconds: 4500),
-                    ),
+                    if (!Config.disableInfiniteAnimations)
+                      SpinKitDoubleBounce(
+                        color: style.colors.secondaryHighlightDark,
+                        size: 100 / 1.5,
+                        duration: const Duration(milliseconds: 4500),
+                      ),
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
