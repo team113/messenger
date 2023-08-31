@@ -15,12 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
+import '../../widget/modal_popup.dart';
+import '../home/page/my_profile/language/view.dart';
+import '../home/page/my_profile/widget/download_button.dart';
+import '../home/widget/rmb_detector.dart';
 import '../login/controller.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -32,6 +34,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
+import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
@@ -46,9 +49,76 @@ class AuthView extends StatelessWidget {
       builder: (AuthController c) {
         bool isWeb = PlatformUtils.isWeb || true;
 
+        Widget? icon;
 
         if (isWeb) {
+          icon = Obx(() {
+            switch (c.system.value) {
+              case 0:
+                return const SvgImage.asset(
+                  'assets/icons/app_store.svg',
+                  width: 23,
+                  height: 23,
+                );
+
+              case 1:
+                return const SvgImage.asset(
+                  'assets/icons/apple7.svg',
+                  width: 21.07,
+                  height: 27,
+                );
+
+              case 2:
+                return const SvgImage.asset(
+                  'assets/icons/google_play.svg',
+                  width: 21.26,
+                  height: 23.02,
+                );
+
+              case 3:
+                return const SvgImage.asset(
+                  'assets/icons/linux4.svg',
+                  width: 20.57,
+                  height: 24,
+                );
+
+              case 4:
+                return const SvgImage.asset(
+                  'assets/icons/windows5.svg',
+                  width: 23.93,
+                  height: 24,
+                );
+            }
+
+            return const SizedBox();
+          });
         }
+
+        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
+          color: style.colors.onBackground,
+        );
+
+        final Widget status = SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Flex(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              direction: Axis.vertical,
+              children: [
+                StyledCupertinoButton(
+                  key: c.languageKey,
+                  label: 'label_language_entry'.l10nfmt({
+                    'code': L10n.chosen.value!.locale.countryCode,
+                    'name': L10n.chosen.value!.name,
+                  }),
+                  onPressed: () => LanguageSelectionView.show(context, null),
+                ),
+              ],
+            ),
+          ),
+        );
 
         // Header part of the page.
         //
@@ -59,10 +129,12 @@ class AuthView extends StatelessWidget {
           ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
               .map((e) => Offstage(child: SvgImage.asset(e)))
               .toList(),
-          const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: style.fonts.displayMediumSecondary,
+            style: thin?.copyWith(
+              fontSize: 27,
+              color: style.colors.secondary,
+            ),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -70,7 +142,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: style.fonts.labelLargeSecondary,
+            style: thin?.copyWith(fontSize: 21, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -133,67 +205,77 @@ class AuthView extends StatelessWidget {
             },
           ),
           const SizedBox(height: 15),
+          RmbDetector(
+            onPressed: c.systemUp,
+            child: OutlinedRoundedButton(
+              subtitle: Text('btn_download_application'.l10n),
+              maxWidth: 210,
+              height: 46,
+              leading: Transform.translate(
+                offset: const Offset(5, 0),
+                child: icon,
+              ),
+              onPressed: () => _download(context),
+            ),
+          ),
         ];
 
-        return Stack(
-          key: const Key('AuthView'),
+        final Widget column = Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            IgnorePointer(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: style.colors.background,
-              ),
-            ),
-            const IgnorePointer(
-              child: SvgImage.asset(
-                'assets/images/background_light.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            GestureDetector(
-              onTap: c.animate,
-              child: Scaffold(
-                backgroundColor: style.colors.transparent,
-                body: Center(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              max(550, MediaQuery.of(context).size.height),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ...header,
-                            Flexible(
-                              child: Obx(
-                                () => AnimatedLogo(
-                                  key: const ValueKey('Logo'),
-                                  svgAsset:
-                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                  onInit: Config.disableInfiniteAnimations
-                                      ? null
-                                      : (a) => _setBlink(c, a),
-                                ),
-                              ),
-                            ),
-                            ...footer,
-                            SizedBox(
-                              height: MediaQuery.of(context).viewPadding.bottom,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
+            ...header,
+            Obx(() {
+              return AnimatedLogo(
+                key: const ValueKey('Logo'),
+                svgAsset: 'assets/images/logo/head000${c.logoFrame.value}.svg',
+                onInit: Config.disableInfiniteAnimations
+                    ? null
+                    : (a) => _setBlink(c, a),
+              );
+            }),
+            ...footer,
+          ],
+        );
+
+        return Listener(
+          onPointerDown: (_) => c.animate(),
+          child: Container(
+            color: style.colors.transparent,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                IgnorePointer(
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: style.colors.background,
                   ),
                 ),
-              ),
+                const IgnorePointer(
+                  child: SvgImage.asset(
+                    'assets/images/background_light.svg',
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                CustomScrollView(
+                  slivers: [
+                    SliverFillRemaining(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 8),
+                          Expanded(child: Center(child: column)),
+                          const SizedBox(height: 8),
+                          status,
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -211,4 +293,83 @@ class AuthView extends StatelessWidget {
     await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
+  /// Opens a [ModalPopup] listing the buttons for downloading the application.
+  Future<void> _download(BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    await ModalPopup.show(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'btn_download'.l10n,
+                style: style.fonts.headlineMedium.copyWith(fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: 'windows5',
+                  width: 23.93,
+                  height: 24,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple7',
+                  width: 21.07,
+                  height: 27,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'linux4',
+                  width: 20.57,
+                  height: 24,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'app_store',
+                  width: 23,
+                  height: 23,
+                  title: 'App Store',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'google',
+                  width: 20.33,
+                  height: 22.02,
+                  title: 'Google Play',
+                  // left: 3,
+                  link: 'messenger-android.apk',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'android3',
+                  width: 20.99,
+                  height: 25,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ),
+    );
+  }
 }

@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import '../../../api/backend/schema.graphql.dart';
 import '../../../domain/model/session.dart';
 import '../../../provider/gql/graphql.dart';
+import '../../widget/phone_field.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -30,10 +31,13 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddUserEmailException,
+        AddUserPhoneException,
         ConfirmUserEmailException,
+        ConfirmUserPhoneException,
         ConnectionException,
         CreateSessionException,
         ResendUserEmailConfirmationException,
+        ResendUserPhoneConfirmationException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
@@ -143,6 +147,7 @@ class LoginController extends GetxController {
   Timer? _codeTimer;
 
   Credentials? creds;
+
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
@@ -157,8 +162,6 @@ class LoginController extends GetxController {
       }
     },
     onSubmitted: (s) async {
-      print(s.error.value);
-
       if (s.error.value != null) {
         return;
       }
@@ -265,6 +268,133 @@ class LoginController extends GetxController {
         }
       } catch (_) {
         graphQlProvider.token = null;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      }
+    },
+  );
+  late final PhoneFieldState phone = PhoneFieldState(
+    revalidateOnUnfocus: true,
+    onChanged: (s) {
+      try {
+        if (!s.isEmpty.value) {
+          UserPhone(s.phone!.international);
+
+          if (!s.phone!.isValid()) {
+            throw const FormatException('Does not match validation RegExp');
+          }
+        }
+
+        s.error.value = null;
+      } on FormatException {
+        s.error.value = 'err_incorrect_phone'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.error.value != null) {
+        return;
+      }
+
+      stage.value = stage.value.registering
+          ? LoginViewStage.signUpWithPhoneCode
+          : LoginViewStage.signInWithPhoneCode;
+
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      try {
+        final response = await graphQlProvider.signUp();
+
+        creds = Credentials(
+          Session(
+            response.createUser.session.token,
+            response.createUser.session.expireAt,
+          ),
+          RememberedSession(
+            response.createUser.remembered!.token,
+            response.createUser.remembered!.expireAt,
+          ),
+          response.createUser.user.id,
+        );
+
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.addUserPhone(
+          UserPhone(phone.controller2.value!.international.toLowerCase()),
+        );
+        graphQlProvider.token = null;
+
+        s.unsubmit();
+      } on AddUserPhoneException catch (e) {
+        graphQlProvider.token = null;
+        s.error.value = e.toMessage();
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithPhone
+            : LoginViewStage.signInWithPhone;
+      } catch (_) {
+        graphQlProvider.token = null;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithPhone
+            : LoginViewStage.signInWithPhone;
+      }
+
+      stage.value = stage.value.registering
+          ? LoginViewStage.signUpWithPhoneCode
+          : LoginViewStage.signInWithPhoneCode;
+    },
+  );
+
+  late final TextFieldState phoneCode = TextFieldState(
+    revalidateOnUnfocus: true,
+    onSubmitted: (s) async {
+      try {
+        if (ConfirmationCode(s.text).val == '1111') {
+          if (stage.value.registering) {
+            await _auth.authorizeWith(creds!);
+            router.noIntroduction = false;
+            router.signUp = true;
+            _redirect();
+          }
+        } else if (ConfirmationCode(s.text).val == '2222') {
+          throw const ConfirmUserPhoneException(
+            ConfirmUserPhoneErrorCode.occupied,
+          );
+        } else {
+          throw const ConfirmUserPhoneException(
+            ConfirmUserPhoneErrorCode.wrongCode,
+          );
+        }
+      } on ConfirmUserPhoneException catch (e) {
+        switch (e.code) {
+          case ConfirmUserPhoneErrorCode.occupied:
+            stage.value = stage.value.registering
+                ? LoginViewStage.signUpWithPhoneOccupied
+                : LoginViewStage.signInWithPhoneOccupied;
+            break;
+
+          case ConfirmUserPhoneErrorCode.wrongCode:
+            s.error.value = e.toMessage();
+
+            ++codeAttempts;
+            if (codeAttempts >= 3) {
+              codeAttempts = 0;
+              _setCodeTimer();
+            }
+            break;
+
+          default:
+            s.error.value = 'err_wrong_recovery_code'.l10n;
+            break;
+        }
+      } on FormatException catch (_) {
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+
+        ++codeAttempts;
+        if (codeAttempts >= 3) {
+          codeAttempts = 0;
+          _setCodeTimer();
+        }
+      } catch (_) {
         s.error.value = 'err_data_transfer'.l10n;
         s.unsubmit();
       }
@@ -688,6 +818,56 @@ class LoginController extends GetxController {
       emailCode.error.value = 'err_data_transfer'.l10n;
       resent.value = false;
       _setResendEmailTimer(false);
+      rethrow;
+    }
+  }
+
+  /// Timeout of a [resendPhone].
+  final RxInt resendPhoneTimeout = RxInt(0);
+
+  /// [Timer] decreasing the [resendPhoneTimeout].
+  Timer? _resendPhoneTimer;
+
+  /// Starts or stops the [_resendPhoneTimer] based on [enabled] value.
+  void _setResendPhoneTimer([bool enabled = true]) {
+    if (enabled) {
+      resendPhoneTimeout.value = 30;
+      _resendPhoneTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          resendPhoneTimeout.value--;
+          if (resendPhoneTimeout.value <= 0) {
+            resendPhoneTimeout.value = 0;
+            _resendPhoneTimer?.cancel();
+            _resendPhoneTimer = null;
+          }
+        },
+      );
+    } else {
+      resendPhoneTimeout.value = 0;
+      _resendPhoneTimer?.cancel();
+      _resendPhoneTimer = null;
+    }
+  }
+
+  Future<void> resendPhone() async {
+    resent.value = true;
+    _setResendPhoneTimer();
+
+    try {
+      final GraphQlProvider graphQlProvider = Get.find();
+
+      if (stage.value.registering) {
+        graphQlProvider.token = creds!.session.token;
+        await graphQlProvider.resendPhone();
+        graphQlProvider.token = null;
+      }
+    } on ResendUserPhoneConfirmationException catch (e) {
+      phoneCode.error.value = e.toMessage();
+    } catch (e) {
+      phoneCode.error.value = 'err_data_transfer'.l10n;
+      resent.value = false;
+      _setResendPhoneTimer(false);
       rethrow;
     }
   }

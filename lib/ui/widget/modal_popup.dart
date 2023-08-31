@@ -133,8 +133,12 @@ class ModalPopupHeader extends StatelessWidget {
     super.key,
     this.text,
     this.onBack,
+    this.header,
     this.close = true,
   });
+
+  /// [Widget] to put as a title of this [ModalPopupHeader].
+  final Widget? header;
 
   /// Text to display as a title of this [ModalPopupHeader].
   final String? text;

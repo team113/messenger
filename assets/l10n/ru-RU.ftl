@@ -171,6 +171,9 @@ btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
 btn_download = Скачать
+btn_download_application =
+    Скачать
+    приложение
 btn_edit = Редактировать
 btn_email = E-mail
 btn_forgot_password = Забыли пароль?

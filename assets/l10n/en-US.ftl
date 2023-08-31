@@ -171,6 +171,9 @@ btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_download = Download
+btn_download_application =
+    Download
+    application
 btn_edit = Edit
 btn_email = E-mail
 btn_forgot_password = Forgot password?

@@ -168,6 +168,7 @@ class Themes {
             systemMessageStyle: fonts.bodySmallSecondary,
             systemMessagePrimary: fonts.bodySmallPrimary,
             unreadMessageColor: colors.backgroundAuxiliaryLightest,
+            activeColor: colors.primary,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -395,6 +396,7 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageStyle,
     required this.systemMessagePrimary,
     required this.unreadMessageColor,
+    required this.activeColor,
   });
 
   /// [Palette] to use in the application.
@@ -468,6 +470,9 @@ class Style extends ThemeExtension<Style> {
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
 
+  ///
+  final Color activeColor;
+
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
@@ -493,6 +498,7 @@ class Style extends ThemeExtension<Style> {
     TextStyle? systemMessageStyle,
     TextStyle? systemMessagePrimary,
     Color? unreadMessageColor,
+    Color? activeColor,
   }) {
     return Style(
       colors: colors ?? this.colors,
@@ -520,6 +526,7 @@ class Style extends ThemeExtension<Style> {
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
       systemMessagePrimary: systemMessagePrimary ?? this.systemMessagePrimary,
       unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
+      activeColor: activeColor ?? this.activeColor,
     );
   }
 
@@ -576,6 +583,7 @@ class Style extends ThemeExtension<Style> {
       )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
+      activeColor: Color.lerp(activeColor, other.activeColor, t)!,
     );
   }
 }
