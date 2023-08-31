@@ -31,9 +31,9 @@
       "size": 76 
     },
     {
-      "icon": "assets/icons/launcher/android_launcher_adaptive_back.png", 
-      "out": "android/app/src/main/res/mipmap-hdpi/ic_launcher_adaptive_back.png",
-      "size": 162 
+      "icon": "assets/icons/launcher/android_launcher.png", 
+      "out": "android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "size": 78 
     },
     {
       "icon": "assets/icons/launcher/android_launcher_adaptive_back.png", 
@@ -46,6 +46,11 @@
       "size": 162 
     },
     {
+      "icon": "assets/icons/launcher/android_launcher.png", 
+      "out": "android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "size": 48
+    },
+    {
       "icon": "assets/icons/launcher/android_launcher_adaptive_back.png", 
       "out": "android/app/src/main/res/mipmap-mdpi/ic_launcher_adaptive_back.png",
       "size": 108 
@@ -54,6 +59,11 @@
       "icon": "assets/icons/launcher/android_launcher_adaptive_fore.png", 
       "out": "android/app/src/main/res/mipmap-mdpi/ic_launcher_adaptive_fore.png",
       "size": 108 
+    },
+    {
+      "icon": "assets/icons/launcher/android_launcher.png", 
+      "out": "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "size": 96
     },
     {
       "icon": "assets/icons/launcher/android_launcher_adaptive_back.png", 
@@ -66,6 +76,11 @@
       "size": 216
     },
     {
+      "icon": "assets/icons/launcher/android_launcher.png", 
+      "out": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "size": 144
+    },
+    {
       "icon": "assets/icons/launcher/android_launcher_adaptive_back.png", 
       "out": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_adaptive_back.png",
       "size": 324
@@ -74,6 +89,11 @@
       "icon": "assets/icons/launcher/android_launcher_adaptive_fore.png", 
       "out": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_adaptive_fore.png",
       "size": 324
+    },
+    {
+      "icon": "assets/icons/launcher/android_launcher.png", 
+      "out": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "size": 192
     },
     {
       "icon": "assets/icons/launcher/android_launcher_adaptive_back.png", 
