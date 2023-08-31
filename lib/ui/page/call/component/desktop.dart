@@ -375,18 +375,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                 const SizedBox(width: 11),
                 SizedBox.square(
                   dimension: CallController.buttonSize,
-                  child: AcceptAudioButton(
-                    c,
-                    highlight: !c.withVideo,
-                  ).build(),
+                  child: AcceptAudioButton(c, highlight: !c.withVideo).build(),
                 ),
                 const SizedBox(width: 24),
                 SizedBox.square(
                   dimension: CallController.buttonSize,
-                  child: AcceptVideoButton(
-                    c,
-                    highlight: c.withVideo,
-                  ).build(),
+                  child: AcceptVideoButton(c, highlight: c.withVideo).build(),
                 ),
                 const SizedBox(width: 24),
                 SizedBox.square(

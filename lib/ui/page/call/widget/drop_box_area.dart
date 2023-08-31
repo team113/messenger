@@ -45,12 +45,11 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
   /// Size of this [DropBoxArea] widget.
   final double size;
 
-  /// Called to determine whether this widget is interested in receiving a
-  /// given piece of data being dragged over this drag target.
+  /// Callback, called to determine whether this widget is interested in
+  /// receiving the [T] being dragged over this target.
   final bool Function(T?)? onWillAccept;
 
-  /// Called when an acceptable piece of data was dropped over this
-  /// drag target.
+  /// Callback, called when an acceptable [T] was dropped over this target.
   final void Function(T)? onAccept;
 
   @override
