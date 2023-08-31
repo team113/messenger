@@ -63,65 +63,67 @@ class Launchpad extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
-      child: DragTarget<CallButton>(
-        onAccept: onAccept,
-        onWillAccept: onWillAccept,
-        builder: (context, candidate, _) {
-          return MouseRegion(
-            onEnter: onEnter,
-            onHover: onHover,
-            onExit: onExit,
-            child: Container(
-              decoration: BoxDecoration(
-                color: style.colors.transparent,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  CustomBoxShadow(
-                    color: style.colors.onBackgroundOpacity20,
-                    blurRadius: 8,
-                    blurStyle: BlurStyle.outer,
-                  )
-                ],
-              ),
-              margin: const EdgeInsets.all(2),
-              child: ConditionalBackdropFilter(
-                borderRadius: BorderRadius.circular(30),
-                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    color: onWillAccept != null
-                        ? candidate.any(onWillAccept!)
-                            ? style.colors.primaryDarkOpacity90
-                            : style.colors.primaryDarkOpacity70
-                        : null,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 440),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 35),
-                        Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          alignment: WrapAlignment.center,
-                          spacing: 4,
-                          runSpacing: 21,
-                          children: children,
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: DragTarget<CallButton>(
+          onAccept: onAccept,
+          onWillAccept: onWillAccept,
+          builder: (context, candidate, _) {
+            return MouseRegion(
+              onEnter: onEnter,
+              onHover: onHover,
+              onExit: onExit,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: style.colors.transparent,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity20,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                margin: const EdgeInsets.all(2),
+                child: ConditionalBackdropFilter(
+                  borderRadius: BorderRadius.circular(30),
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      color: onWillAccept != null
+                          ? candidate.any(onWillAccept!)
+                              ? style.colors.primaryDarkOpacity90
+                              : style.colors.primaryDarkOpacity70
+                          : null,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 440),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 35),
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.start,
+                            alignment: WrapAlignment.center,
+                            spacing: 4,
+                            runSpacing: 21,
+                            children: children,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
