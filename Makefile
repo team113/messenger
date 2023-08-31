@@ -72,6 +72,9 @@ fmt: flutter.fmt
 gen: flutter.gen
 
 
+icon: update.icon
+
+
 lint: flutter.analyze
 
 
@@ -771,6 +774,22 @@ endif
 			$(if $(call eq,$(force),yes),--force,)\
 			$(if $(call eq,$(atomic),yes),--atomic,\
 			$(if $(call eq,$(wait),no),,--wait))
+
+
+
+
+################
+# NPX commands #
+################
+
+
+# Update the launcher icons.
+#
+# Usage:
+#	make update.icon
+
+update.icon:
+	npx update-flutter-app-icon update_icons.json
 
 
 
