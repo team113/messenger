@@ -75,7 +75,9 @@ class ChatView extends StatefulWidget {
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
 
-  final String? welcome;
+  // TODO: Remove when backend supports it out of the box.
+  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
+  final ChatMessageText? welcome;
 
   @override
   State<ChatView> createState() => _ChatViewState();

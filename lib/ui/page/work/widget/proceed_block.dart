@@ -16,44 +16,38 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
-import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
-class VacancyWidget extends StatelessWidget {
-  const VacancyWidget(
-    this.text, {
-    super.key,
-    this.subtitle = const [],
-    this.trailing = const [],
-    this.onPressed,
-    this.selected = false,
-  });
+import '/themes.dart';
+import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
+/// [Block] displaying a single [OutlinedRoundedButton] with the provided
+/// [text].
+class ProceedBlock extends StatelessWidget {
+  const ProceedBlock(this.text, {super.key, this.onPressed});
+
+  /// Text of a button inside this block.
   final String text;
-  final List<Widget> subtitle;
-  final List<Widget> trailing;
+
+  /// Callback, called when a button inside this block is pressed.
   final void Function()? onPressed;
-  final bool selected;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: MenuButton(
-        title: text,
-        icon: Icon(
-          Icons.work,
-          color: selected ? style.colors.onPrimary : style.colors.primary,
+    return Block(
+      children: [
+        Paddings.basic(
+          OutlinedRoundedButton(
+            onPressed: onPressed,
+            maxWidth: double.infinity,
+            color: style.colors.primary,
+            title: Text(text, style: style.fonts.titleLargeOnPrimary),
+          ),
         ),
-        onPressed: onPressed,
-        trailing: trailing,
-        inverted: selected,
-        children: subtitle,
-      ),
+      ],
     );
   }
 }

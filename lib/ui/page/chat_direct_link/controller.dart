@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -80,7 +81,10 @@ class ChatDirectLinkController extends GetxController {
   Future<void> _useChatDirectLink() async {
     try {
       ChatId chatId = await _auth.useChatDirectLink(slug.value!);
-      router.chat(chatId, welcome: welcome);
+      router.chat(
+        chatId,
+        welcome: welcome == null ? null : ChatMessageText(welcome!),
+      );
     } on UseChatDirectLinkException catch (e) {
       if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {
         slug.value = null;

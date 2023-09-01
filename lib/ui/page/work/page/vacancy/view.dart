@@ -15,21 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
-/// Wrapper to prevent a default web context menu over its [child].
-class ContextMenuInterceptor extends StatelessWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  ContextMenuInterceptor({
-    super.key,
-    required this.child,
-    enabled = true,
-    debug = false,
-  });
+import '/routes.dart';
+import '/ui/page/work/page/backend/view.dart';
+import '/ui/page/work/page/freelance/view.dart';
+import '/ui/page/work/page/frontend/view.dart';
 
-  /// Widget being wrapped.
-  final Widget child;
+/// View displaying page, corresponding to the provided [work].
+class VacancyWorkView extends StatelessWidget {
+  const VacancyWorkView(this.work, {super.key});
+
+  /// [WorkTab] to display a page of.
+  final WorkTab work;
 
   @override
-  Widget build(BuildContext context) => child;
+  Widget build(BuildContext context) {
+    switch (work) {
+      case WorkTab.backend:
+        return const BackendWorkView();
+
+      case WorkTab.freelance:
+        return const FreelanceWorkView();
+
+      case WorkTab.frontend:
+        return const FrontendWorkView();
+    }
+  }
 }

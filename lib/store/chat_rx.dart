@@ -739,6 +739,25 @@ class HiveRxChat extends RxChat {
   /// Clears the [_pagination].
   Future<void> clear() => _pagination.clear();
 
+  // TODO: Remove when backend supports welcome messages.
+  @override
+  Future<void> addMessage(ChatMessageText text) async {
+    await put(
+      HiveChatMessage(
+        ChatMessage(
+          ChatItemId.local(),
+          id,
+          User(const UserId('0'), UserNum('1234123412341234')),
+          PreciseDateTime.now(),
+          text: text,
+        ),
+        null,
+        ChatItemVersion('0'),
+        null,
+      ),
+    );
+  }
+
   @override
   int compareTo(RxChat other) {
     if (chat.value.ongoingCall != null &&
@@ -773,17 +792,6 @@ class HiveRxChat extends RxChat {
     }
 
     return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
-  }
-
-  @override
-  void addWelcomeMessage(String welcome) async {
-    HiveChatMessage message = HiveChatMessage.sending(
-      chatId: chat.value.id,
-      me: members.values.firstWhereOrNull((e) => e.id != me)?.id ?? me!,
-      text: ChatMessageText(welcome),
-    );
-
-    put(message);
   }
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the

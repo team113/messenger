@@ -16,20 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
-/// Wrapper to prevent a default web context menu over its [child].
-class ContextMenuInterceptor extends StatelessWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  ContextMenuInterceptor({
-    super.key,
-    required this.child,
-    enabled = true,
-    debug = false,
-  });
+export 'view.dart';
 
-  /// Widget being wrapped.
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => child;
+/// [Routes.work] page controller.
+class WorkController extends GetxController {
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 }

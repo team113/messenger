@@ -324,5 +324,7 @@ abstract class RxChat implements Comparable<RxChat> {
     List<ChatItem> repliesTo = const [],
   });
 
-  void addWelcomeMessage(String welcome);
+  // TODO: Remove when backend supports welcome messages.
+  /// Posts a new [ChatMessage] with the provided [text] by the recipient.
+  Future<void> addMessage(ChatMessageText text);
 }

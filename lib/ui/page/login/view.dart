@@ -45,22 +45,27 @@ import 'widget/sign_button.dart';
 class LoginView extends StatelessWidget {
   const LoginView({
     super.key,
-    this.stage = LoginViewStage.signUp,
-    this.onAuth,
+    this.initial = LoginViewStage.signUp,
+    this.onSuccess,
   });
 
-  final LoginViewStage stage;
-  final void Function()? onAuth;
+  /// Initial [LoginViewStage] this [LoginView] should open.
+  final LoginViewStage initial;
+
+  /// Callback, called when this [LoginView] successfully signs into an account.
+  ///
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    LoginViewStage stage = LoginViewStage.signUp,
-    void Function()? onAuth,
+    LoginViewStage initial = LoginViewStage.signUp,
+    void Function()? onSuccess,
   }) {
     return ModalPopup.show(
       context: context,
-      child: LoginView(stage: stage, onAuth: onAuth),
+      child: LoginView(initial: initial, onSuccess: onSuccess),
     );
   }
 
@@ -70,7 +75,11 @@ class LoginView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('LoginView'),
-      init: LoginController(Get.find(), stage: stage, onAuth: onAuth),
+      init: LoginController(
+        Get.find(),
+        initial: initial,
+        onSuccess: onSuccess,
+      ),
       builder: (LoginController c) {
         return Obx(() {
           Widget Function(Widget, List<Widget>) builder = (header, children) {
@@ -95,7 +104,7 @@ class LoginView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
-            case LoginViewStage.choice:
+            case LoginViewStage.signUpOrSignIn:
               // header = ModalPopupHeader(text: 'Записаться на интервью'.l10n);
               header = ModalPopupHeader(text: 'label_sign_in'.l10n);
 
@@ -107,7 +116,7 @@ class LoginView extends StatelessWidget {
                   assetHeight: 23,
                   onPressed: () {
                     c.stage.value = LoginViewStage.signUp;
-                    c.backStage = LoginViewStage.choice;
+                    c.backStage = LoginViewStage.signUpOrSignIn;
                   },
                 ),
                 const SizedBox(height: 25 / 2),
@@ -118,7 +127,7 @@ class LoginView extends StatelessWidget {
                   assetHeight: 24,
                   onPressed: () {
                     c.stage.value = LoginViewStage.signIn;
-                    c.backStage = LoginViewStage.choice;
+                    c.backStage = LoginViewStage.signUpOrSignIn;
                   },
                 ),
                 const SizedBox(height: 25 / 2),

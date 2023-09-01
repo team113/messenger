@@ -16,44 +16,40 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
-import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
-class VacancyWidget extends StatelessWidget {
-  const VacancyWidget(
-    this.text, {
-    super.key,
-    this.subtitle = const [],
-    this.trailing = const [],
-    this.onPressed,
-    this.selected = false,
-  });
+import '/themes.dart';
+import '/ui/page/home/widget/block.dart';
+import 'interactive_logo.dart';
 
-  final String text;
-  final List<Widget> subtitle;
-  final List<Widget> trailing;
-  final void Function()? onPressed;
-  final bool selected;
+/// [Block] display the [InteractiveLogo].
+class ProjectBlock extends StatelessWidget {
+  const ProjectBlock({super.key});
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: MenuButton(
-        title: text,
-        icon: Icon(
-          Icons.work,
-          color: selected ? style.colors.onPrimary : style.colors.primary,
+    return Block(
+      children: [
+        Text(
+          'Messenger',
+          style: style.fonts.displayMediumSecondary,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
-        onPressed: onPressed,
-        trailing: trailing,
-        inverted: selected,
-        children: subtitle,
-      ),
+        const SizedBox(height: 1.6),
+        Text(
+          'by Gapopa',
+          style: style.fonts.titleLargeSecondary,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        const SizedBox(height: 20),
+        const InteractiveLogo(),
+        const SizedBox(height: 7),
+      ],
     );
   }
 }

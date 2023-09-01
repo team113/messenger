@@ -39,10 +39,10 @@ import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats_contacts/controller.dart';
 import 'tab/chats_contacts/view.dart';
-import 'tab/partner/view.dart';
 import 'tab/menu/controller.dart';
 import 'tab/balance/view.dart';
 import 'tab/publics/view.dart';
+import 'tab/work/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -176,13 +176,13 @@ class _HomeViewState extends State<HomeView> {
                           children: [
                             if (c.settings.value?.balanceTabEnabled != false)
                               KeepAlivePage(
-                                key: c.keys[HomeTab.funds],
+                                key: c.keys[HomeTab.contacts],
                                 child: const BalanceTabView(),
                               ),
                             if (c.settings.value?.partnerTabEnabled != false)
                               KeepAlivePage(
-                                key: c.keys[HomeTab.contacts],
-                                child: const PartnerTabView(),
+                                key: c.keys[HomeTab.work],
+                                child: const WorkTabView(),
                               ),
                             KeepAlivePage(
                               key: c.keys[HomeTab.public],

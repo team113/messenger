@@ -27,9 +27,9 @@ class Block extends StatelessWidget {
     super.key,
     this.title,
     this.highlight = false,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
     this.children = const [],
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
-    this.crossAxisAlignment = CrossAxisAlignment.center,
   });
 
   /// Optional header of this [Block].
@@ -38,12 +38,12 @@ class Block extends StatelessWidget {
   /// Indicator whether this [Block] should be highlighted.
   final bool highlight;
 
+  final CrossAxisAlignment crossAxisAlignment;
+
   /// [Widget]s to display.
   final List<Widget> children;
 
   final EdgeInsets padding;
-
-  final CrossAxisAlignment crossAxisAlignment;
 
   @override
   Widget build(BuildContext context) {

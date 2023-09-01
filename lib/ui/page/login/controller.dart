@@ -87,7 +87,7 @@ enum LoginViewStage {
   signUpWithPhoneOccupied,
   noPassword,
   noPasswordCode,
-  choice,
+  signUpOrSignIn,
 }
 
 extension on LoginViewStage {
@@ -111,9 +111,15 @@ extension on LoginViewStage {
 class LoginController extends GetxController {
   LoginController(
     this._authService, {
-    LoginViewStage stage = LoginViewStage.signUp,
-    this.onAuth,
-  }) : stage = Rx(stage);
+    LoginViewStage initial = LoginViewStage.signUp,
+    this.onSuccess,
+  }) : stage = Rx(initial);
+
+  /// Callback, called when this [LoginController] successfully signs into an
+  /// account.
+  ///
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -137,7 +143,6 @@ class LoginController extends GetxController {
   final GlobalKey scannerKey = GlobalKey();
 
   LoginViewStage? backStage;
-  final void Function()? onAuth;
 
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,
@@ -1177,7 +1182,7 @@ class LoginController extends GetxController {
   }
 
   void _redirect() {
-    (onAuth ?? router.home).call();
+    (onSuccess ?? router.home).call();
   }
 }
 

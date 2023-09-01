@@ -22,7 +22,6 @@ import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/api/backend/schema.dart' show Presence;
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -369,7 +368,7 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
-                  case ProfileTab.blacklist:
+                  case ProfileTab.blocklist:
                     child = card(
                       key: const Key('Blocked'),
                       icon: Icons.block,
