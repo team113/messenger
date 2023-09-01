@@ -29,6 +29,7 @@ enum WidgetKey {
   Approve,
   AudioCall,
   AuthView,
+  Background,
   Block,
   ChangeAvatar,
   ChangeLanguage,
@@ -61,6 +62,7 @@ enum WidgetKey {
   Delete,
   DeleteAccount,
   DeleteAvatar,
+  DeleteBackground,
   DeleteChats,
   DeleteContacts,
   DeleteEmail,
@@ -138,6 +140,7 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
+  UploadBackground,
   UserScrollable,
   UsernameField,
 }

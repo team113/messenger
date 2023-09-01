@@ -100,6 +100,7 @@ import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/update_avatar.dart';
+import 'steps/update_background.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
@@ -198,6 +199,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         untilTextExistsWithin,
         updateAvatar,
+        updateBackground,
         updateName,
         user,
         waitForAppToSettle,

@@ -112,6 +112,9 @@ class BackgroundPreview extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 WidgetButton(
+                  key: background == null
+                      ? const Key('UploadBackground')
+                      : const Key('DeleteBackground'),
                   onPressed: background == null ? onPick : onRemove,
                   child: Text(
                     background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,

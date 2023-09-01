@@ -202,6 +202,7 @@ class MenuTabView extends StatelessWidget {
 
                   case ProfileTab.background:
                     child = card(
+                      key: const Key('Background'),
                       icon: Icons.image,
                       title: 'label_background'.l10n,
                       subtitle: 'label_app_background'.l10n,
