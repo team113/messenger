@@ -22,6 +22,6 @@ export 'view.dart';
 
 /// [Routes.work] page controller.
 class WorkController extends GetxController {
-    /// [ScrollController] to pass to a [Scrollbar].
+  /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 }
