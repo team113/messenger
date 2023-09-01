@@ -32,3 +32,13 @@ Feature: Blacklist
     When I scroll `UserScrollable` until `Unblock` is present
     And I tap `Unblock` button
     Then Bob sends message to me and receives no exception
+
+    When I scroll `UserScrollable` until `Block` is present
+    And I tap `Block` button
+    And I tap `Proceed` button
+    And I tap `MenuButton` button
+    And I scroll `MenuListView` until `Blocked` is present
+    And I tap `Blocked` button
+    And I tap `BlackList` button
+    And I tap `UnblockShort` button
+    Then Bob sends message to me and receives no exception

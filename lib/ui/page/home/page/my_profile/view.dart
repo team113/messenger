@@ -795,6 +795,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         FieldButton(
+          key: const Key('BlackList'),
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),

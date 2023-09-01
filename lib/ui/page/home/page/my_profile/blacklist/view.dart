@@ -91,6 +91,7 @@ class BlacklistView extends StatelessWidget {
                           ],
                           trailing: [
                             WidgetButton(
+                              key: const Key('UnblockShort'),
                               onPressed: () => c.unblacklist(user),
                               child: Text(
                                 'btn_unblock_short'.l10n,
