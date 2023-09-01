@@ -32,11 +32,26 @@ import 'widget/primary_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({super.key});
+  const LoginView({super.key, this.initial, this.onSuccess});
+
+  /// Initial [LoginViewStage] this [LoginView] should open.
+  final LoginViewStage? initial;
+
+  /// Callback, called when this [LoginView] successfully signs into an account.
+  ///
+  /// If not specified, the [router.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const LoginView());
+  static Future<T?> show<T>(
+    BuildContext context, {
+    LoginViewStage? initial,
+    void Function()? onSuccess,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: LoginView(initial: initial, onSuccess: onSuccess),
+    );
   }
 
   @override
@@ -45,7 +60,11 @@ class LoginView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('LoginView'),
-      init: LoginController(Get.find()),
+      init: LoginController(
+        Get.find(),
+        initial: initial,
+        onSuccess: onSuccess,
+      ),
       builder: (LoginController c) {
         return Obx(() {
           final Widget header;
@@ -161,8 +180,33 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signUpOrSignIn:
+              header = ModalPopupHeader(text: 'label_sign_in'.l10n);
+
+              children = [
+                PrimaryButton(
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {
+                    c.fallback = c.stage.value;
+                    c.stage.value = null;
+                  },
+                ),
+                const SizedBox(height: 25 / 2),
+                PrimaryButton(
+                  title: 'btn_one_time_account'.l10n,
+                  onPressed: c.register,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
             default:
-              header = ModalPopupHeader(text: 'label_entrance'.l10n);
+              header = ModalPopupHeader(
+                text: 'label_entrance'.l10n,
+                onBack: c.fallback == null
+                    ? null
+                    : () => c.stage.value = c.fallback,
+              );
 
               children = [
                 if (c.recovered.value)

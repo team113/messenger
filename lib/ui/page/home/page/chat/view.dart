@@ -59,13 +59,17 @@ import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatefulWidget {
-  const ChatView(this.id, {super.key, this.itemId});
+  const ChatView(this.id, {super.key, this.itemId, this.welcome});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
+
+  // TODO: Remove when backend supports it out of the box.
+  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
+  final ChatMessageText? welcome;
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -108,6 +112,7 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         itemId: widget.itemId,
+        welcome: widget.welcome,
       ),
       tag: widget.id.val,
       global: !Get.isRegistered<ChatController>(tag: widget.id.val),

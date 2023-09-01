@@ -31,17 +31,29 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
   recovery,
   recoveryCode,
   recoveryPassword,
+  signUpOrSignIn,
 }
 
 /// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
-  LoginController(this._auth);
+  LoginController(
+    this._authService, {
+    LoginViewStage? initial,
+    this.onSuccess,
+  }) : stage = Rx(initial);
+
+  /// Callback, called when this [LoginController] successfully signs into an
+  /// account.
+  ///
+  /// If not specified, the [router.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -77,10 +89,13 @@ class LoginController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.
-  final Rx<LoginViewStage?> stage = Rx(null);
+  final Rx<LoginViewStage?> stage;
+
+  /// [LoginViewStage] to fallback to in special cases.
+  LoginViewStage? fallback;
 
   /// Authentication service providing the authentication capabilities.
-  final AuthService _auth;
+  final AuthService _authService;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -99,7 +114,7 @@ class LoginController extends GetxController {
   UserLogin? _recoveryLogin;
 
   /// Current authentication status.
-  Rx<RxStatus> get authStatus => _auth.status;
+  Rx<RxStatus> get authStatus => _authService.status;
 
   @override
   void onInit() {
@@ -195,7 +210,7 @@ class LoginController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
-      await _auth.signIn(
+      await _authService.signIn(
         UserPassword(password.text),
         login: userLogin,
         num: num,
@@ -203,7 +218,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      router.home();
+      (onSuccess ?? router.home)();
     } on FormatException {
       password.error.value = 'err_incorrect_password'.l10n;
     } on CreateSessionException catch (e) {
@@ -226,6 +241,19 @@ class LoginController extends GetxController {
     } finally {
       login.status.value = RxStatus.empty();
       password.status.value = RxStatus.empty();
+    }
+  }
+
+  /// Creates a new one-time account right away.
+  Future<void> register() async {
+    try {
+      await _authService.register();
+      (onSuccess ?? router.home)();
+    } on ConnectionException {
+      MessagePopup.error('err_data_transfer'.l10n);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
@@ -265,7 +293,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.recoverUserPassword(
+      await _authService.recoverUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -304,7 +332,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.validateUserPasswordRecoveryCode(
+      await _authService.validateUserPasswordRecoveryCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -376,7 +404,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _auth.resetUserPassword(
+      await _authService.resetUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,

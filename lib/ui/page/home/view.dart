@@ -40,6 +40,7 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/work/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
@@ -164,6 +165,7 @@ class _HomeViewState extends State<HomeView> {
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
+                            KeepAlivePage(child: WorkTabView()),
                             KeepAlivePage(child: ContactsTabView()),
                             KeepAlivePage(child: ChatsTabView()),
                             KeepAlivePage(child: MenuTabView()),
@@ -181,6 +183,14 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: CustomNavigationBar(
                             items: [
+                              const CustomNavigationBarItem(
+                                key: Key('WorkButton'),
+                                child: SvgImage.asset(
+                                  'assets/icons/partner.svg',
+                                  width: 36,
+                                  height: 28,
+                                ),
+                              ),
                               const CustomNavigationBarItem(
                                 key: Key('ContactsButton'),
                                 child: SvgImage.asset(
