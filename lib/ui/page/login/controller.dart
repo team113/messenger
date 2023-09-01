@@ -52,7 +52,7 @@ class LoginController extends GetxController {
   /// Callback, called when this [LoginController] successfully signs into an
   /// account.
   ///
-  /// If not specified, the [router.home] redirect is invoked.
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
   final void Function()? onSuccess;
 
   /// [TextFieldState] of a login text input.

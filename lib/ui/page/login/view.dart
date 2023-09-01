@@ -39,7 +39,7 @@ class LoginView extends StatelessWidget {
 
   /// Callback, called when this [LoginView] successfully signs into an account.
   ///
-  /// If not specified, the [router.home] redirect is invoked.
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
   final void Function()? onSuccess;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].

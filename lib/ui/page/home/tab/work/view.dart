@@ -68,10 +68,7 @@ class WorkTabView extends StatelessWidget {
                 onPressed: () {
                   // No-op.
                 },
-                child: Icon(
-                  Icons.more_vert,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                child: Icon(Icons.more_vert, color: style.colors.primary),
               ),
             ],
           ),

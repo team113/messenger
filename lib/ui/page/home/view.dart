@@ -82,9 +82,6 @@ class _HomeViewState extends State<HomeView> {
     _deps?.dispose();
   }
 
-  /// Called when a dependency of this [State] object changes.
-  ///
-  /// Used to get the [Router] widget from context.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -107,24 +104,24 @@ class _HomeViewState extends State<HomeView> {
     return GetBuilder(
       init: HomeController(Get.find(), Get.find(), Get.find()),
       builder: (HomeController c) {
-        /// Claim priority of the "Back" button dispatcher.
+        // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
         if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
-        /// Side bar uses a little trick to be responsive:
-        ///
-        /// 1. On mobile, side bar is full-width and the navigator's first page
-        ///    is transparent, both visually and tactile. As soon as a new page
-        ///    populates the route stack, it becomes reactive to touches.
-        ///    Navigator is drawn above the side bar in this case.
-        ///
-        /// 2. On desktop/tablet side bar is always shown and occupies the space
-        ///    determined by the `sideBarWidth` value.
-        ///    Navigator is drawn under the side bar (so the page animation is
-        ///    correct).
+        // Side bar uses a little trick to be responsive:
+        //
+        // 1. On mobile, side bar is full-width and the navigator's first page
+        //    is transparent, both visually and tactile. As soon as a new page
+        //    populates the route stack, it becomes reactive to touches.
+        //    Navigator is drawn above the side bar in this case.
+        //
+        // 2. On desktop/tablet side bar is always shown and occupies the space
+        //    determined by the `sideBarWidth` value.
+        //    Navigator is drawn under the side bar (so the page animation is
+        //    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
           opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
@@ -334,8 +331,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         );
 
-        /// Nested navigation widget that displays [navigator] in an [Expanded]
-        /// to take all the remaining from the [sideBar] space.
+        // Nested navigation widget that displays [navigator] in an [Expanded]
+        // to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
           ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
@@ -360,12 +357,12 @@ class _HomeViewState extends State<HomeView> {
           }),
         );
 
-        /// Navigator should be drawn under or above the [sideBar] for the
-        /// animations to look correctly.
-        ///
-        /// [Container]s are required for the [sideBar] to keep its state.
-        /// Otherwise, [Stack] widget will be updated, which will lead its
-        /// children to be updated as well.
+        // Navigator should be drawn under or above the [sideBar] for the
+        // animations to look correctly.
+        //
+        // [Container]s are required for the [sideBar] to keep its state.
+        // Otherwise, [Stack] widget will be updated, which will lead its
+        // children to be updated as well.
         return CallOverlayView(
           child: Obx(() {
             return Stack(

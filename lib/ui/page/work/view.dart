@@ -51,9 +51,6 @@ class _WorkViewState extends State<WorkView> {
   /// [ChildBackButtonDispatcher] to get "Back" button in the nested [Router].
   late ChildBackButtonDispatcher _backButtonDispatcher;
 
-  /// Called when a dependency of this [State] object changes.
-  ///
-  /// Used to get the [Router] widget from context.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -69,20 +66,20 @@ class _WorkViewState extends State<WorkView> {
     return GetBuilder(
       init: WorkController(),
       builder: (WorkController c) {
-        /// Claim priority of the "Back" button dispatcher.
+        // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
-        /// Side bar uses a little trick to be responsive:
-        ///
-        /// 1. On mobile, side bar is full-width and the navigator's first page
-        ///    is transparent, both visually and tactile. As soon as a new page
-        ///    populates the route stack, it becomes reactive to touches.
-        ///    Navigator is drawn above the side bar in this case.
-        ///
-        /// 2. On desktop/tablet side bar is always shown and occupies the space
-        ///    determined by the `sideBarWidth` value.
-        ///    Navigator is drawn under the side bar (so the page animation is
-        ///    correct).
+        // Side bar uses a little trick to be responsive:
+        //
+        // 1. On mobile, side bar is full-width and the navigator's first page
+        //    is transparent, both visually and tactile. As soon as a new page
+        //    populates the route stack, it becomes reactive to touches.
+        //    Navigator is drawn above the side bar in this case.
+        //
+        // 2. On desktop/tablet side bar is always shown and occupies the space
+        //    determined by the `sideBarWidth` value.
+        //    Navigator is drawn under the side bar (so the page animation is
+        //    correct).
         final sideBar = Obx(() {
           final bool isWork = router.routes.lastOrNull == Routes.work;
           return AnimatedOpacity(
@@ -127,7 +124,7 @@ class _WorkViewState extends State<WorkView> {
                           },
                           child: Icon(
                             Icons.more_vert,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: style.colors.primary,
                           ),
                         ),
                       ],
@@ -156,8 +153,8 @@ class _WorkViewState extends State<WorkView> {
           );
         });
 
-        /// Nested navigation widget that displays [navigator] in an [Expanded]
-        /// to take all the remaining from the [sideBar] space.
+        // Nested navigation widget that displays [navigator] in an [Expanded]
+        // to take all the remaining from the [sideBar] space.
         Widget navigation = Obx(() {
           final bool isWork = router.routes.lastOrNull == Routes.work;
           return IgnorePointer(
@@ -182,12 +179,12 @@ class _WorkViewState extends State<WorkView> {
           );
         });
 
-        /// Navigator should be drawn under or above the [sideBar] for the
-        /// animations to look correctly.
-        ///
-        /// [Container]s are required for the [sideBar] to keep its state.
-        /// Otherwise, [Stack] widget will be updated, which will lead its
-        /// children to be updated as well.
+        // Navigator should be drawn under or above the [sideBar] for the
+        // animations to look correctly.
+        //
+        // [Container]s are required for the [sideBar] to keep its state.
+        // Otherwise, [Stack] widget will be updated, which will lead its
+        // children to be updated as well.
         return Stack(
           key: const Key('WorkView'),
           children: [
