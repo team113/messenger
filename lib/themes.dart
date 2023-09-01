@@ -71,6 +71,7 @@ class Themes {
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
+      height: 1.3,
     );
 
     final Fonts fonts = Fonts(
@@ -147,11 +148,7 @@ class Themes {
             contextMenuBackgroundColor: colors.secondaryHighlight,
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: textStyle.copyWith(
-              color: colors.primary,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
-            ),
+            linkStyle: textStyle.copyWith(color: colors.primary),
             messageColor: colors.onPrimary,
             primaryBorder: Border.all(
               color: colors.secondaryHighlightDark,
@@ -231,21 +228,15 @@ class Themes {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              color: colors.secondaryHighlightDarkest,
-            ),
+            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              color: colors.secondaryHighlightDarkest,
-            ),
+            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              color: colors.secondaryHighlightDarkest,
-            ),
+            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
