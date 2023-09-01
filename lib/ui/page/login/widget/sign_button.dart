@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
+import '/ui/widget/svg/svg.dart';
+import 'prefix_button.dart';
+
+///
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
@@ -16,13 +18,28 @@ class SignButton extends StatelessWidget {
     this.dense = false,
   });
 
+  ///
   final String text;
+
+  ///
   final bool dense;
+
+  ///
   final Widget? leading;
+
+  ///
   final String asset;
+
+  ///
   final double assetWidth;
+
+  ///
   final double assetHeight;
+
+  ///
   final EdgeInsets padding;
+
+  ///
   final void Function()? onPressed;
 
   @override

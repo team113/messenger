@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +41,8 @@ class ReactiveTextField extends StatelessWidget {
     this.enabled = true,
     this.fillColor,
     this.filled,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
+    this.focusNode,
     this.formatters,
     this.hint,
     this.icon,
@@ -51,14 +55,23 @@ class ReactiveTextField extends StatelessWidget {
     this.onSuffixPressed,
     this.padding,
     this.prefix,
+    this.prefixIcon,
+    this.prefixIconColor,
+    this.prefixStyle,
     this.prefixText,
+    this.readOnly = false,
     this.style,
     this.suffix,
+    this.suffixColor,
+    this.suffixSize,
+    this.suffixText,
     this.textAlign = TextAlign.start,
     this.textInputAction,
     this.trailing,
+    this.trailingWidth = 32,
     this.treatErrorAsStatus = true,
     this.type,
+    this.withTrailing = true,
     this.subtitle,
   });
 
@@ -85,11 +98,27 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional prefix [Widget].
   final Widget? prefix;
 
+  ///
+  final Color? suffixColor;
+
+  ///
+
+  final double? suffixSize;
+
+  ///
+  final String? suffixText;
+
   /// Optional content padding.
   final EdgeInsets? padding;
 
   /// Optional trailing [Widget].
   final Widget? trailing;
+
+  ///
+  final double? trailingWidth;
+
+  ///
+  final bool withTrailing;
 
   /// Optional subtitle [Widget].
   final Widget? subtitle;
@@ -135,12 +164,24 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
+  ///
+  final TextStyle? prefixStyle;
+
   /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
   /// be treated as a [RxStatus.error].
   final bool treatErrorAsStatus;
 
   /// Indicator whether this [ReactiveTextField] should be filled with [Color].
   final bool? filled;
+
+  ///
+  final Widget? prefixIcon;
+
+  ///
+  final Color? prefixIconColor;
+
+  ///
+  final FocusNode? focusNode;
 
   /// [TextAlign] of this [ReactiveTextField].
   final TextAlign textAlign;
@@ -150,6 +191,12 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
+
+  ///
+  final bool readOnly;
+
+  ///
+  final FloatingLabelBehavior floatingLabelBehavior;
 
   @override
   Widget build(BuildContext context) {
@@ -244,10 +291,20 @@ class ReactiveTextField extends StatelessWidget {
                                         )
                                       : SizedBox(
                                           key: const ValueKey('Icon'),
-                                          width: 24,
-                                          child: suffix != null
-                                              ? Icon(suffix)
-                                              : trailing,
+                                          width: trailingWidth == null
+                                              ? null
+                                              : (trailingWidth! +
+                                                  (PlatformUtils.isWeb
+                                                      ? 6
+                                                      : 0)),
+                                          child: Transform.translate(
+                                            offset: const Offset(5, 0),
+                                            child: suffix != null
+                                                ? Icon(suffix)
+                                                : trailing == null
+                                                    ? Container()
+                                                    : trailing!,
+                                          ),
                                         ),
                     ),
                   )
@@ -287,7 +344,7 @@ class ReactiveTextField extends StatelessWidget {
                       : null,
               controller: state.controller,
               style: this.style,
-              focusNode: state.focus,
+              focusNode: focusNode ?? state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
                 onChanged?.call();
@@ -295,9 +352,10 @@ class ReactiveTextField extends StatelessWidget {
               textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
-              readOnly: !enabled || !state.editable.value,
+              readOnly: readOnly || (!enabled || !state.editable.value),
               enabled: enabled,
               decoration: InputDecoration(
+                floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value
                     ? null
@@ -311,11 +369,16 @@ class ReactiveTextField extends StatelessWidget {
                           color: style.colors.secondaryHighlightDarkest,
                         ),
                 prefixText: prefixText,
+                suffixText: suffixText,
+                prefixStyle: prefixStyle,
                 prefix: prefix,
+                prefixIcon: prefixIcon,
+                prefixIconColor: prefixIconColor,
                 fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
-                suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIcon:
+                    dense == true || !withTrailing ? null : buildSuffix(),
                 icon: icon == null
                     ? null
                     : Padding(
@@ -323,6 +386,12 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
+                hintStyle: this.style?.copyWith(
+                      color: Theme.of(context)
+                          .inputDecorationTheme
+                          .hintStyle
+                          ?.color,
+                    ),
                 hintText: hint,
                 hintMaxLines: 1,
 
@@ -406,7 +475,7 @@ class ReactiveTextField extends StatelessWidget {
                             )
                           : const SizedBox(width: double.infinity, height: 1)
                       : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value ?? '',
                             style: style.fonts.labelMedium.copyWith(
@@ -487,34 +556,30 @@ class TextFieldState extends ReactiveFieldState {
 
     changed.value = _previousSubmit != text;
 
-    String prev = controller.text;
+    controller.addListener(() => PlatformUtils.keepActive());
 
+    String prevText = controller.text;
     controller.addListener(() {
-      if (controller.text != prev) {
-        prev = controller.text;
+      if (controller.text != prevText) {
+        prevText = controller.text;
         if (revalidateOnUnfocus) {
           error.value = null;
         }
       }
     });
 
-    controller.addListener(() {
-      PlatformUtils.keepActive();
-
-      changed.value = controller.text != (_previousSubmit ?? '');
-
-      if (controller.text != prev) {
-        prev = controller.text;
-        error.value = null;
-      }
-    });
+    if (onChanged != null) {
+      controller.addListener(() {
+        changed.value = controller.text != (_previousSubmit ?? '');
+      });
+    }
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
 
       if (onChanged != null) {
         if (controller.text != _previousText &&
-            (_previousText != null || controller.text.isNotEmpty)) {
+            (_previousText.isNotEmpty || controller.text.isNotEmpty)) {
           isEmpty.value = controller.text.isEmpty;
           if (!this.focus.hasFocus) {
             onChanged?.call(this);
@@ -524,6 +589,9 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
   }
+
+  /// [Duration] to debounce the [onChanged] calls with.
+  static const Duration debounce = Duration(seconds: 2);
 
   /// Callback, called when the [text] has finished changing.
   ///
@@ -543,12 +611,15 @@ class TextFieldState extends ReactiveFieldState {
   @override
   final RxBool changed = RxBool(false);
 
+  /// [TextEditingController] of this [TextFieldState].
   @override
   late final TextEditingController controller;
 
+  /// Reactive [RxStatus] of this [TextFieldState].
   @override
   late final Rx<RxStatus> status;
 
+  /// Indicator whether this [TextFieldState] should be editable or not.
   @override
   late final RxBool editable;
 
@@ -560,11 +631,14 @@ class TextFieldState extends ReactiveFieldState {
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.
-  String? _previousText;
+  String _previousText = '';
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
   String? _previousSubmit;
+
+  /// [Timer] debouncing the [onChanged] callback.
+  Timer? _debounceTimer;
 
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
@@ -592,6 +666,7 @@ class TextFieldState extends ReactiveFieldState {
   /// more text editing was done since then.
   bool get isValidated => controller.text == _previousText;
 
+  /// Submits this [TextFieldState].
   @override
   void submit() {
     if (editable.value) {
@@ -618,8 +693,9 @@ class TextFieldState extends ReactiveFieldState {
     isEmpty.value = true;
     controller.text = '';
     error.value = null;
-    _previousText = null;
+    _previousText = '';
     _previousSubmit = null;
     changed.value = false;
+    _debounceTimer?.cancel();
   }
 }

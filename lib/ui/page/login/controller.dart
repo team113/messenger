@@ -18,15 +18,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 
-import '../../../api/backend/schema.graphql.dart';
-import '../../../domain/model/session.dart';
-import '../../../provider/gql/graphql.dart';
-import '../../widget/phone_field.dart';
+import '/api/backend/schema.dart'
+    show
+        ConfirmUserEmailErrorCode,
+        ConfirmUserPhoneErrorCode,
+        CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -40,8 +43,11 @@ import '/provider/gql/exceptions.dart'
         ResendUserPhoneConfirmationException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
+import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/phone_field.dart';
+import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
@@ -94,7 +100,7 @@ extension on LoginViewStage {
 /// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
   LoginController(
-    this._auth, {
+    this._authService, {
     LoginViewStage stage = LoginViewStage.signUp,
     this.onAuth,
   }) : stage = Rx(stage);
@@ -117,37 +123,16 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
 
-  /// Indicator whether the [password] should be obscured.
-  final RxBool obscurePassword = RxBool(true);
+  ///
+  final GlobalKey scannerKey = GlobalKey();
 
-  /// Indicator whether the [newPassword] should be obscured.
-  final RxBool obscureNewPassword = RxBool(true);
-
-  /// Indicator whether the [repeatPassword] should be obscured.
-  final RxBool obscureRepeatPassword = RxBool(true);
-
-  /// Indicator whether the password has been reset.
-  final RxBool recovered = RxBool(false);
-
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
-
-  /// [LoginViewStage] currently being displayed.
-  final Rx<LoginViewStage> stage;
-
-  final void Function()? onAuth;
+  ///
   LoginViewStage? backStage;
 
-  int signInAttempts = 0;
-  final RxInt signInTimeout = RxInt(0);
-  Timer? _signInTimer;
+  ///
+  final void Function()? onAuth;
 
-  int codeAttempts = 0;
-  final RxInt codeTimeout = RxInt(0);
-  Timer? _codeTimer;
-
-  Credentials? creds;
-
+  ///
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
@@ -214,6 +199,8 @@ class LoginController extends GetxController {
       }
     },
   );
+
+  ///
   late final TextFieldState emailCode = TextFieldState(
     revalidateOnUnfocus: true,
     onSubmitted: (s) async {
@@ -229,7 +216,7 @@ class LoginController extends GetxController {
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
 
-        await _auth.authorizeWith(creds!);
+        await _authService.authorizeWith(creds!);
 
         router.noIntroduction = false;
         router.signUp = true;
@@ -273,6 +260,11 @@ class LoginController extends GetxController {
       }
     },
   );
+
+  ///
+  Credentials? creds;
+
+  ///
   late final PhoneFieldState phone = PhoneFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
@@ -350,7 +342,7 @@ class LoginController extends GetxController {
       try {
         if (ConfirmationCode(s.text).val == '1111') {
           if (stage.value.registering) {
-            await _auth.authorizeWith(creds!);
+            await _authService.authorizeWith(creds!);
             router.noIntroduction = false;
             router.signUp = true;
             _redirect();
@@ -401,8 +393,35 @@ class LoginController extends GetxController {
     },
   );
 
+  /// Indicator whether the [password] should be obscured.
+  final RxBool obscurePassword = RxBool(true);
+
+  /// Indicator whether the [newPassword] should be obscured.
+  final RxBool obscureNewPassword = RxBool(true);
+
+  /// Indicator whether the [repeatPassword] should be obscured.
+  final RxBool obscureRepeatPassword = RxBool(true);
+
+  /// Indicator whether the password has been reset.
+  final RxBool recovered = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// [LoginViewStage] currently being displayed.
+  final Rx<LoginViewStage> stage;
+
+  int signInAttempts = 0;
+  final RxInt signInTimeout = RxInt(0);
+  Timer? _signInTimer;
+
+  int codeAttempts = 0;
+  final RxInt codeTimeout = RxInt(0);
+  Timer? _codeTimer;
+
+  /// Indicator whether [UserEmail] confirmation code has been resent.
   /// Authentication service providing the authentication capabilities.
-  final AuthService _auth;
+  final AuthService _authService;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -421,7 +440,7 @@ class LoginController extends GetxController {
   UserLogin? _recoveryLogin;
 
   /// Current authentication status.
-  Rx<RxStatus> get authStatus => _auth.status;
+  Rx<RxStatus> get authStatus => _authService.status;
 
   @override
   void onInit() {
@@ -431,8 +450,11 @@ class LoginController extends GetxController {
     );
 
     password = TextFieldState(
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+      },
       onSubmitted: (s) => signIn(),
+      revalidateOnUnfocus: true,
     );
 
     recovery = TextFieldState(
@@ -456,11 +478,25 @@ class LoginController extends GetxController {
       onChanged: (s) {
         s.error.value = null;
         newPassword.error.value = null;
+
+        if (s.text != newPassword.text && newPassword.isValidated) {
+          s.error.value = 'err_passwords_mismatch'.l10n;
+        }
       },
-      onSubmitted: (s) => resetUserPassword(),
+      onSubmitted: (s) => stage.value == LoginViewStage.signUp
+          ? register()
+          : resetUserPassword(),
     );
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _setSignInTimer(false);
+    _setResendEmailTimer(false);
+    _setCodeTimer(false);
+    super.onClose();
   }
 
   /// Signs in and redirects to the [Routes.home] page.
@@ -476,7 +512,8 @@ class LoginController extends GetxController {
     password.error.value = null;
 
     if (login.text.isEmpty) {
-      login.error.value = 'err_account_not_found'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
       return;
     }
 
@@ -505,19 +542,21 @@ class LoginController extends GetxController {
     }
 
     if (password.text.isEmpty) {
-      password.error.value = 'err_password_empty'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
       return;
     }
 
     if (userLogin == null && num == null && email == null && phone == null) {
-      login.error.value = 'err_account_not_found'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
       return;
     }
 
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
-      await _auth.signIn(
+      await _authService.signIn(
         UserPassword(password.text),
         login: userLogin,
         num: num,
@@ -525,12 +564,20 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      router.home();
+      _redirect();
     } on FormatException {
-      password.error.value = 'err_incorrect_password'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
+          ++signInAttempts;
+
+          if (signInAttempts >= 3) {
+            // Трижды указан/введён неверный пароль. Вход возможен через Н секунд.
+            signInAttempts = 0;
+            _setSignInTimer();
+          }
+
           password.error.value = e.toMessage();
           break;
 
@@ -587,7 +634,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.recoverUserPassword(
+      await _authService.recoverUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -626,7 +673,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.validateUserPasswordRecoveryCode(
+      await _authService.validateUserPasswordRecoveryCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -698,7 +745,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _auth.resetUserPassword(
+      await _authService.resetUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -725,14 +772,56 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Timeout of a [resendEmail].
-  final RxInt resendEmailTimeout = RxInt(0);
+  /// Registers and redirects to the [Routes.home] page.
+  Future<void> oneTime() async {
+    try {
+      await _authService.register();
+      _redirect();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
-  /// [Timer] decreasing the [resendEmailTimeout].
-  Timer? _resendEmailTimer;
+///
+  Future<void> register() async {
+    await _authService.register();
+    router.validateEmail = true;
+    _redirect();
 
-  /// Indicator whether [UserEmail] confirmation code has been resent.
-  final RxBool resent = RxBool(false);
+    while (!Get.isRegistered<MyUserService>()) {
+      await Future.delayed(const Duration(milliseconds: 20));
+    }
+
+    final MyUserService myUserService = Get.find();
+    await myUserService.addUserEmail(UserEmail(email.text));
+    await myUserService.updateUserPassword(
+      newPassword: UserPassword(repeatPassword.text),
+    );
+  }
+
+  Future<void> signInWithoutPassword() async {
+    stage.value = LoginViewStage.noPasswordCode;
+    recoveryCode.clear();
+  }
+
+  Future<void> signInWithCode(String code) async {}
+
+  bool isEmailOrPhone(String text) {
+    try {
+      UserEmail(text);
+      return true;
+    } catch (_) {
+      try {
+        UserPhone(text);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+  }
+
+  LoginViewStage fallbackStage = LoginViewStage.signUp;
 
   /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
   void _setSignInTimer([bool enabled = true]) {
@@ -756,6 +845,15 @@ class LoginController extends GetxController {
     }
   }
 
+  /// Timeout of a [resendEmail].
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  /// [Timer] decreasing the [resendEmailTimeout].
+  Timer? _resendEmailTimer;
+
+  /// Indicator whether [UserEmail] confirmation code has been resent.
+  final RxBool resent = RxBool(false);
+
   /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
@@ -775,27 +873,6 @@ class LoginController extends GetxController {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();
       _resendEmailTimer = null;
-    }
-  }
-
-  void _setCodeTimer([bool enabled = true]) {
-    if (enabled) {
-      codeTimeout.value = 30;
-      _codeTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          codeTimeout.value--;
-          if (codeTimeout.value <= 0) {
-            codeTimeout.value = 0;
-            _codeTimer?.cancel();
-            _codeTimer = null;
-          }
-        },
-      );
-    } else {
-      codeTimeout.value = 0;
-      _codeTimer?.cancel();
-      _codeTimer = null;
     }
   }
 
@@ -819,6 +896,27 @@ class LoginController extends GetxController {
       resent.value = false;
       _setResendEmailTimer(false);
       rethrow;
+    }
+  }
+
+  void _setCodeTimer([bool enabled = true]) {
+    if (enabled) {
+      codeTimeout.value = 30;
+      _codeTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          codeTimeout.value--;
+          if (codeTimeout.value <= 0) {
+            codeTimeout.value = 0;
+            _codeTimer?.cancel();
+            _codeTimer = null;
+          }
+        },
+      );
+    } else {
+      codeTimeout.value = 0;
+      _codeTimer?.cancel();
+      _codeTimer = null;
     }
   }
 
@@ -871,7 +969,23 @@ class LoginController extends GetxController {
       rethrow;
     }
   }
+///
+  Future<void> registerOccupied() async {
+    final GraphQlProvider graphQlProvider = Get.find();
 
+    graphQlProvider.token = creds!.session.token;
+
+    if (stage.value == LoginViewStage.signInWithEmailOccupied) {
+      // await graphQlProvider.confirmEmailCode(ConfirmationCode(emailCode.text));
+    } else if (stage.value == LoginViewStage.signInWithPhoneOccupied) {}
+
+    await _authService.authorizeWith(creds!);
+
+    router.noIntroduction = false;
+    router.signUp = true;
+    _redirect();
+  }
+///
   void _redirect() {
     (onAuth ?? router.home).call();
   }

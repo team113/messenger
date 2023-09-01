@@ -181,7 +181,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: style.fonts.titleLargeOnPrimary,
+                            style: style.fonts.bodyMediumOnPrimary,
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,

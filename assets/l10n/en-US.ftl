@@ -203,6 +203,7 @@ btn_participants = Participants
 btn_participants_desc =
     Call
     participants
+btn_password = Password
 btn_paste = Paste
 btn_personalize = Personalization
 btn_phone_number = Phone number
@@ -691,9 +692,12 @@ label_set_password = Set password
 label_settings = Settings
 label_sign_in = Log In
 label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sign_in_with_password = Sign in with password
 label_sign_up = Sign up
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
 label_sign_up_code_phone_sent = Verification code has been sent to the phone number {$text}
+label_sign_up_email_already_occupied = E-mail {$text} cannot be used to register a new account because it is connected to an existing account. Proceed to sign in?
+label_sign_up_phone_already_occupied = Phone number {$text} cannot be used to register a new account because it is connected to an existing account. Proceed to sign in?
 label_sort_by_name = Sort by name
 label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration

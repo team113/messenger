@@ -27,14 +27,20 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.title,
     this.subtitle,
     this.leading,
+    this.trailing,
+    this.leadingWidth,
     this.onPressed,
     this.onLongPress,
     this.gradient,
     this.elevation = 0,
     this.color,
-    this.maxWidth = 250 * 0.7,
-    this.height = 60 * 0.7,
+    this.disabled,
+    this.maxWidth = 250 * 0.72,
+    this.maxHeight,
+    this.border,
+    this.height = 42,
     this.shadows,
+    this.style,
   });
 
   /// Primary content of this button.
@@ -52,6 +58,9 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Typically an [Icon] or a [CircleAvatar] widget.
   final Widget? leading;
 
+  ///
+  final Widget? trailing;
+
   /// Callback, called when this button is tapped or activated other way.
   final VoidCallback? onPressed;
 
@@ -60,6 +69,9 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   /// Background color of this button.
   final Color? color;
+
+  ///
+  final Color? disabled;
 
   /// Gradient to use when filling this button.
   ///
@@ -75,80 +87,108 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Maximum width this button is allowed to occupy.
   final double maxWidth;
 
+  ///
+  final double? maxHeight;
+
   /// Height of this button.
   final double? height;
 
   /// [BoxShadow]s to apply to this button.
   final List<BoxShadow>? shadows;
 
+  ///
+  final double? leadingWidth;
+
+  ///
+  final TextStyle? style;
+
+  ///
+  final Border? border;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final BorderRadius borderRadius = BorderRadius.circular(
+      15 * 0.7 * ((height ?? 42) / 42),
+    );
+
     return Container(
-      constraints: BoxConstraints(
-        maxWidth: maxWidth,
-        minHeight: height ?? 0,
-        maxHeight: height ?? double.infinity,
-      ),
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         boxShadow: shadows,
         color: onPressed == null
-            ? style.colors.secondaryHighlight
+            ? disabled ?? style.colors.secondaryHighlight
             : color ?? style.colors.onPrimary,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(15 * 0.7),
+        borderRadius: borderRadius,
+        border: border,
       ),
       child: Material(
         color: style.colors.transparent,
         elevation: elevation,
-        borderRadius: BorderRadius.circular(15 * 0.7),
+        borderRadius: borderRadius,
         child: InkWell(
-          borderRadius: BorderRadius.circular(15 * 0.7),
+          borderRadius: borderRadius,
           onTap: onPressed,
           onLongPress: onLongPress,
           hoverColor: style.colors.secondary.withOpacity(0.02),
-          child: Padding(
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: height ?? 0,
+              maxHeight: maxHeight ?? height ?? double.infinity,
+            ),
             padding: const EdgeInsets.symmetric(
-              horizontal: 16 * 0.7,
+              horizontal: 8 * 0.7,
               vertical: 6 * 0.7,
             ),
-            child: Stack(
+            child: Row(
               children: [
+                const SizedBox(width: 8),
+
                 if (leading != null)
-                  Row(
-                    children: [
-                      Expanded(child: Center(child: leading)),
-                      Expanded(flex: 4, child: Container()),
-                      Expanded(child: Container()),
-                    ],
-                  ),
-                DefaultTextStyle.merge(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: style.fonts.titleLarge,
-                  child: Center(
-                    child: Padding(
-                      padding: leading == null
-                          ? EdgeInsets.zero
-                          : const EdgeInsets.only(left: 10 * 0.7),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          title ?? Container(),
-                          if (subtitle != null) const SizedBox(height: 1 * 0.7),
-                          if (subtitle != null)
-                            DefaultTextStyle.merge(
-                              style: style.fonts.labelMedium,
-                              child: subtitle!,
-                            ),
-                        ],
+                  SizedBox(width: leadingWidth, child: Center(child: leading!)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: DefaultTextStyle.merge(
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: this.style ?? style.fonts.titleLarge,
+                    child: Center(
+                      child: Padding(
+                        padding: leading == null
+                            ? EdgeInsets.zero
+                            : const EdgeInsets.only(left: 10 * 0.7),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            title ?? Container(),
+                            if (subtitle != null)
+                              const SizedBox(height: 1 * 0.7),
+                            if (subtitle != null)
+                              DefaultTextStyle.merge(
+                                style: style.fonts.labelMedium,
+                                child: subtitle!,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
+                // if (leading != null) Opacity(opacity: 0, child: leading!),
+
+                if (leading != null)
+                  SizedBox(
+                    width: leadingWidth,
+                    child: Center(child: Opacity(opacity: 0, child: leading!)),
+                  ),
+                if (trailing != null) trailing!,
+                const SizedBox(width: 8),
               ],
             ),
           ),

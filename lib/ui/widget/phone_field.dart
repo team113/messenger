@@ -89,7 +89,7 @@ class ReactivePhoneField extends StatelessWidget {
               validator: PhoneValidator.compose([PhoneValidator.valid()]),
               autovalidateMode: AutovalidateMode.disabled,
               countryCodeStyle: style.fonts.titleMedium,
-              onSaved: (p) => print('saved $p'),
+              onSaved: (p) {},
               onSubmitted: (s) => state.submit(),
               onChanged: (s) {
                 state.isEmpty.value = s?.nsn.isEmpty != false;

@@ -205,6 +205,7 @@ btn_participants = Участники
 btn_participants_desc =
     Список
     участников
+btn_password = Пароль
 btn_paste = Вставить
 btn_personalize = Персонализация
 btn_phone_number = Номер телефона
@@ -715,11 +716,14 @@ label_set_password = Задать пароль
 label_settings = Настройки
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sign_in_with_password = Войти с паролем
 label_sign_up = Регистрация
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
 label_sign_up_code_phone_sent =
     Проверочный код был отправлен на номер телефона {$text}
+label_sign_up_email_already_occupied = E-mail {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
+label_sign_up_phone_already_occupied = Номер телефона {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация

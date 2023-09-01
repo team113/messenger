@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -38,6 +39,12 @@ class FieldButton extends StatefulWidget {
     this.prefix,
     this.style,
     this.subtitle,
+    this.border,
+    this.prefixText,
+    this.prefixStyle,
+    this.label,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
+    this.old = false,
   });
 
   /// Optional label of this [FieldButton].
@@ -72,6 +79,24 @@ class FieldButton extends StatefulWidget {
   /// [TextStyle] of the [text].
   final TextStyle? style;
 
+  ///
+  final Color? border;
+
+  ///
+  final String? prefixText;
+
+  ///
+  final TextStyle? prefixStyle;
+
+  ///
+  final String? label;
+
+  ///
+  final FloatingLabelBehavior floatingLabelBehavior;
+
+  ///
+  final bool old;
+
   @override
   State<FieldButton> createState() => _FieldButtonState();
 }
@@ -85,6 +110,48 @@ class _FieldButtonState extends State<FieldButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    if (!widget.old) {
+      return Column(
+        children: [
+          OutlinedRoundedButton(
+            title: Text(widget.text ?? '', maxLines: widget.maxLines),
+            maxWidth: double.infinity,
+            color: style.colors.onPrimary,
+            disabled: style.colors.onPrimary,
+            onPressed: widget.onPressed,
+            style: (widget.style ?? style.fonts.titleLarge).copyWith(
+              color: widget.onPressed == null
+                  ? style.colors.onBackgroundOpacity40
+                  : style.colors.onBackground,
+            ),
+            height: 46,
+            trailing: AnimatedScale(
+              duration: const Duration(milliseconds: 100),
+              scale: _hovered ? 1.05 : 1,
+              child: Transform.translate(
+                offset: const Offset(0, 1),
+                child: widget.trailing,
+              ),
+            ),
+            leading: widget.prefix,
+            maxHeight: double.infinity,
+            border: Border.all(
+              width: 0.5,
+              color: style.colors.secondary,
+            ),
+          ),
+          if (widget.subtitle != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                child: widget.subtitle,
+              ),
+            ),
+        ],
+      );
+    }
+
     final Widget child = MouseRegion(
       onEnter: PlatformUtils.isMobile
           ? null
@@ -96,26 +163,34 @@ class _FieldButtonState extends State<FieldButton> {
         behavior: HitTestBehavior.deferToChild,
         onPressed: widget.onPressed,
         child: IgnorePointer(
-          child: ReactiveTextField(
-            textAlign: widget.textAlign,
-            state: TextFieldState(text: widget.text, editable: false),
-            label: widget.hint,
-            maxLines: widget.maxLines,
-            trailing: widget.onTrailingPressed == null
-                ? AnimatedScale(
-                    duration: const Duration(milliseconds: 100),
-                    scale: _hovered ? AnimatedButton.scale : 1,
-                    child: Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: widget.trailing,
-                    ),
-                  )
-                : null,
-            prefix: widget.prefix,
-            style: widget.style,
-            fillColor: _hovered && widget.onPressed != null
-                ? style.colors.onPrimary.darken(0.03)
-                : style.colors.onPrimary,
+          child: Theme(
+            data: _theme(context),
+            child: ReactiveTextField(
+              withTrailing: widget.trailing != null,
+              textAlign: widget.textAlign,
+              state: TextFieldState(text: widget.text, editable: false),
+              label: widget.label,
+              maxLines: widget.maxLines,
+              trailing: widget.onTrailingPressed == null
+                  ? AnimatedScale(
+                      duration: const Duration(milliseconds: 100),
+                      scale: _hovered ? AnimatedButton.scale : 1,
+                      child: Transform.translate(
+                        offset: const Offset(0, 1),
+                        child: widget.trailing,
+                      ),
+                    )
+                  : null,
+              prefixStyle: widget.prefixStyle,
+              prefixText: widget.prefixText,
+              floatingLabelBehavior: widget.floatingLabelBehavior,
+              hint: widget.hint,
+              prefix: widget.prefix,
+              style: widget.style,
+              fillColor: _hovered && widget.onPressed != null
+                  ? style.colors.onPrimary.darken(0.03)
+                  : style.colors.onPrimary,
+            ),
           ),
         ),
       ),
@@ -163,6 +238,44 @@ class _FieldButtonState extends State<FieldButton> {
             ),
           ),
       ],
+    );
+  }
+
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  ThemeData _theme(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    if (widget.border == null) {
+      return Theme.of(context);
+    }
+
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(25),
+      borderSide: BorderSide(color: widget.border ?? Colors.white),
+    );
+
+    return Theme.of(context).copyWith(
+      shadowColor: style.colors.onBackgroundOpacity27,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+            border: border,
+            errorBorder: border,
+            enabledBorder: border,
+            focusedBorder: border,
+            disabledBorder: border,
+            focusedErrorBorder: border,
+            focusColor: style.colors.onPrimary,
+            fillColor: style.colors.onPrimary,
+            hoverColor: style.colors.transparent,
+            filled: true,
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(
+              15,
+              PlatformUtils.isDesktop ? 30 : 23,
+              15,
+              0,
+            ),
+          ),
     );
   }
 }
