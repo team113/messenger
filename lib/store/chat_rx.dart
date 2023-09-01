@@ -669,7 +669,7 @@ class HiveRxChat extends RxChat {
           chatEntity?.lastItemCursor = null;
         }
 
-        chatEntity?.save();
+        _chatLocal.put(chatEntity!);
       }
     }
   }
@@ -1094,7 +1094,7 @@ class HiveRxChat extends RxChat {
               final message = await get(event.itemId);
               if (message != null) {
                 (message.value as ChatMessage).text = event.text;
-                message.save();
+                _local.put(message);
               }
               break;
 
@@ -1113,7 +1113,7 @@ class HiveRxChat extends RxChat {
               if (message != null) {
                 event.call.at = message.value.at;
                 message.value = event.call;
-                message.save();
+                _local.put(message);
               }
               break;
 
@@ -1187,7 +1187,7 @@ class HiveRxChat extends RxChat {
                     if (message != null) {
                       call.at = message.value.at;
                       message.value = call;
-                      message.save();
+                      _local.put(message);
                     }
                   }
                 }
