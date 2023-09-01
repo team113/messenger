@@ -2,7 +2,7 @@
 # Indicator whether remote configuration should be respected, if available.
 #
 # Default:
-  remote = false
+#   remote = true
 
 [server.http]
 # URL address of HTTP backend server.
@@ -10,19 +10,19 @@
 # Unused for web, browser location is used instead.
 #
 # Default:
-  url = "https://messenger.soc.stg.t11913.org"
+#   url = "http://localhost"
 
 # Port of HTTP backend server.
 #
 # Unused for web, browser location is used instead.
 #
 # Default:
-   port = 443
+#   port = 80
 
 # GraphQL API endpoint of HTTP backend server.
 #
 # Default:
-   graphql = "/api/graphql"
+#   graphql = "/api/graphql"
 
 [server.ws]
 # URL address of WebSocket backend server.
@@ -30,26 +30,26 @@
 # Unused for web, browser location is used instead.
 #
 # Default:
-   url = "wss://messenger.soc.stg.t11913.org"
+#   url = "ws://localhost"
 
 # Port of WebSocket backend server.
 #
 # Unused for web, browser location is used instead.
 #
 # Default:
-   port = 443
+#   port = 80
 
 [files]
 # URL address of file storage server.
 #
 # Default:
-   url = "https://messenger.soc.stg.t11913.org/files"
+#   url = "http://localhost/files"
 
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.
 #
 # Default:
-   dsn = ""
+#   dsn = ""
 
 [downloads]
 # Directory to download files to.
@@ -59,7 +59,7 @@
 # Unused for Web, as browser picks the directory itself.
 #
 # Default:
-   directory = ""
+#   directory = ""
 
 [user.agent]
 # Product identifier of `User-Agent` header to put in network queries.
@@ -67,7 +67,7 @@
 # Unused for Web, as browser picks the `User-Agent` itself.
 #
 # Default:
-   product = "Gapopa"
+#   product = "Gapopa"
 
 # Product version of `User-Agent` header to put in network queries.
 #
@@ -76,10 +76,10 @@
 # Unused for Web, as browser picks the `User-Agent` itself.
 #
 # Default:
-   version = "$(git describe --tags --dirty)"
+#   version = "$(git describe --tags --dirty)"
 
 [windows]
 # Unique identifier of Windows application.
 #
 # Default:
-   clsid = "00000000-0000-0000-0000-000000000000"
+#   clsid = "00000000-0000-0000-0000-000000000000"
