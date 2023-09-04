@@ -51,7 +51,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the `HomeTab.contacts` tab.
+/// View of the [HomeTab.contacts] tab.
 class ContactsTabView extends StatelessWidget {
   const ContactsTabView({super.key});
 

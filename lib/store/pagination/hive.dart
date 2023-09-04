@@ -36,8 +36,8 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
     required this.getKey,
     this.sortingProvider,
     this.getSorting,
-    this.isLast,
     this.isFirst,
+    this.isLast,
     this.strategy = PaginationStrategy.fromStart,
     this.reversed = false,
   });
@@ -54,7 +54,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
   /// Callback, called to indicate whether the provided [T] is the first.
   final bool Function(T item)? isFirst;
 
-  /// Callback, called to check the provided [T] is last.
+  /// Callback, called to indicate whether the provided [T] is the last.
   final bool Function(T item)? isLast;
 
   /// [PaginationStrategy] of [around] invoke.
@@ -284,8 +284,6 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
       }
     }
 
-    // [Hive] can't guarantee previous page existence based on the stored
-    // values, thus `hasPrevious` is always `true`.
     return Page(
       RxList(items.toList()),
       PageInfo(

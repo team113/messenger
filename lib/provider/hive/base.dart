@@ -98,25 +98,29 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Removes all entries from the [Box].
   @mustCallSuper
-  Future<void> clear() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
-          await box.clear();
-        }
-      });
+  Future<void> clear() {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        await box.clear();
+      }
+    });
+  }
 
   /// Closes the [Box].
   @mustCallSuper
-  Future<void> close() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
-          _isReady = false;
+  Future<void> close() {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        _isReady = false;
 
-          try {
-            await _box.close();
-          } on FileSystemException {
-            // No-op.
-          }
+        try {
+          await _box.close();
+        } on FileSystemException {
+          // No-op.
         }
-      });
+      }
+    });
+  }
 
   @override
   void onClose() async {
@@ -126,10 +130,11 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
   Future<void> putSafe(dynamic key, T value) {
-    if (_isReady && _box.isOpen) {
-      return box.put(key, value);
-    }
-    return Future.value();
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        await _box.put(key, value);
+      }
+    });
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
@@ -144,10 +149,12 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
-    if (_isReady && _box.isOpen) {
-      return box.delete(key);
-    }
-    return Future.value();
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        await _box.delete(key);
+      }
+      return Future.value();
+    });
   }
 
   /// Exception-safe wrapper for [BoxBase.delete] deleting a value by the given
@@ -234,25 +241,29 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   /// Removes all entries from the [Box].
   @mustCallSuper
-  Future<void> clear() => _mutex.protect(() async {
-        if (_isReady) {
-          await _box.clear();
-        }
-      });
+  Future<void> clear() {
+    return _mutex.protect(() async {
+      if (_isReady) {
+        await _box.clear();
+      }
+    });
+  }
 
   /// Closes the [Box].
   @mustCallSuper
-  Future<void> close() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
-          _isReady = false;
+  Future<void> close() {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        _isReady = false;
 
-          try {
-            await _box.close();
-          } on FileSystemException {
-            // No-op.
-          }
+        try {
+          await _box.close();
+        } on FileSystemException {
+          // No-op.
         }
-      });
+      }
+    });
+  }
 
   @override
   void onClose() async {

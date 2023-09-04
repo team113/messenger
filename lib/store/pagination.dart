@@ -308,7 +308,7 @@ class Page<T, C> {
   /// Returns a new [Page] with reversed [info].
   Page<T, C> reversed() {
     return Page(
-      RxList.from(this.edges),
+      RxList.from(this.edges.reversed),
       PageInfo(
         hasNext: this.info.hasPrevious,
         hasPrevious: this.info.hasNext,
