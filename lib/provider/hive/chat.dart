@@ -40,7 +40,8 @@ import 'chat_item.dart';
 part 'chat.g.dart';
 
 /// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
+class ChatHiveProvider extends HiveBaseProvider<HiveChat>
+    with IterableHiveProviderMixin<HiveChat, ChatId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -95,21 +96,75 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(RecentChatsCursorAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 
-  /// Returns a list of [Chat]s from [Hive].
-  Iterable<HiveChat> get chats => valuesSafe;
+  @override
+  Iterable<ChatId> get keys => keysSafe.map((e) => ChatId(e));
 
-  /// Puts the provided [Chat] to [Hive].
-  Future<void> put(HiveChat chat) => putSafe(chat.value.id.val, chat);
+  @override
+  Iterable<HiveChat> get values => valuesSafe;
 
-  /// Returns a [Chat] from [Hive] by its [id].
-  HiveChat? get(ChatId id) => getSafe(id.val);
+  @override
+  Future<void> put(HiveChat item) => putSafe(item.value.id.val, item);
 
-  /// Removes a [Chat] from [Hive] by the provided [id].
-  Future<void> remove(ChatId id) => deleteSafe(id.val);
+  @override
+  HiveChat? get(ChatId key) => getSafe(key.val);
+
+  @override
+  Future<void> remove(ChatId key) => deleteSafe(key.val);
+
+  @override
+  Future<void> clear({bool exceptLocal = false}) async {
+    if (exceptLocal) {
+      // TODO: remove?
+      for (var k in keys) {
+        if (!k.isLocal) {
+          await remove(k);
+        }
+      }
+    } else {
+      return super.clear();
+    }
+  }
+}
+
+/// [Hive] storage for [Chat]s sorting data.
+class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
+    with IterableHiveProviderMixin<ChatId, PreciseDateTime> {
+  @override
+  Stream<BoxEvent> get boxEvents => box.watch();
+
+  @override
+  String get boxName => 'chat_sorting';
+
+  @override
+  void registerAdapters() {
+    Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(ChatIdAdapter());
+  }
+
+  @override
+  Iterable<PreciseDateTime> get keys =>
+      keysSafe.map((e) => PreciseDateTime.parse(e));
+
+  @override
+  Iterable<ChatId> get values => valuesSafe;
+
+  @override
+  Future<void> put(ChatId item, [PreciseDateTime? key]) =>
+      putSafe((key ?? PreciseDateTime(DateTime.now())).toString(), item);
+
+  @override
+  ChatId? get(PreciseDateTime key) => getSafe(key.toString());
+
+  @override
+  Future<void> remove(PreciseDateTime key) => deleteSafe(key.toString());
+
+  /// Removes a [PreciseDateTime] item from [Hive] by the provided [index].
+  Future<void> removeAt(int index) => deleteAtSafe(index);
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].
@@ -120,6 +175,7 @@ class HiveChat extends HiveObject {
     this.ver,
     this.lastItemCursor,
     this.lastReadItemCursor,
+    this.cursor,
   );
 
   /// Persisted [Chat] model.
@@ -140,4 +196,8 @@ class HiveChat extends HiveObject {
   /// Cursor of a [Chat.lastReadItem].
   @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
+
+  /// Cursor of the [value].
+  @HiveField(5)
+  RecentChatsCursor? cursor;
 }

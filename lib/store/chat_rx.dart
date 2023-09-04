@@ -119,8 +119,8 @@ class HiveRxChat extends RxChat {
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
-  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
-      _provider;
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey,
+      dynamic> _provider;
 
   /// Subscription to [User]s from the [members] list forming the [title].
   final Map<UserId, Worker> _userWorkers = {};
@@ -732,40 +732,7 @@ class HiveRxChat extends RxChat {
   Future<void> clear() => _pagination.clear();
 
   @override
-  int compareTo(RxChat other) {
-    if (chat.value.ongoingCall != null &&
-        other.chat.value.ongoingCall == null) {
-      return -1;
-    } else if (chat.value.ongoingCall == null &&
-        other.chat.value.ongoingCall != null) {
-      return 1;
-    } else if (chat.value.ongoingCall != null &&
-        other.chat.value.ongoingCall != null) {
-      return chat.value.ongoingCall!.at
-          .compareTo(other.chat.value.ongoingCall!.at);
-    }
-
-    if (chat.value.favoritePosition != null &&
-        other.chat.value.favoritePosition == null) {
-      return -1;
-    } else if (chat.value.favoritePosition == null &&
-        other.chat.value.favoritePosition != null) {
-      return 1;
-    } else if (chat.value.favoritePosition != null &&
-        other.chat.value.favoritePosition != null) {
-      return chat.value.favoritePosition!
-          .compareTo(other.chat.value.favoritePosition!);
-    }
-
-    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
-      return 1;
-    } else if (!chat.value.id.isLocalWith(me) &&
-        other.chat.value.id.isLocalWith(me)) {
-      return -1;
-    }
-
-    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
-  }
+  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me: me);
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
   /// [Attachment]s, if any.
@@ -816,7 +783,7 @@ class HiveRxChat extends RxChat {
           final HiveChat? chat = _chatLocal.get(id);
           if (chat != null) {
             chat.value.muted = null;
-            _chatLocal.put(chat);
+            _chatRepository.putChat(chat);
           }
         },
       );
@@ -998,7 +965,7 @@ class HiveRxChat extends RxChat {
         HiveChat? chatEntity = _chatLocal.get(id);
         if (node.chat.ver > chatEntity?.ver) {
           chatEntity = node.chat;
-          _chatLocal.put(chatEntity);
+          _chatRepository.putChat(chatEntity);
           _lastReadItemCursor = node.chat.lastReadItemCursor;
         }
         break;
@@ -1363,7 +1330,7 @@ class HiveRxChat extends RxChat {
         }
 
         if (putChat) {
-          _chatLocal.put(chatEntity);
+          _chatRepository.putChat(chatEntity);
         }
         break;
     }

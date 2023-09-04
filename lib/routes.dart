@@ -435,6 +435,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
+                deps.put(ChatSortingHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
@@ -479,6 +480,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
+                  Get.find(),
                   Get.find(),
                   callRepository,
                   Get.find(),
@@ -543,6 +545,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
+              deps.put(ChatSortingHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
@@ -583,6 +586,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             deps.put<AbstractCallRepository>(callRepository);
             ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
+              Get.find(),
               Get.find(),
               callRepository,
               Get.find(),

@@ -53,6 +53,7 @@ import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/graphql.dart';
+import '/store/pagination/hive.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/new_type.dart';
@@ -70,6 +71,7 @@ class ChatRepository extends DisposableInterface
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
+    this._chatSortingLocal,
     this._callRepo,
     this._draftLocal,
     this._userRepo,
@@ -93,6 +95,9 @@ class ChatRepository extends DisposableInterface
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [Chat]s sorting data local [Hive] storage.
+  final ChatSortingHiveProvider _chatSortingLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
@@ -159,16 +164,17 @@ class ChatRepository extends DisposableInterface
   RxBool get hasNext => _pagination.hasNext;
 
   @override
-  RxBool get nextLoading => _callsPagination.nextLoading.isTrue
-      ? _callsPagination.nextLoading
-      : _pagination.nextLoading;
+  RxBool get nextLoading => _callsPagination?.nextLoading.isTrue == true
+      ? _callsPagination!.nextLoading
+      : _favoritesPagination?.nextLoading.isTrue == true
+          ? _favoritesPagination!.nextLoading
+          : _pagination.nextLoading;
 
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<HiveChat, RecentChatsCursor, ChatId> _callsPagination;
+  Pagination<HiveChat, RecentChatsCursor, ChatId>? _callsPagination;
 
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<HiveChat, FavoriteChatsCursor, ChatId>
-      _favoritePagination;
+  Pagination<HiveChat, FavoriteChatsCursor, ChatId>? _favoritesPagination;
 
   /// [Pagination] loading [messages] with pagination.
   late Pagination<HiveChat, RecentChatsCursor, ChatId> _pagination;
@@ -188,9 +194,6 @@ class ChatRepository extends DisposableInterface
   }) async {
     this.onMemberRemoved = onMemberRemoved;
 
-    if (!_chatLocal.isEmpty) {
-    }
-
     status.value =
         _chatLocal.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
@@ -198,85 +201,27 @@ class ChatRepository extends DisposableInterface
     _initDraftSubscription();
 
     try {
-      // TODO: [chats] should consist of 3 lists:
-      //       - with [OngoingCall]s;
-      //       - favorite [Chat]s;
-      //       - recent [Chat]s.
-      _callsPagination = Pagination(
-        onKey: (e) => e.value.id,
-        provider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) => _recentChats(
-              after: after,
-              first: first,
-              before: before,
-              last: last,
-              withOngoingCalls: true),
-        ),
-      );
-
-      _favoritePagination = Pagination(
-        onKey: (e) => e.value.id,
-        provider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) => _favoriteChats(
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          ),
-        ),
-      );
-
       _pagination = Pagination(
         onKey: (e) => e.value.id,
-        provider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) => _recentChats(
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          ),
+        compareKeys: false,
+        compare: (a, b) => a.value.compareTo(b.value, me: me),
+        provider: HivePageProvider(
+          _chatLocal,
+          getCursor: (e) => e?.cursor,
+          getKey: (e) => e.value.id,
+          isLast: (_) => true,
+          isFirst: (_) => true,
+          sortingProvider: _chatSortingLocal,
+          getSorting: (e) => e.value.updatedAt,
+          strategy: PaginationStrategy.fromEnd,
+          reversed: true,
         ),
       );
-      _callsPaginationSubscription =
-          _callsPagination.changes.listen((event) async {
-        switch (event.op) {
-          case OperationKind.added:
-            _add(event.value!);
-            break;
-
-          case OperationKind.removed:
-            await _chats.remove(event.value?.value.id)?.dispose();
-            break;
-
-          case OperationKind.updated:
-            _add(event.value!);
-            break;
-        }
-      });
-
-      _favoritePaginationSubscription =
-          _favoritePagination.changes.listen((event) async {
-        switch (event.op) {
-          case OperationKind.added:
-            _add(event.value!);
-            break;
-
-          case OperationKind.removed:
-            await _chats.remove(event.value?.value.id)?.dispose();
-            break;
-
-          case OperationKind.updated:
-            _add(event.value!);
-            break;
-        }
-      });
 
       _paginationSubscription = _pagination.changes.listen((event) async {
         switch (event.op) {
           case OperationKind.added:
-            _add(
-              event.value!,
-            );
+            _add(event.value!);
             break;
 
           case OperationKind.removed:
@@ -293,17 +238,12 @@ class ChatRepository extends DisposableInterface
       _initRemoteSubscription();
       _initFavoriteChatsSubscription();
 
-      await _callsPagination.around();
-      if (_callsPagination.hasNext.isFalse) {
-        await _favoritePagination.around();
-        if (_favoritePagination.hasNext.isFalse) {
+      Future.delayed(1.seconds, () async {
+        if (chats.isEmpty) {
           await _pagination.around();
+          status.value = RxStatus.success();
         }
-      }
-
-      if (chats.isNotEmpty) {
-        status.value = RxStatus.success();
-      }
+      });
     } on OperationCanceledException catch (_) {
       // No-op.
     }
@@ -331,21 +271,25 @@ class ChatRepository extends DisposableInterface
   Future<void> next() async {
     status.value = RxStatus.loadingMore();
 
-    if (_callsPagination.hasNext.isFalse) {
-      if (_favoritePagination.hasNext.isFalse) {
-        await _pagination.next();
-      } else {
-        await _favoritePagination.next();
-      }
+    if (_callsPagination != null && _callsPagination!.hasNext.isTrue) {
+      await _callsPagination!.next();
     } else {
-      await _callsPagination.next();
+      if (_favoritesPagination != null &&
+          _favoritesPagination!.hasNext.isFalse) {
+        await _favoritesPagination!.next();
+      } else {
+        await _pagination.next();
+      }
     }
 
     status.value = RxStatus.success();
   }
 
   @override
-  Future<void> clearCache() => _chatLocal.clear();
+  Future<void> clearCache() async {
+    await _chatSortingLocal.clear();
+    await _chatLocal.clear();
+  }
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
@@ -1309,13 +1253,17 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Hive].
-  Future<void> _putChat(HiveChat chat) async {
-    var saved = _chatLocal.get(chat.value.id);
-    if (saved == null || saved.ver < chat.ver) {
-      await _chatLocal.put(chat);
+  Future<void> putChat(HiveChat chat) async {
+    if (chat.value.ongoingCall != null) {
+      _callsPagination?.put(chat);
+    } else if (chat.value.favoritePosition != null) {
+      _favoritesPagination?.put(chat);
+    } else {
+      _pagination.put(chat);
     }
   }
 
+  /// Adds the provided [HiveChat] to the [chats].
   _add(HiveChat chat) {
     ChatId chatId = chat.value.id;
     HiveRxChat? rxChat = _chats[chatId];
@@ -1350,32 +1298,16 @@ class ChatRepository extends DisposableInterface
       final ChatId chatId = ChatId(event.key);
 
       if (event.deleted) {
-        await _chats.remove(chatId)?.dispose();
-      } else {
-        HiveRxChat? chat = _chats[chatId];
-        if (chat == null) {
-          HiveRxChat entry =
-              HiveRxChat(this, _chatLocal, _draftLocal, event.value);
-          _chats[chatId] = entry;
-          entry.init();
-          entry.subscribe();
-        } else {
-          if (chat.chat.value.isMonolog) {
-            if (_localMonologFavoritePosition != null) {
-              event.value.value.favoritePosition =
-                  _localMonologFavoritePosition;
-              _localMonologFavoritePosition = null;
-            }
-
-            if (_monologShouldBeHidden) {
-              event.value.value.isHidden = _monologShouldBeHidden;
-              _monologShouldBeHidden = false;
-            }
-          }
-
-          chat.chat.value = event.value.value;
-          chat.chat.refresh();
+        final int index = _chatSortingLocal.values.toList().indexOf(chatId);
+        if (index != -1) {
+          _chatSortingLocal.removeAt(index);
         }
+      } else {
+        final int index = _chatSortingLocal.values.toList().indexOf(chatId);
+        if (index != -1) {
+          _chatSortingLocal.removeAt(index);
+        }
+        await _chatSortingLocal.put(chatId, event.value.value.updatedAt);
       }
     }
   }
@@ -1411,7 +1343,7 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        // No-op.
+        _initPagination();
         break;
 
       case RecentChatsEventKind.list:
@@ -1429,6 +1361,7 @@ class ChatRepository extends DisposableInterface
         // maintained by itself via [chatEvents].
         if (chats[event.chat.chat.value.id] == null) {
           _putEntry(event.chat);
+          // TODO: Show notification.
         }
         break;
 
@@ -1438,7 +1371,36 @@ class ChatRepository extends DisposableInterface
     }
   }
 
+  /// Initializes [_callsPagination], [_favoritesPagination] and [_pagination].
   Future<void> _initPagination() async {
+    _callsPagination = Pagination(
+      onKey: (e) => e.value.id,
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _recentChats(
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+            withOngoingCalls: true),
+      ),
+      compareKeys: false,
+      compare: (a, b) => a.value.compareTo(b.value, me: me),
+    );
+
+    _favoritesPagination = Pagination(
+      onKey: (e) => e.value.id,
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _favoriteChats(
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+        ),
+      ),
+      compareKeys: false,
+      compare: (a, b) => a.value.compareTo(b.value, me: me),
+    );
+
     await _pagination.clear();
     _pagination = Pagination(
       onKey: (e) => e.value.id,
@@ -1450,10 +1412,32 @@ class ChatRepository extends DisposableInterface
           last: last,
         ),
       ),
+      compareKeys: false,
+      compare: (a, b) => a.value.compareTo(b.value, me: me),
     );
 
-    _paginationSubscription?.cancel();
-    _paginationSubscription = _pagination.changes.listen((event) async {
+    _callsPaginationSubscription =
+        _callsPagination!.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+          _add(event.value!);
+          _chatLocal.put(event.value!);
+          break;
+
+        case OperationKind.removed:
+          await _chats.remove(event.value!.value.id)?.dispose();
+          remove(event.value!.value.id);
+          break;
+
+        case OperationKind.updated:
+          _add(event.value!);
+          _chatLocal.put(event.value!);
+          break;
+      }
+    });
+
+    _favoritePaginationSubscription =
+        _favoritesPagination!.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
           _add(event.value!);
@@ -1469,7 +1453,33 @@ class ChatRepository extends DisposableInterface
       }
     });
 
-    await _pagination.around();
+    _paginationSubscription?.cancel();
+    _paginationSubscription = _pagination.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+          _add(event.value!);
+          _chatLocal.put(event.value!);
+          break;
+
+        case OperationKind.removed:
+          await _chats.remove(event.value!.value.id)?.dispose();
+          remove(event.value!.value.id);
+          break;
+
+        case OperationKind.updated:
+          _add(event.value!);
+          _chatLocal.put(event.value!);
+          break;
+      }
+    });
+
+    await _callsPagination!.around();
+    if (_callsPagination!.hasNext.isFalse) {
+      await _favoritesPagination!.around();
+      if (_favoritesPagination!.hasNext.isFalse) {
+        await _pagination.around();
+      }
+    }
 
     status.value = RxStatus.success();
   }
@@ -1481,7 +1491,6 @@ class ChatRepository extends DisposableInterface
             .recentChatsTopEvents;
 
         if (events.$$typename == 'SubscriptionInitialized') {
-          _initPagination();
           yield const RecentChatsTopInitialized();
         } else if (events.$$typename == 'RecentChatsTop') {
           var list = (events
@@ -1591,7 +1600,7 @@ class ChatRepository extends DisposableInterface
           }
         }
 
-        _putChat(data.chat);
+        putChat(data.chat);
 
         if (entry == null) {
           entry = HiveRxChat(this, _chatLocal, _draftLocal, data.chat);
@@ -1600,7 +1609,7 @@ class ChatRepository extends DisposableInterface
           entry.subscribe();
         }
       } else {
-        _putChat(data.chat);
+        putChat(data.chat);
       }
 
       for (var item in [

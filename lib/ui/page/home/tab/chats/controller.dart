@@ -143,6 +143,9 @@ class ChatsTabController extends GetxController {
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
+  /// Subscription for [ChatService.status] changes.
+  late final StreamSubscription _statusSubscription;
+
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
@@ -240,6 +243,16 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    if (_chatService.status.value.isSuccess) {
+      _ensureScrollable();
+    } else {
+      _statusSubscription = _chatService.status.listen((status) {
+        if (status.isSuccess) {
+          _ensureScrollable();
+        }
+      });
+    }
+
     super.onInit();
   }
 
@@ -255,6 +268,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _statusSubscription.cancel();
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
@@ -651,6 +665,28 @@ class ChatsTabController extends GetxController {
         scrollController.position.pixels >
             scrollController.position.maxScrollExtent - 500) {
       _chatService.next();
+    }
+  }
+
+  /// Ensures the [ChatView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (hasNext.isTrue) {
+      await Future.delayed(5.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent == 0) {
+          await _chatService.next();
+          _ensureScrollable();
+        }
+      });
     }
   }
 
