@@ -272,7 +272,7 @@ class HiveRxChat extends RxChat {
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
         fetch: ({after, before, first, last}) async {
-          final Page<HiveChatItem, ChatItemsCursor> page =
+          final Page<HiveChatItem, ChatItemsCursor> reversed =
               await _chatRepository.messages(
             chat.value.id,
             after: after,
@@ -281,16 +281,16 @@ class HiveRxChat extends RxChat {
             last: last,
           );
 
-          final Page<HiveChatItem, ChatItemsCursor> reversed;
+          final Page<HiveChatItem, ChatItemsCursor> page;
           if (_provider.graphQlProvider.reversed) {
-            reversed = page.reversed();
+            page = reversed.reversed();
           } else {
-            reversed = page;
+            page = reversed;
           }
 
-          if (reversed.info.hasPrevious == false) {
+          if (page.info.hasPrevious == false) {
             final HiveChat? chatEntity = _chatLocal.get(id);
-            final ChatItem? firstItem = reversed.edges.firstOrNull?.value;
+            final ChatItem? firstItem = page.edges.firstOrNull?.value;
 
             if (chatEntity != null && chatEntity.value.firstItem != firstItem) {
               chatEntity.value.firstItem = firstItem;
@@ -298,7 +298,7 @@ class HiveRxChat extends RxChat {
             }
           }
 
-          return page;
+          return reversed;
         },
       ),
       hiveProvider: HivePageProvider(
