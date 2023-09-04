@@ -114,6 +114,9 @@ class StatusView extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: RectangleButton(
+                            key: Key(
+                              e.name[0].toUpperCase() + e.name.substring(1),
+                            ),
                             selected: c.presence.value == e,
                             label: e.localizedString() ?? '',
                             onPressed: () => c.presence.value = e,

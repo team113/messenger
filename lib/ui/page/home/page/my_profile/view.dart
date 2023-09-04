@@ -586,6 +586,7 @@ Widget _presence(BuildContext context, MyProfileController c) {
 
     return Paddings.basic(
       FieldButton(
+        key: const Key('PresenceStatus'),
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),

@@ -28,3 +28,13 @@ Feature: User subscription
 
     When Bob updates his name with "Me Bob, me funny, haha"
     Then I wait until text "Me Bob, me funny, haha" is present
+
+  Scenario: User sees Bob changing his status
+    Given I am Alice
+    And user Bob
+    And I wait until `HomeView` is present
+    And I go to Bob's page
+
+    When Bob updates his status with "my"
+    Then I wait until text "my" is present
+    
