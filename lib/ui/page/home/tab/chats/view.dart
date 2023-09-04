@@ -53,7 +53,7 @@ import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
 
-/// View of the `HomeTab.chats` tab.
+/// View of the [HomeTab.chats] tab.
 class ChatsTabView extends StatelessWidget {
   const ChatsTabView({super.key});
 
