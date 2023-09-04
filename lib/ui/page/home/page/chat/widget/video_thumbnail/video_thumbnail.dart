@@ -203,7 +203,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         file == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
-      CacheEntry cache = await CacheWorker.instance.get(
+      final CacheEntry cache = await CacheWorker.instance.get(
         checksum: widget.checksum!,
         responseType: CacheResponseType.file,
       );
