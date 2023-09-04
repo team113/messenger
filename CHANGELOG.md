@@ -14,7 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-    - Work page. ([#541])
+    - Work page and tab. ([#541])
 
 [#541]: /../../pull/541
 
