@@ -175,8 +175,6 @@ class Pagination<T, C, K extends Comparable> {
       if (compareKeys) {
         page = await provider.after(items[items.lastKey()], endCursor, perPage);
       } else {
-        List<T> sorted = items.values.toList();
-        sorted.sort(compare!);
         page = await provider.after(_lastItem, endCursor, perPage);
       }
       Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
@@ -212,8 +210,6 @@ class Pagination<T, C, K extends Comparable> {
           perPage,
         );
       } else {
-        List<T> sorted = items.values.toList();
-        sorted.sort(compare!);
         page = await provider.before(_firstItem, startCursor, perPage);
       }
       Log.print(
