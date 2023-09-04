@@ -72,7 +72,7 @@ fmt: flutter.fmt
 gen: flutter.gen
 
 
-icon: update.icon
+icon: icon.update
 
 
 lint: flutter.analyze
@@ -779,23 +779,23 @@ endif
 
 
 ################
-# NPX commands #
+# NPM commands #
 ################
 
 
 # Update the launcher icons.
 #
 # Usage:
-#	make update.icon [dockerized=(no|yes)]
+#	make icon.update [dockerized=(no|yes)]
 
-update.icon:
+icon.update:
 ifeq ($(dockerized),yes)
 	docker run --rm -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make update.icon dockerized=no
+		node:${NODE_VER} \
+			make icon.update dockerized=no
 else
-	npx update-flutter-app-icon update_icons.json
+	npx update-flutter-app-icon dev/update_icons.json
 endif	
 
 
@@ -837,6 +837,6 @@ endif
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
+		icon.update \
         minikube.boot \
-        test.e2e test.unit \
-		update.icon
+        test.e2e test.unit
