@@ -148,7 +148,13 @@ class AuthView extends StatelessWidget {
             ),
           const SizedBox(height: 20),
           StyledCupertinoButton(
+            padding: const EdgeInsets.all(8),
+            label: 'btn_work_with_us'.l10n,
+            onPressed: () => router.work(null),
+          ),
+          StyledCupertinoButton(
             key: c.languageKey,
+            padding: const EdgeInsets.all(8),
             label: 'label_language_entry'.l10nfmt({
               'code': L10n.chosen.value!.locale.countryCode,
               'name': L10n.chosen.value!.name,

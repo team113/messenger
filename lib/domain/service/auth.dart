@@ -42,14 +42,22 @@ class AuthService extends GetxService {
   /// Currently authorized session's [Credentials].
   final Rx<Credentials?> credentials = Rx(null);
 
+  /// Authorization status.
+  ///
+  /// Can be:
+  /// - `status.isEmpty` meaning that `MyUser` is unauthorized;
+  /// - `status.isLoading` meaning that authorization data is being fetched
+  ///   from storage;
+  /// - `status.isLoadingMore` meaning that `MyUser` is authorized according to
+  ///   the storage, but network request to the server is still in-flight;
+  /// - `status.isSuccess` meaning successful authorization.
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
   /// [SessionDataHiveProvider] used to store user [Session].
   final SessionDataHiveProvider _sessionProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
-
-  /// Authorization status.
-  final Rx<RxStatus> _status = Rx<RxStatus>(RxStatus.loading());
 
   /// [Timer] used to periodically check the [Session.expireAt] and refresh it
   /// if necessary.
@@ -71,17 +79,6 @@ class AuthService extends GetxService {
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
   StreamSubscription? _storageSubscription;
-
-  /// Authorization status.
-  ///
-  /// Can be:
-  /// - `status.isEmpty` meaning that `MyUser` is unauthorized;
-  /// - `status.isLoading` meaning that authorization data is being fetched
-  ///   from storage;
-  /// - `status.isLoadingMore` meaning that `MyUser` is authorized according to
-  ///   the storage, but network request to the server is still in-flight;
-  /// - `status.isSuccess` meaning successful authorization.
-  Rx<RxStatus> get status => _status;
 
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
@@ -134,7 +131,7 @@ class AuthService extends GetxService {
             _authRepository.token = creds.session.token;
             _authRepository.applyToken();
             credentials.value = creds;
-            _status.value = RxStatus.success();
+            status.value = RxStatus.success();
           }
         } else {
           if (!WebUtils.isPopup) {
@@ -154,7 +151,7 @@ class AuthService extends GetxService {
       if (remembered == null) {
         if (session.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
           _authorized(creds!);
-          _status.value = RxStatus.success();
+          status.value = RxStatus.success();
           return null;
         }
       } else if (remembered.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
@@ -164,7 +161,7 @@ class AuthService extends GetxService {
             .isBefore(PreciseDateTime.now().toUtc())) {
           renewSession();
         }
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
         return null;
       }
 
@@ -242,13 +239,13 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
-    _status.value = RxStatus.loading();
+    status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
         var data = await _authRepository.signUp();
         _authorized(data);
         _sessionProvider.setCredentials(data);
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
         rethrow;
@@ -267,7 +264,7 @@ class AuthService extends GetxService {
       UserNum? num,
       UserEmail? email,
       UserPhone? phone}) async {
-    _status.value = RxStatus.loadingMore();
+    status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {
         Credentials data = await _authRepository.signIn(
@@ -279,7 +276,7 @@ class AuthService extends GetxService {
         );
         _authorized(data);
         _sessionProvider.setCredentials(data);
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
         rethrow;
@@ -290,7 +287,7 @@ class AuthService extends GetxService {
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {
-    _status.value = RxStatus.loading();
+    status.value = RxStatus.loading();
 
     try {
       await _authRepository.logout();
@@ -336,7 +333,7 @@ class AuthService extends GetxService {
           _authorized(data);
 
           _sessionProvider.setCredentials(data);
-          _status.value = RxStatus.success();
+          status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
           rethrow;
@@ -363,7 +360,7 @@ class AuthService extends GetxService {
         renewSession();
       }
     });
-    _status.value = RxStatus.loadingMore();
+    status.value = RxStatus.loadingMore();
   }
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
@@ -371,7 +368,7 @@ class AuthService extends GetxService {
     _sessionProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
-    _status.value = RxStatus.empty();
+    status.value = RxStatus.empty();
     _refreshTimer?.cancel();
     return Routes.auth;
   }
