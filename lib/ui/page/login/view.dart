@@ -122,7 +122,6 @@ class LoginView extends StatelessWidget {
                   onPressed:
                       c.login.isEmpty.value ? null : c.signInWithoutPassword,
                 ),
-               
               ];
               break;
 
@@ -172,7 +171,6 @@ class LoginView extends StatelessWidget {
                       ? null
                       : c.recoveryCode.submit,
                 ),
-                
               ];
               break;
 
@@ -203,7 +201,6 @@ class LoginView extends StatelessWidget {
                   onPressed:
                       c.recovery.isEmpty.value ? null : c.recovery.submit,
                 ),
-             
               ];
               break;
 
@@ -235,7 +232,6 @@ class LoginView extends StatelessWidget {
                       ? null
                       : c.recoveryCode.submit,
                 ),
-               
               ];
               break;
 
@@ -287,7 +283,6 @@ class LoginView extends StatelessWidget {
                       ? null
                       : c.resetUserPassword,
                 ),
-               
               ];
               break;
 
@@ -414,10 +409,12 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.phone,
                   label: 'label_phone_number'.l10n,
-
-                  prefix: CountryCodeChipl(
-                    textStyle: style.fonts.titleMedium,
-                    isoCode: IsoCode.RU,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: CountryCodeChipl(
+                      textStyle: style.fonts.titleMedium,
+                      isoCode: IsoCode.RU,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -434,7 +431,7 @@ class LoginView extends StatelessWidget {
                               : style.fonts.titleLarge.color,
                         ),
                       ),
-                      onPressed: enabled ? c.phone.submit : null,
+                      onPressed: enabled ? c.register : null,
                       color: style.colors.primary,
                       maxWidth: double.infinity,
                     );

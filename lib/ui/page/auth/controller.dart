@@ -52,7 +52,7 @@ class AuthController extends GetxController {
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
-   @override
+  @override
   void onInit() {
     system.value = PlatformUtils.isIOS
         ? 0
@@ -72,6 +72,7 @@ class AuthController extends GetxController {
       system.value = 0;
     }
   }
+
   @override
   void onClose() {
     _animationTimer?.cancel();

@@ -783,7 +783,7 @@ class LoginController extends GetxController {
     }
   }
 
-///
+  ///
   Future<void> register() async {
     await _authService.register();
     router.validateEmail = true;
@@ -969,7 +969,8 @@ class LoginController extends GetxController {
       rethrow;
     }
   }
-///
+
+  ///
   Future<void> registerOccupied() async {
     final GraphQlProvider graphQlProvider = Get.find();
 
@@ -985,7 +986,8 @@ class LoginController extends GetxController {
     router.signUp = true;
     _redirect();
   }
-///
+
+  ///
   void _redirect() {
     (onAuth ?? router.home).call();
   }

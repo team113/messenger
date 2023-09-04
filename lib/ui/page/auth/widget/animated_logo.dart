@@ -29,6 +29,7 @@ class AnimatedLogo extends StatelessWidget {
     this.svgAsset,
     this.riveAsset = 'assets/images/logo/logo.riv',
     this.onInit,
+    this.height = 190 * 0.75 + 25,
   });
 
   /// Path to an asset to put into the [RiveAnimation].
@@ -40,37 +41,31 @@ class AnimatedLogo extends StatelessWidget {
   /// Path to an asset to put into the [SvgImage].
   final String? svgAsset;
 
+  final double height;
+
   @override
   Widget build(BuildContext context) {
-    // Height being a point to switch between [RiveAnimation] and [SvgImage].
-    const double height = 250;
-
-    return LayoutBuilder(builder: (context, constraints) {
-      final Widget child;
-
-      if (constraints.maxHeight < height && svgAsset != null) {
-        child = SvgImage.asset(
-          svgAsset!,
-          fit: BoxFit.contain,
-          placeholderBuilder: (context) {
-            return const Center(child: CustomProgressIndicator());
-          },
-        );
-      } else {
-        child = RiveAnimation.asset(riveAsset, onInit: onInit);
-      }
-
+    if (svgAsset != null) {
+      return SvgImage.asset(
+        svgAsset!,
+        height: height,
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) {
+          return const Center(child: CustomProgressIndicator());
+        },
+      );
+    } else {
       return ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 350),
         child: AnimatedSize(
           curve: Curves.ease,
           duration: const Duration(milliseconds: 200),
           child: SizedBox(
-            height: constraints.maxHeight >= height ? height : 140,
-            child: child,
+            height: 250,
+            child: RiveAnimation.asset(riveAsset, onInit: onInit),
           ),
         ),
       );
-    });
+    }
   }
 }
