@@ -360,7 +360,6 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                                     _bounds.top -
                                     _bounds.height) +
                             (10 +
-                                    router.context!.mediaQueryPadding.bottom +
                                     (_actionsBounds?.height ??
                                         widget.actions.length * 50)) *
                                 _fading.value,
