@@ -786,10 +786,17 @@ endif
 # Update the launcher icons.
 #
 # Usage:
-#	make update.icon
+#	make update.icon [dockerized=(no|yes)]
 
 update.icon:
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make update.icon dockerized=no
+else
 	npx update-flutter-app-icon update_icons.json
+endif	
 
 
 
@@ -831,4 +838,5 @@ endif
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
         minikube.boot \
-        test.e2e test.unit
+        test.e2e test.unit \
+		update.icon

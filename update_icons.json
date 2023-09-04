@@ -234,6 +234,131 @@
       "icon": "assets/icons/launcher/web_launcher.png", 
       "out": "web/icons/ms-icon-310x310.png",
       "size": 310
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/android-icon-36x36.png",
+      "size": 36
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/android-icon-48x48.png",
+      "size": 48
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/android-icon-72x72.png",
+      "size": 72
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/android-icon-96x96.png",
+      "size": 96
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/android-icon-144x144.png",
+      "size": 144
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/android-icon-192x192.png",
+      "size": 192
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-57x57.png",
+      "size": 57
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-60x60.png",
+      "size": 60
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-72x72.png",
+      "size": 72
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-76x76.png",
+      "size": 76
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-114x114.png",
+      "size": 114
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-120x120.png",
+      "size": 120
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-144x144.png",
+      "size": 144
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-152x152.png",
+      "size": 152
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-180x180.png",
+      "size": 180
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon-precomposed.png",
+      "size": 192
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/apple-icon.png",
+      "size": 192
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/favicon-16x16.png",
+      "size": 16
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/favicon-32x32.png",
+      "size": 32
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/favicon-96x96.png",
+      "size": 96
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/favicon.ico",
+      "size": 16
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/ms-icon-70x70.png",
+      "size": 70
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/ms-icon-144x144.png",
+      "size": 144
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/ms-icon-150x150.png",
+      "size": 150
+    },
+    {
+      "icon": "assets/icons/launcher/web_alert_launcher.png", 
+      "out": "web/icons/alert/ms-icon-310x310.png",
+      "size": 310
     }
   ]
 }
