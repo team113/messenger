@@ -1254,9 +1254,9 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Hive].
   Future<void> putChat(HiveChat chat) async {
-  var saved = _chatLocal.get(chat.value.id);
-  chat.value.firstItem ??= saved?.value.firstItem;
-  
+    var saved = _chatLocal.get(chat.value.id);
+    chat.value.firstItem ??= saved?.value.firstItem;
+
     if (chat.value.ongoingCall != null) {
       _callsPagination?.put(chat);
     } else if (chat.value.favoritePosition != null) {
