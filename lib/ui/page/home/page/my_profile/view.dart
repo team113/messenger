@@ -388,6 +388,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.emails.unconfirmed != null) {
       widgets.addAll([
         FieldButton(
+          old: true,
           key: const Key('UnconfirmedEmail'),
           text: c.myUser.value!.emails.unconfirmed!.val,
           hint: 'label_verify_email'.l10n,
@@ -417,6 +418,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.emails.unconfirmed == null) {
       widgets.add(
         FieldButton(
+          old: true,
           key: c.myUser.value?.emails.confirmed.isNotEmpty == true
               ? const Key('AddAdditionalEmail')
               : const Key('AddEmail'),
@@ -556,6 +558,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.phones.unconfirmed == null) {
       widgets.add(
         FieldButton(
+          old: true,
           key: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? const Key('AddAdditionalPhone')
               : const Key('AddPhone'),
@@ -608,6 +611,7 @@ Widget _password(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
+            old: true,
             key: c.myUser.value?.hasPassword == true
                 ? const Key('ChangePassword')
                 : const Key('SetPassword'),
@@ -649,6 +653,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
+            old: true,
             text: (c.settings.value?.timelineEnabled ?? true)
                 ? 'label_as_timeline'.l10n
                 : 'label_in_message'.l10n,
@@ -672,6 +677,7 @@ Widget _call(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
+            old: true,
             text: (c.settings.value?.enablePopups ?? true)
                 ? 'label_open_calls_in_window'.l10n
                 : 'label_open_calls_in_app'.l10n,
