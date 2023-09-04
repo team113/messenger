@@ -17,27 +17,19 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/contact.dart';
-import '/domain/model/user.dart';
 import '/routes.dart';
-import '/ui/page/work/page/vacancy/view.dart';
 import '/ui/widget/custom_page.dart';
-import 'page/chat/info/view.dart';
-import 'page/chat/view.dart';
-import 'page/contact/view.dart';
-import 'page/my_profile/view.dart';
-import 'page/user/view.dart';
+import 'page/vacancy/view.dart';
 
-/// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
+/// [Routes.work] page [RouterDelegate] that builds the nested [Navigator].
 ///
-/// [HomeRouterDelegate] doesn't parses any routes. Instead, it only uses the
+/// [WorkRouterDelegate] doesn't parses any routes. Instead, it only uses the
 /// [RouterState] passed to its constructor.
-class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
+class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteConfiguration> {
-  HomeRouterDelegate(this._state) {
+  WorkRouterDelegate(this._state) {
     _state.addListener(notifyListeners);
   }
 
@@ -57,57 +49,14 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         route = route.substring(0, route.length - 1);
       }
 
-      if (route == Routes.me) {
-        pages.add(const CustomPage(
-          key: ValueKey('MyProfilePage'),
-          name: Routes.me,
-          child: MyProfileView(),
-        ));
-      } else if (route.startsWith('${Routes.chats}/') &&
-          route.endsWith(Routes.chatInfo)) {
-        String id = route
-            .replaceFirst('${Routes.chats}/', '')
-            .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatInfoPage$id'),
-          name: '${Routes.chats}/$id${Routes.chatInfo}',
-          child: ChatInfoView(ChatId(id)),
-        ));
-      } else if (route.startsWith('${Routes.chats}/')) {
-        String id = route
-            .replaceFirst('${Routes.chats}/', '')
-            .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatPage$id'),
-          name: '${Routes.chats}/$id',
-          child: ChatView(
-            ChatId(id),
-            itemId: router.arguments?['itemId'] as ChatItemId?,
-            welcome: router.arguments?['welcome'] as ChatMessageText?,
-          ),
-        ));
-      } else if (route.startsWith('${Routes.contacts}/')) {
-        final id = route.replaceFirst('${Routes.contacts}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('ContactPage$id'),
-          name: '${Routes.contacts}/$id',
-          child: ContactView(ChatContactId(id)),
-        ));
-      } else if (route.startsWith('${Routes.user}/')) {
-        final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('UserPage$id'),
-          name: '${Routes.user}/$id',
-          child: UserView(UserId(id)),
-        ));
-      } else if (route.startsWith('${Routes.work}/')) {
+      if (route.startsWith('${Routes.work}/')) {
         final String? last = route.split('/').lastOrNull;
         final WorkTab? work =
             WorkTab.values.firstWhereOrNull((e) => e.name == last);
 
         if (work != null) {
           pages.add(CustomPage(
-            key: ValueKey('${work.name}WorkPage'),
+            key: ValueKey('${work.name.capitalizeFirst}WorkPage'),
             name: Routes.me,
             child: VacancyWorkView(work),
           ));

@@ -731,6 +731,25 @@ class HiveRxChat extends RxChat {
   /// Clears the [_pagination].
   Future<void> clear() => _pagination.clear();
 
+  // TODO: Remove when backend supports welcome messages.
+  @override
+  Future<void> addMessage(ChatMessageText text) async {
+    await put(
+      HiveChatMessage(
+        ChatMessage(
+          ChatItemId.local(),
+          id,
+          User(const UserId('0'), UserNum('1234123412341234')),
+          PreciseDateTime.now(),
+          text: text,
+        ),
+        null,
+        ChatItemVersion('0'),
+        null,
+      ),
+    );
+  }
+
   @override
   int compareTo(RxChat other) {
     if (chat.value.ongoingCall != null &&
