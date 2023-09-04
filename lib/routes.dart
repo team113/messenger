@@ -455,20 +455,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
+    /// [Routes.home] or [Routes.auth] page is always included.
+    List<Page<dynamic>> pages = [];
+
     if (_state.route == Routes.restart) {
       return [
         const MaterialPage(
           key: ValueKey('RestartPage'),
           name: Routes.restart,
           child: Center(child: Text('Restarting...')),
-        ),
-      ];
-    } else if (_state.route == Routes.style) {
-      return [
-        const MaterialPage(
-          key: ValueKey('StylePage'),
-          name: Routes.style,
-          child: StyleView(),
         ),
       ];
     } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
@@ -595,9 +590,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         )
       ];
     }
-
-    /// [Routes.home] or [Routes.auth] page is always included.
-    List<Page<dynamic>> pages = [];
 
     if (_state._auth.status.value.isSuccess) {
       pages.add(MaterialPage(
@@ -753,6 +745,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
+    if (_state.route == Routes.style) {
+      return [
+        if (_state.routes.length > 1) ...pages,
+        const MaterialPage(
+          key: ValueKey('StylePage'),
+          name: Routes.style,
+          child: StyleView(),
+        )
+      ];
+    }
+
     if (_state.route.startsWith(Routes.chats) ||
         _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
@@ -760,6 +763,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.public) ||
         _state.route.startsWith(Routes.balance) ||
         _state.route.startsWith(Routes.transaction) ||
+        _state.route.startsWith(Routes.style) ||
         _state.route.startsWith(Routes.vacancy) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {

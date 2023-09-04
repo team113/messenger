@@ -126,7 +126,7 @@ class OutlinedRoundedButton extends StatelessWidget {
           borderRadius: borderRadius,
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: style.colors.secondary.withOpacity(0.02),
+          hoverColor: style.colors.onBackgroundOpacity7,
           child: Container(
             constraints: BoxConstraints(
               minHeight: height ?? 0,
@@ -140,9 +140,10 @@ class OutlinedRoundedButton extends StatelessWidget {
               children: [
                 const SizedBox(width: 8),
                 // if (leading != null) leading!,
-                if (leading != null)
+                if (leading != null) ...[
                   SizedBox(width: leadingWidth, child: Center(child: leading!)),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: DefaultTextStyle.merge(
                     maxLines: 2,
@@ -172,14 +173,15 @@ class OutlinedRoundedButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                // if (leading != null) Opacity(opacity: 0, child: leading!),
+                if (leading != null) ...[
+                  const SizedBox(width: 8),
+                  // if (leading != null) Opacity(opacity: 0, child: leading!),
 
-                if (leading != null)
                   SizedBox(
                     width: leadingWidth,
                     child: Center(child: Opacity(opacity: 0, child: leading!)),
                   ),
+                ],
                 if (trailing != null) trailing!,
                 const SizedBox(width: 8),
               ],

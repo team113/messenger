@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 
 import '/ui/widget/outlined_rounded_button.dart';
 
@@ -39,19 +41,49 @@ class StyleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6),
-      child: SizedBox(
-        width: 70,
-        child: OutlinedRoundedButton(
-          color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
-          onPressed: onPressed,
-          title: Icon(
-            icon,
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
-          ),
+    final style = Theme.of(context).style;
+
+    // [AnimatedOpacity] boilerplate.
+    Widget tab({
+      required Widget child,
+      required void Function() onPressed,
+      bool selected = false,
+    }) {
+      return AnimatedScale(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.bounceInOut,
+        scale: selected ? 1.1 : 1,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 150),
+          opacity: selected ? 1 : 0.7,
+          child: AnimatedButton(onPressed: onPressed, child: child),
         ),
+      );
+    }
+
+    return tab(
+      selected: inverted,
+      onPressed: onPressed ?? () {},
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Icon(icon, color: style.colors.primary, size: 30),
       ),
     );
+
+    // return Padding(
+    //   padding: const EdgeInsets.all(6),
+    //   child: SizedBox(
+    //     width: 60,
+    //     height: 40,
+    //     child: OutlinedRoundedButton(
+    //       color: inverted ? style.colors.primary : style.colors.onPrimary,
+    //       onPressed: onPressed,
+    //       title: Icon(
+    //         icon,
+    //         color: inverted ? style.colors.onPrimary : style.colors.primary,
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }

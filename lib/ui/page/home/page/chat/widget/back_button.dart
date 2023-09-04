@@ -22,29 +22,24 @@ import '/ui/widget/animated_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({super.key, this.onPressed, this.color});
+  const StyledBackButton({
+    super.key,
+    this.onPressed,
+    this.color,
+    this.canPop = false,
+  });
 
   final Color? color;
 
   final void Function()? onPressed;
 
+  final bool canPop;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    // return WidgetButton(
-    //   onPressed: () => Navigator.maybePop(context),
-    //   child: Padding(
-    //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    //     child: Icon(
-    //       Icons.arrow_back_ios_rounded,
-    //       color: color ?? Theme.of(context).colorScheme.primary,
-    //       size: 22,
-    //     ),
-    //   ),
-    // );
-
-    if (ModalRoute.of(context)?.canPop == true) {
+    if (canPop || ModalRoute.of(context)?.canPop == true) {
       return AnimatedButton(
         onPressed: onPressed ?? () => Navigator.maybePop(context),
         child: Padding(
@@ -55,10 +50,6 @@ class StyledBackButton extends StatelessWidget {
             size: 22,
           ),
         ),
-        // child: SvgImage.asset(
-        //   'assets/icons/arrow_left.svg',
-        //   height: 16,
-        // ),
       );
     } else {
       return const SizedBox(width: 30);
