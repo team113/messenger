@@ -314,6 +314,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
           children: [
             FieldButton(
               key: const Key('ConfirmedEmail'),
+              old: true,
               text: e.val,
               hint: 'label_email'.l10n,
               onPressed: () {
@@ -589,6 +590,7 @@ Widget _presence(BuildContext context, MyProfileController c) {
 
     return Paddings.basic(
       FieldButton(
+        old: true,
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),
@@ -941,6 +943,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 ),
                 const SizedBox(height: 8),
                 FieldButton(
+                  old: true,
                   onPressed: c.clearCache,
                   text: 'btn_clear_cache'.l10n,
                   style: style.fonts.titleMediumPrimary,
