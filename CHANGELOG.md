@@ -6,10 +6,25 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.10]
-[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+## [0.1.0-alpha.9.4] · 2023-09-04
+[0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
 
-[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.10) | [Milestone](/../../milestone/8)
+[Diff](/../../compare/v0.1.0-alpha.9.3...v0.1.0-alpha.9.4) | [Milestone](/../../milestone/10)
+
+### Added
+
+- UI:
+    - Work page and tab. ([#541])
+
+[#541]: /../../pull/541
+
+
+
+
+## [0.1.0-alpha.9.3] · 2023-09-01
+[0.1.0-alpha.9.3]: /../../tree/v0.1.0-alpha.9.3
+
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.9.3) | [Milestone](/../../milestone/8)
 
 ### Added
 
@@ -22,12 +37,18 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu with fading effect on desktop. ([#506])
     - Profile page:
         - Sections highlighting. ([#513], [#385])
+    - Home page:
+        - Redesigned navigation buttons' badges. ([#529], [#500])
+    - Display online status only when application is active. ([#522])
 
 [#385]: /../../issues/385
 [#439]: /../../issues/439
 [#492]: /../../pull/492
+[#500]: /../../issues/500
 [#506]: /../../pull/506
 [#513]: /../../pull/513
+[#522]: /../../pull/522
+[#529]: /../../pull/529
 
 
 

@@ -268,6 +268,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [MyUser] in this [chat].
   Rx<ChatItem>? get firstUnread;
 
+  /// Returns the last [ChatItem] of this [RxChat].
+  ChatItem? get lastItem;
+
   /// Fetches the initial [messages] page around the [firstUnread].
   Future<void> around();
 
@@ -294,4 +297,8 @@ abstract class RxChat implements Comparable<RxChat> {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
+
+  // TODO: Remove when backend supports welcome messages.
+  /// Posts a new [ChatMessage] with the provided [text] by the recipient.
+  Future<void> addMessage(ChatMessageText text);
 }

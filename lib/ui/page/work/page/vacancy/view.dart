@@ -15,18 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
 
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import '/routes.dart';
+import '/ui/page/work/page/backend/view.dart';
+import '/ui/page/work/page/freelance/view.dart';
+import '/ui/page/work/page/frontend/view.dart';
 
-/// Extension adding [DataSource] constructor from [Uint8List].
-extension DataSourceExt on DataSource {
-  /// Creates a [DataSource] from the provided [bytes].
-  static DataSource bytes(Uint8List bytes) {
-    final blob = html.Blob([bytes], 'video');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    return DataSource(type: DataSourceType.network, source: url);
+/// View displaying page, corresponding to the provided [work].
+class VacancyWorkView extends StatelessWidget {
+  const VacancyWorkView(this.work, {super.key});
+
+  /// [WorkTab] to display a page of.
+  final WorkTab work;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (work) {
+      case WorkTab.backend:
+        return const BackendWorkView();
+
+      case WorkTab.freelance:
+        return const FreelanceWorkView();
+
+      case WorkTab.frontend:
+        return const FrontendWorkView();
+    }
   }
 }

@@ -15,12 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
-
-/// Extension adding [DataSource] constructor from [Uint8List].
-extension DataSourceExt on DataSource {
-  /// Creates a [DataSource] from the provided [bytes].
-  static DataSource bytes(Uint8List bytes) => throw UnimplementedError();
+/// Controller of the [HomeTab.work] tab.
+class WorkTabController extends GetxController {
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 }

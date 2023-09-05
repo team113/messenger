@@ -271,13 +271,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      ChatItem? item = chat.lastItem;
-      if (rxChat.messages.isNotEmpty) {
-        final ChatItem last = rxChat.messages.last.value;
-        if (chat.lastItem?.at.isBefore(last.at) == true) {
-          item = last;
-        }
-      }
+      ChatItem? item = rxChat.lastItem;
 
       List<Widget> subtitle = [];
 
@@ -434,7 +428,7 @@ class RecentChatTile extends StatelessWidget {
                     child: _attachment(
                       e,
                       inverted: inverted,
-                      onError: () => rxChat.updateAttachments(item!),
+                      onError: () => rxChat.updateAttachments(item),
                     ),
                   );
                 }),
@@ -446,7 +440,7 @@ class RecentChatTile extends StatelessWidget {
                   child: _attachment(
                     item.attachments.first,
                     inverted: inverted,
-                    onError: () => rxChat.updateAttachments(item!),
+                    onError: () => rxChat.updateAttachments(item),
                   ),
                 ),
               );
@@ -464,7 +458,7 @@ class RecentChatTile extends StatelessWidget {
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.author.id),
+                          chat.getUser(item.author.id),
                           radius: 10,
                         ),
                 ),
@@ -493,7 +487,7 @@ class RecentChatTile extends StatelessWidget {
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.author.id),
+                          chat.getUser(item.author.id),
                           radius: 10,
                         ),
                 ),
@@ -525,7 +519,7 @@ class RecentChatTile extends StatelessWidget {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
                 content = userBuilder(item.author.id, (context, user) {
-                  user ??= (item as ChatInfo).author;
+                  user ??= item.author;
                   final Map<String, dynamic> args = {
                     'author': user.name?.val ?? user.num.val,
                   };
@@ -543,7 +537,7 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               content = userBuilder(action.user.id, (context, user) {
-                final User author = (item as ChatInfo).author;
+                final User author = item.author;
                 user ??= action.user;
 
                 if (item.author.id != action.user.id) {
@@ -568,7 +562,7 @@ class RecentChatTile extends StatelessWidget {
 
               if (item.author.id != action.user.id) {
                 content = userBuilder(action.user.id, (context, user) {
-                  final User author = (item as ChatInfo).author;
+                  final User author = item.author;
                   user ??= action.user;
 
                   final Map<String, dynamic> args = {
@@ -643,7 +637,7 @@ class RecentChatTile extends StatelessWidget {
   }) {
     Widget? content;
 
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     if (e is LocalAttachment) {
       if (e.file.isImage && e.file.bytes.value != null) {
@@ -739,12 +733,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      } else {
-        item = chat.lastItem;
-      }
+      final ChatItem? item = rxChat.lastItem;
 
       if (item != null && item.author.id == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;

@@ -21,11 +21,13 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 
 /// Custom styled [CupertinoButton].
-class StyledCupertinoButton extends StatelessWidget {
+class StyledCupertinoButton extends StatefulWidget {
   const StyledCupertinoButton({
     super.key,
     required this.label,
+    this.padding = EdgeInsets.zero,
     this.onPressed,
+    this.style,
   });
 
   /// Label to display.
@@ -34,6 +36,27 @@ class StyledCupertinoButton extends StatelessWidget {
   /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
+  /// Padding to apply to the button.
+  ///
+  /// Meant to be used to manipulate clickable area.
+  final EdgeInsets padding;
+
+  /// [TextStyle] to apply to the [label].
+  final TextStyle? style;
+
+  @override
+  State<StyledCupertinoButton> createState() => _StyledCupertinoButtonState();
+}
+
+/// State of a [StyledCupertinoButton] maintaining the [_hovered] and [_clicked]
+/// indicators.
+class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
+  /// Indicator whether this button is hovered.
+  bool _hovered = false;
+
+  /// Indicator whether this button is pushed down.
+  bool _clicked = false;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -41,9 +64,33 @@ class StyledCupertinoButton extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       opaque: false,
-      child: CupertinoButton(
-        onPressed: onPressed,
-        child: Text(label, style: style.fonts.labelMediumSecondary),
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _clicked = true),
+        onTapUp: (_) {
+          setState(() => _clicked = false);
+          widget.onPressed?.call();
+        },
+        child: Padding(
+          padding: widget.padding,
+          child: AnimatedDefaultTextStyle(
+            curve: Curves.ease,
+            duration: const Duration(milliseconds: 100),
+            style: (widget.style ?? style.fonts.labelMediumSecondary).copyWith(
+              color: (widget.style ?? style.fonts.labelMediumSecondary)
+                  .color
+                  ?.withOpacity(
+                    _clicked
+                        ? 0.5
+                        : _hovered
+                            ? 0.7
+                            : 1,
+                  ),
+            ),
+            child: Text(widget.label),
+          ),
+        ),
       ),
     );
   }

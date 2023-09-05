@@ -19,7 +19,7 @@ import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import 'video_volume_bar.dart';
 import '/themes.dart';
@@ -35,8 +35,8 @@ class VolumeOverlay extends StatelessWidget {
     this.offset = Offset.zero,
   });
 
-  ///  [MeeduPlayerController] controlling the [MeeduVideoPlayer] functionality.
-  final MeeduPlayerController controller;
+  /// [VideoController] controlling the [Video] player functionality.
+  final VideoController controller;
 
   /// Offset of this [VolumeOverlay] from the bottom right corner.
   final Offset offset;

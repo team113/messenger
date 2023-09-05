@@ -51,7 +51,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the `HomeTab.contacts` tab.
+/// View of the [HomeTab.contacts] tab.
 class ContactsTabView extends StatelessWidget {
   const ContactsTabView({super.key});
 
@@ -321,21 +321,31 @@ class ContactsTabView extends StatelessWidget {
                       controller: c.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
-                        final ListElement element = c.elements[i];
+                        ListElement? element;
+                        if (i < c.elements.length) {
+                          element = c.elements[i];
+                        }
+
                         final Widget child;
 
                         if (element is ContactElement) {
                           child = SearchUserTile(
                             key: Key('SearchContact_${element.contact.id}'),
                             contact: element.contact,
-                            onTap: () =>
-                                router.user(element.contact.user.value!.id),
+                            onTap: () => router.user(
+                              (element as ContactElement)
+                                  .contact
+                                  .user
+                                  .value!
+                                  .id,
+                            ),
                           );
                         } else if (element is UserElement) {
                           child = SearchUserTile(
                             key: Key('SearchUser_${element.user.id}'),
                             user: element.user,
-                            onTap: () => router.user(element.user.id),
+                            onTap: () =>
+                                router.user((element as UserElement).user.id),
                           );
                         } else if (element is DividerElement) {
                           child = Center(
@@ -562,6 +572,13 @@ class ContactsTabView extends StatelessWidget {
                 ContextMenuInterceptor(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (previous.isNotEmpty) previous.first,
+                        if (current != null) current,
+                      ],
+                    ),
                     child: child,
                   ),
                 ),

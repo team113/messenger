@@ -219,26 +219,18 @@ class MediaTypeAdapter extends TypeAdapter<MediaType> {
 
   @override
   MediaType read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
     return MediaType(
-      fields[0] as String,
-      fields[1] as String,
-      (fields[2] as Map).cast<String, String>(),
+      reader.read() as String,
+      reader.read() as String,
+      (reader.read() as Map).cast<String, String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, MediaType obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
       ..write(obj.type)
-      ..writeByte(1)
       ..write(obj.subtype)
-      ..writeByte(2)
       ..write(obj.parameters);
   }
 }
