@@ -183,7 +183,7 @@ class GraphQlClient {
   /// Subscribes to a GraphQL subscription according to the [options] specified.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
-    Version? Function()? ver,
+    FutureOr<Version?> Function()? ver,
   }) {
     return SubscriptionHandle(_subscribe, options, ver: ver).stream;
   }
@@ -464,7 +464,7 @@ class SubscriptionHandle {
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
   /// required.
-  final Version? Function()? ver;
+  final FutureOr<Version?> Function()? ver;
 
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
@@ -534,11 +534,11 @@ class SubscriptionHandle {
   }
 
   /// Resubscribes to the events.
-  void _resubscribe({bool noVersion = false}) {
+  void _resubscribe({bool noVersion = false}) async {
     Log.print('Reconnecting in $_backoffDuration...', _options.operationName);
 
     if (ver != null) {
-      _options.variables['ver'] = noVersion ? null : ver!()?.val;
+      _options.variables['ver'] = noVersion ? null : (await ver!())?.val;
     }
 
     if (_backoff?.isActive != true) {

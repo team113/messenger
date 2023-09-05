@@ -164,29 +164,33 @@ class Pagination<T, C, K extends Comparable> {
   FutureOr<void> next() async {
     Log.print('next()...', 'Pagination');
 
-    if (items.isEmpty) {
-      return around();
-    }
-
     if (hasNext.isTrue && nextLoading.isFalse) {
       nextLoading.value = true;
 
-      final Page<T, C>? page;
-      if (compareKeys) {
-        page = await provider.after(items[items.lastKey()], endCursor, perPage);
+      if (items.isNotEmpty) {
+        final Page<T, C>? page;
+        if (compareKeys) {
+          page =
+              await provider.after(items[items.lastKey()], endCursor, perPage);
+        } else {
+          page = await provider.after(_lastItem, endCursor, perPage);
+        }
+        Log.print(
+          'next()... fetched ${page?.edges.length} items',
+          'Pagination',
+        );
+
+        for (var e in page?.edges ?? []) {
+          items[onKey(e)] = e;
+        }
+
+        endCursor = page?.info.endCursor ?? endCursor;
+        _lastItem = page?.edges.lastOrNull ?? _lastItem;
+        hasNext.value = page?.info.hasNext ?? hasNext.value;
+        Log.print('next()... done', 'Pagination');
       } else {
-        page = await provider.after(_lastItem, endCursor, perPage);
+        await around();
       }
-      Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
-
-      for (var e in page?.edges ?? []) {
-        items[onKey(e)] = e;
-      }
-
-      endCursor = page?.info.endCursor ?? endCursor;
-      _lastItem = page?.edges.lastOrNull ?? _lastItem;
-      hasNext.value = page?.info.hasNext ?? hasNext.value;
-      Log.print('next()... done', 'Pagination');
 
       nextLoading.value = false;
     }
@@ -247,8 +251,8 @@ class Pagination<T, C, K extends Comparable> {
     if (items.isEmpty) {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
-        return;
       }
+      return;
     }
 
     if (compareKeys) {

@@ -40,8 +40,8 @@ import 'chat_item.dart';
 part 'chat.g.dart';
 
 /// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveBaseProvider<HiveChat>
-    with IterableHiveProviderMixin<HiveChat, ChatId> {
+class ChatHiveProvider extends HiveLazyProvider<HiveChat>
+    implements IterableHiveProvider<HiveChat, ChatId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -105,35 +105,21 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat>
   Iterable<ChatId> get keys => keysSafe.map((e) => ChatId(e));
 
   @override
-  Iterable<HiveChat> get values => valuesSafe;
+  Future<Iterable<HiveChat>> get values => valuesSafe;
 
   @override
   Future<void> put(HiveChat item) => putSafe(item.value.id.val, item);
 
   @override
-  HiveChat? get(ChatId key) => getSafe(key.val);
+  Future<HiveChat?> get(ChatId key) => getSafe(key.val);
 
   @override
   Future<void> remove(ChatId key) => deleteSafe(key.val);
-
-  @override
-  Future<void> clear({bool exceptLocal = false}) async {
-    if (exceptLocal) {
-      // TODO: remove?
-      for (var k in keys) {
-        if (!k.isLocal) {
-          await remove(k);
-        }
-      }
-    } else {
-      return super.clear();
-    }
-  }
 }
 
 /// [Hive] storage for [Chat]s sorting data.
 class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
-    with IterableHiveProviderMixin<ChatId, PreciseDateTime> {
+    implements IterableHiveProvider<ChatId, PreciseDateTime> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -163,7 +149,7 @@ class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
   @override
   Future<void> remove(PreciseDateTime key) => deleteSafe(key.toString());
 
-  /// Removes a [PreciseDateTime] item from [Hive] by the provided [index].
+  /// Removes a [ChatId] item from [Hive] by the provided [index].
   Future<void> removeAt(int index) => deleteAtSafe(index);
 }
 
@@ -198,6 +184,6 @@ class HiveChat extends HiveObject {
   ChatItemsCursor? lastReadItemCursor;
 
   /// Cursor of the [value].
-  @HiveField(5)
+  @HiveField(4)
   RecentChatsCursor? cursor;
 }

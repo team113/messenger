@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
@@ -112,7 +113,8 @@ mixin ChatGraphQlMixin {
   }
 
   /// Returns favorite [Chat]s of the authenticated [MyUser] ordered by the
-  /// custom order of [MyUser]'s favorites list (using Chat.favoritePosition field).
+  /// custom order of [MyUser]'s favorites list (using [Chat.favoritePosition]
+  /// field).
   ///
   /// Use `Mutation.favoriteChat` to update the position of a [Chat] in
   /// [MyUser]'s favorites list.
@@ -609,15 +611,19 @@ mixin ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function() ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver());
+  Stream<QueryResult> chatEvents(
+    ChatId id,
+    ChatVersion? ver,
+    FutureOr<ChatVersion?> Function() onVer,
+  ) {
+    final variables = ChatEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      ver: ver,
+      ver: onVer,
     );
   }
 

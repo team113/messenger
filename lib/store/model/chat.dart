@@ -36,7 +36,7 @@ class RecentChatsCursor extends NewType<String> {
   RecentChatsCursor(String val) : super(val);
 }
 
-/// Cursor used for recent [Chat]s pagination.
+/// Cursor used for favorite [Chat]s pagination.
 @HiveType(typeId: ModelTypeId.favoriteChatsCursor)
 class FavoriteChatsCursor extends NewType<String> {
   FavoriteChatsCursor(String val) : super(val);

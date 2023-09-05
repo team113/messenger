@@ -289,7 +289,7 @@ class HiveRxChat extends RxChat {
           }
 
           if (page.info.hasPrevious == false) {
-            final HiveChat? chatEntity = _chatLocal.get(id);
+            final HiveChat? chatEntity = await _chatLocal.get(id);
             final ChatItem? firstItem = page.edges.firstOrNull?.value;
 
             if (chatEntity != null && chatEntity.value.firstItem != firstItem) {
@@ -656,7 +656,7 @@ class HiveRxChat extends RxChat {
     if (key != null) {
       _pagination.remove(key);
 
-      final HiveChat? chatEntity = _chatLocal.get(id);
+      final HiveChat? chatEntity = await _chatLocal.get(id);
       if (chatEntity?.value.lastItem?.id == itemId) {
         var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
 
@@ -814,8 +814,8 @@ class HiveRxChat extends RxChat {
     if (chat.value.muted?.until != null) {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
-        () {
-          final HiveChat? chat = _chatLocal.get(id);
+        () async {
+          final HiveChat? chat = await _chatLocal.get(id);
           if (chat != null) {
             chat.value.muted = null;
             _chatRepository.putChat(chat);
@@ -971,7 +971,11 @@ class HiveRxChat extends RxChat {
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
+      _chatRepository.chatEvents(
+        id,
+        (await _chatLocal.get(id))?.ver,
+        () async => (await _chatLocal.get(id))?.ver,
+      ),
     );
 
     await _remoteSubscription!.execute(
@@ -997,7 +1001,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.chat:
         var node = event as ChatEventsChat;
-        HiveChat? chatEntity = _chatLocal.get(id);
+        HiveChat? chatEntity = await _chatLocal.get(id);
         if (node.chat.ver > chatEntity?.ver) {
           chatEntity = node.chat;
           _chatRepository.putChat(chatEntity);
@@ -1006,7 +1010,7 @@ class HiveRxChat extends RxChat {
         break;
 
       case ChatEventsKind.event:
-        HiveChat? chatEntity = _chatLocal.get(id);
+        HiveChat? chatEntity = await _chatLocal.get(id);
         var versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           return;
@@ -1337,24 +1341,10 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.favorited:
               event as EventChatFavorited;
               chatEntity.value.favoritePosition = event.position;
-              _chatRepository.chats.emit(
-                MapChangeNotification.updated(
-                  chatEntity.value.id,
-                  chatEntity.value.id,
-                  _chatRepository.chats[chatEntity.value.id],
-                ),
-              );
               break;
 
             case ChatEventKind.unfavorited:
               chatEntity.value.favoritePosition = null;
-              _chatRepository.chats.emit(
-                MapChangeNotification.updated(
-                  chatEntity.value.id,
-                  chatEntity.value.id,
-                  _chatRepository.chats[chatEntity.value.id],
-                ),
-              );
               break;
 
             case ChatEventKind.callConversationStarted:

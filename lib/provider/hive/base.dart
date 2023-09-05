@@ -157,13 +157,15 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
     });
   }
 
-  /// Exception-safe wrapper for [BoxBase.delete] deleting a value by the given
-  /// [index] from the [box].
+  /// Exception-safe wrapper for [BoxBase.deleteAt] deleting a value by the
+  /// given [index] from the [box].
   Future<void> deleteAtSafe(int index) {
-    if (_isReady && _box.isOpen) {
-      return box.deleteAt(index);
-    }
-    return Future.value();
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        return box.deleteAt(index);
+      }
+      return Future.value();
+    });
   }
 }
 
@@ -306,7 +308,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 /// [HiveLazyProvider] with [Iterable] functionality support.
 ///
 /// Intended to be used as a source for [Pagination] items persisted.
-mixin IterableHiveProviderMixin<T extends Object, K> {
+abstract class IterableHiveProvider<T extends Object, K> {
   /// Returns a list of [K] keys stored in the [Hive].
   Iterable<K> get keys;
 

@@ -136,7 +136,7 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Subscription for [ChatService.chats] changes.
+  /// Subscription for [ChatService.paginationChats] changes.
   late final StreamSubscription _chatsSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
@@ -170,7 +170,7 @@ class ChatsTabController extends GetxController {
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
-    chats = RxList<RxChat>(_chatService.chats.values.toList());
+    chats = RxList<RxChat>(_chatService.paginationChats.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
@@ -203,7 +203,7 @@ class ChatsTabController extends GetxController {
     }
 
     chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
-    _chatsSubscription = _chatService.chats.changes.listen((event) {
+    _chatsSubscription = _chatService.paginationChats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           chats.add(event.value!);
@@ -671,7 +671,7 @@ class ChatsTabController extends GetxController {
   /// Ensures the [ChatView] is scrollable.
   Future<void> _ensureScrollable() async {
     if (hasNext.isTrue) {
-      await Future.delayed(5.milliseconds, () async {
+      await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
           return;
         }
@@ -682,7 +682,8 @@ class ChatsTabController extends GetxController {
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (scrollController.position.maxScrollExtent == 0) {
+        if (scrollController.position.maxScrollExtent == 0 &&
+            _chatService.nextLoading.isFalse) {
           await _chatService.next();
           _ensureScrollable();
         }

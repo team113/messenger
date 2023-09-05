@@ -63,14 +63,14 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
   /// Indicator whether this [HivePageProvider] is reversed.
   bool reversed;
 
-  /// [IterableHiveProviderMixin] to fetch the items from.
-  IterableHiveProviderMixin<T, K> _provider;
+  /// [IterableHiveProvider] to fetch the items from.
+  IterableHiveProvider<T, K> _provider;
 
-  /// [IterableHiveProviderMixin] to fetch the items keys from.
-  IterableHiveProviderMixin<K, S>? sortingProvider;
+  /// [IterableHiveProvider] to fetch the items keys from.
+  IterableHiveProvider<K, S>? sortingProvider;
 
   /// Sets the provided [HiveLazyProvider] as the used one.
-  set provider(IterableHiveProviderMixin<T, K> value) => _provider = value;
+  set provider(IterableHiveProvider<T, K> value) => _provider = value;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
