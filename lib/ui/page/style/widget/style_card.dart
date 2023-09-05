@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/ui/widget/outlined_rounded_button.dart';
 
@@ -28,6 +29,9 @@ class StyleCard extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.inverted = false,
+    this.asset,
+    this.assetWidth,
+    this.assetHeight,
   });
 
   /// [IconData] to display.
@@ -38,6 +42,10 @@ class StyleCard extends StatelessWidget {
 
   /// Callback, called when this [StyleCard] is pressed.
   final void Function()? onPressed;
+
+  final String? asset;
+  final double? assetWidth;
+  final double? assetHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +74,13 @@ class StyleCard extends StatelessWidget {
       onPressed: onPressed ?? () {},
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Icon(icon, color: style.colors.primary, size: 30),
+        child: asset == null
+            ? Icon(icon, color: style.colors.primary, size: 30)
+            : SvgImage.asset(
+                'assets/icons/$asset.svg',
+                width: assetWidth,
+                height: assetHeight,
+              ),
       ),
     );
 

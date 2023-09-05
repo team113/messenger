@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -41,93 +42,60 @@ class StyleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final bool canPop = ModalRoute.of(context)?.canPop == true;
+
     return GetBuilder(
       init: StyleController(),
       builder: (StyleController c) {
         return Scaffold(
           backgroundColor: const Color(0xFFFFFFFF),
-          body: SafeArea(
-            child: Column(
-              children: [
-                _appBar(c, context),
-                Expanded(child: _page(c)),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  /// Returns [Row] of [StyleCard]s and [IconButton]s meant to be an app bar.
-  Widget _appBar(StyleController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final bool canPop = ModalRoute.of(context)?.canPop == true;
-
-    return Row(
-      children: [
-        const SizedBox(width: 5),
-        if (canPop) const StyledBackButton(canPop: true),
-        Expanded(
-          child: SizedBox(
-            height: 50,
-            child: Center(
-              child: CustomScrollView(
+          extendBodyBehindAppBar: true,
+          appBar: CustomAppBar(
+            leading: canPop
+                ? const [StyledBackButton(canPop: true)]
+                : const [SizedBox(width: 8)],
+            title: Center(
+              child: ListView(
                 shrinkWrap: canPop,
                 scrollDirection: Axis.horizontal,
-                slivers: [
-                  SliverList.builder(
-                    itemCount: StyleTab.values.length,
-                    itemBuilder: (context, i) => _button(c, i),
-                  ),
+                children: [
+                  ...StyleTab.values.mapIndexed((i, e) => _button(c, i)),
                 ],
               ),
             ),
-          ),
-        ),
-        Obx(() {
-          return ContextMenuRegion(
-            enablePrimaryTap: true,
-            enableSecondaryTap: false,
             actions: [
-              ContextMenuButton(
-                label: c.dense.value ? 'Paddings on' : 'Paddings off',
-                onPressed: c.dense.toggle,
-              ),
-              ContextMenuButton(
-                label: c.inverted.value ? 'Light theme' : 'Dark theme',
-                onPressed: c.inverted.toggle,
-              ),
+              Obx(() {
+                return ContextMenuRegion(
+                  enablePrimaryTap: true,
+                  enableSecondaryTap: false,
+                  actions: [
+                    ContextMenuButton(
+                      label: c.dense.value ? 'Paddings on' : 'Paddings off',
+                      onPressed: c.dense.toggle,
+                    ),
+                    ContextMenuButton(
+                      label: c.inverted.value ? 'Light theme' : 'Dark theme',
+                      onPressed: c.inverted.toggle,
+                    ),
+                  ],
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Icon(
+                      Icons.more_vert,
+                      color: style.colors.primary,
+                      size: 27,
+                    ),
+                  ),
+                );
+              }),
             ],
-            child: Icon(Icons.more_vert, color: style.colors.primary, size: 27),
-          );
-        }),
-        // Obx(
-        //   () => IconButton(
-        //     onPressed: c.dense.toggle,
-        //     icon: Icon(
-        //       c.dense.value ? Icons.layers_clear_rounded : Icons.layers_rounded,
-        //       color: const Color(0xFF1F3C5D),
-        //     ),
-        //   ),
-        // ),
-        // const SizedBox(width: 5),
-        // Obx(
-        //   () => IconButton(
-        //     onPressed: c.inverted.toggle,
-        //     icon: Icon(
-        //       c.inverted.value
-        //           ? Icons.dark_mode_rounded
-        //           : Icons.light_mode_rounded,
-        //       color: c.inverted.value
-        //           ? const Color(0xFF1F3C5D)
-        //           : const Color(0xFFFFB74D),
-        //     ),
-        //   ),
-        // ),
-        const SizedBox(width: 15),
-      ],
+          ),
+          body: SafeArea(child: _page(c)),
+          extendBody: true,
+        );
+      },
     );
   }
 
@@ -167,15 +135,6 @@ class StyleView extends StatelessWidget {
     );
   }
 
-  Widget _navigation(StyleController c, BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ...StyleTab.values.mapIndexed((i, _) => _button(c, i)),
-      ],
-    );
-  }
-
   Widget _button(StyleController c, int i) {
     return Obx(() {
       final StyleTab tab = StyleTab.values[i];
@@ -183,17 +142,23 @@ class StyleView extends StatelessWidget {
 
       return switch (tab) {
         StyleTab.colors => StyleCard(
-            icon: selected ? Icons.format_paint : Icons.format_paint_outlined,
+            asset: 'palette',
+            assetWidth: 20.8,
+            assetHeight: 20.8,
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(i),
           ),
         StyleTab.typography => StyleCard(
-            icon: selected ? Icons.text_snippet : Icons.text_snippet_outlined,
+            asset: 'typography2',
+            assetWidth: 24.02,
+            assetHeight: 16,
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(i),
           ),
         StyleTab.widgets => StyleCard(
-            icon: selected ? Icons.widgets : Icons.widgets_outlined,
+            asset: 'widgets',
+            assetWidth: 18.78,
+            assetHeight: 18.78,
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(i),
           ),

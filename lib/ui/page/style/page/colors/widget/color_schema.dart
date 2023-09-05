@@ -92,11 +92,6 @@ class ColorSchemaWidget extends StatelessWidget {
                     curve: Curves.ease,
                     child: SizedBox(width: dense ? 32 : 8),
                   ),
-                  if (e.$3 != null)
-                    Tooltip(
-                      message: e.$3,
-                      child: Icon(Icons.info_outline, size: 13, color: text),
-                    ),
                   if (e.$2 != null) ...[
                     const SizedBox(width: 8),
                     WidgetButton(

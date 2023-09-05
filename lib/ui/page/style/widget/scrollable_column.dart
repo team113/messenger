@@ -22,11 +22,14 @@ class ScrollableColumn extends StatelessWidget {
   const ScrollableColumn({
     super.key,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.controller,
     this.children = const [],
   });
 
   /// Alignment of [children] in their cross axis.
   final CrossAxisAlignment crossAxisAlignment;
+
+  final ScrollController? controller;
 
   /// [Widget]s to display in this [ScrollableColumn].
   final List<Widget> children;
@@ -34,6 +37,7 @@ class ScrollableColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      controller: controller,
       slivers: [
         SliverList(
           delegate: SliverChildListDelegate([

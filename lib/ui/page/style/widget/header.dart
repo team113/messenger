@@ -31,7 +31,7 @@ class Header extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.center,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
@@ -56,7 +56,7 @@ class SubHeader extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.center,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
         child: Text(

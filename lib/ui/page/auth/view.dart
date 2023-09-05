@@ -97,6 +97,12 @@ class AuthView extends StatelessWidget {
                 ],
               ),
             ),
+            StyledCupertinoButton(
+              color: style.colors.secondary,
+              label: 'Styles'.l10n,
+              dense: true,
+              onPressed: () => router.push(Routes.style),
+            ),
             const SizedBox(height: 8),
           ],
         );
@@ -140,7 +146,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(3, 0),
-              child: SvgImage.asset(
+              child: const SvgImage.asset(
                 'assets/icons/register3.svg',
                 width: 23,
                 height: 23,
@@ -156,7 +162,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
-              child: SvgImage.asset(
+              child: const SvgImage.asset(
                 'assets/icons/enter1.svg',
                 width: 19.42,
                 height: 24,
@@ -173,7 +179,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
-              child: SvgImage.asset(
+              child: const SvgImage.asset(
                 'assets/icons/one_time19.svg',
                 width: 19.88,
                 height: 26,

@@ -77,17 +77,6 @@ class ColorWidget extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              if (hint != null)
-                Tooltip(
-                  message: hint,
-                  child: Icon(
-                    Icons.info_outline,
-                    size: 13,
-                    color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 8),

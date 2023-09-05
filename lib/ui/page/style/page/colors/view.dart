@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
@@ -25,7 +26,7 @@ import 'widget/color.dart';
 import 'widget/color_schema.dart';
 
 /// View of the [StyleTab.colors] page.
-class ColorsView extends StatelessWidget {
+class ColorsView extends StatefulWidget {
   const ColorsView({
     super.key,
     this.inverted = false,
@@ -37,6 +38,13 @@ class ColorsView extends StatelessWidget {
 
   /// Indicator whether this view should be compact, meaning minimal [Padding]s.
   final bool dense;
+
+  @override
+  State<ColorsView> createState() => _ColorsViewState();
+}
+
+class _ColorsViewState extends State<ColorsView> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -192,37 +200,49 @@ class ColorsView extends StatelessWidget {
     final Iterable<(Color, String?, String?)> avatars =
         style.colors.userColors.map((color) => (color, null, null)).toList();
 
-    return ScrollableColumn(
-      children: [
-        const SizedBox(height: 16),
-        const Header('Colors'),
-        const SubHeader('Palette'),
-        ColorSchemaWidget(colors, inverted: inverted, dense: dense),
-        const SubHeader('Avatar palette'),
-        ColorSchemaWidget(avatars, inverted: inverted, dense: dense),
-        const SizedBox(height: 16),
-        const SubHeader('Colors'),
-        BuilderWrap(
-          colors,
-          inverted: inverted,
-          dense: dense,
-          (e) => ColorWidget(
-            e.$1,
-            inverted: inverted,
-            subtitle: e.$2,
-            hint: e.$3,
+    return SafeScrollbar(
+      controller: _scrollController,
+      child: ScrollableColumn(
+        controller: _scrollController,
+        children: [
+          const SizedBox(height: 16),
+          const Header('Colors'),
+          const SubHeader('List view'),
+          ColorSchemaWidget(
+            colors,
+            inverted: widget.inverted,
+            dense: widget.dense,
           ),
-        ),
-        const SizedBox(height: 16),
-        const SubHeader('Avatars'),
-        BuilderWrap(
-          avatars,
-          inverted: inverted,
-          dense: dense,
-          (e) => ColorWidget(e.$1, inverted: inverted),
-        ),
-        const SizedBox(height: 16),
-      ],
+          const SubHeader('Avatars'),
+          ColorSchemaWidget(
+            avatars,
+            inverted: widget.inverted,
+            dense: widget.dense,
+          ),
+          const SizedBox(height: 16),
+          const SubHeader('Grid view'),
+          BuilderWrap(
+            colors,
+            inverted: widget.inverted,
+            dense: widget.dense,
+            (e) => ColorWidget(
+              e.$1,
+              inverted: widget.inverted,
+              subtitle: e.$2,
+              hint: e.$3,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const SubHeader('Avatars'),
+          BuilderWrap(
+            avatars,
+            inverted: widget.inverted,
+            dense: widget.dense,
+            (e) => ColorWidget(e.$1, inverted: widget.inverted),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }
