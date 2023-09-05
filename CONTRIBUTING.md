@@ -108,11 +108,11 @@ make clean dockerized=yes  # Docker-wrapped
 ```
 
 
-### Update launcher icons
+### Application icons changing
 
-To update the launcher icons for each platform, use the following [`Makefile`] command:
+To update the application icons, use the following [`Makefile`] command:
 ```bash
-make icon.update:
+make icon.update
 make icon.update dockerized=yes  # Docker-wrapped
 ```
 

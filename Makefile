@@ -795,8 +795,8 @@ ifeq ($(dockerized),yes)
 		node:${NODE_VER} \
 			make icon.update dockerized=no
 else
-	npx update-flutter-app-icon dev/update_icons.json
-endif	
+	npx update-flutter-app-icon dev/icons.json
+endif
 
 
 
