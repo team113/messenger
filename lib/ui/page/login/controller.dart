@@ -21,10 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 
 import '/api/backend/schema.dart'
-    show
-        ConfirmUserEmailErrorCode,
-        ConfirmUserPhoneErrorCode,
-        CreateSessionErrorCode;
+    show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -34,67 +31,26 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddUserEmailException,
-        AddUserPhoneException,
         ConfirmUserEmailException,
-        ConfirmUserPhoneException,
         ConnectionException,
         CreateSessionException,
         ResendUserEmailConfirmationException,
-        ResendUserPhoneConfirmationException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
-import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/phone_field.dart';
 import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
-  oauth,
-  oauthOccupied,
-  oauthNoUser,
   recovery,
   recoveryCode,
   recoveryPassword,
   signIn,
-  signInWithCode,
   signInWithPassword,
-  signInWithEmail,
-  signInWithEmailCode,
-  signInWithEmailOccupied,
-  signInWithPhone,
-  signInWithPhoneCode,
-  signInWithPhoneOccupied,
-  signInWithQrScan,
-  signInWithQrShow,
   signUp,
   signUpWithEmail,
   signUpWithEmailCode,
-  signUpWithEmailOccupied,
-  signUpWithPhone,
-  signUpWithPhoneCode,
-  signUpWithPhoneOccupied,
-  noPassword,
-  noPasswordCode,
-  choice,
-}
-
-extension on LoginViewStage {
-  bool get registering => switch (this) {
-        LoginViewStage.signIn ||
-        LoginViewStage.signInWithPassword ||
-        LoginViewStage.signInWithEmail ||
-        LoginViewStage.signInWithEmailCode ||
-        LoginViewStage.signInWithEmailOccupied ||
-        LoginViewStage.signInWithPhone ||
-        LoginViewStage.signInWithPhoneCode ||
-        LoginViewStage.signInWithPhoneOccupied ||
-        LoginViewStage.signInWithQrScan ||
-        LoginViewStage.signInWithQrShow =>
-          false,
-        (_) => true,
-      };
 }
 
 /// [GetxController] of a [LoginView].
@@ -102,7 +58,6 @@ class LoginController extends GetxController {
   LoginController(
     this._authService, {
     LoginViewStage stage = LoginViewStage.signUp,
-    this.onAuth,
   }) : stage = Rx(stage);
 
   /// [TextFieldState] of a login text input.
@@ -123,152 +78,17 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
 
-  ///
-  final GlobalKey scannerKey = GlobalKey();
+  /// [TextFieldState] of a email text input.
+  late final TextFieldState email;
+
+  /// [TextFieldState] of a email code text input.
+  late final TextFieldState emailCode;
 
   ///
   LoginViewStage? backStage;
 
   ///
-  final void Function()? onAuth;
-
-  ///
-  late final TextFieldState email;
-
-  ///
-  late final TextFieldState emailCode;
-
-  ///
   Credentials? creds;
-
-  ///
-  late final PhoneFieldState phone = PhoneFieldState(
-    revalidateOnUnfocus: true,
-    onChanged: (s) {
-      try {
-        if (!s.isEmpty.value) {
-          UserPhone(s.phone!.international);
-
-          if (!s.phone!.isValid()) {
-            throw const FormatException('Does not match validation RegExp');
-          }
-        }
-
-        s.error.value = null;
-      } on FormatException {
-        s.error.value = 'err_incorrect_phone'.l10n;
-      }
-    },
-    onSubmitted: (s) async {
-      if (s.error.value != null) {
-        return;
-      }
-
-      stage.value = stage.value.registering
-          ? LoginViewStage.signUpWithPhoneCode
-          : LoginViewStage.signInWithPhoneCode;
-
-      final GraphQlProvider graphQlProvider = Get.find();
-
-      try {
-        final response = await graphQlProvider.signUp();
-
-        creds = Credentials(
-          Session(
-            response.createUser.session.token,
-            response.createUser.session.expireAt,
-          ),
-          RememberedSession(
-            response.createUser.remembered!.token,
-            response.createUser.remembered!.expireAt,
-          ),
-          response.createUser.user.id,
-        );
-
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.addUserPhone(
-          UserPhone(phone.controller2.value!.international.toLowerCase()),
-        );
-        graphQlProvider.token = null;
-
-        s.unsubmit();
-      } on AddUserPhoneException catch (e) {
-        graphQlProvider.token = null;
-        s.error.value = e.toMessage();
-        stage.value = stage.value.registering
-            ? LoginViewStage.signUpWithPhone
-            : LoginViewStage.signInWithPhone;
-      } catch (_) {
-        graphQlProvider.token = null;
-        s.error.value = 'err_data_transfer'.l10n;
-        s.unsubmit();
-        stage.value = stage.value.registering
-            ? LoginViewStage.signUpWithPhone
-            : LoginViewStage.signInWithPhone;
-      }
-
-      stage.value = stage.value.registering
-          ? LoginViewStage.signUpWithPhoneCode
-          : LoginViewStage.signInWithPhoneCode;
-    },
-  );
-
-  late final TextFieldState phoneCode = TextFieldState(
-    revalidateOnUnfocus: true,
-    onSubmitted: (s) async {
-      try {
-        if (ConfirmationCode(s.text).val == '1111') {
-          if (stage.value.registering) {
-            await _authService.authorizeWith(creds!);
-            router.noIntroduction = false;
-            router.signUp = true;
-            _redirect();
-          }
-        } else if (ConfirmationCode(s.text).val == '2222') {
-          throw const ConfirmUserPhoneException(
-            ConfirmUserPhoneErrorCode.occupied,
-          );
-        } else {
-          throw const ConfirmUserPhoneException(
-            ConfirmUserPhoneErrorCode.wrongCode,
-          );
-        }
-      } on ConfirmUserPhoneException catch (e) {
-        switch (e.code) {
-          case ConfirmUserPhoneErrorCode.occupied:
-            stage.value = stage.value.registering
-                ? LoginViewStage.signUpWithPhoneOccupied
-                : LoginViewStage.signInWithPhoneOccupied;
-            break;
-
-          case ConfirmUserPhoneErrorCode.wrongCode:
-            s.error.value = e.toMessage();
-
-            ++codeAttempts;
-            if (codeAttempts >= 3) {
-              codeAttempts = 0;
-              _setCodeTimer();
-            }
-            break;
-
-          default:
-            s.error.value = 'err_wrong_recovery_code'.l10n;
-            break;
-        }
-      } on FormatException catch (_) {
-        s.error.value = 'err_wrong_recovery_code'.l10n;
-
-        ++codeAttempts;
-        if (codeAttempts >= 3) {
-          codeAttempts = 0;
-          _setCodeTimer();
-        }
-      } catch (_) {
-        s.error.value = 'err_data_transfer'.l10n;
-        s.unsubmit();
-      }
-    },
-  );
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
@@ -382,9 +202,7 @@ class LoginController extends GetxController {
         if (s.error.value != null) {
           return;
         }
-        stage.value = stage.value.registering
-            ? LoginViewStage.signUpWithEmailCode
-            : LoginViewStage.signInWithEmailCode;
+        stage.value = LoginViewStage.signUpWithEmailCode;
 
         try {
           creds = await _authService.getEmailCode(UserEmail(email.text));
@@ -393,17 +211,13 @@ class LoginController extends GetxController {
           s.error.value = e.toMessage();
           _setResendEmailTimer(false);
 
-          stage.value = stage.value.registering
-              ? LoginViewStage.signUpWithEmail
-              : LoginViewStage.signInWithEmail;
+          stage.value = LoginViewStage.signUpWithEmail;
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;
           _setResendEmailTimer(false);
           s.unsubmit();
 
-          stage.value = stage.value.registering
-              ? LoginViewStage.signUpWithEmail
-              : LoginViewStage.signInWithEmail;
+          stage.value = LoginViewStage.signUpWithEmail;
 
           rethrow;
         }
@@ -411,9 +225,11 @@ class LoginController extends GetxController {
     );
 
     emailCode = TextFieldState(
+      revalidateOnUnfocus: true,
       onSubmitted: (s) async {
         try {
-          await _authService.confirmEmailCode(ConfirmationCode(emailCode.text), creds!);
+          await _authService.confirmEmailCode(
+              ConfirmationCode(emailCode.text), creds!);
 
           await _authService.authorizeWith(creds!);
 
@@ -422,12 +238,6 @@ class LoginController extends GetxController {
           _redirect();
         } on ConfirmUserEmailException catch (e) {
           switch (e.code) {
-            case ConfirmUserEmailErrorCode.occupied:
-              stage.value = stage.value.registering
-                  ? LoginViewStage.signUpWithEmailOccupied
-                  : LoginViewStage.signInWithEmailOccupied;
-              break;
-
             case ConfirmUserEmailErrorCode.wrongCode:
               s.error.value = e.toMessage();
 
@@ -769,13 +579,6 @@ class LoginController extends GetxController {
     );
   }
 
-  Future<void> signInWithoutPassword() async {
-    stage.value = LoginViewStage.noPasswordCode;
-    recoveryCode.clear();
-  }
-
-  Future<void> signInWithCode(String code) async {}
-
   bool isEmailOrPhone(String text) {
     try {
       UserEmail(text);
@@ -851,9 +654,7 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      if (stage.value.registering) {
-        await _authService.resendEmail(creds!);
-      }
+      await _authService.resendEmail(creds!);
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
@@ -885,75 +686,8 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Timeout of a [resendPhone].
-  final RxInt resendPhoneTimeout = RxInt(0);
-
-  /// [Timer] decreasing the [resendPhoneTimeout].
-  Timer? _resendPhoneTimer;
-
-  /// Starts or stops the [_resendPhoneTimer] based on [enabled] value.
-  void _setResendPhoneTimer([bool enabled = true]) {
-    if (enabled) {
-      resendPhoneTimeout.value = 30;
-      _resendPhoneTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendPhoneTimeout.value--;
-          if (resendPhoneTimeout.value <= 0) {
-            resendPhoneTimeout.value = 0;
-            _resendPhoneTimer?.cancel();
-            _resendPhoneTimer = null;
-          }
-        },
-      );
-    } else {
-      resendPhoneTimeout.value = 0;
-      _resendPhoneTimer?.cancel();
-      _resendPhoneTimer = null;
-    }
-  }
-
-  Future<void> resendPhone() async {
-    resent.value = true;
-    _setResendPhoneTimer();
-
-    try {
-      final GraphQlProvider graphQlProvider = Get.find();
-
-      if (stage.value.registering) {
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.resendPhone();
-        graphQlProvider.token = null;
-      }
-    } on ResendUserPhoneConfirmationException catch (e) {
-      phoneCode.error.value = e.toMessage();
-    } catch (e) {
-      phoneCode.error.value = 'err_data_transfer'.l10n;
-      resent.value = false;
-      _setResendPhoneTimer(false);
-      rethrow;
-    }
-  }
-
-  ///
-  Future<void> registerOccupied() async {
-    final GraphQlProvider graphQlProvider = Get.find();
-
-    graphQlProvider.token = creds!.session.token;
-
-    if (stage.value == LoginViewStage.signInWithEmailOccupied) {
-      // await graphQlProvider.confirmEmailCode(ConfirmationCode(emailCode.text));
-    } else if (stage.value == LoginViewStage.signInWithPhoneOccupied) {}
-
-    await _authService.authorizeWith(creds!);
-
-    router.noIntroduction = false;
-    router.signUp = true;
-    _redirect();
-  }
-
   ///
   void _redirect() {
-    (onAuth ?? router.home).call();
+    router.home.call();
   }
 }

@@ -17,22 +17,26 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '../../../widget/widget_button.dart';
 import '/themes.dart';
 
 /// Custom styled [CupertinoButton].
-class StyledCupertinoButton extends StatelessWidget {
+class StyledCupertinoButton extends StatefulWidget {
   const StyledCupertinoButton({
     super.key,
     required this.label,
+    this.padding = EdgeInsets.zero,
     this.onPressed,
+    this.style,
     this.color,
     this.enlarge = false,
+    this.dense = false,
+    this.tiny = false,
   });
 
   final bool enlarge;
+  final bool dense;
+  final bool tiny;
 
   /// Label to display.
   final String label;
@@ -40,22 +44,73 @@ class StyledCupertinoButton extends StatelessWidget {
   /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
+  /// Padding to apply to the button.
+  ///
+  /// Meant to be used to manipulate clickable area.
+  final EdgeInsets padding;
+
+  /// [TextStyle] to apply to the [label].
+  final TextStyle? style;
+
   final Color? color;
 
   @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+  State<StyledCupertinoButton> createState() => _StyledCupertinoButtonState();
+}
 
-    final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-      fontSize: enlarge ? 17 : 15,
-      color: color ?? style.colors.primary,
+/// State of a [StyledCupertinoButton] maintaining the [_hovered] and [_clicked]
+/// indicators.
+class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
+  /// Indicator whether this button is hovered.
+  bool _hovered = false;
+
+  /// Indicator whether this button is pushed down.
+  bool _clicked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).style;
+
+    final TextStyle textStyle =
+        (widget.style ?? style.fonts.labelMediumSecondary).copyWith(
+      fontSize: widget.tiny
+          ? 9
+          : widget.dense
+              ? 13
+              : widget.enlarge
+                  ? 17
+                  : 15,
+      color: (widget.color ??
+              (widget.style ?? style.fonts.labelMediumSecondary).color)
+          ?.withOpacity(
+        _clicked
+            ? 0.5
+            : _hovered
+                ? 0.7
+                : 1,
+      ),
     );
 
-    return WidgetButton(
-      onPressed: onPressed,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-        child: Text(label, style: thin),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      opaque: false,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _clicked = true),
+        onTapUp: (_) {
+          setState(() => _clicked = false);
+          widget.onPressed?.call();
+        },
+        child: Padding(
+          padding: widget.padding,
+          child: AnimatedDefaultTextStyle(
+            curve: Curves.ease,
+            duration: const Duration(milliseconds: 100),
+            style: textStyle,
+            child: Text(widget.label),
+          ),
+        ),
       ),
     );
   }

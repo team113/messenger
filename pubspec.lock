@@ -177,14 +177,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  circle_flags:
-    dependency: "direct main"
-    description:
-      name: circle_flags
-      sha256: cac0fe72ad731cae5984e30be536814d7df37eeb7efc388ba76fdb84dab47ac4
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
   cli_util:
     dependency: transitive
     description:
@@ -249,14 +241,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
-  country_picker:
-    dependency: "direct main"
-    description:
-      name: country_picker
-      sha256: aa975b41c8052298d227ff7ff58d6eddcad0196127445f72af7456224c9ef104
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.20"
   cross_file:
     dependency: transitive
     description:
@@ -329,14 +313,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
-  diacritic:
-    dependency: transitive
-    description:
-      name: diacritic
-      sha256: a84e03ec2779375fb86430dbe9d8fba62c68376f2499097a5f6e75556babe706
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.4"
   dio:
     dependency: "direct main"
     description:
@@ -415,8 +391,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "70d897117464c345a38ead379b29588076bf1f73"
-      url: "https://github.com/drygbezdrug/fluent-dart"
+      resolved-ref: "3e29b9c77f8ebc56d582ed2337050fa1c65c1c90"
+      url: "https://github.com/sagudev/fluent-dart.git"
     source: git
     version: "1.1.0+0"
   flutter:
@@ -527,11 +503,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0+1"
-  flutter_localizations:
-    dependency: transitive
-    description: flutter
-    source: sdk
-    version: "0.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -863,10 +834,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
+      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
       url: "https://pub.dev"
     source: hosted
-    version: "0.18.1"
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -1227,22 +1198,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
-  phone_form_field:
-    dependency: "direct main"
-    description:
-      name: phone_form_field
-      sha256: "0e02d5548b73b51c47ee3e68b6fc0752cfb6f2f59c1ff9b531dcead0083ccd74"
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.1.0"
-  phone_numbers_parser:
-    dependency: transitive
-    description:
-      name: phone_numbers_parser
-      sha256: "3b809c0190e7d1272a831f12a67ae5b329ef889d3a9e6da7a59fe86a471576e5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "8.0.0"
   photo_view:
     dependency: "direct main"
     description:

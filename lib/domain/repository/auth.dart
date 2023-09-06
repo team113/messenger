@@ -60,7 +60,6 @@ abstract class AbstractAuthRepository {
 
   Future<void> resendEmail(Credentials creds);
 
-
   /// Validates the current [AccessToken].
   Future<void> validateToken();
 

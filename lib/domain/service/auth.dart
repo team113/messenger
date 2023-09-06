@@ -269,6 +269,7 @@ class AuthService extends GetxService {
       }
     });
   }
+
   Future<Credentials> getEmailCode(UserEmail email) =>
       _authRepository.getEmailCode(email);
 
@@ -277,7 +278,6 @@ class AuthService extends GetxService {
 
   Future<void> resendEmail(Credentials creds) =>
       _authRepository.resendEmail(creds);
-
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).

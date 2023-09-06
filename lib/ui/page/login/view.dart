@@ -18,22 +18,16 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:phone_form_field/phone_form_field.dart';
 
-import '/domain/model/my_user.dart';
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/ui/widget/phone_field.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
-import 'widget/country_code_chipl.dart';
 import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
@@ -44,24 +38,21 @@ class LoginView extends StatelessWidget {
   const LoginView({
     super.key,
     this.stage = LoginViewStage.signUp,
-    this.onAuth,
   });
 
-  ///
+  /// [LoginView] stage to display.
   final LoginViewStage stage;
-
-  ///
-  final void Function()? onAuth;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     LoginViewStage stage = LoginViewStage.signUp,
-    void Function()? onAuth,
   }) {
     return ModalPopup.show(
       context: context,
-      child: LoginView(stage: stage, onAuth: onAuth),
+      child: LoginView(
+        stage: stage,
+      ),
     );
   }
 
@@ -71,7 +62,10 @@ class LoginView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('LoginView'),
-      init: LoginController(Get.find(), stage: stage, onAuth: onAuth),
+      init: LoginController(
+        Get.find(),
+        stage: stage,
+      ),
       builder: (LoginController c) {
         return Obx(() {
           builder(header, children) {
@@ -96,84 +90,6 @@ class LoginView extends StatelessWidget {
           final List<Widget> children;
 
           switch (c.stage.value) {
-            case LoginViewStage.noPassword:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'Sign in without password'.l10n,
-              );
-
-              children = [
-                Text(
-                  'label_recover_account_description'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('RecoveryField'),
-                  state: c.login,
-                  label: 'E-mail or phone number'.l10n,
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed:
-                      c.login.isEmpty.value ? null : c.signInWithoutPassword,
-                ),
-              ];
-              break;
-
-            case LoginViewStage.noPasswordCode:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signInWithCode,
-                text: 'label_sign_in_with_code'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_sign_in_code_sent1'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: c.login.text,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: style.colors.onBackground,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_sign_in_code_sent2'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('RecoveryCodeField'),
-                  state: c.recoveryCode,
-                  label: 'label_confirmation_code'.l10n,
-                  type: TextInputType.number,
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.recoveryCode.isEmpty.value
-                      ? null
-                      : c.recoveryCode.submit,
-                ),
-              ];
-              break;
-
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
@@ -282,206 +198,6 @@ class LoginView extends StatelessWidget {
                           c.repeatPassword.isEmpty.value
                       ? null
                       : c.resetUserPassword,
-                ),
-              ];
-              break;
-
-            case LoginViewStage.signUpWithPhoneOccupied:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signUpWithPhone,
-                text: 'label_sign_up'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_up_phone_already_occupied'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 25),
-                ContactTile(
-                  title: 'Name', // name ?? login ?? email/phone used to login
-                  myUser: MyUser(
-                    id: const UserId('123412'),
-                    num: UserNum('1234123412341234'),
-                    emails: MyUserEmails(confirmed: []),
-                    phones: MyUserPhones(confirmed: []),
-                    presenceIndex: 0,
-                    online: false,
-                  ),
-                  darken: 0.03,
-                  subtitle: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text(
-                        'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('SignIn'),
-                  title: 'btn_sign_in'.l10n,
-                  onPressed: () {},
-                ),
-              ];
-              break;
-
-            case LoginViewStage.signUpWithPhoneCode:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signUpWithPhone,
-                text: 'label_sign_up'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_up_code_phone_sent'.l10nfmt({
-                    'text': c.phone.phone?.international,
-                  }).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return Text(
-                    c.resendPhoneTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
-                        : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
-                  );
-                }),
-                Obx(() {
-                  final bool enabled = c.resendPhoneTimeout.value == 0;
-
-                  return WidgetButton(
-                    onPressed: enabled ? c.resendPhone : null,
-                    child: Text(
-                      enabled
-                          ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'
-                              .l10nfmt({'for': c.resendPhoneTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
-                        color: enabled ? style.colors.primary : null,
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('EmailCodeField'),
-                  state: c.phoneCode,
-                  label: 'label_confirmation_code'.l10n,
-                  type: TextInputType.number,
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  final bool enabled =
-                      !c.phoneCode.isEmpty.value && c.codeTimeout.value == 0;
-
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
-                    dense: c.codeTimeout.value != 0,
-                    onPressed: enabled ? c.phoneCode.submit : null,
-                  );
-                }),
-              ];
-              break;
-
-            case LoginViewStage.signUpWithPhone:
-              header = ModalPopupHeader(
-                text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = LoginViewStage.signUp,
-              );
-
-              children = [
-                // ReactivePhoneField(
-                //   state: c.phone,
-                //   label: 'label_phone_number'.l10n,
-                // ),
-                // const SizedBox(height: 25),
-                ReactiveTextField(
-                  state: c.phone,
-                  label: 'label_phone_number'.l10n,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: CountryCodeChipl(
-                      textStyle: style.fonts.titleMedium,
-                      isoCode: IsoCode.RU,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: Obx(() {
-                    final bool enabled = !c.phone.isEmpty.value;
-
-                    return OutlinedRoundedButton(
-                      title: Text(
-                        'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: enabled
-                              ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
-                        ),
-                      ),
-                      onPressed: enabled ? c.register : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
-                    );
-                  }),
-                ),
-                const SizedBox(height: 25 / 2),
-              ];
-              break;
-
-            case LoginViewStage.signUpWithEmailOccupied:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
-                text: 'label_sign_up'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_up_email_already_occupied'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 25),
-                ContactTile(
-                  title: 'Name', // name ?? login ?? email/phone used to login
-                  myUser: MyUser(
-                    id: const UserId('123412'),
-                    num: UserNum('1234123412341234'),
-                    emails: MyUserEmails(confirmed: []),
-                    phones: MyUserPhones(confirmed: []),
-                    presenceIndex: 0,
-                    online: false,
-                  ),
-                  darken: 0.03,
-                  subtitle: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Text(
-                        'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('SignIn'),
-                  title: 'btn_sign_in'.l10n,
-                  onPressed: () {},
                 ),
               ];
               break;
@@ -606,285 +322,6 @@ class LoginView extends StatelessWidget {
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
-                SignButton(
-                  text: 'btn_phone_number'.l10n,
-                  asset: 'phone6',
-                  assetWidth: 17.61,
-                  assetHeight: 25,
-                  padding: const EdgeInsets.only(left: 2),
-                  onPressed: () =>
-                      c.stage.value = LoginViewStage.signUpWithPhone,
-                ),
-                const SizedBox(height: 25 / 2),
-              ];
-              break;
-
-            case LoginViewStage.signInWithCode:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'label_sign_in_with_code'.l10n,
-              );
-
-              children = [
-                Text(
-                  'label_one_time_code_sent_description'.l10n,
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('RecoveryField'),
-                  state: c.login,
-                  label: 'label_email_or_phone'.l10n,
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed:
-                      c.login.isEmpty.value ? null : c.signInWithoutPassword,
-                ),
-                // const SizedBox(height: 16),
-              ];
-              break;
-
-            case LoginViewStage.signInWithPhoneOccupied:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signInWithPhone,
-                text: 'label_sign_in'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_in_phone_already_occupied'.l10nfmt({
-                    'text': c.phone.phone?.international
-                  }).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  title: 'btn_create'.l10n,
-                  onPressed: c.registerOccupied,
-                ),
-              ];
-              break;
-
-            case LoginViewStage.signInWithPhoneCode:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signInWithPhone,
-                text: 'label_sign_in'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_up_code_phone_sent'.l10nfmt({
-                    'text': c.phone.phone?.international,
-                  }).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return Text(
-                    c.resendPhoneTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
-                        : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
-                  );
-                }),
-                Obx(() {
-                  final bool enabled = c.resendPhoneTimeout.value == 0;
-
-                  return WidgetButton(
-                    onPressed: enabled ? c.resendPhone : null,
-                    child: Text(
-                      enabled
-                          ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'
-                              .l10nfmt({'for': c.resendPhoneTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
-                        color: enabled ? style.colors.primary : null,
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('EmailCodeField'),
-                  state: c.phoneCode,
-                  label: 'label_confirmation_code'.l10n,
-                  type: TextInputType.number,
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  final bool enabled =
-                      !c.phoneCode.isEmpty.value && c.codeTimeout.value == 0;
-
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
-                    dense: c.codeTimeout.value != 0,
-                    onPressed: enabled ? c.phoneCode.submit : null,
-                  );
-                }),
-              ];
-              break;
-
-            case LoginViewStage.signInWithPhone:
-              header = ModalPopupHeader(
-                text: 'label_sign_in'.l10n,
-                onBack: () => c.stage.value = LoginViewStage.signIn,
-              );
-
-              children = [
-                ReactivePhoneField(
-                  state: c.phone,
-                  label: 'label_phone_number'.l10n,
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: Obx(() {
-                    final bool enabled = !c.phone.isEmpty.value;
-
-                    return OutlinedRoundedButton(
-                      title: Text(
-                        'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: enabled
-                              ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
-                        ),
-                      ),
-                      onPressed: enabled ? c.phone.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
-                    );
-                  }),
-                ),
-                const SizedBox(height: 25 / 2),
-              ];
-              break;
-
-            case LoginViewStage.signInWithEmailOccupied:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signInWithEmail,
-                text: 'label_sign_in'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_in_email_already_occupied'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 25),
-                PrimaryButton(
-                  title: 'btn_create'.l10n,
-                  onPressed: c.registerOccupied,
-                ),
-              ];
-              break;
-
-            case LoginViewStage.signInWithEmailCode:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signInWithEmail,
-                text: 'label_sign_in'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
-                  style: style.fonts.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return Text(
-                    c.resendEmailTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
-                        : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
-                  );
-                }),
-                Obx(() {
-                  final bool enabled = c.resendEmailTimeout.value == 0;
-
-                  return WidgetButton(
-                    onPressed: enabled ? c.resendEmail : null,
-                    child: Text(
-                      enabled
-                          ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'
-                              .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
-                        color: enabled ? style.colors.primary : null,
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('EmailCodeField'),
-                  state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
-                  type: TextInputType.number,
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  final bool enabled =
-                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
-
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
-                    dense: c.codeTimeout.value != 0,
-                    onPressed: enabled ? c.emailCode.submit : null,
-                  );
-                }),
-              ];
-              break;
-
-            case LoginViewStage.signInWithEmail:
-              header = ModalPopupHeader(
-                text: 'label_sign_in'.l10n,
-                onBack: () {
-                  c.stage.value = LoginViewStage.signIn;
-                  c.email.unsubmit();
-                },
-              );
-
-              children = [
-                ReactiveTextField(
-                  state: c.email,
-                  label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
-                  style: style.fonts.bodyMedium,
-                  treatErrorAsStatus: false,
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: Obx(() {
-                    final bool enabled = !c.email.isEmpty.value;
-
-                    return OutlinedRoundedButton(
-                      title: Text(
-                        'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: enabled
-                              ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
-                        ),
-                      ),
-                      onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
-                    );
-                  }),
-                ),
               ];
               break;
 
@@ -974,15 +411,6 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
               ];
               break;
-
-            case LoginViewStage.choice ||
-                  LoginViewStage.oauthNoUser ||
-                  LoginViewStage.oauthOccupied ||
-                  LoginViewStage.oauth ||
-                  LoginViewStage.signInWithQrScan ||
-                  LoginViewStage.signInWithQrShow:
-              header = const SizedBox();
-              children = [];
           }
 
           return AnimatedSizeAndFade(

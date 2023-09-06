@@ -19,16 +19,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
+import '../../widget/modal_popup.dart';
+import '../home/page/my_profile/widget/download_button.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/language/view.dart';
 import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
@@ -44,34 +44,20 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb || true;
-
-        if (isWeb) {}
-
         final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
           color: style.colors.onBackground,
         );
 
-        final Widget status = SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Flex(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: [
-                StyledCupertinoButton(
-                  key: c.languageKey,
-                  label: 'label_language_entry'.l10nfmt({
-                    'code': L10n.chosen.value!.locale.countryCode,
-                    'name': L10n.chosen.value!.name,
-                  }),
-                  onPressed: () => LanguageSelectionView.show(context, null),
-                ),
-              ],
+        final Widget status = Column(
+          children: [
+            const SizedBox(height: 4),
+            StyledCupertinoButton(
+              label: 'btn_download_application'.l10n,
+              // color: style.colors.secondary,
+              onPressed: () => _download(context),
             ),
-          ),
+            const SizedBox(height: 4),
+          ],
         );
 
         // Header part of the page.
@@ -203,6 +189,7 @@ class AuthView extends StatelessWidget {
                 CustomScrollView(
                   slivers: [
                     SliverFillRemaining(
+                      hasScrollBody: false,
                       child: Column(
                         children: [
                           const SizedBox(height: 8),
@@ -232,5 +219,84 @@ class AuthView extends StatelessWidget {
     c.blink = machine.findInput<bool>('blink') as SMITrigger?;
 
     await Future.delayed(const Duration(milliseconds: 500), c.animate);
+  }
+
+  /// Opens a [ModalPopup] listing the buttons for downloading the application.
+  Future<void> _download(BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    await ModalPopup.show(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(
+            header: Center(
+              child: Text(
+                'btn_download'.l10n,
+                style: style.fonts.headlineMedium.copyWith(fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: 'windows5',
+                  width: 23.93,
+                  height: 24,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'apple7',
+                  width: 21.07,
+                  height: 27,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'linux4',
+                  width: 20.57,
+                  height: 24,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'app_store',
+                  width: 23,
+                  height: 23,
+                  title: 'App Store',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'google',
+                  width: 20.33,
+                  height: 22.02,
+                  title: 'Google Play',
+                  link: 'messenger-android.apk',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'android3',
+                  width: 20.99,
+                  height: 25,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ),
+    );
   }
 }
