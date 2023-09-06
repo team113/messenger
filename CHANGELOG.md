@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10] · 2023-??-??
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.4...v0.1.0-alpha.10) | [Milestone](/../../milestone/9)
+
+### Added
+
+- UI
+    - Save as context menu button for media. ([#423], [#370] [#140]) 
+
+[#140]: /../../issues/140
+[#370]: /../../issues/370
+[#423]: /../../pull/423
+
+
+
+
 ## [0.1.0-alpha.9.4] · 2023-09-04
 [0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
 
@@ -27,8 +44,7 @@ All user visible changes to this project will be documented in this file. This p
 [Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.9.3) | [Milestone](/../../milestone/8)
 
 ### Added
-- UI
-    - Save as context menu button for media. ([#423], [#140]) 
+
 - Windows:
     - Notifications. ([#492], [#439])
 
@@ -42,9 +58,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned navigation buttons' badges. ([#529], [#500])
     - Display online status only when application is active. ([#522])
 
-[#140]: /../../issues/140
 [#385]: /../../issues/385
-[#423]: /../../pull/423
 [#439]: /../../issues/439
 [#492]: /../../pull/492
 [#500]: /../../issues/500
