@@ -133,133 +133,10 @@ class LoginController extends GetxController {
   final void Function()? onAuth;
 
   ///
-  late final TextFieldState email = TextFieldState(
-    revalidateOnUnfocus: true,
-    onChanged: (s) {
-      try {
-        if (s.text.isNotEmpty) {
-          UserEmail(s.text.toLowerCase());
-        }
-
-        s.error.value = null;
-      } on FormatException {
-        s.error.value = 'err_incorrect_email'.l10n;
-      }
-    },
-    onSubmitted: (s) async {
-      if (s.error.value != null) {
-        return;
-      }
-
-      stage.value = stage.value.registering
-          ? LoginViewStage.signUpWithEmailCode
-          : LoginViewStage.signInWithEmailCode;
-
-      final GraphQlProvider graphQlProvider = Get.find();
-
-      try {
-        final response = await graphQlProvider.signUp();
-
-        creds = Credentials(
-          Session(
-            response.createUser.session.token,
-            response.createUser.session.expireAt,
-          ),
-          RememberedSession(
-            response.createUser.remembered!.token,
-            response.createUser.remembered!.expireAt,
-          ),
-          response.createUser.user.id,
-        );
-
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.addUserEmail(UserEmail(email.text));
-        graphQlProvider.token = null;
-
-        s.unsubmit();
-      } on AddUserEmailException catch (e) {
-        graphQlProvider.token = null;
-        s.error.value = e.toMessage();
-        _setResendEmailTimer(false);
-
-        stage.value = stage.value.registering
-            ? LoginViewStage.signUpWithEmail
-            : LoginViewStage.signInWithEmail;
-      } catch (e) {
-        graphQlProvider.token = null;
-        s.error.value = 'err_data_transfer'.l10n;
-        _setResendEmailTimer(false);
-        s.unsubmit();
-
-        stage.value = stage.value.registering
-            ? LoginViewStage.signUpWithEmail
-            : LoginViewStage.signInWithEmail;
-
-        rethrow;
-      }
-    },
-  );
+  late final TextFieldState email;
 
   ///
-  late final TextFieldState emailCode = TextFieldState(
-    revalidateOnUnfocus: true,
-    onSubmitted: (s) async {
-      final GraphQlProvider graphQlProvider = Get.find();
-
-      try {
-        if (!stage.value.registering && s.text == '2222') {
-          throw const ConfirmUserEmailException(
-            ConfirmUserEmailErrorCode.occupied,
-          );
-        }
-
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
-
-        await _authService.authorizeWith(creds!);
-
-        router.noIntroduction = false;
-        router.signUp = true;
-        _redirect();
-      } on ConfirmUserEmailException catch (e) {
-        switch (e.code) {
-          case ConfirmUserEmailErrorCode.occupied:
-            stage.value = stage.value.registering
-                ? LoginViewStage.signUpWithEmailOccupied
-                : LoginViewStage.signInWithEmailOccupied;
-            break;
-
-          case ConfirmUserEmailErrorCode.wrongCode:
-            graphQlProvider.token = null;
-            s.error.value = e.toMessage();
-
-            ++codeAttempts;
-            if (codeAttempts >= 3) {
-              codeAttempts = 0;
-              _setCodeTimer();
-            }
-            break;
-
-          default:
-            s.error.value = 'err_wrong_recovery_code'.l10n;
-            break;
-        }
-      } on FormatException catch (_) {
-        graphQlProvider.token = null;
-        s.error.value = 'err_wrong_recovery_code'.l10n;
-
-        ++codeAttempts;
-        if (codeAttempts >= 3) {
-          codeAttempts = 0;
-          _setCodeTimer();
-        }
-      } catch (_) {
-        graphQlProvider.token = null;
-        s.error.value = 'err_data_transfer'.l10n;
-        s.unsubmit();
-      }
-    },
-  );
+  late final TextFieldState emailCode;
 
   ///
   Credentials? creds;
@@ -486,6 +363,98 @@ class LoginController extends GetxController {
       onSubmitted: (s) => stage.value == LoginViewStage.signUp
           ? register()
           : resetUserPassword(),
+    );
+
+    email = TextFieldState(
+      revalidateOnUnfocus: true,
+      onChanged: (s) {
+        try {
+          if (s.text.isNotEmpty) {
+            UserEmail(s.text.toLowerCase());
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        if (s.error.value != null) {
+          return;
+        }
+        stage.value = stage.value.registering
+            ? LoginViewStage.signUpWithEmailCode
+            : LoginViewStage.signInWithEmailCode;
+
+        try {
+          creds = await _authService.getEmailCode(UserEmail(email.text));
+          s.unsubmit();
+        } on AddUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+          _setResendEmailTimer(false);
+
+          stage.value = stage.value.registering
+              ? LoginViewStage.signUpWithEmail
+              : LoginViewStage.signInWithEmail;
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          _setResendEmailTimer(false);
+          s.unsubmit();
+
+          stage.value = stage.value.registering
+              ? LoginViewStage.signUpWithEmail
+              : LoginViewStage.signInWithEmail;
+
+          rethrow;
+        }
+      },
+    );
+
+    emailCode = TextFieldState(
+      onSubmitted: (s) async {
+        try {
+          await _authService.confirmEmailCode(ConfirmationCode(emailCode.text), creds!);
+
+          await _authService.authorizeWith(creds!);
+
+          router.noIntroduction = false;
+          router.signUp = true;
+          _redirect();
+        } on ConfirmUserEmailException catch (e) {
+          switch (e.code) {
+            case ConfirmUserEmailErrorCode.occupied:
+              stage.value = stage.value.registering
+                  ? LoginViewStage.signUpWithEmailOccupied
+                  : LoginViewStage.signInWithEmailOccupied;
+              break;
+
+            case ConfirmUserEmailErrorCode.wrongCode:
+              s.error.value = e.toMessage();
+
+              ++codeAttempts;
+              if (codeAttempts >= 3) {
+                codeAttempts = 0;
+                _setCodeTimer();
+              }
+              break;
+
+            default:
+              s.error.value = 'err_wrong_recovery_code'.l10n;
+              break;
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+
+          ++codeAttempts;
+          if (codeAttempts >= 3) {
+            codeAttempts = 0;
+            _setCodeTimer();
+          }
+        } catch (_) {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.unsubmit();
+        }
+      },
     );
 
     super.onInit();
@@ -882,12 +851,8 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      final GraphQlProvider graphQlProvider = Get.find();
-
       if (stage.value.registering) {
-        graphQlProvider.token = creds!.session.token;
-        await graphQlProvider.resendEmail();
-        graphQlProvider.token = null;
+        await _authService.resendEmail(creds!);
       }
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();

@@ -54,6 +54,13 @@ abstract class AbstractAuthRepository {
   /// repository.
   Future<void> logout();
 
+  Future<Credentials> getEmailCode(UserEmail email);
+
+  Future<void> confirmEmailCode(ConfirmationCode code, Credentials creds);
+
+  Future<void> resendEmail(Credentials creds);
+
+
   /// Validates the current [AccessToken].
   Future<void> validateToken();
 
