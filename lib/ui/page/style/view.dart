@@ -18,21 +18,17 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import 'page/colors/view.dart';
-import 'page/elements/view.dart';
-import 'page/multimedia/view.dart';
 import 'page/typography/view.dart';
 import 'page/widgets/view.dart';
 
@@ -44,7 +40,7 @@ class StyleView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool canPop = ModalRoute.of(context)?.canPop == true;
+    // final bool canPop = ModalRoute.of(context)?.canPop == true;
 
     return GetBuilder(
       init: StyleController(),
@@ -53,12 +49,17 @@ class StyleView extends StatelessWidget {
           backgroundColor: const Color(0xFFFFFFFF),
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            leading: canPop
-                ? const [StyledBackButton(canPop: true)]
-                : const [SizedBox(width: 8)],
+            leading: [
+              StyledBackButton(
+                canPop: true,
+                onPressed: ModalRoute.of(context)?.canPop == true
+                    ? Navigator.of(context).pop
+                    : router.home,
+              ),
+            ],
             title: Center(
               child: ListView(
-                shrinkWrap: canPop,
+                shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
                 children: [
                   ...StyleTab.values.mapIndexed((i, e) => _button(c, i)),

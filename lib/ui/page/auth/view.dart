@@ -97,12 +97,6 @@ class AuthView extends StatelessWidget {
                 ],
               ),
             ),
-            StyledCupertinoButton(
-              color: style.colors.secondary,
-              label: 'Styles'.l10n,
-              dense: true,
-              onPressed: () => router.push(Routes.style),
-            ),
             const SizedBox(height: 8),
           ],
         );
@@ -223,7 +217,7 @@ class AuthView extends StatelessWidget {
                     color: style.colors.background,
                   ),
                 ),
-                IgnorePointer(
+                const IgnorePointer(
                   child: SvgImage.asset(
                     'assets/images/background_light.svg',
                     width: double.infinity,
@@ -237,63 +231,6 @@ class AuthView extends StatelessWidget {
                       hasScrollBody: false,
                       child: Column(
                         children: [
-                          // const SizedBox(height: 8),
-                          // Row(
-                          //   children: [
-                          //     const SizedBox(width: 8),
-                          //     ContextMenuRegion(
-                          //       enablePrimaryTap: true,
-                          //       enableSecondaryTap: false,
-                          //       enableLongTap: false,
-                          //       actions: [
-                          //         ContextMenuButton(
-                          //           label: 'Язык',
-                          //           onPressed: () {},
-                          //         ),
-                          //       ],
-                          //       child: Icon(
-                          //         Icons.menu_rounded,
-                          //         color: style.colors.secondary,
-                          //       ),
-                          //     ),
-                          //     // WidgetButton(
-                          //     //   onPressed: () =>
-                          //     //       LanguageSelectionView.show(context, null),
-                          //     //   child: Flag.fromString(
-                          //     //     L10n.chosen.value?.locale.countryCode ?? '',
-                          //     //     width: 24,
-                          //     //     height: 24,
-                          //     //     borderRadius: 4,
-                          //     //   ),
-                          //     // ),
-
-                          //     const Spacer(),
-                          //   ],
-                          // ),
-                          // const SizedBox(height: 8),
-                          // Row(
-                          //   children: [
-                          //     const SizedBox(width: 8),
-                          //     // const Spacer(),
-                          //     Expanded(
-                          //       child: Center(
-                          //         child: StyledCupertinoButton(
-                          //           label: 'label_language_entry'.l10nfmt({
-                          //             'code':
-                          //                 L10n.chosen.value!.locale.countryCode,
-                          //             'name': L10n.chosen.value!.name,
-                          //           }),
-                          //           dense: true,
-                          //           color: style.colors.secondary,
-                          //           onPressed: () => LanguageSelectionView.show(
-                          //               context, null),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //     const SizedBox(width: 8),
-                          //   ],
-                          // ),
-
                           const SizedBox(height: 8),
                           Expanded(child: Center(child: column)),
                           const SizedBox(height: 8),
@@ -302,6 +239,19 @@ class AuthView extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: StyledCupertinoButton(
+                      // color: style.colors.secondary,
+                      label: 'Styles'.l10n,
+                      dense: true,
+                      color: Colors.red,
+                      onPressed: () => router.push(Routes.style),
+                    ),
+                  ),
                 ),
               ],
             ),

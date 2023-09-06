@@ -729,14 +729,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           },
         ),
       ));
-    } else if (_state.route.startsWith(Routes.work)) {
-      return const [
-        MaterialPage(
-          key: ValueKey('WorkPage'),
-          name: Routes.work,
-          child: WorkView(),
-        )
-      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -745,9 +737,26 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ));
     }
 
+    if (!_state._auth.status.value.isSuccess) {
+      for (var route in _state.routes) {
+        if (route.startsWith(Routes.work)) {
+          print('${pages.length}');
+          pages.add(const MaterialPage(
+            key: ValueKey('WorkPage'),
+            name: Routes.work,
+            child: WorkView(),
+          ));
+
+          // if (_state.routes.length == 1) {
+          //   return pages;
+          // }
+        }
+      }
+    }
+
     if (_state.route == Routes.style) {
       return [
-        if (_state.routes.length > 1) ...pages,
+        if (!_state._auth.status.value.isSuccess) ...pages,
         const MaterialPage(
           key: ValueKey('StylePage'),
           name: Routes.style,
@@ -919,6 +928,8 @@ extension RouteLinks on RouterState {
   void work(WorkTab? tab, {bool push = false}) => (push
       ? this.push
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
+
+  void style({bool push = false}) => (push ? this.push : go)(Routes.style);
 
   /// Changes router location to the [Routes.chats] page.
   ///

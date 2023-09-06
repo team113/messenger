@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/routes.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/themes.dart';
@@ -31,9 +32,18 @@ class SourceCodeBlock extends StatelessWidget {
     final style = Theme.of(context).style;
 
     // Returns a [Text] wrapped in a [WidgetButton] launching the [link].
-    Widget button({required String label, required String link}) {
+    Widget button({
+      required String label,
+      void Function()? onPressed,
+      String? link,
+    }) {
       return WidgetButton(
-        onPressed: () async => await launchUrlString(link),
+        onPressed: onPressed ??
+            () async {
+              if (link != null) {
+                await launchUrlString(link);
+              }
+            },
         child: Text(label, style: style.fonts.bodyMediumPrimary),
       );
     }
@@ -46,9 +56,20 @@ class SourceCodeBlock extends StatelessWidget {
           label: '- GitHub repository',
           link: 'https://github.com/team113/messenger',
         ),
-        button(
-          label: '- Styles page',
-          link: 'https://gapopa.net/style',
+        Row(
+          children: [
+            button(
+              label: '- Styles page',
+              onPressed: () => router.style(push: true),
+            ),
+            const SizedBox(width: 4),
+            Text('(', style: style.fonts.bodyMedium),
+            button(
+              label: 'открыть отдельно',
+              link: 'https://gapopa.net/style',
+            ),
+            Text(')', style: style.fonts.bodyMedium),
+          ],
         ),
         button(
           label: '- GraphQL API',
