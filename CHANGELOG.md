@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.9.4] · 2023-09-04
+[0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
+
+[Diff](/../../compare/v0.1.0-alpha.9.3...v0.1.0-alpha.9.4) | [Milestone](/../../milestone/10)
+
+### Added
+
+- UI:
+    - Work page and tab. ([#541])
+
+[#541]: /../../pull/541
+
+
+
+
 ## [0.1.0-alpha.9.3] · 2023-09-01
 [0.1.0-alpha.9.3]: /../../tree/v0.1.0-alpha.9.3
 
