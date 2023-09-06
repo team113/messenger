@@ -117,7 +117,7 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   Future<void> remove(ChatId key) => deleteSafe(key.val);
 }
 
-/// [Hive] storage for [Chat]s sorting data.
+/// [Hive] storage for [ChatId]s.
 class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
     implements IterableHiveProvider<ChatId, PreciseDateTime> {
   @override
@@ -139,8 +139,10 @@ class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
   Iterable<ChatId> get values => valuesSafe;
 
   @override
-  Future<void> put(ChatId item, [PreciseDateTime? key]) =>
-      putSafe((key?.toString() ?? PreciseDateTime(DateTime.now())).toString(), item);
+  Future<void> put(ChatId item, [PreciseDateTime? key]) => putSafe(
+        (key?.toString() ?? PreciseDateTime(DateTime.now())).toString(),
+        item,
+      );
 
   @override
   ChatId? get(PreciseDateTime key) => getSafe(key.toString());

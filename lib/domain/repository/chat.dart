@@ -41,7 +41,8 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of all [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Returns the initialization [RxStatus] of this repository and its [paginationChats].
+  /// Returns the initialization [RxStatus] of this repository and its
+  /// [paginationChats].
   Rx<RxStatus> get status;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated

@@ -209,7 +209,7 @@ class ChatRepository extends DisposableInterface
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
 
-    Future.delayed(1.seconds, () async {
+    Future.delayed(2.seconds, () async {
       if (_pagination == null) {
         _pagination = Pagination(
           onKey: (e) => e.value.id,
@@ -1263,7 +1263,7 @@ class ChatRepository extends DisposableInterface
   }
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
-  /// Puts the provided [chat] to [Hive].
+  /// Puts the provided [chat] to [Pagination].
   Future<void> putChat(HiveChat chat) async {
     var saved = await _chatLocal.get(chat.value.id);
     chat.value.firstItem ??= saved?.value.firstItem;

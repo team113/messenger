@@ -38,10 +38,10 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
         provider.token = context.world.sessions[user.name]?.session.token;
         final dialog = (await provider.recentChats(first: 120))
             .recentChats
-            .nodes
+            .edges
             .firstWhereOrNull((e) =>
-                e.kind == ChatKind.dialog &&
-                e.members.nodes.any((m) => m.user.id == context.world.me));
+                e.node.kind == ChatKind.dialog &&
+                e.node.members.nodes.any((m) => m.user.id == context.world.me));
         return dialog != null;
       });
     } finally {
@@ -64,10 +64,10 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
     provider.token = context.world.sessions[user.name]?.session.token;
     final dialog = (await provider.recentChats(first: 120))
         .recentChats
-        .nodes
+        .edges
         .firstWhereOrNull((e) =>
-            e.kind == ChatKind.dialog &&
-            e.members.nodes.any((m) => m.user.id == context.world.me));
+            e.node.kind == ChatKind.dialog &&
+            e.node.members.nodes.any((m) => m.user.id == context.world.me));
     provider.disconnect();
     assert(dialog == null, true);
   },
