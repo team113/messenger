@@ -682,7 +682,7 @@ class ChatsTabController extends GetxController {
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (scrollController.position.maxScrollExtent == 0 &&
+        if (scrollController.position.maxScrollExtent < 50 &&
             _chatService.nextLoading.isFalse) {
           await _chatService.next();
           _ensureScrollable();

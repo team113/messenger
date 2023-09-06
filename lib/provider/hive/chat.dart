@@ -128,7 +128,6 @@ class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
@@ -141,7 +140,7 @@ class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
 
   @override
   Future<void> put(ChatId item, [PreciseDateTime? key]) =>
-      putSafe((key ?? PreciseDateTime(DateTime.now())).toString(), item);
+      putSafe((key?.toString() ?? PreciseDateTime(DateTime.now())).toString(), item);
 
   @override
   ChatId? get(PreciseDateTime key) => getSafe(key.toString());

@@ -297,7 +297,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
   }
 }
 
-/// Extension adding ability to take items around, after and before an [index].
+/// Extension adding ability to take items around, after and before an index.
 extension AroundExtension<T> on Iterable<T> {
   /// Takes [count] items around the provided [index].
   Iterable<T> around(int index, int count) {
