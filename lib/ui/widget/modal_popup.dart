@@ -173,7 +173,11 @@ class ModalPopupHeader extends StatelessWidget {
             )
           else
             const SizedBox(width: 40),
-          if (text != null)
+          if (header != null)
+            Expanded(
+              child: header!,
+            )
+          else if (text != null)
             Expanded(
               child: Center(
                 child: Text(text!, style: style.fonts.headlineMedium),

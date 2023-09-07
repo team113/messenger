@@ -78,6 +78,8 @@ class Themes {
       danger: colors.dangerColor,
       displayLarge:
           textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
+      displayLargeThin: textStyle.copyWith(
+          fontSize: 27, fontWeight: FontWeight.w300, color: colors.secondary),
       displayMedium:
           textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
       displaySmall:
@@ -596,6 +598,7 @@ class Fonts {
     Color? onPrimary,
     Color? danger,
     required this.displayLarge,
+    required this.displayLargeThin,
     TextStyle? displayLargeOnPrimary,
     required this.displayMedium,
     TextStyle? displayMediumSecondary,
@@ -712,6 +715,9 @@ class Fonts {
 
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
+
+  /// [displayLarge] with `thin` font weight.
+  final TextStyle displayLargeThin;
 
   /// [displayLarge] of `onPrimary` color.
   final TextStyle displayLargeOnPrimary;
@@ -869,6 +875,8 @@ class Fonts {
 
     return Fonts(
       displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
+      displayLargeThin:
+          TextStyle.lerp(font.displayLargeThin, other.displayLargeThin, t)!,
       displayLargeOnPrimary: TextStyle.lerp(
           font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
       displayMedium:

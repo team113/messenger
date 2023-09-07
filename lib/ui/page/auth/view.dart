@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
-import '../../widget/modal_popup.dart';
 import '../home/page/my_profile/widget/download_button.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -27,6 +26,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
@@ -44,16 +44,13 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-          color: style.colors.onBackground,
-        );
+        final TextStyle thin = style.fonts.bodySmallSecondary;
 
         final Widget status = Column(
           children: [
             const SizedBox(height: 4),
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
-              // color: style.colors.secondary,
               onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
@@ -71,10 +68,7 @@ class AuthView extends StatelessWidget {
               .toList(),
           Text(
             'Messenger',
-            style: thin?.copyWith(
-              fontSize: 27,
-              color: style.colors.secondary,
-            ),
+            style: style.fonts.displayLargeThin,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -82,7 +76,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 21, color: style.colors.secondary),
+            style: thin.copyWith(fontSize: 21, color: style.colors.secondary),
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

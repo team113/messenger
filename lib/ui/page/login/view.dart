@@ -100,9 +100,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
-                    color: style.colors.secondary,
-                  ),
+                  style: style.fonts.titleLargeSecondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -127,12 +125,8 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                Text(
-                  'label_recovery_code_sent'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                ),
+                Text('label_recovery_code_sent'.l10n,
+                    style: style.fonts.titleLargeSecondary),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('RecoveryCodeField'),
@@ -158,12 +152,8 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                Text(
-                  'label_recovery_enter_new_password'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                ),
+                Text('label_recovery_enter_new_password'.l10n,
+                    style: style.fonts.titleLargeSecondary),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('PasswordField'),
@@ -257,7 +247,6 @@ class LoginView extends StatelessWidget {
                         ? 'btn_send'.l10n
                         : 'label_wait_seconds'
                             .l10nfmt({'for': c.codeTimeout.value}),
-                    dense: c.codeTimeout.value != 0,
                     onPressed: enabled ? c.emailCode.submit : null,
                   );
                 }),

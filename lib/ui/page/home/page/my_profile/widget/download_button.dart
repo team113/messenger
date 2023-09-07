@@ -58,7 +58,7 @@ class DownloadButton extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return FieldButton(
-      text: 'space'.l10n * 4 + title,
+      text: title,
       textAlign: TextAlign.center,
       onPressed: link == null
           ? null
@@ -72,17 +72,14 @@ class DownloadButton extends StatelessWidget {
       prefix: asset == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Transform.scale(
-                scale: 2,
-                child: SvgImage.asset(
-                  'assets/icons/$asset.svg',
-                  width: width == null ? null : width! / 2,
-                  height: height == null ? null : height! / 2,
-                ),
+              padding: const EdgeInsets.only(left: 4),
+              child: SvgImage.asset(
+                'assets/icons/$asset.svg',
+                width: width,
+                height: height,
               ),
             ),
-      style: style.fonts.titleMediumPrimary,
+      style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
     );
   }
 }

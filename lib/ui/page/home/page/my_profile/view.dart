@@ -456,6 +456,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
           mainAxisSize: MainAxisSize.min,
           children: [
             FieldButton(
+              old: true,
               text: e.val,
               hint: 'label_phone_number'.l10n,
               trailing: Transform.translate(
@@ -530,6 +531,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.phones.unconfirmed != null) {
       widgets.addAll([
         FieldButton(
+          old: true,
           key: const Key('UnconfirmedPhone'),
           text: c.myUser.value!.phones.unconfirmed!.val,
           hint: 'label_verify_number'.l10n,

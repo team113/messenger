@@ -58,7 +58,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Typically an [Icon] or a [CircleAvatar] widget.
   final Widget? leading;
 
-  ///
+  /// Widget to display after the [title].
   final Widget? trailing;
 
   /// Callback, called when this button is tapped or activated other way.
@@ -70,7 +70,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Background color of this button.
   final Color? color;
 
-  ///
+  /// Color to use when this button is disabled.
   final Color? disabled;
 
   /// Gradient to use when filling this button.
@@ -87,7 +87,7 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// Maximum width this button is allowed to occupy.
   final double maxWidth;
 
-  ///
+  /// Maximum height this button is allowed to occupy.
   final double? maxHeight;
 
   /// Height of this button.
@@ -96,13 +96,13 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// [BoxShadow]s to apply to this button.
   final List<BoxShadow>? shadows;
 
-  ///
+  /// Width of the [leading] widget.
   final double? leadingWidth;
 
-  ///
+  /// Style of the [title] and [subtitle].
   final TextStyle? style;
 
-  ///
+  /// Border of this button.
   final Border? border;
 
   @override
@@ -133,7 +133,7 @@ class OutlinedRoundedButton extends StatelessWidget {
           borderRadius: borderRadius,
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: style.colors.secondary.withOpacity(0.02),
+          hoverColor: style.colors.onBackgroundOpacity7,
           child: Container(
             constraints: BoxConstraints(
               minHeight: height ?? 0,
@@ -146,10 +146,10 @@ class OutlinedRoundedButton extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 8),
-
-                if (leading != null)
+                if (leading != null) ...[
                   SizedBox(width: leadingWidth, child: Center(child: leading!)),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: DefaultTextStyle.merge(
                     maxLines: 2,
@@ -179,14 +179,13 @@ class OutlinedRoundedButton extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                // if (leading != null) Opacity(opacity: 0, child: leading!),
-
-                if (leading != null)
+                if (leading != null) ...[
+                  const SizedBox(width: 8),
                   SizedBox(
                     width: leadingWidth,
                     child: Center(child: Opacity(opacity: 0, child: leading!)),
                   ),
+                ],
                 if (trailing != null) trailing!,
                 const SizedBox(width: 8),
               ],
