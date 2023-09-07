@@ -83,7 +83,8 @@ class ChatContact extends HiveObject {
 
 /// Unique ID of a [ChatContact].
 @HiveType(typeId: ModelTypeId.chatContactId)
-class ChatContactId extends NewType<String> implements Comparable<ChatContactId> {
+class ChatContactId extends NewType<String>
+    implements Comparable<ChatContactId> {
   const ChatContactId(String val) : super(val);
 
   @override

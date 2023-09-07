@@ -152,10 +152,12 @@ class Pagination<T, C, K extends Comparable<K>> {
       nextLoading.value = true;
 
       if (items.isNotEmpty) {
-
         final Page<T, C>? page =
-        await provider.after(items[items.lastKey()], endCursor, perPage);
-        Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
+            await provider.after(items[items.lastKey()], endCursor, perPage);
+        Log.print(
+          'next()... fetched ${page?.edges.length} items',
+          'Pagination',
+        );
 
         if (page?.info.startCursor != null) {
           for (var e in page?.edges ?? []) {

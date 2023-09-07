@@ -117,7 +117,8 @@ class ContactService extends DisposableService {
         .contacts.values // add favorite
         .where((u) =>
             (phone != null && u.contact.value.phones.contains(phone)) ||
-            (name != null && u.contact.value.name.val.contains(name.val) == true))
+            (name != null &&
+                u.contact.value.name.val.contains(name.val) == true))
         .toList();
 
     searchResult.items.value = users;
