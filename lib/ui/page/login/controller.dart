@@ -18,7 +18,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' hide Response;
+import 'package:get/get.dart';
 
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
@@ -26,7 +26,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
-import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -39,7 +38,6 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
@@ -84,10 +82,10 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a email code text input.
   late final TextFieldState emailCode;
 
-  ///
+  /// [LoginView] stage to go back to.
   LoginViewStage? backStage;
 
-  ///
+  /// [Credentials] of the current user.
   Credentials? creds;
 
   /// Indicator whether the [password] should be obscured.
@@ -108,17 +106,32 @@ class LoginController extends GetxController {
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage> stage;
 
+  /// Amount of attempts to sign in with a wrong password.
   int signInAttempts = 0;
-  final RxInt signInTimeout = RxInt(0);
-  Timer? _signInTimer;
 
+  /// Timeout of a [signIn].
+  final RxInt signInTimeout = RxInt(0);
+
+  /// Amount of attempts to sign up with a wrong code.
   int codeAttempts = 0;
+
+  /// Timeout of a [resendEmail].
   final RxInt codeTimeout = RxInt(0);
-  Timer? _codeTimer;
+
+  /// Timeout of a [resendEmail].
+  final RxInt resendEmailTimeout = RxInt(0);
 
   /// Indicator whether [UserEmail] confirmation code has been resent.
+  final RxBool resent = RxBool(false);
+
   /// Authentication service providing the authentication capabilities.
   final AuthService _authService;
+
+  /// [Timer] decreasing the [codeTimeout].
+  Timer? _codeTimer;
+
+  /// [Timer] decreasing the [signInTimeout].
+  Timer? _signInTimer;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -135,6 +148,9 @@ class LoginController extends GetxController {
   /// [UserLogin] that was provided in [recoverAccess] used to [validateCode]
   /// and [resetUserPassword].
   UserLogin? _recoveryLogin;
+
+  /// [Timer] used to disable `Proceed` button for [resendEmailTimeout].
+  Timer? _resendEmailTimer;
 
   /// Current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
@@ -180,9 +196,7 @@ class LoginController extends GetxController {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
-      onSubmitted: (s) => stage.value == LoginViewStage.signUp
-          ? register()
-          : resetUserPassword(),
+      onSubmitted: (s) => resetUserPassword(),
     );
 
     email = TextFieldState(
@@ -205,7 +219,7 @@ class LoginController extends GetxController {
         stage.value = LoginViewStage.signUpWithEmailCode;
 
         try {
-          creds = await _authService.getEmailCode(UserEmail(email.text));
+          creds = await _authService.signUpWithEmail(UserEmail(email.text));
           s.unsubmit();
         } on AddUserEmailException catch (e) {
           s.error.value = e.toMessage();
@@ -235,7 +249,7 @@ class LoginController extends GetxController {
 
           router.noIntroduction = false;
           router.signUp = true;
-          _redirect();
+          router.home();
         } on ConfirmUserEmailException catch (e) {
           switch (e.code) {
             case ConfirmUserEmailErrorCode.wrongCode:
@@ -343,7 +357,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      _redirect();
+      router.home();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
@@ -352,7 +366,7 @@ class LoginController extends GetxController {
           ++signInAttempts;
 
           if (signInAttempts >= 3) {
-            // Трижды указан/введён неверный пароль. Вход возможен через Н секунд.
+            // Wrong password was entered three times. Login is possible in N seconds.
             signInAttempts = 0;
             _setSignInTimer();
           }
@@ -551,49 +565,22 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Registers and redirects to the [Routes.home] page.
-  Future<void> oneTime() async {
+  /// Resends a [ConfirmationCode] to the specified [email].
+  Future<void> resendEmail() async {
+    resent.value = true;
+    _setResendEmailTimer();
+
     try {
-      await _authService.register();
-      _redirect();
+      await _authService.resendEmail(creds!);
+    } on ResendUserEmailConfirmationException catch (e) {
+      emailCode.error.value = e.toMessage();
     } catch (e) {
-      MessagePopup.error(e);
+      emailCode.error.value = 'err_data_transfer'.l10n;
+      resent.value = false;
+      _setResendEmailTimer(false);
       rethrow;
     }
   }
-
-  ///
-  Future<void> register() async {
-    await _authService.register();
-    router.validateEmail = true;
-    _redirect();
-
-    while (!Get.isRegistered<MyUserService>()) {
-      await Future.delayed(const Duration(milliseconds: 20));
-    }
-
-    final MyUserService myUserService = Get.find();
-    await myUserService.addUserEmail(UserEmail(email.text));
-    await myUserService.updateUserPassword(
-      newPassword: UserPassword(repeatPassword.text),
-    );
-  }
-
-  bool isEmailOrPhone(String text) {
-    try {
-      UserEmail(text);
-      return true;
-    } catch (_) {
-      try {
-        UserPhone(text);
-        return true;
-      } catch (_) {
-        return false;
-      }
-    }
-  }
-
-  LoginViewStage fallbackStage = LoginViewStage.signUp;
 
   /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
   void _setSignInTimer([bool enabled = true]) {
@@ -617,15 +604,6 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Timeout of a [resendEmail].
-  final RxInt resendEmailTimeout = RxInt(0);
-
-  /// [Timer] decreasing the [resendEmailTimeout].
-  Timer? _resendEmailTimer;
-
-  /// Indicator whether [UserEmail] confirmation code has been resent.
-  final RxBool resent = RxBool(false);
-
   /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
@@ -648,23 +626,6 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Resends a [ConfirmationCode] to the specified [email].
-  Future<void> resendEmail() async {
-    resent.value = true;
-    _setResendEmailTimer();
-
-    try {
-      await _authService.resendEmail(creds!);
-    } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
-    } catch (e) {
-      emailCode.error.value = 'err_data_transfer'.l10n;
-      resent.value = false;
-      _setResendEmailTimer(false);
-      rethrow;
-    }
-  }
-
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
       codeTimeout.value = 30;
@@ -684,10 +645,5 @@ class LoginController extends GetxController {
       _codeTimer?.cancel();
       _codeTimer = null;
     }
-  }
-
-  ///
-  void _redirect() {
-    router.home.call();
   }
 }
