@@ -21,6 +21,10 @@ import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/store/model/user.dart';
+import '/store/pagination.dart';
+import '/store/pagination/graphql.dart';
+import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
@@ -50,13 +54,29 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  SearchResult search({
+  SearchResult<RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) {
-    final SearchResult searchResult = SearchResult();
+    Pagination<RxUser, UsersCursor, UserId>? pagination;
+    if (name != null) {
+      pagination = Pagination(
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) {
+            return _userRepository.searchByName(
+              name,
+              after: after,
+              first: first,
+            );
+          },
+        ),
+        onKey: (RxUser u) => u.id,
+      );
+    }
+    final SearchResult<RxUser> searchResult =
+        SearchResult(pagination: pagination);
     if (num == null && name == null && login == null && link == null) {
       return searchResult;
     }
@@ -67,22 +87,24 @@ class UserService extends DisposableService {
             (name != null && u.user.value.name?.val.contains(name.val) == true))
         .toList();
 
-    searchResult.users.value = users;
+    searchResult.items.value = users;
     searchResult.status.value =
         users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
-    FutureOr<List<RxUser>> add(List<RxUser> u) {
-      Set<RxUser> users = searchResult.users.toSet()..addAll(u);
-      searchResult.users.value = users.toList();
-      return searchResult.users;
+    void add(List<RxUser> u) {
+      Set<RxUser> users = searchResult.items.toSet()..addAll(u);
+      searchResult.items.value = users.toList();
     }
 
-    List<Future<List<RxUser>>> futures = [
+    List<Future> futures = [
       if (num != null) _userRepository.searchByNum(num).then(add),
-      if (name != null) _userRepository.searchByName(name).then(add),
       if (login != null) _userRepository.searchByLogin(login).then(add),
       if (link != null) _userRepository.searchByLink(link).then(add),
     ];
+
+    if (name != null) {
+      futures.add(pagination!.around());
+    }
 
     Future.wait(futures)
         .then((_) => searchResult.status.value = RxStatus.success());
@@ -105,18 +127,118 @@ class UserService extends DisposableService {
   Future<void> clearCached() async => await _userRepository.clearCache();
 }
 
-/// Result of a [UserService.search] query.
-class SearchResult {
-  /// Found [RxUser]s themselves.
-  final RxList<RxUser> users = RxList<RxUser>();
+// /// Result of a [UserService.search] query.
+// class SearchResult {
+//   SearchResult({this.pagination}) {
+//     if (pagination != null) {
+//       _paginationSubscription = pagination!.changes.listen((event) {
+//         switch (event.op) {
+//           case OperationKind.added:
+//             users.add(event.value!);
+//             break;
+//
+//           case OperationKind.removed:
+//             // No-op.
+//             break;
+//
+//           default:
+//             break;
+//         }
+//       });
+//     }
+//   }
+//
+//   /// Found [RxUser]s themselves.
+//   final RxList<RxUser> users = RxList<RxUser>();
+//
+//   /// Pagination fetching [users].
+//   final Pagination<RxUser, UsersCursor, UserId>? pagination;
+//
+//   /// [StreamSubscription] to the [Pagination.changes].
+//   StreamSubscription? _paginationSubscription;
+//
+//   /// Reactive [RxStatus] of [users] being fetched.
+//   ///
+//   /// May be:
+//   /// - `status.isEmpty`, meaning the query is not yet started.
+//   /// - `status.isLoading`, meaning the [users] are being fetched.
+//   /// - `status.isLoadingMore`, meaning some [users] were fetched from local
+//   ///   storage.
+//   /// - `status.isSuccess`, meaning the [users] were successfully fetched.
+//   final Rx<RxStatus> status = Rx(RxStatus.empty());
+//
+//   /// Indicator whether the [items] have next page.
+//   RxBool? get hasNext => pagination?.hasNext;
+//
+//   /// Indicator whether the [next] page of [items] is being fetched.
+//   RxBool? get nextLoading => pagination?.nextLoading;
+//
+//   /// Disposes this [SearchResult].
+//   void dispose() {
+//     _paginationSubscription?.cancel();
+//   }
+//
+//   /// Fetches next page of the [users].
+//   Future<void> next() async {
+//     if (pagination != null) {
+//       await pagination!.next();
+//     }
+//   }
+// }
 
-  /// Reactive [RxStatus] of [users] being fetched.
+/// Result of a [UserService.search] query.
+class SearchResult<T> {
+  SearchResult({this.pagination}) {
+    if (pagination != null) {
+      _paginationSubscription = pagination!.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+            items.add(event.value as T);
+            break;
+
+          case OperationKind.removed:
+          case OperationKind.updated:
+            // No-op.
+            break;
+        }
+      });
+    }
+  }
+
+  /// Found [RxUser]s themselves.
+  final RxList<T> items = RxList<T>();
+
+  /// Reactive [RxStatus] of [items] being fetched.
   ///
   /// May be:
   /// - `status.isEmpty`, meaning the query is not yet started.
-  /// - `status.isLoading`, meaning the [users] are being fetched.
-  /// - `status.isLoadingMore`, meaning some [users] were fetched from local
+  /// - `status.isLoading`, meaning the [items] are being fetched.
+  /// - `status.isLoadingMore`, meaning some [items] were fetched from local
   ///   storage.
-  /// - `status.isSuccess`, meaning the [users] were successfully fetched.
+  /// - `status.isSuccess`, meaning the [items] were successfully fetched.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Pagination fetching [items].
+  final Pagination<T, dynamic, dynamic>? pagination;
+
+  /// [StreamSubscription] to the [Pagination.changes].
+  StreamSubscription? _paginationSubscription;
+
+  /// Indicator whether the [items] have next page.
+  RxBool get hasNext => pagination?.hasNext ?? RxBool(false);
+
+  /// Indicator whether the [next] page of [items] is being fetched.
+  RxBool get nextLoading => pagination?.nextLoading ?? RxBool(false);
+
+  /// Disposes this [SearchResult].
+  void dispose() {
+    _paginationSubscription?.cancel();
+  }
+
+  /// Fetches next page of the [items].
+  Future<void> next() async {
+    if (pagination != null) {
+      await pagination!.next();
+    }
+  }
 }

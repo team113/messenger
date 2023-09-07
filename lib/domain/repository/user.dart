@@ -20,6 +20,8 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/store/model/user.dart';
+import '/store/pagination.dart';
 import 'chat.dart';
 
 /// [User]s repository interface.
@@ -50,15 +52,19 @@ abstract class AbstractUserRepository {
   /// This is an exact match search.
   Future<List<RxUser>> searchByLogin(UserLogin login);
 
-  /// Searches [User]s by the provided [UserName].
-  ///
-  /// This is a fuzzy search.
-  Future<List<RxUser>> searchByName(UserName name);
-
   /// Searches [User]s by the provided [ChatDirectLinkSlug].
   ///
   /// This is an exact match search.
   Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link);
+
+  /// Searches [User]s by the provided [UserName].
+  ///
+  /// This is a fuzzy search.
+  Future<Page<RxUser, UsersCursor>> searchByName(
+    UserName name, {
+    UsersCursor? after,
+    int? first,
+  });
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id);

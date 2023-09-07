@@ -83,8 +83,11 @@ class ChatContact extends HiveObject {
 
 /// Unique ID of a [ChatContact].
 @HiveType(typeId: ModelTypeId.chatContactId)
-class ChatContactId extends NewType<String> {
+class ChatContactId extends NewType<String> implements Comparable<ChatContactId> {
   const ChatContactId(String val) : super(val);
+
+  @override
+  int compareTo(ChatContactId other) => val.compareTo(other.val);
 }
 
 /// Position of a [ChatContact] in a favorites list of the authenticated

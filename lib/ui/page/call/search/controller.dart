@@ -63,7 +63,7 @@ class SearchController extends GetxController {
   /// [RxChat] this controller is bound to, if any.
   ///
   /// If specified, then the [RxChat.members] of this [chat] will be omitted
-  /// from the [searchResults].
+  /// from the [usersSearchResult].
   final RxChat? chat;
 
   /// Reactive list of the selected [ChatContact]s.
@@ -79,7 +79,10 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<RxList<RxUser>?> searchResults = Rx(null);
+  final Rx<SearchResult<RxUser>?> usersSearchResult = Rx(null);
+
+  /// [ChatContact]s search results.
+  final Rx<SearchResult<RxChatContact>?> contactsSearchResult = Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -87,8 +90,8 @@ class SearchController extends GetxController {
   /// - `searchStatus.empty`, meaning no search.
   /// - `searchStatus.loading`, meaning search is in progress.
   /// - `searchStatus.loadingMore`, meaning search is in progress after some
-  ///   [searchResults] were already acquired.
-  /// - `searchStatus.success`, meaning search is done and [searchResults] are
+  ///   [usersSearchResult] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [usersSearchResult] are
   ///   acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
@@ -106,7 +109,8 @@ class SearchController extends GetxController {
 
   /// [FlutterListViewController] of a [FlutterListView] displaying the search
   /// results.
-  final FlutterListViewController controller = FlutterListViewController();
+  final FlutterListViewController scrollController =
+      FlutterListViewController();
 
   /// [TextFieldState] of the search field.
   late final TextFieldState search;
@@ -121,8 +125,11 @@ class SearchController extends GetxController {
   /// [selectedUsers] and [selectedRecent] changes.
   final void Function(SearchViewResults? results)? onSelected;
 
-  /// Worker to react on [SearchResult.status] changes.
-  Worker? _searchStatusWorker;
+  /// Worker to react on the [usersSearchResult] status changes.
+  Worker? _usersSearchStatusWorker;
+
+  /// Worker to react on the [contactsSearchResult] status changes.
+  Worker? _contactsSearchStatusWorker;
 
   /// Worker to react on [query] changes.
   Worker? _searchWorker;
@@ -142,13 +149,24 @@ class SearchController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
+  /// Indicates whether the [usersSearchResult] have next page.
+  RxBool get hasNext =>
+      usersSearchResult.value?.hasNext ??
+      contactsSearchResult.value?.hasNext ??
+      RxBool(false);
+
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, _search);
     _searchWorker = ever(query, (String q) {
       if (q.length < 2) {
-        searchResults.value = null;
+        usersSearchResult.value?.dispose();
+        usersSearchResult.value = null;
+        contactsSearchResult.value?.dispose();
+        contactsSearchResult.value = null;
         searchStatus.value = RxStatus.empty();
         users.clear();
         contacts.clear();
@@ -168,10 +186,14 @@ class SearchController extends GetxController {
 
   @override
   void onClose() {
+    scrollController.removeListener(_scrollListener);
+    usersSearchResult.value?.dispose();
+    contactsSearchResult.value?.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
-    _searchStatusWorker?.dispose();
-    _searchStatusWorker = null;
+    _usersSearchStatusWorker?.dispose();
+    _contactsSearchStatusWorker?.dispose();
+    _usersSearchStatusWorker = null;
     super.onClose();
   }
 
@@ -238,15 +260,24 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
-    if (!categories.contains(SearchCategory.user) || query.isEmpty) {
-      return;
+    // TODO: Add `Chat`s searching.
+    if (categories.contains(SearchCategory.contact)) {
+      _searchContacts(query);
+      populate();
+    } else if (categories.contains(SearchCategory.user)) {
+      _searchUsers(query);
+      populate();
     }
+  }
 
-    _searchStatusWorker?.dispose();
-    _searchStatusWorker = null;
+  /// Searches the [User]s based on the provided [query].
+  ///
+  /// Query may be a [UserNum], [UserName] or [UserLogin].
+  void _searchUsers(String query) {
+    _usersSearchStatusWorker?.dispose();
+    _usersSearchStatusWorker = null;
 
     if (query.isNotEmpty) {
-      // TODO: Add `Contact`s and `Chat`s searching.
       UserNum? num;
       UserName? name;
       UserLogin? login;
@@ -273,25 +304,91 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final SearchResult result =
+        final SearchResult<RxUser> result =
             _userService.search(num: num, name: name, login: login);
 
-        searchResults.value = result.users;
+        usersSearchResult.value?.dispose();
+        usersSearchResult.value = result;
         searchStatus.value = result.status.value;
 
-        _searchStatusWorker = ever(result.status, (RxStatus s) {
+        _usersSearchStatusWorker = ever(result.status, (RxStatus s) {
           searchStatus.value = s;
-          populate();
-        });
+          _populateUsers();
 
-        populate();
+          if (s.isSuccess) {
+            _ensureScrollable();
+          }
+        });
       } else {
         searchStatus.value = RxStatus.empty();
-        searchResults.value = null;
+        usersSearchResult.value?.dispose();
+        usersSearchResult.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      searchResults.value = null;
+      usersSearchResult.value?.dispose();
+      usersSearchResult.value = null;
+    }
+  }
+
+  /// Searches the [ChatContact]s based on the provided [query].
+  ///
+  /// Query may be a [UserName], [UserEmail] or [UserPhone].
+  void _searchContacts(String query) {
+    _contactsSearchStatusWorker?.dispose();
+    _contactsSearchStatusWorker = null;
+
+    if (query.isNotEmpty) {
+      UserName? name;
+      UserEmail? email;
+      UserPhone? phone;
+
+      try {
+        name = UserName(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      try {
+        email = UserEmail(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      try {
+        phone = UserPhone(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      if (name != null || email != null || phone != null) {
+        searchStatus.value = searchStatus.value.isSuccess
+            ? RxStatus.loadingMore()
+            : RxStatus.loading();
+        final SearchResult<RxChatContact> result =
+            _contactService.search(name: name, email: email, phone: phone);
+
+        contactsSearchResult.value?.dispose();
+        contactsSearchResult.value = result;
+        searchStatus.value = result.status.value;
+
+        _contactsSearchStatusWorker = ever(result.status, (RxStatus s) {
+          searchStatus.value = s;
+          _populateContacts();
+
+          if (s.isSuccess) {
+            _ensureScrollable();
+          }
+        });
+      } else {
+        searchStatus.value = RxStatus.empty();
+        contactsSearchResult.value?.dispose();
+        contactsSearchResult.value = null;
+      }
+    } else {
+      searchStatus.value = RxStatus.empty();
+      contactsSearchResult.value?.dispose();
+      contactsSearchResult.value = null;
     }
   }
 
@@ -307,8 +404,17 @@ class SearchController extends GetxController {
     ].elementAt(i);
   }
 
-  /// Updates the [recent], [contacts] and [users] according to the [query].
+  /// Updates the [chats], [recent], [contacts] and [users] according to the
+  /// [query].
   void populate() {
+    _populateChats();
+    _populateRecent();
+    _populateContacts();
+    _populateUsers();
+  }
+
+  /// Updates the [chats] according to the [query].
+  void _populateChats() {
     if (categories.contains(SearchCategory.chat)) {
       final List<RxChat> sorted = _chatService.chats.values.toList();
 
@@ -329,7 +435,10 @@ class SearchController extends GetxController {
           c.chat.value.id: c,
       };
     }
+  }
 
+  /// Updates the [recent] according to the [query].
+  void _populateRecent() {
     if (categories.contains(SearchCategory.recent)) {
       recent.value = {
         for (var u in _chatService.chats.values
@@ -358,38 +467,60 @@ class SearchController extends GetxController {
           u.id: u,
       };
     }
+  }
 
+  /// Updates the [contacts] according to the [query].
+  void _populateContacts() {
     if (categories.contains(SearchCategory.contact)) {
-      Map<UserId, RxChatContact> allContacts = {
-        for (var u in {
-          ..._contactService.favorites,
-          ..._contactService.contacts,
-        }.values.where((e) {
-          if (e.contact.value.users.length == 1) {
-            RxUser? user = e.user.value;
+      Map<UserId, RxChatContact> allContacts;
 
-            if (chat?.members.containsKey(user?.id) != true &&
-                !recent.containsKey(user?.id) &&
-                (chats.values.none((c) =>
-                    c.chat.value.isDialog &&
-                    c.members.containsKey(user?.id)))) {
-              if (query.value.isNotEmpty) {
-                if (e.contact.value.name.val
-                        .toLowerCase()
-                        .contains(query.value.toLowerCase()) ==
-                    true) {
+      if (contactsSearchResult.value?.items.isNotEmpty == true) {
+        allContacts = {
+          for (var u in contactsSearchResult.value!.items.where((e) {
+            if (e.user.value != null &&
+                chat?.members.containsKey(e.id) != true &&
+                !recent.containsKey(e.id) &&
+                chats.values.none((c) =>
+                    c.chat.value.isDialog && c.members.containsKey(e.id))) {
+              return true;
+            }
+
+            return false;
+          }))
+            u.user.value!.id: u,
+        };
+      } else {
+        allContacts = {
+          for (var u in {
+            ..._contactService.favorites,
+            ..._contactService.contacts,
+          }.values.where((e) {
+            if (e.contact.value.users.length == 1) {
+              RxUser? user = e.user.value;
+
+              if (chat?.members.containsKey(user?.id) != true &&
+                  !recent.containsKey(user?.id) &&
+                  (chats.values.none((c) =>
+                      c.chat.value.isDialog &&
+                      c.members.containsKey(user?.id)))) {
+                if (query.value.isNotEmpty) {
+                  if (e.contact.value.name.val
+                          .toLowerCase()
+                          .contains(query.value.toLowerCase()) ==
+                      true) {
+                    return true;
+                  }
+                } else {
                   return true;
                 }
-              } else {
-                return true;
               }
             }
-          }
 
-          return false;
-        }))
-          u.user.value!.id: u,
-      };
+            return false;
+          }))
+            u.user.value!.id: u,
+        };
+      }
 
       contacts.value = {
         for (var u in selectedContacts.where((e) {
@@ -413,11 +544,18 @@ class SearchController extends GetxController {
         ...allContacts,
       };
     }
+  }
 
-    if (categories.contains(SearchCategory.user)) {
-      if (searchResults.value?.isNotEmpty == true) {
-        Map<UserId, RxUser> allUsers = {
-          for (var u in searchResults.value!.where((e) {
+  /// Updates the [users] according to the [query].
+  void _populateUsers() {
+    if (categories.contains(SearchCategory.user) &&
+        (contactsSearchResult.value == null ||
+            contactsSearchResult.value!.hasNext.isFalse)) {
+      Map<UserId, RxUser> allUsers;
+
+      if (usersSearchResult.value?.items.isNotEmpty == true) {
+        allUsers = {
+          for (var u in usersSearchResult.value!.items.where((e) {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
@@ -430,25 +568,8 @@ class SearchController extends GetxController {
           }))
             u.id: u,
         };
-
-        users.value = {
-          for (var u in selectedUsers.where((e) {
-            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
-              if (e.user.value.name?.val
-                      .toLowerCase()
-                      .contains(query.value.toLowerCase()) ==
-                  true) {
-                return true;
-              }
-            }
-
-            return false;
-          }))
-            u.id: u,
-          ...allUsers,
-        };
       } else {
-        Map<UserId, RxUser> allUsers = {
+        allUsers = {
           for (var u in _chatService.chats.values.map((e) {
             if (e.chat.value.isDialog) {
               RxUser? user = e.members.values
@@ -477,28 +598,79 @@ class SearchController extends GetxController {
           }).whereNotNull())
             u.id: u
         };
+      }
 
-        users.value = {
-          for (var u in selectedUsers.where((e) {
-            if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
-              if (query.value.isNotEmpty) {
-                if (e.user.value.name?.val
-                        .toLowerCase()
-                        .contains(query.value.toLowerCase()) ==
-                    true) {
-                  return true;
-                }
-              } else {
+      users.value = {
+        for (var u in selectedUsers.where((e) {
+          if (!recent.containsKey(e.id) && !allUsers.containsKey(e.id)) {
+            if (query.value.isNotEmpty) {
+              if (e.user.value.name?.val
+                      .toLowerCase()
+                      .contains(query.value.toLowerCase()) ==
+                  true) {
                 return true;
               }
+            } else {
+              return true;
             }
+          }
 
-            return false;
-          }))
-            u.id: u,
-          ...allUsers,
-        };
+          return false;
+        }))
+          u.id: u,
+        ...allUsers,
+      };
+    }
+  }
+
+  /// Uploads next page based on the [ScrollController.position] value.
+  Future<void> _scrollListener() async {
+    if (scrollController.hasClients &&
+        scrollController.position.pixels >
+            scrollController.position.maxScrollExtent - 500) {
+      await next();
+    }
+  }
+
+  /// Uploads next page of the [usersSearchResult] or [contactsSearchResult].
+  Future<void> next() async {
+    if ((contactsSearchResult.value == null ||
+            contactsSearchResult.value!.hasNext.isFalse) &&
+        categories.contains(SearchCategory.user)) {
+      if (usersSearchResult.value == null) {
+        _searchUsers(query.value);
+      } else if (usersSearchResult.value!.hasNext.isTrue &&
+          usersSearchResult.value!.nextLoading.isFalse) {
+        await usersSearchResult.value!.next();
       }
+      _populateUsers();
+    } else if (contactsSearchResult.value?.hasNext.value == true &&
+        contactsSearchResult.value?.nextLoading.value == false) {
+      await contactsSearchResult.value!.next();
+      _populateContacts();
+    }
+  }
+
+  /// Ensures the [ChatView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (usersSearchResult.value?.hasNext.value == true) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent < 50 &&
+            usersSearchResult.value?.nextLoading.value == false) {
+          await next();
+          _ensureScrollable();
+        }
+      });
     }
   }
 }

@@ -148,15 +148,20 @@ class SearchView extends StatelessWidget {
                     return const Center(child: CustomProgressIndicator());
                   }
 
+                  final int childCount = c.chats.length +
+                      c.contacts.length +
+                      c.users.length +
+                      c.recent.length;
+
                   return Scrollbar(
-                    controller: c.controller,
+                    controller: c.scrollController,
                     child: FlutterListView(
                       key: const Key('SearchScrollable'),
-                      controller: c.controller,
+                      controller: c.scrollController,
                       delegate: FlutterListViewDelegate(
                         (context, i) {
                           final dynamic e = c.getIndex(i);
-                          final Widget child;
+                          Widget child;
 
                           if (e is RxUser) {
                             child = Obx(() {
@@ -207,12 +212,18 @@ class SearchView extends StatelessWidget {
                             child = const SizedBox();
                           }
 
+                          if (i == childCount - 1 && c.hasNext.value == true) {
+                            child = Column(
+                              children: [
+                                child,
+                                const CustomProgressIndicator(),
+                              ],
+                            );
+                          }
+
                           return child;
                         },
-                        childCount: c.chats.length +
-                            c.contacts.length +
-                            c.users.length +
-                            c.recent.length,
+                        childCount: childCount,
                         disableCacheItems: true,
                       ),
                     ),

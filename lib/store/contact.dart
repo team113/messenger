@@ -19,9 +19,11 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/common.dart';
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -34,6 +36,7 @@ import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
+import '/store/pagination.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -233,6 +236,64 @@ class ContactRepository implements AbstractContactRepository {
       favorites[id] = contact;
       rethrow;
     }
+  }
+
+  @override
+  Future<Page<RxChatContact, ChatContactsCursor>> searchByName(
+    UserName name, {
+    ChatContactsCursor? after,
+    int? first,
+  }) =>
+      _search(name: name, after: after, first: first);
+
+  @override
+  Future<List<RxChatContact>> searchByEmail(UserEmail email) async =>
+      (await _search(email: email)).edges;
+
+  @override
+  Future<List<RxChatContact>> searchByPhone(UserPhone phone) async =>
+      (await _search(phone: phone)).edges;
+
+  @override
+  RxChatContact? get(ChatContactId id) {
+    return contacts[id] ?? favorites[id];
+  }
+
+  /// Searches [ChatContact]s by the given criteria.
+  ///
+  /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
+  /// (be non-`null`).
+  Future<Page<RxChatContact, ChatContactsCursor>> _search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+    ChatContactsCursor? after,
+    int? first,
+  }) async {
+    const maxInt = 120;
+    var query = await _graphQlProvider.searchChatContacts(
+      name: name,
+      email: email,
+      phone: phone,
+      after: after,
+      first: first ?? maxInt,
+    );
+
+    final List<HiveChatContact> results =
+        query.searchChatContacts.edges.map((c) => c.node.toHive()).toList();
+
+    for (HiveChatContact user in results) {
+      _putChatContact(user);
+    }
+    await Future.delayed(Duration.zero);
+
+    List<RxChatContact> contacts =
+        results.map((e) => get(e.value.id)).whereNotNull().toList();
+
+    return Page(
+      RxList(contacts),
+      query.searchChatContacts.pageInfo.toModel((c) => ChatContactsCursor(c)),
+    );
   }
 
   /// Puts the provided [contact] to [Hive].

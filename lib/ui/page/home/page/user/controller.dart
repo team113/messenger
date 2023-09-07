@@ -138,7 +138,8 @@ class UserController extends GetxController {
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+          if (e.value!.contact.value.users.isNotEmpty &&
+              e.value!.contact.value.users.every((e) => e.id == id)) {
             inContacts.value = true;
           }
           break;

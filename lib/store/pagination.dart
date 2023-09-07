@@ -27,9 +27,9 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, C, K extends Comparable> {
+class Pagination<T, C, K extends Comparable<K>> {
   Pagination({
-    this.perPage = 50,
+    this.perPage = 5,
     required this.provider,
     required this.onKey,
   });
@@ -151,19 +151,24 @@ class Pagination<T, C, K extends Comparable> {
     if (hasNext.isTrue && nextLoading.isFalse) {
       nextLoading.value = true;
 
-      final Page<T, C>? page =
-          await provider.after(items[items.lastKey()], endCursor, perPage);
-      Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
+      if (items.isNotEmpty) {
 
-      if (page?.info.startCursor != null) {
-        for (var e in page?.edges ?? []) {
-          items[onKey(e)] = e;
+        final Page<T, C>? page =
+        await provider.after(items[items.lastKey()], endCursor, perPage);
+        Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
+
+        if (page?.info.startCursor != null) {
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
+          }
         }
-      }
 
-      endCursor = page?.info.endCursor ?? endCursor;
-      hasNext.value = page?.info.hasNext ?? hasNext.value;
-      Log.print('next()... done', 'Pagination');
+        endCursor = page?.info.endCursor ?? endCursor;
+        hasNext.value = page?.info.hasNext ?? hasNext.value;
+        Log.print('next()... done', 'Pagination');
+      } else {
+        await around();
+      }
 
       nextLoading.value = false;
     }
@@ -216,11 +221,11 @@ class Pagination<T, C, K extends Comparable> {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.lastKey()) == 1) {
+    } else if (key.compareTo(items.lastKey()!) == 1) {
       if (hasNext.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.firstKey()) == -1) {
+    } else if (key.compareTo(items.firstKey()!) == -1) {
       if (hasPrevious.isFalse) {
         await put();
       }
@@ -251,7 +256,7 @@ class Page<T, C> {
   final Rx<RxStatus> status = Rx(RxStatus.success());
 
   /// List of the fetched items.
-  final RxList<T> edges;
+  final List<T> edges;
 
   /// [PageInfo] of this [Page].
   PageInfo<C> info;
@@ -259,7 +264,7 @@ class Page<T, C> {
   /// Returns a new [Page] with reversed [info].
   Page<T, C> reversed() {
     return Page(
-      RxList.from(this.edges.reversed),
+      List.from(this.edges.reversed),
       PageInfo(
         hasNext: this.info.hasPrevious,
         hasPrevious: this.info.hasNext,

@@ -15,11 +15,17 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
+import '/domain/service/user.dart';
+import '/store/model/contact.dart';
+import '/store/pagination.dart';
+import '/store/pagination/graphql.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
@@ -79,4 +85,62 @@ class ContactService extends DisposableService {
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id) =>
       _contactRepository.unfavoriteChatContact(id);
+
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  }) {
+    Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
+    if (name != null) {
+      pagination = Pagination(
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) {
+            return _contactRepository.searchByName(
+              name,
+              after: after,
+              first: first,
+            );
+          },
+        ),
+        onKey: (RxChatContact u) => u.id,
+      );
+    }
+    final SearchResult<RxChatContact> searchResult =
+        SearchResult(pagination: pagination);
+    if (phone == null && name == null && email == null) {
+      return searchResult;
+    }
+
+    final List<RxChatContact> users = _contactRepository
+        .contacts.values // add favorite
+        .where((u) =>
+            (phone != null && u.contact.value.phones.contains(phone)) ||
+            (name != null && u.contact.value.name.val.contains(name.val) == true))
+        .toList();
+
+    searchResult.items.value = users;
+    searchResult.status.value =
+        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+
+    void add(List<RxChatContact> c) {
+      Set<RxChatContact> contacts = searchResult.items.toSet()..addAll(c);
+      searchResult.items.value = contacts.toList();
+    }
+
+    List<Future> futures = [
+      if (phone != null) _contactRepository.searchByPhone(phone).then(add),
+      if (email != null) _contactRepository.searchByEmail(email).then(add),
+    ];
+
+    if (name != null) {
+      futures.add(pagination!.around());
+    }
+
+    Future.wait(futures)
+        .then((_) => searchResult.status.value = RxStatus.success());
+
+    return searchResult;
+  }
 }

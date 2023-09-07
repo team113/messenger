@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
+import '/api/backend/extension/common.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -33,6 +34,7 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
+import '/store/pagination.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
@@ -96,17 +98,24 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<List<RxUser>> searchByNum(UserNum num) => _search(num: num);
+  Future<List<RxUser>> searchByNum(UserNum num) async =>
+      (await _search(num: num)).edges;
 
   @override
-  Future<List<RxUser>> searchByLogin(UserLogin login) => _search(login: login);
+  Future<List<RxUser>> searchByLogin(UserLogin login) async =>
+      (await _search(login: login)).edges;
 
   @override
-  Future<List<RxUser>> searchByName(UserName name) => _search(name: name);
+  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) async =>
+      (await _search(link: link)).edges;
 
   @override
-  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) =>
-      _search(link: link);
+  Future<Page<RxUser, UsersCursor>> searchByName(
+    UserName name, {
+    UsersCursor? after,
+    int? first,
+  }) =>
+      _search(name: name, after: after, first: first);
 
   @override
   Future<RxUser?> get(UserId id) {
@@ -266,34 +275,39 @@ class UserRepository implements AbstractUserRepository {
   ///
   /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
   /// (be non-`null`).
-  Future<List<RxUser>> _search({
+  Future<Page<RxUser, UsersCursor>> _search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
+    UsersCursor? after,
+    int? first,
   }) async {
     const maxInt = 120;
-    List<HiveUser> result = (await _graphQlProvider.searchUsers(
-      first: maxInt,
+    var query = await _graphQlProvider.searchUsers(
       num: num,
       name: name,
       login: login,
       link: link,
-    ))
-        .searchUsers
-        .nodes
-        .map((c) => c.toHive())
-        .toList();
+      after: after,
+      first: first ?? maxInt,
+    );
 
-    for (HiveUser user in result) {
+    final List<HiveUser> results =
+        query.searchUsers.edges.map((c) => c.node.toHive()).toList();
+
+    for (HiveUser user in results) {
       put(user);
     }
     await Future.delayed(Duration.zero);
 
-    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
+    Iterable<Future<RxUser?>> futures = results.map((e) => get(e.value.id));
     List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
-    return users;
+    return Page(
+      RxList(users),
+      query.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
+    );
   }
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
