@@ -117,43 +117,6 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   Future<void> remove(ChatId key) => deleteSafe(key.val);
 }
 
-/// [Hive] storage for [ChatId]s.
-class ChatSortingHiveProvider extends HiveBaseProvider<ChatId>
-    implements IterableHiveProvider<ChatId, PreciseDateTime> {
-  @override
-  Stream<BoxEvent> get boxEvents => box.watch();
-
-  @override
-  String get boxName => 'chat_sorting';
-
-  @override
-  void registerAdapters() {
-    Hive.maybeRegisterAdapter(ChatIdAdapter());
-  }
-
-  @override
-  Iterable<PreciseDateTime> get keys =>
-      keysSafe.map((e) => PreciseDateTime.parse(e));
-
-  @override
-  Iterable<ChatId> get values => valuesSafe;
-
-  @override
-  Future<void> put(ChatId item, [PreciseDateTime? key]) => putSafe(
-        (key?.toString() ?? PreciseDateTime(DateTime.now())).toString(),
-        item,
-      );
-
-  @override
-  ChatId? get(PreciseDateTime key) => getSafe(key.toString());
-
-  @override
-  Future<void> remove(PreciseDateTime key) => deleteSafe(key.toString());
-
-  /// Removes a [ChatId] item from [Hive] by the provided [index].
-  Future<void> removeAt(int index) => deleteAtSafe(index);
-}
-
 /// Persisted in [Hive] storage [Chat]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChat)
 class HiveChat extends HiveObject {

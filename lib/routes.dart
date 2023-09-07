@@ -48,6 +48,7 @@ import 'provider/hive/draft.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
+import 'provider/hive/recent_chat.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
@@ -449,7 +450,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
-                deps.put(ChatSortingHiveProvider()).init(userId: me),
+                deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
@@ -559,7 +560,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
-              deps.put(ChatSortingHiveProvider()).init(userId: me),
+              deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),

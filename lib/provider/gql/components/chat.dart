@@ -116,8 +116,8 @@ mixin ChatGraphQlMixin {
   /// custom order of [MyUser]'s favorites list (using [Chat.favoritePosition]
   /// field).
   ///
-  /// Use `Mutation.favoriteChat` to update the position of a [Chat] in
-  /// [MyUser]'s favorites list.
+  /// Use [favoriteChat] to update the position of a [Chat] in [MyUser]'s
+  /// favorites list.
   ///
   /// ### Authentication
   ///
@@ -126,7 +126,7 @@ mixin ChatGraphQlMixin {
   /// ### Sorting
   ///
   /// Returned [Chat]s are sorted in the order specified by the authenticated
-  /// [MyUser] in `Mutation.favoriteChat` descending (starting from the highest
+  /// [MyUser] in [favoriteChat] descending (starting from the highest
   /// [ChatFavoritePosition] and finishing at the lowest).
   ///
   /// ### Pagination

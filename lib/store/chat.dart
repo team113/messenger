@@ -49,6 +49,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/monolog.dart';
+import '/provider/hive/recent_chat.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -70,7 +71,7 @@ class ChatRepository extends DisposableInterface
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._chatSortingLocal,
+    this._recentChatLocal,
     this._callRepo,
     this._draftLocal,
     this._userRepo,
@@ -95,8 +96,9 @@ class ChatRepository extends DisposableInterface
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
 
-  /// [Chat]s sorting data local [Hive] storage.
-  final ChatSortingHiveProvider _chatSortingLocal;
+  /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
+  /// storage.
+  final RecentChatHiveProvider _recentChatLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
@@ -221,7 +223,7 @@ class ChatRepository extends DisposableInterface
             getKey: (e) => e.value.id,
             isLast: (_) => true,
             isFirst: (_) => true,
-            sortingProvider: _chatSortingLocal,
+            sortingProvider: _recentChatLocal,
             getSorting: (e) => e.value.updatedAt,
             strategy: PaginationStrategy.fromEnd,
             reversed: true,
@@ -285,7 +287,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> clearCache() async {
-    await _chatSortingLocal.clear();
+    await _recentChatLocal.clear();
     await _chatLocal.clear();
   }
 
@@ -1333,16 +1335,16 @@ class ChatRepository extends DisposableInterface
         _chats.remove(chatId)?.dispose();
         _paginationChats.remove(chatId);
 
-        final int index = _chatSortingLocal.values.toList().indexOf(chatId);
+        final int index = _recentChatLocal.values.toList().indexOf(chatId);
         if (index != -1) {
-          await _chatSortingLocal.removeAt(index);
+          await _recentChatLocal.removeAt(index);
         }
       } else {
-        final int index = _chatSortingLocal.values.toList().indexOf(chatId);
+        final int index = _recentChatLocal.values.toList().indexOf(chatId);
         if (index != -1) {
-          await _chatSortingLocal.removeAt(index);
+          await _recentChatLocal.removeAt(index);
         }
-        await _chatSortingLocal.put(chatId, event.value.value.updatedAt);
+        await _recentChatLocal.put(chatId, event.value.value.updatedAt);
       }
     }
   }
@@ -1415,11 +1417,12 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.value.id,
       provider: GraphQlPageProvider(
         fetch: ({after, before, first, last}) => _recentChats(
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-            withOngoingCalls: true),
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+          withOngoingCalls: true,
+        ),
       ),
       compareKeys: false,
       compare: (a, b) => a.value.compareTo(b.value, me: me),
