@@ -54,10 +54,15 @@ abstract class AbstractAuthRepository {
   /// repository.
   Future<void> logout();
 
-  Future<Credentials> getEmailCode(UserEmail email);
+  /// Creates a new [MyUser]  and sends a confirmation [ConfirmationCode] to
+  /// [MyUser]'s provided `email`.
+  Future<Credentials> signUpWithEmail(UserEmail email);
 
+  /// Confirms the given unconfirmed email address with the provided
+  /// [ConfirmationCode] for the authenticated [MyUser],
   Future<void> confirmEmailCode(ConfirmationCode code, Credentials creds);
 
+  /// Sends a new confirmation [ConfirmationCode] to [MyUser]'s `email`.
   Future<void> resendEmail(Credentials creds);
 
   /// Validates the current [AccessToken].

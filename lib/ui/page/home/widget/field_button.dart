@@ -79,22 +79,23 @@ class FieldButton extends StatefulWidget {
   /// [TextStyle] of the [text].
   final TextStyle? style;
 
-  ///
+  /// [Color] of the [border].
+  /// If `null`, the [Theme]'s [ColorScheme.secondary]
   final Color? border;
 
-  ///
+  /// Optional prefix text.
   final String? prefixText;
 
-  ///
+  /// Optional prefix [TextStyle].
   final TextStyle? prefixStyle;
 
-  ///
+  /// Optional label of this [FieldButton].
   final String? label;
 
-  ///
+  /// [FloatingLabelBehavior] of the [label].
   final FloatingLabelBehavior floatingLabelBehavior;
 
-  ///
+  /// Indicator whether widget should be old styled.
   final bool old;
 
   @override

@@ -87,7 +87,7 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> getEmailCode(UserEmail email) async {
+  Future<Credentials> signUpWithEmail(UserEmail email) async {
     final response = await _graphQlProvider.signUp();
 
     final creds = Credentials(

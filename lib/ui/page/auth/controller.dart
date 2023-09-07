@@ -21,19 +21,16 @@ import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
 import 'package:rive/rive.dart';
 
-import '../../../util/platform_utils.dart';
 import '/domain/service/auth.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
 /// [Routes.auth] page controller.
 class AuthController extends GetxController {
   AuthController(this._auth);
-
-  /// Authorization service used for signing up.
-  final AuthService _auth;
 
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
@@ -45,6 +42,9 @@ class AuthController extends GetxController {
 
   /// [GlobalKey] of the button opening the [Language] selection.
   final GlobalKey languageKey = GlobalKey();
+
+  /// Authorization service used for signing up.
+  final AuthService _auth;
 
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;

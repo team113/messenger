@@ -21,7 +21,7 @@ import 'package:messenger/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import 'prefix_button.dart';
 
-///
+/// Button with a [leading] icon or [asset] and a [text].
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
@@ -32,31 +32,27 @@ class SignButton extends StatelessWidget {
     this.assetHeight = 20,
     this.padding = EdgeInsets.zero,
     this.onPressed,
-    this.dense = false,
   });
 
-  ///
+  /// [text] of this [SignButton].
   final String text;
 
-  ///
-  final bool dense;
-
-  ///
+  /// [Widget] to display as a leading.
   final Widget? leading;
 
-  ///
+  /// Asset to display as a leading.
   final String asset;
 
-  ///
+  /// Width of the [asset].
   final double assetWidth;
 
-  ///
+  ///  Height of the [asset].
   final double assetHeight;
 
-  ///
+  /// Padding to apply to the [leading].
   final EdgeInsets padding;
 
-  ///
+  /// Callback to call when this button is pressed.
   final void Function()? onPressed;
 
   @override
@@ -66,7 +62,7 @@ class SignButton extends StatelessWidget {
     return Center(
       child: PrefixButton(
         text: text,
-        style: dense ? style.fonts.labelMediumPrimary : style.fonts.titleLarge,
+        style: style.fonts.titleLarge,
         onPressed: onPressed ?? () {},
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),

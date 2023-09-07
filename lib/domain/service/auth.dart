@@ -270,8 +270,8 @@ class AuthService extends GetxService {
     });
   }
 
-  Future<Credentials> getEmailCode(UserEmail email) =>
-      _authRepository.getEmailCode(email);
+  Future<Credentials> signUpWithEmail(UserEmail email) =>
+      _authRepository.signUpWithEmail(email);
 
   Future<void> confirmEmailCode(ConfirmationCode code, Credentials creds) =>
       _authRepository.confirmEmailCode(code, creds);

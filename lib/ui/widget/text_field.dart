@@ -98,14 +98,13 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional prefix [Widget].
   final Widget? prefix;
 
-  ///
+  /// Optional color of the [suffix].
   final Color? suffixColor;
 
-  ///
-
+  /// Optional size of the [suffix].
   final double? suffixSize;
 
-  ///
+  /// Optional text of the [suffix].
   final String? suffixText;
 
   /// Optional content padding.
@@ -114,10 +113,10 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional trailing [Widget].
   final Widget? trailing;
 
-  ///
+  /// Optional width of the [trailing].
   final double? trailingWidth;
 
-  ///
+  /// Indicator whether the [trailing] should be displayed or not.
   final bool withTrailing;
 
   /// Optional subtitle [Widget].
@@ -164,7 +163,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
-  ///
+  /// Optional style of the [prefixText].
   final TextStyle? prefixStyle;
 
   /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
@@ -174,13 +173,13 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether this [ReactiveTextField] should be filled with [Color].
   final bool? filled;
 
-  ///
+  /// Optional [Widget] to display as a prefix icon.
   final Widget? prefixIcon;
 
-  ///
+  /// Optional [Color] of the [prefixIcon].
   final Color? prefixIconColor;
 
-  ///
+  /// Optional [Widget] to display as a suffix icon.
   final FocusNode? focusNode;
 
   /// [TextAlign] of this [ReactiveTextField].
@@ -192,7 +191,10 @@ class ReactiveTextField extends StatelessWidget {
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
 
+  /// Whether the text can be changed.
   ///
+  /// When this is set to true, the text cannot be modified by any shortcut or
+  /// keyboard operation. The text is still selectable. The default value is false.
   final bool readOnly;
 
   ///

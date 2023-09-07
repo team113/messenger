@@ -41,6 +41,7 @@ class AnimatedLogo extends StatelessWidget {
   /// Path to an asset to put into the [SvgImage].
   final String? svgAsset;
 
+  /// Height of the logo.
   final double height;
 
   @override

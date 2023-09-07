@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../../home/widget/field_button.dart';
+import '/ui/page/home/widget/field_button.dart';
 
-///
+/// [FieldButton] stylized with the provided [prefix] widget.
 class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,
@@ -29,16 +29,16 @@ class PrefixButton extends StatelessWidget {
     this.prefix,
   });
 
-  ///
+  /// [text] of this [PrefixButton].
   final String text;
 
-  ///
+  /// [TextStyle] of the [text].
   final TextStyle? style;
 
-  ///
+  /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
-  ///
+  /// [Widget] to display as a prefix.
   final Widget? prefix;
 
   @override
