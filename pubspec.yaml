@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.9.2
+version: 0.1.0-alpha.9.4
 publish_to: none
 
 environment:
@@ -34,6 +34,7 @@ dependencies:
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^15.1.0+1
+  flutter_markdown: ^0.6.17+2
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.6
@@ -129,6 +130,12 @@ dependency_overrides:
   http: ^1.1.0
   # TODO: Remove when `sentry_flutter` updates.
   package_info_plus: ^4.0.0
+  # TODO: Remove when rive-app/rive-flutter#340 is fixed:
+  #       https://github.com/rive-app/rive-flutter/issues/340
+  rive_common:
+    git:
+      url: https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git
+      ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
 
 flutter:
   uses-material-design: true
