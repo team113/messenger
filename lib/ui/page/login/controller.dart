@@ -250,8 +250,6 @@ class LoginController extends GetxController {
 
           await _authService.authorizeWith(creds!);
 
-          router.noIntroduction = false;
-          router.signUp = true;
           router.home();
         } on ConfirmUserEmailException catch (e) {
           switch (e.code) {

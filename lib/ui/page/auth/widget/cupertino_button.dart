@@ -28,15 +28,7 @@ class StyledCupertinoButton extends StatefulWidget {
     this.padding = EdgeInsets.zero,
     this.onPressed,
     this.style,
-    this.color,
-    this.enlarge = false,
-    this.dense = false,
-    this.tiny = false,
   });
-
-  final bool enlarge;
-  final bool dense;
-  final bool tiny;
 
   /// Label to display.
   final String label;
@@ -52,7 +44,6 @@ class StyledCupertinoButton extends StatefulWidget {
   /// [TextStyle] to apply to the [label].
   final TextStyle? style;
 
-  final Color? color;
   @override
   State<StyledCupertinoButton> createState() => _StyledCupertinoButtonState();
 }
@@ -68,7 +59,7 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).style;
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,

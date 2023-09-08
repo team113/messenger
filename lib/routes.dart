@@ -167,15 +167,6 @@ class RouterState extends ChangeNotifier {
   /// Current [Routes.me] page section.
   final Rx<ProfileTab?> profileSection = Rx(null);
 
-  ///
-  bool validateEmail = false;
-
-  ///
-  bool signUp = false;
-
-  ///
-  bool noIntroduction = false;
-
   /// Auth service used to determine the auth status.
   final AuthService _auth;
 

@@ -106,7 +106,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('RecoveryField'),
                   state: c.recovery,
-                  label: 'E-mail or phone number'.l10n,
+                  label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(

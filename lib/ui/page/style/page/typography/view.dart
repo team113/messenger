@@ -45,8 +45,10 @@ class TypographyView extends StatelessWidget {
 
     final Iterable<(TextStyle, String)> styles = [
       (style.fonts.displayLarge, 'displayLarge'),
+      (style.fonts.displayLargeThin, 'displayLargeThin'),
       (style.fonts.displayMedium, 'displayMedium'),
       (style.fonts.displaySmall, 'displaySmall'),
+      (style.fonts.displaySmallThin, 'displaySmallThin'),
       (style.fonts.headlineLarge, 'headlineLarge'),
       (style.fonts.headlineMedium, 'headlineMedium'),
       (style.fonts.headlineSmall, 'headlineSmall'),
@@ -64,10 +66,12 @@ class TypographyView extends StatelessWidget {
 
     final Iterable<(TextStyle, String)> fonts = [
       (style.fonts.displayLarge, 'displayLarge'),
+      (style.fonts.displayLargeThin, 'displayLargeThin'),
       (style.fonts.displayLargeOnPrimary, 'displayLargeOnPrimary'),
       (style.fonts.displayMedium, 'displayMedium'),
       (style.fonts.displayMediumSecondary, 'displayMediumSecondary'),
       (style.fonts.displaySmall, 'displaySmall'),
+      (style.fonts.displaySmallThin, 'displaySmallThin'),
       (style.fonts.displaySmallOnPrimary, 'displaySmallOnPrimary'),
       (style.fonts.displaySmallSecondary, 'displaySmallSecondary'),
       (style.fonts.headlineLarge, 'headlineLarge'),

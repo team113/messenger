@@ -44,8 +44,6 @@ class AuthView extends StatelessWidget {
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        final TextStyle thin = style.fonts.bodySmallSecondary;
-
         final Widget status = Column(
           children: [
             const SizedBox(height: 4),
@@ -81,7 +79,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin.copyWith(fontSize: 21, color: style.colors.secondary),
+            style: style.fonts.displaySmallThin,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -139,7 +137,6 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: () {
-              router.noIntroduction = false;
               c.register();
             },
           ),
@@ -233,7 +230,7 @@ class AuthView extends StatelessWidget {
             header: Center(
               child: Text(
                 'btn_download'.l10n,
-                style: style.fonts.headlineMedium.copyWith(fontSize: 18),
+                style: style.fonts.headlineMedium,
               ),
             ),
           ),

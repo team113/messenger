@@ -87,6 +87,8 @@ class Themes {
           textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
       displaySmall:
           textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
+      displaySmallThin: textStyle.copyWith(
+          fontWeight: FontWeight.w300, fontSize: 21, color: colors.secondary),
       headlineLarge: textStyle.copyWith(fontSize: 18),
       headlineMedium:
           textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
@@ -170,7 +172,6 @@ class Themes {
             systemMessageStyle: fonts.bodySmallSecondary,
             systemMessagePrimary: fonts.bodySmallPrimary,
             unreadMessageColor: colors.backgroundAuxiliaryLightest,
-            activeColor: colors.primary,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -392,7 +393,6 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageStyle,
     required this.systemMessagePrimary,
     required this.unreadMessageColor,
-    required this.activeColor,
   });
 
   /// [Palette] to use in the application.
@@ -466,9 +466,6 @@ class Style extends ThemeExtension<Style> {
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
 
-  ///
-  final Color activeColor;
-
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
@@ -522,7 +519,6 @@ class Style extends ThemeExtension<Style> {
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
       systemMessagePrimary: systemMessagePrimary ?? this.systemMessagePrimary,
       unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
-      activeColor: activeColor ?? this.activeColor,
     );
   }
 
@@ -579,7 +575,6 @@ class Style extends ThemeExtension<Style> {
       )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
-      activeColor: Color.lerp(activeColor, other.activeColor, t)!,
     );
   }
 }
@@ -597,6 +592,7 @@ class Fonts {
     required this.displayMedium,
     TextStyle? displayMediumSecondary,
     required this.displaySmall,
+    required this.displaySmallThin,
     TextStyle? displaySmallSecondary,
     TextStyle? displaySmallOnPrimary,
     required this.headlineLarge,
@@ -714,7 +710,7 @@ class Fonts {
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
 
-  /// [displayLarge] with `thin` font weight.
+  /// [displayLarge] with `thin` font weight and `secondary` color.
   final TextStyle displayLargeThin;
 
   /// [displayLarge] of `onPrimary` color.
@@ -728,6 +724,9 @@ class Fonts {
 
   /// Small version of display text of `onBackground` color.
   final TextStyle displaySmall;
+
+  /// [displaySmall] with `thin` font weight and `secondary` color.
+  final TextStyle displaySmallThin;
 
   /// [displaySmall] with `secondary` color.
   final TextStyle displaySmallSecondary;
@@ -888,6 +887,8 @@ class Fonts {
       displayMediumSecondary: TextStyle.lerp(
           font.displayMediumSecondary, other.displayMediumSecondary, t)!,
       displaySmall: TextStyle.lerp(font.displaySmall, other.displaySmall, t)!,
+      displaySmallThin:
+          TextStyle.lerp(font.displaySmallThin, other.displaySmallThin, t)!,
       displaySmallSecondary: TextStyle.lerp(
           font.displaySmallSecondary, other.displaySmallSecondary, t)!,
       displaySmallOnPrimary: TextStyle.lerp(
