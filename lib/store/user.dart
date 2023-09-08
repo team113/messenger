@@ -293,15 +293,15 @@ class UserRepository implements AbstractUserRepository {
       first: first ?? maxInt,
     );
 
-    final List<HiveUser> results =
+    final List<HiveUser> result =
         query.searchUsers.edges.map((c) => c.node.toHive()).toList();
 
-    for (HiveUser user in results) {
+    for (HiveUser user in result) {
       put(user);
     }
     await Future.delayed(Duration.zero);
 
-    Iterable<Future<RxUser?>> futures = results.map((e) => get(e.value.id));
+    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
     List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
     return Page(

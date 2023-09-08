@@ -27,9 +27,9 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, C, K extends Comparable<K>> {
+class Pagination<T, C, K extends Comparable> {
   Pagination({
-    this.perPage = 5,
+    this.perPage = 50,
     required this.provider,
     required this.onKey,
   });
@@ -114,7 +114,13 @@ class Pagination<T, C, K extends Comparable<K>> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
+    final bool locked = _guard.isLocked;
+
     return _guard.protect(() async {
+      if (locked) {
+        return;
+      }
+
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
@@ -144,11 +150,7 @@ class Pagination<T, C, K extends Comparable<K>> {
   FutureOr<void> next() async {
     Log.print('next()...', 'Pagination');
 
-    if (items.isEmpty) {
-      return around();
-    }
-
-    if (hasNext.isTrue && nextLoading.isFalse) {
+    if (hasNext.isTrue && nextLoading.isFalse && !_guard.isLocked) {
       nextLoading.value = true;
 
       if (items.isNotEmpty) {

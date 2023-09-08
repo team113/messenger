@@ -90,9 +90,9 @@ class SearchController extends GetxController {
   /// - `searchStatus.empty`, meaning no search.
   /// - `searchStatus.loading`, meaning search is in progress.
   /// - `searchStatus.loadingMore`, meaning search is in progress after some
-  ///   [usersSearchResult] were already acquired.
-  /// - `searchStatus.success`, meaning search is done and [usersSearchResult] are
-  ///   acquired.
+  ///   [usersSearchResult] or [contactsSearchResult] were already acquired.
+  /// - `searchStatus.success`, meaning search is done and [usersSearchResult]
+  /// or [contactsSearchResult] are acquired.
   final Rx<RxStatus> searchStatus = Rx<RxStatus>(RxStatus.empty());
 
   /// [RxUser]s found under the [SearchCategory.recent] category.
@@ -256,6 +256,27 @@ class SearchController extends GetxController {
     }
   }
 
+  /// Returns an item by its index from the search results.
+  ///
+  /// Returned item is either a [RxUser] or [RxChatContact].
+  dynamic getIndex(int i) {
+    return [
+      ...chats.values,
+      ...recent.values,
+      ...contacts.values,
+      ...users.values,
+    ].elementAt(i);
+  }
+
+  /// Updates the [chats], [recent], [contacts] and [users] according to the
+  /// [query].
+  void populate() {
+    _populateChats();
+    _populateRecent();
+    _populateContacts();
+    _populateUsers();
+  }
+
   /// Searches the [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
@@ -263,10 +284,8 @@ class SearchController extends GetxController {
     // TODO: Add `Chat`s searching.
     if (categories.contains(SearchCategory.contact)) {
       _searchContacts(query);
-      populate();
     } else if (categories.contains(SearchCategory.user)) {
       _searchUsers(query);
-      populate();
     }
   }
 
@@ -313,12 +332,14 @@ class SearchController extends GetxController {
 
         _usersSearchStatusWorker = ever(result.status, (RxStatus s) {
           searchStatus.value = s;
-          _populateUsers();
 
-          if (s.isSuccess) {
+          if (s.isSuccess && !s.isLoadingMore) {
+            _populateUsers();
             _ensureScrollable();
           }
         });
+
+        _populateUsers();
       } else {
         searchStatus.value = RxStatus.empty();
         usersSearchResult.value?.dispose();
@@ -374,12 +395,14 @@ class SearchController extends GetxController {
 
         _contactsSearchStatusWorker = ever(result.status, (RxStatus s) {
           searchStatus.value = s;
-          _populateContacts();
 
-          if (s.isSuccess) {
+          if (s.isSuccess && !s.isLoadingMore) {
+            _populateContacts();
             _ensureScrollable();
           }
         });
+
+        _populateContacts();
       } else {
         searchStatus.value = RxStatus.empty();
         contactsSearchResult.value?.dispose();
@@ -390,27 +413,6 @@ class SearchController extends GetxController {
       contactsSearchResult.value?.dispose();
       contactsSearchResult.value = null;
     }
-  }
-
-  /// Returns an item by its index from the search results.
-  ///
-  /// Returned item is either a [RxUser] or [RxChatContact].
-  dynamic getIndex(int i) {
-    return [
-      ...chats.values,
-      ...recent.values,
-      ...contacts.values,
-      ...users.values,
-    ].elementAt(i);
-  }
-
-  /// Updates the [chats], [recent], [contacts] and [users] according to the
-  /// [query].
-  void populate() {
-    _populateChats();
-    _populateRecent();
-    _populateContacts();
-    _populateUsers();
   }
 
   /// Updates the [chats] according to the [query].
@@ -628,12 +630,27 @@ class SearchController extends GetxController {
     if (scrollController.hasClients &&
         scrollController.position.pixels >
             scrollController.position.maxScrollExtent - 500) {
-      await next();
+      await _next();
     }
   }
 
   /// Uploads next page of the [usersSearchResult] or [contactsSearchResult].
-  Future<void> next() async {
+  Future<void> _next() async {
+    await _nextContacts();
+    await _nextUsers();
+  }
+
+  /// Uploads next page of the [usersSearchResult] or [contactsSearchResult].
+  Future<void> _nextContacts() async {
+    if (categories.contains(SearchCategory.contact) &&
+        contactsSearchResult.value?.hasNext.value == true &&
+        contactsSearchResult.value?.nextLoading.value == false) {
+      await contactsSearchResult.value!.next();
+    }
+  }
+
+  /// Uploads next page of the [usersSearchResult] or [contactsSearchResult].
+  Future<void> _nextUsers() async {
     if ((contactsSearchResult.value == null ||
             contactsSearchResult.value!.hasNext.isFalse) &&
         categories.contains(SearchCategory.user)) {
@@ -643,11 +660,6 @@ class SearchController extends GetxController {
           usersSearchResult.value!.nextLoading.isFalse) {
         await usersSearchResult.value!.next();
       }
-      _populateUsers();
-    } else if (contactsSearchResult.value?.hasNext.value == true &&
-        contactsSearchResult.value?.nextLoading.value == false) {
-      await contactsSearchResult.value!.next();
-      _populateContacts();
     }
   }
 
@@ -667,7 +679,7 @@ class SearchController extends GetxController {
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
             usersSearchResult.value?.nextLoading.value == false) {
-          await next();
+          await _next();
           _ensureScrollable();
         }
       });

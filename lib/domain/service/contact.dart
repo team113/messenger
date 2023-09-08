@@ -109,21 +109,24 @@ class ContactService extends DisposableService {
     }
     final SearchResult<RxChatContact> searchResult =
         SearchResult(pagination: pagination);
+
     if (phone == null && name == null && email == null) {
       return searchResult;
     }
 
-    final List<RxChatContact> users = _contactRepository
-        .contacts.values // add favorite
+    final List<RxChatContact> contacts = [
+      ..._contactRepository.contacts.values,
+      ..._contactRepository.favorites.values
+    ]
         .where((u) =>
             (phone != null && u.contact.value.phones.contains(phone)) ||
             (name != null &&
                 u.contact.value.name.val.contains(name.val) == true))
         .toList();
 
-    searchResult.items.value = users;
+    searchResult.items.value = contacts;
     searchResult.status.value =
-        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+        contacts.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
     void add(List<RxChatContact> c) {
       Set<RxChatContact> contacts = searchResult.items.toSet()..addAll(c);
@@ -131,13 +134,10 @@ class ContactService extends DisposableService {
     }
 
     List<Future> futures = [
+      if (name != null) searchResult.pagination!.around(),
       if (phone != null) _contactRepository.searchByPhone(phone).then(add),
       if (email != null) _contactRepository.searchByEmail(email).then(add),
     ];
-
-    if (name != null) {
-      futures.add(pagination!.around());
-    }
 
     Future.wait(futures)
         .then((_) => searchResult.status.value = RxStatus.success());

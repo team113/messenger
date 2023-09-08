@@ -279,16 +279,16 @@ class ContactRepository implements AbstractContactRepository {
       first: first ?? maxInt,
     );
 
-    final List<HiveChatContact> results =
+    final List<HiveChatContact> result =
         query.searchChatContacts.edges.map((c) => c.node.toHive()).toList();
 
-    for (HiveChatContact user in results) {
+    for (HiveChatContact user in result) {
       _putChatContact(user);
     }
     await Future.delayed(Duration.zero);
 
     List<RxChatContact> contacts =
-        results.map((e) => get(e.value.id)).whereNotNull().toList();
+        result.map((e) => get(e.value.id)).whereNotNull().toList();
 
     return Page(
       RxList(contacts),
@@ -324,6 +324,9 @@ class ContactRepository implements AbstractContactRepository {
                 HiveRxChatContact(_userRepo, event.value)..init();
           } else {
             contact.contact.value = event.value.value;
+            contacts.emit(
+              MapChangeNotification.updated(contact.id, contact.id, contact),
+            );
           }
         } else {
           contacts.remove(ChatContactId(event.key));
