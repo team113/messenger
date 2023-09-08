@@ -273,7 +273,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
             style.colors.userColors.length];
 
-    if(widget.forwards.isEmpty) {
+    if (widget.forwards.isEmpty) {
       return const SizedBox();
     }
 
