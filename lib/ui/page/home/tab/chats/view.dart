@@ -405,7 +405,7 @@ class ChatsTabView extends StatelessWidget {
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
                             final ListElement element = c.elements[i];
-                            final Widget child;
+                            Widget child;
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -478,13 +478,13 @@ class ChatsTabView extends StatelessWidget {
                               child = Center(
                                 child: Container(
                                   margin: const EdgeInsets.fromLTRB(
-                                    10,
+                                    0,
                                     2,
                                     0,
                                     2,
                                   ),
                                   padding: const EdgeInsets.fromLTRB(
-                                    12,
+                                    0,
                                     10,
                                     0,
                                     6,
@@ -500,6 +500,16 @@ class ChatsTabView extends StatelessWidget {
                               );
                             } else {
                               child = const SizedBox();
+                            }
+
+                            if (i == c.elements.length - 1 &&
+                                c.search.value?.hasNext.value == true) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  const CustomProgressIndicator(),
+                                ],
+                              );
                             }
 
                             return child;

@@ -180,7 +180,7 @@ class SearchResult<T> {
 
   /// Fetches next page of the [items].
   Future<void> next() async {
-    if (pagination != null) {
+    if (pagination != null && nextLoading.isFalse) {
       status.value = RxStatus.loadingMore();
       await pagination!.next();
       status.value = RxStatus.success();

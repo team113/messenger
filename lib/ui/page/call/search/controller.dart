@@ -281,6 +281,11 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
+    usersSearchResult.value?.dispose();
+    usersSearchResult.value = null;
+    contactsSearchResult.value?.dispose();
+    contactsSearchResult.value = null;
+
     // TODO: Add `Chat`s searching.
     if (categories.contains(SearchCategory.contact)) {
       _searchContacts(query);
@@ -497,14 +502,14 @@ class SearchController extends GetxController {
             ..._contactService.favorites,
             ..._contactService.contacts,
           }.values.where((e) {
-            if (e.contact.value.users.length == 1) {
+            if (e.user.value != null) {
               RxUser? user = e.user.value;
 
               if (chat?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
-                  (chats.values.none((c) =>
+                  chats.values.none((c) =>
                       c.chat.value.isDialog &&
-                      c.members.containsKey(user?.id)))) {
+                      c.members.containsKey(user?.id))) {
                 if (query.value.isNotEmpty) {
                   if (e.contact.value.name.val
                           .toLowerCase()
@@ -561,8 +566,8 @@ class SearchController extends GetxController {
             if (chat?.members.containsKey(e.id) != true &&
                 !recent.containsKey(e.id) &&
                 !contacts.containsKey(e.id) &&
-                (chats.values.none((c) =>
-                    c.chat.value.isDialog && c.members.containsKey(e.id)))) {
+                chats.values.none((c) =>
+                    c.chat.value.isDialog && c.members.containsKey(e.id))) {
               return true;
             }
 
@@ -580,9 +585,9 @@ class SearchController extends GetxController {
               if (chat?.members.containsKey(user?.id) != true &&
                   !recent.containsKey(user?.id) &&
                   !contacts.containsKey(user?.id) &&
-                  (chats.values.none((c) =>
+                  chats.values.none((c) =>
                       c.chat.value.isDialog &&
-                      c.members.containsKey(user?.id)))) {
+                      c.members.containsKey(user?.id))) {
                 if (query.value.isNotEmpty) {
                   if (user?.user.value.name?.val
                           .toLowerCase()
@@ -665,20 +670,20 @@ class SearchController extends GetxController {
 
   /// Ensures the [ChatView] is scrollable.
   Future<void> _ensureScrollable() async {
-    if (usersSearchResult.value?.hasNext.value == true) {
+    if ((categories.contains(SearchCategory.contact) &&
+            contactsSearchResult.value?.hasNext.value != false) ||
+        (categories.contains(SearchCategory.user) &&
+            usersSearchResult.value?.hasNext.value != false)) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
           return;
         }
 
-        if (!scrollController.hasClients) {
-          return await _ensureScrollable();
-        }
-
         // If the fetched initial page contains less elements than required to
-        // fill the view and there's more pages available, then fetch those pages.
-        if (scrollController.position.maxScrollExtent < 50 &&
-            usersSearchResult.value?.nextLoading.value == false) {
+        // fill the view and there's more pages available, then fetch those
+        // pages.
+        if (!scrollController.hasClients ||
+            scrollController.position.maxScrollExtent < 50) {
           await _next();
           _ensureScrollable();
         }
