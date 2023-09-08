@@ -131,6 +131,12 @@ void main() async {
     await tester.tap(goToLoginButton);
     await tester.pumpAndSettle();
 
+    final passwordButton = find.text('btn_password'.l10n);
+    expect(passwordButton, findsOneWidget);
+
+    await tester.tap(passwordButton);
+    await tester.pumpAndSettle();
+
     final loginTile = find.byKey(const ValueKey('LoginButton'));
     expect(loginTile, findsOneWidget);
 

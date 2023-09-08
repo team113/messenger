@@ -34,6 +34,7 @@ import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/view.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
@@ -103,7 +104,10 @@ void main() async {
           ConfirmationCode('1234'), UserPassword('test123')),
     ).thenAnswer((_) => Future.value());
 
-    await tester.pumpWidget(createWidgetForTesting(child: const LoginView()));
+    await tester.pumpWidget(createWidgetForTesting(
+        child: const LoginView(
+      stage: LoginViewStage.signInWithPassword,
+    )));
     await tester.pumpAndSettle();
 
     final accessRecoveryTile = find.text('btn_forgot_password'.l10n);
