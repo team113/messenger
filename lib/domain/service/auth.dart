@@ -267,14 +267,34 @@ class AuthService extends GetxService {
     });
   }
 
-  Future<Credentials> signUpWithEmail(UserEmail email) =>
-      _authRepository.signUpWithEmail(email);
+  /// Creates a new [MyUser]  and sends a confirmation [ConfirmationCode] to
+  /// [MyUser]'s provided `email`.
+  Future<Credentials> signUpWithEmail(UserEmail email) async {
+    try {
+      final creds = await _authRepository.signUp();
 
-  Future<void> confirmEmailCode(ConfirmationCode code, Credentials creds) =>
-      _authRepository.confirmEmailCode(code, creds);
+      _authorized(creds);
 
-  Future<void> resendEmail(Credentials creds) =>
-      _authRepository.resendEmail(creds);
+      _authRepository.addUserEmail(email);
+
+      return creds;
+    } catch (e) {
+      _unauthorized();
+      rethrow;
+    }
+  }
+
+  Future<void> confirmEmailCode(
+      ConfirmationCode code, Credentials creds) async {
+    try {
+      await _authRepository.confirmEmailCode(code, creds);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> resendEmail(Credentials creds) async =>
+      await _authRepository.resendEmail(creds);
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
