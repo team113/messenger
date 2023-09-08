@@ -39,7 +39,7 @@ class SwipeableStatus extends StatelessWidget {
   });
 
   /// Expanded width of the [swipeable].
-  static const double width = 65;
+  static const double width = 66;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -93,7 +93,7 @@ class SwipeableStatus extends StatelessWidget {
           Padding(
             padding: padding,
             child: SizedBox(
-              width: status ? width : width - 15,
+              width: status ? width : width - 16,
               child: _swipeableWithStatus(context),
             ),
           ),

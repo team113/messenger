@@ -273,6 +273,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         : style.colors.userColors[(widget.user?.user.value.num.val.sum() ?? 3) %
             style.colors.userColors.length];
 
+    if(widget.forwards.isEmpty) {
+      return const SizedBox();
+    }
+
     return DefaultTextStyle(
       style: style.fonts.bodyLarge,
       child: Obx(() {
