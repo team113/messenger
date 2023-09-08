@@ -187,23 +187,6 @@ class ColorsView extends StatelessWidget {
       (style.colors.dangerColor, 'dangerColor', 'Warns of something'),
       (style.colors.declineColor, 'declineColor', 'End call button'),
       (style.colors.warningColor, 'warningColor', 'Do not disturb status'),
-      (style.colors.primaryAuxiliary, 'primaryAuxiliary', 'Unused'),
-      (
-        style.colors.primaryAuxiliaryOpacity25,
-        'primaryAuxiliaryOpacity25',
-        'Call dock color'
-      ),
-      (style.colors.primaryDark, 'primaryDark', 'Hovered call dock'),
-      (
-        style.colors.primaryDarkOpacity90,
-        'primaryDarkOpacity90',
-        'Call draggable title color'
-      ),
-      (
-        style.colors.primaryDarkOpacity70,
-        'primaryDarkOpacity70',
-        'Call launchpad color'
-      ),
     ];
 
     final Iterable<(Color, String?, String?)> avatars =

@@ -28,11 +28,11 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/menu_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/menu_button.dart';
 
-/// View of the [HomeTab.menu] tab.
+/// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
   const MenuTabView({super.key});
 
@@ -131,7 +131,7 @@ class MenuTabView extends StatelessWidget {
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : const [SizedBox(width: 20)],
+                : const [SizedBox(width: 30)],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,

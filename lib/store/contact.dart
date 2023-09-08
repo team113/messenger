@@ -418,7 +418,7 @@ class ContactRepository implements AbstractContactRepository {
                 throw StateError('Unreachable');
             }
 
-            _contactLocal.put(contactEntity);
+            contactEntity.save();
           }
         }
     }

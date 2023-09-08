@@ -124,18 +124,11 @@ class Chat extends HiveObject {
   @HiveField(11)
   PreciseDateTime lastDelivery;
 
-  /// First [ChatItem] posted in this [Chat].
-  ///
-  /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
-  /// it's `null`.
-  @HiveField(12)
-  ChatItem? firstItem;
-
   /// Last [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
-  @HiveField(13)
+  @HiveField(12)
   ChatItem? lastItem;
 
   /// ID of the last [ChatItem] read by the authenticated [MyUser] in this
@@ -143,24 +136,24 @@ class Chat extends HiveObject {
   ///
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
-  @HiveField(14)
+  @HiveField(13)
   ChatItemId? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
-  @HiveField(15)
+  @HiveField(14)
   int unreadCount;
 
   /// Count of [ChatItem]s visible to the authenticated [MyUser] in this [Chat].
-  @HiveField(16)
+  @HiveField(15)
   int totalCount;
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
-  @HiveField(17)
+  @HiveField(16)
   ChatCall? ongoingCall;
 
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
-  @HiveField(18)
+  @HiveField(17)
   ChatFavoritePosition? favoritePosition;
 
   /// Indicates whether this [Chat] is a monolog.

@@ -38,7 +38,6 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
@@ -50,7 +49,6 @@ enum LoginViewStage {
   signUp,
   signUpWithEmail,
   signUpWithEmailCode,
-  signUpOrSignIn,
 }
 
 /// [GetxController] of a [LoginView].
@@ -359,7 +357,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      (onSuccess ?? router.home)();
+      router.home();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
@@ -390,19 +388,6 @@ class LoginController extends GetxController {
     } finally {
       login.status.value = RxStatus.empty();
       password.status.value = RxStatus.empty();
-    }
-  }
-
-  /// Creates a new one-time account right away.
-  Future<void> register() async {
-    try {
-      await _authService.register();
-      (onSuccess ?? router.home)();
-    } on ConnectionException {
-      MessagePopup.error('err_data_transfer'.l10n);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 

@@ -116,14 +116,14 @@ class CustomNavigationBar extends StatelessWidget {
                                                         : 0.25,
                                                   )
                                                 : PlatformUtils.isDesktop
-                                                    ? const Offset(-0.1, -0.2)
+                                                    ? const Offset(0, -0.7)
                                                     : Offset.zero,
                                             child: Text(
                                               b.badge!,
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
-                                    textStyle: style.fonts.bodyTinyOnPrimary,
+                                    textStyle: style.fonts.bodySmallOnPrimary,
                                     backgroundColor: b.badgeColor ??
                                         style.colors.dangerColor,
                                     isLabelVisible: b.badge != null,

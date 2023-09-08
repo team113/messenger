@@ -83,7 +83,6 @@ class ChatController extends GetxController {
     this._userService,
     this._settingsRepository, {
     this.itemId,
-    this.welcome,
   });
 
   /// ID of this [Chat].
@@ -94,10 +93,6 @@ class ChatController extends GetxController {
 
   /// ID of the [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  // TODO: Remove when backend supports it out of the box.
-  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
-  final ChatMessageText? welcome;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -798,7 +793,7 @@ class ChatController extends GetxController {
           _topVisibleItem = positions.last;
 
           _lastVisibleItem = positions.firstWhereOrNull((e) {
-            ListElement? element = elements.values.elementAtOrNull(e.index);
+            ListElement element = elements.values.elementAt(e.index);
             return element is ChatMessageElement ||
                 element is ChatInfoElement ||
                 element is ChatCallElement ||
@@ -901,10 +896,6 @@ class ChatController extends GetxController {
       if (firstUnread?.value.id != _firstUnread?.value.id ||
           chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
         _scrollToLastRead();
-      }
-
-      if (welcome != null) {
-        chat!.addMessage(welcome!);
       }
 
       status.value = RxStatus.success();

@@ -15,16 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
-import '/ui/page/work/page/vacancy/view.dart';
-import '/ui/widget/custom_page.dart';
+import '/util/platform_utils.dart';
 import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
@@ -50,7 +48,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [const CustomPage(child: SizedBox.shrink())];
+    List<Page<dynamic>> pages = [const _CustomPage(child: SizedBox.shrink())];
 
     for (String route in _state.routes) {
       if (route.endsWith('/')) {
@@ -58,7 +56,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       }
 
       if (route == Routes.me) {
-        pages.add(const CustomPage(
+        pages.add(const _CustomPage(
           key: ValueKey('MyProfilePage'),
           name: Routes.me,
           child: MyProfileView(),
@@ -68,7 +66,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
+        pages.add(_CustomPage(
           key: ValueKey('ChatInfoPage$id'),
           name: '${Routes.chats}/$id${Routes.chatInfo}',
           child: ChatInfoView(ChatId(id)),
@@ -77,41 +75,28 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
+        pages.add(_CustomPage(
           key: ValueKey('ChatPage$id'),
           name: '${Routes.chats}/$id',
           child: ChatView(
             ChatId(id),
             itemId: router.arguments?['itemId'] as ChatItemId?,
-            welcome: router.arguments?['welcome'] as ChatMessageText?,
           ),
         ));
       } else if (route.startsWith('${Routes.contacts}/')) {
         final id = route.replaceFirst('${Routes.contacts}/', '');
-        pages.add(CustomPage(
+        pages.add(_CustomPage(
           key: ValueKey('ContactPage$id'),
           name: '${Routes.contacts}/$id',
           child: ContactView(ChatContactId(id)),
         ));
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(CustomPage(
+        pages.add(_CustomPage(
           key: ValueKey('UserPage$id'),
           name: '${Routes.user}/$id',
           child: UserView(UserId(id)),
         ));
-      } else if (route.startsWith('${Routes.work}/')) {
-        final String? last = route.split('/').lastOrNull;
-        final WorkTab? work =
-            WorkTab.values.firstWhereOrNull((e) => e.name == last);
-
-        if (work != null) {
-          pages.add(CustomPage(
-            key: ValueKey('${work.name}WorkPage'),
-            name: Routes.me,
-            child: VacancyWorkView(work),
-          ));
-        }
       }
     }
 
@@ -136,5 +121,78 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     // This is not required for inner router delegate because it doesn't parse
     // routes.
     assert(false, 'unexpected setNewRoutePath() call');
+  }
+}
+
+/// [Page] with the [_FadeCupertinoPageRoute] as its [Route].
+class _CustomPage extends Page {
+  const _CustomPage({super.key, super.name, required this.child});
+
+  /// [Widget] page.
+  final Widget child;
+
+  @override
+  Route createRoute(BuildContext context) {
+    return _FadeCupertinoPageRoute(
+      settings: this,
+      pageBuilder: (_, __, ___) => child,
+    );
+  }
+}
+
+/// [PageRoute] with fading iOS styled page transition animation.
+///
+/// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
+class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
+  _FadeCupertinoPageRoute({super.settings, required this.pageBuilder})
+      : matchingBuilder = PlatformUtils.isAndroid
+            ? const FadeUpwardsPageTransitionsBuilder()
+            : const CupertinoPageTransitionsBuilder();
+
+  /// [PageTransitionsBuilder] transition animation.
+  final PageTransitionsBuilder matchingBuilder;
+
+  /// Builder building the [Page] itself.
+  final RoutePageBuilder pageBuilder;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 400);
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation) =>
+      pageBuilder(context, animation, secondaryAnimation);
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return ClipRect(
+      child: FadeTransition(
+        opacity: animation,
+        child: FadeTransition(
+          opacity: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
+          child: matchingBuilder.buildTransitions(
+            this,
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -234,7 +234,7 @@ class CreateSessionException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case CreateSessionErrorCode.wrongPassword:
-        return 'err_incorrect_login_or_password'.l10n;
+        return 'err_incorrect_password'.l10n;
       case CreateSessionErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }

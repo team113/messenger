@@ -60,7 +60,6 @@ import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
-import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
@@ -77,15 +76,14 @@ late RouterState router;
 class Routes {
   static const auth = '/';
   static const call = '/call';
+  static const chats = '/chats';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
-  static const chats = '/chats';
   static const contacts = '/contacts';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
   static const user = '/user';
-  static const work = '/work';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -95,10 +93,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { work, contacts, chats, menu }
-
-/// List of [Routes.work] page sections.
-enum WorkTab { freelance, frontend, backend }
+enum HomeTab { contacts, chats, menu }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {
@@ -230,7 +225,6 @@ class RouterState extends ChangeNotifier {
         String last = routes.last.split('/').last;
         routes.last = routes.last.replaceFirst('/$last', '');
         if (routes.last == '' ||
-            (_auth.status.value.isSuccess && routes.last == Routes.work) ||
             routes.last == Routes.contacts ||
             routes.last == Routes.chats ||
             routes.last == Routes.menu ||
@@ -264,10 +258,6 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
-    if (to.startsWith(Routes.work)) {
-      return to;
-    }
-
     switch (to) {
       case Routes.home:
       case Routes.style:
@@ -307,27 +297,27 @@ class AppRouteInformationParser
   SynchronousFuture<RouteConfiguration> parseRouteInformation(
     RouteInformation routeInformation,
   ) {
-    String route = routeInformation.uri.path;
-    HomeTab? tab;
+    final RouteConfiguration configuration;
 
-    if (route.startsWith(Routes.work)) {
-      tab = HomeTab.work;
-    } else if (route.startsWith(Routes.contacts)) {
-      tab = HomeTab.contacts;
-    } else if (route.startsWith(Routes.chats)) {
-      tab = HomeTab.chats;
-    } else if (route.startsWith(Routes.menu) || route == Routes.me) {
-      tab = HomeTab.menu;
+    switch (routeInformation.uri.path) {
+      case Routes.contacts:
+        configuration = RouteConfiguration(Routes.home, HomeTab.contacts);
+        break;
+
+      case Routes.chats:
+        configuration = RouteConfiguration(Routes.home, HomeTab.chats);
+        break;
+
+      case Routes.menu:
+        configuration = RouteConfiguration(Routes.home, HomeTab.menu);
+        break;
+
+      default:
+        configuration = RouteConfiguration(routeInformation.uri.path, null);
+        break;
     }
 
-    if (route == Routes.work ||
-        route == Routes.contacts ||
-        route == Routes.chats ||
-        route == Routes.menu) {
-      route = Routes.home;
-    }
-
-    return SynchronousFuture(RouteConfiguration(route, tab));
+    return SynchronousFuture(configuration);
   }
 
   @override
@@ -337,10 +327,6 @@ class AppRouteInformationParser
     // If logged in and on [Routes.home] page, then modify the URL's route.
     if (configuration.loggedIn && configuration.route == Routes.home) {
       switch (configuration.tab!) {
-        case HomeTab.work:
-          route = Routes.work;
-          break;
-
         case HomeTab.contacts:
           route = Routes.contacts;
           break;
@@ -671,14 +657,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           },
         ),
       ));
-    } else if (_state.route.startsWith(Routes.work)) {
-      return const [
-        MaterialPage(
-          key: ValueKey('WorkPage'),
-          name: Routes.work,
-          child: WorkView(),
-        )
-      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -690,7 +668,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state.route.startsWith(Routes.chats) ||
         _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
-        _state.route.startsWith(Routes.work) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -736,18 +713,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
-        case HomeTab.work:
-          WebUtils.title('$prefix${'label_work_with_us'.l10n}');
-          break;
-
         case HomeTab.contacts:
           WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
           break;
-
         case HomeTab.chats:
           WebUtils.title('$prefix${'label_tab_chats'.l10n}');
           break;
-
         case HomeTab.menu:
           WebUtils.title('$prefix${'label_tab_menu'.l10n}');
           break;
@@ -788,8 +759,6 @@ extension RouteLinks on RouterState {
     ChatId id, {
     bool push = false,
     ChatItemId? itemId,
-    // TODO: Remove when backend supports welcome messages.
-    ChatMessageText? welcome,
   }) {
     if (push) {
       this.push('${Routes.chats}/$id');
@@ -797,7 +766,7 @@ extension RouteLinks on RouterState {
       go('${Routes.chats}/$id');
     }
 
-    arguments = {'itemId': itemId, 'welcome': welcome};
+    arguments = {'itemId': itemId};
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
@@ -808,11 +777,6 @@ extension RouteLinks on RouterState {
       go('${Routes.chats}/$id${Routes.chatInfo}');
     }
   }
-
-  /// Changes router location to the [Routes.work] page.
-  void work(WorkTab? tab, {bool push = false}) => (push
-      ? this.push
-      : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].
