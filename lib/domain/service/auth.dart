@@ -234,12 +234,12 @@ class AuthService extends GetxService {
       );
 
   Future<void> authorizeWith(Credentials creds) {
-    _status.value = RxStatus.loading();
+    status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
         _authorized(creds);
         _sessionProvider.setCredentials(creds);
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
         rethrow;

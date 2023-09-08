@@ -150,8 +150,7 @@ class BackendWorkView extends StatelessWidget {
                             } else {
                               await LoginView.show(
                                 context,
-                                initial: LoginViewStage.signUpOrSignIn,
-                                onSuccess: () async => await c.useLink(),
+                                stage: LoginViewStage.signUpOrSignIn,
                               );
                             }
                           },

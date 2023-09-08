@@ -35,7 +35,6 @@ import 'widget/sign_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-
   const LoginView({
     super.key,
     this.stage = LoginViewStage.signUp,
@@ -47,7 +46,6 @@ class LoginView extends StatelessWidget {
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-
     LoginViewStage stage = LoginViewStage.signUp,
   }) {
     return ModalPopup.show(
@@ -66,7 +64,6 @@ class LoginView extends StatelessWidget {
       key: const Key('LoginView'),
       init: LoginController(
         Get.find(),
-
         stage: stage,
       ),
       builder: (LoginController c) {
@@ -194,7 +191,7 @@ class LoginView extends StatelessWidget {
                 ),
               ];
               break;
-              
+
             case LoginViewStage.signUpWithEmailCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
@@ -401,6 +398,26 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
+              ];
+              break;
+
+            case LoginViewStage.signUpOrSignIn:
+              header = ModalPopupHeader(text: 'label_sign_in'.l10n);
+
+              children = [
+                PrimaryButton(
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {
+                    c.backStage = c.stage.value;
+                    c.stage.value = LoginViewStage.signIn;
+                  },
+                ),
+                const SizedBox(height: 25 / 2),
+                PrimaryButton(
+                  title: 'btn_one_time_account'.l10n,
+                  onPressed: c.register,
+                ),
+                const SizedBox(height: 16),
               ];
               break;
           }

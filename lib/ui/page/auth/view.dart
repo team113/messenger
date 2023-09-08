@@ -54,6 +54,11 @@ class AuthView extends StatelessWidget {
               onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
+            StyledCupertinoButton(
+              padding: const EdgeInsets.all(8),
+              label: 'btn_work_with_us'.l10n,
+              onPressed: () => router.work(null),
+            ),
           ],
         );
 
@@ -133,7 +138,6 @@ class AuthView extends StatelessWidget {
                 height: 26,
               ),
             ),
-
             onPressed: () {
               router.noIntroduction = false;
               c.register();

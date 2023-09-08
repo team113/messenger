@@ -70,26 +70,6 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).style;
 
-    final TextStyle textStyle =
-        (widget.style ?? style.fonts.labelMediumSecondary).copyWith(
-      fontSize: widget.tiny
-          ? 9
-          : widget.dense
-              ? 13
-              : widget.enlarge
-                  ? 17
-                  : 15,
-      color: (widget.color ??
-              (widget.style ?? style.fonts.labelMediumSecondary).color)
-          ?.withOpacity(
-        _clicked
-            ? 0.5
-            : _hovered
-                ? 0.7
-                : 1,
-      ),
-    );
-
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       opaque: false,

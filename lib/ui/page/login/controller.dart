@@ -51,7 +51,6 @@ enum LoginViewStage {
   signUpWithEmail,
   signUpWithEmailCode,
   signUpOrSignIn,
-
 }
 
 /// [GetxController] of a [LoginView].
@@ -361,7 +360,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      (onSuccess ?? router.home)();
+      router.home();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
@@ -399,7 +398,7 @@ class LoginController extends GetxController {
   Future<void> register() async {
     try {
       await _authService.register();
-      (onSuccess ?? router.home)();
+      router.home();
     } on ConnectionException {
       MessagePopup.error('err_data_transfer'.l10n);
     } catch (e) {
