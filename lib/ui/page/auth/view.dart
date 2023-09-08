@@ -133,6 +133,7 @@ class AuthView extends StatelessWidget {
                 height: 26,
               ),
             ),
+
             onPressed: () {
               router.noIntroduction = false;
               c.register();
