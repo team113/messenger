@@ -28,14 +28,12 @@ import '/store/pagination.dart';
 /// [PageProvider] fetching items from the [Hive].
 ///
 /// [HiveLazyProvider] must be initialized and disposed properly manually.
-class HivePageProvider<T extends Object, C, K extends Object, S>
+class HivePageProvider<T extends Object, C, K extends Object>
     implements PageProvider<T, C, K> {
   HivePageProvider(
     this._provider, {
     required this.getCursor,
     required this.getKey,
-    this.sortingProvider,
-    this.getSorting,
     this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
@@ -44,9 +42,6 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
 
   /// Callback, called when a key of the provided [T] is required.
   final K Function(T item) getKey;
-
-  /// Callback, called when a sorting data of the provided [T] is required.
-  final S Function(T item)? getSorting;
 
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T? item) getCursor;
@@ -66,9 +61,6 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
   /// [IterableHiveProvider] to fetch the items from.
   IterableHiveProvider<T, K> _provider;
 
-  /// [IterableHiveProvider] to fetch the items keys from.
-  IterableHiveProvider<K, S>? sortingProvider;
-
   /// Sets the provided [HiveLazyProvider] as the used one.
   set provider(IterableHiveProvider<T, K> value) => _provider = value;
 
@@ -83,54 +75,26 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
 
     Iterable<dynamic>? keys;
 
-    if (sortingProvider == null || getSorting == null) {
-      final Iterable<K> providerKeys = _provider.keys;
-      if (item != null) {
-        final K key = getKey(item);
-        final int initial = providerKeys.toList().indexOf(key);
+    final Iterable<K> providerKeys = _provider.keys;
+    if (item != null) {
+      final K key = getKey(item);
+      final int initial = providerKeys.toList().indexOf(key);
 
-        if (initial != -1) {
-          providerKeys.around(initial, count);
-        }
+      if (initial != -1) {
+        providerKeys.around(initial, count);
       }
+    }
 
-      switch (strategy) {
-        case PaginationStrategy.fromStart:
-          keys ??= providerKeys.take(count);
-          break;
+    switch (strategy) {
+      case PaginationStrategy.fromStart:
+        keys ??= providerKeys.take(count);
+        break;
 
-        case PaginationStrategy.fromEnd:
-          keys ??= providerKeys.skip(
-            (providerKeys.length - count).clamp(0, double.maxFinite.toInt()),
-          );
-          break;
-      }
-    } else {
-      Iterable<dynamic>? sortingKeys;
-      final Iterable<S> providerKeys = sortingProvider!.keys;
-
-      if (item != null) {
-        final S key = getSorting!(item);
-        final int initial = providerKeys.toList().indexOf(key);
-
-        if (initial != -1) {
-          providerKeys.around(initial, count);
-        }
-      }
-
-      switch (strategy) {
-        case PaginationStrategy.fromStart:
-          sortingKeys ??= providerKeys.take(count);
-          break;
-
-        case PaginationStrategy.fromEnd:
-          sortingKeys ??= providerKeys.skip(
-            (providerKeys.length - count).clamp(0, double.maxFinite.toInt()),
-          );
-          break;
-      }
-
-      keys = sortingKeys.map((e) => sortingProvider!.get(e));
+      case PaginationStrategy.fromEnd:
+        keys ??= providerKeys.skip(
+          (providerKeys.length - count).clamp(0, double.maxFinite.toInt()),
+        );
+        break;
     }
 
     List<T> items = [];
@@ -159,37 +123,18 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
       return null;
     }
 
-    if (sortingProvider == null || getSorting == null) {
-      final key = getKey(item);
-      final index = _provider.keys.toList().indexOf(key);
-      if (index != -1 && index < _provider.keys.length - 1) {
-        List<T> items = [];
-        for (var k in _provider.keys.after(index, count)) {
-          final T? item = await _provider.get(k);
-          if (item != null) {
-            items.add(item);
-          }
+    final key = getKey(item);
+    final index = _provider.keys.toList().indexOf(key);
+    if (index != -1 && index < _provider.keys.length - 1) {
+      List<T> items = [];
+      for (var k in _provider.keys.after(index, count)) {
+        final T? item = await _provider.get(k);
+        if (item != null) {
+          items.add(item);
         }
-
-        return reversed ? _page(items).reversed() : _page(items);
       }
-    } else {
-      final sorting = getSorting!(item);
-      final index = sortingProvider!.keys.toList().indexOf(sorting);
-      if (index != -1 && index < sortingProvider!.keys.length - 1) {
-        List<T> items = [];
-        for (var k in sortingProvider!.keys.after(index, count)) {
-          final K? key = await sortingProvider!.get(k);
-          if (key != null) {
-            final T? item = await _provider.get(key);
-            if (item != null) {
-              items.add(item);
-            }
-          }
-        }
 
-        return reversed ? _page(items).reversed() : _page(items);
-      }
+      return reversed ? _page(items).reversed() : _page(items);
     }
 
     return null;
@@ -209,40 +154,18 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
     if (item == null) {
       return null;
     }
-
-    if (sortingProvider == null || getSorting == null) {
-      final K key = getKey(item);
-      final int index = _provider.keys.toList().indexOf(key);
-      if (index > 0) {
-        List<T> items = [];
-        for (var i in _provider.keys.before(index, count)) {
-          final T? item = await _provider.get(i);
-          if (item != null) {
-            items.add(item);
-          }
+    final K key = getKey(item);
+    final int index = _provider.keys.toList().indexOf(key);
+    if (index > 0) {
+      List<T> items = [];
+      for (var i in _provider.keys.before(index, count)) {
+        final T? item = await _provider.get(i);
+        if (item != null) {
+          items.add(item);
         }
-
-        return reversed ? _page(items).reversed() : _page(items);
       }
-    } else {
-      final sorting = getSorting!(item);
-      final index = sortingProvider!.keys.toList().indexOf(sorting);
-      if (index > 0) {
-        List<T> items = [];
-        for (var k in sortingProvider!.keys.before(index, count)) {
-          final K? key = await sortingProvider!.get(k);
-          if (key != null) {
-            final T? item = await _provider.get(key);
-            if (item != null) {
-              items.add(item);
-            } else {
-              sortingProvider!.remove(k);
-            }
-          }
-        }
 
-        return reversed ? _page(items).reversed() : _page(items);
-      }
+      return reversed ? _page(items).reversed() : _page(items);
     }
 
     return null;
@@ -264,24 +187,14 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
 
     final T? firstItem = items.firstOrNull;
     if (firstItem != null && isFirst != null) {
-      if (sortingProvider == null || getSorting == null) {
-        hasPrevious = !isFirst!.call(firstItem) ||
-            getKey(items.first) != _provider.keys.first;
-      } else {
-        hasPrevious = !isFirst!.call(firstItem) ||
-            getSorting!(items.first) != sortingProvider!.keys.first;
-      }
+      hasPrevious = !isFirst!.call(firstItem) ||
+          getKey(items.first) != _provider.keys.first;
     }
 
     final T? lastItem = items.lastOrNull;
     if (lastItem != null && isLast != null) {
-      if (sortingProvider == null || getSorting == null) {
-        hasNext = !isLast!.call(lastItem) ||
-            getKey(items.last) != _provider.keys.last;
-      } else {
-        hasNext = !isLast!.call(lastItem) ||
-            getSorting!(items.last) != sortingProvider!.keys.last;
-      }
+      hasNext =
+          !isLast!.call(lastItem) || getKey(items.last) != _provider.keys.last;
     }
 
     return Page(

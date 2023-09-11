@@ -32,9 +32,7 @@ class Pagination<T, C, K extends Comparable> {
     this.perPage = 50,
     required this.provider,
     required this.onKey,
-    this.compare,
-    this.compareKeys = true,
-  }) : assert(compareKeys || compare != null);
+  });
 
   /// Items per [Page] to fetch.
   final int perPage;
@@ -60,14 +58,6 @@ class Pagination<T, C, K extends Comparable> {
   /// Callback, called when a key of type [K] identifying the provided [T] item
   /// is required.
   final K Function(T) onKey;
-
-  /// Callback, comparing the [T] items.
-  final int Function(T a, T b)? compare;
-
-  /// Indicator whether [items] should be sorted by their keys.
-  ///
-  /// If `false`, then [compare] is required.
-  final bool compareKeys;
 
   /// Cursor of the first item in the [items] list.
   @visibleForTesting
@@ -169,12 +159,7 @@ class Pagination<T, C, K extends Comparable> {
 
       if (items.isNotEmpty) {
         final Page<T, C>? page;
-        if (compareKeys) {
-          page =
-              await provider.after(items[items.lastKey()], endCursor, perPage);
-        } else {
-          page = await provider.after(_lastItem, endCursor, perPage);
-        }
+        page = await provider.after(items[items.lastKey()], endCursor, perPage);
         Log.print(
           'next()... fetched ${page?.edges.length} items',
           'Pagination',
@@ -207,15 +192,8 @@ class Pagination<T, C, K extends Comparable> {
       previousLoading.value = true;
 
       final Page<T, C>? page;
-      if (compareKeys) {
-        page = await provider.before(
-          items[items.firstKey()],
-          startCursor,
-          perPage,
-        );
-      } else {
-        page = await provider.before(_firstItem, startCursor, perPage);
-      }
+      page =
+          await provider.before(items[items.firstKey()], startCursor, perPage);
       Log.print(
         'previous()... fetched ${page?.edges.length} items',
         'Pagination',
@@ -255,30 +233,16 @@ class Pagination<T, C, K extends Comparable> {
       return;
     }
 
-    if (compareKeys) {
-      if (key.compareTo(items.lastKey()) == 1) {
-        if (hasNext.isFalse) {
-          await put();
-        }
-      } else if (key.compareTo(items.firstKey()) == -1) {
-        if (hasPrevious.isFalse) {
-          await put();
-        }
-      } else {
+    if (key.compareTo(items.lastKey()) == 1) {
+      if (hasNext.isFalse) {
+        await put();
+      }
+    } else if (key.compareTo(items.firstKey()) == -1) {
+      if (hasPrevious.isFalse) {
         await put();
       }
     } else {
-      if (_lastItem != null && compare!(item, _lastItem as T) == 1) {
-        if (hasNext.isFalse) {
-          await put();
-        }
-      } else if (_firstItem != null && compare!(item, _firstItem as T) == -1) {
-        if (hasPrevious.isFalse) {
-          await put();
-        }
-      } else {
-        await put();
-      }
+      await put();
     }
   }
 

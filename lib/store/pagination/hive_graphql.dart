@@ -25,7 +25,7 @@ import 'graphql.dart';
 import 'hive.dart';
 
 /// [HivePageProvider] and [GraphQlPageProvider] providers combined.
-class HiveGraphQlPageProvider<T extends Object, C, K extends Object, S>
+class HiveGraphQlPageProvider<T extends Object, C, K extends Object>
     implements PageProvider<T, C, K> {
   const HiveGraphQlPageProvider({
     required this.hiveProvider,
@@ -33,7 +33,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K extends Object, S>
   });
 
   /// [HivePageProvider] fetching elements from the [Hive].
-  final HivePageProvider<T, C, K, S> hiveProvider;
+  final HivePageProvider<T, C, K> hiveProvider;
 
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C, K> graphQlProvider;

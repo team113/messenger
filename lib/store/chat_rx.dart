@@ -119,8 +119,8 @@ class HiveRxChat extends RxChat {
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
-  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey,
-      dynamic> _provider;
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
+      _provider;
 
   /// Subscription to [User]s from the [members] list forming the [title].
   final Map<UserId, Worker> _userWorkers = {};
@@ -818,7 +818,7 @@ class HiveRxChat extends RxChat {
           final HiveChat? chat = await _chatLocal.get(id);
           if (chat != null) {
             chat.value.muted = null;
-            _chatRepository.putChat(chat);
+            _chatRepository.put(chat);
           }
         },
       );
@@ -1004,7 +1004,7 @@ class HiveRxChat extends RxChat {
         HiveChat? chatEntity = await _chatLocal.get(id);
         if (node.chat.ver > chatEntity?.ver) {
           chatEntity = node.chat;
-          _chatRepository.putChat(chatEntity);
+          _chatRepository.put(chatEntity);
           _lastReadItemCursor = node.chat.lastReadItemCursor;
         }
         break;
@@ -1355,7 +1355,7 @@ class HiveRxChat extends RxChat {
         }
 
         if (putChat) {
-          _chatRepository.putChat(chatEntity);
+          _chatRepository.put(chatEntity);
         }
         break;
     }

@@ -64,7 +64,7 @@ abstract class AbstractChatRepository {
   });
 
   /// Clears the stored [chats].
-  Future<void> clearCache();
+  Future<void> clear();
 
   /// Returns an [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id);
