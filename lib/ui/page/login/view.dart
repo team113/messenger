@@ -328,38 +328,32 @@ class LoginView extends StatelessWidget {
                   label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ReactiveTextField(
-                      key: const ValueKey('PasswordField'),
-                      state: c.password,
-                      label: 'label_password'.l10n,
-                      obscure: c.obscurePassword.value,
-                      onSuffixPressed: c.obscurePassword.toggle,
-                      treatErrorAsStatus: false,
-                      trailing: SvgImage.asset(
-                        'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                        width: 17.07,
-                      ),
-                      subtitle: WidgetButton(
-                        onPressed: () {
-                          c.recovery.clear();
-                          c.recoveryCode.clear();
-                          c.newPassword.clear();
-                          c.repeatPassword.clear();
-                          c.recovery.unchecked = c.login.text;
-                          c.recovered.value = false;
-                          c.stage.value = LoginViewStage.recovery;
-                        },
-                        child: Text(
-                          'btn_forgot_password'.l10n,
-                          style: style.fonts.bodySmallPrimary,
-                        ),
-                      ),
+                ReactiveTextField(
+                  key: const ValueKey('PasswordField'),
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgImage.asset(
+                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                  subtitle: WidgetButton(
+                    onPressed: () {
+                      c.recovery.clear();
+                      c.recoveryCode.clear();
+                      c.newPassword.clear();
+                      c.repeatPassword.clear();
+                      c.recovery.unchecked = c.login.text;
+                      c.recovered.value = false;
+                      c.stage.value = LoginViewStage.recovery;
+                    },
+                    child: Text(
+                      'btn_forgot_password'.l10n,
+                      style: style.fonts.bodySmallPrimary,
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {

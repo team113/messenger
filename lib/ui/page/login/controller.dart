@@ -248,8 +248,6 @@ class LoginController extends GetxController {
           await _authService.confirmEmailCode(
               ConfirmationCode(emailCode.text), creds!);
 
-          await _authService.authorizeWith(creds!);
-
           router.home();
         } on ConfirmUserEmailException catch (e) {
           switch (e.code) {

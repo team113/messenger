@@ -233,20 +233,6 @@ class AuthService extends GetxService {
         newPassword: newPassword,
       );
 
-  Future<void> authorizeWith(Credentials creds) {
-    status.value = RxStatus.loading();
-    return _tokenGuard.protect(() async {
-      try {
-        _authorized(creds);
-        _sessionProvider.setCredentials(creds);
-        status.value = RxStatus.success();
-      } catch (e) {
-        _unauthorized();
-        rethrow;
-      }
-    });
-  }
-
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser] (valid for 24 hours).
   ///
@@ -284,17 +270,31 @@ class AuthService extends GetxService {
     }
   }
 
+  /// Confirms the provided [ConfirmationCode] for the [MyUser] identified by
+  /// [Credentials].
   Future<void> confirmEmailCode(
       ConfirmationCode code, Credentials creds) async {
     try {
       await _authRepository.confirmEmailCode(code, creds);
+
+      _sessionProvider.setCredentials(creds);
     } catch (e) {
+      _unauthorized();
       rethrow;
     }
   }
 
-  Future<void> resendEmail(Credentials creds) async =>
+  /// Resends the confirmation [ConfirmationCode] to [MyUser]'s provided `email`.
+  Future<void> resendEmail(Credentials creds) async {
+    try {
+      _authorized(creds);
+
       await _authRepository.resendEmail(creds);
+    } catch (e) {
+      _unauthorized();
+      rethrow;
+    }
+  }
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).

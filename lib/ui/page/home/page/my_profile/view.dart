@@ -705,6 +705,7 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
+            old: true,
             text: (c.devices.video().firstWhereOrNull((e) =>
                             e.deviceId() == c.media.value?.videoDevice) ??
                         c.devices.video().firstOrNull)
@@ -729,6 +730,7 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
+            old: true,
             text: (c.devices.audio().firstWhereOrNull((e) =>
                             e.deviceId() == c.media.value?.audioDevice) ??
                         c.devices.audio().firstOrNull)
@@ -753,6 +755,7 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
+            old: true,
             text: (c.devices.output().firstWhereOrNull((e) =>
                             e.deviceId() == c.media.value?.outputDevice) ??
                         c.devices.output().firstOrNull)
@@ -783,6 +786,7 @@ Widget _language(BuildContext context, MyProfileController c) {
 
   return Paddings.dense(
     FieldButton(
+      old: true,
       key: const Key('ChangeLanguage'),
       onPressed: () => LanguageSelectionView.show(
         context,
@@ -805,6 +809,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         FieldButton(
+          old: true,
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
@@ -874,6 +879,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         FieldButton(
+          old: true,
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(

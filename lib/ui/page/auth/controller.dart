@@ -24,7 +24,6 @@ import 'package:rive/rive.dart';
 import '/domain/service/auth.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -34,8 +33,6 @@ class AuthController extends GetxController {
 
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
-
-  final RxInt system = RxInt(0);
 
   /// [SMITrigger] triggering the blinking animation.
   SMITrigger? blink;
@@ -51,27 +48,6 @@ class AuthController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
-
-  @override
-  void onInit() {
-    system.value = PlatformUtils.isIOS
-        ? 0
-        : PlatformUtils.isMacOS
-            ? 1
-            : PlatformUtils.isAndroid
-                ? 2
-                : PlatformUtils.isLinux
-                    ? 3
-                    : 4;
-    super.onInit();
-  }
-
-  void systemUp() {
-    system.value++;
-    if (system.value > 3) {
-      system.value = 0;
-    }
-  }
 
   @override
   void onClose() {
