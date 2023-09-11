@@ -61,7 +61,7 @@ Future<void> main() async {
   await Config.init();
   MediaKit.ensureInitialized();
 
-  // Initializes and runs the [App].
+  // Initializes and runs the [App]..
   Future<void> appRunner() async {
     WebUtils.setPathUrlStrategy();
 
