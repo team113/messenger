@@ -28,6 +28,7 @@ import '/ui/widget/custom_page.dart';
 import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
+import 'page/faq/view.dart';
 import 'page/my_profile/view.dart';
 import 'page/public/view.dart';
 import 'page/transaction/view.dart';
@@ -117,38 +118,44 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             name: Routes.me,
             child: VacancyWorkView(work),
           ));
-        } else if (route.startsWith('${Routes.public}/')) {
-          String id = route.replaceFirst('${Routes.public}/', '');
-          pages.add(CustomPage(
-            key: ValueKey('PublicPage$id'),
-            name: '${Routes.public}/$id',
-            child: PublicView(ChatId(id)),
-          ));
+        }
+      } else if (route.startsWith('${Routes.public}/')) {
+        String id = route.replaceFirst('${Routes.public}/', '');
+        pages.add(CustomPage(
+          key: ValueKey('PublicPage$id'),
+          name: '${Routes.public}/$id',
+          child: PublicView(ChatId(id)),
+        ));
 
-          if (route.endsWith(Routes.chatInfo)) {
-            pages.add(CustomPage(
-              key: ValueKey('ChatInfoPage$id'),
-              name: '${Routes.public}/$id${Routes.chatInfo}',
-              child: ChatInfoView(ChatId(id)),
-            ));
-          }
-        } else if (route.startsWith('${Routes.balance}/')) {
-          final provider = route.replaceFirst('${Routes.balance}/', '');
+        if (route.endsWith(Routes.chatInfo)) {
           pages.add(CustomPage(
-            key: ValueKey('BalancePage$provider'),
-            name: '${Routes.balance}/$provider',
-            child: BalanceProviderView(
-              BalanceProvider.values.firstWhere((e) => e.name == provider),
-            ),
-          ));
-        } else if (route.startsWith('${Routes.transaction}/')) {
-          final id = route.replaceFirst('${Routes.transaction}/', '');
-          pages.add(CustomPage(
-            key: ValueKey('TransactionPage$id'),
-            name: '${Routes.transaction}/$id',
-            child: TransactionView(id),
+            key: ValueKey('ChatInfoPage$id'),
+            name: '${Routes.public}/$id${Routes.chatInfo}',
+            child: ChatInfoView(ChatId(id)),
           ));
         }
+      } else if (route.startsWith('${Routes.balance}/')) {
+        final provider = route.replaceFirst('${Routes.balance}/', '');
+        pages.add(CustomPage(
+          key: ValueKey('BalancePage$provider'),
+          name: '${Routes.balance}/$provider',
+          child: BalanceProviderView(
+            BalanceProvider.values.firstWhere((e) => e.name == provider),
+          ),
+        ));
+      } else if (route.startsWith('${Routes.transaction}/')) {
+        final id = route.replaceFirst('${Routes.transaction}/', '');
+        pages.add(CustomPage(
+          key: ValueKey('TransactionPage$id'),
+          name: '${Routes.transaction}/$id',
+          child: TransactionView(id),
+        ));
+      } else if (route == Routes.faq) {
+        pages.add(const CustomPage(
+          key: ValueKey('FaqPage'),
+          name: Routes.faq,
+          child: FaqView(),
+        ));
       }
     }
 

@@ -51,11 +51,12 @@ class WorkTabView extends StatelessWidget {
                   height: double.infinity,
                   child: Center(child: child),
                 ),
-                onPressed: router.auth,
+                onPressed: router.faq,
                 child: Center(
                   child: Icon(
-                    Icons.handshake_outlined,
+                    Icons.question_mark_rounded,
                     color: style.colors.primary,
+                    size: 22,
                   ),
                 ),
               ),
@@ -80,80 +81,83 @@ class WorkTabView extends StatelessWidget {
             child: ListView(
               controller: c.scrollController,
               children: [
-                VacancyWidget(
-                  'Баланс: \$9999.99',
-                  trailing: [
-                    Column(
-                      children: [
-                        SvgImage.asset(
-                          'assets/icons/external_link_blue.svg',
-                          height: 16,
-                          width: 16,
-                        ),
-                        const SizedBox(height: 21),
-                      ],
-                    ),
-                  ],
-                  subtitle: [
-                    // const SizedBox(height: 4),
-                    Text(
-                      // '\$${c.balance.value / 100}',
-                      'Вывести деньги',
-                      style: style.fonts.bodySmallSecondary,
-                    )
-                  ],
-                  onPressed: () async {
-                    await launchUrl(
-                      Uri.https('google.com', 'search', {'q': 'withdraw'}),
-                    );
-                  },
-                ),
-                VacancyWidget(
-                  'Транзакции',
-                  subtitle: [
-                    Text.rich(
-                      TextSpan(
+                if (false)
+                  VacancyWidget(
+                    'Баланс: \$9999.99',
+                    trailing: const [
+                      Column(
                         children: [
-                          TextSpan(
-                            text: 'Новых транзакций: ',
-                            style: style.fonts.bodySmall
-                                .copyWith(color: style.colors.secondary),
+                          SvgImage.asset(
+                            'assets/icons/external_link_blue.svg',
+                            height: 16,
+                            width: 16,
                           ),
-                          TextSpan(
-                            text: '4',
-                            style: style.fonts.bodySmall
-                                .copyWith(color: style.colors.dangerColor),
-                          ),
+                          const SizedBox(height: 21),
                         ],
                       ),
-                    ),
-                  ],
-                  trailing: const [
-                    Column(
-                      children: [
-                        SvgImage.asset(
-                          'assets/icons/external_link_blue.svg',
-                          height: 16,
-                          width: 16,
+                    ],
+                    subtitle: [
+                      // const SizedBox(height: 4),
+                      Text(
+                        // '\$${c.balance.value / 100}',
+                        'Вывести деньги',
+                        style: style.fonts.bodySmallSecondary,
+                      )
+                    ],
+                    onPressed: () async {
+                      await launchUrl(
+                        Uri.https('google.com', 'search', {'q': 'withdraw'}),
+                      );
+                    },
+                  ),
+                if (false)
+                  VacancyWidget(
+                    'Транзакции',
+                    subtitle: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Новых транзакций: ',
+                              style: style.fonts.bodySmall
+                                  .copyWith(color: style.colors.secondary),
+                            ),
+                            TextSpan(
+                              text: '4',
+                              style: style.fonts.bodySmall
+                                  .copyWith(color: style.colors.dangerColor),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 21),
-                      ],
-                    ),
-                  ],
-                  onPressed: () async {
-                    await launchUrl(
-                      Uri.https(
-                        'google.com',
-                        'search',
-                        {'q': 'transactions'},
                       ),
-                    );
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
-                  child: Center(child: Text('Работайте с нами')),
-                ),
+                    ],
+                    trailing: const [
+                      Column(
+                        children: [
+                          SvgImage.asset(
+                            'assets/icons/external_link_blue.svg',
+                            height: 16,
+                            width: 16,
+                          ),
+                          SizedBox(height: 21),
+                        ],
+                      ),
+                    ],
+                    onPressed: () async {
+                      await launchUrl(
+                        Uri.https(
+                          'google.com',
+                          'search',
+                          {'q': 'transactions'},
+                        ),
+                      );
+                    },
+                  ),
+                if (false)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
+                    child: Center(child: Text('Работайте с нами')),
+                  ),
                 ...WorkTab.values.map((e) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),

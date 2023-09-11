@@ -171,6 +171,10 @@ class _HomeViewState extends State<HomeView> {
                           onPageChanged: (int i) {
                             router.tab = HomeTab.values[i];
                             c.page.value = router.tab;
+
+                            if (router.route == Routes.me) {
+                              router.pop();
+                            }
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: [
@@ -454,7 +458,9 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ],
                             currentIndex: router.tab.index,
-                            onTap: c.pages.jumpToPage,
+                            onTap: (i) {
+                              c.pages.jumpToPage(i);
+                            },
                           ),
                         );
                       }),

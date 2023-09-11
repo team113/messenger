@@ -90,6 +90,7 @@ class Routes {
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
+  static const faq = '/faq';
   static const funds = '/funds';
   static const home = '/';
   static const me = '/me';
@@ -268,6 +269,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.user ||
             routes.last == Routes.balance ||
             routes.last == Routes.transaction ||
+            routes.last == Routes.faq ||
             routes.last == Routes.vacancy) {
           routes.last = Routes.home;
         }
@@ -344,7 +346,7 @@ class AppRouteInformationParser
     String route = routeInformation.uri.path;
     HomeTab? tab;
 
-    if (route.startsWith(Routes.work)) {
+    if (route.startsWith(Routes.work) || route == Routes.faq) {
       tab = HomeTab.work;
     } else if (route.startsWith(Routes.contacts)) {
       tab = HomeTab.contacts;
@@ -771,6 +773,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.public) ||
         _state.route.startsWith(Routes.balance) ||
+        _state.route.startsWith(Routes.faq) ||
         _state.route.startsWith(Routes.transaction) ||
         _state.route.startsWith(Routes.style) ||
         _state.route.startsWith(Routes.vacancy) ||
@@ -948,6 +951,8 @@ extension RouteLinks on RouterState {
 
     arguments = {'welcomeMessage': welcome};
   }
+
+  void faq({bool push = false}) => (push ? this.push : go)(Routes.faq);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].
