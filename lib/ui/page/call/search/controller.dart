@@ -30,6 +30,8 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
+import '/store/model/contact.dart';
+import '/store/model/user.dart';
 import '/ui/widget/text_field.dart';
 
 export 'view.dart';
@@ -79,10 +81,12 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<SearchResult<RxUser>?> usersSearchResult = Rx(null);
+  final Rx<SearchResult<UserId, RxUser, UsersCursor>?> usersSearchResult =
+      Rx(null);
 
   /// [ChatContact]s search results.
-  final Rx<SearchResult<RxChatContact>?> contactsSearchResult = Rx(null);
+  final Rx<SearchResult<ChatContactId, RxChatContact, ChatContactsCursor>?>
+      contactsSearchResult = Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -328,7 +332,7 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final SearchResult<RxUser> result =
+        final SearchResult<UserId, RxUser, UsersCursor> result =
             _userService.search(num: num, name: name, login: login);
 
         usersSearchResult.value?.dispose();
@@ -391,7 +395,8 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final SearchResult<RxChatContact> result =
+        final SearchResult<ChatContactId, RxChatContact, ChatContactsCursor>
+            result =
             _contactService.search(name: name, email: email, phone: phone);
 
         contactsSearchResult.value?.dispose();
@@ -478,56 +483,22 @@ class SearchController extends GetxController {
 
   /// Updates the [contacts] according to the [query].
   void _populateContacts() {
-    if (categories.contains(SearchCategory.contact)) {
-      Map<UserId, RxChatContact> allContacts;
+    if (categories.contains(SearchCategory.contact) &&
+        contactsSearchResult.value?.items.isNotEmpty == true) {
+      Map<UserId, RxChatContact> allContacts = {
+        for (var u in contactsSearchResult.value!.items.values.where((e) {
+          if (e.user.value != null &&
+              chat?.members.containsKey(e.id) != true &&
+              !recent.containsKey(e.id) &&
+              chats.values.none((c) =>
+                  c.chat.value.isDialog && c.members.containsKey(e.id))) {
+            return true;
+          }
 
-      if (contactsSearchResult.value?.items.isNotEmpty == true) {
-        allContacts = {
-          for (var u in contactsSearchResult.value!.items.where((e) {
-            if (e.user.value != null &&
-                chat?.members.containsKey(e.id) != true &&
-                !recent.containsKey(e.id) &&
-                chats.values.none((c) =>
-                    c.chat.value.isDialog && c.members.containsKey(e.id))) {
-              return true;
-            }
-
-            return false;
-          }))
-            u.user.value!.id: u,
-        };
-      } else {
-        allContacts = {
-          for (var u in {
-            ..._contactService.favorites,
-            ..._contactService.contacts,
-          }.values.where((e) {
-            if (e.user.value != null) {
-              RxUser? user = e.user.value;
-
-              if (chat?.members.containsKey(user?.id) != true &&
-                  !recent.containsKey(user?.id) &&
-                  chats.values.none((c) =>
-                      c.chat.value.isDialog &&
-                      c.members.containsKey(user?.id))) {
-                if (query.value.isNotEmpty) {
-                  if (e.contact.value.name.val
-                          .toLowerCase()
-                          .contains(query.value.toLowerCase()) ==
-                      true) {
-                    return true;
-                  }
-                } else {
-                  return true;
-                }
-              }
-            }
-
-            return false;
-          }))
-            u.user.value!.id: u,
-        };
-      }
+          return false;
+        }))
+          u.user.value!.id: u,
+      };
 
       contacts.value = {
         for (var u in selectedContacts.where((e) {
@@ -556,56 +527,23 @@ class SearchController extends GetxController {
   /// Updates the [users] according to the [query].
   void _populateUsers() {
     if (categories.contains(SearchCategory.user) &&
-        (contactsSearchResult.value == null ||
-            contactsSearchResult.value!.hasNext.isFalse)) {
-      Map<UserId, RxUser> allUsers;
+        usersSearchResult.value?.items.isNotEmpty == true &&
+        (!categories.contains(SearchCategory.contact) ||
+            contactsSearchResult.value?.hasNext.value == false)) {
+      Map<UserId, RxUser> allUsers = {
+        for (var u in usersSearchResult.value!.items.values.where((e) {
+          if (chat?.members.containsKey(e.id) != true &&
+              !recent.containsKey(e.id) &&
+              !contacts.containsKey(e.id) &&
+              chats.values.none((c) =>
+                  c.chat.value.isDialog && c.members.containsKey(e.id))) {
+            return true;
+          }
 
-      if (usersSearchResult.value?.items.isNotEmpty == true) {
-        allUsers = {
-          for (var u in usersSearchResult.value!.items.where((e) {
-            if (chat?.members.containsKey(e.id) != true &&
-                !recent.containsKey(e.id) &&
-                !contacts.containsKey(e.id) &&
-                chats.values.none((c) =>
-                    c.chat.value.isDialog && c.members.containsKey(e.id))) {
-              return true;
-            }
-
-            return false;
-          }))
-            u.id: u,
-        };
-      } else {
-        allUsers = {
-          for (var u in _chatService.chats.values.map((e) {
-            if (e.chat.value.isDialog) {
-              RxUser? user = e.members.values
-                  .firstWhereOrNull((u) => u.user.value.id != me);
-
-              if (chat?.members.containsKey(user?.id) != true &&
-                  !recent.containsKey(user?.id) &&
-                  !contacts.containsKey(user?.id) &&
-                  chats.values.none((c) =>
-                      c.chat.value.isDialog &&
-                      c.members.containsKey(user?.id))) {
-                if (query.value.isNotEmpty) {
-                  if (user?.user.value.name?.val
-                          .toLowerCase()
-                          .contains(query.value.toLowerCase()) ==
-                      true) {
-                    return user;
-                  }
-                } else {
-                  return user;
-                }
-              }
-            }
-
-            return null;
-          }).whereNotNull())
-            u.id: u
-        };
-      }
+          return false;
+        }))
+          u.id: u,
+      };
 
       users.value = {
         for (var u in selectedUsers.where((e) {
@@ -650,7 +588,12 @@ class SearchController extends GetxController {
     if (categories.contains(SearchCategory.contact) &&
         contactsSearchResult.value?.hasNext.value == true &&
         contactsSearchResult.value?.nextLoading.value == false) {
+      int length = contactsSearchResult.value!.items.length;
+
       await contactsSearchResult.value!.next();
+      if (length == contactsSearchResult.value!.items.length) {
+        await _nextContacts();
+      }
     }
   }
 
@@ -663,7 +606,12 @@ class SearchController extends GetxController {
         _searchUsers(query.value);
       } else if (usersSearchResult.value!.hasNext.isTrue &&
           usersSearchResult.value!.nextLoading.isFalse) {
+        int length = usersSearchResult.value!.items.length;
+
         await usersSearchResult.value!.next();
+        if (length == usersSearchResult.value!.items.length) {
+          await _nextUsers();
+        }
       }
     }
   }

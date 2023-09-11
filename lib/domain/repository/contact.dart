@@ -87,12 +87,12 @@ abstract class AbstractContactRepository {
   /// Searches [ChatContact]s by the provided [UserEmail].
   ///
   /// This is an exact match search.
-  Future<List<RxChatContact>> searchByEmail(UserEmail email);
+  Future<RxChatContact?> searchByEmail(UserEmail email);
 
   /// Searches [ChatContact]s by the provided [UserPhone].
   ///
   /// This is an exact match search.
-  Future<List<RxChatContact>> searchByPhone(UserPhone phone);
+  Future<RxChatContact?> searchByPhone(UserPhone phone);
 }
 
 /// Unified reactive [ChatContact] entity.

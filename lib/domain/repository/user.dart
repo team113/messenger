@@ -45,17 +45,17 @@ abstract class AbstractUserRepository {
   /// Searches [User]s by the provided [UserNum].
   ///
   /// This is an exact match search.
-  Future<List<RxUser>> searchByNum(UserNum num);
+  Future<RxUser?> searchByNum(UserNum num);
 
   /// Searches [User]s by the provided [UserLogin].
   ///
   /// This is an exact match search.
-  Future<List<RxUser>> searchByLogin(UserLogin login);
+  Future<RxUser?> searchByLogin(UserLogin login);
 
   /// Searches [User]s by the provided [ChatDirectLinkSlug].
   ///
   /// This is an exact match search.
-  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link);
+  Future<RxUser?> searchByLink(ChatDirectLinkSlug link);
 
   /// Searches [User]s by the provided [UserName].
   ///

@@ -92,13 +92,7 @@ class Pagination<T, C, K extends Comparable> {
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {
-    final bool locked = _guard.isLocked;
-
     return _guard.protect(() async {
-      if (locked) {
-        return;
-      }
-
       final Page<T, C>? page = await provider.init(item, perPage);
       Log.print(
         'init(item: $item)... \n'
@@ -126,13 +120,7 @@ class Pagination<T, C, K extends Comparable> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
-    final bool locked = _guard.isLocked;
-
     return _guard.protect(() async {
-      if (locked) {
-        return;
-      }
-
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
@@ -159,7 +147,7 @@ class Pagination<T, C, K extends Comparable> {
   }
 
   /// Fetches a next page of the [items].
-  FutureOr<void> next() async {
+  Future<void> next() async {
     final bool locked = _nextGuard.isLocked;
 
     return _nextGuard.protect(() async {
@@ -203,7 +191,7 @@ class Pagination<T, C, K extends Comparable> {
   }
 
   /// Fetches a previous page of the [items].
-  FutureOr<void> previous() async {
+  Future<void> previous() async {
     final bool locked = _previousGuard.isLocked;
 
     return _previousGuard.protect(() async {
@@ -261,11 +249,11 @@ class Pagination<T, C, K extends Comparable> {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.lastKey()!) == 1) {
+    } else if (key.compareTo(items.lastKey()) == 1) {
       if (hasNext.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.firstKey()!) == -1) {
+    } else if (key.compareTo(items.firstKey()) == -1) {
       if (hasPrevious.isFalse) {
         await put();
       }

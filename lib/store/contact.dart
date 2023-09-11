@@ -247,15 +247,16 @@ class ContactRepository implements AbstractContactRepository {
       _search(name: name, after: after, first: first);
 
   @override
-  Future<List<RxChatContact>> searchByEmail(UserEmail email) async =>
-      (await _search(email: email)).edges;
+  Future<RxChatContact?> searchByEmail(UserEmail email) async =>
+      (await _search(email: email)).edges.firstOrNull;
 
   @override
-  Future<List<RxChatContact>> searchByPhone(UserPhone phone) async =>
-      (await _search(phone: phone)).edges;
+  Future<RxChatContact?> searchByPhone(UserPhone phone) async =>
+      (await _search(phone: phone)).edges.firstOrNull;
 
   @override
   RxChatContact? get(ChatContactId id) {
+    // TODO: Get [ChatContact] from remote if it's not stored locally.
     return contacts[id] ?? favorites[id];
   }
 

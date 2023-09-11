@@ -98,16 +98,16 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<List<RxUser>> searchByNum(UserNum num) async =>
-      (await _search(num: num)).edges;
+  Future<RxUser?> searchByNum(UserNum num) async =>
+      (await _search(num: num)).edges.firstOrNull;
 
   @override
-  Future<List<RxUser>> searchByLogin(UserLogin login) async =>
-      (await _search(login: login)).edges;
+  Future<RxUser?> searchByLogin(UserLogin login) async =>
+      (await _search(login: login)).edges.firstOrNull;
 
   @override
-  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) async =>
-      (await _search(link: link)).edges;
+  Future<RxUser?> searchByLink(ChatDirectLinkSlug link) async =>
+      (await _search(link: link)).edges.firstOrNull;
 
   @override
   Future<Page<RxUser, UsersCursor>> searchByName(

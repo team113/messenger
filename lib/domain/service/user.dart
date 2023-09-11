@@ -54,7 +54,7 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  SearchResult<RxUser> search({
+  SearchResult<UserId, RxUser, UsersCursor> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -75,7 +75,7 @@ class UserService extends DisposableService {
         onKey: (RxUser u) => u.id,
       );
     }
-    final SearchResult<RxUser> searchResult =
+    final SearchResult<UserId, RxUser, UsersCursor> searchResult =
         SearchResult(pagination: pagination);
 
     if (num == null && name == null && login == null && link == null) {
@@ -85,16 +85,21 @@ class UserService extends DisposableService {
     final List<RxUser> users = _userRepository.users.values
         .where((u) =>
             (num != null && u.user.value.num == num) ||
-            (name != null && u.user.value.name?.val.contains(name.val) == true))
+            (name != null &&
+                u.user.value.name?.val
+                        .toLowerCase()
+                        .contains(name.val.toLowerCase()) ==
+                    true))
         .toList();
 
-    searchResult.items.value = users;
+    searchResult.items.value = {for (var u in users) u.id: u};
     searchResult.status.value =
         users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
-    void add(List<RxUser> u) {
-      Set<RxUser> users = searchResult.items.toSet()..addAll(u);
-      searchResult.items.value = users.toList();
+    void add(RxUser? u) {
+      if (u != null) {
+        searchResult.items[u.id] = u;
+      }
     }
 
     List<Future> futures = [
@@ -103,10 +108,6 @@ class UserService extends DisposableService {
       if (login != null) _userRepository.searchByLogin(login).then(add),
       if (link != null) _userRepository.searchByLink(link).then(add),
     ];
-
-    if (name != null) {
-      futures.add(pagination!.around());
-    }
 
     Future.wait(futures)
         .then((_) => searchResult.status.value = RxStatus.success());
@@ -130,13 +131,13 @@ class UserService extends DisposableService {
 }
 
 /// Result of a search query.
-class SearchResult<T> {
+class SearchResult<K extends Comparable, T, C> {
   SearchResult({this.pagination}) {
     if (pagination != null) {
       _paginationSubscription = pagination!.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
-            items.add(event.value as T);
+            items[event.key!] = event.value as T;
             break;
 
           case OperationKind.removed:
@@ -148,8 +149,8 @@ class SearchResult<T> {
     }
   }
 
-  /// Found [RxUser]s themselves.
-  final RxList<T> items = RxList<T>();
+  /// Found [T] items themselves.
+  final RxMap<K, T> items = RxMap<K, T>();
 
   /// Reactive [RxStatus] of [items] being fetched.
   ///
@@ -162,7 +163,7 @@ class SearchResult<T> {
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Pagination fetching [items].
-  final Pagination<T, dynamic, dynamic>? pagination;
+  final Pagination<T, C, K>? pagination;
 
   /// [StreamSubscription] to the [Pagination.changes].
   StreamSubscription? _paginationSubscription;

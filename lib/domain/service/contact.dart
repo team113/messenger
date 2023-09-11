@@ -87,7 +87,7 @@ class ContactService extends DisposableService {
       _contactRepository.unfavoriteChatContact(id);
 
   /// Searches [ChatContact]s by the given criteria.
-  SearchResult<RxChatContact> search({
+  SearchResult<ChatContactId, RxChatContact, ChatContactsCursor> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,
@@ -107,10 +107,10 @@ class ContactService extends DisposableService {
         onKey: (RxChatContact u) => u.id,
       );
     }
-    final SearchResult<RxChatContact> searchResult =
-        SearchResult(pagination: pagination);
+    final SearchResult<ChatContactId, RxChatContact, ChatContactsCursor>
+        searchResult = SearchResult(pagination: pagination);
 
-    if (phone == null && name == null && email == null) {
+    if (name == null && email == null && phone == null) {
       return searchResult;
     }
 
@@ -121,22 +121,26 @@ class ContactService extends DisposableService {
         .where((u) =>
             (phone != null && u.contact.value.phones.contains(phone)) ||
             (name != null &&
-                u.contact.value.name.val.contains(name.val) == true))
+                u.contact.value.name.val
+                        .toLowerCase()
+                        .contains(name.val.toLowerCase()) ==
+                    true))
         .toList();
 
-    searchResult.items.value = contacts;
+    searchResult.items.value = {for (var u in contacts) u.id: u};
     searchResult.status.value =
         contacts.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
-    void add(List<RxChatContact> c) {
-      Set<RxChatContact> contacts = searchResult.items.toSet()..addAll(c);
-      searchResult.items.value = contacts.toList();
+    void add(RxChatContact? c) {
+      if (c != null) {
+        searchResult.items[c.id] = c;
+      }
     }
 
     List<Future> futures = [
       if (name != null) searchResult.pagination!.around(),
-      if (phone != null) _contactRepository.searchByPhone(phone).then(add),
       if (email != null) _contactRepository.searchByEmail(email).then(add),
+      if (phone != null) _contactRepository.searchByPhone(phone).then(add),
     ];
 
     Future.wait(futures)
