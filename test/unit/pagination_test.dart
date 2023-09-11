@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
-import 'package:messenger/api/backend/extension/common.dart';
+import 'package:messenger/api/backend/extension/page_info.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';

@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '/api/backend/extension/common.dart';
+import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';

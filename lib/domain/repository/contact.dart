@@ -44,7 +44,7 @@ abstract class AbstractContactRepository {
   /// Disposes this repository.
   void dispose();
 
-  /// Returns an [ChatContact] by the provided [id].
+  /// Returns a [ChatContact] by the provided [id].
   RxChatContact? get(ChatContactId id);
 
   /// Clears the stored [contacts].
