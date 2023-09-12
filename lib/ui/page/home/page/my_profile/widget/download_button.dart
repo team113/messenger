@@ -17,13 +17,11 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../login/widget/prefix_button.dart';
 import '/config.dart';
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 /// [FieldButton] stylized with the provided [asset] and [title] downloading a
@@ -57,29 +55,22 @@ class DownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return FieldButton(
+    return PrefixButton(
       text: title,
-      textAlign: TextAlign.center,
       onPressed: link == null
           ? null
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
-      onTrailingPressed: () {
-        if (link != null) {
-          PlatformUtils.copy(text: '${Config.origin}/artifacts/$link');
-          MessagePopup.success('label_copied'.l10n);
-        }
-      },
       prefix: asset == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(left: 4),
+              padding: const EdgeInsets.only(left: 20),
               child: SvgImage.asset(
                 'assets/icons/$asset.svg',
                 width: width,
                 height: height,
               ),
             ),
-      style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
+      style: style.fonts.titleMediumPrimary,
     );
   }
 }

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/ui/page/home/widget/field_button.dart';
 
@@ -43,15 +44,69 @@ class PrefixButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final BorderRadius borderRadius = BorderRadius.circular(
+      15 * 0.72,
+    );
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
-        FieldButton(
-          text: text,
-          maxLines: null,
-          style: style,
-          onPressed: onPressed,
-          textAlign: TextAlign.center,
+        Container(
+          constraints: const BoxConstraints(
+            maxWidth: double.infinity,
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: style.colors.onPrimary,
+            borderRadius: borderRadius,
+            border: Border.all(
+              width: 0.5,
+              color: style.colors.secondary,
+            ),
+          ),
+          child: Material(
+            color: style.colors.transparent,
+            borderRadius: borderRadius,
+            child: InkWell(
+              borderRadius: borderRadius,
+              onTap: onPressed,
+              hoverColor: style.colors.onBackgroundOpacity7,
+              child: Container(
+                constraints: const BoxConstraints(
+                  minHeight: 46,
+                  maxHeight: double.infinity,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8 * 0.7,
+                  vertical: 6 * 0.7,
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: style.fonts.titleLarge.copyWith(
+                          color: onPressed == null
+                              ? style.colors.onBackgroundOpacity40
+                              : style.colors.onBackground,
+                        ),
+                        child: Center(
+                          child: Text(
+                            text,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
         if (prefix != null) IgnorePointer(child: prefix!),
       ],

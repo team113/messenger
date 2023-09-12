@@ -314,7 +314,6 @@ Widget _emails(BuildContext context, MyProfileController c) {
           children: [
             FieldButton(
               key: const Key('ConfirmedEmail'),
-              old: true,
               text: e.val,
               hint: 'label_email'.l10n,
               onPressed: () {
@@ -389,7 +388,6 @@ Widget _emails(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.emails.unconfirmed != null) {
       widgets.addAll([
         FieldButton(
-          old: true,
           key: const Key('UnconfirmedEmail'),
           text: c.myUser.value!.emails.unconfirmed!.val,
           hint: 'label_verify_email'.l10n,
@@ -419,7 +417,6 @@ Widget _emails(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.emails.unconfirmed == null) {
       widgets.add(
         FieldButton(
-          old: true,
           key: c.myUser.value?.emails.confirmed.isNotEmpty == true
               ? const Key('AddAdditionalEmail')
               : const Key('AddEmail'),
@@ -456,7 +453,6 @@ Widget _phones(BuildContext context, MyProfileController c) {
           mainAxisSize: MainAxisSize.min,
           children: [
             FieldButton(
-              old: true,
               text: e.val,
               hint: 'label_phone_number'.l10n,
               trailing: Transform.translate(
@@ -531,7 +527,6 @@ Widget _phones(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.phones.unconfirmed != null) {
       widgets.addAll([
         FieldButton(
-          old: true,
           key: const Key('UnconfirmedPhone'),
           text: c.myUser.value!.phones.unconfirmed!.val,
           hint: 'label_verify_number'.l10n,
@@ -561,7 +556,6 @@ Widget _phones(BuildContext context, MyProfileController c) {
     if (c.myUser.value?.phones.unconfirmed == null) {
       widgets.add(
         FieldButton(
-          old: true,
           key: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? const Key('AddAdditionalPhone')
               : const Key('AddPhone'),
@@ -592,7 +586,6 @@ Widget _presence(BuildContext context, MyProfileController c) {
 
     return Paddings.basic(
       FieldButton(
-        old: true,
         onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),
@@ -615,7 +608,6 @@ Widget _password(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            old: true,
             key: c.myUser.value?.hasPassword == true
                 ? const Key('ChangePassword')
                 : const Key('SetPassword'),
@@ -657,7 +649,6 @@ Widget _chats(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            old: true,
             text: (c.settings.value?.timelineEnabled ?? true)
                 ? 'label_as_timeline'.l10n
                 : 'label_in_message'.l10n,
@@ -681,7 +672,6 @@ Widget _call(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            old: true,
             text: (c.settings.value?.enablePopups ?? true)
                 ? 'label_open_calls_in_window'.l10n
                 : 'label_open_calls_in_app'.l10n,
@@ -705,7 +695,6 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            old: true,
             text: (c.devices.video().firstWhereOrNull((e) =>
                             e.deviceId() == c.media.value?.videoDevice) ??
                         c.devices.video().firstOrNull)
@@ -730,7 +719,6 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            old: true,
             text: (c.devices.audio().firstWhereOrNull((e) =>
                             e.deviceId() == c.media.value?.audioDevice) ??
                         c.devices.audio().firstOrNull)
@@ -755,7 +743,6 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            old: true,
             text: (c.devices.output().firstWhereOrNull((e) =>
                             e.deviceId() == c.media.value?.outputDevice) ??
                         c.devices.output().firstOrNull)
@@ -786,7 +773,6 @@ Widget _language(BuildContext context, MyProfileController c) {
 
   return Paddings.dense(
     FieldButton(
-      old: true,
       key: const Key('ChangeLanguage'),
       onPressed: () => LanguageSelectionView.show(
         context,
@@ -809,7 +795,6 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         FieldButton(
-          old: true,
           text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
@@ -879,7 +864,6 @@ Widget _danger(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         FieldButton(
-          old: true,
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
@@ -951,7 +935,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 ),
                 const SizedBox(height: 8),
                 FieldButton(
-                  old: true,
                   onPressed: c.clearCache,
                   text: 'btn_clear_cache'.l10n,
                   style: style.fonts.titleMediumPrimary,
