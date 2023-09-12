@@ -20,11 +20,11 @@ String? idFormat(String? userId) {
   if (userId == null) return null;
 
   String modifiedUserId = '';
-  for (int i = 0; i < userId.length; i++) {
-    if (i > 0 && i % 4 == 0) {
+  for (int i = 0; i < userId.length; i += 4) {
+    modifiedUserId += userId.substring(i, i + 4);
+    if (i + 4 < userId.length) {
       modifiedUserId += ' ';
     }
-    modifiedUserId += userId[i];
   }
   return modifiedUserId;
 }
