@@ -106,7 +106,6 @@ class LoginController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   /// [LoginViewStage] currently being displayed.
-
   final Rx<LoginViewStage> stage;
 
   /// Amount of attempts to sign in with a wrong password.

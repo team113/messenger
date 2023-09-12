@@ -162,6 +162,7 @@ class AuthView extends StatelessWidget {
         );
 
         return Listener(
+          key: const Key('AuthView'),
           onPointerDown: (_) => c.animate(),
           child: Container(
             color: style.colors.transparent,

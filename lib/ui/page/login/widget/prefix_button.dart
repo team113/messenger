@@ -18,9 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 
-import '/ui/page/home/widget/field_button.dart';
-
-/// [FieldButton] stylized with the provided [prefix] widget.
+/// Stylized button with the optional [prefix] widget.
 class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,

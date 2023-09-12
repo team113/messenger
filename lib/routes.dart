@@ -674,7 +674,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
         name: Routes.auth,
-        child: AuthView(key: ValueKey('AuthView')),
+        child: AuthView(),
       ));
     }
 
