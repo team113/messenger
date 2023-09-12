@@ -35,7 +35,7 @@ part 'chat.g.dart';
 
 /// [Chat] is a conversation between [User]s.
 @HiveType(typeId: ModelTypeId.chat)
-class Chat extends HiveObject implements Comparable<Chat> {
+class Chat extends HiveObject {
   Chat(
     this.id, {
     this.avatar,
@@ -245,33 +245,6 @@ class Chat extends HiveObject implements Comparable<Chat> {
             ?.at
             .isBefore(item.at) ==
         false;
-  }
-
-  @override
-  int compareTo(Chat other, {UserId? me}) {
-    if (ongoingCall != null && other.ongoingCall == null) {
-      return -1;
-    } else if (ongoingCall == null && other.ongoingCall != null) {
-      return 1;
-    } else if (ongoingCall != null && other.ongoingCall != null) {
-      return ongoingCall!.at.compareTo(other.ongoingCall!.at);
-    }
-
-    if (favoritePosition != null && other.favoritePosition == null) {
-      return -1;
-    } else if (favoritePosition == null && other.favoritePosition != null) {
-      return 1;
-    } else if (favoritePosition != null && other.favoritePosition != null) {
-      return favoritePosition!.compareTo(other.favoritePosition!);
-    }
-
-    if (id.isLocalWith(me) && !other.id.isLocalWith(me)) {
-      return 1;
-    } else if (!id.isLocalWith(me) && other.id.isLocalWith(me)) {
-      return -1;
-    }
-
-    return other.updatedAt.compareTo(updatedAt);
   }
 }
 

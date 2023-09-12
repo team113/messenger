@@ -67,12 +67,6 @@ class Pagination<T, C, K extends Comparable> {
   @visibleForTesting
   C? endCursor;
 
-  /// First [T] item in the [items] list.
-  T? _firstItem;
-
-  /// Last [T] item in the [items] list.
-  T? _lastItem;
-
   /// [Mutex] guarding synchronized access to the [init] and [around].
   final Mutex _guard = Mutex();
 
@@ -110,8 +104,6 @@ class Pagination<T, C, K extends Comparable> {
 
       startCursor = page?.info.startCursor;
       endCursor = page?.info.endCursor;
-      _firstItem = page?.edges.firstOrNull ?? _firstItem;
-      _lastItem = page?.edges.lastOrNull ?? _lastItem;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('init(item: $item)... done', 'Pagination');
@@ -142,8 +134,6 @@ class Pagination<T, C, K extends Comparable> {
 
       startCursor = page?.info.startCursor;
       endCursor = page?.info.endCursor;
-      _firstItem = page?.edges.firstOrNull ?? _firstItem;
-      _lastItem = page?.edges.lastOrNull ?? _lastItem;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
@@ -158,8 +148,8 @@ class Pagination<T, C, K extends Comparable> {
       nextLoading.value = true;
 
       if (items.isNotEmpty) {
-        final Page<T, C>? page;
-        page = await provider.after(items[items.lastKey()], endCursor, perPage);
+        final Page<T, C>? page =
+            await provider.after(items[items.lastKey()], endCursor, perPage);
         Log.print(
           'next()... fetched ${page?.edges.length} items',
           'Pagination',
@@ -170,7 +160,6 @@ class Pagination<T, C, K extends Comparable> {
         }
 
         endCursor = page?.info.endCursor ?? endCursor;
-        _lastItem = page?.edges.lastOrNull ?? _lastItem;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         Log.print('next()... done', 'Pagination');
       } else {
@@ -191,8 +180,7 @@ class Pagination<T, C, K extends Comparable> {
     if (hasPrevious.isTrue && previousLoading.isFalse) {
       previousLoading.value = true;
 
-      final Page<T, C>? page;
-      page =
+      final Page<T, C>? page =
           await provider.before(items[items.firstKey()], startCursor, perPage);
       Log.print(
         'previous()... fetched ${page?.edges.length} items',
@@ -206,7 +194,6 @@ class Pagination<T, C, K extends Comparable> {
       }
 
       startCursor = page?.info.startCursor ?? startCursor;
-      _firstItem = page?.edges.firstOrNull ?? _firstItem;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('previous()... done', 'Pagination');
 
@@ -235,10 +222,7 @@ class Pagination<T, C, K extends Comparable> {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
       }
-      return;
-    }
-
-    if (key.compareTo(items.lastKey()) == 1) {
+    } else if (key.compareTo(items.lastKey()) == 1) {
       if (hasNext.isFalse) {
         await put();
       }

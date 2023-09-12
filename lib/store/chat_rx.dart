@@ -766,7 +766,40 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me: me);
+  int compareTo(RxChat other) {
+    if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall == null) {
+      return -1;
+    } else if (chat.value.ongoingCall == null &&
+        other.chat.value.ongoingCall != null) {
+      return 1;
+    } else if (chat.value.ongoingCall != null &&
+        other.chat.value.ongoingCall != null) {
+      return chat.value.ongoingCall!.at
+          .compareTo(other.chat.value.ongoingCall!.at);
+    }
+
+    if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition == null) {
+      return -1;
+    } else if (chat.value.favoritePosition == null &&
+        other.chat.value.favoritePosition != null) {
+      return 1;
+    } else if (chat.value.favoritePosition != null &&
+        other.chat.value.favoritePosition != null) {
+      return chat.value.favoritePosition!
+          .compareTo(other.chat.value.favoritePosition!);
+    }
+
+    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
+      return 1;
+    } else if (!chat.value.id.isLocalWith(me) &&
+        other.chat.value.id.isLocalWith(me)) {
+      return -1;
+    }
+
+    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
+  }
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
   /// [Attachment]s, if any.

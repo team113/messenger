@@ -37,7 +37,6 @@ class HivePageProvider<T extends Object, C, K extends Object>
     this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
-    this.reversed = false,
   });
 
   /// Callback, called when a key of the provided [T] is required.
@@ -54,9 +53,6 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
   /// [PaginationStrategy] of [around] invoke.
   PaginationStrategy strategy;
-
-  /// Indicator whether this [HivePageProvider] is reversed.
-  bool reversed;
 
   /// [IterableHiveProvider] to fetch the items from.
   IterableHiveProvider<T, K> _provider;
@@ -105,20 +101,11 @@ class HivePageProvider<T extends Object, C, K extends Object>
       }
     }
 
-    return reversed ? _page(items).reversed() : _page(items);
+    return _page(items);
   }
 
   @override
-  FutureOr<Page<T, C>?> after(
-    T? item,
-    C? cursor,
-    int count, {
-    bool reversed = false,
-  }) async {
-    if (!reversed && this.reversed) {
-      return before(item, cursor, count, reversed: true);
-    }
-
+  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
     if (item == null) {
       return null;
     }
@@ -134,23 +121,14 @@ class HivePageProvider<T extends Object, C, K extends Object>
         }
       }
 
-      return reversed ? _page(items).reversed() : _page(items);
+      return _page(items);
     }
 
     return null;
   }
 
   @override
-  FutureOr<Page<T, C>?> before(
-    T? item,
-    C? cursor,
-    int count, {
-    bool reversed = false,
-  }) async {
-    if (!reversed && this.reversed) {
-      return after(item, cursor, count, reversed: true);
-    }
-
+  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
     if (item == null) {
       return null;
     }
@@ -165,7 +143,7 @@ class HivePageProvider<T extends Object, C, K extends Object>
         }
       }
 
-      return reversed ? _page(items).reversed() : _page(items);
+      return _page(items);
     }
 
     return null;
@@ -185,13 +163,13 @@ class HivePageProvider<T extends Object, C, K extends Object>
     bool hasNext = true;
     bool hasPrevious = true;
 
-    final T? firstItem = items.firstOrNull;
+    final T? firstItem = items.firstWhereOrNull((e) => getCursor(e) != null);
     if (firstItem != null && isFirst != null) {
       hasPrevious = !isFirst!.call(firstItem) ||
           getKey(items.first) != _provider.keys.first;
     }
 
-    final T? lastItem = items.lastOrNull;
+    final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
     if (lastItem != null && isLast != null) {
       hasNext =
           !isLast!.call(lastItem) || getKey(items.last) != _provider.keys.last;
