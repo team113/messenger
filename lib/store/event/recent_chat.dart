@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/provider/hive/chat.dart';
+import '../chat.dart';
 import '/domain/model/chat.dart';
 
 /// Possible kinds of a [RecentChatsEvent].
@@ -48,7 +48,7 @@ class RecentChatsTop extends RecentChatsEvent {
   const RecentChatsTop(this.list);
 
   /// List of recent [Chat]s.
-  final List<HiveChat> list;
+  final List<ChatData> list;
 
   @override
   RecentChatsEventKind get kind => RecentChatsEventKind.list;
@@ -59,7 +59,7 @@ class EventRecentChatsUpdated extends RecentChatsEvent {
   const EventRecentChatsUpdated(this.chat);
 
   /// [Chat] which position was updated.
-  final HiveChat chat;
+  final ChatData chat;
 
   @override
   RecentChatsEventKind get kind => RecentChatsEventKind.updated;

@@ -304,10 +304,12 @@ void main() async {
   when(graphQlProvider.chatEvents(
     const ChatId('fc95f181-ae23-41b7-b246-5d6bdbe577a1'),
     any,
+    any,
   )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('c36343e2-e8af-4d55-9982-38ba68d2b785'),
+    any,
     any,
   )).thenAnswer((_) => const Stream.empty());
 
