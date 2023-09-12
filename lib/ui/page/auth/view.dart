@@ -128,6 +128,7 @@ class AuthView extends StatelessWidget {
             subtitle: Text('btn_one_time_account'.l10n),
             maxWidth: 210,
             height: 46,
+            maxlines: 2,
             leading: Transform.translate(
               offset: const Offset(4, 0),
               child: const SvgImage.asset(

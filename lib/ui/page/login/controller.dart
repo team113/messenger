@@ -170,7 +170,6 @@ class LoginController extends GetxController {
         s.error.value = null;
       },
       onSubmitted: (s) => signIn(),
-      revalidateOnUnfocus: true,
     );
 
     recovery = TextFieldState(
@@ -203,7 +202,6 @@ class LoginController extends GetxController {
     );
 
     email = TextFieldState(
-      revalidateOnUnfocus: true,
       onChanged: (s) {
         try {
           if (s.text.isNotEmpty) {
@@ -242,7 +240,6 @@ class LoginController extends GetxController {
     );
 
     emailCode = TextFieldState(
-      revalidateOnUnfocus: true,
       onSubmitted: (s) async {
         try {
           await _authService.confirmEmailCode(
