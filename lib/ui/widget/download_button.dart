@@ -19,12 +19,11 @@ import 'package:flutter/material.dart';
 
 import '/config.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 
-/// [FieldButton] stylized with the provided [asset] and [title] downloading a
+/// [PrefixButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
 class DownloadButton extends StatelessWidget {
   const DownloadButton({

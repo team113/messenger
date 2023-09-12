@@ -491,7 +491,6 @@ class Style extends ThemeExtension<Style> {
     TextStyle? systemMessageStyle,
     TextStyle? systemMessagePrimary,
     Color? unreadMessageColor,
-    Color? activeColor,
   }) {
     return Style(
       colors: colors ?? this.colors,

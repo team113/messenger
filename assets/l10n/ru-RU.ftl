@@ -187,7 +187,6 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
-btn_login = Вход
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении

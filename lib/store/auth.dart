@@ -88,7 +88,9 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   Future<void> confirmEmailCode(
-          ConfirmationCode code, Credentials creds) async =>
+    ConfirmationCode code,
+    Credentials creds,
+  ) async =>
       await _graphQlProvider.confirmEmailCode(code);
 
   @override

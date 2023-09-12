@@ -29,7 +29,7 @@ class AnimatedLogo extends StatelessWidget {
     this.svgAsset,
     this.riveAsset = 'assets/images/logo/logo.riv',
     this.onInit,
-    this.height = 190 * 0.75 + 25,
+    this.height = 166,
   });
 
   /// Path to an asset to put into the [RiveAnimation].

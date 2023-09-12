@@ -187,7 +187,6 @@ btn_join_call = Join call
 btn_leave = Leave
 btn_leave_chat = Leave chat
 btn_leave_group = Leave group
-btn_login = Sign in
 btn_logout = Logout
 btn_media_settings = Media settings
 btn_message_info = Message info

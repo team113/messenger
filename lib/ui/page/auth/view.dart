@@ -19,13 +19,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rive/rive.dart' hide LinearGradient;
 
-import '../home/page/my_profile/widget/download_button.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -98,7 +98,7 @@ class AuthView extends StatelessWidget {
             leading: Transform.translate(
               offset: const Offset(3, 0),
               child: const SvgImage.asset(
-                'assets/icons/register3.svg',
+                'assets/icons/register.svg',
                 width: 23,
                 height: 23,
               ),
@@ -114,7 +114,7 @@ class AuthView extends StatelessWidget {
             leading: Transform.translate(
               offset: const Offset(4, 0),
               child: const SvgImage.asset(
-                'assets/icons/enter1.svg',
+                'assets/icons/enter.svg',
                 width: 19.42,
                 height: 24,
               ),
@@ -132,14 +132,12 @@ class AuthView extends StatelessWidget {
             leading: Transform.translate(
               offset: const Offset(4, 0),
               child: const SvgImage.asset(
-                'assets/icons/one_time19.svg',
+                'assets/icons/one_time.svg',
                 width: 19.88,
                 height: 26,
               ),
             ),
-            onPressed: () {
-              c.register();
-            },
+            onPressed: c.register,
           ),
           const SizedBox(height: 15),
         ];
@@ -221,20 +219,13 @@ class AuthView extends StatelessWidget {
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final style = Theme.of(context).style;
-
     await ModalPopup.show(
       context: context,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'btn_download'.l10n,
-                style: style.fonts.headlineMedium,
-              ),
-            ),
+            text: 'btn_download'.l10n,
           ),
           const SizedBox(height: 12),
           Flexible(
@@ -243,7 +234,7 @@ class AuthView extends StatelessWidget {
               shrinkWrap: true,
               children: const [
                 DownloadButton(
-                  asset: 'windows5',
+                  asset: 'windows',
                   width: 23.93,
                   height: 24,
                   title: 'Windows',
@@ -251,7 +242,7 @@ class AuthView extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'apple7',
+                  asset: 'apple',
                   width: 21.07,
                   height: 27,
                   title: 'macOS',
@@ -259,7 +250,7 @@ class AuthView extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'linux4',
+                  asset: 'linux',
                   width: 20.57,
                   height: 24,
                   title: 'Linux',
@@ -283,7 +274,7 @@ class AuthView extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'android3',
+                  asset: 'android',
                   width: 20.99,
                   height: 25,
                   title: 'Android',

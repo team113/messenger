@@ -74,7 +74,7 @@ class LoginView extends StatelessWidget {
       ),
       builder: (LoginController c) {
         return Obx(() {
-          builder(header, children) {
+          ListView builder(Widget header, List<Widget> children) {
             return ListView(
               controller: c.scrollController,
               shrinkWrap: true,
@@ -392,7 +392,7 @@ class LoginView extends StatelessWidget {
                   title: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
-                  asset: 'password2',
+                  asset: 'password',
                   assetWidth: 19,
                   assetHeight: 21,
                   padding: const EdgeInsets.only(left: 1),

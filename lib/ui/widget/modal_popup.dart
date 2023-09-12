@@ -133,12 +133,8 @@ class ModalPopupHeader extends StatelessWidget {
     super.key,
     this.text,
     this.onBack,
-    this.header,
     this.close = true,
   });
-
-  /// [Widget] to put as a title of this [ModalPopupHeader].
-  final Widget? header;
 
   /// Text to display as a title of this [ModalPopupHeader].
   final String? text;
@@ -173,11 +169,7 @@ class ModalPopupHeader extends StatelessWidget {
             )
           else
             const SizedBox(width: 40),
-          if (header != null)
-            Expanded(
-              child: header!,
-            )
-          else if (text != null)
+          if (text != null)
             Expanded(
               child: Center(
                 child: Text(text!, style: style.fonts.headlineMedium),

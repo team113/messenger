@@ -218,9 +218,6 @@ class LoginController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        if (s.error.value != null) {
-          return;
-        }
         stage.value = LoginViewStage.signUpWithEmailCode;
 
         try {
@@ -247,7 +244,9 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         try {
           await _authService.confirmEmailCode(
-              ConfirmationCode(emailCode.text), creds!);
+            ConfirmationCode(emailCode.text),
+            creds!,
+          );
 
           (onSuccess ?? router.home)();
         } on ConfirmUserEmailException catch (e) {
@@ -639,6 +638,7 @@ class LoginController extends GetxController {
     }
   }
 
+  /// Starts or stops the [_codeTimer] based on [enabled] value.
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
       codeTimeout.value = 30;
