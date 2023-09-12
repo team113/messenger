@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -263,7 +265,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
+  Stream<QueryResult> chatEvents(
+    ChatId id,
+    ChatVersion? ver,
+    FutureOr<ChatVersion?> Function() onVer,
+  ) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(QueryResult.internal(

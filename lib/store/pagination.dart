@@ -217,13 +217,18 @@ class Pagination<T, C, K extends Comparable> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(T item) async {
+  Future<void> put(T item, {bool ignoreBounds = false}) async {
     Log.print('put($item)', 'Pagination');
     final K key = onKey(item);
 
     Future<void> put() async {
       items[onKey(item)] = item;
       await provider.put(item);
+    }
+
+    if (ignoreBounds) {
+      await put();
+      return;
     }
 
     if (items.isEmpty) {
