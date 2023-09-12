@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';

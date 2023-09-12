@@ -163,12 +163,7 @@ class UserNum extends NewType<String> {
     return UserNum._(val);
   }
 
-  /// Creates an object without any validation.
-  const factory UserNum.unchecked(String val) = UserNum._;
-}
-
-/// The correct format for the [UserNum] val.
-extension UserNumFormatting on UserNum {
+  /// The correct format for the [UserNum] val.
   String? userNumFormat() {
     if (val.isEmpty) return null;
 
@@ -181,6 +176,9 @@ extension UserNumFormatting on UserNum {
     }
     return modifiedUserNum;
   }
+
+  /// Creates an object without any validation.
+  const factory UserNum.unchecked(String val) = UserNum._;
 }
 
 /// Unique login of an [User].
