@@ -279,7 +279,6 @@ class AuthService extends GetxService {
 
       _sessionProvider.setCredentials(creds);
     } catch (e) {
-      _unauthorized();
       rethrow;
     }
   }

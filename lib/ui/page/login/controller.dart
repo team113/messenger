@@ -172,9 +172,7 @@ class LoginController extends GetxController {
     );
 
     password = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-      },
+      onChanged: (s) => s.error.value = null,
       onSubmitted: (s) => signIn(),
     );
 

@@ -21,11 +21,11 @@ import 'package:messenger/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import 'prefix_button.dart';
 
-/// Button with a [leading] icon or [asset] and a [text].
+/// Button with a [leading] icon or [asset] and a [title].
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
-    required this.text,
+    required this.title,
     this.leading,
     this.asset = '',
     this.assetWidth = 20,
@@ -34,8 +34,8 @@ class SignButton extends StatelessWidget {
     this.onPressed,
   });
 
-  /// [text] of this [SignButton].
-  final String text;
+  /// Title of this [SignButton].
+  final String title;
 
   /// [Widget] to display as a leading.
   final Widget? leading;
@@ -61,7 +61,7 @@ class SignButton extends StatelessWidget {
 
     return Center(
       child: PrefixButton(
-        text: text,
+        title: title,
         style: style.fonts.titleLarge,
         onPressed: onPressed ?? () {},
         prefix: Padding(

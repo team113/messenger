@@ -56,7 +56,7 @@ class DownloadButton extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return PrefixButton(
-      text: title,
+      title: title,
       onPressed: link == null
           ? null
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),

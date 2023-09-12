@@ -309,7 +309,7 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
-                  text: 'btn_email'.l10n,
+                  title: 'btn_email'.l10n,
                   asset: 'email',
                   assetWidth: 21.93,
                   assetHeight: 22.5,
@@ -389,7 +389,7 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
-                  text: 'btn_password'.l10n,
+                  title: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
                   asset: 'password2',

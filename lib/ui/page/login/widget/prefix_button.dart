@@ -22,16 +22,16 @@ import 'package:messenger/themes.dart';
 class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,
-    this.text = '',
+    this.title = '',
     this.onPressed,
     this.style,
     this.prefix,
   });
 
-  /// [text] of this [PrefixButton].
-  final String text;
+  /// Title of this [PrefixButton].
+  final String title;
 
-  /// [TextStyle] of the [text].
+  /// [TextStyle] of the [title].
   final TextStyle? style;
 
   /// Callback, called when this button is pressed.
@@ -94,7 +94,7 @@ class PrefixButton extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            text,
+                            title,
                           ),
                         ),
                       ),
