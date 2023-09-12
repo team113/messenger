@@ -30,6 +30,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
 import '/util/platform_utils.dart';
+import '/util/id_format.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.menu] tab.
@@ -109,7 +110,7 @@ class MenuTabView extends StatelessWidget {
                           children: [
                             Text(
                               c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.val ??
+                                  idFormat(c.myUser.value?.num.val) ??
                                   'dot'.l10n * 3,
                               style: style.fonts.headlineMedium,
                             ),
