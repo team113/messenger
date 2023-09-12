@@ -48,6 +48,7 @@ import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/id_format.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blacklist/view.dart';
@@ -1005,7 +1006,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
       TextSpan(
         text: c.myUser.value?.name?.val ??
             c.myUser.value?.login?.val ??
-            c.myUser.value?.num.val ??
+            c.myUser.value?.num.val.idFormat() ??
             'dot'.l10n * 3,
         style: style.fonts.labelLarge,
       ),

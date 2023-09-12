@@ -15,16 +15,18 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// idFormat is designed to format the id in the correct form
-String? idFormat(String? userId) {
-  if (userId == null) return null;
+/// The correct format for the UserId
+extension StringIdFormatting on String {
+  String? idFormat() {
+    if (isEmpty) return null;
 
-  String modifiedUserId = '';
-  for (int i = 0; i < userId.length; i += 4) {
-    modifiedUserId += userId.substring(i, i + 4);
-    if (i + 4 < userId.length) {
-      modifiedUserId += ' ';
+    String modifiedUserId = '';
+    for (int i = 0; i < length; i += 4) {
+      modifiedUserId += substring(i, i + 4);
+      if (i + 4 < length) {
+        modifiedUserId += ' ';
+      }
     }
+    return modifiedUserId;
   }
-  return modifiedUserId;
 }

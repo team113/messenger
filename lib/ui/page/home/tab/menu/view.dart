@@ -110,7 +110,7 @@ class MenuTabView extends StatelessWidget {
                           children: [
                             Text(
                               c.myUser.value?.name?.val ??
-                                  idFormat(c.myUser.value?.num.val) ??
+                                  c.myUser.value?.num.val.idFormat() ??
                                   'dot'.l10n * 3,
                               style: style.fonts.headlineMedium,
                             ),
