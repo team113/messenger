@@ -20,8 +20,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/store/model/user.dart';
-import '/store/pagination.dart';
 import 'chat.dart';
 
 /// [User]s repository interface.
@@ -42,28 +40,12 @@ abstract class AbstractUserRepository {
   /// Clears the stored [users].
   Future<void> clearCache();
 
-  /// Searches [User]s by the provided [UserNum].
-  ///
-  /// This is an exact match search.
-  Future<RxUser?> searchByNum(UserNum num);
-
-  /// Searches [User]s by the provided [UserLogin].
-  ///
-  /// This is an exact match search.
-  Future<RxUser?> searchByLogin(UserLogin login);
-
-  /// Searches [User]s by the provided [ChatDirectLinkSlug].
-  ///
-  /// This is an exact match search.
-  Future<RxUser?> searchByLink(ChatDirectLinkSlug link);
-
-  /// Searches [User]s by the provided [UserName].
-  ///
-  /// This is a fuzzy search.
-  Future<Page<RxUser, UsersCursor>> searchByName(
-    UserName name, {
-    UsersCursor? after,
-    int? first,
+  /// Searches [User]s by the given criteria.
+  SearchResult<UserId, RxUser> search({
+    UserNum? num,
+    UserName? name,
+    UserLogin? login,
+    ChatDirectLinkSlug? link,
   });
 
   /// Returns an [User] by the provided [id].
@@ -93,4 +75,33 @@ abstract class RxUser {
 
   /// States that updates of this [user] are no longer required.
   void stopUpdates();
+}
+
+/// Result of a search query.
+abstract class SearchResult<K extends Comparable, T> {
+
+  /// Found [T] items themselves.
+  final RxMap<K, T> items = RxMap<K, T>();
+
+  /// Reactive [RxStatus] of [items] being fetched.
+  ///
+  /// May be:
+  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isLoading`, meaning the [items] are being fetched.
+  /// - `status.isLoadingMore`, meaning some [items] were fetched from local
+  ///   storage.
+  /// - `status.isSuccess`, meaning the [items] were successfully fetched.
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Indicator whether the [items] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether the [next] page of [items] is being fetched.
+  RxBool get nextLoading;
+
+  /// Disposes this [SearchResult].
+  void dispose();
+
+  /// Fetches next page of the [items].
+  Future<void> next();
 }

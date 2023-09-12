@@ -36,6 +36,8 @@ import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/pagination.dart';
 import '/store/user_rx.dart';
+import '/store/pagination/graphql.dart';
+import '/util/obs/obs.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
@@ -98,24 +100,66 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<RxUser?> searchByNum(UserNum num) async =>
-      (await _search(num: num)).edges.firstOrNull;
+  SearchResult<UserId, RxUser> search({
+    UserNum? num,
+    UserName? name,
+    UserLogin? login,
+    ChatDirectLinkSlug? link,
+  }) {
+    Pagination<RxUser, UsersCursor, UserId>? pagination;
+    if (name != null) {
+      pagination = Pagination(
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) {
+            return searchByName(
+              name,
+              after: after,
+              first: first,
+            );
+          },
+        ),
+        onKey: (RxUser u) => u.id,
+      );
+    }
+    final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
+    SearchResultImpl(pagination: pagination);
 
-  @override
-  Future<RxUser?> searchByLogin(UserLogin login) async =>
-      (await _search(login: login)).edges.firstOrNull;
+    if (num == null && name == null && login == null && link == null) {
+      return searchResult;
+    }
 
-  @override
-  Future<RxUser?> searchByLink(ChatDirectLinkSlug link) async =>
-      (await _search(link: link)).edges.firstOrNull;
+    final List<RxUser> users = this.users.values
+        .where((u) =>
+    (num != null && u.user.value.num == num) ||
+        (name != null &&
+            u.user.value.name?.val
+                .toLowerCase()
+                .contains(name.val.toLowerCase()) ==
+                true))
+        .toList();
 
-  @override
-  Future<Page<RxUser, UsersCursor>> searchByName(
-    UserName name, {
-    UsersCursor? after,
-    int? first,
-  }) =>
-      _search(name: name, after: after, first: first);
+    searchResult.items.value = {for (var u in users) u.id: u};
+    searchResult.status.value =
+    users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+
+    void add(RxUser? u) {
+      if (u != null) {
+        searchResult.items[u.id] = u;
+      }
+    }
+
+    List<Future> futures = [
+      if (num != null) searchByNum(num).then(add),
+      if (name != null) searchResult.pagination!.around(),
+      if (login != null) searchByLogin(login).then(add),
+      if (link != null) searchByLink(link).then(add),
+    ];
+
+    Future.wait(futures)
+        .then((_) => searchResult.status.value = RxStatus.success());
+
+    return searchResult;
+  }
 
   @override
   Future<RxUser?> get(UserId id) {
@@ -201,6 +245,34 @@ class UserRepository implements AbstractUserRepository {
   void put(HiveUser user, {bool ignoreVersion = false}) {
     _putUser(user, ignoreVersion: ignoreVersion);
   }
+
+  /// Searches [User]s by the provided [UserNum].
+  ///
+  /// This is an exact match search.
+  Future<RxUser?> searchByNum(UserNum num) async =>
+      (await _search(num: num)).edges.firstOrNull;
+
+  /// Searches [User]s by the provided [UserLogin].
+  ///
+  /// This is an exact match search.
+  Future<RxUser?> searchByLogin(UserLogin login) async =>
+      (await _search(login: login)).edges.firstOrNull;
+
+  /// Searches [User]s by the provided [ChatDirectLinkSlug].
+  ///
+  /// This is an exact match search.
+  Future<RxUser?> searchByLink(ChatDirectLinkSlug link) async =>
+      (await _search(link: link)).edges.firstOrNull;
+
+  /// Searches [User]s by the provided [UserName].
+  ///
+  /// This is a fuzzy search.
+  Future<Page<RxUser, UsersCursor>> searchByName(
+      UserName name, {
+        UsersCursor? after,
+        int? first,
+      }) =>
+      _search(name: name, after: after, first: first);
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
@@ -376,6 +448,64 @@ class UserRepository implements AbstractUserRepository {
       return EventBlocklistRecordRemoved(e.user.toHive(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
+    }
+  }
+}
+
+/// Result of a search query.
+class SearchResultImpl<K extends Comparable, T, C>
+    implements SearchResult<K, T> {
+  SearchResultImpl({this.pagination}) {
+    if (pagination != null) {
+      _paginationSubscription = pagination!.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+            items[event.key!] = event.value as T;
+            break;
+
+          case OperationKind.removed:
+          case OperationKind.updated:
+          // No-op.
+            break;
+        }
+      });
+    }
+  }
+
+  @override
+  final RxMap<K, T> items = RxMap<K, T>();
+
+  @override
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Pagination fetching [items].
+  final Pagination<T, C, K>? pagination;
+
+  /// [StreamSubscription] to the [Pagination.changes].
+  StreamSubscription? _paginationSubscription;
+
+  @override
+  RxBool get hasNext => pagination?.hasNext ?? RxBool(false);
+
+  @override
+  RxBool get nextLoading => pagination?.nextLoading ?? RxBool(false);
+
+  @override
+  void dispose() {
+    _paginationSubscription?.cancel();
+  }
+
+  @override
+  Future<void> next() async {
+    if (pagination != null && nextLoading.isFalse) {
+      status.value = RxStatus.loadingMore();
+
+      int length = items.length;
+      while (hasNext.isTrue && length == items.length) {
+        await pagination!.next();
+      }
+
+      status.value = RxStatus.success();
     }
   }
 }

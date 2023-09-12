@@ -22,10 +22,7 @@ import 'package:get/get.dart';
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/service/user.dart';
-import '/store/model/contact.dart';
-import '/store/pagination.dart';
-import '/store/pagination/graphql.dart';
+import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
@@ -87,65 +84,13 @@ class ContactService extends DisposableService {
       _contactRepository.unfavoriteChatContact(id);
 
   /// Searches [ChatContact]s by the given criteria.
-  SearchResult<ChatContactId, RxChatContact, ChatContactsCursor> search({
+  SearchResult<ChatContactId, RxChatContact> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,
-  }) {
-    Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
-    if (name != null) {
-      pagination = Pagination(
-        provider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) {
-            return _contactRepository.searchByName(
-              name,
-              after: after,
-              first: first,
-            );
-          },
-        ),
-        onKey: (RxChatContact u) => u.id,
+  }) => _contactRepository.search(
+        name: name,
+        email: email,
+        phone: phone,
       );
-    }
-    final SearchResult<ChatContactId, RxChatContact, ChatContactsCursor>
-        searchResult = SearchResult(pagination: pagination);
-
-    if (name == null && email == null && phone == null) {
-      return searchResult;
-    }
-
-    final List<RxChatContact> contacts = [
-      ..._contactRepository.contacts.values,
-      ..._contactRepository.favorites.values
-    ]
-        .where((u) =>
-            (phone != null && u.contact.value.phones.contains(phone)) ||
-            (name != null &&
-                u.contact.value.name.val
-                        .toLowerCase()
-                        .contains(name.val.toLowerCase()) ==
-                    true))
-        .toList();
-
-    searchResult.items.value = {for (var u in contacts) u.id: u};
-    searchResult.status.value =
-        contacts.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
-
-    void add(RxChatContact? c) {
-      if (c != null) {
-        searchResult.items[c.id] = c;
-      }
-    }
-
-    List<Future> futures = [
-      if (name != null) searchResult.pagination!.around(),
-      if (email != null) _contactRepository.searchByEmail(email).then(add),
-      if (phone != null) _contactRepository.searchByPhone(phone).then(add),
-    ];
-
-    Future.wait(futures)
-        .then((_) => searchResult.status.value = RxStatus.success());
-
-    return searchResult;
-  }
 }

@@ -31,12 +31,14 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';
+import '/store/pagination/graphql.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -239,26 +241,96 @@ class ContactRepository implements AbstractContactRepository {
   }
 
   @override
-  Future<Page<RxChatContact, ChatContactsCursor>> searchByName(
-    UserName name, {
-    ChatContactsCursor? after,
-    int? first,
-  }) =>
-      _search(name: name, after: after, first: first);
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  }) {
+    Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
+    if (name != null) {
+      pagination = Pagination(
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) {
+            return searchByName(
+              name,
+              after: after,
+              first: first,
+            );
+          },
+        ),
+        onKey: (RxChatContact u) => u.id,
+      );
+    }
+    final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
+        searchResult = SearchResultImpl(pagination: pagination);
 
-  @override
-  Future<RxChatContact?> searchByEmail(UserEmail email) async =>
-      (await _search(email: email)).edges.firstOrNull;
+    if (name == null && email == null && phone == null) {
+      return searchResult;
+    }
 
-  @override
-  Future<RxChatContact?> searchByPhone(UserPhone phone) async =>
-      (await _search(phone: phone)).edges.firstOrNull;
+    final List<RxChatContact> contacts = [
+      ...this.contacts.values,
+      ...favorites.values
+    ]
+        .where((u) =>
+            (phone != null && u.contact.value.phones.contains(phone)) ||
+            (email != null && u.contact.value.emails.contains(email)) ||
+            (name != null &&
+                u.contact.value.name.val
+                        .toLowerCase()
+                        .contains(name.val.toLowerCase()) ==
+                    true))
+        .toList();
+
+    searchResult.items.value = {for (var u in contacts) u.id: u};
+    searchResult.status.value =
+        contacts.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+
+    void add(RxChatContact? c) {
+      if (c != null) {
+        searchResult.items[c.id] = c;
+      }
+    }
+
+    List<Future> futures = [
+      if (name != null) searchResult.pagination!.around(),
+      if (email != null) searchByEmail(email).then(add),
+      if (phone != null) searchByPhone(phone).then(add),
+    ];
+
+    Future.wait(futures)
+        .then((_) => searchResult.status.value = RxStatus.success());
+
+    return searchResult;
+  }
 
   @override
   RxChatContact? get(ChatContactId id) {
     // TODO: Get [ChatContact] from remote if it's not stored locally.
     return contacts[id] ?? favorites[id];
   }
+
+  /// Searches [ChatContact]s by the provided [UserName].
+  ///
+  /// This is a fuzzy search.
+  Future<Page<RxChatContact, ChatContactsCursor>> searchByName(
+      UserName name, {
+        ChatContactsCursor? after,
+        int? first,
+      }) =>
+      _search(name: name, after: after, first: first);
+
+  /// Searches [ChatContact]s by the provided [UserEmail].
+  ///
+  /// This is an exact match search.
+  Future<RxChatContact?> searchByEmail(UserEmail email) async =>
+      (await _search(email: email)).edges.firstOrNull;
+
+  /// Searches [ChatContact]s by the provided [UserPhone].
+  ///
+  /// This is an exact match search.
+  Future<RxChatContact?> searchByPhone(UserPhone phone) async =>
+      (await _search(phone: phone)).edges.firstOrNull;
 
   /// Searches [ChatContact]s by the given criteria.
   ///

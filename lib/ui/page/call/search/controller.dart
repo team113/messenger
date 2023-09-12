@@ -30,8 +30,6 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/store/model/contact.dart';
-import '/store/model/user.dart';
 import '/ui/widget/text_field.dart';
 
 export 'view.dart';
@@ -81,12 +79,11 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<SearchResult<UserId, RxUser, UsersCursor>?> usersSearchResult =
-      Rx(null);
+  final Rx<SearchResult<UserId, RxUser>?> usersSearchResult = Rx(null);
 
   /// [ChatContact]s search results.
-  final Rx<SearchResult<ChatContactId, RxChatContact, ChatContactsCursor>?>
-      contactsSearchResult = Rx(null);
+  final Rx<SearchResult<ChatContactId, RxChatContact>?> contactsSearchResult =
+      Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -332,7 +329,7 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final SearchResult<UserId, RxUser, UsersCursor> result =
+        final SearchResult<UserId, RxUser> result =
             _userService.search(num: num, name: name, login: login);
 
         usersSearchResult.value?.dispose();
@@ -395,8 +392,7 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final SearchResult<ChatContactId, RxChatContact, ChatContactsCursor>
-            result =
+        final SearchResult<ChatContactId, RxChatContact> result =
             _contactService.search(name: name, email: email, phone: phone);
 
         contactsSearchResult.value?.dispose();
@@ -588,12 +584,7 @@ class SearchController extends GetxController {
     if (categories.contains(SearchCategory.contact) &&
         contactsSearchResult.value?.hasNext.value == true &&
         contactsSearchResult.value?.nextLoading.value == false) {
-      int length = contactsSearchResult.value!.items.length;
-
       await contactsSearchResult.value!.next();
-      if (length == contactsSearchResult.value!.items.length) {
-        await _nextContacts();
-      }
     }
   }
 
@@ -606,12 +597,7 @@ class SearchController extends GetxController {
         _searchUsers(query.value);
       } else if (usersSearchResult.value!.hasNext.isTrue &&
           usersSearchResult.value!.nextLoading.isFalse) {
-        int length = usersSearchResult.value!.items.length;
-
         await usersSearchResult.value!.next();
-        if (length == usersSearchResult.value!.items.length) {
-          await _nextUsers();
-        }
       }
     }
   }

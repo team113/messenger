@@ -172,10 +172,8 @@ class Pagination<T, C, K extends Comparable> {
             'Pagination',
           );
 
-          if (page?.info.startCursor != null) {
-            for (var e in page?.edges ?? []) {
-              items[onKey(e)] = e;
-            }
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
           }
 
           endCursor = page?.info.endCursor ?? endCursor;
@@ -218,10 +216,8 @@ class Pagination<T, C, K extends Comparable> {
           'Pagination',
         );
 
-        if (page?.info.endCursor != null) {
-          for (var e in page?.edges ?? []) {
-            items[onKey(e)] = e;
-          }
+        for (var e in page?.edges ?? []) {
+          items[onKey(e)] = e;
         }
 
         startCursor = page?.info.startCursor ?? startCursor;

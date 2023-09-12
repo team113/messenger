@@ -22,8 +22,6 @@ import 'package:get/get.dart';
 import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
-import '/store/model/contact.dart';
-import '/store/pagination.dart';
 import '/util/obs/obs.dart';
 
 /// [ChatContact]s repository interface.
@@ -75,24 +73,12 @@ abstract class AbstractContactRepository {
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id);
 
-  /// Searches [ChatContact]s by the provided [UserName].
-  ///
-  /// This is a fuzzy search.
-  Future<Page<RxChatContact, ChatContactsCursor>> searchByName(
-    UserName name, {
-    ChatContactsCursor? after,
-    int? first,
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
   });
-
-  /// Searches [ChatContact]s by the provided [UserEmail].
-  ///
-  /// This is an exact match search.
-  Future<RxChatContact?> searchByEmail(UserEmail email);
-
-  /// Searches [ChatContact]s by the provided [UserPhone].
-  ///
-  /// This is an exact match search.
-  Future<RxChatContact?> searchByPhone(UserPhone phone);
 }
 
 /// Unified reactive [ChatContact] entity.
