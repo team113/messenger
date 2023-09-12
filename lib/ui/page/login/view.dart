@@ -38,21 +38,26 @@ class LoginView extends StatelessWidget {
   const LoginView({
     super.key,
     this.stage = LoginViewStage.signUp,
+    this.onSuccess,
   });
 
   /// [LoginView] stage to display.
   final LoginViewStage stage;
 
+  /// Callback, called when this [LoginView] successfully signs into an account.
+  ///
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
+  final void Function()? onSuccess;
+
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     LoginViewStage stage = LoginViewStage.signUp,
+    void Function()? onSuccess,
   }) {
     return ModalPopup.show(
       context: context,
-      child: LoginView(
-        stage: stage,
-      ),
+      child: LoginView(stage: stage, onSuccess: onSuccess),
     );
   }
 
@@ -65,6 +70,7 @@ class LoginView extends StatelessWidget {
       init: LoginController(
         Get.find(),
         stage: stage,
+        onSuccess: onSuccess,
       ),
       builder: (LoginController c) {
         return Obx(() {

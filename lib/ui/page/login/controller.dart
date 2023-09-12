@@ -58,6 +58,7 @@ class LoginController extends GetxController {
   LoginController(
     this._authService, {
     LoginViewStage stage = LoginViewStage.signUp,
+    this.onSuccess,
   }) : stage = Rx(stage);
 
   /// [TextFieldState] of a login text input.
@@ -107,6 +108,12 @@ class LoginController extends GetxController {
 
   /// [LoginViewStage] currently being displayed.
   final Rx<LoginViewStage> stage;
+
+  /// Callback, called when this [LoginController] successfully signs into an
+  /// account.
+  ///
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// Amount of attempts to sign in with a wrong password.
   int signInAttempts = 0;
@@ -244,7 +251,7 @@ class LoginController extends GetxController {
           await _authService.confirmEmailCode(
               ConfirmationCode(emailCode.text), creds!);
 
-          router.home();
+          (onSuccess ?? router.home)();
         } on ConfirmUserEmailException catch (e) {
           switch (e.code) {
             case ConfirmUserEmailErrorCode.wrongCode:
@@ -352,7 +359,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      router.home();
+      (onSuccess ?? router.home)();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
@@ -390,7 +397,7 @@ class LoginController extends GetxController {
   Future<void> register() async {
     try {
       await _authService.register();
-      router.home();
+      (onSuccess ?? router.home)();
     } on ConnectionException {
       MessagePopup.error('err_data_transfer'.l10n);
     } catch (e) {

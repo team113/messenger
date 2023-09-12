@@ -138,6 +138,7 @@ class FrontendWorkView extends StatelessWidget {
                               await LoginView.show(
                                 context,
                                 stage: LoginViewStage.signUpOrSignIn,
+                                onSuccess: () async => await c.useLink(),
                               );
                             }
                           },
