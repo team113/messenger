@@ -142,13 +142,18 @@ class TypographyView extends StatelessWidget {
           styles,
           inverted: inverted,
           dense: dense,
-          (e) => FontWidget((
-            e.$1.copyWith(
-              color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+          (e) => FontWidget(
+            (
+              e.$1.copyWith(
+                color: inverted
+                    ? const Color(0xFFFFFFFF)
+                    : const Color(0xFF000000),
+              ),
+              e.$2,
             ),
-            e.$2,
-          ), inverted: inverted, dense: dense),
+            inverted: inverted,
+            dense: dense,
+          ),
         ),
         const SubHeader('Families'),
         BuilderWrap(

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
@@ -197,8 +198,9 @@ class _ColorsViewState extends State<ColorsView> {
       (style.colors.warningColor, 'warningColor', 'Do not disturb status'),
     ];
 
-    final Iterable<(Color, String?, String?)> avatars =
-        style.colors.userColors.map((color) => (color, null, null)).toList();
+    final Iterable<(Color, String?, String?)> avatars = style.colors.userColors
+        .mapIndexed((i, color) => (color, 'userColors[$i]', null))
+        .toList();
 
     return SafeScrollbar(
       controller: _scrollController,
@@ -207,7 +209,7 @@ class _ColorsViewState extends State<ColorsView> {
         children: [
           const SizedBox(height: 16),
           const Header('Colors'),
-          const SubHeader('List view'),
+          const SizedBox(height: 16),
           ColorSchemaWidget(
             colors,
             inverted: widget.inverted,
@@ -218,27 +220,6 @@ class _ColorsViewState extends State<ColorsView> {
             avatars,
             inverted: widget.inverted,
             dense: widget.dense,
-          ),
-          const SizedBox(height: 16),
-          const SubHeader('Grid view'),
-          BuilderWrap(
-            colors,
-            inverted: widget.inverted,
-            dense: widget.dense,
-            (e) => ColorWidget(
-              e.$1,
-              inverted: widget.inverted,
-              subtitle: e.$2,
-              hint: e.$3,
-            ),
-          ),
-          const SizedBox(height: 16),
-          const SubHeader('Avatars'),
-          BuilderWrap(
-            avatars,
-            inverted: widget.inverted,
-            dense: widget.dense,
-            (e) => ColorWidget(e.$1, inverted: widget.inverted),
           ),
           const SizedBox(height: 16),
         ],

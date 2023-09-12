@@ -27,7 +27,7 @@ class StyleController extends GetxController {
   /// [Padding]s.
   ///
   /// Intended for the [StyleView] to be used as a reference.
-  final RxBool dense = RxBool(false);
+  final RxBool dense = RxBool(true);
 
   /// Indicator whether the [Color]s of the [StyleView] should be inverted.
   ///

@@ -18,6 +18,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -68,28 +70,55 @@ class StyleView extends StatelessWidget {
             ),
             actions: [
               Obx(() {
-                return ContextMenuRegion(
-                  enablePrimaryTap: true,
-                  enableSecondaryTap: false,
-                  actions: [
-                    ContextMenuButton(
-                      label: c.dense.value ? 'Paddings on' : 'Paddings off',
-                      onPressed: c.dense.toggle,
-                    ),
-                    ContextMenuButton(
-                      label: c.inverted.value ? 'Light theme' : 'Dark theme',
-                      onPressed: c.inverted.toggle,
-                    ),
-                  ],
+                return WidgetButton(
+                  onPressed: c.inverted.toggle,
                   child: Container(
                     padding: const EdgeInsets.only(right: 12),
-                    child: Icon(
-                      Icons.more_vert,
-                      color: style.colors.primary,
-                      size: 27,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: SizedBox(
+                        width: 23,
+                        key: c.inverted.value
+                            ? const Key('Dark')
+                            : const Key('Light'),
+                        child: c.inverted.value
+                            ? const SvgImage.asset(
+                                'assets/icons/dark_mode.svg',
+                                width: 20.8,
+                                height: 20.8,
+                              )
+                            : const SvgImage.asset(
+                                'assets/icons/light_mode1.svg',
+                                width: 23,
+                                height: 23,
+                              ),
+                      ),
                     ),
                   ),
                 );
+
+                // return ContextMenuRegion(
+                //   enablePrimaryTap: true,
+                //   enableSecondaryTap: false,
+                //   actions: [
+                //     ContextMenuButton(
+                //       label: c.dense.value ? 'Paddings on' : 'Paddings off',
+                //       onPressed: c.dense.toggle,
+                //     ),
+                //     ContextMenuButton(
+                //       label: c.inverted.value ? 'Light theme' : 'Dark theme',
+                //       onPressed: c.inverted.toggle,
+                //     ),
+                //   ],
+                //   child: Container(
+                //     padding: const EdgeInsets.only(right: 12),
+                //     child: Icon(
+                //       Icons.more_vert,
+                //       color: style.colors.primary,
+                //       size: 27,
+                //     ),
+                //   ),
+                // );
               }),
             ],
           ),

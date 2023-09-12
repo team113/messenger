@@ -47,7 +47,7 @@ class FontWidget extends StatelessWidget {
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.ease,
-          child: SizedBox(width: dense ? 0 : 16),
+          child: SizedBox(width: dense ? 8 : 16),
         ),
 
         // Wrap with [SizedBox] in order for text to be consistent width.
@@ -77,7 +77,7 @@ class FontWidget extends StatelessWidget {
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.ease,
-          child: SizedBox(width: dense ? 0 : 16),
+          child: SizedBox(width: dense ? 8 : 16),
         ),
       ],
     );
