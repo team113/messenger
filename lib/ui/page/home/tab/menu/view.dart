@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -30,7 +31,6 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
 import '/util/platform_utils.dart';
-import '/util/id_format.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.menu] tab.
@@ -110,7 +110,7 @@ class MenuTabView extends StatelessWidget {
                           children: [
                             Text(
                               c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.val.idFormat() ??
+                                  c.myUser.value?.num.userNumFormat() ??
                                   'dot'.l10n * 3,
                               style: style.fonts.headlineMedium,
                             ),

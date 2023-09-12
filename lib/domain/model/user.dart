@@ -167,6 +167,22 @@ class UserNum extends NewType<String> {
   const factory UserNum.unchecked(String val) = UserNum._;
 }
 
+/// The correct format for the [UserNum] val.
+extension UserNumFormatting on UserNum {
+  String? userNumFormat() {
+    if (val.isEmpty) return null;
+
+    String modifiedUserNum = '';
+    for (int i = 0; i < val.length; i += 4) {
+      modifiedUserNum += val.substring(i, i + 4);
+      if (i + 4 < val.length) {
+        modifiedUserNum += ' ';
+      }
+    }
+    return modifiedUserNum;
+  }
+}
+
 /// Unique login of an [User].
 ///
 /// [UserLogin] allows [User] to perform a sign-in, when combined with a
