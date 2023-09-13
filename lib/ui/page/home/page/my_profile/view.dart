@@ -1005,7 +1005,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
       TextSpan(
         text: c.myUser.value?.name?.val ??
             c.myUser.value?.login?.val ??
-            c.myUser.value?.num.val ??
+            c.myUser.value?.num.toString() ??
             'dot'.l10n * 3,
         style: style.fonts.labelLarge,
       ),

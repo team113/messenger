@@ -175,7 +175,7 @@ class UserNum extends NewType<String> {
       }
       formattedUserNum += val[i];
     }
-    return formattedUserNum;
+    return formattedUserNum.trim();
   }
 
   /// Creates an object without any validation.

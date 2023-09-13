@@ -191,7 +191,7 @@ class CallWorker extends DisposableService {
                   if (chat?.chat.value.muted == null) {
                     String? title = chat?.title.value ??
                         c.caller?.name?.val ??
-                        c.caller?.num.val;
+                        c.caller?.num.toString();
 
                     _notificationService.show(
                       title ?? 'label_incoming_call'.l10n,
