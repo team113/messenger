@@ -39,10 +39,13 @@ class ScrollableColumn extends StatelessWidget {
     return CustomScrollView(
       controller: controller,
       slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Column(crossAxisAlignment: crossAxisAlignment, children: children)
-          ]),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              Column(crossAxisAlignment: crossAxisAlignment, children: children)
+            ]),
+          ),
         )
       ],
     );

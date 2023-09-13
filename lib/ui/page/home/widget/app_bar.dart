@@ -31,6 +31,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.padding,
     this.border,
+    this.decoration,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
   });
 
@@ -52,6 +53,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
 
+  final Widget? decoration;
+
   /// Height of the [CustomAppBar].
   static const double height = 60;
 
@@ -64,62 +67,67 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     final double top = MediaQuery.of(context).padding.top;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Stack(
       children: [
-        if (top != 0)
-          Container(
-            height: top,
-            width: double.infinity,
-            color: style.colors.transparent,
-          ),
-        Expanded(
-          child: Padding(
-            padding: margin,
-            child: Container(
-              height: height,
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                    blurStyle: BlurStyle.outer,
-                  ),
-                ],
+        if (decoration != null) Positioned.fill(child: decoration!),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (top != 0)
+              Container(
+                height: top,
+                width: double.infinity,
+                color: style.colors.transparent,
               ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
-                ),
-                borderRadius: style.cardRadius,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
+            Expanded(
+              child: Padding(
+                padding: margin,
+                child: Container(
+                  height: height,
                   decoration: BoxDecoration(
                     borderRadius: style.cardRadius,
-                    border: border ?? style.cardBorder,
-                    color: style.cardColor,
-                  ),
-                  padding: padding,
-                  child: Row(
-                    children: [
-                      ...leading,
-                      Expanded(
-                        child: DefaultTextStyle.merge(
-                          style: style.fonts.headlineMedium,
-                          child:
-                              Center(child: title ?? const SizedBox.shrink()),
-                        ),
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: style.colors.onBackgroundOpacity13,
+                        blurStyle: BlurStyle.outer,
                       ),
-                      ...actions,
                     ],
+                  ),
+                  child: ConditionalBackdropFilter(
+                    condition: style.cardBlur > 0,
+                    filter: ImageFilter.blur(
+                      sigmaX: style.cardBlur,
+                      sigmaY: style.cardBlur,
+                    ),
+                    borderRadius: style.cardRadius,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      decoration: BoxDecoration(
+                        borderRadius: style.cardRadius,
+                        border: border ?? style.cardBorder,
+                        color: style.cardColor,
+                      ),
+                      padding: padding,
+                      child: Row(
+                        children: [
+                          ...leading,
+                          Expanded(
+                            child: DefaultTextStyle.merge(
+                              style: style.fonts.headlineMedium,
+                              child: Center(
+                                  child: title ?? const SizedBox.shrink()),
+                            ),
+                          ),
+                          ...actions,
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );

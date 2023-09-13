@@ -32,6 +32,7 @@ class SafeScrollbar extends StatelessWidget {
     required this.child,
     this.top = true,
     this.bottom = true,
+    this.margin,
     this.borderRadius,
     this.controller,
   });
@@ -43,6 +44,8 @@ class SafeScrollbar extends StatelessWidget {
   /// Indicator whether to avoid system intrusions on the bottom side of the
   /// screen.
   final bool bottom;
+
+  final EdgeInsets? margin;
 
   /// [BorderRadius] to clip the [child] with.
   final BorderRadius? borderRadius;
@@ -59,7 +62,7 @@ class SafeScrollbar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
+        padding: margin ?? EdgeInsets.symmetric(vertical: 5),
         child: child,
       );
     }
@@ -72,8 +75,9 @@ class SafeScrollbar extends StatelessWidget {
     return MediaQuery(
       data: MediaQuery.of(router.context!).copyWith(
         padding: padding.copyWith(
-          top: top ? CustomAppBar.height + 5 : 0,
-          bottom: bottom ? CustomNavigationBar.height + 5 + 5 : 0,
+          top: (margin?.top ?? 0) + (top ? CustomAppBar.height + 5 : 0),
+          bottom: (margin?.bottom ?? 0) +
+              (bottom ? CustomNavigationBar.height + 5 + 5 : 0),
         ),
       ),
       child: Container(
@@ -81,8 +85,8 @@ class SafeScrollbar extends StatelessWidget {
           borderRadius: borderRadius ?? BorderRadius.circular(40),
         ),
         margin: EdgeInsets.only(
-          top: top ? padding.top + 5 + 5 : 0,
-          bottom: bottom ? padding.bottom + 5 + 5 : 0,
+          top: (margin?.top ?? 0) + (top ? padding.top + 5 + 5 : 0),
+          bottom: (margin?.bottom ?? 0) + (bottom ? padding.bottom + 5 + 5 : 0),
         ),
         clipBehavior: Clip.hardEdge,
         child: controller == null

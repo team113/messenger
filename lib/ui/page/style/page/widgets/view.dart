@@ -21,6 +21,8 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/unread_counter.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/style/widget/builder_wrap.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -32,7 +34,7 @@ import 'widget/playable_asset.dart';
 import 'widget/subtitle_container.dart';
 
 /// Widgets view of the [Routes.style] page.
-class WidgetsView extends StatelessWidget {
+class WidgetsView extends StatefulWidget {
   const WidgetsView({
     super.key,
     this.inverted = false,
@@ -46,6 +48,13 @@ class WidgetsView extends StatelessWidget {
   final bool dense;
 
   @override
+  State<WidgetsView> createState() => _WidgetsViewState();
+}
+
+class _WidgetsViewState extends State<WidgetsView> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
   Widget build(BuildContext context) {
     final List<(String, String, bool)> sounds = [
       ('chinese', 'Incoming call', false),
@@ -57,42 +66,47 @@ class WidgetsView extends StatelessWidget {
       ('pop', 'Pop sound', true),
     ];
 
-    return ScrollableColumn(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        const Header('Widgets'),
-        const SubHeader('Images'),
-        _images(context),
-        const SubHeader('Animations'),
-        _animations(context),
-        const SubHeader('Sounds'),
-        BuilderWrap(
-          sounds,
-          (e) => PlayableAsset(e.$1, subtitle: e.$2, once: e.$3),
-        ),
-        const SubHeader('Avatars'),
-        _avatars(context),
-        const Divider(),
-        const SubHeader('Text fields'),
-        _fields(context),
-        const Divider(),
-        const SubHeader('Buttons'),
-        _buttons(context),
-        const Divider(),
-        const SubHeader('Switchers'),
-        _switches(context),
-        const Divider(),
-        const SubHeader('Containment'),
-        _containment(context),
-        const Divider(),
-        const SubHeader('System messages'),
-        _system(context),
-        const Divider(),
-        const SubHeader('Navigation'),
-        _navigation(context),
-        const Divider(),
-      ],
+    return SafeScrollbar(
+      controller: _scrollController,
+      margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
+      child: ScrollableColumn(
+        controller: _scrollController,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          const Header('Widgets'),
+          const SubHeader('Images'),
+          _images(context),
+          const SubHeader('Animations'),
+          _animations(context),
+          const SubHeader('Sounds'),
+          BuilderWrap(
+            sounds,
+            (e) => PlayableAsset(e.$1, subtitle: e.$2, once: e.$3),
+          ),
+          const SubHeader('Avatars'),
+          _avatars(context),
+          const Divider(),
+          const SubHeader('Text fields'),
+          _fields(context),
+          const Divider(),
+          const SubHeader('Buttons'),
+          _buttons(context),
+          const Divider(),
+          const SubHeader('Switchers'),
+          _switches(context),
+          const Divider(),
+          const SubHeader('Containment'),
+          _containment(context),
+          const Divider(),
+          const SubHeader('System messages'),
+          _system(context),
+          const Divider(),
+          const SubHeader('Navigation'),
+          _navigation(context),
+          const Divider(),
+        ],
+      ),
     );
   }
 
@@ -101,35 +115,35 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             width: 900,
             child: SvgImage.asset(
-              'assets/images/background_${inverted ? 'dark' : 'light'}.svg',
+              'assets/images/background_${widget.inverted ? 'dark' : 'light'}.svg',
               fit: BoxFit.fitWidth,
             ),
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             height: 300,
             width: 200,
             child: const SvgImage.asset('assets/images/logo/logo0000.svg'),
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             height: 150,
             width: 150,
             child: const SvgImage.asset('assets/images/logo/head0000.svg'),
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             subtitle: 'UnreadCounter',
             width: 190,
             child: Wrap(
@@ -151,12 +165,12 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             width: 210,
             height: 300,
             subtitle: 'AnimatedLogo',
@@ -170,7 +184,7 @@ class WidgetsView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             subtitle: 'SpinKitDoubleBounce',
             width: 128,
             height: 128,
@@ -182,7 +196,7 @@ class WidgetsView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             subtitle: 'AnimatedTyping',
             width: 86,
             height: 86,
@@ -190,7 +204,7 @@ class WidgetsView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
-            inverted: inverted,
+            inverted: widget.inverted,
             subtitle: 'CustomProgressIndicator',
             child: const CustomProgressIndicator(),
           ),
@@ -207,7 +221,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],
@@ -222,7 +236,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],
@@ -237,7 +251,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],
@@ -252,7 +266,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],
@@ -267,7 +281,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],
@@ -282,7 +296,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],
@@ -297,7 +311,7 @@ class WidgetsView extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
+      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [],

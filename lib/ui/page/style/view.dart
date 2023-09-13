@@ -48,9 +48,23 @@ class StyleView extends StatelessWidget {
       init: StyleController(),
       builder: (StyleController c) {
         return Scaffold(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: style.colors.background,
+          // backgroundColor: const Color(0xFFFFFFFF),
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
+            // decoration: Container(
+            //   decoration: BoxDecoration(
+            //     gradient: LinearGradient(
+            //       begin: Alignment.topCenter,
+            //       end: Alignment.bottomCenter,
+            //       stops: const [0.2, 1],
+            //       colors: [
+            //         style.colors.background,
+            //         style.colors.background.withOpacity(0),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             leading: [
               StyledBackButton(
                 canPop: true,
@@ -122,17 +136,19 @@ class StyleView extends StatelessWidget {
               }),
             ],
           ),
-          body: SafeArea(child: _page(c)),
-          extendBody: true,
+          body: _page(c, context),
+          // extendBody: true,
         );
       },
     );
   }
 
   /// Returns a corresponding [StyleController.tab] page switcher.
-  Widget _page(StyleController c) {
+  Widget _page(StyleController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return ColoredBox(
-      color: const Color(0xFFF5F5F5),
+      color: style.colors.background,
       child: PageView(
         controller: c.pages,
         onPageChanged: (i) => c.tab.value = StyleTab.values[i],

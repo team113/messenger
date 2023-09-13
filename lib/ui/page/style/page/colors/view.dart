@@ -17,6 +17,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
 import '/themes.dart';
@@ -204,10 +205,11 @@ class _ColorsViewState extends State<ColorsView> {
 
     return SafeScrollbar(
       controller: _scrollController,
+      margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
       child: ScrollableColumn(
         controller: _scrollController,
         children: [
-          const SizedBox(height: 16),
+          const SizedBox(height: 16 + 5),
           const Header('Colors'),
           const SizedBox(height: 16),
           ColorSchemaWidget(

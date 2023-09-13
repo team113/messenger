@@ -15,7 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
@@ -26,7 +29,7 @@ import 'widget/font.dart';
 import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
-class TypographyView extends StatelessWidget {
+class TypographyView extends StatefulWidget {
   const TypographyView({
     super.key,
     this.inverted = false,
@@ -38,6 +41,13 @@ class TypographyView extends StatelessWidget {
 
   /// Indicator whether this view should be compact, meaning minimal [Padding]s.
   final bool dense;
+
+  @override
+  State<TypographyView> createState() => _TypographyViewState();
+}
+
+class _TypographyViewState extends State<TypographyView> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +71,7 @@ class TypographyView extends StatelessWidget {
       (style.fonts.bodySmall, 'bodySmall'),
     ];
 
-    final Iterable<(TextStyle, String)> fonts = [
+    Iterable<(TextStyle, String)> fonts = [
       (style.fonts.displayLarge, 'displayLarge'),
       (style.fonts.displayLargeOnPrimary, 'displayLargeOnPrimary'),
       (style.fonts.displayMedium, 'displayMedium'),
@@ -120,57 +130,68 @@ class TypographyView extends StatelessWidget {
       (style.fonts.bodySmallSecondary, 'bodySmallSecondary'),
     ];
 
+    fonts = fonts.sorted(
+      (a, b) => b.$1.fontSize?.compareTo(a.$1.fontSize ?? 0) ?? 0,
+    );
+
     final List<(FontWeight, String)> families = [
       (FontWeight.w300, 'SFUI-Light'),
       (FontWeight.w400, 'SFUI-Regular'),
       (FontWeight.w700, 'SFUI-Bold'),
     ];
 
-    return ScrollableColumn(
-      children: [
-        const SizedBox(height: 16),
-        const Header('Typography'),
-        const SubHeader('Fonts'),
-        BuilderWrap(
-          fonts,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontWidget(e, inverted: inverted, dense: dense),
-        ),
-        const SubHeader('Typefaces'),
-        BuilderWrap(
-          styles,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontWidget(
-            (
-              e.$1.copyWith(
-                color: inverted
-                    ? const Color(0xFFFFFFFF)
-                    : const Color(0xFF000000),
-              ),
-              e.$2,
-            ),
-            inverted: inverted,
-            dense: dense,
+    return SafeScrollbar(
+      controller: _scrollController,
+      margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
+      child: ScrollableColumn(
+        controller: _scrollController,
+        children: [
+          const SizedBox(height: 16 + 5),
+          const Header('Typography'),
+          const SubHeader('Families'),
+          BuilderWrap(
+            families,
+            inverted: widget.inverted,
+            dense: widget.dense,
+            (e) =>
+                FontFamily(e, inverted: widget.inverted, dense: widget.dense),
           ),
-        ),
-        const SubHeader('Families'),
-        BuilderWrap(
-          families,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontFamily(e, inverted: inverted, dense: dense),
-        ),
-        const SubHeader('Styles'),
-        BuilderWrap(
-          styles,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontStyleWidget(e, inverted: inverted),
-        ),
-        const SizedBox(height: 16),
-      ],
+          const SubHeader('Fonts'),
+          BuilderWrap(
+            fonts,
+            inverted: widget.inverted,
+            dense: widget.dense,
+            (e) =>
+                FontWidget(e, inverted: widget.inverted, dense: widget.dense),
+          ),
+          // const SubHeader('Typefaces'),
+          // BuilderWrap(
+          //   styles,
+          //   inverted: widget.inverted,
+          //   dense: widget.dense,
+          //   (e) => FontWidget(
+          //     (
+          //       e.$1.copyWith(
+          //         color: widget.inverted
+          //             ? const Color(0xFFFFFFFF)
+          //             : const Color(0xFF000000),
+          //       ),
+          //       e.$2,
+          //     ),
+          //     inverted: widget.inverted,
+          //     dense: widget.dense,
+          //   ),
+          // ),
+          const SubHeader('Styles'),
+          BuilderWrap(
+            styles,
+            inverted: widget.inverted,
+            dense: widget.dense,
+            (e) => FontStyleWidget(e, inverted: widget.inverted),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }
