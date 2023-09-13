@@ -37,12 +37,12 @@ import 'widget/sign_button.dart';
 class LoginView extends StatelessWidget {
   const LoginView({
     super.key,
-    this.stage = LoginViewStage.signUp,
+    this.initial = LoginViewStage.signUp,
     this.onSuccess,
   });
 
-  /// [LoginView] stage to display.
-  final LoginViewStage stage;
+  /// Initial [LoginViewStage] this [LoginView] should open.
+  final LoginViewStage initial;
 
   /// Callback, called when this [LoginView] successfully signs into an account.
   ///
@@ -52,12 +52,12 @@ class LoginView extends StatelessWidget {
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    LoginViewStage stage = LoginViewStage.signUp,
+    LoginViewStage initial = LoginViewStage.signUp,
     void Function()? onSuccess,
   }) {
     return ModalPopup.show(
       context: context,
-      child: LoginView(stage: stage, onSuccess: onSuccess),
+      child: LoginView(initial: initial, onSuccess: onSuccess),
     );
   }
 
@@ -69,7 +69,7 @@ class LoginView extends StatelessWidget {
       key: const Key('LoginView'),
       init: LoginController(
         Get.find(),
-        stage: stage,
+        initial: initial,
         onSuccess: onSuccess,
       ),
       builder: (LoginController c) {

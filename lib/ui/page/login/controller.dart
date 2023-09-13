@@ -57,9 +57,9 @@ enum LoginViewStage {
 class LoginController extends GetxController {
   LoginController(
     this._authService, {
-    LoginViewStage stage = LoginViewStage.signUp,
+    LoginViewStage initial = LoginViewStage.signUp,
     this.onSuccess,
-  }) : stage = Rx(stage);
+  }) : stage = Rx(initial);
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;

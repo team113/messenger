@@ -103,7 +103,9 @@ class AuthView extends StatelessWidget {
                 height: 23,
               ),
             ),
-            onPressed: () => LoginView.show(context),
+            onPressed: () => LoginView.show(
+              context,
+            ),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
@@ -120,7 +122,7 @@ class AuthView extends StatelessWidget {
               ),
             ),
             onPressed: () =>
-                LoginView.show(context, stage: LoginViewStage.signIn),
+                LoginView.show(context, initial: LoginViewStage.signIn),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
@@ -146,15 +148,13 @@ class AuthView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ...header,
-            Obx(() {
-              return AnimatedLogo(
-                key: const ValueKey('Logo'),
-                svgAsset: 'assets/images/logo/head000${c.logoFrame.value}.svg',
-                onInit: Config.disableInfiniteAnimations
-                    ? null
-                    : (a) => _setBlink(c, a),
-              );
-            }),
+            AnimatedLogo(
+              key: const ValueKey('Logo'),
+              riveAsset: 'assets/images/logo/head.riv',
+              onInit: Config.disableInfiniteAnimations
+                  ? null
+                  : (a) => _setBlink(c, a),
+            ),
             ...footer,
           ],
         );
@@ -213,8 +213,6 @@ class AuthView extends StatelessWidget {
     a.addController(machine);
 
     c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-
-    await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
