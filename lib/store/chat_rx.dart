@@ -1042,7 +1042,7 @@ class HiveRxChat extends RxChat {
         break;
 
       case ChatEventsKind.event:
-        HiveChat? chatEntity = await _chatLocal.get(id);
+        final HiveChat? chatEntity = await _chatLocal.get(id);
         var versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           return;

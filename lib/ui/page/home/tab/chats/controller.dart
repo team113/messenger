@@ -136,7 +136,7 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Subscription for [ChatService.paginationChats] changes.
+  /// Subscription for [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
@@ -170,7 +170,8 @@ class ChatsTabController extends GetxController {
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
-    chats = RxList<RxChat>(_chatService.paginationChats.values.toList());
+
+    chats = RxList<RxChat>(_chatService.paginated.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
@@ -203,7 +204,7 @@ class ChatsTabController extends GetxController {
     }
 
     chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
-    _chatsSubscription = _chatService.paginationChats.changes.listen((event) {
+    _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           chats.add(event.value!);
@@ -260,6 +261,7 @@ class ChatsTabController extends GetxController {
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     scrollController.removeListener(_scrollListener);
+
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -656,7 +658,7 @@ class ChatsTabController extends GetxController {
     return false;
   }
 
-  /// Uploads next page of [Chat]s based on the [ScrollController.position]
+  /// Requests the next page of [Chat]s based on the [ScrollController.position]
   /// value.
   void _scrollListener() {
     if (scrollController.hasClients &&
@@ -668,7 +670,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Ensures the [ChatView] is scrollable.
+  /// Ensures the [ChatsTabView] is scrollable.
   Future<void> _ensureScrollable() async {
     if (hasNext.isTrue) {
       await Future.delayed(1.milliseconds, () async {

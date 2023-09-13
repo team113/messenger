@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../chat.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -24,6 +23,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/chat_item.dart';
+import '/store/chat.dart';
 import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].

@@ -132,10 +132,11 @@ class HivePageProvider<T extends Object, C, K extends Object>
     if (item == null) {
       return null;
     }
+
     final K key = getKey(item);
     final int index = _provider.keys.toList().indexOf(key);
     if (index > 0) {
-      List<T> items = [];
+      final List<T> items = [];
       for (var i in _provider.keys.before(index, count)) {
         final T? item = await _provider.get(i);
         if (item != null) {
@@ -190,7 +191,7 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
 /// Extension adding ability to take items around, after and before an index.
 extension AroundExtension<T> on Iterable<T> {
-  /// Takes [count] items around the provided [index].
+  /// Returns the [count] items around the provided [index].
   Iterable<T> around(int index, int count) {
     if (index < (count ~/ 2)) {
       return take(count - ((count ~/ 2) - index));
@@ -199,12 +200,12 @@ extension AroundExtension<T> on Iterable<T> {
     }
   }
 
-  /// Takes [count] items after the provided [index].
+  /// Returns the [count] items after the provided [index].
   Iterable<T> after(int index, int count) {
     return skip(index + 1).take(count);
   }
 
-  /// Takes [count] items before the provided [index].
+  /// Returns the [count] items before the provided [index].
   Iterable<T> before(int index, int count) {
     if (index < count) {
       return take(index);

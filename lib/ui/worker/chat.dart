@@ -317,7 +317,7 @@ class _ChatWatchData {
 
     showNotification(c.value);
 
-    worker = ever(c, (Chat chat) => showNotification(chat));
+    worker = ever(c, showNotification);
   }
 
   /// [Worker] to react on the [Chat] updates.

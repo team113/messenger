@@ -45,14 +45,13 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
-  /// Returns the [RxStatus] of the [paginationChats] initialization.
+  /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
-  /// Returns the current reactive map of paginated [RxChat]s.
-  RxObsMap<ChatId, RxChat> get paginationChats =>
-      _chatRepository.paginationChats;
+  /// Returns the current paginated [RxChat]s available.
+  RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
-  /// Returns the current reactive map of all [RxChat]s.
+  /// Returns the current reactive map of all [RxChat]s available.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
