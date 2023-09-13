@@ -4,8 +4,9 @@ Contribution Guide
 1. [Requirements](#requirements)
 2. [Prerequisites](#prerequisites)
 3. [Operations](#operations)
-4. [Structure overview](#structure-overview)
-5. [Code style](#code-style)
+5. [Structure overview](#structure-overview)
+6. [Code style](#code-style)
+7. [Backend](#backend)
 
 
 
@@ -475,6 +476,39 @@ class UserBio {
 }
 ```
 
+
+
+
+## Connect to backend
+
+### Local development
+
+Development GraphQL API playground is available [here](https://messenger.soc.stg.t11913.org/api/graphql/playground).
+
+In order to connect to the development backend GraphQL endpoint, you should use the following `dart-define`s:
+
+```bash
+--dart-define=SOCAPP_HTTP_URL=https://messenger.soc.stg.t11913.org
+--dart-define=SOCAPP_WS_URL=wss://messenger.soc.stg.t11913.org
+--dart-define=SOCAPP_HTTP_PORT=443
+--dart-define=SOCAPP_WS_PORT=443
+--dart-define=SOCAPP_CONF_REMOTE=false
+```
+
+Or pass the following configuration to `assets/conf.toml`:
+
+```toml
+[conf]
+remote = false
+
+[server.http]
+url = "https://messenger.soc.stg.t11913.org"
+ort = 443
+
+[server.ws]
+url = "wss://messenger.soc.stg.t11913.org"
+port = 443
+```
 
 
 
