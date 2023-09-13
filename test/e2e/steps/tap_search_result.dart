@@ -64,7 +64,7 @@ final StepDefinitionGeneric tapUserInSearchResults =
               }),
             );
 
-            if(!await context.world.appDriver.isPresent(scrollable)) {
+            if (!await context.world.appDriver.isPresent(scrollable)) {
               return false;
             }
 
@@ -105,7 +105,7 @@ final StepDefinitionGeneric tapUserInSearchResults =
               }),
             );
 
-            if(!await context.world.appDriver.isPresent(scrollable)) {
+            if (!await context.world.appDriver.isPresent(scrollable)) {
               return false;
             }
 

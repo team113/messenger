@@ -500,7 +500,7 @@ class SearchResultImpl<K extends Comparable, T, C>
   @override
   Future<void> next() async {
     if (pagination != null && nextLoading.isFalse) {
-      if(status.value.isSuccess) {
+      if (status.value.isSuccess) {
         status.value = RxStatus.loadingMore();
       }
 
