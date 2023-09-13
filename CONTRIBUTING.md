@@ -6,7 +6,7 @@ Contribution Guide
 3. [Operations](#operations)
 5. [Structure overview](#structure-overview)
 6. [Code style](#code-style)
-7. [Backend](#backend)
+7. [Connect to backend](#connect-to-backend)
 
 
 
