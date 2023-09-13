@@ -71,7 +71,7 @@ class AuthView extends StatelessWidget {
               .toList(),
           Text(
             'Messenger',
-            style: style.fonts.displayLargeThin,
+            style: style.fonts.displayLargeSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -79,7 +79,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: style.fonts.displaySmallThin,
+            style: style.fonts.displaySmall,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

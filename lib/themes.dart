@@ -80,15 +80,13 @@ class Themes {
       onPrimary: colors.onPrimary,
       danger: colors.dangerColor,
       displayLarge:
-          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
-      displayLargeThin: textStyle.copyWith(
-          fontSize: 27, fontWeight: FontWeight.w300, color: colors.secondary),
+          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 27),
       displayMedium:
           textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
       displaySmall:
+          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 21),
+      displayTiny:
           textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
-      displaySmallThin: textStyle.copyWith(
-          fontWeight: FontWeight.w300, fontSize: 21, color: colors.secondary),
       headlineLarge: textStyle.copyWith(fontSize: 18),
       headlineMedium:
           textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
@@ -586,14 +584,15 @@ class Fonts {
     Color? onPrimary,
     Color? danger,
     required this.displayLarge,
-    required this.displayLargeThin,
     TextStyle? displayLargeOnPrimary,
+    TextStyle? displayLargeSecondary,
     required this.displayMedium,
     TextStyle? displayMediumSecondary,
     required this.displaySmall,
-    required this.displaySmallThin,
     TextStyle? displaySmallSecondary,
-    TextStyle? displaySmallOnPrimary,
+    required this.displayTiny,
+    TextStyle? displayTinySecondary,
+    TextStyle? displayTinyOnPrimary,
     required this.headlineLarge,
     TextStyle? headlineLargeOnPrimary,
     required this.headlineMedium,
@@ -639,14 +638,19 @@ class Fonts {
     required this.input,
     required this.error,
     required this.counter,
-  })  : displayLargeOnPrimary =
-            displayLargeOnPrimary ?? displayLarge.copyWith(color: onPrimary),
+  })  : displayLargeOnPrimary = displayLargeOnPrimary ??
+            displayLarge.copyWith(
+                color: onPrimary, fontWeight: FontWeight.bold),
+        displayLargeSecondary =
+            displayLargeSecondary ?? displayLarge.copyWith(color: secondary),
         displayMediumSecondary =
             displayMediumSecondary ?? displayMedium.copyWith(color: secondary),
         displaySmallSecondary =
             displaySmallSecondary ?? displaySmall.copyWith(color: secondary),
-        displaySmallOnPrimary =
-            displaySmallOnPrimary ?? displaySmall.copyWith(color: onPrimary),
+        displayTinyOnPrimary =
+            displayTinyOnPrimary ?? displayTiny.copyWith(color: onPrimary),
+        displayTinySecondary =
+            displayTinySecondary ?? displayTiny.copyWith(color: secondary),
         headlineLargeOnPrimary =
             headlineLargeOnPrimary ?? headlineLarge.copyWith(color: onPrimary),
         headlineMediumOnPrimary = headlineMediumOnPrimary ??
@@ -709,11 +713,11 @@ class Fonts {
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
 
-  /// [displayLarge] with `thin` font weight and `secondary` color.
-  final TextStyle displayLargeThin;
-
-  /// [displayLarge] of `onPrimary` color.
+  /// [displayLarge] of `onPrimary` color with [FontWeight.bold].
   final TextStyle displayLargeOnPrimary;
+
+  /// [displayLarge] of `secondary` color.
+  final TextStyle displayLargeSecondary;
 
   /// Medium version of display text of `onBackground` color.
   final TextStyle displayMedium;
@@ -724,14 +728,17 @@ class Fonts {
   /// Small version of display text of `onBackground` color.
   final TextStyle displaySmall;
 
-  /// [displaySmall] with `thin` font weight and `secondary` color.
-  final TextStyle displaySmallThin;
-
   /// [displaySmall] with `secondary` color.
   final TextStyle displaySmallSecondary;
 
-  /// [displaySmall] with `onPrimary` color.
-  final TextStyle displaySmallOnPrimary;
+  /// Tiny version of display text of `onBackground` color.
+  final TextStyle displayTiny;
+
+  /// [displayTiny] with `secondary` color.
+  final TextStyle displayTinySecondary;
+
+  /// [displayTiny] with `onPrimary` color.
+  final TextStyle displayTinyOnPrimary;
 
   /// Large version of headline text of `onBackground` color.
   final TextStyle headlineLarge;
@@ -877,21 +884,22 @@ class Fonts {
 
     return Fonts(
       displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
-      displayLargeThin:
-          TextStyle.lerp(font.displayLargeThin, other.displayLargeThin, t)!,
       displayLargeOnPrimary: TextStyle.lerp(
           font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+      displayLargeSecondary: TextStyle.lerp(
+          font.displayLargeSecondary, other.displayLargeSecondary, t)!,
       displayMedium:
           TextStyle.lerp(font.displayMedium, other.displayMedium, t)!,
       displayMediumSecondary: TextStyle.lerp(
           font.displayMediumSecondary, other.displayMediumSecondary, t)!,
       displaySmall: TextStyle.lerp(font.displaySmall, other.displaySmall, t)!,
-      displaySmallThin:
-          TextStyle.lerp(font.displaySmallThin, other.displaySmallThin, t)!,
       displaySmallSecondary: TextStyle.lerp(
           font.displaySmallSecondary, other.displaySmallSecondary, t)!,
-      displaySmallOnPrimary: TextStyle.lerp(
-          font.displaySmallOnPrimary, other.displaySmallOnPrimary, t)!,
+      displayTiny: TextStyle.lerp(font.displayTiny, other.displayTiny, t)!,
+      displayTinySecondary: TextStyle.lerp(
+          font.displayTinySecondary, other.displayTinySecondary, t)!,
+      displayTinyOnPrimary: TextStyle.lerp(
+          font.displayTinyOnPrimary, other.displayTinyOnPrimary, t)!,
       headlineLarge:
           TextStyle.lerp(font.headlineLarge, other.headlineLarge, t)!,
       headlineLargeOnPrimary: TextStyle.lerp(
