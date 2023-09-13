@@ -74,7 +74,7 @@ class LoginView extends StatelessWidget {
       ),
       builder: (LoginController c) {
         return Obx(() {
-          ListView builder(Widget header, List<Widget> children) {
+          Widget builder(Widget header, List<Widget> children) {
             return ListView(
               controller: c.scrollController,
               shrinkWrap: true,
