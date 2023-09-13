@@ -6,7 +6,7 @@ Contribution Guide
 3. [Operations](#operations)
 4. [Structure overview](#structure-overview)
 5. [Code style](#code-style)
-6. [Connect to backend](#connect-to-backend)
+6. [Backend connectivity](#backend-connectivity)
 
 
 
@@ -435,7 +435,7 @@ class UserBio {
 
 
 
-## Connect to backend
+## Backend connectivity
 
 ### Local development
 
