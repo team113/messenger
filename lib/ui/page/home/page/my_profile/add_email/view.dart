@@ -17,10 +17,12 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
@@ -42,8 +44,7 @@ class AddEmailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: AddEmailController(
@@ -57,120 +58,118 @@ class AddEmailView extends StatelessWidget {
 
           switch (c.stage.value) {
             case AddEmailFlowStage.code:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Obx(() {
-                      return Text(
-                        c.resent.value
-                            ? 'label_add_email_confirmation_sent_again'.l10n
-                            : 'label_add_email_confirmation_sent'.l10n,
-                        style: thin?.copyWith(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+              child = Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Obx(() {
+                        return Text(
+                          c.resent.value
+                              ? 'label_add_email_confirmation_sent_again'.l10n
+                              : 'label_add_email_confirmation_sent'.l10n,
+                          style: style.fonts.bodyMediumSecondary,
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 25),
+                    ReactiveTextField(
+                      key: const Key('ConfirmationCode'),
+                      state: c.emailCode,
+                      label: 'label_confirmation_code'.l10n,
+                      formatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('Resend'),
+                              maxWidth: double.infinity,
+                              title: Text(
+                                c.resendEmailTimeout.value == 0
+                                    ? 'label_resend'.l10n
+                                    : 'label_resend_timeout'.l10nfmt(
+                                        {'timeout': c.resendEmailTimeout.value},
+                                      ),
+                                style: c.resendEmailTimeout.value == 0
+                                    ? style.fonts.bodyMediumOnPrimary
+                                    : style.fonts.bodyMedium,
+                              ),
+                              onPressed: c.resendEmailTimeout.value == 0
+                                  ? c.resendEmail
+                                  : null,
+                              color: style.colors.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedRoundedButton(
+                              key: const Key('Proceed'),
+                              maxWidth: double.infinity,
+                              title: Text(
+                                'btn_proceed'.l10n,
+                                style: c.emailCode.isEmpty.value
+                                    ? style.fonts.bodyMedium
+                                    : style.fonts.bodyMediumOnPrimary,
+                              ),
+                              onPressed: c.emailCode.isEmpty.value
+                                  ? null
+                                  : c.emailCode.submit,
+                              color: style.colors.primary,
+                            ),
+                          ),
+                        ],
                       );
                     }),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('ConfirmationCode'),
-                    state: c.emailCode,
-                    label: 'label_confirmation_code'.l10n,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('Resend'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              c.resendEmailTimeout.value == 0
-                                  ? 'label_resend'.l10n
-                                  : 'label_resend_timeout'.l10nfmt(
-                                      {'timeout': c.resendEmailTimeout.value},
-                                    ),
-                              style: thin?.copyWith(
-                                color: c.resendEmailTimeout.value == 0
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
-                            ),
-                            onPressed: c.resendEmailTimeout.value == 0
-                                ? c.resendEmail
-                                : null,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedRoundedButton(
-                            key: const Key('Proceed'),
-                            maxWidth: double.infinity,
-                            title: Text(
-                              'btn_proceed'.l10n,
-                              style: thin?.copyWith(
-                                color: c.emailCode.isEmpty.value
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
-                            ),
-                            onPressed: c.emailCode.isEmpty.value
-                                ? null
-                                : c.emailCode.submit,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ],
+                  ],
+                ),
               );
               break;
 
             default:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'label_add_email_description'.l10n,
-                      style: thin?.copyWith(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.primary,
+              child = Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        'label_add_email_description'.l10n,
+                        style: style.fonts.bodyMediumSecondary,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('Email'),
-                    state: c.email,
-                    label: 'label_email'.l10n,
-                    hint: 'label_email_example'.l10n,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return OutlinedRoundedButton(
-                      key: const Key('Proceed'),
-                      maxWidth: double.infinity,
-                      title: Text(
-                        'btn_proceed'.l10n,
-                        style: thin?.copyWith(
-                          color: c.email.isEmpty.value
-                              ? Colors.black
-                              : Colors.white,
+                    const SizedBox(height: 25),
+                    ReactiveTextField(
+                      key: const Key('Email'),
+                      state: c.email,
+                      label: 'label_email'.l10n,
+                      hint: 'label_email_example'.l10n,
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      return OutlinedRoundedButton(
+                        key: const Key('Proceed'),
+                        maxWidth: double.infinity,
+                        title: Text(
+                          'btn_proceed'.l10n,
+                          style: c.email.isEmpty.value
+                              ? style.fonts.bodyMedium
+                              : style.fonts.bodyMediumOnPrimary,
                         ),
-                      ),
-                      onPressed: c.email.isEmpty.value ? null : c.email.submit,
-                      color: Theme.of(context).colorScheme.secondary,
-                    );
-                  }),
-                ],
+                        onPressed:
+                            c.email.isEmpty.value ? null : c.email.submit,
+                        color: style.colors.primary,
+                      );
+                    }),
+                  ],
+                ),
               );
               break;
           }
@@ -183,14 +182,7 @@ class AddEmailView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 4),
-                ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'label_add_email'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
-                ),
+                ModalPopupHeader(text: 'label_add_email'.l10n),
                 const SizedBox(height: 13),
                 Flexible(
                   child: Padding(

@@ -186,7 +186,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.fmt check=$(check) dockerized=no
 else
-	flutter format $(if $(call eq,$(check),yes),-n --set-exit-if-changed,) .
+	dart format $(if $(call eq,$(check),yes),-o none --set-exit-if-changed,) .
 endif
 
 
@@ -202,7 +202,8 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.gen overwrite=$(overwrite) dockerized=no
 else
-	flutter pub run build_runner build \
+	rm -f lib/pubspec.g.dart
+	dart run build_runner build \
 		$(if $(call eq,$(overwrite),no),,--delete-conflicting-outputs)
 endif
 
@@ -328,7 +329,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make docs.dart open=no dockerized=no clean=no
 else
-	flutter pub run dartdoc
+	dart run dartdoc
 ifeq ($(open),yes)
 	flutter pub global run dhttpd --path doc/api
 endif
@@ -527,6 +528,10 @@ ifeq ($(pull),yes)
 endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/baza/ .cache/cockroachdb/
+endif
+ifeq ($(wildcard .cache/backend/l10n),)
+	@mkdir -p .cache/backend/l10n/
+	@chmod 0777 .cache/backend/l10n/
 endif
 ifeq ($(wildcard .cache/baza),)
 	@mkdir -p .cache/baza/data/
@@ -779,7 +784,7 @@ endif
 # Usage:
 #	make git.release [ver=($(VERSION)|<proj-ver>)]
 
-git-release-tag = $(strip $(or $(ver),$(VERSION)))
+git-release-tag = v$(strip $(or $(ver),$(VERSION)))
 
 git.release:
 ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)

@@ -36,11 +36,18 @@ type AddChatMemberError {
 """Possible error codes of performing `Mutation.addChatMember`."""
 enum AddChatMemberErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by the `User` he tries to add to the `Chat`.
+  Authenticated `MyUser` is blocked by the `User` he tries to add to the `Chat`.
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
+
+  """
+  `Chat` is not a group, so cannot accept new members.
+
+  Status code: 403 Forbidden.
+  """
+  NOT_GROUP
 
   """
   `Chat` with the provided ID doesn't exist.
@@ -48,13 +55,6 @@ enum AddChatMemberErrorCode {
   Status code: 404 Not Found.
   """
   UNKNOWN_CHAT
-
-  """
-  `Chat` with the provided ID is not a group.
-
-  Status code: 400 Bad Request.
-  """
-  NOT_GROUP
 
   """
   `User` with the provided ID doesn't exist.
@@ -88,13 +88,6 @@ enum AddUserEmailErrorCode {
   Status code: 403 Forbidden.
   """
   TOO_MANY
-
-  """
-  Provided email address is occupied by another `User` already.
-
-  Status code: 409 Conflict.
-  """
-  OCCUPIED
 }
 
 """Result of performing `Mutation.addUserEmail`."""
@@ -121,13 +114,6 @@ enum AddUserPhoneErrorCode {
   Status code: 403 Forbidden.
   """
   TOO_MANY
-
-  """
-  Provided phone number is occupied by another `User` already.
-
-  Status code: 409 Conflict.
-  """
-  OCCUPIED
 }
 
 """Result of performing `Mutation.addUserPhone`."""
@@ -176,25 +162,25 @@ interface Attachment {
 scalar AttachmentId
 
 """
-[Connection] with blacklisted `User`s.
+[Connection] with `BlocklistRecord`s.
 
 [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
 """
-type BlacklistConnection {
+type BlocklistConnection {
   """
-  List of `User` [Edges] in this [Connection].
+  List of `BlocklistRecord` [Edges] in this [Connection].
 
   [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
   [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
   """
-  edges: [BlacklistEdge!]!
+  edges: [BlocklistEdge!]!
 
   """
-  List of `User`s in this [Connection].
+  List of `BlocklistRecord`s in this [Connection].
 
   [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
   """
-  nodes: [User!]!
+  nodes: [BlocklistRecord!]!
 
   """
   [PageInfo] of this [Connection].
@@ -203,53 +189,93 @@ type BlacklistConnection {
   [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
   """
   pageInfo: PageInfo!
+
+  """Total count of `BlocklistRecord`s."""
+  totalCount: Int!
 }
 
-"""Cursor of blacklisted `User`s."""
-scalar BlacklistCursor
+"""Cursor of `BlocklistRecord`s."""
+scalar BlocklistCursor
 
 """
-[Edge] with a blacklisted `User`.
+[Edge] with a `BlocklistRecord`.
 
 [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
 """
-type BlacklistEdge {
+type BlocklistEdge {
   """
   [Cursor] of this [Edge].
 
   [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
   [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
   """
-  cursor: BlacklistCursor!
+  cursor: BlocklistCursor!
 
   """
-  `User` [Node] at the end of this [Edge].
+  `BlocklistRecord` [Node] at the end of this [Edge].
 
   [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
   [Node]: https://tinyurl.com/gql-relay#sec-Node
   """
-  node: User!
+  node: BlocklistRecord!
 }
 
-"""Event of a `User` being added or removed to/from `MyUser.blacklist`."""
-interface BlacklistEvent {
-  """`DateTime` when this `BlacklistEvent` happened."""
+"""Event of a `User` being added or removed to/from `Query.blocklist`."""
+interface BlocklistEvent {
+  """`DateTime` when this `BlocklistEvent` happened."""
   at: DateTime!
 
-  """`User` this `BlacklistEvent` is about."""
+  """`User` this `BlocklistEvent` is about."""
   user: User!
-
-  """ID of the `User` this `BlacklistEvent` is about."""
-  userId: UserId!
 }
 
-"""`BlacklistEvent`s along with the corresponding `MyUserVersion`."""
-type BlacklistEventsVersioned {
-  """`BlacklistEvent`s themselves."""
-  events: [BlacklistEvent!]!
+"""`BlocklistEvent`s along with the corresponding `MyUserVersion`."""
+type BlocklistEventsVersioned {
+  """
+  Actual state of the `MyUser.blocklist` after this `BlocklistEvent`
+  has been emitted. Alias of `MyUser.blocklist`.
+
+  ## Sorting
+
+  Returned `User`s are sorted primarily by their blocking `DateTime`, and
+  secondary by their IDs (if the blocking `DateTime` is the same), in
+  descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `BlocklistRecord` pointed by the cursor
+  and the requested count of `BlocklistRecord`s preceding and following
+  it.
+
+  If it's desired to receive the `BlocklistRecord`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+  """
+  blocklist(
+    """
+    Cursor indicating the `BlocklistEdge` position to return next `BlocklistRecord`s after.
+    """
+    after: BlocklistCursor
+
+    """
+    Cursor indicating the `BlocklistEdge` position to return prior `BlocklistRecord`s before.
+    """
+    before: BlocklistCursor
+
+    """Number of next `BlocklistRecord`s to return."""
+    first: Int
+
+    """Number of prior `BlocklistRecord`s to return."""
+    last: Int
+  ): BlocklistConnection!
+
+  """`BlocklistEvent`s themselves."""
+  events: [BlocklistEvent!]!
 
   """
-  Version of the `MyUser`'s state updated by these `BlacklistEvent`s.
+  Version of the `MyUser`'s state updated by these `BlocklistEvent`s.
 
   It increases monotonically, so may be used (and is intended to) for
   tracking state's actuality.
@@ -257,14 +283,29 @@ type BlacklistEventsVersioned {
   ver: MyUserVersion!
 }
 
-"""Error of performing `Mutation.blacklistUser`."""
-type BlacklistUserError {
-  """Code indicating why this error has happened."""
-  code: BlacklistUserErrorCode!
+"""Reason of blocking a `User` by the authenticated `MyUser`."""
+scalar BlocklistReason
+
+"""`User`'s record in a `Query.blocklist` of the authenticated `MyUser`."""
+type BlocklistRecord {
+  """`DateTime` when the `User` was blocked."""
+  at: DateTime!
+
+  """Reason of why the `User` was blocked."""
+  reason: BlocklistReason
+
+  """Blocked `User`."""
+  user: User!
 }
 
-"""Possible error codes of performing `Mutation.blacklistUser`."""
-enum BlacklistUserErrorCode {
+"""Error of performing `Mutation.blockUser`."""
+type BlockUserError {
+  """Code indicating why this error has happened."""
+  code: BlockUserErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.blockUser`."""
+enum BlockUserErrorCode {
   """
   `User` with the provided ID doesn't exist.
 
@@ -273,8 +314,8 @@ enum BlacklistUserErrorCode {
   UNKNOWN_USER
 }
 
-"""Result of performing `Mutation.blacklistUser`."""
-union BlacklistUserResult = BlacklistEventsVersioned | BlacklistUserError
+"""Result of performing `Mutation.blockUser`."""
+union BlockUserResult = BlockUserError | BlocklistEventsVersioned
 
 """`Chat` is a conversation between `User`s."""
 type Chat {
@@ -324,6 +365,11 @@ type Chat {
   """
   items(
     """
+    Indicator whether to filter out all the `ChatItem`s without attachments.
+    """
+    onlyAttachments: Boolean = false
+
+    """
     Cursor indicating the `ChatItemsEdge` position to return next `ChatItem`s after.
     """
     after: ChatItemsCursor
@@ -338,11 +384,6 @@ type Chat {
 
     """Number of prior `ChatItem`s to return."""
     last: Int
-
-    """
-    Indicator whether to filter out all the `ChatItem`s without attachments.
-    """
-    onlyAttachments: Boolean = false
   ): ChatItemsConnection!
 
   """Kind of this `Chat`."""
@@ -371,8 +412,10 @@ type Chat {
   lastReadItem: ChatItemsEdge
 
   """
-  List of this `Chat`'s members which have read it, along with the
-  corresponding `LastChatRead`s.
+  List of this `Chat`'s members which have read it, along with the reading
+  `DateTime`s.
+
+  Limited with up to 10 `LastChatRead`s.
   """
   lastReads: [LastChatRead!]!
 
@@ -407,6 +450,12 @@ type Chat {
     """
     before: ChatMembersCursor
 
+    """
+    ID of the `ChatItem` that should be read by returned `ChatMember`s.
+    `null` means omitting filtering by this criteria.
+    """
+    readItem: ChatItemId
+
     """Number of next `ChatMember`s to return."""
     first: Int
 
@@ -420,6 +469,9 @@ type Chat {
   Muted `Chat` implies that its events don't produce sounds and
   notifications on a client side. This, however, has nothing to do with a
   server and is the responsibility to be satisfied by a client side.
+  Server side may try to optimize this in some cases (like omit sending
+  notifications), but a client side should not rely on any such behaviour
+  and should implement best-effort muting by itself.
 
   Note, that `Chat.muted` doesn't correlate with `MyUser.muted`. Muted
   `Chat` of unmuted `MyUser` (and unmuted `Chat` of muted `MyUser`) should
@@ -473,53 +525,45 @@ type Chat {
 """Avatar of a `Chat`."""
 type ChatAvatar {
   """
-  `big` `ChatAvatar`'s view image `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `70px`x`70px`.
+  `big` view `ImageFile` of this `ChatAvatar`, square-cropped to its
+  minimum dimension (either width or height), and scaled to
+  `250px`x`250px`.
   """
-  big: File!
+  big: ImageFile!
 
-  """`CropArea` applied to the original image to create this `ChatAvatar`."""
+  """
+  `CropArea` applied to the `original` `ImageFile` for creating this
+  `ChatAvatar`.
+  """
   crop: CropArea
 
-  """Full `ChatAvatar`'s image `File`, keeping the `original` dimensions."""
-  full: File!
+  """
+  Full-sized `ImageFile` representing this `ChatAvatar`, keeping the
+  `original` dimensions.
+  """
+  full: ImageFile!
 
   """
-  `medium` `ChatAvatar`'s view image `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `46px`x`46px`.
+  `medium` view `ImageFile` of this `ChatAvatar`, square-cropped to its
+  minimum dimension (either width or height), and scaled to
+  `100px`x`100px`.
   """
-  medium: File!
+  medium: ImageFile!
 
-  """Original image `File` representing this `ChatAvatar`."""
-  original: File!
+  """Original `ImageFile` representing this `ChatAvatar`."""
+  original: ImageFile!
 
   """
-  `small` `ChatAvatar`'s view image `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `25px`x`25px`.
+  `small` view `ImageFile` of this `ChatAvatar`, square-cropped to its
+  minimum dimension (either width or height), and scaled to `46px`x`46px`.
   """
-  small: File!
+  small: ImageFile!
 }
 
 """Call in a `Chat`."""
 type ChatCall implements ChatItem {
-  """
-  Indicator whether this `ChatCall` is answered by the authenticated
-  `MyUser`.
-
-  Unanswered `ChatCall`s are considered incoming and should be present in
-  results of `Query.incomingChatCalls` and
-  `Subscription.incomingChatCallsEventsTop`. Although all 3 methods are
-  suitable for notifying about incoming calls, this field contains the
-  most recent and accurate information, as other methods may introduce
-  a delay.
-  """
-  answered: Boolean!
-
   """`DateTime` when this `ChatCall` was started."""
   at: DateTime!
-
-  """ID of the `User` who started this `ChatCall`."""
-  authorId: UserId!
 
   """
   `User` who started this `ChatCall`.
@@ -527,7 +571,7 @@ type ChatCall implements ChatItem {
   Note, that this `User` may not be a member of this `ChatCall` at the
   moment.
   """
-  caller: User
+  author: User!
 
   """ID of the `Chat` where this `ChatCall` is organized."""
   chatId: ChatId!
@@ -538,10 +582,28 @@ type ChatCall implements ChatItem {
   """
   conversationStartedAt: DateTime
 
-  """`DateTime` when this `ChatCall` was finished."""
+  """
+  `ChatMember`s being dialed by this `ChatCall` at the moment.
+
+  Unanswered `ChatCall`s (neither accepted, nor declined) are considered
+  incoming (unless the dialing timeout passes) and should be present in
+  results of `Query.incomingChatCalls` and
+  `Subscription.incomingChatCallsTopEvents`. Although all 3 methods are
+  suitable for notifying about incoming calls, this field contains the
+  most recent and accurate information, as other methods may introduce a
+  delay.
+
+  To understand whether the authenticated `MyUser` is dialed by this
+  `ChatCall` at the moment, check whether the `ChatCall.dialed.members`
+  contain him or the `ChatCall.dialed.answeredMembers` do not while the
+  `ChatCall.dialed` is not `null`.
+  """
+  dialed: ChatMembersDialed
+
+  """`DateTime` when this `ChatCall` was finished (if it was)."""
   finishedAt: DateTime
 
-  """Reason of why this `ChatCall` was finished."""
+  """Reason of why this `ChatCall` was finished (if it was)."""
   finishReason: ChatCallFinishReason
 
   """Unique ID of this `ChatCall`."""
@@ -557,6 +619,12 @@ type ChatCall implements ChatItem {
   If `null` then `ChatCall`'s room on [Medea] media server isn't ready yet
   to be joined, and `EventChatCallRoomReady` should be awaited via
   `Subscription.chatCallEvents` before doing so.
+
+  Bound to a concrete device of the authenticated `MyUser`, and so, is
+  `null` in any operations where a concrete `ChatCallDeviceId` is unknown.
+  This means that every device of the authenticated `MyUser` must obtain
+  its own `ChatCallRoomJoinLink` via separate
+  `Subscription.chatCallEvents`.
 
   [Medea]: https://github.com/instrumetisto/medea
   """
@@ -677,7 +745,34 @@ type ChatCallMember {
   user: User!
 }
 
-"""Link for joining the room of a `ChatCall` on a media server."""
+"""`ChatItemQuote` of a `ChatCall`."""
+type ChatCallQuote implements ChatItemQuote {
+  """`DateTime` when the quoted `ChatCall` was started."""
+  at: DateTime!
+
+  """`User` who started the quoted `ChatCall`."""
+  author: User!
+
+  """
+  Quoted `ChatCall`.
+
+  `null` if the quoted `ChatCall` was deleted or is unavailable for the
+  authenticated `MyUser`.
+  """
+  original: ChatItemsEdge
+}
+
+"""
+Link for joining the room of a `ChatCall` on a media server.
+
+Always bound to a concrete device of the authenticated `MyUser`.
+This means that every device of the authenticated `MyUser` must obtain its
+own `ChatCallRoomJoinLink` via separate `Subscription.chatCallEvents`.
+
+This link requires addition authentication via `token` query parameter with
+the value of `ChatCallCredentials` that has been provided to
+`Mutation.startChatCall` or `Mutation.joinChatCall`.
+"""
 scalar ChatCallRoomJoinLink
 
 """
@@ -697,7 +792,7 @@ type ChatContact {
   Position of this `ChatContact` in the favorites list of the
   authenticated `MyUser`.
   """
-  favoritePosition: ChatContactPosition
+  favoritePosition: ChatContactFavoritePosition
 
   """
   `Chat`-groups linked to this `ChatContact`.
@@ -783,6 +878,15 @@ type ChatContactEventsVersioned {
   ver: ChatContactVersion!
 }
 
+"""
+Position of a `ChatContact` in a `MyUser`'s favorites list.
+
+Its values are always considered to be finite positive [`Float` values][1].
+
+[1]: https://spec.graphql.org/June2018#sec-Float-Value
+"""
+scalar ChatContactFavoritePosition
+
 """Type of a `ChatContact`'s ID."""
 scalar ChatContactId
 
@@ -794,15 +898,6 @@ type ChatContactPhone {
   """`User` behind this `ChatContactPhone`, if any."""
   user: User
 }
-
-"""
-Position of a `ChatContact` in a `MyUser`'s favorites list.
-
-Its values are always considered to be finite positive [`Float` values][1].
-
-[1]: https://spec.graphql.org/June2018#sec-Float-Value
-"""
-scalar ChatContactPosition
 
 """
 Input type representing a record of a `ChatContact`.
@@ -905,6 +1000,11 @@ type ChatContactsList {
   """
   chatContacts(
     """
+    Indicator whether favorite `ChatContact`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
+
+    """
     Cursor indicating the `ChatContactsEdge` position to return next `ChatContact`s after.
     """
     after: ChatContactsCursor
@@ -919,11 +1019,6 @@ type ChatContactsList {
 
     """Number of prior `ChatContact`s to return."""
     last: Int
-
-    """
-    Indicator whether favorite `ChatContact`s should be excluded from the result.
-    """
-    noFavorite: Boolean = false
   ): ChatContactsConnection!
 
   """
@@ -1020,8 +1115,8 @@ type ChatForward implements ChatItem {
   """`DateTime` when this `ChatForward` was posted."""
   at: DateTime!
 
-  """ID of the `User` who posted this `ChatForward`."""
-  authorId: UserId!
+  """`User` who posted this `ChatForward`."""
+  author: User!
 
   """ID of the `Chat` this `ChatForward` is posted in."""
   chatId: ChatId!
@@ -1029,8 +1124,13 @@ type ChatForward implements ChatItem {
   """Unique ID of this `ChatForward`."""
   id: ChatItemId!
 
-  """Forwarded `ChatItem`."""
-  item: ChatItemsEdge!
+  """
+  `ChatItemQuote` of the forwarded `ChatItem`.
+
+  Re-forwarding a `ChatForward` is indistinguishable from just forwarding
+  its inner `ChatMessage` (`ChatItemQuote` depth will still be just 1).
+  """
+  quote: ChatItemQuote!
 
   """
   Version of this `ChatForward`'s state.
@@ -1044,13 +1144,116 @@ type ChatForward implements ChatItem {
 """Type of a `Chat`'s ID."""
 scalar ChatId
 
+"""Information about an action taken upon a `Chat`."""
+type ChatInfo implements ChatItem {
+  """`ChatInfoAction` taken upon the `Chat`."""
+  action: ChatInfoAction!
+
+  """`DateTime` when this `ChatInfo` was posted."""
+  at: DateTime!
+
+  """`User` who triggered this `ChatInfo`."""
+  author: User!
+
+  """ID of the `Chat` this `ChatInfo` was posted in."""
+  chatId: ChatId!
+
+  """Unique ID of this `ChatInfo`."""
+  id: ChatItemId!
+
+  """
+  Version of this `ChatInfo`'s state.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: ChatItemVersion!
+}
+
+"""Action taken upon a `Chat`."""
+union ChatInfoAction = ChatInfoActionAvatarUpdated | ChatInfoActionCreated | ChatInfoActionMemberAdded | ChatInfoActionMemberRemoved | ChatInfoActionNameUpdated
+
+"""`ChatInfoAction` about a `ChatAvatar` being updated."""
+type ChatInfoActionAvatarUpdated {
+  """
+  New `ChatAvatar` of the `Chat`.
+
+  `null` means that the old `ChatAvatar` was removed.
+  """
+  avatar: ChatAvatar
+}
+
+"""`ChatInfoAction` about a `Chat` being created."""
+type ChatInfoActionCreated {
+  """`ChatDirectLinkSlug` used to create the `Chat`, if any."""
+  directLinkSlug: ChatDirectLinkSlug
+}
+
+"""`ChatInfoAction` about a `ChatMember` being added to a `Chat`."""
+type ChatInfoActionMemberAdded {
+  """
+  `ChatDirectLinkSlug` used by the `ChatMember` to join the `Chat`, if
+  any.
+  """
+  directLinkSlug: ChatDirectLinkSlug
+
+  """
+  `User` who became a `ChatMember`.
+
+  If the same as `ChatItem.authorId`, then the `User` joined the `Chat` by
+  himself.
+  """
+  user: User!
+}
+
+"""`ChatInfoAction` about a `ChatMember` being removed from a `Chat`."""
+type ChatInfoActionMemberRemoved {
+  """
+  `User` who was removed from the `Chat`.
+
+  If the same as `ChatItem.authorId`, then the `User` left the `Chat` by
+  himself.
+  """
+  user: User!
+}
+
+"""`ChatInfoAction` about a `ChatName` being updated."""
+type ChatInfoActionNameUpdated {
+  """
+  New `ChatName` of the `Chat`.
+
+  `null` means that the old `ChatName` was removed.
+  """
+  name: ChatName
+}
+
+"""`ChatItemQuote` of a `ChatInfo`."""
+type ChatInfoQuote implements ChatItemQuote {
+  """`ChatInfoAction` of the quoted `ChatInfo`."""
+  action: ChatInfoAction!
+
+  """`DateTime` when the quoted `ChatInfo` was created."""
+  at: DateTime!
+
+  """`User` who triggered the quoted `ChatInfo`."""
+  author: User!
+
+  """
+  Quoted `ChatInfo`.
+
+  `null` if the quoted `ChatInfo` was deleted or is unavailable for the
+  authenticated `MyUser`.
+  """
+  original: ChatItemsEdge
+}
+
 """Item posted in a `Chat` (its content)."""
 interface ChatItem {
   """`DateTime` when this `ChatItem` was posted."""
   at: DateTime!
 
-  """ID of the `User` who posted this `ChatItem`."""
-  authorId: UserId!
+  """`User` who posted this `ChatItem`."""
+  author: User!
 
   """ID of the `Chat` this `ChatItem` is posted in."""
   chatId: ChatId!
@@ -1070,6 +1273,23 @@ interface ChatItem {
 """Type of a `ChatItem`'s ID."""
 scalar ChatItemId
 
+"""Quote of a `ChatItem`."""
+interface ChatItemQuote {
+  """`DateTime` when the quoted `ChatItem` was created."""
+  at: DateTime!
+
+  """`User` who created the quoted `ChatItem`."""
+  author: User!
+
+  """
+  Quoted `ChatItem`.
+
+  `null` if the original `ChatMessage` was deleted or is unavailable for
+  the authenticated `MyUser`.
+  """
+  original: ChatItemsEdge
+}
+
 """`ChatItem`'s quote used as input of `Mutation.forwardChatItems`."""
 input ChatItemQuoteInput {
   """ID of the `ChatItem` to be forwarded."""
@@ -1079,9 +1299,9 @@ input ChatItemQuoteInput {
   IDs of the `ChatItem`'s `Attachment`s to be forwarded.
 
   - `null` means all the `ChatItem`'s `Attachment`s will be forwarded, if
-    any.
+  any.
   - `[]` (empty list) means no `Attachment`s, only the text will be
-    forwarded.
+  forwarded.
   """
   attachments: [AttachmentId!]
 
@@ -1176,47 +1396,6 @@ type ChatMember {
   user: User!
 }
 
-"""Information about an action taken upon a `ChatMember`."""
-type ChatMemberInfo implements ChatItem {
-  """Action taken upon the `ChatMember`."""
-  action: ChatMemberInfoAction!
-
-  """`DateTime` when this `ChatMemberInfo` was posted."""
-  at: DateTime!
-
-  """ID of the `User` who posted this `ChatMemberInfo`."""
-  authorId: UserId!
-
-  """ID of the `Chat` this `ChatMemberInfo` was posted in."""
-  chatId: ChatId!
-
-  """Unique ID of this `ChatMemberInfo`."""
-  id: ChatItemId!
-
-  """`User` this `ChatMemberInfo` is about."""
-  user: User!
-
-  """
-  Version of this `ChatMemberInfo`'s state.
-
-  It increases monotonically, so may be used (and is intended to) for
-  tracking state's actuality.
-  """
-  ver: ChatItemVersion!
-}
-
-"""Action taken upon a `ChatMember` in a `Chat`."""
-enum ChatMemberInfoAction {
-  """`ChatMember` created the `Chat`."""
-  CREATED
-
-  """`ChatMember` was added to the `Chat`."""
-  ADDED
-
-  """`ChatMember` was removed from the `Chat`."""
-  REMOVED
-}
-
 """
 [Connection] with `ChatMember`s.
 
@@ -1249,6 +1428,34 @@ type ChatMembersConnection {
 
 """Cursor of `ChatMember`s in a `Chat`."""
 scalar ChatMembersCursor
+
+"""`ChatMember`s being dialed by a `ChatCall`."""
+union ChatMembersDialed = ChatMembersDialedAll | ChatMembersDialedConcrete
+
+"""
+Information about all `ChatMember`s of a `Chat` being dialed (or redialed)
+by a `ChatCall`.
+"""
+type ChatMembersDialedAll {
+  """
+  `ChatMember`s who answered (joined or declined) the `ChatCall` already,
+  so are not dialed anymore.
+  """
+  answeredMembers: [ChatMember!]!
+}
+
+"""
+Information about concrete `ChatMember`s of a `Chat` being dialed (or
+redialed) by a `ChatCall`.
+"""
+type ChatMembersDialedConcrete {
+  """
+  Concrete `ChatMember`s who are dialed (or redialed) by the `ChatCall`.
+
+  Guaranteed to be non-empty.
+  """
+  members: [ChatMember!]!
+}
 
 """
 [Edge] with a `ChatMember`.
@@ -1288,8 +1495,8 @@ type ChatMessage implements ChatItem {
   """
   attachments: [Attachment!]!
 
-  """ID of the `User` who posted this `ChatMessage`."""
-  authorId: UserId!
+  """`User` who posted this `ChatMessage`."""
+  author: User!
 
   """ID of the `Chat` this `ChatMessage` is posted in."""
   chatId: ChatId!
@@ -1300,8 +1507,8 @@ type ChatMessage implements ChatItem {
   """Unique ID of this `ChatMessage`."""
   id: ChatItemId!
 
-  """`ChatItem`s this `ChatMessage` replies to."""
-  repliesTo: [ChatItemsEdge!]!
+  """`ChatItemQuote`s of the `ChatItem`s this `ChatMessage` replies to."""
+  repliesTo: [ChatItemQuote!]!
 
   """Text of this `ChatMessage`."""
   text: ChatMessageText
@@ -1313,6 +1520,35 @@ type ChatMessage implements ChatItem {
   tracking state's actuality.
   """
   ver: ChatItemVersion!
+}
+
+"""`ChatItemQuote` of a `ChatMessage`."""
+type ChatMessageQuote implements ChatItemQuote {
+  """`DateTime` when the quoted `ChatMessage` was posted."""
+  at: DateTime!
+
+  """
+  `Attachment`s the quoted `ChatMessage` had when this `ChatItemQuote` was
+  made.
+  """
+  attachments: [Attachment!]!
+
+  """`User` who posted the quoted `ChatMessage`."""
+  author: User!
+
+  """
+  Quoted `ChatMessage` or `ChatForward` (only if it's replied).
+
+  `null` if the quoted `ChatMessage` was deleted or is unavailable for the
+  authenticated `MyUser`.
+  """
+  original: ChatItemsEdge
+
+  """
+  `ChatMessageText` the quoted `ChatMessage` had when this `ChatItemQuote`
+  was made.
+  """
+  text: ChatMessageText
 }
 
 """
@@ -1457,9 +1693,9 @@ enum CreateChatContactErrorCode {
   UNKNOWN_CHAT
 
   """
-  `Chat` with the provided ID is not a group.
+  `Chat` with the provided ID is not a group, so cannot be recorded into a `ChatContact`.
 
-  Status code: 400 Bad Request.
+  Status code: 403 Forbidden.
   """
   NOT_GROUP
 
@@ -1501,9 +1737,9 @@ enum CreateChatContactRecordErrorCode {
   UNKNOWN_CHAT
 
   """
-  `Chat` with the provided ID is not a group.
+  `Chat` with the provided ID is not a group, so cannot be recorded into a `ChatContact`.
 
-  Status code: 400 Bad Request.
+  Status code: 403 Forbidden.
   """
   NOT_GROUP
 
@@ -1557,9 +1793,9 @@ enum CreateChatContactRecordsErrorCode {
   UNKNOWN_CHAT
 
   """
-  `Chat` with the provided ID is not a group.
+  `Chat` with the provided ID is not a group, so cannot be recorded into a `ChatContact`.
 
-  Status code: 400 Bad Request.
+  Status code: 403 Forbidden.
   """
   NOT_GROUP
 
@@ -1593,18 +1829,18 @@ enum CreateChatDirectLinkErrorCode {
   OCCUPIED
 
   """
+  `Chat` is not a group, so cannot have direct links.
+
+  Status code: 403 Forbidden.
+  """
+  NOT_GROUP
+
+  """
   `Chat` with the provided ID doesn't exist.
 
   Status code: 404 Not Found.
   """
   UNKNOWN_CHAT
-
-  """
-  `Chat` with the provided ID is not a group.
-
-  Status code: 400 Bad Request.
-  """
-  NOT_GROUP
 }
 
 """Result of performing `Mutation.createChatDirectLink`."""
@@ -1619,11 +1855,18 @@ type CreateDialogChatError {
 """Possible error codes of performing `Mutation.createDialogChat`."""
 enum CreateDialogChatErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by the responder.
+  Authenticated `MyUser` is blocked by the responder.
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
+
+  """
+  Creating a `Chat`-dialog with the authenticated `MyUser` is not possible, consider creating a `Chat`-monolog instead.
+
+  Status code: 403 Forbidden.
+  """
+  USE_MONOLOG
 
   """
   `User` with the provided ID doesn't exist.
@@ -1645,11 +1888,11 @@ type CreateGroupChatError {
 """Possible error codes of performing `Mutation.createGroupChat`."""
 enum CreateGroupChatErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by one of the members.
+  Authenticated `MyUser` is blocked by one of the members.
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
 
   """
   `Chat` cannot be created with more than 100 initial members.
@@ -1678,18 +1921,11 @@ type CreateSessionError {
 """Possible error codes of performing `Mutation.createSession`."""
 enum CreateSessionErrorCode {
   """
-  Provided password of the identified `MyUser` is wrong.
+  Provided password is wrong or `MyUser` with the provided identifier doesn't exist.
 
   Status code: 403 Forbidden.
   """
   WRONG_PASSWORD
-
-  """
-  `MyUser` with the provided identifier doesn't exist.
-
-  Status code: 404 Not Found.
-  """
-  UNKNOWN_USER
 }
 
 """Result of a successful performing `Mutation.createSession`."""
@@ -1747,6 +1983,12 @@ Area for an image cropping.
 Top left corner of the rotated by `angle` image is considered as `(0, 0)`
 coordinates start point. So, obviously, `CropArea.bottomRight` point's
 coordinates should be bigger than the ones of `CropArea.topLeft` point.
+
+For raster images use pixels as the coordinate system. For [SVG] images use
+[viewport coordinate system][1].
+
+[SVG]: https://en.wikipedia.org/wiki/Portable_Network_Graphics
+[1]: https://w3.org/TR/SVG/coords.html
 """
 type CropArea {
   """Angle to rotate image before cropping."""
@@ -1847,18 +2089,18 @@ type DeleteChatDirectLinkError {
 """Possible error codes of performing `Mutation.deleteChatDirectLink`."""
 enum DeleteChatDirectLinkErrorCode {
   """
+  `Chat` is not a group, so cannot have direct links.
+
+  Status code: 403 Forbidden.
+  """
+  NOT_GROUP
+
+  """
   `Chat` with the provided ID doesn't exist.
 
   Status code: 404 Not Found.
   """
   UNKNOWN_CHAT
-
-  """
-  `Chat` with the provided ID is not a group.
-
-  Status code: 400 Bad Request.
-  """
-  NOT_GROUP
 }
 
 """Result of performing `Mutation.deleteChatDirectLink`."""
@@ -1988,54 +2230,89 @@ enum EditChatMessageTextErrorCode {
 """Result of performing `Mutation.editChatMessageText`."""
 union EditChatMessageTextResult = ChatEventsVersioned | EditChatMessageTextError
 
-"""Event of a blacklist record being added."""
-type EventBlacklistRecordAdded implements BlacklistEvent {
-  """`DateTime` when the `User` was blacklisted."""
+"""
+Event of a `BlocklistRecord` being added to `Query.blocklist` of the
+authenticated `MyUser`.
+"""
+type EventBlocklistRecordAdded implements BlocklistEvent {
+  """`DateTime` when the `User` was blocked."""
   at: DateTime!
 
-  """Blacklisted `User`."""
-  user: User!
+  """Reason of why the `User` was blocked."""
+  reason: BlocklistReason
 
-  """ID of the blacklisted `User`."""
-  userId: UserId!
+  """Blocked `User`."""
+  user: User!
 }
 
-"""Event of a blacklist record being removed."""
-type EventBlacklistRecordRemoved implements BlacklistEvent {
-  """`DateTime` when the `User` was removed from the blacklist."""
+"""
+Event of a `BlocklistRecord` being removed from `Query.blocklist` of the
+authenticated `MyUser`.
+"""
+type EventBlocklistRecordRemoved implements BlocklistEvent {
+  """`DateTime` when the `User` was unblocked."""
   at: DateTime!
 
-  """`User` removed from the blacklist."""
+  """Unblocked `User`."""
   user: User!
-
-  """ID of the `User` removed from the blacklist."""
-  userId: UserId!
 }
 
-"""Event of a `ChatAvatar` being deleted in a `Chat`."""
-type EventChatAvatarDeleted implements ChatEvent {
-  """`DateTime` when the `ChatAvatar` was deleted."""
+"""
+Event of an answer timeout being reached in a `ChatCall`.
+
+Not emitted for `ChatCall`s in `Chat`-monologs.
+"""
+type EventChatCallAnswerTimeoutPassed implements ChatCallEvent & ChatEvent {
+  """`DateTime` when the answer timeout in the `ChatCall` was reached."""
   at: DateTime!
 
-  """`User` who deleted the `ChatAvatar`."""
-  byUser: User!
+  """`ChatCall` where the answer timeout was reached."""
+  call: ChatCall!
 
-  """ID of the `Chat` which `ChatAvatar` was deleted."""
+  """ID of the `ChatCall` where the answer timeout was reached."""
+  callId: ChatItemId!
+
+  """`Chat` the `ChatCall` belongs to."""
+  chat: Chat!
+
+  """ID of the `Chat` the `ChatCall` belongs to."""
   chatId: ChatId!
+
+  """
+  `User` whose answer timeout was reached.
+
+  If `null`, then the answer timeout was reached for all `User`s being
+  `ChatMember`s.
+  """
+  user: User
+
+  """
+  ID of the `User` whose answer timeout was reached.
+
+  If `null`, then the answer timeout was reached for all the `User`s being
+  `ChatMember`s.
+  """
+  userId: UserId
 }
 
-"""Event of a `ChatAvatar` being updated in a `Chat`."""
-type EventChatAvatarUpdated implements ChatEvent {
-  """`DateTime` when the `ChatAvatar` was updated."""
+"""
+Event of an audio/video conversation being started in a `ChatCall`, meaning
+that enough `ChatCallMember`s joined the [Medea] room after ringing had been
+finished.
+
+[Medea]: https://github.com/instrumetisto/medea
+"""
+type EventChatCallConversationStarted implements ChatCallEvent & ChatEvent {
+  """`DateTime` when the conversation started."""
   at: DateTime!
 
-  """Updated `ChatAvatar`."""
-  avatar: ChatAvatar!
+  """`ChatCall` the conversation started in."""
+  call: ChatCall!
 
-  """`User` who updated the `ChatAvatar`."""
-  byUser: User!
+  """ID of the `ChatCall` the conversation started in."""
+  callId: ChatItemId!
 
-  """ID of the `Chat` which `ChatAvatar` was updated."""
+  """ID of the `Chat` the conversation's `ChatCall` belongs to."""
   chatId: ChatId!
 }
 
@@ -2150,6 +2427,13 @@ type EventChatCallMemberLeft implements ChatCallEvent & ChatEvent {
   """`DateTime` when the `User` left the `ChatCall`."""
   at: DateTime!
 
+  """
+  Initiator of the `User` removing from the `ChatCall`.
+
+  If this is another `User`, then the left `User` was kicked.
+  """
+  by: User!
+
   """Left `ChatCall`."""
   call: ChatCall!
 
@@ -2188,6 +2472,35 @@ type EventChatCallMemberRedialed implements ChatCallEvent & ChatEvent {
 
   """
   `User` representing the `ChatMember` who was redialed in the `ChatCall`.
+  """
+  user: User!
+}
+
+"""Event of a dialed `User` being undialed in a `ChatCall`."""
+type EventChatCallMemberUndialed implements ChatCallEvent & ChatEvent {
+  """
+  `DateTime` when the dialed `ChatMember` was undialed in the `ChatCall`.
+  """
+  at: DateTime!
+
+  """
+  `User` representing the `ChatMember` who undialed the dialed `User` in
+  the `ChatCall`.
+  """
+  by: User!
+
+  """`ChatCall` the dialed `User` was undialed in."""
+  call: ChatCall!
+
+  """ID of the `ChatCall` the dialed `User` was undialed in."""
+  callId: ChatItemId!
+
+  """ID of the `Chat` the `ChatCall` belongs to."""
+  chatId: ChatId!
+
+  """
+  `User` representing the dialed `ChatMember` being undialed in the
+  `ChatCall`.
   """
   user: User!
 }
@@ -2374,7 +2687,7 @@ type EventChatContactFavorited implements ChatContactEvent {
   contactId: ChatContactId!
 
   """Position of the `ChatContact` in the favorites list."""
-  position: ChatContactPosition!
+  position: ChatContactFavoritePosition!
 }
 
 """Event of a `Chat`-group being added to the `ChatContact`."""
@@ -2615,25 +2928,6 @@ type EventChatRead implements ChatEvent {
   chatId: ChatId!
 }
 
-"""Event of a `Chat` being renamed by some `User`."""
-type EventChatRenamed implements ChatEvent {
-  """`DateTime` when the `Chat` was renamed."""
-  at: DateTime!
-
-  """`User` who renamed the `Chat`."""
-  byUser: User!
-
-  """ID of the renamed `Chat`."""
-  chatId: ChatId!
-
-  """
-  New `ChatName`.
-
-  `null` means that the previous `ChatName` has been removed.
-  """
-  name: ChatName
-}
-
 """Event of a `Chat` total items count being updated."""
 type EventChatTotalItemsCountUpdated implements ChatEvent {
   """ID of the `Chat` where total items count was updated."""
@@ -2745,27 +3039,6 @@ type EventUserAvatarUpdated implements UserEvent {
   userId: UserId!
 }
 
-"""Event of a `UserBio` being deleted."""
-type EventUserBioDeleted implements UserEvent {
-  """`DateTime` when the `UserBio` was deleted."""
-  at: DateTime!
-
-  """ID of the `User` whose `UserBio` was deleted."""
-  userId: UserId!
-}
-
-"""Event of a `UserBio` being updated."""
-type EventUserBioUpdated implements UserEvent {
-  """`DateTime` when the `UserBio` was updated."""
-  at: DateTime!
-
-  """New `UserBio`."""
-  bio: UserBio!
-
-  """ID of the `User` whose `UserBio` was updated."""
-  userId: UserId!
-}
-
 """Event of a `UserCallCover` being deleted."""
 type EventUserCallCoverDeleted implements UserEvent {
   """`DateTime` when the `UserCallCover` was deleted."""
@@ -2859,37 +3132,6 @@ type EventUserEmailDeleted {
   email: UserEmail!
 
   """ID of the `User` whose email address was deleted."""
-  userId: UserId!
-}
-
-"""Event of a `User`'s `GalleryItem` being added."""
-type EventUserGalleryItemAdded implements UserEvent {
-  """`DateTime` when the `GalleryItem` was added to the `User`'s gallery."""
-  at: DateTime!
-
-  """Added `GalleryItem`."""
-  galleryItem: GalleryItem!
-
-  """
-  ID of the `User` whose gallery was updated with the added `GalleryItem`.
-  """
-  userId: UserId!
-}
-
-"""Event of a `User`'s `GalleryItem` being deleted."""
-type EventUserGalleryItemDeleted implements UserEvent {
-  """
-  `DateTime` when the `GalleryItem` was deleted from the `User`'s gallery.
-  """
-  at: DateTime!
-
-  """ID of the deleted `GalleryItem`."""
-  galleryItemId: GalleryItemId!
-
-  """
-  ID of the `User` whose gallery was updated with the deleted
-  `GalleryItem`.
-  """
   userId: UserId!
 }
 
@@ -3276,7 +3518,7 @@ See [Firebase Cloud Messaging][0] documentation for how to generate
 scalar FcmRegistrationToken
 
 """File on a file storage."""
-type File {
+interface File {
   """
   [SHA-256] checksum of this `File`.
 
@@ -3325,14 +3567,14 @@ type File {
 
 """Plain file `Attachment`."""
 type FileAttachment implements Attachment {
-  """Uploaded `File`'s name."""
+  """Uploaded `PlainFile`'s name."""
   filename: String!
 
   """Unique ID of this `FileAttachment`."""
   id: AttachmentId!
 
-  """Original `File` representing this `FileAttachment`."""
-  original: File!
+  """Original `PlainFile` representing this `FileAttachment`."""
+  original: PlainFile!
 }
 
 """Error of performing `Mutation.forwardChatItems`."""
@@ -3344,13 +3586,13 @@ type ForwardChatItemsError {
 """Possible error codes of performing `Mutation.forwardChatItems`."""
 enum ForwardChatItemsErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by the `User`, who receives the `ChatForward`.
+  Authenticated `MyUser` is blocked by the `User`, who receives the `ChatForward`.
 
   This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
 
   """
   Either `withText` field or at least one ID in `attachments` field should be specified in all of the `ChatItemQuoteInput`s.
@@ -3405,21 +3647,6 @@ enum ForwardChatItemsErrorCode {
 """Result of performing `Mutation.forwardChatItems`."""
 union ForwardChatItemsResult = ChatEventsVersioned | ForwardChatItemsError
 
-"""Item in a `User`'s or `Chat`'s gallery."""
-interface GalleryItem {
-  """`DateTime` when this `GalleryItem` was added."""
-  addedAt: DateTime!
-
-  """Unique ID of this `GalleryItem`."""
-  id: GalleryItemId!
-
-  """Original `File` representing this `GalleryItem`."""
-  original: File!
-}
-
-"""Type of a `GalleryItem`'s ID."""
-scalar GalleryItemId
-
 """Error of performing `Mutation.hideChat`."""
 type HideChatError {
   """Code indicating why this error has happened."""
@@ -3461,49 +3688,87 @@ union HideChatResult = ChatEventsVersioned | HideChatError
 """Image `Attachment`."""
 type ImageAttachment implements Attachment {
   """
-  `big` `ImageAttachment`'s view image `File`, scaled proportionally to
-  `400px` of its maximum dimension (either width or height).
+  `big` view `ImageFile` of this `ImageAttachment`, scaled proportionally
+  to `800px` of its maximum dimension (either width or height).
   """
-  big: File!
+  big: ImageFile!
 
-  """Uploaded `File`'s name."""
+  """Uploaded `ImageFile`'s name."""
   filename: String!
 
   """Unique ID of this `ImageAttachment`."""
   id: AttachmentId!
 
   """
-  `medium` `ImageAttachment`'s view image `File`, scaled proportionally to
-  `200px` of its maximum dimension (either width or height).
+  `medium` view `ImageFile` of this `ImageAttachment`, scaled
+  proportionally to `200px` of its maximum dimension (either width or
+  height).
   """
-  medium: File!
+  medium: ImageFile!
 
-  """Original `File` representing this `ImageAttachment`."""
-  original: File!
+  """Original `ImageFile` representing this `ImageAttachment`."""
+  original: ImageFile!
 
   """
-  `small` `ImageAttachment`'s view image `File`, scaled proportionally to
-  `30px` of its maximum dimension (either width or height).
+  `small` view `ImageFile` of this `ImageAttachment`, scaled
+  proportionally to `30px` of its maximum dimension (either width or
+  height).
   """
-  small: File!
+  small: ImageFile!
 }
 
-"""Image `GalleryItem`."""
-type ImageGalleryItem implements GalleryItem {
-  """`DateTime` when this `ImageGalleryItem` was added."""
-  addedAt: DateTime!
+"""Image-`File` on a file storage."""
+type ImageFile implements File {
+  """
+  [SHA-256] checksum of this `ImageFile`.
 
-  """Unique ID of this `ImageGalleryItem`."""
-  id: GalleryItemId!
+  May be `null` in case this `ImageFile` is not ready on a file storage
+  yet. May be also computed on a client side, once this `ImageFile`
+  is ready and successfully downloaded from a file storage.
 
-  """Original `File` representing this `ImageGalleryItem`."""
-  original: File!
+  This checksum is especially useful if a client side requires to verify
+  the integrity and authenticity of this `ImageFile`, downloaded from
+  a file storage.
+
+  Also, this checksum may be useful as a key in a client side cache,
+  allowing to store `ImageFile`s in deduplicated manner.
+
+  [SHA-256]: https://en.wikipedia.org/wiki/SHA-2
+  """
+  checksum: String
+
+  """Height of this `ImageFile` in pixels."""
+  height: Int
 
   """
-  `square` `ImageGalleryItem`'s view `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `85px`x`85px`.
+  [Relative reference][1] to this `ImageFile` on a file storage.
+
+  Prepend it with a file storage URL to obtain the full link to this
+  `ImageFile`.
+
+  If `404` HTTP status code is returned while trying to download this
+  `ImageFile` from a file storage, then the `ImageFile` is not ready yet.
+  Back off, and retry again later.
+
+  `403` HTTP status code, on the other hand, means that the link has been
+  expired and this [relative reference][1] should be re-fetched to rebuild
+  the link.
+
+  [1]: https://www.rfc-editor.org/rfc/rfc3986#section-4.2
   """
-  square: File!
+  relativeRef: String!
+
+  """
+  Size of this `ImageFile` (in bytes).
+
+  May be `null` in case this `ImageFile` is not ready on a file storage
+  yet. May be also computed on a client side, once this `ImageFile`
+  is ready and successfully downloaded from a file storage.
+  """
+  size: Int
+
+  """Width of this `ImageFile` in pixels."""
+  width: Int
 }
 
 """
@@ -3583,12 +3848,16 @@ type IncomingChatCallsTop {
 union IncomingChatCallsTopEvents = EventIncomingChatCallsTopChatCallAdded | EventIncomingChatCallsTopChatCallRemoved | IncomingChatCallsTop | SubscriptionInitialized
 
 """
-Information about some `User` being present in `MyUser.blacklist` of the
+Information about some `User` being present in a `Query.blocklist` of the
 authenticated `MyUser`.
 """
-type IsBlacklisted {
-  """Indicator whether the `User` is blacklisted."""
-  blacklisted: Boolean!
+type IsBlocked {
+  """
+  `BlocklistRecord` of the `User` in the `Query.blocklist`.
+
+  `null` if the `User` is not blocked by the authenticated `MyUser`.
+  """
+  record: BlocklistRecord
 
   """Version of the authenticated `MyUser`'s state."""
   ver: MyUserVersion!
@@ -3641,7 +3910,7 @@ type JoinChatCallOk {
 """Result of performing `Mutation.joinChatCall`."""
 union JoinChatCallResult = JoinChatCallError | JoinChatCallOk
 
-"""Datetime of when a `Chat` was read last time by a `User`."""
+"""Information about a `Chat` being read last time by a `User`."""
 type LastChatRead {
   """`DateTime` when the `Chat` was read last time."""
   at: DateTime!
@@ -3695,7 +3964,7 @@ type Mutation {
   ## Result
 
   Only the following `ChatEvent` may be produced on success:
-  - `EventChatItemPosted` (`ChatMemberInfo`).
+  - `EventChatItemPosted` (`ChatInfo` with `ChatInfoActionMemberAdded`).
 
   ## Idempotent
 
@@ -3777,12 +4046,12 @@ type Mutation {
   ): AddUserPhoneResult
 
   """
-  Blacklists the specified `User` for the authenticated `MyUser`.
+  Blocks the specified `User` for the authenticated `MyUser`.
 
-  Blacklisted `User`s are not able to communicate with the authenticated
-  `MyUser` directly (in `Chat`-dialogs).
+  Blocked `User`s are not able to communicate with the authenticated
+  `MyUser` directly (in `Chat`-dialogs) and add him to `Chat`-groups.
 
-  `MyUser`'s blacklist can be obtained via `Query.blacklist`.
+  `MyUser`'s blocklist can be obtained via `Query.blocklist`.
 
   ## Authentication
 
@@ -3790,18 +4059,22 @@ type Mutation {
 
   ## Result
 
-  Only the following `BlacklistEvent` may be produced on success:
-  - `EventBlacklistRecordAdded`.
+  Only the following `BlocklistEvent` may be produced on success:
+  - `EventBlocklistRecordAdded`.
 
   ## Idempotent
 
-  Succeeds as no-op (and returns no `BlacklistEvent`) if the specified
-  `User` is blacklisted by the authenticated `MyUser` already.
+  Succeeds as no-op (and returns no `BlocklistEvent`) if the specified
+  `User` is blocked by the authenticated `MyUser` already with the same
+  `BlocklistReason`.
   """
-  blacklistUser(
-    """ID of the `User` to blacklist."""
+  blockUser(
+    """ID of the `User` to block."""
     id: UserId!
-  ): BlacklistUserResult
+
+    """Reason to block the `User`."""
+    reason: BlocklistReason
+  ): BlockUserResult
 
   """
   Clears an existing `Chat` (hides all its `ChatItem`s) for the
@@ -3822,11 +4095,11 @@ type Mutation {
   is already cleared until the specified `ChatItem`.
   """
   clearChat(
-    """ID of the `Chat` to be cleared."""
-    id: ChatId!
-
     """ID of the `ChatItem` to clear the `Chat` until (inclusively)."""
     untilId: ChatItemId!
+
+    """ID of the `Chat` to be cleared."""
+    id: ChatId!
   ): ClearChatResult
 
   """
@@ -3903,13 +4176,13 @@ type Mutation {
   Each time creates a new unique `ChatContact`.
   """
   createChatContact(
-    """Name to create the `ChatContact` with."""
-    name: UserName!
-
     """
     Optional `ChatContactRecord`s to create and attach to the created `ChatContact`.
     """
     records: [ChatContactRecord!] = []
+
+    """Name to create the `ChatContact` with."""
+    name: UserName!
   ): CreateChatContactResult!
 
   """
@@ -4051,6 +4324,22 @@ type Mutation {
   ): CreateGroupChatResult!
 
   """
+  Creates a `Chat`-monolog for the authenticated `MyUser`.
+
+  There can be only one `Chat`-monolog for the authenticated `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Idempotent
+
+  Succeeds as no-op if the `Chat`-monolog for the authenticated `MyUser`
+  exists already, and returns it.
+  """
+  createMonologChat(name: ChatName): Chat!
+
+  """
   Creates a new `Session` for the `MyUser` identified by the provided
   `num`/`login`/`email` (exactly one of three should be specified).
 
@@ -4069,6 +4358,9 @@ type Mutation {
   Each time creates a new `Session`.
   """
   createSession(
+    """Generate `RememberedSession` along with `Session` or not."""
+    remember: Boolean = false
+
     """Email address of `MyUser` to create `Session` for."""
     email: UserEmail
 
@@ -4083,9 +4375,6 @@ type Mutation {
 
     """Phone number of `MyUser` to create `Session` for."""
     phone: UserPhone
-
-    """Generate `RememberedSession` along with `Session` or not."""
-    remember: Boolean = false
   ): CreateSessionResult!
 
   """
@@ -4356,29 +4645,6 @@ type Mutation {
   ): MyUserEventsVersioned
 
   """
-  Removes the specified `GalleryItem` from the authenticated `MyUser`'s
-  gallery.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Only the following `MyUserEvent` may be produced on success:
-  - `EventUserGalleryItemDeleted`.
-
-  ## Idempotent
-
-  Succeeds as no-op (and returns no `MyUserEvent`) if the specified
-  `GalleryItem` was deleted already (or if it never existed).
-  """
-  deleteUserGalleryItem(
-    """ID of the gallery item to delete."""
-    id: GalleryItemId!
-  ): MyUserEventsVersioned
-
-  """
   Deletes the provided `phone` number from the `MyUser.phones` field of
   the authenticated `MyUser`.
 
@@ -4490,7 +4756,7 @@ type Mutation {
     id: ChatContactId!
 
     """Position of the `ChatContact` in a favorites list."""
-    pos: ChatContactPosition!
+    pos: ChatContactFavoritePosition!
   ): FavoriteChatContactResult
 
   """
@@ -4507,7 +4773,7 @@ type Mutation {
   should be filled, as operation is performed on the inner `ChatMessage`.
   This allows to re-forward only part of the existing `ChatForward`.
   Re-forwarding a `ChatForward` is indistinguishable from just forwarding
-  its inner `ChatMessage` (`ChatItem` depth will still be just 1).
+  its inner `ChatMessage` (`ChatItemQuote` depth will still be just 1).
 
   The maximum number of forwarded `ChatItem`s at once is 100.
 
@@ -4525,24 +4791,24 @@ type Mutation {
   Each time posts a new `ChatForward`.
   """
   forwardChatItems(
+    """ID of the `Chat` to forward `ChatItem`s from."""
+    from: ChatId!
+
+    """ID of the `Chat` to forward `ChatItem`s into."""
+    to: ChatId!
+
     """
     Optional IDs of `Attachment`s to be attached to the `ChatMessage` posted along with the forwarded `ChatItem`s.
     """
     attachments: [AttachmentId!]
-
-    """ID of the `Chat` to forward `ChatItem`s from."""
-    from: ChatId!
-
-    """Quotes of the `ChatItem`s to be forwarded."""
-    items: [ChatItemQuoteInput!]!
 
     """
     Optional text to post a `ChatMessage` along with the forwarded `ChatItem`s.
     """
     text: ChatMessageText
 
-    """ID of the `Chat` to forward `ChatItem`s into."""
-    to: ChatId!
+    """Quotes of the `ChatItem`s to be forwarded."""
+    items: [ChatItemQuoteInput!]!
   ): ForwardChatItemsResult!
 
   """
@@ -4615,6 +4881,28 @@ type Mutation {
   authenticated `MyUser` to be able to react on all `ChatCallEvent`s
   happening during the accepted `ChatCall`.
 
+  ## Lifecycle
+
+  The best-effort `ChatCall` lifecycle on a client side should look like:
+  1. Initiate (start or join) a `ChatCall` via `Mutation.startChatCall` or
+  `Mutation.joinChatCall`.
+  2. Make a `Subscription.chatCallEvents` using the `deviceId` from the
+  previous step.
+  3. Once an `EventChatCallRoomReady` is emitted (or in case a
+  `ChatCall.joinLink` is present already in the initial `ChatCall`
+  returned by the `Subscription.chatCallEvents` from the previous
+  step), establish a WebSocket connection with a media server using the
+  emitted `joinLink`.
+  4. Whenever an `EventChatCallRoomReady` is emitted again, reestablish a
+  WebSocket connection with a media server forcefully, using the new
+  emitted `joinLink`, even if the previous one is healthy.
+  5. Finish or leave the ongoing `ChatCall` via executing
+  `Mutation.leaveChatCall` first, then dropping the
+  `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
+  connection with a media server. Do not try to reconnect if the media
+  server drops it earlier, after execution of the
+  `Mutation.leaveChatCall`.
+
   ## Authentication
 
   Mandatory.
@@ -4637,7 +4925,7 @@ type Mutation {
     One-time `MyUser`'s secret credentials to authorize him with on a media server for this `ChatCall`.
 
     Use these credentials to establish a WebSocket connection with a media
-    server after `EventChatCallRoomCreated` is received via
+    server after `EventChatCallRoomReady` is received via
     `Subscription.chatCallEvents`.
 
     Must be different per each `MyUser`'s device. Reuse these credentials for
@@ -4654,6 +4942,10 @@ type Mutation {
   Use this mutation when the authenticated `MyUser` wants to finish or
   leave the `ChatCall` he's participating in at the moment.
 
+  Once the authenticated `MyUser` lefts the ongoing `ChatCall` from all
+  his devices, then the state of his hand specified by
+  `Mutation.toggleChatCallHand` changes to lowered.
+
   ## Authentication
 
   Mandatory.
@@ -4669,9 +4961,9 @@ type Mutation {
   Succeeds as no-op (and returns no `ChatEvent`) when:
   - There is no ongoing `ChatCall` in the specified `Chat` at the moment.
   - The authenticated `MyUser` is not a member of the specified `Chat`
-    already.
+  already.
   - The authenticated `MyUser` is not a member of the ongoing `ChatCall`
-    already.
+  already.
   """
   leaveChatCall(
     """ID of the `Chat` to leave the ongoing `ChatCall` of."""
@@ -4715,12 +5007,6 @@ type Mutation {
   `ChatEvent`.
   """
   postChatMessage(
-    """
-    Optional IDs of `Attachment`s to be attached to the posted `ChatMessage`. If
-    not specified or empty then `text` argument must be specified.
-    """
-    attachments: [AttachmentId!]
-
     """ID of the `Chat` to post a new `ChatMessage` in."""
     chatId: ChatId!
 
@@ -4729,6 +5015,12 @@ type Mutation {
     replied `ChatItem`s may belong to the current `Chat` only.
     """
     repliesTo: [ChatItemId!]!
+
+    """
+    Optional IDs of `Attachment`s to be attached to the posted `ChatMessage`. If
+    not specified or empty then `text` argument must be specified.
+    """
+    attachments: [AttachmentId!]
 
     """
     Optional text of the posted `ChatMessage`. If not specified then `attachments` argument must be specified and non-empty.
@@ -4743,10 +5035,10 @@ type Mutation {
   There is no notion of a single `ChatItem` being read or not separately
   in a `Chat`. Only a whole `Chat` as a sequence of `ChatItem`s can be
   read until some its position (concrete `ChatItem`). So, any `ChatItem`
-  may be considered as read or not by comparing its `ChatItem.at` datetime
-  with the `Chat.lastReads.at` datetime of the authenticated `MyUser`:
-  if it's below (less or equal) then the `ChatItem` is read, otherwise
-  it's unread.
+  may be considered as read (or not) by comparing its `ChatItem.at` field
+  with the `Chat.lastReads.at` field of the authenticated `MyUser`: if
+  it's below (less or equal) then the `ChatItem` is read, otherwise it's
+  unread.
 
   This mutation should be called whenever the authenticated `MyUser` reads
   new `ChatItem`s appeared in the `Chat`'s UI and directly influences the
@@ -4768,11 +5060,11 @@ type Mutation {
   `ChatItem`.
   """
   readChat(
-    """ID of the `Chat` to be read."""
-    id: ChatId!
-
     """ID of the `ChatItem` to read the `Chat` until (inclusively)."""
     untilId: ChatItemId!
+
+    """ID of the `Chat` to be read."""
+    id: ChatId!
   ): ReadChatResult
 
   """
@@ -4795,7 +5087,7 @@ type Mutation {
 
   ## Result
 
-  Always returns `null` on success.
+  Always returns `true` on success.
 
   ## Non-idempotent
 
@@ -4813,7 +5105,7 @@ type Mutation {
 
     """Phone number of `MyUser`."""
     phone: UserPhone
-  ): RecoverUserPasswordErrorCode
+  ): Boolean!
 
   """
   Redials a `User` who left or declined the ongoing `ChatCall` in the
@@ -4856,6 +5148,16 @@ type Mutation {
   See [Firebase Cloud Messaging][0] documentation for how to generate
   `FcmRegistrationToken`s [for Flutter][1] and [for JavaScript][2].
 
+  ## Localization
+
+  You may provide the device's preferred locale via the
+  [`Accept-Language` HTTP header][3], which will localize notifications to
+  that device using the [best match][4] of the supported locales.
+
+  In order to change the locale of the device, you should re-register it
+  supplying the desired locale (use `Mutation.unregisterFcmDevice`, and
+  then `Mutation.registerFcmDevice` once again).
+
   ## Authentication
 
   Mandatory.
@@ -4871,11 +5173,50 @@ type Mutation {
   [0]: https://firebase.google.com/docs/cloud-messaging
   [1]: https://firebase.google.com/docs/cloud-messaging/flutter/client
   [2]: https://firebase.google.com/docs/cloud-messaging/js/client
+  [3]: https://developer.mozilla.org/docs/Web/HTTP/Headers/Accept-Language
+  [4]: https://www.ietf.org/rfc/rfc4647.html#section-3.3
   """
   registerFcmDevice(
     """Registration token of the device to register."""
     token: FcmRegistrationToken!
   ): RegisterFcmDeviceErrorCode
+
+  """
+  Removes the specified `User` from the `ChatCall` of the specified
+  `Chat`-group by authority of the authenticated `MyUser`.
+
+  If the specified `User` participates in the `ChatCall` from multiple
+  devices simultaneously, then removes all the devices at once.
+
+  Lowers the specified `User`'s hand raised by
+  `Mutation.toggleChatCallHand`, if any.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  The following `ChatEvent`s may be produced on success:
+  - `EventChatCallMemberLeft` (for each device of the `User`);
+  - `EventChatCallFinished`;
+  - `EventChatCallMemberUndialed` (for dialed `User`);
+  - `EventChatCallDeclined` (for dialed `MyUser`).
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the specified `User`
+  is not a `ChatCallMember` of the specified `ChatCall` already.
+  """
+  removeChatCallMember(
+    """
+    ID of the `Chat`-group to remove the `User` from ongoing `ChatCall` of.
+    """
+    chatId: ChatId!
+
+    """ID of the `User` to be removed from the `ChatCall`."""
+    userId: UserId!
+  ): RemoveChatCallMemberResult
 
   """
   Removes the specified `User` from the specified `Chat`-group by
@@ -4888,7 +5229,7 @@ type Mutation {
   ## Result
 
   Only the following `ChatEvent` may be produced on success:
-  - `EventChatItemPosted` (`ChatMemberInfo`).
+  - `EventChatItemPosted` (`ChatInfo` with `ChatInfoActionMemberRemoved`).
 
   ## Idempotent
 
@@ -4906,7 +5247,7 @@ type Mutation {
   """
   Renames the specified `Chat` by authority of the authenticated `MyUser`.
 
-  Only `Chat`-groups can be named or renamed.
+  `Chat`-dialogs cannot be named or renamed.
 
   ## Authentication
 
@@ -4915,7 +5256,7 @@ type Mutation {
   ## Result
 
   Only the following `ChatEvent` may be produced on success:
-  - `EventChatRenamed`.
+  - `EventChatItemPosted` (`ChatInfo` with `ChatInfoActionNameUpdated`).
 
   ## Idempotent
 
@@ -4936,13 +5277,13 @@ type Mutation {
 
   """
   Renews a `Session` of the `MyUser` identified by the provided
-  `RememberToken`.
+  `RefreshToken`.
 
-  Invalidates the provided `RememberToken` and returns a new one, which
+  Invalidates the provided `RefreshToken` and returns a new one, which
   should be used instead.
 
   The renewed `Session` has its own expiration after renewal, so to renew
-  it again use this mutation with the new returned `RememberToken` (omit
+  it again use this mutation with the new returned `RefreshToken` (omit
   using old ones).
 
   The expiration of the renewed `RememberedSession` is not prolonged
@@ -4956,13 +5297,13 @@ type Mutation {
 
   ## Non-idempotent
 
-  Each time creates a new `Session` and generates a new `RememberToken`.
+  Each time creates a new `Session` and generates a new `RefreshToken`.
   """
   renewSession(
     """
-    `RememberToken` for mutation authentication and `MyUser` identification.
+    `RefreshToken` for mutation authentication and `MyUser` identification.
     """
-    token: RememberToken!
+    token: RefreshToken!
   ): RenewSessionResult!
 
   """
@@ -5041,25 +5382,25 @@ type Mutation {
   already.
   """
   resetUserPassword(
-    """
-    Recovery `ConfirmationCode` for `MyUser` identification and mutation authentication.
-    """
-    code: ConfirmationCode!
-
     """Email address of `MyUser`."""
     email: UserEmail
 
     """Login of `MyUser`."""
     login: UserLogin
 
-    """Password to update `MyUser` with."""
-    newPassword: UserPassword!
-
     """Number of `MyUser`."""
     num: UserNum
 
+    """Password to update `MyUser` with."""
+    newPassword: UserPassword!
+
     """Phone number of `MyUser`."""
     phone: UserPhone
+
+    """
+    Recovery `ConfirmationCode` for `MyUser` identification and mutation authentication.
+    """
+    code: ConfirmationCode!
   ): ResetUserPasswordResult!
 
   """
@@ -5071,6 +5412,28 @@ type Mutation {
   `Subscription.chatCallEvents` (use the `StartChatCallOk.deviceId`
   returned by this mutation) for the authenticated `MyUser` to be able to
   react on all `ChatCallEvent`s happening during the started `ChatCall`.
+
+  ## Lifecycle
+
+  The best-effort `ChatCall` lifecycle on a client side should look like:
+  1. Initiate (start or join) a `ChatCall` via `Mutation.startChatCall` or
+  `Mutation.joinChatCall`.
+  2. Make a `Subscription.chatCallEvents` using the `deviceId` from the
+  previous step.
+  3. Once an `EventChatCallRoomReady` is emitted (or in case a
+  `ChatCall.joinLink` is present already in the initial `ChatCall`
+  returned by the `Subscription.chatCallEvents` from the previous
+  step), establish a WebSocket connection with a media server using the
+  emitted `joinLink`.
+  4. Whenever an `EventChatCallRoomReady` is emitted again, reestablish a
+  WebSocket connection with a media server forcefully, using the new
+  emitted `joinLink`, even if the previous one is healthy.
+  5. Finish or leave the ongoing `ChatCall` via executing
+  `Mutation.leaveChatCall` first, then dropping the
+  `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
+  connection with a media server. Do not try to reconnect if the media
+  server drops it earlier, after execution of the
+  `Mutation.leaveChatCall`.
 
   ## Authentication
 
@@ -5090,6 +5453,9 @@ type Mutation {
   Joins it if the authenticated `MyUser` is not a member yet.
   """
   startChatCall(
+    """Indicates whether the `ChatCall` is intended to start with video."""
+    withVideo: Boolean = false
+
     """ID of the `Chat` to start a `ChatCall` in."""
     chatId: ChatId!
 
@@ -5097,7 +5463,7 @@ type Mutation {
     One-time `MyUser`'s secret credentials to authorize him with on a media server for this `ChatCall`.
 
     Use these credentials to establish a WebSocket connection with a media
-    server after `EventChatCallRoomCreated` is received via
+    server after `EventChatCallRoomReady` is received via
     `Subscription.chatCallEvents`.
 
     Must be different per each `MyUser`'s device. Reuse these credentials for
@@ -5105,9 +5471,6 @@ type Mutation {
     device. Generate new credentials in any other case.
     """
     creds: ChatCallCredentials!
-
-    """Indicates whether the `ChatCall` is intended to start with video."""
-    withVideo: Boolean = false
   ): StartChatCallResult!
 
   """
@@ -5120,6 +5483,9 @@ type Mutation {
 
   For using this mutation the authenticated `MyUser` must be a member of
   the `ChatCall`.
+
+  Raised hand is lowered automatically whenever the authenticated
+  `MyUser` lefts the `ChatCall` from all his devices.
 
   ## Authentication
 
@@ -5151,6 +5517,9 @@ type Mutation {
   Muted `Chat` implies that its events don't produce sounds and
   notifications on a client side. This, however, has nothing to do with
   a server and is the responsibility to be satisfied by a client side.
+  Server side may try to optimize this in some cases (like omit sending
+  notifications), but a client side should not rely on any such behaviour
+  and should implement best-effort muting by itself.
 
   Note, that `Mutation.toggleChatMute` doesn't correlate with
   `Mutation.toggleMyUserMute`. Muted `Chat` of unmuted `MyUser` should not
@@ -5170,7 +5539,7 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `ChatEvent`) if the specified `Chat`
-  is already muted `until` the specified datetime (or unmuted) for the
+  is already muted `until` the specified `DateTime` (or unmuted) for the
   authenticated `MyUser`.
   """
   toggleChatMute(
@@ -5192,7 +5561,9 @@ type Mutation {
   Muted `MyUser` implies that all his `Chat`s events don't produce sounds
   and notifications on a client side. This, however, has nothing to do
   with a server and is the responsibility to be satisfied by a client
-  side.
+  side. Server side may try to optimize this in some cases (like omit
+  sending notifications), but a client side should not rely on any such
+  behaviour and should implement best-effort muting by itself.
 
   Note, that `Mutation.toggleMyUserMute` doesn't correlate with
   `Mutation.toggleChatMute`. Unmuted `Chat` of muted `MyUser` should not
@@ -5212,7 +5583,7 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` is muted already `until` the specified datetime (or unmuted).
+  `MyUser` is muted already `until` the specified `DateTime` (or unmuted).
   """
   toggleMyUserMute(
     """
@@ -5257,23 +5628,23 @@ type Mutation {
   [Medea]: https://github.com/instrumetisto/medea
   """
   transformDialogCallIntoGroupCall(
+    """ID of the `Chat`-dialog to move the ongoing `ChatCall` from."""
+    chatId: ChatId!
+
     """
     IDs of `User`s to create the new `Chat`-group with (in addition to the existing `Chat`-dialog members).
     """
     additionalMemberIds: [UserId!]!
-
-    """ID of the `Chat`-dialog to move the ongoing `ChatCall` from."""
-    chatId: ChatId!
 
     """Optional name to assign to the new `Chat`-group."""
     groupName: ChatName
   ): TransformDialogCallIntoGroupCallResult
 
   """
-  Removes the specified `User` from the blacklist of the authenticated
+  Removes the specified `User` from the blocklist of the authenticated
   `MyUser`.
 
-  Reverses the action of `Mutation.blacklistUser`.
+  Reverses the action of `Mutation.blockUser`.
 
   ## Authentication
 
@@ -5281,18 +5652,18 @@ type Mutation {
 
   ## Result
 
-  Only the following `BlacklistEvent` may be produced on success:
-  - `EventBlacklistRecordRemoved`.
+  Only the following `BlocklistEvent` may be produced on success:
+  - `EventBlocklistRecordRemoved`.
 
   ## Idempotent
 
-  Succeeds as no-op (and returns no `BlacklistEvent`) if the specified
-  `User` is not blacklisted by the authenticated `MyUser` already.
+  Succeeds as no-op (and returns no `BlocklistEvent`) if the specified
+  `User` is not blocked by the authenticated `MyUser` already.
   """
-  unblacklistUser(
-    """ID of the `User` to remove from the blacklist."""
+  unblockUser(
+    """ID of the `User` to remove from the blocklist."""
     id: UserId!
-  ): UnblacklistUserResult
+  ): UnblockUserResult
 
   """
   Removes the specified `Chat` from the favorites list of the
@@ -5377,9 +5748,8 @@ type Mutation {
 
   ## Result
 
-  Only the following `ChatEvent`s may be produced on success:
-  - `EventChatAvatarUpdated` (if `file` argument is specified);
-  - `EventChatAvatarDeleted` (if `file` argument is absent or is `null`).
+  Only the following `ChatEvent` may be produced on success:
+  - `EventChatItemPosted` (`ChatInfo` with `ChatInfoActionAvatarUpdated`).
 
   ## Idempotent
 
@@ -5388,16 +5758,6 @@ type Mutation {
   area.
   """
   updateChatAvatar(
-    """ID of the `Chat` to update `avatar` of."""
-    chatId: ChatId!
-
-    """
-    Optional area to crop the provided `file`.
-
-    Only makes sense if the `file` argument is specified.
-    """
-    crop: CropAreaInput
-
     """
     File to use as a `ChatAvatar`.
 
@@ -5413,6 +5773,16 @@ type Mutation {
     [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
     """
     file: Upload
+
+    """ID of the `Chat` to update `avatar` of."""
+    chatId: ChatId!
+
+    """
+    Optional area to crop the provided image file.
+
+    Only makes sense if the image file is provided.
+    """
+    crop: CropAreaInput
   ): UpdateChatAvatarResult
 
   """
@@ -5442,8 +5812,15 @@ type Mutation {
   ): UpdateChatContactNameResult
 
   """
-  Updates or resets the `MyUser.avatar` field with the provided
-  `GalleryItem` from the gallery of the authenticated `MyUser`.
+  Updates or resets the `MyUser.avatar` field with the provided image
+  file.
+
+  HTTP request for this mutation must be
+  `Content-Type: multipart/form-data` containing the uploaded file and the
+  `file` argument itself must be `null`, otherwise this mutation will
+  fail.
+
+  See [GraphQL multipart request specification][1] for details.
 
   ## Authentication
 
@@ -5452,33 +5829,52 @@ type Mutation {
   ## Result
 
   One of the following `MyUserEvent`s may be produced on success:
-  - `EventUserAvatarUpdated` (if `id` argument is specified);
-  - `EventUserAvatarDeleted` (if `id` argument is absent or is `null`).
+  - `EventUserAvatarUpdated` (if image `file` is provided);
+  - `EventUserAvatarDeleted` (if image `file` is not provided).
 
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` uses the provided `GalleryItem` with the same `crop` area as
-  his `avatar` already.
+  `MyUser` uses the specified image `file` already as his `avatar` with
+  the same `crop` area.
+
+  [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
   """
   updateUserAvatar(
     """
-    Optional area to crop the provided `GalleryItem`.
+    File to use as a `UserAvatar`.
 
-    Only makes sense if `id` argument is specified.
+    Not really used and must be always specified as `null`. For schema declaration only.
+
+    Real file must be sent as `Content-Type: multipart/form-data` along.
+    See [GraphQL multipart request specification][1] for details.
+
+    Maximum allowed uploaded file's size is 15 MiB.
+
+    Maximum allowed uploaded image's dimensions are 32767x32767.
+
+    [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
+    """
+    file: Upload
+
+    """
+    Optional area to crop the uploaded image.
+
+    Only makes sense if the image file is provided.
     """
     crop: CropAreaInput
-
-    """
-    ID of the `GalleryItem` to be set as `avatar`.
-
-    If absent or is `null` then the `MyUser.avatar` field will be reset.
-    """
-    id: GalleryItemId
   ): UpdateUserAvatarResult
 
   """
-  Updates or resets the `MyUser.bio` field of the authenticated `MyUser`.
+  Updates or resets the `MyUser.callCover` field with the provided image
+  file.
+
+  HTTP request for this mutation must be
+  `Content-Type: multipart/form-data` containing the uploaded file and the
+  `file` argument itself must be `null`, otherwise this mutation will
+  fail.
+
+  See [GraphQL multipart request specification][1] for details.
 
   ## Authentication
 
@@ -5487,57 +5883,40 @@ type Mutation {
   ## Result
 
   One of the following `MyUserEvent`s may be produced on success:
-  - `EventUserBioUpdated` (if `bio` argument is specified);
-  - `EventUserBioDeleted` (if `bio` argument is absent or is `null`).
+  - `EventUserCallCoverUpdated` (if image file is provided);
+  - `EventUserCallCoverDeleted` (if image file is not provided).
 
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` uses the provided `bio` already.
-  """
-  updateUserBio(
-    """
-    Bio to update `MyUser` with.
+  `MyUser` uses the specified image `file` already as his `callCover` with
+  the same `crop` area.
 
-    If absent or is `null` then the `MyUser.bio` field will be reset.
-    """
-    bio: UserBio
-  ): MyUserEventsVersioned
-
-  """
-  Updates or resets the `MyUser.callCover` field with the provided
-  `GalleryItem` from the gallery of the authenticated `MyUser`.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  One of the following `MyUserEvent`s may be produced on success:
-  - `EventUserCallCoverUpdated` (if `id` argument is specified);
-  - `EventUserCallCoverDeleted` (if `id` argument is absent or is `null`).
-
-  ## Idempotent
-
-  Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
-  `MyUser` uses the provided `GalleryItem` with the same `crop` area as
-  his `callCover` already.
+  [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
   """
   updateUserCallCover(
     """
-    Optional area to crop the provided `GalleryItem`.
+    File to use as a `UserCallCover`.
 
-    Only makes sense if `id` argument is specified.
+    Not really used and must be always specified as `null`. For schema declaration only.
+
+    Real file must be sent as `Content-Type: multipart/form-data` along.
+    See [GraphQL multipart request specification][1] for details.
+
+    Maximum allowed uploaded file's size is 15 MiB.
+
+    Maximum allowed uploaded image's dimensions are 32767x32767.
+
+    [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
+    """
+    file: Upload
+
+    """
+    Optional area to crop the uploaded image.
+
+    Only makes sense if the image file is provided.
     """
     crop: CropAreaInput
-
-    """
-    ID of the `GalleryItem` to be set as `callCover`.
-
-    If absent or is `null` then the `MyUser.callCover` field will be reset.
-    """
-    id: GalleryItemId
   ): UpdateUserCallCoverResult
 
   """
@@ -5611,11 +5990,11 @@ type Mutation {
   one.
   """
   updateUserPassword(
-    """Password to update `MyUser` with."""
-    new: UserPassword!
-
     """Current password of `MyUser` for mutation authentication (if exists)."""
     old: UserPassword
+
+    """Password to update `MyUser` with."""
+    new: UserPassword!
   ): UpdateUserPasswordResult!
 
   """
@@ -5690,52 +6069,11 @@ type Mutation {
   """
   uploadAttachment(
     """
-    Attachment to be uploaded.
+    File to be uploaded as an `Attachment`.
 
     Not really used and must be always specified as `null`. For schema declaration only.
 
-    Real attachment data must be sent as `Content-Type: multipart/form-data`
-    along.See [GraphQL multipart request specification][1] for details.
-
-    Maximum allowed uploaded file's size is 15 MiB.
-
-    [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
-    """
-    attachment: Upload
-  ): UploadAttachmentResult!
-
-  """
-  Adds a new `GalleryItem` to the gallery of the authenticated `MyUser`.
-
-  HTTP request for this mutation must be
-  `Content-Type: multipart/form-data` containing the uploaded file and the
-  `file` argument itself must be `null`, otherwise this mutation will
-  fail.
-
-  See [GraphQL multipart request specification][1] for details.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Only the following `MyUserEvent` is always produced on success:
-  - `EventUserGalleryItemAdded`.
-
-  ## Non-idempotent
-
-  Each time adds a new unique `GalleryItem`.
-
-  [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
-  """
-  uploadUserGalleryItem(
-    """
-    File to use as a `GalleryItem`.
-
-    Not really used and must be always specified as `null`. For schema declaration only.
-
-    Real file must be sent as `Content-Type: multipart/form-data` along.
+    Real attachment data must be sent as `Content-Type: multipart/form-data` along.
     See [GraphQL multipart request specification][1] for details.
 
     Maximum allowed uploaded file's size is 15 MiB.
@@ -5745,11 +6083,12 @@ type Mutation {
     [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
     """
     file: Upload
-  ): UploadUserGalleryItemResult!
+  ): UploadAttachmentResult!
 
   """
-  Uses the specified `ChatDirectLink` by the authenticated `MyUser`
-  creating a new `Chat`-dialog or joining an existing `Chat`-group.
+  Uses the specified `ChatDirectLink` by the authenticated `MyUser`,
+  creating a new `Chat`-dialog (or `Chat`-monolog), or joining an existing
+  `Chat`-group.
 
   ## Authentication
 
@@ -5761,7 +6100,8 @@ type Mutation {
 
   Only the following `ChatEvent` may be produced on success for the
   `Chat`-group:
-  - `EventChatItemPosted` (`ChatMemberInfo`).
+  - `EventChatItemPosted` (`ChatInfo` with either `ChatInfoActionCreated`
+  or `ChatInfoActionMemberAdded`).
 
   ## Idempotent
 
@@ -5792,9 +6132,6 @@ type Mutation {
   `ConfirmationCode` can be validated unlimited number of times (for now).
   """
   validateUserPasswordRecoveryCode(
-    """Recovery `ConfirmationCode` to validate."""
-    code: ConfirmationCode!
-
     """Email address of `MyUser`."""
     email: UserEmail
 
@@ -5806,6 +6143,9 @@ type Mutation {
 
     """Phone number of `MyUser`."""
     phone: UserPhone
+
+    """Recovery `ConfirmationCode` to validate."""
+    code: ConfirmationCode!
   ): ValidateUserPasswordRecoveryErrorCode
 }
 
@@ -5824,9 +6164,9 @@ type MuteForeverDuration {
 }
 
 """
-Mute duration until an exact datetime.
+Mute duration until an exact `DateTime`.
 
-Once this datetime pasts (or is in the past already), it should be
+Once this `DateTime` pasts (or is in the past already), it should be
 considered by a client side as automatically unmuted. Server won't notify a
 client side about that.
 """
@@ -5857,8 +6197,44 @@ type MyUser {
   """
   avatar: UserAvatar
 
-  """Arbitrary descriptive information about this `MyUser`."""
-  bio: UserBio
+  """
+  Returns `User`s blocked by this `MyUser` as `BlocklistRecord`s.
+
+  ## Sorting
+
+  Returned `User`s are sorted primarily by their blocking `DateTime`, and
+  secondary by their IDs (if the blocking `DateTime` is the same), in
+  descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `BlocklistRecord` pointed by the cursor
+  and the requested count of `BlocklistRecord`s preceding and following
+  it.
+
+  If it's desired to receive the `BlocklistRecord`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+  """
+  blocklist(
+    """
+    Cursor indicating the `BlocklistEdge` position to return next `BlocklistRecord`s after.
+    """
+    after: BlocklistCursor
+
+    """
+    Cursor indicating the `BlocklistEdge` position to return prior `BlocklistRecord`s before.
+    """
+    before: BlocklistCursor
+
+    """Number of next `BlocklistRecord`s to return."""
+    first: Int
+
+    """Number of prior `BlocklistRecord`s to return."""
+    last: Int
+  ): BlocklistConnection!
 
   """
   Call cover of this `MyUser`.
@@ -5873,44 +6249,6 @@ type MyUser {
 
   """List of email addresses of this `MyUser`."""
   emails: UserEmails!
-
-  """
-  `GalleryItem`s of this `MyUser`.
-
-  ## Sorting
-
-  Returned `GalleryItem`s are sorted primarily by their creation
-  `DateTime`, and secondary by their IDs (if the creation `DateTime` is
-  the same), in descending order.
-
-  ## Pagination
-
-  It's allowed to specify both `first` and `last` counts at the same time,
-  provided that `after` and `before` cursors are equal. In such case the
-  returned page will include the `GalleryItem` pointed by the cursor and
-  the requested count of `GalleryItem`s preceding and following it.
-
-  If it's desired to receive the `GalleryItem`, pointed by the cursor,
-  without querying in both directions, one can specify `first` or `last`
-  count as `0`.
-  """
-  gallery(
-    """
-    Cursor indicating the `GalleryItemEdge` position to return next `GalleryItem`s after.
-    """
-    after: UserGalleryItemsCursor
-
-    """
-    Cursor indicating the `GalleryItemEdge` position to return prior `GalleryItem`s before.
-    """
-    before: UserGalleryItemsCursor
-
-    """Number of next `GalleryItem`s to return."""
-    first: Int
-
-    """Number of prior `GalleryItem`s to return."""
-    last: Int
-  ): UserGalleryItemsConnection!
 
   """
   Indicator whether this `MyUser` has a password.
@@ -5941,7 +6279,9 @@ type MyUser {
   Muted `MyUser` implies that all its `Chat`s events don't produce sounds
   and notifications on a client side. This, however, has nothing to do
   with a server and is the responsibility to be satisfied by a client
-  side.
+  side. Server side may try to optimize this in some cases (like omit
+  sending notifications), but a client side should not rely on any such
+  behaviour and should implement best-effort muting by itself.
 
   Note, that `MyUser.muted` doesn't correlate with `Chat.muted`. Muted
   `Chat` of unmuted `MyUser` (and unmuted `Chat` of muted `MyUser`) should
@@ -5983,12 +6323,7 @@ type MyUser {
   """List of phone numbers of this `MyUser`."""
   phones: UserPhones!
 
-  """
-  `Presence` of this `MyUser`.
-
-  If this field is set to `HIDDEN` then `User.online` field will always be
-  `null`, however `MyUser.online` field won't be affected.
-  """
+  """`Presence` of this `MyUser`."""
   presence: Presence!
 
   """Custom text status of this `MyUser`."""
@@ -6007,7 +6342,7 @@ type MyUser {
 }
 
 """Events happening with `MyUser`."""
-union MyUserEvent = EventBlacklistRecordAdded | EventBlacklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserGalleryItemAdded | EventUserGalleryItemDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
+union MyUserEvent = EventBlocklistRecordAdded | EventBlocklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
 
 """Events emitted by `Subscription.myUserEvents`."""
 union MyUserEvents = MyUser | MyUserEventsVersioned | SubscriptionInitialized
@@ -6105,6 +6440,54 @@ type PageInfo {
   startCursor: String
 }
 
+"""Plain-`File` on a file storage."""
+type PlainFile implements File {
+  """
+  [SHA-256] checksum of this `PlainFile`.
+
+  May be `null` in case this `PlainFile` is not ready on a file storage
+  yet. May be also computed on a client side, once this `PlainFile`
+  is ready and successfully downloaded from a file storage.
+
+  This checksum is especially useful if a client side requires to verify
+  the integrity and authenticity of this `PlainFile`, downloaded from
+  a file storage.
+
+  Also, this checksum may be useful as a key in a client side cache,
+  allowing to store `PlainFile`s in deduplicated manner.
+
+  [SHA-256]: https://en.wikipedia.org/wiki/SHA-2
+  """
+  checksum: String
+
+  """
+  [Relative reference][1] to this `PlainFile` on a file storage.
+
+  Prepend it with a file storage URL to obtain the full link to this
+  `PlainFile`.
+
+  If `404` HTTP status code is returned while trying to download this
+  `PlainFile` from a file storage, then the `PlainFile` is not ready yet.
+  Back off, and retry again later.
+
+  `403` HTTP status code, on the other hand, means that the link has been
+  expired and this [relative reference][1] should be re-fetched to rebuild
+  the link.
+
+  [1]: https://www.rfc-editor.org/rfc/rfc3986#section-4.2
+  """
+  relativeRef: String!
+
+  """
+  Size of this `PlainFile` (in bytes).
+
+  May be `null` in case this `PlainFile` is not ready on a file storage
+  yet. May be also computed on a client side, once this `PlainFile`
+  is ready and successfully downloaded from a file storage.
+  """
+  size: Int
+}
+
 """2D point on an image."""
 type Point {
   """X coordinate of this `Point` in `px` (pixels)."""
@@ -6136,13 +6519,13 @@ type PostChatMessageError {
 """Possible error codes of performing `Mutation.postChatMessage`."""
 enum PostChatMessageErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by the `User` who receives the `ChatMessage`.
+  Authenticated `MyUser` is blocked by the `User` who receives the `ChatMessage`.
 
   This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
 
   """
   Either `text` argument or at least one ID in `attachments` should be specified.
@@ -6186,18 +6569,8 @@ union PostChatMessageResult = ChatEventsVersioned | PostChatMessageError
 """Presence manually set by a `User` to himself."""
 enum Presence {
   """
-  `User` hides his presence.
-
-  Doesn't affect appearance of `MyUser.online` field, but `User.online`
-  field will always return `null`.
-  """
-  HIDDEN
-
-  """
   `User` is away and expected to see notifications as soon as he comes
   back.
-
-  Doesn't affect appearance of `User.online` field in any way.
   """
   AWAY
 
@@ -6206,15 +6579,14 @@ enum Presence {
   away.
 
   This is the default `Presence` all `User`s have.
-
-  Doesn't affect appearance of `User.online` field in any way.
   """
   PRESENT
 }
 
 type Query {
   """
-  Returns `User`s blacklisted by the authenticated `MyUser`.
+  Returns `User`s blocked by the authenticated `MyUser` as
+  `BlocklistRecord`s.
 
   ## Authentication
 
@@ -6222,38 +6594,39 @@ type Query {
 
   ## Sorting
 
-  Returned `User`s are sorted primarily by their blacklisting `DateTime`,
-  and secondary by their IDs (if the blacklisting `DateTime` is the same),
-  in descending order.
+  Returned `User`s are sorted primarily by their blocking `DateTime`, and
+  secondary by their IDs (if the blocking `DateTime` is the same), in
+  descending order.
 
   ## Pagination
 
   It's allowed to specify both `first` and `last` counts at the same time,
   provided that `after` and `before` cursors are equal. In such case the
-  returned page will include the `User` pointed by the cursor and the
-  requested count of `User`s preceding and following it.
+  returned page will include the `BlocklistRecord` pointed by the cursor
+  and the requested count of `BlocklistRecord`s preceding and following
+  it.
 
-  If it's desired to receive the `User`, pointed by the cursor, without
-  querying in both directions, one can specify `first` or `last` count as
-  `0`.
+  If it's desired to receive the `BlocklistRecord`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
   """
-  blacklist(
+  blocklist(
     """
-    Cursor indicating the `UsersEdge` position to return next `User`s after.
+    Cursor indicating the `BlocklistEdge` position to return next `BlocklistRecord`s after.
     """
-    after: BlacklistCursor
+    after: BlocklistCursor
 
     """
-    Cursor indicating the `UsersEdge` position to return prior `User`s before.
+    Cursor indicating the `BlocklistEdge` position to return prior `BlocklistRecord`s before.
     """
-    before: BlacklistCursor
+    before: BlocklistCursor
 
-    """Number of next `User`s to return."""
+    """Number of next `BlocklistRecord`s to return."""
     first: Int
 
-    """Number of prior `User`s to return."""
+    """Number of prior `BlocklistRecord`s to return."""
     last: Int
-  ): BlacklistConnection!
+  ): BlocklistConnection!
 
   """
   Returns a `Chat` by its ID.
@@ -6300,6 +6673,11 @@ type Query {
   """
   chatContacts(
     """
+    Indicator whether favorite `ChatContact`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
+
+    """
     Cursor indicating the `ChatContactsEdge` position to return next `ChatContact`s after.
     """
     after: ChatContactsCursor
@@ -6314,11 +6692,6 @@ type Query {
 
     """Number of prior `ChatContact`s to return."""
     last: Int
-
-    """
-    Indicator whether favorite `ChatContact`s should be excluded from the result.
-    """
-    noFavorite: Boolean = false
   ): ChatContactsConnection!
 
   """
@@ -6335,31 +6708,6 @@ type Query {
     """ID of the `ChatItem` to be returned."""
     id: ChatItemId!
   ): ChatItemsEdge
-
-  """
-  Indicates whether some `User` can be identified by the given `num`,
-  `login`, `email` or `phone`.
-
-  Exactly one of `num`/`login`/`email`/`phone` arguments must be specified
-  (be non-`null`).
-
-  ## Authentication
-
-  None.
-  """
-  checkUserIdentifiable(
-    """`UserEmail` address of the `User` for identification."""
-    email: UserEmail
-
-    """`UserLogin` of the `User` for identification."""
-    login: UserLogin
-
-    """`UserNum` of the `User` for identification."""
-    num: UserNum
-
-    """`UserPhone` number of the `User` for identification."""
-    phone: UserPhone
-  ): Boolean!
 
   """
   Indicates whether the specified `UserLogin` is occupied by some `User`,
@@ -6379,7 +6727,7 @@ type Query {
   authenticated `MyUser`.
 
   If there is no such dialog `Chat`, the one could be created via
-  `Mutation.createdDialogChat`.
+  `Mutation.createDialogChat`.
 
   ## Authentication
 
@@ -6390,7 +6738,7 @@ type Query {
   Query returns `null` when:
   - No `User` exists with the specified `userId`.
   - No dialog `Chat` exists between the specified `User` and the
-    authenticated `MyUser`.
+  authenticated `MyUser`.
   """
   dialog(
     """ID of the `User` to return a dialog `Chat` with."""
@@ -6412,7 +6760,9 @@ type Query {
   ## Sorting
 
   Returned `ChatContact`s are sorted in the order specified by the
-  authenticated `MyUser` in `Mutation.favoriteChatContact`.
+  authenticated `MyUser` in `Mutation.favoriteChatContact` descending
+  (starting from the highest `ChatContactFavoritePosition` and finishing
+  at the lowest).
 
   ## Pagination
 
@@ -6458,7 +6808,8 @@ type Query {
   ## Sorting
 
   Returned `Chat`s are sorted in the order specified by the authenticated
-  `MyUser` in `Mutation.favoriteChat`.
+  `MyUser` in `Mutation.favoriteChat` descending (starting from the
+  highest `ChatFavoritePosition` and finishing at the lowest).
 
   ## Pagination
 
@@ -6494,7 +6845,7 @@ type Query {
 
   A `ChatCall` is considered incoming when:
   - it's not yet answered or declined (or the authenticated `MyUser` has
-    been redialed after it was answered or declined);
+  been redialed after it was answered or declined);
   - its `Chat` is not muted by the authenticated `MyUser`;
   - its initiator is not the authenticated `MyUser`.
 
@@ -6508,9 +6859,9 @@ type Query {
   A `ChatCall` is removed from this list when:
   - it has been finished;
   - `MyUser` executes `Mutation.joinChatCall` or
-    `Mutation.declineChatCall` on it;
+  `Mutation.declineChatCall` on it;
   - `MyUser` executes `Mutation.toggleChatMute` on its `Chat` (or
-    `Mutation.toggleMyUserMute` on himself).
+  `Mutation.toggleMyUserMute` on himself).
 
   Executing `Mutation.toggleMyUserMute` with `mute` argument (muting)
   makes this list always empty until the consecutive execution of
@@ -6572,12 +6923,29 @@ type Query {
 
   Query returns empty list when:
   - The specified `User` is not linked to any `ChatContact`s of the
-    authenticated `MyUser`.
+  authenticated `MyUser`.
   """
   linkedChatContacts(
     """ID of the `User` returned `ChatContacts` should be linked to."""
     userId: UserId!
   ): [ChatContact!]
+
+  """
+  Returns the monolog `Chat` of the authenticated `MyUser`.
+
+  If there is no `Chat`-monolog, the one could be created via
+  `Mutation.createMonologChat`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Query returns `null` when no `Chat`-monolog exists for the authenticated
+  `MyUser`.
+  """
+  monolog: Chat
 
   """
   Counts a number of mutual `ChatContact`s between the specified `User`
@@ -6613,6 +6981,10 @@ type Query {
   Use the `noFavorite` argument to exclude favorited `Chat`s from the
   returned result.
 
+  Use the `withOngoingCalls` argument to only include `Chat`s with ongoing
+  `ChatCall`s into the returned result (`true`), or to exclude them
+  (`false`).
+
   ## Authentication
 
   Mandatory.
@@ -6635,6 +7007,16 @@ type Query {
   `0`.
   """
   recentChats(
+    """Indicator whether favorite `Chat`s should be excluded from the result."""
+    noFavorite: Boolean = false
+
+    """
+    Indicator whether only `Chat`s with ongoing calls should be included into
+    the result (`true`), or whether they should be excluded from the result (`false`).
+    `null` means omitting filtering by this criteria.
+    """
+    withOngoingCalls: Boolean = null
+
     """
     Cursor indicating the `RecentChatsEdge` position to return next `Chat`s after.
     """
@@ -6650,9 +7032,6 @@ type Query {
 
     """Number of prior `Chat`s to return."""
     last: Int
-
-    """Indicator whether favorite `Chat`s should be excluded from the result."""
-    noFavorite: Boolean = false
   ): RecentChatsConnection!
 
   """
@@ -6673,12 +7052,12 @@ type Query {
 
   Returned `ChatContact`s are sorted depending on the provided arguments:
   - If one of the `email`/`phone` arguments is specified, then returned
-    `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
-    the same) in ascending order.
+  `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
+  the same) in ascending order.
   - If the `name` argument is specified, then returned `ChatContact`s are
-    sorted primarily by the [Levenshtein distance][0] of their `name`s,
-    and secondary by their IDs (if the [Levenshtein distance][0] is the
-    same), in descending order.
+  sorted primarily by the [Levenshtein distance][0] of their `name`s,
+  and secondary by their IDs (if the [Levenshtein distance][0] is the
+  same), in descending order.
 
   ## Pagination
 
@@ -6704,9 +7083,6 @@ type Query {
     """
     before: ChatContactsCursor
 
-    """`UserEmail` to search `ChatContact`s with."""
-    email: UserEmail
-
     """Number of next `ChatContactsEdge`s to return."""
     first: Int
 
@@ -6715,6 +7091,9 @@ type Query {
 
     """Part of `UserName` to search `ChatContact`s with."""
     name: UserName
+
+    """`UserEmail` to search `ChatContact`s with."""
+    email: UserEmail
 
     """`UserPhone` to search `ChatContact`s with."""
     phone: UserPhone
@@ -6738,11 +7117,11 @@ type Query {
 
   Returned `User`s are sorted depending on the provided arguments:
   - If one of the `num`/`login`/`direct_link` arguments is specified, then
-    an exact `User` is returned.
+  an exact `User` is returned.
   - If the `name` argument is specified, then returned `User`s are sorted
-    primarily by the [Levenshtein distance][0] of their `name`s, and
-    secondary by their IDs (if the [Levenshtein distance][0] is the same),
-    in descending order.
+  primarily by the [Levenshtein distance][0] of their `name`s, and
+  secondary by their IDs (if the [Levenshtein distance][0] is the same),
+  in descending order.
 
   ## Pagination
 
@@ -6772,9 +7151,6 @@ type Query {
     """
     before: UsersCursor
 
-    """`ChatDirectLinkSlug` to search owner of."""
-    directLink: ChatDirectLinkSlug
-
     """
     Number of next `UsersEdge`s to return.
 
@@ -6789,11 +7165,14 @@ type Query {
     """
     last: Int
 
-    """`UserLogin` to search `User`s with."""
-    login: UserLogin
-
     """Part of `UserName` to fuzzy search `User` with."""
     name: UserName
+
+    """`ChatDirectLinkSlug` to search owner of."""
+    directLink: ChatDirectLinkSlug
+
+    """`UserLogin` to search `User`s with."""
+    login: UserLogin
 
     """`UserNum` to search `User`s with."""
     num: UserNum
@@ -6926,30 +7305,6 @@ type RecentChatsTop {
 """Events emitted by `Subscription.recentChatsTopEvents`."""
 union RecentChatsTopEvents = EventRecentChatsTopChatDeleted | EventRecentChatsTopChatUpdated | RecentChatsTop | SubscriptionInitialized
 
-"""Possible error codes of performing `Mutation.recoverUserPassword`."""
-enum RecoverUserPasswordErrorCode {
-  """
-  Exceeded limit of sending recovery `ConfirmationCode`s. Try again in 1 hour.
-
-  Status code: 403 Forbidden.
-  """
-  CODE_LIMIT_EXCEEDED
-
-  """
-  `MyUser` has neither confirmed email address, nor confirmed phone number.
-
-  Status code: 403 Forbidden.
-  """
-  NOWHERE_TO_SEND
-
-  """
-  `MyUser` with the provided identifier doesn't exist.
-
-  Status code: 404 Not Found.
-  """
-  UNKNOWN_USER
-}
-
 """Error of performing `Mutation.redialChatCallMember`."""
 type RedialChatCallMemberError {
   """Code indicating why this error has happened."""
@@ -6980,9 +7335,9 @@ enum RedialChatCallMemberErrorCode {
   NO_CALL
 
   """
-  `Chat` is not a group.
+  `Chat` is not a group, so cannot redial its members.
 
-  Status code: 400 Bad Request.
+  Status code: 403 Forbidden.
   """
   NOT_GROUP
 
@@ -6996,6 +7351,16 @@ enum RedialChatCallMemberErrorCode {
 
 """Result of performing `Mutation.redialChatCallMember`."""
 union RedialChatCallMemberResult = ChatCallEventsVersioned | RedialChatCallMemberError
+
+"""
+Type of a `RememberedSession`'s refresh token.
+
+Its values are always considered to be non-empty and represent a
+[valid Base64 string][1].
+
+[1]: https://base64.guru/learn/base64-characters
+"""
+scalar RefreshToken
 
 """Possible error codes of performing `Mutation.registerFcmDevice`."""
 enum RegisterFcmDeviceErrorCode {
@@ -7030,7 +7395,7 @@ type RememberedSession {
   expireAt: DateTime!
 
   """
-  Unique remember token of this `RememberedSession`.
+  Unique `RefreshToken` of this `RememberedSession`.
 
   This one should be used for a `Session` renewal via
   `Mutation.renewSession` and is **NOT** usable as a
@@ -7038,7 +7403,7 @@ type RememberedSession {
 
   [1]: https://tools.ietf.org/html/rfc6750#section-2.1
   """
-  token: RememberToken!
+  token: RefreshToken!
 
   """
   Version of this `RememberedSession`'s state.
@@ -7056,15 +7421,38 @@ It increases monotonically, so may be used for tracking state's actuality.
 """
 scalar RememberedSessionVersion
 
-"""
-Type of a `RememberedSession`'s remember token.
+"""Error of performing `Mutation.removeChatCallMember`."""
+type RemoveChatCallMemberError {
+  """Code indicating why this error has happened."""
+  code: RemoveChatCallMemberErrorCode!
+}
 
-Its values are always considered to be non-empty and represent a
-[valid Base64 string][1].
+"""Possible error codes of performing `Mutation.removeChatCallMember`."""
+enum RemoveChatCallMemberErrorCode {
+  """
+  `Chat` is not a group, so cannot remove members from its calls.
 
-[1]: https://base64.guru/learn/base64-characters
-"""
-scalar RememberToken
+  Status code: 403 Forbidden.
+  """
+  NOT_GROUP
+
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_CHAT
+
+  """
+  `User` with the provided ID is not a member of the group.
+
+  Status code: 400 Bad Request.
+  """
+  NOT_MEMBER
+}
+
+"""Result of performing `Mutation.removeChatCallMember`."""
+union RemoveChatCallMemberResult = ChatEventsVersioned | RemoveChatCallMemberError
 
 """Error of performing `Mutation.removeChatMember`."""
 type RemoveChatMemberError {
@@ -7075,18 +7463,18 @@ type RemoveChatMemberError {
 """Possible error codes of performing `Mutation.removeChatMember`."""
 enum RemoveChatMemberErrorCode {
   """
+  `Chat` is not a group, so cannot remove its members.
+
+  Status code: 403 Forbidden.
+  """
+  NOT_GROUP
+
+  """
   `Chat` with the provided ID doesn't exist.
 
   Status code: 404 Not Found.
   """
   UNKNOWN_CHAT
-
-  """
-  `Chat` with the provided ID is not a group.
-
-  Status code: 400 Bad Request.
-  """
-  NOT_GROUP
 }
 
 """Result of performing `Mutation.removeChatMember`."""
@@ -7101,11 +7489,11 @@ type RenameChatError {
 """Possible error codes of performing `Mutation.renameChat`."""
 enum RenameChatErrorCode {
   """
-  `Chat` is not a group.
+  `Chat` represents a dialog, so cannot be renamed.
 
-  Status code: 400 Bad Request.
+  Status code: 403 Forbidden.
   """
-  NOT_GROUP
+  DIALOG
 
   """
   `Chat` with the provided ID doesn't exist.
@@ -7127,11 +7515,11 @@ type RenewSessionError {
 """Possible error codes of performing `Mutation.renewSession`."""
 enum RenewSessionErrorCode {
   """
-  Provided `RememberToken` is wrong.
+  Provided `RefreshToken` is wrong.
 
   Status code: 403 Forbidden.
   """
-  WRONG_REMEMBER_TOKEN
+  WRONG_REFRESH_TOKEN
 }
 
 """Result of successful performing `Mutation.renewSession`."""
@@ -7142,10 +7530,10 @@ type RenewSessionOk {
   Use it instead of previous one for the next `Mutation.renewSession`
   execution.
 
-  The expiration datetime of the renewed `RememberedSession` is not
+  The expiration `DateTime` of the renewed `RememberedSession` is not
   prolonged comparing to the previous one, and remains the same for the
   all `RememberedSession`s obtained via `Mutation.renewSession`.
-  Use `Mutation.createSession` if you need to reset expiration datetime
+  Use `Mutation.createSession` if you need to reset expiration `DateTime`
   of a `RememberedSession`.
   """
   remembered: RememberedSession!
@@ -7211,18 +7599,11 @@ type ResetUserPasswordError {
 """Possible error codes of performing `Mutation.resetUserPassword`."""
 enum ResetUserPasswordErrorCode {
   """
-  Provided `ConfirmationCode` is wrong.
+  Provided `ConfirmationCode` is wrong or `MyUser` with the provided identifier doesn't exist.
 
   Status code: 403 Forbidden.
   """
   WRONG_CODE
-
-  """
-  `MyUser` with provided identifier doesn't exist.
-
-  Status code: 404 Not Found.
-  """
-  UNKNOWN_USER
 }
 
 """Result of performing `Mutation.resetUserPassword`."""
@@ -7276,20 +7657,13 @@ type StartChatCallError {
 """Possible error codes of performing `Mutation.startChatCall`."""
 enum StartChatCallErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by the `User`, who responds to the `ChatCall`.
+  Authenticated `MyUser` is blocked by the `User`, who responds to the `ChatCall`.
 
   This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
-
-  """
-  `Chat` is a monolog, and monologues can't have calls.
-
-  Status code: 400 Bad Request.
-  """
-  MONOLOG
+  BLOCKED
 
   """
   `Chat` with the provided ID doesn't exist.
@@ -7336,6 +7710,11 @@ type Subscription {
   without leaving a `ChatCall` will end up by kicking the authenticated
   `MyUser` from the `ChatCall` by timeout (if not re-established earlier).
 
+  Once this subscription kicks the authenticated `MyUser` from the
+  `ChatCall` by timeout, it automatically lowers his hand raised by
+  `Mutation.toggleChatCallHand`, if no other `MyUser`'s devices are
+  participating in this `ChatCall` at the moment.
+
   ## Authentication
 
   Mandatory.
@@ -7361,17 +7740,17 @@ type Subscription {
   Completes without re-subscription necessity when:
   - The `ChatCall` is finished (`EventChatCallFinished` is emitted).
   - The authenticated `MyUser` is no longer a member of the `ChatCall`
-    (`EventChatCallMemberLeft` is emitted for the the authenticated
-    `MyUser`).
+  (`EventChatCallMemberLeft` is emitted for the the authenticated
+  `MyUser`).
   - The `ChatCall` is not found or the authenticated `MyUser` doesn't
-    participate in it from the specified `MyUser`'s device (emits nothing,
-    completes immediately after being established).
+  participate in it from the specified `MyUser`'s device (emits nothing,
+  completes immediately after being established).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   chatCallEvents(
     """
@@ -7416,10 +7795,10 @@ type Subscription {
   may become stale, so this subscription will return `STALE_VERSION` error
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.chatContacts` (or
-    `Query.favoriteChatContacts`);
+  `Query.favoriteChatContacts`);
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `ChatContact`s list).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `ChatContact`s list).
 
   ## Completion
 
@@ -7429,7 +7808,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -7482,10 +7861,10 @@ type Subscription {
   may become stale, so this subscription will return `STALE_VERSION` error
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.chat` (or
-    `Query.recentChats`);
+  `Query.recentChats`);
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `Chat`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `Chat`).
 
   ## Completion
 
@@ -7493,19 +7872,19 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The `Chat` does not exist (emits nothing, completes immediately after
-    being established).
+  being established).
   - The authenticated `MyUser` is not a member of the `Chat` at the moment
-    of subscribing (emits nothing, completes immediately after being
-    established).
+  of subscribing (emits nothing, completes immediately after being
+  established).
   - The authenticated `MyUser` is no longer a member of the `Chat` (emits
-    `EventChatItemPosted` with `ChatMemberInfo` of `MyUser` being removed
-    and completes).
+  an `EventChatItemPosted` of a `ChatInfo` with
+  `ChatInfoActionMemberRemoved` and completes).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   chatEvents(
     """ID of the `Chat` to subscribe onto."""
@@ -7551,8 +7930,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.favoriteChats`;
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `FavoriteChatsList`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `FavoriteChatsList`).
 
   ## Completion
 
@@ -7562,7 +7941,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -7626,7 +8005,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   incomingChatCallsTopEvents(
     """
@@ -7666,7 +8045,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   keepOnline: SubscriptionInitialized!
 
@@ -7677,6 +8056,9 @@ type Subscription {
   Keep this subscription up while the authenticated `MyUser` is typing.
   Once this subscription begins `Subscription.chatTypings` emits
   `EventChatTypingStarted`, and `EventChatTypingStopped` once it ends.
+
+  Makes no sense for the `Chat`-monolog of the authenticated `MyUser`, so
+  emits `MONOLOG` error on initialization in such case.
 
   ## Authentication
 
@@ -7700,7 +8082,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   keepTyping(
     """ID of the `Chat` to type in."""
@@ -7737,8 +8119,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.myUser`;
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `MyUser`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `MyUser`).
 
   ## Completion
 
@@ -7746,13 +8128,13 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The authenticated `MyUser` is deleted (emits `EventUserDeleted` and
-    completes).
+  completes).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -7809,20 +8191,28 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
   """
   recentChatsTopEvents(
+    """
+    Indicator whether updates regarding favorite `Chat`s should be excluded from the result.
+    """
+    noFavorite: Boolean = false
+
+    """
+    Indicator whether only updates regarding `Chat`s with ongoing calls should
+    be included into the result (`true`), or whether they should be excluded
+    from the result (`false`).
+    `null` means omitting filtering by this criteria.
+    """
+    withOngoingCalls: Boolean = null
+
     """
     Count of top recent `Chat`s to receive updates for. Value must be in range from 1 to 100.
 
     Usually, you need just pass the count of `ChatConnection.nodes` returned by `Query.recentChats`.
     """
     count: Int!
-
-    """
-    Indicator whether updates regarding favorite `Chat`s should be excluded from the result.
-    """
-    noFavorite: Boolean = false
   ): RecentChatsTopEvents!
 
   """
@@ -7856,8 +8246,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.user`;
   - or a re-subscription should be done without specifying a `ver`
-    argument (so the fresh `ver` may be obtained in the emitted initial
-    state of the `User`).
+  argument (so the fresh `ver` may be obtained in the emitted initial
+  state of the `User`).
 
   ## Completion
 
@@ -7865,15 +8255,15 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The specified `User` is deleted (emits `EventUserDeleted` and
-    completes).
+  completes).
   - The specified `User` doesn't exist (emits nothing, completes
-    immediately after being established).
+  immediately after being established).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-    completes after initialization).
+  completes after initialization).
 
   ## Idempotency
 
@@ -7953,6 +8343,13 @@ enum ToggleChatMuteErrorCode {
   TOO_SHORT
 
   """
+  `Chat` represents a monolog, so cannot be (un)muted.
+
+  Status code: 403 Forbidden.
+  """
+  MONOLOG
+
+  """
   `Chat` with the provided ID doesn't exist.
 
   Status code: 404 Not Found.
@@ -7993,14 +8390,14 @@ Possible error codes of performing `Mutation.transformDialogCallIntoGroupCall`.
 """
 enum TransformDialogCallIntoGroupCallErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by one of the specified members.
+  Authenticated `MyUser` is blocked by one of the specified members.
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
 
   """
-  Specified `Chat` is not a dialog.
+  Specified `Chat` is not a dialog, so its call cannot be transformed into a group call.
 
   Status code: 403 Forbidden.
   """
@@ -8038,14 +8435,14 @@ enum TransformDialogCallIntoGroupCallErrorCode {
 """Result of performing `Mutation.transformDialogCallIntoGroupCall`."""
 union TransformDialogCallIntoGroupCallResult = ChatEventsVersioned | TransformDialogCallIntoGroupCallError
 
-"""Error of performing `Mutation.unblacklistUser`."""
-type UnblacklistUserError {
+"""Error of performing `Mutation.unblockUser`."""
+type UnblockUserError {
   """Code indicating why this error has happened."""
-  code: UnblacklistUserErrorCode!
+  code: UnblockUserErrorCode!
 }
 
-"""Possible error codes of performing `Mutation.unblacklistUser`."""
-enum UnblacklistUserErrorCode {
+"""Possible error codes of performing `Mutation.unblockUser`."""
+enum UnblockUserErrorCode {
   """
   `User` with the provided ID doesn't exist.
 
@@ -8054,8 +8451,8 @@ enum UnblacklistUserErrorCode {
   UNKNOWN_USER
 }
 
-"""Result of performing `Mutation.unblacklistUser`."""
-union UnblacklistUserResult = BlacklistEventsVersioned | UnblacklistUserError
+"""Result of performing `Mutation.unblockUser`."""
+union UnblockUserResult = BlocklistEventsVersioned | UnblockUserError
 
 """Error of performing `Mutation.unfavoriteChatContact`."""
 type UnfavoriteChatContactError {
@@ -8118,7 +8515,7 @@ enum UpdateChatAvatarErrorCode {
   INVALID_CROP_POINTS
 
   """
-  Uploaded file cannot be decoded as an image or a video.
+  Uploaded file cannot be decoded as an image.
 
   Status code: 400 Bad Request.
   """
@@ -8144,6 +8541,13 @@ enum UpdateChatAvatarErrorCode {
   Status code: 400 Bad Request.
   """
   TOO_BIG_DIMENSIONS
+
+  """
+  `Chat` represents a dialog, so cannot have avatars.
+
+  Status code: 403 Forbidden.
+  """
+  DIALOG
 
   """
   `Chat` with the provided ID doesn't exist.
@@ -8198,11 +8602,32 @@ enum UpdateUserAvatarErrorCode {
   INVALID_CROP_POINTS
 
   """
-  `GalleryItem` with the provided ID doesn't exist in the gallery of the authenticated `MyUser`.
+  Uploaded file cannot be decoded as an image.
 
-  Status code: 404 Not Found.
+  Status code: 400 Bad Request.
   """
-  UNKNOWN_GALLERY_ITEM
+  MALFORMED
+
+  """
+  Uploaded file has unsupported MIME type.
+
+  Status code: 400 Bad Request.
+  """
+  UNSUPPORTED_FORMAT
+
+  """
+  Uploaded file is too big in size.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_SIZE
+
+  """
+  Uploaded image has too big dimensions.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_DIMENSIONS
 }
 
 """Result of performing `Mutation.updateUserAvatar`."""
@@ -8231,11 +8656,32 @@ enum UpdateUserCallCoverErrorCode {
   INVALID_CROP_POINTS
 
   """
-  `GalleryItem` with the provided ID doesn't exist in the gallery of the authenticated `MyUser`.
+  Uploaded file cannot be decoded as an image.
 
-  Status code: 404 Not Found.
+  Status code: 400 Bad Request.
   """
-  UNKNOWN_GALLERY_ITEM
+  MALFORMED
+
+  """
+  Uploaded file has unsupported MIME type.
+
+  Status code: 400 Bad Request.
+  """
+  UNSUPPORTED_FORMAT
+
+  """
+  Uploaded file is too big in size.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_SIZE
+
+  """
+  Uploaded image has too big dimensions.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_DIMENSIONS
 }
 
 """Result of performing `Mutation.updateUserCallCover`."""
@@ -8307,18 +8753,25 @@ enum UploadAttachmentErrorCode {
   NO_FILENAME
 
   """
-  Uploaded attachment is too big in size.
+  Uploaded file is too big in size.
 
   Status code: 400 Bad Request.
   """
   TOO_BIG_SIZE
 
   """
-  Uploaded file attachment is malformed.
+  Uploaded image cannot be decoded as an image.
 
   Status code: 400 Bad Request.
   """
   MALFORMED
+
+  """
+  Uploaded image has too big dimensions.
+
+  Status code: 400 Bad Request.
+  """
+  TOO_BIG_DIMENSIONS
 }
 
 """Result of a successful performing `Mutation.uploadAttachment`."""
@@ -8330,46 +8783,6 @@ type UploadAttachmentOk {
 """Result of performing `Mutation.uploadAttachment`."""
 union UploadAttachmentResult = UploadAttachmentError | UploadAttachmentOk
 
-"""Error of performing `Mutation.uploadUserGalleryItem`."""
-type UploadUserGalleryItemError {
-  """Code indicating why this error has happened."""
-  code: UploadUserGalleryItemErrorCode!
-}
-
-"""Possible error codes of performing `Mutation.uploadUserGalleryItem`."""
-enum UploadUserGalleryItemErrorCode {
-  """
-  Uploaded file cannot be decoded as an image or a video.
-
-  Status code: 400 Bad Request.
-  """
-  MALFORMED
-
-  """
-  Uploaded file has unsupported MIME type.
-
-  Status code: 400 Bad Request.
-  """
-  UNSUPPORTED_FORMAT
-
-  """
-  Uploaded file is too big in size.
-
-  Status code: 400 Bad Request.
-  """
-  TOO_BIG_SIZE
-
-  """
-  Uploaded image has too big dimensions.
-
-  Status code: 400 Bad Request.
-  """
-  TOO_BIG_DIMENSIONS
-}
-
-"""Result of performing `Mutation.uploadUserGalleryItem`."""
-union UploadUserGalleryItemResult = MyUserEventsVersioned | UploadUserGalleryItemError
-
 """Error of performing `Mutation.useChatDirectLink`."""
 type UseChatDirectLinkError {
   """Code indicating why this error has happened."""
@@ -8379,11 +8792,11 @@ type UseChatDirectLinkError {
 """Possible error codes of performing `Mutation.useChatDirectLink`."""
 enum UseChatDirectLinkErrorCode {
   """
-  Authenticated `MyUser` is blacklisted by the responder.
+  Authenticated `MyUser` is blocked by the responder.
 
   Status code: 403 Forbidden.
   """
-  BLACKLISTED
+  BLOCKED
 
   """
   `ChatDirectLink` with the provided slug doesn't exist or is not active anymore.
@@ -8401,7 +8814,8 @@ type UseChatDirectLinkOk {
   """
   The only `ChatEvent` which may be produced by performing
   `Mutation.useChatDirectLink`:
-  - `EventChatItemPosted` (`ChatMemberInfo`).
+  - `EventChatItemPosted` (`ChatInfo` with either `ChatInfoActionCreated`
+  or `ChatInfoActionMemberAdded`).
 
   `null` means no-op due to idempotency.
   """
@@ -8419,9 +8833,6 @@ type User {
   `avatar` is an image helping to identify a `User` visually.
   """
   avatar: UserAvatar
-
-  """Arbitrary descriptive information about this `User`."""
-  bio: UserBio
 
   """
   Call cover of this `User`.
@@ -8449,44 +8860,6 @@ type User {
   dialog: Chat
 
   """
-  `GalleryItem`s of this `User`.
-
-  ## Sorting
-
-  Returned `GalleryItem`s are sorted primarily by their creation
-  `DateTime`, and secondary by their IDs (if the creation `DateTime` is
-  the same), in descending order.
-
-  ## Pagination
-
-  It's allowed to specify both `first` and `last` counts at the same time,
-  provided that `after` and `before` cursors are equal. In such case the
-  returned page will include the `GalleryItem` pointed by the cursor and
-  the requested count of `GalleryItem`s preceding and following it.
-
-  If it's desired to receive the `GalleryItem`, pointed by the cursor,
-  without querying in both directions, one can specify `first` or `last`
-  count as `0`.
-  """
-  gallery(
-    """
-    Cursor indicating the `GalleryItemEdge` position to return next `GalleryItem`s after.
-    """
-    after: UserGalleryItemsCursor
-
-    """
-    Cursor indicating the `GalleryItemEdge` position to return prior `GalleryItem`s before.
-    """
-    before: UserGalleryItemsCursor
-
-    """Number of next `GalleryItem`s to return."""
-    first: Int
-
-    """Number of prior `GalleryItem`s to return."""
-    last: Int
-  ): UserGalleryItemsConnection!
-
-  """
   Unique ID of this `User`.
 
   Once assigned it never changes.
@@ -8494,10 +8867,9 @@ type User {
   id: UserId!
 
   """
-  Indicator whether this `User` is blacklisted by the authenticated
-  `MyUser`.
+  Indicator whether this `User` is blocked by the authenticated `MyUser`.
   """
-  isBlacklisted: IsBlacklisted!
+  isBlocked: IsBlocked!
 
   """Indicator whether this `User` is deleted."""
   isDeleted: Boolean!
@@ -8537,7 +8909,7 @@ type User {
   """
   Online state of this `User`.
 
-  Returns `null` if `User` hid his `online` state.
+  Returns `null` if this `User` hid his `online` state.
 
   `User` is considered to be online, while he is subscribed to
   `Subscription.keepOnline`.
@@ -8547,10 +8919,9 @@ type User {
   """
   `Presence` of this `User`.
 
-  If this field is set to `HIDDEN` then `User.online` field will always be
-  `null`.
+  Returns `null` if this `User` hid his `Presence`.
   """
-  presence: Presence!
+  presence: Presence
 
   """Custom text status of this `User`."""
   status: UserTextStatus
@@ -8567,94 +8938,77 @@ type User {
 """Avatar of a `User`."""
 type UserAvatar {
   """
-  `big` `UserAvatar`'s view image `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `70px`x`70px`.
+  `big` view `ImageFile` of this `UserAvatar`, square-cropped to its
+  minimum dimension (either width or height), and scaled to
+  `250px`x`250px`.
   """
-  big: File!
+  big: ImageFile!
 
-  """`CropArea` applied to the `GalleryItem` to create this `UserAvatar`."""
+  """
+  `CropArea` applied to the `original` `ImageFile` for creating this
+  `UserAvatar`.
+  """
   crop: CropArea
 
   """
-  Full-sized `UserAvatar`'s image `File`, keeping the `original`
-  dimensions.
+  Full-sized `ImageFile` representing this `UserAvatar`, keeping the
+  `original` dimensions.
   """
-  full: File!
+  full: ImageFile!
 
   """
-  `GalleryItem` this `UserAvatar` was created from.
-
-  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
+  `medium` view `ImageFile` of this `UserAvatar`, square-cropped to its
+  minimum dimension (either width or height), and scaled to
+  `100px`x`100px`.
   """
-  galleryItem: GalleryItem
+  medium: ImageFile!
 
-  """
-  `medium` `UserAvatar`'s view image `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `46px`x`46px`.
-  """
-  medium: File!
-
-  """Original image `File` representing this `UserAvatar`."""
-  original: File!
+  """Original `ImageFile` representing this `UserAvatar`."""
+  original: ImageFile!
 
   """
-  `small` `UserAvatar`'s view image `File`, square-cropped to its minimum
-  dimension (either width or height), and scaled to `25px`x`25px`.
+  `small` view `ImageFile` of this `UserAvatar`, square-cropped to its
+  minimum dimension (either width or height), and scaled to `46px`x`46px`.
   """
-  small: File!
+  small: ImageFile!
 }
-
-"""
-Type of a `User`'s bio.
-
-Its values are always considered to be non-empty, and meet the following
-requirements:
-- be at least 1 and maximum 300 characters long.
-"""
-scalar UserBio
 
 """Call cover of a `User`."""
 type UserCallCover {
   """
-  `CropArea` applied to the `GalleryItem` to create this `UserCallCover`.
+  `CropArea` applied to the `original` `ImageFile` for creating this
+  `UserCallCover`.
   """
   crop: CropArea
 
   """
-  Full-sized `UserCallCover`'s image `File`, keeping the `original`
-  dimensions.
+  Full-sized `ImageFile` representing this `UserCallCover`, keeping the
+  `original` dimensions.
   """
-  full: File!
+  full: ImageFile!
+
+  """Original `ImageFile` representing this `UserCallCover`."""
+  original: ImageFile!
 
   """
-  `GalleryItem` this `UserCallCover` was created from.
-
-  Once the returned `GalleryItem` gets deleted, this field becomes `null`.
-  """
-  galleryItem: GalleryItem
-
-  """Original image `File` representing this `UserCallCover`."""
-  original: File!
-
-  """
-  `square` `UserCallCover`'s view image `File`, square-cropped to its
+  `square` view `ImageFile` of this `UserCallCover`, square-cropped to its
   minimum dimension (either width or height), and scaled to
   `300px`x`300px`.
   """
-  square: File!
+  square: ImageFile!
 
   """
-  `vertical` `UserCallCover`'s view image `File`, rectangular-cropped to
-  its minimum dimension (either width or height), and proportionally
+  `vertical` view `ImageFile` of this `UserCallCover`, rectangular-cropped
+  to its minimum dimension (either width or height), and proportionally
   scaled to `675px`x`900px`.
   """
-  vertical: File!
+  vertical: ImageFile!
 }
 
 """
-Type of a `User`'s email address.
+Type of `User`'s email address.
 
-Its values are always considered to be a valid email addresses.
+Its values are always considered to represent a valid email address.
 """
 scalar UserEmail
 
@@ -8689,7 +9043,7 @@ interface UserEvent {
 }
 
 """Events emitted by `Subscription.userEvents`."""
-union UserEvents = BlacklistEventsVersioned | IsBlacklisted | SubscriptionInitialized | User | UserEventsVersioned
+union UserEvents = BlocklistEventsVersioned | IsBlocked | SubscriptionInitialized | User | UserEventsVersioned
 
 """`UserEvent` along with the corresponding `UserVersion`."""
 type UserEventsVersioned {
@@ -8710,62 +9064,6 @@ type UserEventsVersioned {
   tracking state's actuality.
   """
   ver: UserVersion!
-}
-
-"""
-[Connection] with `User`'s `GalleryItem`s.
-
-[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-"""
-type UserGalleryItemsConnection {
-  """
-  List of `GalleryItem` [Edges] in this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
-  """
-  edges: [UserGalleryItemsEdge!]!
-
-  """
-  List of `GalleryItem`s in this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  """
-  nodes: [GalleryItem!]!
-
-  """
-  [PageInfo] of this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
-  """
-  pageInfo: PageInfo!
-}
-
-"""Cursor of `User`'s `GalleryItem`s."""
-scalar UserGalleryItemsCursor
-
-"""
-[Edge] with a `User`'s `GalleryItem`.
-
-[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-"""
-type UserGalleryItemsEdge {
-  """
-  [Cursor] of this [Edge].
-
-  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
-  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-  """
-  cursor: UserGalleryItemsCursor!
-
-  """
-  `GalleryItem` [Node] at the end of this [Edge].
-
-  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-  [Node]: https://tinyurl.com/gql-relay#sec-Node
-  """
-  node: GalleryItem!
 }
 
 """Type of a `User`'s ID."""
@@ -8832,9 +9130,13 @@ requirements:
 scalar UserPassword
 
 """
-Type of a `User`'s phone number.
+Type of `User`'s phone number.
 
-Its values are always considered to be a valid phone number.
+Its values are always considered to represent a valid phone number in
+[E.164] standard international format (start with `+` sign, followed by
+7-15 digits).
+
+[E.164]: https://en.wikipedia.org/wiki/E.164
 """
 scalar UserPhone
 
@@ -8940,16 +9242,9 @@ Possible error codes of performing `Mutation.validateUserPasswordRecoveryCode`.
 """
 enum ValidateUserPasswordRecoveryErrorCode {
   """
-  Provided `ConfirmationCode` is wrong.
+  Provided `ConfirmationCode` is wrong or `MyUser` with the provided identifier doesn't exist.
 
   Status code: 403 Forbidden.
   """
   WRONG_CODE
-
-  """
-  `MyUser` with the provided identifier doesn't exist.
-
-  Status code: 404 Not Found.
-  """
-  UNKNOWN_USER
 }

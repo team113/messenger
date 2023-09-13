@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -64,6 +65,9 @@ class ChatInfoController extends GetxController {
   /// Status of the [Chat.avatar] upload or removal.
   final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -79,14 +83,8 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
-  /// [Chat.directLink] field state.
-  late final TextFieldState link;
-
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [link] field.
-  Timer? _linkTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
   Timer? _avatarTimer;
@@ -102,12 +100,25 @@ class ChatInfoController extends GetxController {
   bool get inCall =>
       _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
 
+  /// Indicates whether the [chat] is a monolog.
+  bool get isMonolog => chat?.chat.value.isMonolog ?? false;
+
   @override
   void onInit() {
     name = TextFieldState(
       approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        try {
+          if (s.text.isNotEmpty) {
+            ChatName(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
@@ -155,52 +166,6 @@ class ChatInfoController extends GetxController {
       },
     );
 
-    link = TextFieldState(
-      approvable: true,
-      editable: true,
-      text: chat?.chat.value.directLink?.slug.val ??
-          ChatDirectLinkSlug.generate(10).val,
-      submitted: chat?.chat.value.directLink != null,
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
-        try {
-          slug = ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (slug == chat?.chat.value.directLink?.slug) {
-          return;
-        }
-
-        if (s.error.value == null) {
-          _linkTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _chatService.createChatDirectLink(chatId, slug!);
-            s.status.value = RxStatus.success();
-            _linkTimer = Timer(
-              const Duration(seconds: 1),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
     super.onInit();
   }
 
@@ -214,7 +179,6 @@ class ChatInfoController extends GetxController {
   onClose() {
     _worker?.dispose();
     _nameTimer?.cancel();
-    _linkTimer?.cancel();
     _avatarTimer?.cancel();
     super.onClose();
   }
@@ -224,7 +188,7 @@ class ChatInfoController extends GetxController {
     membersOnRemoval.add(userId);
     try {
       await _chatService.removeChatMember(chatId, userId);
-      if (userId == me && router.route.startsWith('${Routes.chat}/$chatId')) {
+      if (userId == me && router.route.startsWith('${Routes.chats}/$chatId')) {
         router.home();
       }
     } on RemoveChatMemberException catch (e) {
@@ -344,10 +308,19 @@ class ChatInfoController extends GetxController {
   Future<void> hideChat() async {
     try {
       await _chatService.hideChat(chatId);
-      if (router.route == '${Routes.chat}/$chatId') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Clears all the [ChatItem]s of the [chat].
+  Future<void> clearChat() async {
+    try {
+      await _chatService.clearChat(chatId);
+    } on ClearChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -368,8 +341,6 @@ class ChatInfoController extends GetxController {
       return;
     }
 
-    MessagePopup.success('label_participant_redial_successfully'.l10n);
-
     try {
       await _callService.redialChatCallMember(chatId, userId);
     } on RedialChatCallMemberException catch (e) {
@@ -378,6 +349,25 @@ class ChatInfoController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Removes the specified [User] from a [OngoingCall] happening in the [chat].
+  Future<void> removeChatCallMember(UserId userId) async {
+    try {
+      await _callService.removeChatCallMember(chatId, userId);
+    } on RemoveChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
+  /// and deletes the current active [ChatDirectLink] of the given [Chat]-group
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
+    await _chatService.createChatDirectLink(chatId, slug!);
   }
 
   /// Fetches the [chat].
@@ -389,20 +379,13 @@ class ChatInfoController extends GetxController {
     } else {
       name.unchecked = chat!.chat.value.name?.val;
 
-      if (chat!.chat.value.directLink?.slug.val == null) {
-        link.text = ChatDirectLinkSlug.generate(10).val;
-      } else {
-        link.unchecked = chat!.chat.value.directLink?.slug.val;
-      }
-
       _worker = ever(
         chat!.chat,
         (Chat chat) {
-          if (!name.focus.hasFocus && !name.changed.value) {
+          if (!name.focus.hasFocus &&
+              !name.changed.value &&
+              name.editable.value) {
             name.unchecked = chat.name?.val;
-          }
-          if (!link.focus.hasFocus && !link.changed.value) {
-            link.unchecked = chat.directLink?.slug.val;
           }
         },
       );

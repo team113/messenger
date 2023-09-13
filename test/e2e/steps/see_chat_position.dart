@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../parameters/position_status.dart';
@@ -27,11 +28,11 @@ import '../world/custom_world.dart';
 /// specified [PositionStatus].
 ///
 /// Examples:
-/// - Then I see "Example" chat first in chats list
-/// - Then I see "Example" chat last in chats list
-final StepDefinitionGeneric seeChatPosition =
+/// - Then I see "Example" chat first in favorites list
+/// - Then I see "Example" chat last in favorites list
+final StepDefinitionGeneric seeFavoriteChatPosition =
     then2<String, PositionStatus, CustomWorld>(
-  'I see {string} chat {position} in chats list',
+  'I see {string} chat {position} in favorites list',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
@@ -39,13 +40,15 @@ final StepDefinitionGeneric seeChatPosition =
 
         final controller = Get.find<ChatsTabController>();
         final ChatId chatId = context.world.groups[name]!;
+        final Iterable<RxChat> favorites = controller.chats
+            .where((c) => c.chat.value.favoritePosition != null);
 
         switch (status) {
           case PositionStatus.first:
-            return controller.chats.first.id == chatId;
+            return favorites.first.id == chatId;
 
           case PositionStatus.last:
-            return controller.chats.last.id == chatId;
+            return favorites.last.id == chatId;
         }
       },
     );

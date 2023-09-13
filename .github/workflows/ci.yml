@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.3"
+  FLUTTER_VER: "3.13"
 
 jobs:
 
@@ -120,8 +120,7 @@ jobs:
         platform:
           - apk
           - appbundle
-          # TODO: Uncomment once `flutter_webrtc` supports iOS platform.
-          #- ios
+          - ios
           - linux
           - macos
           - web
@@ -134,6 +133,10 @@ jobs:
               ||                                  'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -146,9 +149,9 @@ jobs:
                           ninja-build
                           libunwind-dev
                           libgtk-3-dev
-                          libgstreamer1.0-dev
-                          libgstreamer-plugins-base1.0-dev
                           libpulse-dev
+                          libmpv-dev
+                          mpv
         if: ${{ matrix.platform == 'linux' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
@@ -156,16 +159,24 @@ jobs:
              || matrix.platform == 'macos'
              || matrix.platform == 'windows' }}
 
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
-                  split-per-abi=yes
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
-                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}'
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
@@ -176,32 +187,32 @@ jobs:
           regex: '^${{ github.repository_owner }}/(.+)$'
 
       - run: mkdir artifacts/
-      - run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-arm64-v8a.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-armeabi-v7a.apk
-        if: ${{ matrix.platform == 'apk' }}
-      - run: mv build/app/outputs/flutter-apk/app-x86_64-release.apk
-                artifacts/${{ steps.app.outputs.group1 }}-android-x86_64.apk
+      - run: mv build/app/outputs/flutter-apk/app-release.apk
+                artifacts/${{ steps.app.outputs.group1 }}-android.apk
         if: ${{ matrix.platform == 'apk' }}
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
+        working-directory: build/ios/iphoneos/
+        if: ${{ matrix.platform == 'ios' }}
+      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
-      - uses: thedoctor0/zip-release@0.6.2
+      - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'linux'
+          directory: ${{ (matrix.platform == 'ios'
+                          && 'build/ios/iphoneos/dist')
+                      || (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
-        if: ${{ matrix.platform == 'linux'
+        if: ${{ matrix.platform == 'ios'
+             || matrix.platform == 'linux'
              || matrix.platform == 'macos'
              || matrix.platform == 'web'
              || matrix.platform == 'windows' }}
@@ -272,6 +283,10 @@ jobs:
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
@@ -327,7 +342,7 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FCM_API_KEY: ${{ secrets.E2E_FCM_API_KEY }}
+          envkey_COMPOSE_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
@@ -339,10 +354,25 @@ jobs:
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
-      - uses: nanasess/setup-chromedriver@v1
+      #
+      # Use `grep` to remove the meaningless logs from the output.
+      - uses: nanasess/setup-chromedriver@v2
       - run: |
-          chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
+          chromedriver --port=4444 --enable-chrome-logs \
+                       --disable-dev-shm-usage \
+                       2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+        env:
+          OMIT: |
+            [
+              ":INFO:CONSOLE\\(50652\\)] ",
+              "\"Got object store box in database",
+              "\\[CONFIG\\]: Remote configuration fetch failed"
+            ]
+
+      # Grant permissions to `.cache/` dir created in the previous step, since
+      # `hashFile` may fail: https://github.com/actions/runner/issues/449
+      - run: sudo chmod -R 755 .cache/
 
   test-unit:
     name: Unit tests
@@ -529,6 +559,10 @@ jobs:
           path: artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v3
@@ -548,7 +582,7 @@ jobs:
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.6.2
+      - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: artifacts/docs.zip
           path: .cache/dartdoc/

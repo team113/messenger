@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -42,6 +43,9 @@ class AddEmailController extends GetxController {
 
   /// Initial [UserEmail] to confirm.
   final UserEmail? initial;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [UserEmail] field state.
   late final TextFieldState email;
@@ -72,13 +76,20 @@ class AddEmailController extends GetxController {
     email = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            UserEmail(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
       },
       onSubmitted: (s) async {
         UserEmail? email;
         try {
-          email = UserEmail(s.text);
+          email = UserEmail(s.text.toLowerCase());
 
           if (myUser.value!.emails.confirmed.contains(email) ||
               myUser.value?.emails.unconfirmed == email) {
@@ -114,8 +125,15 @@ class AddEmailController extends GetxController {
 
     emailCode = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            ConfirmationCode(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        }
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {

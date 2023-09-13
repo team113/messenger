@@ -21,26 +21,31 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/progress_indicator.dart';
 import 'controller.dart';
 
 /// View for selecting display for screen sharing.
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareView extends StatelessWidget {
-  const ScreenShareView(this.call, {Key? key}) : super(key: key);
+  const ScreenShareView(this.call, {super.key});
 
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
 
-  /// Size of the biggest side of a [RtcVideoView].
-  static const double videoSize = 200;
+  /// Height of a single [RtcVideoView] to display.
+  static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, Rx<OngoingCall> call) {
-    return ModalPopup.show<T>(
+  static Future<MediaDisplayDetails?> show<T>(
+    BuildContext context,
+    Rx<OngoingCall> call,
+  ) {
+    return ModalPopup.show<MediaDisplayDetails?>(
       context: context,
       child: ScreenShareView(call),
     );
@@ -48,9 +53,11 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     Widget framelessBuilder = const SizedBox(
-      height: videoSize * (9 / 16),
-      child: Center(child: CircularProgressIndicator()),
+      height: videoHeight,
+      child: Center(child: CustomProgressIndicator()),
     );
 
     return GetBuilder(
@@ -61,42 +68,74 @@ class ScreenShareView extends StatelessWidget {
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
-          return ConfirmDialog(
-            title: 'label_start_screen_sharing'.l10n,
-            variants: call.value.displays
-                .map(
-                  (e) => ConfirmDialogVariant(
-                    onProceed: () => call.value
-                        .setScreenShareEnabled(true, deviceId: e.deviceId()),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: videoSize,
-                            maxHeight: videoSize,
-                          ),
-                          child: AnimatedSize(
-                            duration: 200.milliseconds,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ModalPopupHeader(text: 'label_screen_sharing'.l10n),
+              const SizedBox(height: 12),
+              Flexible(
+                child: Scrollbar(
+                  controller: c.scrollController,
+                  child: ListView.separated(
+                    controller: c.scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    padding: ModalPopup.padding(context),
+                    shrinkWrap: true,
+                    itemBuilder: (_, i) {
+                      return Obx(() {
+                        final MediaDisplayDetails e = c.call.value.displays[i];
+                        return GestureDetector(
+                          onTap: () => c.selected.value = e,
+                          child: SizedBox(
+                            height: videoHeight,
                             child: c.renderers[e] != null
-                                ? RtcVideoView(
-                                    c.renderers[e]!,
-                                    source: MediaSourceKind.Display,
-                                    mirror: false,
-                                    fit: BoxFit.contain,
-                                    enableContextMenu: false,
-                                    respectAspectRatio: true,
-                                    framelessBuilder: () => framelessBuilder,
+                                ? Center(
+                                    child: RtcVideoView(
+                                      c.renderers[e]!,
+                                      border: c.selected.value == e
+                                          ? Border.all(
+                                              color: style.colors.primary,
+                                              width: 4,
+                                            )
+                                          : null,
+                                      source: MediaSourceKind.display,
+                                      mirror: false,
+                                      fit: BoxFit.contain,
+                                      enableContextMenu: false,
+                                      respectAspectRatio: true,
+                                      framelessBuilder: () => framelessBuilder,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   )
                                 : framelessBuilder,
                           ),
-                        ),
-                      ],
-                    ),
+                        );
+                      });
+                    },
+                    separatorBuilder: (c, i) => const SizedBox(height: 10),
+                    itemCount: c.call.value.displays.length,
                   ),
-                )
-                .toList(),
+                ),
+              ),
+              const SizedBox(height: 25),
+              Padding(
+                padding: ModalPopup.padding(context),
+                child: OutlinedRoundedButton(
+                  key: const Key('Proceed'),
+                  maxWidth: double.infinity,
+                  title: Text(
+                    'btn_share'.l10n,
+                    style: style.fonts.bodyMediumOnPrimary,
+                  ),
+                  onPressed: () {
+                    c.freeTracks();
+                    Navigator.of(context).pop(c.selected.value);
+                  },
+                  color: style.colors.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
           );
         });
       },

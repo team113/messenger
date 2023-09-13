@@ -19,14 +19,16 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
-import 'package:flutter/material.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -50,11 +52,13 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException;
+        UnfavoriteChatException,
+        ClearChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -82,6 +86,9 @@ class ChatsTabController extends GetxController {
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
@@ -91,6 +98,25 @@ class ChatsTabController extends GetxController {
   /// - `status.isEmpty`, meaning the query has not yet started.
   /// - `status.isLoading`, meaning the [createGroup] is executing.
   final Rx<RxStatus> creatingStatus = Rx<RxStatus>(RxStatus.empty());
+
+  /// Indicator whether multiple [Chat]s selection is active.
+  final RxBool selecting = RxBool(false);
+
+  /// Reactive list of [ChatId]s of the selected [Chat]s.
+  final RxList<ChatId> selectedChats = RxList();
+
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
+
+  /// [Timer] displaying the [chats] being fetched when it becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
+
+  /// [GlobalKey] of the more button.
+  final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -121,41 +147,91 @@ class ChatsTabController extends GetxController {
   final HashMap<ChatId, _ChatSortingData> _sortingData =
       HashMap<ChatId, _ChatSortingData>();
 
+  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
+  ///
+  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
+  final List<RxUser> _recipients = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get chatsReady => _chatService.isReady;
+  /// Returns the [RxStatus] of the [chats] fetching and initialization.
+  Rx<RxStatus> get status => _chatService.status;
 
   @override
   void onInit() {
     chats = RxList<RxChat>(_chatService.chats.values.toList());
-    _sortChats();
+
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
+    chats.sort();
 
     for (RxChat chat in chats) {
       _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat.chat, _sortChats);
+          _ChatSortingData(chat.chat, () => chats.sort());
     }
 
+    // Adds the recipient of the provided [chat] to the [_recipients] and starts
+    // listening to its updates.
+    Future<void> listenUpdates(RxChat chat) async {
+      final UserId? userId = chat.chat.value.members
+          .firstWhereOrNull((u) => u.user.id != me)
+          ?.user
+          .id;
+
+      if (userId != null) {
+        RxUser? rxUser =
+            chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
+        rxUser ??= await getUser(userId);
+        if (rxUser != null) {
+          _recipients.add(rxUser..listenUpdates());
+        }
+      }
+    }
+
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           chats.add(event.value!);
-          _sortChats();
+          chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!.chat, _sortChats);
+              _ChatSortingData(event.value!.chat, chats.sort);
+
+          if (event.value!.chat.value.isDialog) {
+            listenUpdates(event.value!);
+          }
           break;
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) => e.chat.value.id == event.key);
+
+          if (event.value!.chat.value.isDialog) {
+            final UserId? userId = event.value!.chat.value.members
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .id;
+
+            _recipients.removeWhere((e) {
+              if (e.id == userId) {
+                e.stopUpdates();
+                return true;
+              }
+
+              return false;
+            });
+          }
           break;
 
         case OperationKind.updated:
-          _sortChats();
+          chats.sort();
           break;
       }
     });
@@ -165,6 +241,11 @@ class ChatsTabController extends GetxController {
 
   @override
   void onClose() {
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     for (var data in _sortingData.values) {
       data.dispose();
     }
@@ -174,12 +255,17 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
+    for (RxUser v in _recipients) {
+      v.stopUpdates();
+    }
+
+    fetching.value?.cancel();
+
     router.navigation.value = true;
 
     super.onClose();
   }
 
-  // TODO: No [Chat] should be created.
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -194,9 +280,11 @@ class ChatsTabController extends GetxController {
       user ??= contact?.user.value;
 
       if (user != null) {
-        Chat? dialog = user.user.value.dialog;
-        dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
-        router.chat(dialog.id);
+        if (user.id == me) {
+          router.chat(_chatService.monolog, push: true);
+        } else {
+          router.chat(user.user.value.dialog);
+        }
       }
     }
   }
@@ -219,7 +307,7 @@ class ChatsTabController extends GetxController {
   Future<void> leaveChat(ChatId id) async {
     try {
       await _chatService.removeChatMember(id, me!);
-      if (router.route == '${Routes.chat}/$id') {
+      if (router.route == '${Routes.chats}/$id') {
         router.pop();
       }
     } on RemoveChatMemberException catch (e) {
@@ -234,14 +322,36 @@ class ChatsTabController extends GetxController {
   Future<void> hideChat(ChatId id) async {
     try {
       await _chatService.hideChat(id);
-      if (router.route == '${Routes.chat}/$id') {
-        router.go('/');
-      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Hides the [selectedChats], clearing their histories as well if [clear] is
+  /// `true`.
+  Future<void> hideChats([bool clear = false]) async {
+    selecting.value = false;
+    router.navigation.value = !selecting.value;
+
+    try {
+      final Iterable<Future> futures = [
+        if (clear) ...selectedChats.map((e) => _chatService.clearChat(e)),
+        ...selectedChats.map((e) => _chatService.hideChat(e)),
+      ];
+
+      await Future.wait(futures);
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedChats.clear();
     }
   }
 
@@ -270,9 +380,12 @@ class ChatsTabController extends GetxController {
   }
 
   /// Marks the specified [Chat] identified by its [id] as favorited.
-  Future<void> favoriteChat(ChatId id) async {
+  Future<void> favoriteChat(
+    ChatId id, [
+    ChatFavoritePosition? position,
+  ]) async {
     try {
-      await _chatService.favoriteChat(id);
+      await _chatService.favoriteChat(id, position);
     } on FavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -297,16 +410,14 @@ class ChatsTabController extends GetxController {
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
-  /// [id].
-  bool inCall(ChatId id) {
-    final Rx<OngoingCall>? call = _callService.calls[id];
-    if (call != null) {
-      return call.value.state.value == OngoingCallState.active ||
-          call.value.state.value == OngoingCallState.joining;
+  /// contains an [OngoingCall] happening in a [Chat] identified by the
+  /// provided [ChatId].
+  bool containsCall(ChatId id) {
+    if (WebUtils.containsCall(id)) {
+      return true;
     }
 
-    return WebUtils.containsCall(id);
+    return _callService.calls[id] != null;
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
@@ -361,7 +472,8 @@ class ChatsTabController extends GetxController {
         name: null,
       );
 
-      router.chatInfo(chat.chat.value.id);
+      router.chat(chat.chat.value.id);
+      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -374,6 +486,56 @@ class ChatsTabController extends GetxController {
     } finally {
       creatingStatus.value = RxStatus.empty();
     }
+  }
+
+  /// Toggles the [Chat]s selection.
+  void toggleSelecting() {
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+    selectedChats.clear();
+  }
+
+  /// Selects or unselects the provided [chat], meaning adding or removing it
+  /// from the [selectedChats].
+  void selectChat(RxChat chat) {
+    if (selectedChats.contains(chat.id)) {
+      selectedChats.remove(chat.id);
+    } else {
+      selectedChats.add(chat.id);
+    }
+  }
+
+  /// Reorders a [Chat] from the [from] position to the [to] position.
+  Future<void> reorderChat(int from, int to) async {
+    final List<RxChat> favorites = chats
+        .where((e) =>
+            e.chat.value.ongoingCall == null &&
+            e.chat.value.favoritePosition != null)
+        .toList();
+
+    double position;
+
+    if (to <= 0) {
+      position = favorites.first.chat.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.chat.value.favoritePosition!.val * 2;
+    } else {
+      position = (favorites[to].chat.value.favoritePosition!.val +
+              favorites[to - 1].chat.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final int start = chats.indexOf(favorites[from]);
+    final int end = chats.indexOf(favorites[to]);
+
+    final ChatId chatId = chats[start].id;
+    chats.insert(end, chats.removeAt(start));
+
+    await favoriteChat(chatId, ChatFavoritePosition(position));
   }
 
   /// Enables and initializes or disables and disposes the [search].
@@ -450,39 +612,47 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
-  void _sortChats() {
-    chats.sort((a, b) {
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition == null) {
-        return -1;
-      } else if (a.chat.value.favoritePosition == null &&
-          b.chat.value.favoritePosition != null) {
-        return 1;
-      } else if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition != null) {
-        return a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!);
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-  }
-
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&
         search.value?.search.text.isEmpty == true) {
       closeSearch(!groupCreating.value);
     }
+  }
+
+  /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
+  bool _escapeListener(KeyEvent e) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+      if (searching.value) {
+        closeSearch(!groupCreating.value);
+        return true;
+      } else if (groupCreating.value) {
+        closeGroupCreating();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
+  /// [groupCreating].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (searching.isTrue) {
+      closeSearch(!groupCreating.value);
+      return true;
+    } else if (groupCreating.isTrue) {
+      closeGroupCreating();
+      return true;
+    }
+
+    return false;
   }
 }
 
@@ -498,10 +668,10 @@ class _ChatSortingData {
       chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != updatedAt || hasCall != hasCall) {
+        if (chat.updatedAt != updatedAt || hasCall != this.hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;
-          hasCall = hasCall;
+          this.hasCall = hasCall;
         }
       },
     );

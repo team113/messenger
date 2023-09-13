@@ -24,7 +24,10 @@ import 'configuration.dart';
 part 'suite.g.dart';
 
 /// Entry point of E2E tests.
-@GherkinTestSuite(featurePaths: ['test/e2e/features/**.feature'])
+@GherkinTestSuite(
+  featurePaths: ['test/e2e/features/**.feature'],
+  executionOrder: ExecutionOrder.alphabetical,
+)
 void main() async {
   Config.disableInfiniteAnimations = true;
   executeTestSuite(

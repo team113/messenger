@@ -1,0 +1,53 @@
+fragment ChatInfoQuote on ChatInfoQuote {
+    original {
+        node {
+            __typename
+            ... on ChatInfo {
+                ...ChatInfo
+            }
+            ... on ChatCall {
+                ...ChatCall
+            }
+            ... on ChatMessage {
+                ...NestedChatMessage
+            }
+            ... on ChatForward {
+                ...NestedChatForward
+            }
+        }
+        cursor
+    }
+    author {
+        __typename
+        ...User
+    }
+    at
+    action {
+        __typename
+        ... on ChatInfoActionAvatarUpdated {
+            avatar {
+                __typename
+                ...ChatAvatar
+            }
+        }
+        ... on ChatInfoActionCreated {
+            directLinkSlug
+        }
+        ... on ChatInfoActionMemberAdded {
+            directLinkSlug
+            user {
+                __typename
+                ...User
+            }
+        }
+        ... on ChatInfoActionMemberRemoved {
+            user {
+                __typename
+                ...User
+            }
+        }
+        ... on ChatInfoActionNameUpdated {
+            name
+        }
+    }
+}

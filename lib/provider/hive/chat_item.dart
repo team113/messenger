@@ -17,22 +17,25 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat_info.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
 import 'base.dart';
 
 part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
-class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
+class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
+    with IterableHiveProviderMixin<HiveChatItem, ChatItemKey> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -49,19 +52,29 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
+    Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatForwardAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionAvatarUpdatedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionCreatedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionMemberAddedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionMemberRemovedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoActionNameUpdatedAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoAdapter());
+    Hive.maybeRegisterAdapter(ChatInfoQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatItemIdAdapter());
-    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatItemVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatItemsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatMemberAdapter());
-    Hive.maybeRegisterAdapter(ChatMemberInfoAdapter());
+    Hive.maybeRegisterAdapter(ChatMembersDialedAllAdapter());
+    Hive.maybeRegisterAdapter(ChatMembersDialedConcreteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageAdapter());
+    Hive.maybeRegisterAdapter(ChatMessageQuoteAdapter());
     Hive.maybeRegisterAdapter(ChatMessageTextAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
-    Hive.maybeRegisterAdapter(HiveChatMemberInfoAdapter());
+    Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
@@ -71,17 +84,22 @@ class ChatItemHiveProvider extends HiveBaseProvider<HiveChatItem> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
   }
 
-  /// Returns a list of [ChatItem]s from [Hive].
-  Iterable<HiveChatItem> get messages => valuesSafe;
+  @override
+  Iterable<ChatItemKey> get keys =>
+      keysSafe.map((e) => ChatItemKey.fromString(e));
 
-  /// Puts the provided [ChatItem] to [Hive].
-  Future<void> put(HiveChatItem item) => putSafe(item.value.timestamp, item);
+  @override
+  Future<Iterable<HiveChatItem>> get values => valuesSafe;
 
-  /// Returns a [ChatItem] from [Hive] by its [timestamp].
-  HiveChatItem? get(String timestamp) => getSafe(timestamp);
+  @override
+  Future<void> put(HiveChatItem item) =>
+      putSafe(item.value.key.toString(), item);
 
-  /// Removes a [ChatItem] from [Hive] by the provided [timestamp].
-  Future<void> remove(String timestamp) => deleteSafe(timestamp);
+  @override
+  Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
+
+  @override
+  Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].
@@ -94,7 +112,7 @@ abstract class HiveChatItem extends HiveObject {
 
   /// Cursor of a [ChatItem] this [HiveChatItem] represents.
   @HiveField(1)
-  ChatItemsCursor cursor;
+  ChatItemsCursor? cursor;
 
   /// Version of a [ChatItem]'s state.
   ///
@@ -104,42 +122,42 @@ abstract class HiveChatItem extends HiveObject {
   final ChatItemVersion ver;
 }
 
-/// Persisted in [Hive] storage [ChatMemberInfo]'s [value].
-@HiveType(typeId: ModelTypeId.hiveChatMemberInfo)
-class HiveChatMemberInfo extends HiveChatItem {
-  HiveChatMemberInfo(
-    ChatMemberInfo value,
-    ChatItemsCursor cursor,
-    ChatItemVersion ver,
-  ) : super(value, cursor, ver);
+/// Persisted in [Hive] storage [ChatInfo]'s [value].
+@HiveType(typeId: ModelTypeId.hiveChatInfo)
+class HiveChatInfo extends HiveChatItem {
+  HiveChatInfo(
+    super.value,
+    super.cursor,
+    super.ver,
+  );
 }
 
 /// Persisted in [Hive] storage [ChatCall]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatCall)
 class HiveChatCall extends HiveChatItem {
   HiveChatCall(
-    ChatCall value,
-    ChatItemsCursor cursor,
-    ChatItemVersion ver,
-  ) : super(value, cursor, ver);
+    super.value,
+    super.cursor,
+    super.ver,
+  );
 }
 
 /// Persisted in [Hive] storage [ChatMessage]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatMessage)
 class HiveChatMessage extends HiveChatItem {
   HiveChatMessage(
-    ChatMessage value,
-    ChatItemsCursor cursor,
-    ChatItemVersion ver,
-    this.repliesToCursor,
-  ) : super(value, cursor, ver);
+    super.value,
+    super.cursor,
+    super.ver,
+    this.repliesToCursors,
+  );
 
   /// Constructs a [HiveChatMessage] in a [SendingStatus.sending] state.
   factory HiveChatMessage.sending({
     required ChatId chatId,
     required UserId me,
     ChatMessageText? text,
-    List<ChatItem> repliesTo = const [],
+    List<ChatItemQuote> repliesTo = const [],
     List<Attachment> attachments = const [],
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
@@ -148,34 +166,62 @@ class HiveChatMessage extends HiveChatItem {
         ChatMessage(
           existingId ?? ChatItemId.local(),
           chatId,
-          me,
+          User(me, UserNum('1234123412341234')),
           existingDateTime ?? PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo,
           attachments: attachments,
           status: SendingStatus.sending,
         ),
-        const ChatItemsCursor(''),
+        null,
         ChatItemVersion('0'),
         [],
       );
 
   /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
-  List<ChatItemsCursor>? repliesToCursor;
+  List<ChatItemsCursor?>? repliesToCursors;
+
+  /// Returns a copy of this [HiveChatMessage] with the provided parameters.
+  HiveChatMessage copyWith({
+    ChatItem? value,
+    ChatItemsCursor? cursor,
+    ChatItemVersion? ver,
+    List<ChatItemsCursor?>? repliesToCursors,
+  }) {
+    return HiveChatMessage(
+      value ?? this.value,
+      cursor ?? this.cursor,
+      ver ?? this.ver,
+      repliesToCursors ?? this.repliesToCursors,
+    );
+  }
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatForward)
 class HiveChatForward extends HiveChatItem {
   HiveChatForward(
-    ChatForward value,
-    ChatItemsCursor cursor,
-    ChatItemVersion ver,
-    this.itemCursor,
-  ) : super(value, cursor, ver);
+    super.value,
+    super.cursor,
+    super.ver,
+    this.quoteCursor,
+  );
 
-  /// Cursor of a [ChatForward.item].
+  /// Cursor of a [ChatForward.quote].
   @HiveField(3)
-  ChatItemsCursor itemCursor;
+  ChatItemsCursor? quoteCursor;
+}
+
+/// Persisted in [Hive] storage [ChatItemQuote]'s [value].
+class HiveChatItemQuote {
+  HiveChatItemQuote(this.value, this.cursor);
+
+  /// [ChatItemQuote] itself.
+  @HiveField(0)
+  final ChatItemQuote value;
+
+  /// Cursor of a [ChatItemQuote.original].
+  @HiveField(1)
+  ChatItemsCursor? cursor;
 }

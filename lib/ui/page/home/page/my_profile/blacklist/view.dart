@@ -15,16 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View displaying the blacklisted [User]s.
@@ -40,76 +40,75 @@ class BlacklistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: BlacklistController(Get.find(), Get.find()),
+      init: BlacklistController(
+        Get.find(),
+        Get.find(),
+        pop: Navigator.of(context).pop,
+      ),
       builder: (BlacklistController c) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 4),
-            ModalPopupHeader(
-              header: Center(
-                child: Text(
-                  'label_blocked_users'.l10n,
-                  style: thin?.copyWith(fontSize: 18),
-                ),
+        return Obx(() {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              ModalPopupHeader(
+                text:
+                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
               ),
-            ),
-            const SizedBox(height: 4),
-            Obx(() {
-              if (c.blacklist.isEmpty ||
-                  c.blacklist.none((e) => e.user.value.isBlacklisted)) {
-                return Padding(
+              const SizedBox(height: 4),
+              if (c.blacklist.isEmpty)
+                Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text('label_no_users'.l10n),
-                );
-              }
+                )
+              else
+                Flexible(
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: ListView.builder(
+                      controller: c.scrollController,
+                      shrinkWrap: true,
+                      padding: ModalPopup.padding(context),
+                      itemBuilder: (context, i) {
+                        RxUser? user = c.blacklist[i];
 
-              return Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  padding: ModalPopup.padding(context),
-                  itemBuilder: (context, i) {
-                    RxUser? user = c.blacklist[i];
-
-                    return Obx(() {
-                      if (user.user.value.isBlacklisted == false) {
-                        return const SizedBox();
-                      }
-
-                      return ContactTile(
-                        user: user,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          router.user(user.id, push: true);
-                        },
-                        darken: 0.03,
-                        trailing: [
-                          InkWell(
-                            onTap: () => c.unblacklist(user),
-                            borderRadius: BorderRadius.circular(25),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SvgLoader.asset(
-                                'assets/icons/delete.svg',
-                                height: 14 * 1.5,
+                        return ContactTile(
+                          user: user,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            router.user(user.id, push: true);
+                          },
+                          darken: 0.03,
+                          subtitle: [
+                            const SizedBox(height: 5),
+                            Text(
+                              '28.12.2022',
+                              style: style.fonts.bodySmallSecondary,
+                            ),
+                          ],
+                          trailing: [
+                            WidgetButton(
+                              onPressed: () => c.unblacklist(user),
+                              child: Text(
+                                'btn_unblock_short'.l10n,
+                                style: style.fonts.bodySmallPrimary,
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    });
-                  },
-                  itemCount: c.blacklist.length,
+                            const SizedBox(width: 4),
+                          ],
+                        );
+                      },
+                      itemCount: c.blacklist.length,
+                    ),
+                  ),
                 ),
-              );
-            }),
-            const SizedBox(height: 8),
-          ],
-        );
+              const SizedBox(height: 8),
+            ],
+          );
+        });
       },
     );
   }

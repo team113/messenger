@@ -19,6 +19,7 @@ Feature: Chat members
 
   Background: User is in group chat with Bob
     Given I am Alice
+    And I pause for 1 second
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
     And I am in "Alice and Bob" chat
@@ -26,7 +27,9 @@ Feature: Chat members
 
   Scenario: User removes a member
     When I wait until text "Bob" is present
+    And I scroll `ChatInfoScrollable` until `DeleteMemberButton` is present
     And I tap `DeleteMemberButton` button
+    And I tap `Proceed` button
     Then I wait until text "Bob" is absent
 
   Scenario: User adds a member

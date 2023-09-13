@@ -28,7 +28,6 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
-import 'package:path_provider_ios/path_provider_ios.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
@@ -136,8 +135,6 @@ class _BackgroundService {
 
     if (Platform.isAndroid) {
       PathProviderAndroid.registerWith();
-    } else if (Platform.isIOS) {
-      PathProviderIOS.registerWith();
     }
 
     _provider.authExceptionHandler = (e) async {
@@ -267,7 +264,7 @@ class _BackgroundService {
 
     _service.on('l10n').listen((event) {
       _resetConnectionTimer();
-      L10n.set(Language.from(event!['locale']));
+      L10n.set(Language.fromTag(event!['locale']));
     });
 
     _service.on('ka').listen((_) {
@@ -382,7 +379,7 @@ class _BackgroundService {
                 'Gapopa',
               ),
             ),
-            payload: '${Routes.chat}/$chatId',
+            payload: '${Routes.chats}/$chatId',
           );
         });
       }
@@ -390,10 +387,9 @@ class _BackgroundService {
   }
 
   /// Subscribes to the [GraphQlProvider.incomingCallsTopEvents].
-  Future<void> _subscribe() async {
-    _subscription = (await _provider.incomingCallsTopEvents(3)).listen(
+  void _subscribe() {
+    _subscription = _provider.incomingCallsTopEvents(3).listen(
       (event) {
-        GraphQlProviderExceptions.fire(event);
         var e = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
         switch (e.$$typename) {
@@ -413,12 +409,10 @@ class _BackgroundService {
               for (var call in calls) {
                 _incomingCalls.add(call.chatId.val);
 
-                // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+                // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
-                  call.caller?.name?.val ??
-                      call.caller?.num.val ??
-                      ('dot'.l10n * 3),
+                  call.author.name?.val ?? call.author.num.val,
                 );
               }
 
@@ -441,12 +435,10 @@ class _BackgroundService {
                 content: '${DateTime.now()}',
               );
 
-              // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+              // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
-                call.caller?.name?.val ??
-                    call.caller?.num.val ??
-                    ('dot'.l10n * 3),
+                call.author.name?.val ?? call.author.num.val,
               );
             }
             break;
@@ -468,19 +460,10 @@ class _BackgroundService {
         }
       },
       onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _setForegroundNotificationInfo(
-            title: 'label_service_reconnecting'.l10n,
-            content: '${DateTime.now()}',
-          );
-          _subscribe();
-        } else {
-          _setForegroundNotificationInfo(
-            title: 'label_service_encountered_error'.l10n,
-            content: e,
-          );
-          throw e;
-        }
+        _setForegroundNotificationInfo(
+          title: 'label_service_reconnecting'.l10n,
+          content: '${DateTime.now()}',
+        );
       },
     );
   }

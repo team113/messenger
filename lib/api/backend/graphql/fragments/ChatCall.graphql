@@ -18,13 +18,32 @@
 fragment ChatCall on ChatCall {
     id
     chatId
-    authorId
-    answered
-    at
-    caller {
+    author {
         __typename
         ...User
     }
+    dialed {
+        __typename
+        ... on ChatMembersDialedAll {
+            answeredMembers {
+                user {
+                    __typename
+                    ...User
+                }
+                joinedAt
+            }
+        }
+        ... on ChatMembersDialedConcrete {
+            members {
+                user {
+                    __typename
+                    ...User
+                }
+                joinedAt
+            }
+        }
+    }
+    at
     conversationStartedAt
     finishReason
     finishedAt

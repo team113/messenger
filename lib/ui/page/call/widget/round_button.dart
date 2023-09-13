@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
@@ -28,17 +29,18 @@ import 'conditional_backdrop.dart';
 /// [text] and [hint].
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
-    Key? key,
+    super.key,
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
     this.text,
-    this.color = const Color(0x794E5A78),
+    this.color,
     this.hint,
     this.withBlur = false,
     this.style,
+    this.border,
     this.child,
-  }) : super(key: key);
+  });
 
   /// Callback, called when the button is tapped or activated other way.
   ///
@@ -51,13 +53,13 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text that will show above the button on a hover.
   final String? hint;
 
-  /// Name of the asset to place into the [SvgLoader.asset].
+  /// Name of the asset to place into the [SvgImage.asset].
   final String? asset;
 
   /// Width of the [asset].
   final double assetWidth;
 
-  /// Optional [Widget] to replace the default [SvgLoader.asset].
+  /// Optional [Widget] to replace the default [SvgImage.asset].
   final Widget? child;
 
   /// Background color of the button.
@@ -68,6 +70,9 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Optional [TextStyle] of the [text].
   final TextStyle? style;
+
+  /// Optional [BoxBorder] of this [RoundFloatingButton].
+  final BoxBorder? border;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -100,41 +105,55 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
   @override
   Widget build(BuildContext context) {
-    Widget button = ConditionalBackdropFilter(
-      condition: !WebUtils.isSafari && widget.withBlur,
-      borderRadius: BorderRadius.circular(60),
-      child: Material(
-        key: _key,
-        elevation: 0,
-        color: widget.color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(60),
-          onHover: widget.hint != null
-              ? (b) {
-                  if (b) {
-                    _populateOverlay();
-                  } else {
-                    _hintEntry?.remove();
-                    _hintEntry = null;
+    final style = Theme.of(context).style;
+
+    Widget button = Container(
+      color: style.colors.transparent,
+      child: ConditionalBackdropFilter(
+        condition: !WebUtils.isSafari && widget.withBlur,
+        borderRadius: BorderRadius.circular(60),
+        child: Material(
+          key: _key,
+          elevation: 0,
+          color: widget.color,
+          type: MaterialType.circle,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(60),
+            onHover: widget.hint != null
+                ? (b) {
+                    if (b) {
+                      _populateOverlay();
+                    } else {
+                      _hintEntry?.remove();
+                      _hintEntry = null;
+                    }
                   }
-                }
-              : null,
-          onTap: widget.onPressed,
-          child: widget.child ??
-              SizedBox(
-                width: max(widget.assetWidth, 60),
-                height: max(widget.assetWidth, 60),
-                child: Center(
-                  child: SvgLoader.asset(
-                    'assets/icons/${widget.asset}.svg',
-                    width: widget.assetWidth,
+                : null,
+            onTap: widget.onPressed,
+            child: widget.child ??
+                SizedBox(
+                  width: max(widget.assetWidth, 60),
+                  height: max(widget.assetWidth, 60),
+                  child: Center(
+                    child: SvgImage.asset(
+                      'assets/icons/${widget.asset}.svg',
+                      width: widget.assetWidth,
+                    ),
                   ),
                 ),
-              ),
+          ),
         ),
       ),
     );
+
+    if (widget.border != null) {
+      button = DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration:
+            BoxDecoration(border: widget.border, shape: BoxShape.circle),
+        child: button,
+      );
+    }
 
     return widget.text == null
         ? button
@@ -148,11 +167,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               Text(
                 widget.text!,
                 textAlign: TextAlign.center,
-                style: widget.style ??
-                    context.textTheme.caption?.copyWith(
-                      color: Colors.white,
-                      fontSize: 13,
-                    ),
+                style: widget.style ?? style.fonts.headlineSmallOnPrimary,
                 maxLines: 2,
               ),
             ],
@@ -188,6 +203,8 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         firstLayout = false;
       }
 
+      final style = Theme.of(context).style;
+
       return IgnorePointer(
         child: Stack(
           children: [
@@ -202,13 +219,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.hint!,
                     textAlign: TextAlign.center,
-                    style: context.theme.outlinedButtonTheme.style!.textStyle!
-                        .resolve({MaterialState.disabled})!.copyWith(
-                      fontSize: 13,
-                      color: Colors.white,
-                      shadows: const [
-                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
-                        Shadow(blurRadius: 6, color: Color(0xFF000000)),
+                    style: style.fonts.headlineSmallOnPrimary.copyWith(
+                      shadows: [
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
                       ],
                     ),
                   ),
@@ -220,6 +234,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       );
     });
 
-    Overlay.of(context, rootOverlay: true)!.insert(_hintEntry!);
+    Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
   }
 }

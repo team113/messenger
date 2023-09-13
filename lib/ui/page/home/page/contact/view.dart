@@ -20,12 +20,13 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/contact.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import 'controller.dart';
 
 // TODO: Implement [Routes.contact] page.
-/// View of the [Routes.contact] page.
+/// View of the [Routes.contacts] page.
 class ContactView extends StatelessWidget {
-  const ContactView(this.id, {Key? key}) : super(key: key);
+  const ContactView(this.id, {super.key});
 
   /// ID of a [ChatContact] this [ContactView] represents.
   final ChatContactId id;

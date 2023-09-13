@@ -24,23 +24,36 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
+  /// [String] set in a mocked [Clipboard].
+  String? clipboard;
+
   @override
   Future<File?> download(
     String url,
     String filename,
     int? size, {
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async {
     int total = 100;
     for (int count = 0; count <= total; count++) {
       if (cancelToken?.isCancelled == true) {
         break;
       }
-      await Future.delayed(40.milliseconds);
+      await Future.delayed(50.milliseconds);
       onReceiveProgress?.call(count, total);
     }
 
     return File('test/path');
+  }
+
+  @override
+  void copy({String? text}) => clipboard = text;
+
+  @override
+  void keepActive([bool active = true]) {
+    // No-op.
   }
 }

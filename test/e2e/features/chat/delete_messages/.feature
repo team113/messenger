@@ -32,7 +32,7 @@ Feature: Chat items are deleted correctly
     And I tap `Delete` button
     And I tap `DeleteForAll` button
     And I tap `Proceed` button
-    Then I wait until text "For deletion" is absent
+    Then I wait until "For deletion" message is absent
 
   Scenario: User hides message
     When I fill `MessageField` field with "For hiding"
@@ -43,4 +43,4 @@ Feature: Chat items are deleted correctly
     And I tap `Delete` button
     And I tap `HideForMe` button
     And I tap `Proceed` button
-    Then I wait until text "For hiding" is absent
+    Then I wait until "For hiding" message is absent

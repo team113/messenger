@@ -31,6 +31,8 @@ import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
+import 'backoff.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -41,13 +43,47 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
-  /// Path to the downloads directory.
-  String? _downloadDirectory;
-
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
-  Dio dio = Dio();
+  Dio? client;
+
+  /// Downloads directory.
+  Directory? _downloadDirectory;
+
+  /// Cache directory.
+  Directory? _cacheDirectory;
+
+  /// Path to the temporary directory.
+  Directory? _temporaryDirectory;
+
+  /// `User-Agent` header to put in the network requests.
+  String? _userAgent;
+
+  /// Returns a [Dio] client to use in queries.
+  Future<Dio> get dio async {
+    client ??= Dio(
+      BaseOptions(headers: {if (!isWeb) 'User-Agent': await userAgent}),
+    );
+
+    return client!;
+  }
+
+  /// [StreamController] of the application's [_isActive] status changes.
+  StreamController<bool>? _activityController;
+
+  /// [StreamController] of the application's window focus changes.
+  StreamController<bool>? _focusController;
+
+  /// Indicator whether the application is in active state.
+  bool _isActive = true;
+
+  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
+  /// passed.
+  Timer? _activityTimer;
+
+  /// [Duration] of inactivity to consider [_isActive] as `false`.
+  static const Duration _activityTimeout = Duration(seconds: 15);
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
@@ -76,46 +112,90 @@ class PlatformUtilsImpl {
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
+  /// Returns a `User-Agent` header to put in the network requests.
+  Future<String> get userAgent async {
+    _userAgent ??= await WebUtils.userAgent;
+    return _userAgent!;
+  }
+
   /// Returns a stream broadcasting the application's window focus changes.
   Stream<bool> get onFocusChanged {
-    StreamController<bool>? controller;
+    if (_focusController != null) {
+      return _focusController!.stream;
+    }
 
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
       _WindowListener listener = _WindowListener(
-        onBlur: () => controller!.add(false),
-        onFocus: () => controller!.add(true),
+        onBlur: () => _focusController!.add(false),
+        onFocus: () => _focusController!.add(true),
       );
 
-      controller = StreamController<bool>(
+      _focusController = StreamController<bool>.broadcast(
         onListen: () => WindowManager.instance.addListener(listener),
-        onCancel: () => WindowManager.instance.removeListener(listener),
+        onCancel: () {
+          WindowManager.instance.removeListener(listener);
+          _focusController?.close();
+          _focusController = null;
+        },
       );
     } else {
       Worker? worker;
 
-      controller = StreamController<bool>(
+      _focusController = StreamController<bool>.broadcast(
         onListen: () => worker = ever(
           router.lifecycle,
-          (AppLifecycleState a) => controller?.add(a.inForeground),
+          (AppLifecycleState a) => _focusController?.add(a.inForeground),
         ),
-        onCancel: worker?.dispose,
+        onCancel: () {
+          worker?.dispose();
+          _focusController?.close();
+          _focusController = null;
+        },
       );
     }
 
-    return controller.stream;
+    return _focusController!.stream;
+  }
+
+  /// Returns a stream broadcasting the application's active status changes.
+  Stream<bool> get onActivityChanged {
+    if (_activityController != null) {
+      return _activityController!.stream;
+    }
+
+    StreamSubscription? focusSubscription;
+
+    _activityController = StreamController<bool>.broadcast(
+      onListen: () {
+        focusSubscription = onFocusChanged.listen((focused) {
+          if (focused) {
+            keepActive();
+          } else {
+            keepActive(false);
+          }
+        });
+      },
+      onCancel: () {
+        focusSubscription?.cancel();
+        _activityController?.close();
+        _activityController = null;
+      },
+    );
+
+    return _activityController!.stream;
   }
 
   /// Returns a stream broadcasting the application's window size changes.
-  Stream<Size> get onResized {
-    StreamController<Size>? controller;
+  Stream<MapEntry<Size, Offset>> get onResized {
+    StreamController<MapEntry<Size, Offset>>? controller;
 
     final _WindowListener listener = _WindowListener(
-      onResized: (size) => controller!.add(size),
+      onResized: (pair) => controller!.add(pair),
     );
 
-    controller = StreamController<Size>(
+    controller = StreamController<MapEntry<Size, Offset>>(
       onListen: () => WindowManager.instance.addListener(listener),
       onCancel: () => WindowManager.instance.removeListener(listener),
     );
@@ -144,7 +224,11 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return Future.value(WebUtils.isFocused);
     } else if (isDesktop) {
-      return await WindowManager.instance.isFocused();
+      try {
+        return await WindowManager.instance.isFocused();
+      } on MissingPluginException {
+        return true;
+      }
     } else {
       return Future.value(router.lifecycle.value.inForeground);
     }
@@ -176,7 +260,7 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the downloads directory.
-  Future<String> get downloadsDirectory async {
+  Future<Directory> get downloadsDirectory async {
     if (_downloadDirectory != null) {
       return _downloadDirectory!;
     }
@@ -188,8 +272,35 @@ class PlatformUtilsImpl {
       path = (await getDownloadsDirectory())!.path;
     }
 
-    _downloadDirectory = '$path${Config.downloads}';
+    _downloadDirectory = Directory('$path${Config.downloads}');
     return _downloadDirectory!;
+  }
+
+  /// Returns a path to the cache directory.
+  FutureOr<Directory?> get cacheDirectory async {
+    if (PlatformUtils.isWeb) {
+      return null;
+    }
+
+    try {
+      _cacheDirectory ??= await getApplicationCacheDirectory();
+      return _cacheDirectory!;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  /// Indicates whether the application is in active state.
+  Future<bool> get isActive async => _isActive && await isFocused;
+
+  /// Returns a path to the temporary directory.
+  Future<Directory> get temporaryDirectory async {
+    if (_temporaryDirectory != null) {
+      return _temporaryDirectory!;
+    }
+
+    _temporaryDirectory = await getTemporaryDirectory();
+    return _temporaryDirectory!;
   }
 
   /// Enters fullscreen mode.
@@ -234,20 +345,22 @@ class PlatformUtilsImpl {
     String filename, {
     int? size,
     String? url,
+    bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
       size = size ??
-          int.parse(((await dio.head(url!)).headers['content-length']
+          int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      String downloads = await PlatformUtils.downloadsDirectory;
+      final Directory directory =
+          temporary ? await temporaryDirectory : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
-      File file = File('$downloads/$filename');
+      File file = File('${directory.path}/$filename');
 
       // TODO: Compare hashes instead of sizes.
       for (int i = 1; await file.exists() && await file.length() != size; ++i) {
-        file = File('$downloads/$name ($i)$ext');
+        file = File('${directory.path}/$name ($i)$ext');
       }
 
       if (await file.exists()) {
@@ -263,77 +376,100 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-  }) {
-    // Calls the provided [callback] using the exponential backoff algorithm.
-    Future<T?> withBackoff<T>(Future<T> Function() callback) async {
-      Duration backoff = Duration.zero;
-      T? result;
+    bool temporary = false,
+  }) async {
+    dynamic completeWith;
 
-      while (result == null) {
-        try {
-          await Future.delayed(backoff);
-
-          if (cancelToken?.isCancelled == true) {
-            return null;
-          }
-
-          result = await callback();
-          return result;
-        } catch (e) {
-          // Rethrow if any other than `404` error is thrown.
-          if (e is! DioError || e.response?.statusCode != 404) {
-            rethrow;
-          }
-
-          if (backoff.inMilliseconds == 0) {
-            backoff = 125.milliseconds;
-          } else if (backoff < 16.seconds) {
-            backoff *= 2;
+    CancelableOperation<File?>? operation;
+    operation = CancelableOperation.fromFuture(
+      Future(() async {
+        // Rethrows the [exception], if any other than `404` is thrown.
+        void onError(dynamic exception) {
+          if (exception is! DioException ||
+              exception.response?.statusCode != 404) {
+            completeWith = exception;
+            operation?.cancel();
           }
         }
-      }
 
-      return result;
-    }
-
-    CancelableOperation<File?> operation = CancelableOperation.fromFuture(
-      Future(() async {
         if (PlatformUtils.isWeb) {
-          await withBackoff(() => WebUtils.downloadFile(url, filename));
+          await Backoff.run(
+            () async {
+              try {
+                await WebUtils.downloadFile(url, filename);
+              } catch (e) {
+                onError(e);
+              }
+            },
+            cancelToken,
+          );
         } else {
           File? file;
 
           // Retry fetching the size unless any other that `404` error is
           // thrown.
-          file = await withBackoff<File?>(
-            () => fileExists(filename, size: size, url: url),
+          file = await Backoff.run(
+            () async {
+              try {
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
+              } catch (e) {
+                onError(e);
+              }
+
+              return null;
+            },
+            cancelToken,
           );
 
           if (file == null) {
-            final String name = p.basenameWithoutExtension(filename);
-            final String extension = p.extension(filename);
-            final String path = await downloadsDirectory;
-
-            file = File('$path/$filename');
-            for (int i = 1; await file!.exists(); ++i) {
-              file = File('$path/$name ($i)$extension');
+            Uint8List? data;
+            if (checksum != null && CacheWorker.instance.exists(checksum)) {
+              data = await CacheWorker.instance.get(checksum: checksum);
             }
 
-            // Retry the downloading unless any other that `404` error is
-            // thrown.
-            await withBackoff(
-              () => dio.download(
-                url,
-                file!.path,
-                onReceiveProgress: onReceiveProgress,
-                cancelToken: cancelToken,
-              ),
-            );
+            final String name = p.basenameWithoutExtension(filename);
+            final String extension = p.extension(filename);
+            final Directory directory =
+                temporary ? await temporaryDirectory : await downloadsDirectory;
 
-            return file;
+            file = File('${directory.path}/$filename');
+            for (int i = 1; await file!.exists(); ++i) {
+              file = File('${directory.path}/$name ($i)$extension');
+            }
+
+            if (data == null) {
+              // Retry the downloading unless any other that `404` error is
+              // thrown.
+              await Backoff.run(
+                () async {
+                  try {
+                    // TODO: Cache the response.
+                    await (await dio).download(
+                      url,
+                      file!.path,
+                      onReceiveProgress: onReceiveProgress,
+                      cancelToken: cancelToken,
+                    );
+                  } catch (e) {
+                    onError(e);
+                  }
+                },
+                cancelToken,
+              );
+            } else {
+              await file.writeAsBytes(data);
+            }
           }
+
+          return file;
         }
 
         return null;
@@ -342,27 +478,67 @@ class PlatformUtilsImpl {
 
     cancelToken?.whenCancel.whenComplete(operation.cancel);
 
-    return operation.valueOrCancellation();
+    final File? result = await operation.valueOrCancellation();
+    if (completeWith != null) {
+      throw completeWith;
+    }
+
+    return result;
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(String url, String name) async {
+  Future<void> saveToGallery(
+    String url,
+    String name, {
+    String? checksum,
+  }) async {
     if (isMobile && !isWeb) {
-      final Directory temp = await getTemporaryDirectory();
-      final String path = '${temp.path}/$name';
-      await dio.download(url, path);
-      await ImageGallerySaver.saveFile(path, name: name);
-      File(path).delete();
+      Uint8List? data =
+          await CacheWorker.instance.get(checksum: checksum, url: url);
+      if (data != null) {
+        ImageGallerySaver.saveImage(data, name: name);
+      }
     }
   }
 
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
-  Future<void> share(String url, String name) async {
-    final Directory temp = await getTemporaryDirectory();
-    final String path = '${temp.path}/$name';
-    await dio.download(url, path);
-    await Share.shareFiles([path]);
-    File(path).delete();
+  Future<void> share(String url, String name, {String? checksum}) async {
+    // Provided file might already be cached.
+    Uint8List? data;
+    if (checksum != null && CacheWorker.instance.exists(checksum)) {
+      data = await CacheWorker.instance.get(checksum: checksum);
+    }
+
+    if (data == null) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await (await dio).download(url, path);
+      await Share.shareXFiles([XFile(path)]);
+      File(path).delete();
+    } else {
+      await Share.shareXFiles([XFile.fromData(data, name: name)]);
+    }
+  }
+
+  /// Stores the provided [text] on the [Clipboard].
+  void copy({required String text}) =>
+      Clipboard.setData(ClipboardData(text: text));
+
+  /// Keeps the [_isActive] status as [active].
+  void keepActive([bool active = true]) {
+    if (_isActive != active) {
+      _isActive = active;
+      _activityController?.add(active);
+    }
+
+    _activityTimer?.cancel();
+
+    if (active) {
+      _activityTimer = Timer(_activityTimeout, () {
+        _isActive = false;
+        _activityController?.add(false);
+      });
+    }
   }
 }
 
@@ -371,14 +547,14 @@ extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
   bool get isMobile => PlatformUtils.isMobile
-      ? MediaQuery.of(this).size.shortestSide < 600
+      ? MediaQuery.sizeOf(this).shortestSide < 600
       : false;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
   bool get isNarrow => PlatformUtils.isDesktop
-      ? MediaQuery.of(this).size.width < 600
-      : MediaQuery.of(this).size.shortestSide < 600;
+      ? MediaQuery.sizeOf(this).width < 600
+      : MediaQuery.sizeOf(this).shortestSide < 600;
 }
 
 /// Listener interface for receiving window events.
@@ -405,7 +581,7 @@ class _WindowListener extends WindowListener {
   final VoidCallback? onBlur;
 
   /// Callback, called when the window resizes.
-  final void Function(Size size)? onResized;
+  final void Function(MapEntry<Size, Offset> pair)? onResized;
 
   /// Callback, called when the window moves.
   final void Function(Offset offset)? onMoved;
@@ -423,8 +599,12 @@ class _WindowListener extends WindowListener {
   void onWindowBlur() => onBlur?.call();
 
   @override
-  void onWindowResized() async =>
-      onResized?.call(await windowManager.getSize());
+  void onWindowResized() async => onResized?.call(
+        MapEntry<Size, Offset>(
+          await windowManager.getSize(),
+          await windowManager.getPosition(),
+        ),
+      );
 
   @override
   void onWindowMoved() async =>

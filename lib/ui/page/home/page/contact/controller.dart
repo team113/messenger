@@ -18,10 +18,11 @@
 import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
+import '/routes.dart';
 
 export 'view.dart';
 
-/// Controller of the [Routes.contact] page.
+/// Controller of the [Routes.contacts] page.
 class ContactController extends GetxController {
   ContactController(this.id);
 

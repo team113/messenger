@@ -28,12 +28,14 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:messenger/config.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
@@ -111,9 +113,8 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
-/// Helper providing direct access to browser-only features.
-///
-/// Does nothing on desktop or mobile.
+/// Helper providing access to features having different implementations in
+/// browser and on native platforms.
 class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
@@ -259,6 +260,23 @@ class WebUtils {
     }
   }
 
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
+  static set credentialsUpdating(bool updating) {
+    html.window.localStorage['credentialsUpdating'] = updating.toString();
+  }
+
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static bool get credentialsUpdating {
+    final String? updating = html.window.localStorage['credentialsUpdating'];
+
+    if (updating == null) {
+      return false;
+    } else {
+      return updating.toLowerCase() == 'true';
+    }
+  }
+
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
@@ -364,7 +382,7 @@ class WebUtils {
     final screenW = html.window.screen?.width ?? 500;
     final screenH = html.window.screen?.height ?? 500;
 
-    WebCallPreferences? prefs = getCallPreferences(chatId);
+    final Rect? prefs = getCallRect(chatId);
 
     final width = min(prefs?.width ?? 500, screenW);
     final height = min(prefs?.height ?? 500, screenH);
@@ -380,7 +398,7 @@ class WebUtils {
     if (top < 0) {
       top = 0;
     } else if (top + height > screenH) {
-      top = screenH - height;
+      top = screenH.toDouble() - height;
     }
 
     List parameters = [
@@ -438,11 +456,7 @@ class WebUtils {
     newState ??= WebUtils.getCall(chatId);
     WebUtils.removeCall(chatId);
     WebUtils.setCall(newState!);
-    html.window.history.replaceState(
-      null,
-      '',
-      Uri.base.toString().replaceFirst(chatId.val, newChatId.val),
-    );
+    replaceState(chatId.val, newChatId.val);
   }
 
   /// Removes all calls from the browser's storage, if any.
@@ -471,15 +485,15 @@ class WebUtils {
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallPreferences(ChatId chatId, WebCallPreferences prefs) =>
+  static void setCallRect(ChatId chatId, Rect prefs) =>
       html.window.localStorage['prefs_call_$chatId'] =
           json.encode(prefs.toJson());
 
-  /// Returns the [WebCallPreferences] stored by the provided [chatId], if any.
-  static WebCallPreferences? getCallPreferences(ChatId chatId) {
+  /// Returns the [Rect] stored by the provided [chatId], if any.
+  static Rect? getCallRect(ChatId chatId) {
     var data = html.window.localStorage['prefs_call_$chatId'];
     if (data != null) {
-      return WebCallPreferences.fromJson(json.decode(data));
+      return _RectExtension.fromJson(json.decode(data));
     }
 
     return null;
@@ -487,7 +501,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    final Response response = await PlatformUtils.dio.head(url);
+    final Response response = await (await PlatformUtils.dio).head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }
@@ -500,4 +514,95 @@ class WebUtils {
   /// Prints a string representation of the provided [object] to the console as
   /// an error.
   static void consoleError(Object? object) => html.window.console.error(object);
+
+  /// Requests the permission to use a camera.
+  static Future<void> cameraPermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'camera'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(video: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
+
+  /// Requests the permission to use a microphone.
+  static Future<void> microphonePermission() async {
+    final status =
+        await html.window.navigator.permissions?.query({'name': 'microphone'});
+
+    if (status?.state != 'granted') {
+      html.MediaStream stream =
+          await html.window.navigator.getUserMedia(audio: true);
+
+      for (var e in stream.getTracks()) {
+        e.stop();
+      }
+    }
+  }
+
+  /// Replaces the provided [from] with the specified [to] in the current URL.
+  static void replaceState(String from, String to) {
+    html.window.history.replaceState(
+      null,
+      html.document.title,
+      Uri.base.toString().replaceFirst(from, to),
+    );
+  }
+
+  /// Sets the favicon being used to an alert style.
+  static void setAlertFavicon() {
+    for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
+      if (!e.href.contains('icons/alert/')) {
+        e.href = e.href.replaceFirst('icons/', 'icons/alert/');
+      }
+    }
+  }
+
+  /// Sets the favicon being used to the default style.
+  static void setDefaultFavicon() {
+    for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
+      e.href = e.href.replaceFirst('icons/alert/', 'icons/');
+    }
+  }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) {
+    // No-op.
+  }
+
+  /// Deletes the loader element.
+  static void deleteLoader() {
+    html.document.getElementById('loader')?.remove();
+  }
+
+  /// Returns the `User-Agent` header to put in the network queries.
+  static Future<String> get userAgent async {
+    final info = await DeviceInfoPlugin().webBrowserInfo;
+    return info.userAgent ??
+        '${Config.userAgentProduct}/${Config.userAgentVersion}';
+  }
+}
+
+/// Extension adding JSON manipulation methods to a [Rect].
+extension _RectExtension on Rect {
+  /// Returns a [Map] containing parameters of this [Rect].
+  Map<String, dynamic> toJson() => {
+        'width': width,
+        'height': height,
+        'left': left,
+        'top': top,
+      };
+
+  /// Constructs a [Rect] from the provided [data].
+  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
+        data['left'],
+        data['top'],
+        data['width'],
+        data['height'],
+      );
 }

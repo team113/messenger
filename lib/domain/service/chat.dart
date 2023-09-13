@@ -20,12 +20,13 @@ import 'package:get/get.dart';
 import '../model/attachment.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/chat_item_quote.dart';
+import '../model/chat_item_quote_input.dart';
 import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart'
+    show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -42,9 +43,8 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [chats] value is fetched.
-  RxBool get isReady => _chatRepository.isReady;
+  /// Returns the [RxStatus] of the [chats] initialization.
+  Rx<RxStatus> get status => _chatRepository.status;
 
   /// Returns the current reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
@@ -52,29 +52,22 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatRepository.monolog;
+
   @override
   void onInit() {
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
   }
 
-  @override
-  void onClose() {
-    _chatRepository.dispose();
-    super.onClose();
-  }
-
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId) =>
-      _chatRepository.createDialogChat(responderId);
-
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
   Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name}) =>
       _chatRepository.createGroupChat(memberIds, name: name);
 
-  /// Returns a [Chat] by the provided [id].
+  /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
@@ -103,26 +96,28 @@ class ChatService extends DisposableService {
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {
       text ??= const ChatMessageText(' ');
-    }
+    } else if (text != null) {
+      text = ChatMessageText(text.val.trim());
 
-    if (text != null && text.val.length > ChatMessageText.maxLength) {
-      final List<ChatMessageText> chunks = text.split();
-      int i = 0;
+      if (text.val.length > ChatMessageText.maxLength) {
+        final List<ChatMessageText> chunks = text.split();
+        int i = 0;
 
-      return Future.forEach<ChatMessageText>(
-        chunks,
-        (text) => _chatRepository.sendChatMessage(
-          chatId,
-          text: text,
-          attachments: i++ != chunks.length - 1 ? null : attachments,
-          repliesTo: repliesTo,
-        ),
-      );
+        return Future.forEach<ChatMessageText>(
+          chunks,
+          (text) => _chatRepository.sendChatMessage(
+            chatId,
+            text: text,
+            attachments: i++ != chunks.length - 1 ? null : attachments,
+            repliesTo: repliesTo,
+          ),
+        );
+      }
     }
 
     return _chatRepository.sendChatMessage(
       chatId,
-      text: text,
+      text: text?.val.isEmpty == true ? null : text,
       attachments: attachments,
       repliesTo: repliesTo,
     );
@@ -134,8 +129,9 @@ class ChatService extends DisposableService {
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) {
-    if (router.route.startsWith('${Routes.chat}/$id')) {
-      router.home();
+    final Chat? chat = chats[id]?.chat.value;
+    if (chat != null) {
+      router.removeWhere((e) => chat.isRoute(e, me));
     }
 
     return _chatRepository.hideChat(id);
@@ -153,7 +149,7 @@ class ChatService extends DisposableService {
 
     if (userId == me) {
       chat = chats.remove(chatId);
-      if (router.route.startsWith('${Routes.chat}/$chatId')) {
+      if (router.route.startsWith('${Routes.chats}/$chatId')) {
         router.home();
       }
     }
@@ -198,7 +194,7 @@ class ChatService extends DisposableService {
     Chat? chat = chats[item.chatId]?.chat.value;
 
     if (item is ChatMessage) {
-      if (item.authorId != me) {
+      if (item.author.id != me) {
         throw const DeleteChatMessageException(
           DeleteChatMessageErrorCode.notAuthor,
         );
@@ -210,7 +206,7 @@ class ChatService extends DisposableService {
 
       await _chatRepository.deleteChatMessage(item);
     } else if (item is ChatForward) {
-      if (item.authorId != me) {
+      if (item.author.id != me) {
         throw const DeleteChatForwardException(
           DeleteChatForwardErrorCode.notAuthor,
         );
@@ -247,7 +243,7 @@ class ChatService extends DisposableService {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId chatId) =>
+  Stream<dynamic> keepTyping(ChatId chatId) =>
       _chatRepository.keepTyping(chatId);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
@@ -261,15 +257,19 @@ class ChatService extends DisposableService {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) {
+    if (text != null) {
+      text = ChatMessageText(text.val.trim());
+    }
+
     return _chatRepository.forwardChatItems(
       from,
       to,
       items,
-      text: text,
+      text: text?.val.isEmpty == true ? null : text,
       attachments: attachments,
     );
   }
@@ -298,7 +298,7 @@ class ChatService extends DisposableService {
   /// If [userId] is [me], then removes the specified [Chat] from the [chats].
   Future<void> _onMemberRemoved(ChatId id, UserId userId) async {
     if (userId == me) {
-      if (router.route.startsWith('${Routes.chat}/$id')) {
+      if (router.route.startsWith('${Routes.chats}/$id')) {
         router.home();
       }
       await _chatRepository.remove(id);
@@ -313,4 +313,31 @@ class ChatService extends DisposableService {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) => _chatRepository.unfavoriteChat(id);
+
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
+      _chatRepository.clearChat(id, untilId);
+}
+
+/// Extension adding a route from the [router] comparison with a [Chat].
+extension ChatIsRoute on Chat {
+  /// Indicates whether the provided [route] represents this [Chat].
+  bool isRoute(String route, UserId? me) {
+    final UserId? member =
+        members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
+
+    final bool byId = route.startsWith('${Routes.chats}/$id');
+    final bool byUser = isDialog &&
+        member != null &&
+        route.startsWith('${Routes.chats}/${ChatId.local(member)}');
+    final bool byMonolog = isMonolog &&
+        me != null &&
+        route.startsWith('${Routes.chats}/${ChatId.local(me)}');
+
+    return byId || byUser || byMonolog;
+  }
 }

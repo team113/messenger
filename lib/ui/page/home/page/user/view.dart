@@ -18,37 +18,62 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui//widget/svg/svg.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
+import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/num.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/home/widget/unblock_button.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
-import '/util/platform_utils.dart';
+import '/util/message_popup.dart';
 import 'controller.dart';
+import 'widget/blocklist_record.dart';
+import 'widget/name.dart';
+import 'widget/presence.dart';
+import 'widget/status.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
-  const UserView(this.id, {Key? key}) : super(key: key);
+  const UserView(this.id, {super.key});
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
+      global: !Get.isRegistered<UserController>(tag: id.val),
       builder: (UserController c) {
         return Obx(() {
-          if (c.status.value.isSuccess) {
+          if (!c.status.value.isSuccess) {
+            return Scaffold(
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
+              ),
+              body: Center(
+                child: c.status.value.isEmpty
+                    ? Text('err_unknown_user'.l10n)
+                    : const CustomProgressIndicator(),
+              ),
+            );
+          }
+
+          return LayoutBuilder(builder: (context, constraints) {
             return Scaffold(
               appBar: CustomAppBar(
                 title: Row(
@@ -56,8 +81,8 @@ class UserView extends StatelessWidget {
                     Material(
                       elevation: 6,
                       type: MaterialType.circle,
-                      shadowColor: const Color(0x55000000),
-                      color: Colors.white,
+                      shadowColor: style.colors.onBackgroundOpacity27,
+                      color: style.colors.onPrimary,
                       child: Center(
                         child: AvatarWidget.fromRxUser(c.user, radius: 17),
                       ),
@@ -94,14 +119,7 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .caption
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
+                                  style: style.fonts.bodySmallSecondary,
                                 )
                             ],
                           );
@@ -114,132 +132,123 @@ class UserView extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4, right: 20),
                 leading: const [StyledBackButton()],
                 actions: [
-                  WidgetButton(
+                  AnimatedButton(
                     onPressed: c.openChat,
                     child: Transform.translate(
                       offset: const Offset(0, 1),
-                      child: SvgLoader.asset(
+                      child: const SvgImage.asset(
                         'assets/icons/chat.svg',
                         width: 20.12,
                         height: 21.62,
                       ),
                     ),
                   ),
-                  if (!context.isNarrow) ...[
-                    const SizedBox(width: 28),
-                    WidgetButton(
-                      onPressed: () => c.call(true),
-                      child: SvgLoader.asset(
-                        'assets/icons/chat_video_call.svg',
-                        height: 17,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  WidgetButton(
-                    onPressed: () => c.call(false),
-                    child: SvgLoader.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
-                  ),
+                  Obx(() {
+                    if (c.isBlocked != null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (constraints.maxWidth > 400) ...[
+                          const SizedBox(width: 28),
+                          AnimatedButton(
+                            onPressed: () => c.call(true),
+                            child: const SvgImage.asset(
+                              'assets/icons/chat_video_call.svg',
+                              height: 17,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 28),
+                        AnimatedButton(
+                          onPressed: () => c.call(false),
+                          child: const SvgImage.asset(
+                            'assets/icons/chat_audio_call.svg',
+                            height: 19,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ],
               ),
-              body: Obx(() {
-                return ListView(
-                  key: const Key('UserColumn'),
-                  children: [
-                    const SizedBox(height: 8),
-                    Block(
-                      title: 'label_public_information'.l10n,
-                      children: [
-                        AvatarWidget.fromRxUser(
-                          c.user,
-                          radius: 100,
-                          showBadge: false,
+              body: Scrollbar(
+                controller: c.scrollController,
+                child: Obx(() {
+                  return ListView(
+                    key: const Key('UserScrollable'),
+                    controller: c.scrollController,
+                    children: [
+                      const SizedBox(height: 8),
+                      if (c.isBlocked != null)
+                        Block(
+                          title: 'label_user_is_blocked'.l10n,
+                          children: [BlocklistRecordWidget(c.isBlocked!)],
                         ),
-                        const SizedBox(height: 15),
-                        _name(c, context),
-                        _status(c, context),
-                        _presence(c, context),
-                      ],
-                    ),
-                    Block(
-                      title: 'label_contact_information'.l10n,
-                      children: [_num(c, context)],
-                    ),
-                    Block(
-                      title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
-                    ),
-                  ],
+                      Block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          BigAvatarWidget.user(c.user),
+                          const SizedBox(height: 12),
+                          UserNameCopyable(
+                            c.user!.user.value.name,
+                            c.user!.user.value.num,
+                          ),
+                          if (c.user!.user.value.status != null)
+                            UserStatusCopyable(c.user!.user.value.status!),
+                          if (c.user!.user.value.presence != null)
+                            UserPresenceField(
+                              c.user!.user.value.presence!,
+                              c.user!.user.value.getStatus(),
+                            ),
+                        ],
+                      ),
+                      Block(
+                        title: 'label_contact_information'.l10n,
+                        children: [
+                          Paddings.basic(
+                            UserNumCopyable(
+                              key: const Key('UserNum'),
+                              c.user!.user.value.num,
+                            ),
+                          )
+                        ],
+                      ),
+                      Block(
+                        title: 'label_actions'.l10n,
+                        children: [_actions(c, context)],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  );
+                }),
+              ),
+              bottomNavigationBar: Obx(() {
+                if (c.isBlocked == null) {
+                  return const SizedBox();
+                }
+
+                return Padding(
+                  padding: Insets.dense.copyWith(top: 0),
+                  child: SafeArea(child: UnblockButton(c.unblacklist)),
                 );
               }),
             );
-          }
-
-          return Scaffold(
-            appBar: const CustomAppBar(
-              padding: EdgeInsets.only(left: 4, right: 20),
-              leading: [StyledBackButton()],
-            ),
-            body: Center(
-              child: c.status.value.isEmpty
-                  ? Text('err_unknown_user'.l10n)
-                  : const CircularProgressIndicator(),
-            ),
-          );
+          });
         });
       },
     );
   }
 
-  /// Dense [Padding] wrapper.
-  Widget _dense(Widget child) =>
-      Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
-
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
-    // Builds a stylized button representing a single action.
-    Widget action({
-      Key? key,
-      String? text,
-      void Function()? onPressed,
-      Widget? trailing,
-    }) {
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: _dense(
-          WidgetButton(
-            key: key,
-            onPressed: onPressed,
-            child: IgnorePointer(
-              child: ReactiveTextField(
-                state: TextFieldState(text: text ?? '', editable: false),
-                trailing: trailing != null
-                    ? Transform.translate(
-                        offset: const Offset(0, -1),
-                        child: Transform.scale(scale: 1.15, child: trailing),
-                      )
-                    : null,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.secondary),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          action(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Obx(() {
+          return ActionButton(
             key: Key(c.inContacts.value
                 ? 'DeleteFromContactsButton'
                 : 'AddToContactsButton'),
@@ -249,128 +258,174 @@ class UserView extends StatelessWidget {
             onPressed: c.status.value.isLoadingMore
                 ? null
                 : c.inContacts.value
-                    ? c.removeFromContacts
+                    ? () => _removeFromContacts(c, context)
                     : c.addToContacts,
-          ),
-          action(
+          );
+        }),
+        Obx(() {
+          return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            onPressed: c.inFavorites,
-          ),
-          action(
-            text:
-                c.isMuted.value ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-            trailing: c.isMuted.value
-                ? SvgLoader.asset(
-                    'assets/icons/btn_mute.svg',
-                    width: 18.68,
-                    height: 15,
-                  )
-                : SvgLoader.asset(
-                    'assets/icons/btn_unmute.svg',
-                    width: 17.86,
-                    height: 15,
-                  ),
-            onPressed: c.isMuted.toggle,
-          ),
-          action(
+            onPressed:
+                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+          );
+        }),
+        if (c.user?.user.value.dialog.isLocal == false &&
+            c.user?.dialog.value != null) ...[
+          Obx(() {
+            if (c.isBlocked != null) {
+              return const SizedBox.shrink();
+            }
+
+            final chat = c.user!.dialog.value!.chat.value;
+            final bool isMuted = chat.muted != null;
+
+            return ActionButton(
+              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+              trailing: isMuted
+                  ? const SvgImage.asset(
+                      'assets/icons/btn_mute.svg',
+                      width: 18.68,
+                      height: 15,
+                    )
+                  : const SvgImage.asset(
+                      'assets/icons/btn_unmute.svg',
+                      width: 17.86,
+                      height: 15,
+                    ),
+              onPressed: isMuted ? c.unmuteChat : c.muteChat,
+            );
+          }),
+          ActionButton(
             text: 'btn_hide_chat'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () {},
+            trailing:
+                const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _hideChat(c, context),
           ),
-          action(
-            text: 'btn_clear_chat'.l10n,
-            trailing: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-            onPressed: () {},
+          ActionButton(
+            key: const Key('ClearHistoryButton'),
+            text: 'btn_clear_history'.l10n,
+            trailing:
+                const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            onPressed: () => _clearChat(c, context),
           ),
-          action(
-            key: Key(c.isBlacklisted! ? 'Unblock' : 'Block'),
-            text:
-                c.isBlacklisted == true ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlacklisted == true ? c.unblacklist : c.blacklist,
-          ),
-          action(text: 'btn_report'.l10n, onPressed: () {}),
         ],
-      );
-    });
-  }
+        Obx(() {
+          return ActionButton(
+            key: Key(c.isBlocked != null ? 'Unblock' : 'Block'),
+            text: c.isBlocked != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed: c.isBlocked != null
+                ? c.unblacklist
+                : () => _blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SizedBox();
+              } else {
+                child = const CustomProgressIndicator();
+              }
 
-  /// Returns a [User.name] copyable field.
-  Widget _name(UserController c, BuildContext context) {
-    return _padding(
-      CopyableTextField(
-        key: const Key('NameField'),
-        state: TextFieldState(
-          text: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-        ),
-        label: 'label_name'.l10n,
-        copy: '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}',
-      ),
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
+            }),
+          );
+        }),
+        ActionButton(text: 'btn_report'.l10n, onPressed: () {}),
+      ],
     );
   }
 
-  /// Returns a [User.status] copyable field.
-  Widget _status(UserController c, BuildContext context) {
-    return Obx(() {
-      final UserTextStatus? status = c.user?.user.value.status;
+  /// Opens a confirmation popup deleting the [User] from address book.
+  Future<void> _removeFromContacts(
+    UserController c,
+    BuildContext context,
+  ) async {
+    final style = Theme.of(context).style;
 
-      if (status == null) {
-        return Container();
-      }
-
-      return _padding(
-        CopyableTextField(
-          key: const Key('StatusField'),
-          state: TextFieldState(text: status.val),
-          label: 'label_status'.l10n,
-          copy: status.val,
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: style.fonts.labelLarge,
         ),
-      );
-    });
-  }
-
-  /// Returns a [User.num] copyable field.
-  Widget _num(UserController c, BuildContext context) {
-    return _padding(
-      CopyableTextField(
-        key: const Key('UserNum'),
-        state: TextFieldState(
-          text: c.user!.user.value.num.val.replaceAllMapped(
-            RegExp(r'.{4}'),
-            (match) => '${match.group(0)} ',
-          ),
-        ),
-        label: 'label_num'.l10n,
-        copy: c.user?.user.value.num.val,
-      ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
     );
+
+    if (result == true) {
+      await c.removeFromContacts();
+    }
   }
 
-  /// Returns a [User.presence] text.
-  Widget _presence(UserController c, BuildContext context) {
-    return Obx(() {
-      final Presence? presence = c.user?.user.value.presence;
+  /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
+  Future<void> _hideChat(UserController c, BuildContext context) async {
+    final style = Theme.of(context).style;
 
-      if (presence == null || presence == Presence.hidden) {
-        return Container();
-      }
-
-      final subtitle = c.user?.user.value.getStatus();
-
-      return _padding(
-        ReactiveTextField(
-          key: const Key('Presence'),
-          state: TextFieldState(text: subtitle),
-          label: 'label_presence'.l10n,
-          enabled: false,
-          trailing: CircleAvatar(
-            key: Key(presence.name.capitalizeFirst!),
-            backgroundColor: presence.getColor(),
-            radius: 7,
-          ),
+    final bool? result = await MessagePopup.alert(
+      'label_hide_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: style.fonts.labelLarge,
         ),
-      );
-    });
+        TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
+  Future<void> _clearChat(UserController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: style.fonts.labelLarge,
+        ),
+        TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup blacklisting the [User].
+  Future<void> _blacklistUser(UserController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
+        TextSpan(
+          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          style: style.fonts.labelLarge,
+        ),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.blacklist();
+    }
   }
 }

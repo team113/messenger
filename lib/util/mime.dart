@@ -29,7 +29,7 @@ class MimeResolver {
       _resolver = MimeTypeResolver();
 
       // TODO: Fill the resolver with more MIME-types.
-      resolver.addMagicNumber(
+      _resolver?.addMagicNumber(
         [0x00, 0x00, 0x00, 0x00, 0x6D, 0x6F, 0x6F, 0x76],
         'video/quicktime',
         mask: [0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF],

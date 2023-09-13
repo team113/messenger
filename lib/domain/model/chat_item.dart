@@ -20,10 +20,10 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
-import '/api/backend/schema.dart' show ChatMemberInfoAction;
 import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
+import 'chat_item_quote.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'sending_status.dart';
 import 'user.dart';
@@ -35,11 +35,12 @@ abstract class ChatItem {
   ChatItem(
     this.id,
     this.chatId,
-    this.authorId,
+    this.author,
     this.at, {
     SendingStatus? status,
   }) : status = Rx(
-            status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent));
+          status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
+        );
 
   /// Unique ID of this [ChatItem].
   @HiveField(0)
@@ -47,11 +48,11 @@ abstract class ChatItem {
 
   /// ID of the [Chat] this [ChatItem] was posted in.
   @HiveField(1)
-  final ChatId chatId;
+  ChatId chatId;
 
-  /// ID of the [User] who posted this [ChatItem].
+  /// [User] who posted this [ChatItem].
   @HiveField(2)
-  final UserId authorId;
+  final User author;
 
   /// [PreciseDateTime] when this [ChatItem] was posted.
   @HiveField(3)
@@ -60,52 +61,30 @@ abstract class ChatItem {
   /// [SendingStatus] of this [ChatItem].
   final Rx<SendingStatus> status;
 
-  /// Returns number of microseconds since the "Unix epoch" till
-  /// [PreciseDateTime] when this [ChatItem] was posted.
-  String get timestamp => at.microsecondsSinceEpoch.toString();
-}
-
-/// Information about an action taken upon a [ChatMember].
-@HiveType(typeId: ModelTypeId.chatMemberInfo)
-class ChatMemberInfo extends ChatItem {
-  ChatMemberInfo(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
-    required this.user,
-    required this.actionIndex,
-  }) : super(id, chatId, authorId, at);
-
-  /// [User] this [ChatMemberInfo] is about.
-  @HiveField(5)
-  final User user;
-
-  /// Action taken upon the [ChatMember].
-  @HiveField(6)
-  final int actionIndex;
-
-  ChatMemberInfoAction get action => ChatMemberInfoAction.values[actionIndex];
+  /// Returns combined [at] and [id] unique identifier of this [ChatItem].
+  ///
+  /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
+  ChatItemKey get key => ChatItemKey(at, id);
 }
 
 /// Message in a [Chat].
 @HiveType(typeId: ModelTypeId.chatMessage)
 class ChatMessage extends ChatItem {
   ChatMessage(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
+    super.id,
+    super.chatId,
+    super.author,
+    super.at, {
+    super.status,
     this.repliesTo = const [],
     this.text,
     this.editedAt,
     this.attachments = const [],
-    SendingStatus? status,
-  }) : super(id, chatId, authorId, at, status: status);
+  });
 
-  /// [ChatItem]s this [ChatMessage] replies to.
+  /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
-  final List<ChatItem> repliesTo;
+  final List<ChatItemQuote> repliesTo;
 
   /// Text of this [ChatMessage].
   @HiveField(6)
@@ -120,15 +99,27 @@ class ChatMessage extends ChatItem {
   final List<Attachment> attachments;
 
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
-  /// [authorId], [chatId] and [attachments] as this [ChatMessage].
+  /// [author], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
     return text == other.text &&
-        repliesTo.every((e) => other.repliesTo.any((m) => m.id == e.id)) &&
-        authorId == other.authorId &&
+        repliesTo.every(
+          (e) => other.repliesTo.any(
+            (m) =>
+                m.runtimeType == e.runtimeType &&
+                m.at == e.at &&
+                m.author == e.author &&
+                m.original?.id == e.original?.id,
+          ),
+        ) &&
+        author.id == other.author.id &&
         chatId == other.chatId &&
-        attachments.every((e) => other.attachments.any((m) =>
-            m.original.relativeRef == e.original.relativeRef &&
-            m.filename == e.filename));
+        attachments.every(
+          (e) => other.attachments.any(
+            (m) =>
+                m.original.relativeRef == e.original.relativeRef &&
+                m.filename == e.filename,
+          ),
+        );
   }
 }
 
@@ -136,16 +127,19 @@ class ChatMessage extends ChatItem {
 @HiveType(typeId: ModelTypeId.chatForward)
 class ChatForward extends ChatItem {
   ChatForward(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
-    required this.item,
-  }) : super(id, chatId, authorId, at);
+    super.id,
+    super.chatId,
+    super.author,
+    super.at, {
+    required this.quote,
+  });
 
-  /// Forwarded [ChatItem].
+  /// [ChatItemQuote] of the forwarded [ChatItem].
+  ///
+  /// Re-forwarding a [ChatForward] is indistinguishable from just forwarding
+  /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
   @HiveField(5)
-  ChatItem item;
+  final ChatItemQuote quote;
 }
 
 /// Unique ID of a [ChatItem].
@@ -154,10 +148,10 @@ class ChatItemId extends NewType<String> {
   const ChatItemId(String val) : super(val);
 
   /// Constructs a dummy [ChatItemId].
-  factory ChatItemId.local() => ChatItemId('local_${const Uuid().v4()}');
+  factory ChatItemId.local() => ChatItemId('local.${const Uuid().v4()}');
 
   /// Indicates whether this [ChatItemId] is a dummy ID.
-  bool get isLocal => val.startsWith('local_');
+  bool get isLocal => val.startsWith('local.');
 }
 
 /// Text of a [ChatMessage].
@@ -195,4 +189,42 @@ class ChatMessageText extends NewType<String> {
 
     return chunks.map((e) => ChatMessageText(e)).toList();
   }
+}
+
+/// Combined [at] and [id] unique identifier of a [ChatItem].
+class ChatItemKey implements Comparable<ChatItemKey> {
+  const ChatItemKey(this.at, this.id);
+
+  /// Constructs a [ChatItemKey] from the provided [String].
+  factory ChatItemKey.fromString(String value) {
+    final List<String> split = value.split('_');
+
+    if (split.length != 2) {
+      throw const FormatException('Invalid format');
+    }
+
+    return ChatItemKey(
+      PreciseDateTime.fromMicrosecondsSinceEpoch(int.parse(split[0])),
+      ChatItemId(split[1]),
+    );
+  }
+
+  /// [ChatItemId] part of this [ChatItemKey].
+  final ChatItemId id;
+
+  /// [PreciseDateTime] part of this [ChatItemKey].
+  final PreciseDateTime at;
+
+  @override
+  String toString() => '${at.microsecondsSinceEpoch}_$id';
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChatItemKey && id == other.id && at == other.at;
+
+  @override
+  int compareTo(ChatItemKey other) => toString().compareTo(other.toString());
+
+  @override
+  int get hashCode => Object.hash(id, at);
 }

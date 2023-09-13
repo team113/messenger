@@ -18,26 +18,23 @@
 fragment ChatMessage on ChatMessage {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     at
     ver
     repliesTo {
-        node {
-            __typename
-            ... on ChatMemberInfo {
-                ...ChatMemberInfo
-            }
-            ... on ChatCall {
-                ...ChatCall
-            }
-            ... on ChatMessage {
-                ...NestedChatMessage
-            }
-            ... on ChatForward {
-                ...NestedChatForward
-            }
+        __typename
+        ... on ChatMessageQuote {
+            ...ChatMessageQuote
         }
-        cursor
+        ... on ChatCallQuote {
+            ...ChatCallQuote
+        }
+        ... on ChatInfoQuote {
+            ...ChatInfoQuote
+        }
     }
     text
     editedAt

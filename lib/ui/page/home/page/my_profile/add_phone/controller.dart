@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -42,6 +43,9 @@ class AddPhoneController extends GetxController {
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? initial;
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [UserPhone] field state.
   late final TextFieldState phone;
@@ -72,8 +76,15 @@ class AddPhoneController extends GetxController {
     phone = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            UserPhone(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_phone'.l10n;
+        }
       },
       onSubmitted: (s) async {
         UserPhone? phone;
@@ -96,6 +107,8 @@ class AddPhoneController extends GetxController {
             await _myUserService.addUserPhone(phone!);
             _setResendPhoneTimer(true);
             stage.value = AddPhoneFlowStage.code;
+          } on InvalidScalarException<UserPhone> {
+            s.error.value = 'err_incorrect_phone'.l10n;
           } on FormatException {
             s.error.value = 'err_incorrect_phone'.l10n;
           } on AddUserPhoneException catch (e) {
@@ -114,8 +127,15 @@ class AddPhoneController extends GetxController {
 
     phoneCode = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            ConfirmationCode(s.text.toLowerCase());
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {

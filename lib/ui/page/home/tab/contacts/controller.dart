@@ -18,6 +18,9 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -36,17 +39,18 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
+import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
-/// Controller of the `HomeTab.contacts` tab.
+/// Controller of the [HomeTab.contacts] tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatService,
@@ -67,6 +71,29 @@ class ContactsTabController extends GetxController {
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
+
+  /// Indicator whether an ongoing reordering is happening or not.
+  ///
+  /// Used to discard a broken [FadeInAnimation].
+  final RxBool reordering = RxBool(false);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Indicator whether multiple [ChatContact]s selection is active.
+  final RxBool selecting = RxBool(false);
+
+  /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
+  final RxList<ChatContactId> selectedContacts = RxList();
+
+  /// [Timer] displaying the [contacts] and [favorites] being fetched when it
+  /// becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
+
+  /// [GlobalKey] of the more button.
+  final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -99,8 +126,8 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get contactsReady => _contactService.isReady;
+  /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
+  Rx<RxStatus> get status => _contactService.status;
 
   /// Indicates whether [contacts] should be sorted by their names or otherwise
   /// by their [User.lastSeenAt] dates.
@@ -116,6 +143,11 @@ class ContactsTabController extends GetxController {
 
     _initUsersUpdates();
 
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     super.onInit();
   }
 
@@ -129,6 +161,14 @@ class ContactsTabController extends GetxController {
     _favoritesSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
     _userWorkers.forEach((_, v) => v.dispose());
+
+    HardwareKeyboard.instance.removeHandler(_escapeListener);
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
+    fetching.value?.cancel();
+
     super.onClose();
   }
 
@@ -145,15 +185,34 @@ class ContactsTabController extends GetxController {
 
   /// Removes a [contact] from the [ContactService]'s address book.
   Future<void> deleteFromContacts(ChatContact contact) async {
-    if (await MessagePopup.alert('alert_are_you_sure'.l10n) == true) {
-      await _contactService.deleteContact(contact.id);
+    await _contactService.deleteContact(contact.id);
+  }
+
+  /// Deletes the [selectedContacts] from the authenticated [MyUser]'s address
+  /// book.
+  Future<void> deleteContacts() async {
+    selecting.value = false;
+    router.navigation.value = !selecting.value;
+
+    try {
+      final Iterable<Future> futures =
+          selectedContacts.map((e) => _contactService.deleteContact(e));
+      await Future.wait(futures);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedContacts.clear();
     }
   }
 
   /// Marks the specified [ChatContact] identified by its [id] as favorited.
-  Future<void> favoriteContact(ChatContactId id) async {
+  Future<void> favoriteContact(
+    ChatContactId id, [
+    ChatContactFavoritePosition? position,
+  ]) async {
     try {
-      await _contactService.favoriteChatContact(id);
+      await _contactService.favoriteChatContact(id, position);
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -173,6 +232,30 @@ class ContactsTabController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Reorders a [ChatContact] from the [from] position to the [to] position.
+  Future<void> reorderContact(int from, int to) async {
+    double position;
+
+    if (to <= 0) {
+      position = favorites.first.contact.value.favoritePosition!.val / 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.contact.value.favoritePosition!.val * 2;
+    } else {
+      position = (favorites[to].contact.value.favoritePosition!.val +
+              favorites[to - 1].contact.value.favoritePosition!.val) /
+          2;
+    }
+
+    if (to > from) {
+      to--;
+    }
+
+    final ChatContactId contactId = favorites[from].id;
+    favorites.insert(to, favorites.removeAt(from));
+
+    await favoriteContact(contactId, ChatContactFavoritePosition(position));
   }
 
   /// Toggles the [sortByName] sorting the [contacts].
@@ -227,14 +310,29 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Toggles the [ChatContact]s selection.
+  void toggleSelecting() {
+    selecting.toggle();
+    router.navigation.value = !selecting.value;
+    selectedContacts.clear();
+  }
+
+  /// Selects or unselects the provided [contact], meaning adding or removing it
+  /// from the [selectedContacts].
+  void selectContact(RxChatContact contact) {
+    if (selectedContacts.contains(contact.id)) {
+      selectedContacts.remove(contact.id);
+    } else {
+      selectedContacts.add(contact.id);
+    }
+  }
+
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
   Future<void> _call(User user, bool withVideo) async {
-    Chat? dialog = user.dialog;
-    dialog ??= (await _chatService.createDialogChat(user.id)).chat.value;
     try {
-      await _calls.call(dialog.id, withVideo: withVideo);
+      await _calls.call(user.dialog, withVideo: withVideo);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {
@@ -373,5 +471,33 @@ class ContactsTabController extends GetxController {
         search.value?.search.text.isEmpty == true) {
       toggleSearch(false);
     }
+  }
+
+  /// Closes the [search]ing on the [LogicalKeyboardKey.escape] events.
+  ///
+  /// Intended to be used as a [HardwareKeyboard] listener.
+  bool _escapeListener(KeyEvent e) {
+    if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
+      if (search.value != null) {
+        toggleSearch(false);
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Invokes [toggleSearch], if [search]ing.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (search.value != null) {
+      toggleSearch(false);
+      return true;
+    }
+
+    return false;
   }
 }

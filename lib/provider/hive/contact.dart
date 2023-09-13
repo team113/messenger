@@ -38,8 +38,8 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
   void registerAdapters() {
     Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatContactAdapter());
+    Hive.maybeRegisterAdapter(ChatContactFavoritePositionAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
-    Hive.maybeRegisterAdapter(ChatContactPositionAdapter());
     Hive.maybeRegisterAdapter(ChatContactVersionAdapter());
     Hive.maybeRegisterAdapter(HiveChatContactAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());

@@ -17,21 +17,22 @@
 
 import 'dart:ui';
 
-import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/widget/animated_button.dart';
+import '/util/platform_utils.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatelessWidget {
   const CustomNavigationBar({
-    Key? key,
+    super.key,
     this.currentIndex = 0,
     this.items = const [],
     this.onTap,
-  }) : super(key: key);
+  });
 
   /// Currently selected index of an item in the [items] list.
   final int currentIndex;
@@ -43,17 +44,20 @@ class CustomNavigationBar extends StatelessWidget {
   /// Callback, called when an item in [items] list is pressed.
   final Function(int)? onTap;
 
+  /// Height of the [CustomNavigationBar].
+  static const double height = 56;
+
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       decoration: BoxDecoration(
-        boxShadow: const [
+        boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
-            color: Color(0x22000000),
+            color: style.colors.onBackgroundOpacity13,
             blurStyle: BlurStyle.outer,
           ),
         ],
@@ -75,7 +79,7 @@ class CustomNavigationBar extends StatelessWidget {
                 color: style.cardColor,
                 borderRadius: style.cardRadius,
               ),
-              height: 56,
+              height: height,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 child: Row(
@@ -87,24 +91,45 @@ class CustomNavigationBar extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (b.child != null)
-                            Badge(
-                              badgeContent: b.badge == null
-                                  ? null
-                                  : Text(
-                                      b.badge!,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                      ),
+                            _CustomNavigationBarButton(
+                              selected: currentIndex == i,
+                              onPressed: () => onTap?.call(i),
+                              child: Container(
+                                width: 80,
+                                color: style.colors.transparent,
+                                child: Center(
+                                  child: Badge(
+                                    largeSize: 15,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 4.4,
                                     ),
-                              showBadge: b.badge != null,
-                              child: InkResponse(
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onTap: () => onTap?.call(i),
-                                child: b.child!,
+                                    offset: const Offset(2, -2),
+                                    label: b.badge == null
+                                        ? null
+                                        : Transform.translate(
+                                            offset: PlatformUtils.isWeb
+                                                ? Offset(
+                                                    0,
+                                                    PlatformUtils.isIOS
+                                                        ? 0
+                                                        : 0.25,
+                                                  )
+                                                : PlatformUtils.isDesktop
+                                                    ? const Offset(-0.1, -0.2)
+                                                    : Offset.zero,
+                                            child: Text(
+                                              b.badge!,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                    textStyle: style.fonts.bodyTinyOnPrimary,
+                                    backgroundColor: b.badgeColor ??
+                                        style.colors.dangerColor,
+                                    isLabelVisible: b.badge != null,
+                                    child: b.child!,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -126,6 +151,7 @@ class CustomNavigationBarItem {
   const CustomNavigationBarItem({
     this.key,
     this.badge,
+    this.badgeColor,
     this.child,
   });
 
@@ -135,6 +161,42 @@ class CustomNavigationBarItem {
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
 
+  /// [Color] of the provided [badge], if any.
+  final Color? badgeColor;
+
   /// [Widget] to display.
   final Widget? child;
+}
+
+/// [AnimatedButton] with [AnimatedScale] representing a single button of
+/// [CustomNavigationBar].
+class _CustomNavigationBarButton extends StatelessWidget {
+  const _CustomNavigationBarButton({
+    this.selected = false,
+    this.onPressed,
+    required this.child,
+  });
+
+  /// Widget of this [_CustomNavigationBarButton].
+  final Widget child;
+
+  /// Indicator whether this [_CustomNavigationBarButton] is selected.
+  final bool selected;
+
+  /// Callback, called when this [_CustomNavigationBarButton] is pressed.
+  final void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.bounceInOut,
+      scale: selected ? 1.1 : 1,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: selected ? 1 : 0.7,
+        child: AnimatedButton(onPressed: onPressed, child: child),
+      ),
+    );
+  }
 }

@@ -29,8 +29,12 @@ class ApplicationSettings extends HiveObject {
     this.locale,
     this.showIntroduction,
     this.sideBarWidth,
-    this.sortContactsByName = true,
     this.callButtons = const [],
+    this.showDragAndDropVideosHint = false,
+    this.showDragAndDropButtonsHint = false,
+    this.sortContactsByName = true,
+    this.loadImages = true,
+    this.timelineEnabled = false,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -68,4 +72,13 @@ class ApplicationSettings extends HiveObject {
   /// Indicator whether [ChatContact]s should be sorted by their names.
   @HiveField(7)
   bool sortContactsByName;
+
+  /// Indicator whether [ImageAttachment]s should be loaded automatically.
+  @HiveField(8)
+  bool loadImages;
+
+  /// Indicator whether [ChatItem.at] labels should be displayed as a timeline
+  /// in a [Chat].
+  @HiveField(9)
+  bool timelineEnabled;
 }

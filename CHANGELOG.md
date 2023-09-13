@@ -6,7 +6,204 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.8] · 2022-??-??
+## [0.1.0-alpha.9.4] · 2023-09-04
+[0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
+
+[Diff](/../../compare/v0.1.0-alpha.9.3...v0.1.0-alpha.9.4) | [Milestone](/../../milestone/10)
+
+### Added
+
+- UI:
+    - Work page and tab. ([#541])
+
+[#541]: /../../pull/541
+
+
+
+
+## [0.1.0-alpha.9.3] · 2023-09-01
+[0.1.0-alpha.9.3]: /../../tree/v0.1.0-alpha.9.3
+
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.9.3) | [Milestone](/../../milestone/8)
+
+### Added
+
+- Windows:
+    - Notifications. ([#492], [#439])
+
+### Changed
+
+- UI:
+    - Context menu with fading effect on desktop. ([#506])
+    - Profile page:
+        - Sections highlighting. ([#513], [#385])
+    - Home page:
+        - Redesigned navigation buttons' badges. ([#529], [#500])
+    - Display online status only when application is active. ([#522])
+
+[#385]: /../../issues/385
+[#439]: /../../issues/439
+[#492]: /../../pull/492
+[#500]: /../../issues/500
+[#506]: /../../pull/506
+[#513]: /../../pull/513
+[#522]: /../../pull/522
+[#529]: /../../pull/529
+
+
+
+
+## [0.1.0-alpha.9.2] · 2023-07-28
+[0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.9.2) | [Milestone](/../../milestone/6)
+
+### Fixed
+
+- Linux:
+    - Application crashing when playing sounds. ([#496])
+- Web:
+    - Default locale not detecting in Safari. ([#491])
+
+[#491]: /../../pull/491
+[#496]: /../../pull/496
+
+
+
+
+## [0.1.0-alpha.9.1] · 2023-07-20
+[0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
+
+[Diff](/../../compare/v0.1.0-alpha.9...v0.1.0-alpha.9.1) | [Milestone](/../../milestone/7)
+
+### Fixed
+
+- Performance:
+    - Spamming backend API when reading a chat. ([#487])
+- iOS:
+    - Unreadable status bar text color. ([#487])
+- Web:
+    - Avatar not uploading due to simultaneous file read. ([#487])
+
+[#487]: /../../pull/487
+
+
+
+
+## [0.1.0-alpha.9] · 2023-07-17
+[0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
+
+[Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
+
+### Added
+
+- UI:
+    - Chat page:
+        - History clearing. ([#361])
+        - Text selection in messages. ([#118], [#17])
+        - Clickable links and emails. ([#436], [#388])
+        - Replied and forwarded messages highlighting. ([#467])
+    - Chats tab:
+        - Multiple chats selection. ([#361], [#348])
+        - Chat-monolog. ([#456], [#412], [#333], [#326])
+    - Contacts tab:
+        - Multiple contacts selection. ([#361], [#348])
+    - Media panel:
+        - Low signal icons. ([#454])
+        - Device changed notifications. ([#472])
+    - Clickable icons animating on hovers and clicks. ([#470])
+- Web:
+    - Unread chats badge on favicon. ([#403])
+- Desktop:
+    - Video playback. ([#468], [#445], [#438])
+- Mobile:
+    - Video rewinding indication. ([#468], [#452])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned info and call messages. ([#453], [#357])
+        - Redesigned file attachments. ([#453], [#362])
+        - Message timestamps. ([#399])
+        - Redesigned chat messages and forwards. ([#416])
+        - Read messages only when application is active. ([#462], [#418])
+    - Media panel:
+        - Position and size persistence. ([#270], [#264])
+        - Proportionally resizing secondary panel. ([#393], [#356], [#258])
+        - Incoming ringtone fading in. ([#375], [#367])
+        - Participants dialing indication. ([#286], [#281])
+    - Chats tab:
+        - Inverted selected chat colors. ([#405])
+        - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+        - Redesigned chats selecting. ([#463])
+    - Contacts tab:
+        - Redesigned contacts selecting. ([#463])
+    - Home page:
+        - Redesigned navigation buttons animation. ([#440])
+        - Redesigned quick mute and status changing menus. ([#443])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Change password modal flickering. ([#380], [#377])
+    - Media panel:
+        - Media buttons controlling ringtone. ([#437], [#401])
+- Web:
+    - Images sometimes not loading. ([#408], [#344])
+
+[#17]: /../../issues/17
+[#118]: /../../pull/118
+[#258]: /../../issues/258
+[#264]: /../../issues/264
+[#270]: /../../pull/270
+[#281]: /../../issues/281
+[#286]: /../../pull/286
+[#326]: /../../issues/326
+[#333]: /../../pull/333
+[#344]: /../../issues/344
+[#348]: /../../issues/348
+[#356]: /../../pull/356
+[#357]: /../../pull/357
+[#361]: /../../pull/361
+[#362]: /../../pull/362
+[#367]: /../../issues/367
+[#371]: /../../issues/371
+[#375]: /../../pull/375
+[#377]: /../../issues/377
+[#380]: /../../pull/380
+[#388]: /../../pull/388
+[#392]: /../../pull/392
+[#393]: /../../pull/393
+[#399]: /../../pull/399
+[#401]: /../../issues/401
+[#403]: /../../pull/403
+[#405]: /../../pull/405
+[#408]: /../../pull/408
+[#412]: /../../pull/412
+[#418]: /../../issues/418
+[#436]: /../../pull/436
+[#437]: /../../pull/437
+[#438]: /../../issues/438
+[#440]: /../../pull/440
+[#443]: /../../pull/443
+[#445]: /../../pull/445
+[#452]: /../../issues/452
+[#453]: /../../pull/453
+[#454]: /../../pull/454
+[#456]: /../../pull/456
+[#462]: /../../pull/462
+[#463]: /../../pull/463
+[#467]: /../../pull/467
+[#468]: /../../pull/468
+[#470]: /../../pull/470
+[#472]: /../../pull/472
+
+
+
+
+## [0.1.0-alpha.8] · 2023-03-07
 [0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
 
 [Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
@@ -18,41 +215,54 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to reply gesture. ([#188], [#134])
         - Drafts. ([#173], [#102])
         - Group read indicators. ([#255], [#253])
+        - Message info modal. ([#335], [#330])
     - Chats tab:
         - Chat muting/unmuting. ([#251], [#172], [#63])
-        - Favorite chats. ([#218], [#209])
-        - Searching. ([#206], [#205])
+        - Favorite chats. ([#359], [#218], [#209])
+        - Searching. ([#323], [#310], [#206], [#205])
     - Home page:
         - Quick status changing menu. ([#275], [#204], [#203])
+        - Quick mute and link changing menu. ([#288], [#278])
     - Media panel:
         - Participants redialing. ([#241], [#233])
-        - Screen share display choosing on desktop. ([#228], [#222])
+        - Screen share display choosing on desktop. ([#347], [#228], [#222])
     - Contacts tab:
-        - Favorite contacts. ([#237], [#223])
-        - Searching. ([#260], [#259])
+        - Favorite contacts. ([#285], [#237], [#223])
+        - Searching. ([#323], [#310], [#260], [#259])
     - User page:
-        - Blacklisting. ([#277], [#234], [#229])
+        - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
+- Windows:
+    - Unread chats count badge on app's icon. ([#342], [#327])    
 
 ### Changed
 
+- Android:
+    - Transparent status and navigation. ([#211], [#208])
 - UI:
     - Home page:
-        - Redesigned chats tab. ([#142])
+        - Redesigned chats tab. ([#211], [#142])
         - Redesigned introduction and logout modals. ([#249])
-        - Redesigned menu tab. ([#244], [#243])
+        - Redesigned menu tab. ([#313], [#244], [#243], [#211])
     - Media panel:
         - Video resizing when dragged. ([#191], [#190])
-        - Redesigned mobile interface. ([#287], [#246])
+        - Redesigned mobile interface. ([#340], [#319], [#316], [#287], [#246])
+        - Redesigned settings. ([#293], [#283])
+        - Rounded secondary panel. ([#300], [#292])
+        - Redesigned participants modal. ([#332], [#328])
+        - Redesigned desktop interface. ([#319], [#309])
     - Chat page:
         - Redesigned gallery. ([#212], [#199])
         - Date headers disappearing when not scrolling. ([#221], [#215])
+        - Redesigned forwarding modal. ([#189], [#181])
+        - Nearby messages grouping. ([#337])
     - Chats tab:
         - Redesigned attachments preview. ([#217], [#214])
         - Redesigned group creating. ([#247], [#238])
     - Profile page:
         - Redesigned profile page. ([#244], [#257], [#243])
     - Redesigned desktop context menu. ([#245])
+    - Redesigned mobile context menu. ([#305], [#295])
     - Auth page:
         - Redesigned login modal. ([#249])
     - User page:
@@ -60,7 +270,10 @@ All user visible changes to this project will be documented in this file. This p
     - Contacts tab:
         - Alphabetical and last seen sorting. ([#235], [#226])
     - Chat info page:
-        - Redesigned chat info page. ([#265], [#256])    
+        - Redesigned chat info page. ([#265], [#256])
+    - Redesigned scrollbar. ([#276], [#262])
+    - Redesigned snackbar. ([#336])
+    - Redesigned loaders. ([#350], [#345])
 
 ### Fixed
 
@@ -79,7 +292,9 @@ All user visible changes to this project will be documented in this file. This p
 [#164]: /../../pull/164
 [#172]: /../../pull/172
 [#173]: /../../pull/173
+[#181]: /../../issues/181
 [#188]: /../../pull/188
+[#189]: /../../pull/189
 [#190]: /../../issues/190
 [#191]: /../../pull/191
 [#192]: /../../issues/192
@@ -91,7 +306,9 @@ All user visible changes to this project will be documented in this file. This p
 [#204]: /../../pull/204
 [#205]: /../../issues/205
 [#206]: /../../pull/206
+[#208]: /../../issues/208
 [#209]: /../../issues/209
+[#211]: /../../pull/211
 [#212]: /../../pull/212
 [#214]: /../../issues/214
 [#215]: /../../issues/215
@@ -124,12 +341,43 @@ All user visible changes to this project will be documented in this file. This p
 [#257]: /../../issues/257
 [#259]: /../../issues/259
 [#260]: /../../pull/260
+[#262]: /../../issues/262
 [#263]: /../../issues/263
 [#265]: /../../pull/265
 [#274]: /../../pull/274
 [#275]: /../../pull/275
+[#276]: /../../pull/276
 [#277]: /../../pull/277
+[#278]: /../../issues/278
+[#283]: /../../issues/283
+[#285]: /../../pull/285
 [#287]: /../../pull/287
+[#288]: /../../pull/288
+[#292]: /../../issues/292
+[#293]: /../../pull/293
+[#295]: /../../issues/295
+[#300]: /../../pull/300
+[#305]: /../../pull/305
+[#309]: /../../issues/309
+[#310]: /../../pull/310
+[#313]: /../../pull/313
+[#316]: /../../pull/316
+[#317]: /../../pull/317
+[#319]: /../../pull/319
+[#323]: /../../pull/323
+[#327]: /../../issues/327
+[#328]: /../../issues/328
+[#330]: /../../issues/330
+[#332]: /../../pull/332
+[#335]: /../../pull/335
+[#336]: /../../pull/336
+[#337]: /../../pull/337
+[#340]: /../../pull/340
+[#342]: /../../pull/342
+[#345]: /../../issues/345
+[#347]: /../../pull/347
+[#350]: /../../pull/350
+[#359]: /../../pull/359
 
 
 

@@ -18,12 +18,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/config.dart';
+import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -32,33 +31,39 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/widget/field_button.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/num.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blacklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
-import 'delete_account/view.dart';
-import 'delete_email/view.dart';
-import 'delete_phone/view.dart';
 import 'language/view.dart';
-import 'link_details/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
-import 'widget/copyable.dart';
+import 'timeline_switch/view.dart';
+import 'widget/background_preview.dart';
+import 'widget/download_button.dart';
+import 'widget/login.dart';
+import 'widget/name.dart';
+import 'widget/status.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -69,6 +74,7 @@ class MyProfileView extends StatelessWidget {
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find()),
+      global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
@@ -78,161 +84,213 @@ class MyProfileView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
             ),
-            body: Obx(() {
-              if (c.myUser.value == null) {
-                return const CircularProgressIndicator();
-              }
+            body: Scrollbar(
+              controller: c.scrollController,
+              child: ScrollablePositionedList.builder(
+                key: const Key('MyProfileScrollable'),
+                initialScrollIndex: c.listInitIndex,
+                scrollController: c.scrollController,
+                itemScrollController: c.itemScrollController,
+                itemPositionsListener: c.positionsListener,
+                itemCount: ProfileTab.values.length,
+                physics: const ClampingScrollPhysics(),
+                itemBuilder: (context, i) {
+                  // Builds a [Block] wrapped with [Obx] to highlight it.
+                  Widget block({
+                    required String title,
+                    required List<Widget> children,
+                  }) {
+                    return Obx(() {
+                      return Block(
+                        title: title,
+                        highlight: c.highlightIndex.value == i,
+                        children: children,
+                      );
+                    });
+                  }
 
-              return FlutterListView(
-                controller: c.listController,
-                delegate: FlutterListViewDelegate(
-                  (context, i) {
-                    switch (ProfileTab.values[i]) {
-                      case ProfileTab.public:
-                        return Block(
-                          title: 'label_public_information'.l10n,
-                          children: [
-                            Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                WidgetButton(
-                                  onPressed: c.uploadAvatar,
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    radius: 100,
-                                    badge: false,
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Obx(() {
-                                    return AnimatedSwitcher(
-                                      duration: 200.milliseconds,
-                                      child: c.avatarUpload.value.isLoading
-                                          ? Container(
-                                              width: 200,
-                                              height: 200,
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Color(0x22000000),
-                                              ),
-                                              child: const Center(
-                                                child:
-                                                    CircularProgressIndicator(),
-                                              ),
-                                            )
-                                          : const SizedBox.shrink(),
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
+                  switch (ProfileTab.values[i]) {
+                    case ProfileTab.public:
+                      return block(
+                        title: 'label_public_information'.l10n,
+                        children: [
+                          Obx(() {
+                            return BigAvatarWidget.myUser(
+                              c.myUser.value,
+                              loading: c.avatarUpload.value.isLoading,
+                              onUpload: c.uploadAvatar,
+                              onDelete: c.myUser.value?.avatar != null
+                                  ? c.deleteAvatar
+                                  : null,
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          Paddings.basic(
                             Obx(() {
-                              if (c.myUser.value?.avatar == null) {
-                                return const SizedBox();
-                              }
-
-                              return Center(
-                                child: WidgetButton(
-                                  key: const Key('DeleteAvatar'),
-                                  onPressed: c.deleteAvatar,
-                                  child: SizedBox(
-                                    height: 20,
-                                    child: Text(
-                                      'btn_delete'.l10n,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              return UserNameField(
+                                c.myUser.value?.name,
+                                onSubmit: c.updateUserName,
                               );
                             }),
-                            const SizedBox(height: 10),
-                            _name(c),
-                            _presence(c, context),
-                            _status(c),
-                          ],
-                        );
+                          ),
+                          _presence(context, c),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserTextStatusField(
+                                c.myUser.value?.status,
+                                onSubmit: c.updateUserStatus,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.signing:
-                        return Block(
-                          title: 'label_login_options'.l10n,
-                          children: [
-                            _num(c),
-                            _login(c, context),
-                            const SizedBox(height: 10),
-                            _emails(c, context),
-                            _phones(c, context),
-                            _password(context, c),
-                          ],
-                        );
+                    case ProfileTab.signing:
+                      return block(
+                        title: 'label_login_options'.l10n,
+                        children: [
+                          Paddings.basic(
+                            Obx(() {
+                              return UserNumCopyable(c.myUser.value?.num);
+                            }),
+                          ),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: c.updateUserLogin,
+                              );
+                            }),
+                          ),
+                          _emails(context, c),
+                          _phones(context, c),
+                          _password(context, c),
+                        ],
+                      );
 
-                      case ProfileTab.link:
-                        return Block(
-                          title: 'label_your_direct_link'.l10n,
-                          children: [_link(context, c)],
-                        );
+                    case ProfileTab.link:
+                      return block(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: c.createChatDirectLink,
+                            );
+                          }),
+                        ],
+                      );
 
-                      case ProfileTab.background:
-                        return Block(
-                          title: 'label_background'.l10n,
-                          children: [_background(context, c)],
-                        );
+                    case ProfileTab.background:
+                      return block(
+                        title: 'label_background'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              return BackgroundPreview(
+                                c.background.value,
+                                onPick: c.pickBackground,
+                                onRemove: c.removeBackground,
+                              );
+                            }),
+                          )
+                        ],
+                      );
 
-                      case ProfileTab.calls:
-                        if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_calls'.l10n,
-                            children: [_call(context, c)],
-                          );
-                        }
+                    case ProfileTab.chats:
+                      return block(
+                        title: 'label_chats'.l10n,
+                        children: [_chats(context, c)],
+                      );
 
+                    case ProfileTab.calls:
+                      if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.media:
-                        if (!PlatformUtils.isMobile) {
-                          return Block(
-                            title: 'label_media'.l10n,
-                            children: [_media(context, c)],
-                          );
-                        }
+                      return block(
+                        title: 'label_calls'.l10n,
+                        children: [_call(context, c)],
+                      );
 
+                    case ProfileTab.media:
+                      if (PlatformUtils.isMobile) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.language:
-                        return Block(
-                          title: 'label_language'.l10n,
-                          children: [_language(context, c)],
-                        );
+                      return block(
+                        title: 'label_media'.l10n,
+                        children: [_media(context, c)],
+                      );
 
-                      case ProfileTab.download:
-                        if (PlatformUtils.isWeb) {
-                          return Block(
-                            title: 'label_download_application'.l10n,
-                            children: [_downloads(context, c)],
-                          );
-                        }
+                    case ProfileTab.notifications:
+                      return block(
+                        title: 'label_audio_notifications'.l10n,
+                        children: [
+                          Paddings.dense(
+                            Obx(() {
+                              final bool isMuted =
+                                  c.myUser.value?.muted == null;
 
+                              return SwitchField(
+                                text: isMuted
+                                    ? 'label_enabled'.l10n
+                                    : 'label_disabled'.l10n,
+                                value: isMuted,
+                                onChanged:
+                                    c.isMuting.value ? null : c.toggleMute,
+                              );
+                            }),
+                          ),
+                        ],
+                      );
+
+                    case ProfileTab.storage:
+                      return block(
+                        title: 'label_storage'.l10n,
+                        children: [_storage(context, c)],
+                      );
+
+                    case ProfileTab.language:
+                      return block(
+                        title: 'label_language'.l10n,
+                        children: [_language(context, c)],
+                      );
+
+                    case ProfileTab.blocklist:
+                      return block(
+                        title: 'label_blocked_users'.l10n,
+                        children: [_blockedUsers(context, c)],
+                      );
+
+                    case ProfileTab.download:
+                      if (!PlatformUtils.isWeb) {
                         return const SizedBox();
+                      }
 
-                      case ProfileTab.danger:
-                        return Block(
-                          title: 'label_danger_zone'.l10n,
-                          children: [_danger(context, c)],
-                        );
+                      return block(
+                        title: 'label_download_application'.l10n,
+                        children: [_downloads(context, c)],
+                      );
 
-                      case ProfileTab.logout:
-                        return const SizedBox();
-                    }
-                  },
-                  initIndex: c.listInitIndex,
-                  childCount: ProfileTab.values.length,
-                ),
-              );
+                    case ProfileTab.danger:
+                      return block(
+                        title: 'label_danger_zone'.l10n,
+                        children: [_danger(context, c)],
+                      );
+
+                    case ProfileTab.logout:
+                      return const SizedBox();
+                  }
+                },
+              ),
+            ),
+            floatingActionButton: Obx(() {
+              if (c.myUser.value != null) {
+                return const SizedBox();
+              }
+
+              return const CustomProgressIndicator();
             }),
           ),
         );
@@ -241,289 +299,10 @@ class MyProfileView extends StatelessWidget {
   }
 }
 
-/// Basic [Padding] wrapper.
-Widget _padding(Widget child) =>
-    Padding(padding: const EdgeInsets.all(8), child: child);
-
-/// Dense [Padding] wrapper.
-Widget _dense(Widget child) =>
-    Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
-/// Returns [MyUser.name] editable field.
-Widget _name(MyProfileController c) {
-  return _padding(
-    ReactiveTextField(
-      key: const Key('NameField'),
-      state: c.name,
-      label: 'label_name'.l10n,
-      hint: 'label_name_hint'.l10n,
-      filled: true,
-      onSuffixPressed: c.login.text.isEmpty
-          ? null
-          : () {
-              Clipboard.setData(ClipboardData(text: c.name.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
-            },
-      trailing: c.login.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
-              ),
-            ),
-    ),
-  );
-}
-
-/// Returns [MyUser.status] editable field.
-Widget _status(MyProfileController c) {
-  return _padding(
-    ReactiveTextField(
-      key: const Key('StatusField'),
-      state: c.status,
-      label: 'label_status'.l10n,
-      filled: true,
-      maxLength: 25,
-      onSuffixPressed: c.status.text.isEmpty
-          ? null
-          : () {
-              Clipboard.setData(ClipboardData(text: c.status.text));
-              MessagePopup.success('label_copied_to_clipboard'.l10n);
-            },
-      trailing: c.status.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/copy.svg',
-                  height: 15,
-                ),
-              ),
-            ),
-    ),
-  );
-}
-
-/// Returns [WidgetButton] displaying the [MyUser.presence].
-Widget _presence(MyProfileController c, BuildContext context) {
-  return Obx(() {
-    final Presence? presence = c.myUser.value?.presence;
-
-    return _padding(
-      FieldButton(
-        onPressed: () => StatusView.show(context, expanded: false),
-        hint: 'label_presence'.l10n,
-        text: presence?.localizedString(),
-        trailing:
-            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-      ),
-    );
-  });
-}
-
-/// Returns [MyUser.num] copyable field.
-Widget _num(MyProfileController c) => _padding(
-      Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CopyableTextField(
-            key: const Key('NumCopyable'),
-            state: c.num,
-            label: 'label_num'.l10n,
-            copy: c.myUser.value?.num.val,
-          ),
-          const SizedBox(height: 10),
-        ],
-      ),
-    );
-
-/// Returns [MyUser.chatDirectLink] editable field.
-Widget _link(BuildContext context, MyProfileController c) {
-  return Obx(() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
-          key: const Key('LinkField'),
-          state: c.link,
-          onSuffixPressed: c.link.isEmpty.value
-              ? null
-              : () {
-                  Clipboard.setData(
-                    ClipboardData(
-                      text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                    ),
-                  );
-
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
-                },
-          trailing: c.link.isEmpty.value
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset('assets/icons/copy.svg', height: 15),
-                  ),
-                ),
-          label: '${Config.origin}/',
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: Row(
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'label_transition_count'.l10nfmt({
-                            'count':
-                                c.myUser.value?.chatDirectLink?.usageCount ?? 0
-                          }) +
-                          'dot_space'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: 'label_details'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await LinkDetailsView.show(context);
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  });
-}
-
-/// Returns [MyUser.login] editable field.
-Widget _login(MyProfileController c, BuildContext context) {
-  return _padding(
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
-          key: const Key('LoginField'),
-          state: c.login,
-          onSuffixPressed: c.login.text.isEmpty
-              ? null
-              : () {
-                  Clipboard.setData(ClipboardData(text: c.login.text));
-                  MessagePopup.success('label_copied_to_clipboard'.l10n);
-                },
-          trailing: c.login.text.isEmpty
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: SvgLoader.asset(
-                      'assets/icons/copy.svg',
-                      height: 15,
-                    ),
-                  ),
-                ),
-          label: 'label_login'.l10n,
-          hint: c.myUser.value?.login == null
-              ? 'label_login_hint'.l10n
-              : c.myUser.value!.login!.val,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-          child: RichText(
-            text: TextSpan(
-              style:
-                  const TextStyle(fontSize: 11, fontWeight: FontWeight.normal),
-              children: [
-                TextSpan(
-                  text: 'label_login_visible'.l10n,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
-                ),
-                TextSpan(
-                  text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () async {
-                      await ConfirmDialog.show(
-                        context,
-                        title: 'label_login'.l10n,
-                        additional: [
-                          Center(
-                            child: Text(
-                              'label_login_visibility_hint'.l10n,
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'label_visible_to'.l10n,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                        label: 'label_confirm'.l10n,
-                        initial: 2,
-                        variants: [
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_all'.l10n),
-                          ),
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_my_contacts'.l10n),
-                          ),
-                          ConfirmDialogVariant(
-                            onProceed: () {},
-                            child: Text('label_nobody'.l10n),
-                          ),
-                        ],
-                      );
-                    },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
 /// Returns addable list of [MyUser.emails].
-Widget _emails(MyProfileController c, BuildContext context) {
+Widget _emails(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Obx(() {
     final List<Widget> widgets = [];
 
@@ -538,42 +317,31 @@ Widget _emails(MyProfileController c, BuildContext context) {
               text: e.val,
               hint: 'label_email'.l10n,
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                PlatformUtils.copy(text: e.val);
+                MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => DeleteEmailView.show(context, email: e),
+              onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/delete.svg',
                     height: 14,
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      style: style.fonts.labelMediumSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: style.fonts.labelMediumPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -584,10 +352,7 @@ Widget _emails(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                  ),
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -617,47 +382,36 @@ Widget _emails(MyProfileController c, BuildContext context) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed != null) {
       widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+        FieldButton(
+          key: const Key('UnconfirmedEmail'),
+          text: c.myUser.value!.emails.unconfirmed!.val,
+          hint: 'label_verify_email'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Transform.scale(
+              scale: 1.15,
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedEmail'),
-            text: c.myUser.value!.emails.unconfirmed!.val,
-            hint: 'label_verify_email'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset(
-                  'assets/icons/delete.svg',
-                  height: 14,
-                ),
-              ),
-            ),
-            onPressed: () => AddEmailView.show(
-              context,
-              email: c.myUser.value!.emails.unconfirmed!,
-            ),
-            onTrailingPressed: () => DeleteEmailView.show(
-              context,
-              email: c.myUser.value!.emails.unconfirmed!,
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          onPressed: () => AddEmailView.show(
+            context,
+            email: c.myUser.value!.emails.unconfirmed!,
           ),
+          onTrailingPressed: () => _deleteEmail(
+            c,
+            context,
+            c.myUser.value!.emails.unconfirmed!,
+          ),
+          style: style.fonts.titleMediumSecondary,
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.emails.unconfirmed == null) {
@@ -670,22 +424,24 @@ Widget _emails(MyProfileController c, BuildContext context) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => _dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
     );
   });
 }
 
-/// Returns addable list of [MyUser.emails].
-Widget _phones(MyProfileController c, BuildContext context) {
+/// Returns addable list of [MyUser.phones].
+Widget _phones(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Obx(() {
     final List<Widget> widgets = [];
 
@@ -701,41 +457,30 @@ Widget _phones(MyProfileController c, BuildContext context) {
               hint: 'label_phone_number'.l10n,
               trailing: Transform.translate(
                 key: const Key('DeletePhone'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgLoader.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/delete.svg',
                     height: 14,
                   ),
                 ),
               ),
               onPressed: () {
-                Clipboard.setData(ClipboardData(text: e.val));
-                MessagePopup.success('label_copied_to_clipboard'.l10n);
+                PlatformUtils.copy(text: e.val);
+                MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => DeletePhoneView.show(context, phone: e),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              onTrailingPressed: () => _deletePhone(c, context, e),
+              subtitle: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.normal,
-                  ),
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      style: style.fonts.labelMediumSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      style: style.fonts.labelMediumPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -746,10 +491,7 @@ Widget _phones(MyProfileController c, BuildContext context) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.black,
-                                  ),
+                                  style: style.fonts.headlineMedium,
                                 ),
                               ),
                             ],
@@ -779,44 +521,36 @@ Widget _phones(MyProfileController c, BuildContext context) {
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed != null) {
       widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: Theme.of(context)
-                .inputDecorationTheme
-                .copyWith(
-                  floatingLabelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
-                ),
+        FieldButton(
+          key: const Key('UnconfirmedPhone'),
+          text: c.myUser.value!.phones.unconfirmed!.val,
+          hint: 'label_verify_number'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Transform.scale(
+              scale: 1.15,
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedPhone'),
-            text: c.myUser.value!.phones.unconfirmed!.val,
-            hint: 'label_verify_number'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
-              ),
-            ),
-            onPressed: () => AddPhoneView.show(
-              context,
-              phone: c.myUser.value!.phones.unconfirmed!,
-            ),
-            onTrailingPressed: () => DeletePhoneView.show(
-              context,
-              phone: c.myUser.value!.phones.unconfirmed!,
-            ),
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          onPressed: () => AddPhoneView.show(
+            context,
+            phone: c.myUser.value!.phones.unconfirmed!,
           ),
+          onTrailingPressed: () => _deletePhone(
+            c,
+            context,
+            c.myUser.value!.phones.unconfirmed!,
+          ),
+          style: style.fonts.titleMediumSecondary,
         ),
       ]);
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     if (c.myUser.value?.phones.unconfirmed == null) {
@@ -829,16 +563,36 @@ Widget _phones(MyProfileController c, BuildContext context) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
-      widgets.add(const SizedBox(height: 10));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => _dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
+    );
+  });
+}
+
+/// Returns [WidgetButton] displaying the [MyUser.presence].
+Widget _presence(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Obx(() {
+    final Presence? presence = c.myUser.value?.presence;
+
+    return Paddings.basic(
+      FieldButton(
+        onPressed: () => StatusView.show(context, expanded: false),
+        hint: 'label_presence'.l10n,
+        text: presence?.localizedString(),
+        trailing:
+            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
+        style: style.fonts.titleMediumPrimary,
+      ),
     );
   });
 }
@@ -846,196 +600,76 @@ Widget _phones(MyProfileController c, BuildContext context) {
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      _dense(
-        FieldButton(
-          key: c.myUser.value?.hasPassword == true
-              ? const Key('ChangePassword')
-              : const Key('SetPassword'),
-          text: c.myUser.value?.hasPassword == true
-              ? 'btn_change_password'.l10n
-              : 'btn_set_password'.l10n,
-          onPressed: () => ChangePasswordView.show(context),
-          style: TextStyle(
-            color: c.myUser.value?.hasPassword != true
-                ? Colors.red
-                : Theme.of(context).colorScheme.secondary,
-          ),
-        ),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            key: c.myUser.value?.hasPassword == true
+                ? const Key('ChangePassword')
+                : const Key('SetPassword'),
+            text: c.myUser.value?.hasPassword == true
+                ? 'btn_change_password'.l10n
+                : 'btn_set_password'.l10n,
+            onPressed: () => ChangePasswordView.show(context),
+            style: c.myUser.value?.hasPassword != true
+                ? style.fonts.titleMediumDanger
+                : style.fonts.titleMediumPrimary,
+          );
+        }),
       ),
       const SizedBox(height: 10),
     ],
   );
 }
 
-/// Returns the contents of a [ProfileTab.danger] section.
-Widget _danger(BuildContext context, MyProfileController c) {
+/// Returns the contents of a [ProfileTab.chats] section.
+Widget _chats(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
+    mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
-        FieldButton(
-          text: 'label_blocked_users'.l10n,
-          onPressed: () => BlacklistView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-        ),
-      ),
-      const SizedBox(height: 8),
-      _dense(
-        FieldButton(
-          text: 'btn_delete_account'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child: SvgLoader.asset('assets/icons/delete.svg', height: 14),
+      Paddings.dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 21.0),
+            child: Text(
+              'label_display_timestamps'.l10n,
+              style: style.fonts.titleMediumSecondary,
             ),
           ),
-          onPressed: () => DeleteAccountView.show(context),
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
+      ),
+      const SizedBox(height: 4),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.timelineEnabled ?? true)
+                ? 'label_as_timeline'.l10n
+                : 'label_in_message'.l10n,
+            maxLines: null,
+            onPressed: () => TimelineSwitchView.show(context),
+            style: style.fonts.titleMediumPrimary,
+          );
+        }),
       ),
     ],
   );
 }
 
-/// Returns the contents of a [ProfileTab.background] section.
-Widget _background(BuildContext context, MyProfileController c) {
-  final Style style = Theme.of(context).extension<Style>()!;
-
-  Widget message({
-    bool fromMe = true,
-    bool isRead = true,
-    String text = '123',
-  }) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
-      child: IntrinsicWidth(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          decoration: BoxDecoration(
-            color: fromMe
-                ? isRead
-                    ? style.readMessageColor
-                    : style.unreadMessageColor
-                : style.messageColor,
-            borderRadius: BorderRadius.circular(15),
-            border: fromMe
-                ? isRead
-                    ? style.secondaryBorder
-                    : Border.all(color: const Color(0xFFDAEDFF), width: 0.5)
-                : style.primaryBorder,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text, style: style.boldBody),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  return _dense(
-    Column(
-      children: [
-        WidgetButton(
-          onPressed: c.pickBackground,
-          child: Container(
-            decoration: BoxDecoration(
-              border: style.primaryBorder,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Obx(() {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 120,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned.fill(
-                        child: c.background.value == null
-                            ? Container(
-                                child: SvgLoader.asset(
-                                  'assets/images/background_light.svg',
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Image.memory(
-                                c.background.value!,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: message(
-                                fromMe: false,
-                                text: 'label_hello'.l10n,
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: message(
-                                fromMe: true,
-                                text: 'label_hello_reply'.l10n,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Obx(() {
-          if (c.background.value == null) {
-            return const SizedBox();
-          }
-
-          return Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Center(
-              child: WidgetButton(
-                onPressed:
-                    c.background.value == null ? null : c.removeBackground,
-                child: Text(
-                  'btn_delete'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }),
-      ],
-    ),
-  );
-}
-
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
             text: (c.settings.value?.enablePopups ?? true)
@@ -1043,7 +677,7 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1053,50 +687,79 @@ Widget _call(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.video().firstWhereOrNull(
-                            (e) => e.deviceId() == c.camera.value) ??
+            text: (c.devices.video().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.videoDevice) ??
                         c.devices.video().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_camera'.l10n,
-            onPressed: () => CameraSwitchView.show(context, call: c.call),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            onPressed: () async {
+              await CameraSwitchView.show(
+                context,
+                camera: c.media.value?.videoDevice,
+              );
+
+              if (c.devices.video().isEmpty) {
+                c.devices.value = await MediaUtils.enumerateDevices();
+              }
+            },
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
       const SizedBox(height: 16),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull(
-                            (e) => e.deviceId() == c.mic.value) ??
+            text: (c.devices.audio().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.audioDevice) ??
                         c.devices.audio().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_microphone'.l10n,
-            onPressed: () => MicrophoneSwitchView.show(context, call: c.call),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            onPressed: () async {
+              await MicrophoneSwitchView.show(
+                context,
+                mic: c.media.value?.audioDevice,
+              );
+
+              if (c.devices.audio().isEmpty) {
+                c.devices.value = await MediaUtils.enumerateDevices();
+              }
+            },
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
       const SizedBox(height: 16),
-      _dense(
+      Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.output().firstWhereOrNull(
-                            (e) => e.deviceId() == c.output.value) ??
+            text: (c.devices.output().firstWhereOrNull((e) =>
+                            e.deviceId() == c.media.value?.outputDevice) ??
                         c.devices.output().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_output'.l10n,
-            onPressed: () => OutputSwitchView.show(context, call: c.call),
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            onPressed: () async {
+              await OutputSwitchView.show(
+                context,
+                output: c.media.value?.outputDevice,
+              );
+
+              if (c.devices.output().isEmpty) {
+                c.devices.value = await MediaUtils.enumerateDevices();
+              }
+            },
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1104,107 +767,11 @@ Widget _media(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.download] section.
-Widget _downloads(BuildContext context, MyProfileController c) {
-  Widget button({
-    required String asset,
-    required double width,
-    required double height,
-    required String title,
-    String? link,
-  }) {
-    return FieldButton(
-      text: 'space'.l10n * 4 + title,
-      textAlign: TextAlign.center,
-      onPressed: link == null
-          ? null
-          : () {
-              WebUtils.download('${Config.origin}/artifacts/$link', link);
-            },
-      onTrailingPressed: () {
-        if (link != null) {
-          Clipboard.setData(
-            ClipboardData(text: '${Config.origin}/artifacts/$link'),
-          );
-          MessagePopup.success('label_copied_to_clipboard'.l10n);
-        }
-      },
-      prefix: Padding(
-        padding: const EdgeInsets.only(left: 16),
-        child: Transform.scale(
-          scale: 2,
-          child: SvgLoader.asset(
-            'assets/icons/$asset.svg',
-            width: width / 2,
-            height: height / 2,
-          ),
-        ),
-      ),
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: SvgLoader.asset(
-            'assets/icons/copy.svg',
-            height: 15,
-          ),
-        ),
-      ),
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.secondary,
-      ),
-    );
-  }
-
-  return _dense(
-    Column(
-      children: [
-        button(
-          asset: 'windows',
-          width: 21.93,
-          height: 22,
-          title: 'Windows'.l10n,
-          link: 'messenger-windows.zip',
-        ),
-        const SizedBox(height: 8),
-        button(
-          asset: 'apple',
-          width: 23,
-          height: 29,
-          title: 'macOS'.l10n,
-          link: 'messenger-macos.zip',
-        ),
-        const SizedBox(height: 8),
-        button(
-          asset: 'linux',
-          width: 18.85,
-          height: 22,
-          title: 'Linux'.l10n,
-          link: 'messenger-linux.zip',
-        ),
-        const SizedBox(height: 8),
-        button(
-          asset: 'apple',
-          width: 23,
-          height: 29,
-          title: 'iOS'.l10n,
-        ),
-        const SizedBox(height: 8),
-        button(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
-          title: 'Android'.l10n,
-          link: 'messenger-android.apk',
-        ),
-      ],
-    ),
-  );
-}
-
 /// Returns the contents of a [ProfileTab.language] section.
 Widget _language(BuildContext context, MyProfileController c) {
-  return _dense(
+  final style = Theme.of(context).style;
+
+  return Paddings.dense(
     FieldButton(
       key: const Key('ChangeLanguage'),
       onPressed: () => LanguageSelectionView.show(
@@ -1215,7 +782,238 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      style: style.fonts.titleMediumPrimary,
     ),
   );
+}
+
+/// Returns the contents of a [ProfileTab.blacklist] section.
+Widget _blockedUsers(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    children: [
+      Paddings.dense(
+        FieldButton(
+          text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
+          onPressed:
+              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
+          style: c.blacklist.isEmpty
+              ? style.fonts.titleMedium
+              : style.fonts.titleMediumPrimary,
+        ),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.download] section.
+Widget _downloads(BuildContext context, MyProfileController c) {
+  return Paddings.dense(
+    const Column(
+      children: [
+        DownloadButton(
+          asset: 'windows',
+          width: 21.93,
+          height: 22,
+          title: 'Windows',
+          link: 'messenger-windows.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'apple',
+          width: 23,
+          height: 29,
+          title: 'macOS',
+          link: 'messenger-macos.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'linux',
+          width: 18.85,
+          height: 22,
+          title: 'Linux',
+          link: 'messenger-linux.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'apple',
+          width: 23,
+          height: 29,
+          title: 'iOS',
+          link: 'messenger-ios.zip',
+        ),
+        SizedBox(height: 8),
+        DownloadButton(
+          asset: 'google',
+          width: 20.33,
+          height: 22.02,
+          title: 'Android',
+          link: 'messenger-android.apk',
+        ),
+      ],
+    ),
+  );
+}
+
+/// Returns the contents of a [ProfileTab.danger] section.
+Widget _danger(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    children: [
+      Paddings.dense(
+        FieldButton(
+          key: const Key('DeleteAccount'),
+          text: 'btn_delete_account'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(0, -1),
+            child: Transform.scale(
+              scale: 1.15,
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            ),
+          ),
+          onPressed: () => _deleteAccount(c, context),
+          style: style.fonts.titleMediumPrimary,
+        ),
+      ),
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.storage] section.
+Widget _storage(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Paddings.dense(
+    Column(
+      children: [
+        Obx(() {
+          return SwitchField(
+            text: 'label_load_images'.l10n,
+            value: c.settings.value?.loadImages == true,
+            onChanged: c.settings.value == null ? null : c.setLoadImages,
+          );
+        }),
+        if (!PlatformUtils.isWeb) ...[
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 21.0),
+              child: Text(
+                'label_cache'.l10n,
+                style: style.fonts.titleMediumSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Obx(() {
+            final int size = CacheWorker.instance.info.value.size;
+            final int max = CacheWorker.instance.info.value.maxSize;
+
+            return Column(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    LinearProgressIndicator(
+                      value: size / max,
+                      minHeight: 32,
+                      color: style.colors.primary,
+                      backgroundColor: style.colors.background,
+                    ),
+                    Text(
+                      'label_gb_slash_gb'.l10nfmt({
+                        'a': (size / GB).toPrecision(2),
+                        'b': max ~/ GB,
+                      }),
+                      style: style.fonts.labelSmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                FieldButton(
+                  onPressed: c.clearCache,
+                  text: 'btn_clear_cache'.l10n,
+                  style: style.fonts.titleMediumPrimary,
+                ),
+              ],
+            );
+          }),
+        ],
+      ],
+    ),
+  );
+}
+
+/// Opens a confirmation popup deleting the provided [email] from the
+/// [MyUser.emails].
+Future<void> _deleteEmail(
+  MyProfileController c,
+  BuildContext context,
+  UserEmail email,
+) async {
+  final style = Theme.of(context).style;
+
+  final bool? result = await MessagePopup.alert(
+    'label_delete_email'.l10n,
+    description: [
+      TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
+      TextSpan(text: email.val, style: style.fonts.labelLarge),
+      TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deleteEmail(email);
+  }
+}
+
+/// Opens a confirmation popup deleting the provided [phone] from the
+/// [MyUser.phones].
+Future<void> _deletePhone(
+  MyProfileController c,
+  BuildContext context,
+  UserPhone phone,
+) async {
+  final style = Theme.of(context).style;
+
+  final bool? result = await MessagePopup.alert(
+    'label_delete_phone_number'.l10n,
+    description: [
+      TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
+      TextSpan(text: phone.val, style: style.fonts.labelLarge),
+      TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deletePhone(phone);
+  }
+}
+
+/// Opens a confirmation popup deleting the [MyUser]'s account.
+Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
+  final style = Theme.of(context).style;
+
+  final bool? result = await MessagePopup.alert(
+    'label_delete_account'.l10n,
+    description: [
+      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
+      TextSpan(
+        text: c.myUser.value?.name?.val ??
+            c.myUser.value?.login?.val ??
+            c.myUser.value?.num.val ??
+            'dot'.l10n * 3,
+        style: style.fonts.labelLarge,
+      ),
+      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
+    ],
+  );
+
+  if (result == true) {
+    await c.deleteAccount();
+  }
 }

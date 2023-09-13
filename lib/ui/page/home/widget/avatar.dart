@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:badges/badges.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,8 +30,10 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Widget to build an [Avatar].
 ///
@@ -40,7 +41,7 @@ import '/ui/page/home/widget/retry_image.dart';
 /// [avatar] is not specified.
 class AvatarWidget extends StatelessWidget {
   const AvatarWidget({
-    Key? key,
+    super.key,
     this.avatar,
     this.radius,
     this.maxRadius,
@@ -50,7 +51,8 @@ class AvatarWidget extends StatelessWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
-  }) : super(key: key);
+    this.label,
+  });
 
   /// Creates an [AvatarWidget] from the specified [contact].
   factory AvatarWidget.fromContact(
@@ -84,7 +86,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -101,7 +103,8 @@ class AvatarWidget extends StatelessWidget {
     return Obx(() {
       return AvatarWidget(
         key: key,
-        isOnline: contact.contact.value.users.length == 1 &&
+        isOnline: badge &&
+            contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
         isAway: contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
@@ -120,6 +123,7 @@ class AvatarWidget extends StatelessWidget {
   /// Creates an [AvatarWidget] from the specified [MyUser].
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
+    Key? key,
     double? radius,
     double? maxRadius,
     double? minRadius,
@@ -127,6 +131,7 @@ class AvatarWidget extends StatelessWidget {
     bool badge = true,
   }) =>
       AvatarWidget(
+        key: key,
         isOnline: badge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
@@ -166,7 +171,7 @@ class AvatarWidget extends StatelessWidget {
     double? maxRadius,
     double? minRadius,
     double opacity = 1,
-    bool showBadge = true,
+    bool badge = true,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -182,7 +187,7 @@ class AvatarWidget extends StatelessWidget {
     return Obx(
       () => AvatarWidget(
         key: key,
-        isOnline: showBadge && user.user.value.online == true,
+        isOnline: badge && user.user.value.online == true,
         isAway: user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
         title: user.user.value.name?.val ?? user.user.value.num.val,
@@ -194,6 +199,34 @@ class AvatarWidget extends StatelessWidget {
       ),
     );
   }
+
+  /// Creates an [AvatarWidget] from the specified [chat]-monolog.
+  factory AvatarWidget.fromMonolog(
+    Chat? chat,
+    UserId? me, {
+    Key? key,
+    double? radius,
+    double? maxRadius,
+    double? minRadius,
+    double opacity = 1,
+  }) =>
+      AvatarWidget(
+        key: key,
+        label: LayoutBuilder(
+          builder: (context, constraints) {
+            return SvgImage.asset(
+              'assets/icons/notes.svg',
+              height: constraints.maxWidth / 2,
+            );
+          },
+        ),
+        avatar: chat?.avatar,
+        color: chat?.colorDiscriminant(me).sum(),
+        radius: radius,
+        maxRadius: maxRadius,
+        minRadius: minRadius,
+        opacity: opacity,
+      );
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
@@ -238,6 +271,17 @@ class AvatarWidget extends StatelessWidget {
     }
 
     return Obx(() {
+      if (chat.chat.value.isMonolog) {
+        return AvatarWidget.fromMonolog(
+          chat.chat.value,
+          chat.me,
+          radius: radius,
+          maxRadius: maxRadius,
+          minRadius: minRadius,
+          opacity: opacity,
+        );
+      }
+
       RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
@@ -303,19 +347,8 @@ class AvatarWidget extends StatelessWidget {
   /// [Badge] is displayed only if [isOnline] is `true` as well.
   final bool isAway;
 
-  /// Avatar color swatches.
-  static const List<Color> colors = [
-    Colors.purple,
-    Colors.deepPurple,
-    Colors.indigo,
-    Colors.blue,
-    Colors.cyan,
-    Colors.lightGreen,
-    Colors.lime,
-    Colors.amber,
-    Colors.orange,
-    Colors.deepOrange,
-  ];
+  /// Optional label to show inside this [AvatarWidget].
+  final Widget? label;
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
@@ -345,15 +378,19 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return LayoutBuilder(builder: (context, constraints) {
-      Color gradient;
+      final Color gradient;
 
       if (color != null) {
-        gradient = colors[color! % colors.length];
+        gradient =
+            style.colors.userColors[color! % style.colors.userColors.length];
       } else if (title != null) {
-        gradient = colors[(title!.hashCode) % colors.length];
+        gradient = style.colors
+            .userColors[(title!.hashCode) % style.colors.userColors.length];
       } else {
-        gradient = const Color(0xFF555555);
+        gradient = style.colors.secondaryBackgroundLightest;
       }
 
       double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
@@ -361,65 +398,87 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      double badgeSize = max(5, maxWidth / 12);
-      if (maxWidth < 40) {
-        badgeSize = maxWidth / 8;
-      }
+      final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
 
       return Badge(
-        showBadge: isOnline,
-        badgeContent: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isAway ? Colors.orange : Colors.green,
-          ),
-          padding: EdgeInsets.all(badgeSize),
-        ),
-        padding: EdgeInsets.all(badgeSize / 3),
-        badgeColor: Colors.white,
-        animationType: BadgeAnimationType.scale,
-        position: BadgePosition.bottomEnd(
-          bottom: -badgeSize / 5,
-          end: -badgeSize / 5,
-        ),
-        elevation: 0,
-        child: Container(
-          constraints: BoxConstraints(
-            minHeight: minHeight,
-            minWidth: minWidth,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
+        largeSize: badgeSize * 1.16,
+        isLabelVisible: isOnline,
+        alignment: Alignment.bottomRight,
+        backgroundColor: style.colors.onPrimary,
+        padding: EdgeInsets.all(badgeSize / 12),
+        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
+        label: SizedBox(
+          width: badgeSize,
+          height: badgeSize,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isAway
+                  ? style.colors.warningColor
+                  : style.colors.acceptAuxiliaryColor,
             ),
-            shape: BoxShape.circle,
           ),
-          child: avatar == null
-              ? Center(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: Theme.of(context).textTheme.headline4?.copyWith(
-                          fontSize: 15 * (maxWidth / 40.0),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+        ),
+        child: Stack(
+          children: [
+            Container(
+              margin: const EdgeInsets.all(0.5),
+              constraints: BoxConstraints(
+                minHeight: minHeight,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                maxHeight: maxHeight,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: label ??
+                    SelectionContainer.disabled(
+                      child: Text(
+                        (title ?? '??').initials(),
+                        style: style.fonts.titleSmallOnPrimary.copyWith(
+                          fontSize: style.fonts.bodyMedium.fontSize! *
+                              (maxWidth / 40.0),
                         ),
 
-                    // Disable the accessibility size settings for this [Text].
-                    textScaleFactor: 1,
-                  ),
-                )
-              : ClipOval(
+                        // Disable the accessibility size settings for this [Text].
+                        textScaleFactor: 1,
+                      ),
+                    ),
+              ),
+            ),
+            if (avatar != null)
+              Positioned.fill(
+                child: ClipOval(
                   child: RetryImage(
-                    avatar!.original.url,
+                    maxWidth > 250
+                        ? avatar!.full.url
+                        : maxWidth > 100
+                            ? avatar!.big.url
+                            : maxWidth > 46
+                                ? avatar!.medium.url
+                                : avatar!.small.url,
+                    checksum: maxWidth > 250
+                        ? avatar!.full.checksum
+                        : maxWidth > 100
+                            ? avatar!.big.checksum
+                            : maxWidth > 46
+                                ? avatar!.medium.checksum
+                                : avatar!.small.checksum,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,
+                    displayProgress: false,
                   ),
                 ),
+              ),
+          ],
         ),
       );
     });

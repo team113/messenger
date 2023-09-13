@@ -25,7 +25,9 @@ import '/domain/model/user.dart';
 
 /// Tag representing a [ChatCallEvent] kind.
 enum ChatCallEventKind {
+  answerTimeoutPassed,
   callMoved,
+  conversationStarted,
   declined,
   finished,
   handLowered,
@@ -116,12 +118,12 @@ abstract class ChatCallEvent {
 /// Event of a [ChatCall] being finished.
 class EventChatCallFinished extends ChatCallEvent {
   const EventChatCallFinished(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.reason,
-  ) : super(callId, chatId, at);
+  );
 
   /// Finished [ChatCall].
   final ChatCall call;
@@ -142,11 +144,11 @@ class EventChatCallFinished extends ChatCallEvent {
 /// [ChatCall] by timeout.
 class EventChatCallRoomReady extends ChatCallEvent {
   const EventChatCallRoomReady(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.joinLink,
-  ) : super(callId, chatId, at);
+  );
 
   /// Link for joining the room on a media server.
   final ChatCallRoomJoinLink joinLink;
@@ -158,13 +160,13 @@ class EventChatCallRoomReady extends ChatCallEvent {
 /// Event of a [User] leaving a [ChatCall].
 class EventChatCallMemberLeft extends ChatCallEvent {
   const EventChatCallMemberLeft(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
     this.deviceId,
-  ) : super(callId, chatId, at);
+  );
 
   /// Left [ChatCall].
   final ChatCall call;
@@ -182,13 +184,13 @@ class EventChatCallMemberLeft extends ChatCallEvent {
 /// Event of a [User] joined a [ChatCall].
 class EventChatCallMemberJoined extends ChatCallEvent {
   const EventChatCallMemberJoined(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
     this.deviceId,
-  ) : super(callId, chatId, at);
+  );
 
   /// Joined [ChatCall].
   final ChatCall call;
@@ -206,13 +208,13 @@ class EventChatCallMemberJoined extends ChatCallEvent {
 /// Event of a [User] being redialed in a [ChatCall].
 class EventChatCallMemberRedialed extends ChatCallEvent {
   const EventChatCallMemberRedialed(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
     this.byUser,
-  ) : super(callId, chatId, at);
+  );
 
   /// [ChatCall] the [User] is redialed in.
   final ChatCall call;
@@ -231,12 +233,12 @@ class EventChatCallMemberRedialed extends ChatCallEvent {
 /// Event of a [ChatMember]'s hand being lowered in a [ChatCall].
 class EventChatCallHandLowered extends ChatCallEvent {
   const EventChatCallHandLowered(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
-  ) : super(callId, chatId, at);
+  );
 
   /// [ChatCall] the [ChatMember]'s hand being lowered in.
   final ChatCall call;
@@ -252,16 +254,16 @@ class EventChatCallHandLowered extends ChatCallEvent {
 /// [Chat]-group.
 class EventChatCallMoved extends ChatCallEvent {
   const EventChatCallMoved(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
     this.newChatId,
     this.newChat,
     this.newCallId,
     this.newCall,
-  ) : super(callId, chatId, at);
+  );
 
   /// Moved [ChatCall] in the [Chat]-dialog.
   final ChatCall call;
@@ -288,12 +290,12 @@ class EventChatCallMoved extends ChatCallEvent {
 /// Event of a [ChatMember]'s hand being raised in a [ChatCall].
 class EventChatCallHandRaised extends ChatCallEvent {
   const EventChatCallHandRaised(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
-  ) : super(callId, chatId, at);
+  );
 
   /// [ChatCall] the [ChatMember]'s hand being raised in.
   final ChatCall call;
@@ -308,12 +310,12 @@ class EventChatCallHandRaised extends ChatCallEvent {
 /// Event of a [ChatCall] being declined by a [ChatMember].
 class EventChatCallDeclined extends ChatCallEvent {
   const EventChatCallDeclined(
-    ChatItemId callId,
-    ChatId chatId,
-    PreciseDateTime at,
+    super.callId,
+    super.chatId,
+    super.at,
     this.call,
     this.user,
-  ) : super(callId, chatId, at);
+  );
 
   /// Declined [ChatCall].
   final ChatCall call;
@@ -323,4 +325,52 @@ class EventChatCallDeclined extends ChatCallEvent {
 
   @override
   ChatCallEventKind get kind => ChatCallEventKind.declined;
+}
+
+/// Event of an answer timeout being reached in a [ChatCall].
+class EventChatCallAnswerTimeoutPassed extends ChatCallEvent {
+  const EventChatCallAnswerTimeoutPassed(
+    super.callId,
+    super.chatId,
+    super.at,
+    this.call,
+    this.user,
+    this.userId,
+  );
+
+  /// [ChatCall] where the answer timeout was reached.
+  final ChatCall call;
+
+  /// [User] whose answer timeout was reached.
+  ///
+  /// If `null`, then the answer timeout was reached for all [User]s being
+  /// [ChatMember]s.
+  final User? user;
+
+  /// ID of the [User] whose answer timeout was reached.
+  ///
+  /// If `null`, then the answer timeout was reached for all the [User]s being
+  /// [ChatMember]s.
+  final UserId? userId;
+
+  @override
+  ChatCallEventKind get kind => ChatCallEventKind.answerTimeoutPassed;
+}
+
+/// Event of an audio/video conversation being started in a [ChatCall], meaning
+/// that enough [ChatCallMember]s joined the `Medea` room after ringing had been
+/// finished.
+class EventChatCallConversationStarted extends ChatCallEvent {
+  const EventChatCallConversationStarted(
+    super.callId,
+    super.chatId,
+    super.at,
+    this.call,
+  );
+
+  /// [ChatCall] the conversation started in.
+  final ChatCall call;
+
+  @override
+  ChatCallEventKind get kind => ChatCallEventKind.conversationStarted;
 }

@@ -34,17 +34,17 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -61,8 +61,6 @@ void main() async {
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
   var draftProvider = DraftHiveProvider();
@@ -74,7 +72,7 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
@@ -92,6 +90,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -108,7 +110,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -122,16 +123,15 @@ void main() async {
   };
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.recentChats(
     first: 120,
@@ -142,10 +142,17 @@ void main() async {
 
   when(graphQlProvider.getChat(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-  )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+  )).thenAnswer(
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+  when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
+    (_) => const Stream.empty(),
+  );
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
   AbstractSettingsRepository settingsRepository = Get.put(
@@ -153,6 +160,7 @@ void main() async {
       mediaSettingsProvider,
       applicationSettingsProvider,
       backgroundProvider,
+      callRectProvider,
     ),
   );
 
@@ -164,8 +172,8 @@ void main() async {
   );
   await authService.init();
 
-  UserRepository userRepository = Get.put(
-      UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  UserRepository userRepository =
+      Get.put(UserRepository(graphQlProvider, userProvider));
   CallRepository callRepository = Get.put(
     CallRepository(
       graphQlProvider,
@@ -183,6 +191,8 @@ void main() async {
       draftProvider,
       userRepository,
       sessionProvider,
+      monologProvider,
+      me: const UserId('me'),
     ),
   );
   ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -198,7 +208,7 @@ void main() async {
       ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('me'),
+        User(const UserId('me'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       ),
@@ -221,7 +231,7 @@ void main() async {
       () async => await chatService.deleteChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('me'),
+        User(const UserId('me'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       )),
@@ -243,7 +253,7 @@ void main() async {
     await chatService.hideChatItem(ChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('me'),
+      User(const UserId('me'), UserNum('1234123412341234')),
       PreciseDateTime.now(),
       status: SendingStatus.sent,
     ));
@@ -266,7 +276,7 @@ void main() async {
       () async => await chatService.hideChatItem(ChatMessage(
         const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const UserId('me'),
+        User(const UserId('me'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         status: SendingStatus.sent,
       )),

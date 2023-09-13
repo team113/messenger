@@ -19,19 +19,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart'
-    show RecoverUserPasswordErrorCode;
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -39,13 +35,16 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/login/view.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/platform_utils.dart';
 import 'password_recovery_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
   Hive.init('./test/.temp_hive/password_recovery');
@@ -61,8 +60,6 @@ void main() async {
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   var userProvider = UserHiveProvider();
@@ -80,7 +77,6 @@ void main() async {
   testWidgets('LoginView successfully recovers account access',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
-    Get.put(galleryItemProvider);
     Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -98,14 +94,6 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    when(
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-    ).thenAnswer((_) => Future.value());
-    when(
-      graphQlProvider.recoverUserPassword(
-          UserLogin('emptyuser'), null, null, null),
-    ).thenAnswer((_) => throw const RecoverUserPasswordException(
-        RecoverUserPasswordErrorCode.unknownUser));
     when(
       graphQlProvider.validateUserPasswordRecoveryCode(
           UserLogin('login'), null, null, null, ConfirmationCode('1234')),
@@ -126,16 +114,6 @@ void main() async {
 
     final usernameField = find.byKey(const Key('RecoveryField'));
     expect(usernameField, findsOneWidget);
-
-    await tester.enterText(usernameField, 'emptyuser');
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('Proceed')));
-    await tester.pumpAndSettle();
-    await tester.pump(const Duration(seconds: 1));
-
-    final noCodeField = find.byKey(const ValueKey('RecoveryCodeField'));
-    expect(noCodeField, findsNothing);
 
     await tester.enterText(usernameField, 'login');
     await tester.pumpAndSettle();

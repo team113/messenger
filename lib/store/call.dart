@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
@@ -31,12 +32,11 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
-import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
@@ -52,6 +52,9 @@ class CallRepository extends DisposableInterface
     this._settingsRepo, {
     required this.me,
   });
+
+  /// Callback, called when the provided [Chat] should be remotely accessible.
+  Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
 
   @override
   RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
@@ -193,6 +196,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
+    // TODO: Call should be displayed right away.
+    if (chatId.isLocal && ensureRemoteDialog != null) {
+      chatId = (await ensureRemoteDialog!.call(chatId))!.id;
+    }
+
     if (calls[chatId] != null) {
       throw CallAlreadyExistsException();
     }
@@ -311,8 +319,29 @@ class CallRepository extends DisposableInterface
       _graphQlProvider.toggleChatCallHand(chatId, raised);
 
   @override
-  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) =>
-      _graphQlProvider.redialChatCallMember(chatId, memberId);
+  Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
+    final Rx<OngoingCall>? ongoing = calls[chatId];
+    final CallMemberId id = CallMemberId(memberId, null);
+
+    if (ongoing != null) {
+      if (ongoing.value.members.keys.none((e) => e.userId == memberId)) {
+        ongoing.value.members[id] =
+            CallMember(id, null, isConnected: false, isDialing: true);
+      }
+    }
+
+    try {
+      await _graphQlProvider.redialChatCallMember(chatId, memberId);
+    } catch (_) {
+      ongoing?.value.members.remove(id);
+    }
+  }
+
+  @override
+  Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
+    // TODO: Implement optimism, if possible.
+    await _graphQlProvider.removeChatCallMember(chatId, userId);
+  }
 
   @override
   Future<void> transformDialogCallIntoGroupCall(
@@ -372,13 +401,13 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
-  ) async {
-    return (await _graphQlProvider.callEvents(id, deviceId))
+  ) {
+    return _graphQlProvider
+        .callEvents(id, deviceId)
         .asyncExpand((event) async* {
-      GraphQlProviderExceptions.fire(event);
       var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -402,10 +431,10 @@ class CallRepository extends DisposableInterface
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
-  Future<Stream<IncomingChatCallsTopEvent>> _incomingEvents(int count) async =>
-      (await _graphQlProvider.incomingCallsTopEvents(count))
+  Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) =>
+      _graphQlProvider
+          .incomingCallsTopEvents(count)
           .asyncExpand((event) async* {
-        GraphQlProviderExceptions.fire(event);
         var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
             .incomingChatCallsTopEvents;
 
@@ -498,6 +527,20 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.byUser.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+      var node = e
+          as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      for (var m in node.call.members) {
+        _userRepo.put(m.user.toHive());
+      }
+      return EventChatCallAnswerTimeoutPassed(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.call.toModel(),
+        node.nUser?.toModel(),
+        node.userId,
+      );
     } else if (e.$$typename == 'EventChatCallHandLowered') {
       var node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;
@@ -554,6 +597,18 @@ class CallRepository extends DisposableInterface
         node.call.toModel(),
         node.user.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+      var node = e
+          as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      for (var m in node.call.members) {
+        _userRepo.put(m.user.toHive());
+      }
+      return EventChatCallConversationStarted(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.call.toModel(),
+      );
     } else {
       throw UnimplementedError('Unknown ChatCallEvent: ${e.$$typename}');
     }
@@ -583,9 +638,9 @@ class CallRepository extends DisposableInterface
   }
 
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
-  void _subscribe(int count) async {
+  void _subscribe(int count) {
     _events?.cancel();
-    _events = (await _incomingEvents(count)).listen(
+    _events = _incomingEvents(count).listen(
       (e) async {
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:
@@ -614,13 +669,8 @@ class CallRepository extends DisposableInterface
             break;
         }
       },
-      onError: (e) {
-        if (e is ResubscriptionRequiredException) {
-          _subscribe(count);
-        } else {
-          Log.print(e.toString(), 'CallService');
-          throw e;
-        }
+      onError: (_) {
+        // No-op.
       },
     );
   }

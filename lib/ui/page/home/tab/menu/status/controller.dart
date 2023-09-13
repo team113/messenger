@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -32,6 +33,9 @@ class StatusController extends GetxController {
 
   /// Selected [Presence].
   final Rx<Presence?> presence = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// [MyUser.status]'s field state.
   late final TextFieldState status;

@@ -23,42 +23,52 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/media_utils.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
 /// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
-  OutputSwitchController(this._call, this._settingsRepository);
-
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  OutputSwitchController(this._settingsRepository, {String? output})
+      : output = RxnString(output);
 
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-  /// Returns ID of the currently used video device.
-  RxnString get output => _call.value.outputDevice;
+  /// ID of the initially selected audio output device.
+  RxnString output;
+
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
+  StreamSubscription? _devicesSubscription;
 
   @override
-  void onInit() {
-    _call.value.setAudioEnabled(true);
+  void onInit() async {
+    _devicesSubscription = MediaUtils.onDeviceChange.listen(
+      (e) => devices.value = e.output().toList(),
+    );
+
+    // Output devices are permitted to be use when requesting a microphone
+    // permission.
+    await WebUtils.microphonePermission();
+    devices.value =
+        await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
+
     super.onInit();
   }
 
   @override
   void onClose() {
-    _call.value.setAudioEnabled(false);
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default output device.
   Future<void> setOutputDevice(String id) async {
-    await Future.wait([
-      _call.value.setOutputDevice(id),
-      _settingsRepository.setOutputDevice(id),
-    ]);
+    await _settingsRepository.setOutputDevice(id);
   }
 }

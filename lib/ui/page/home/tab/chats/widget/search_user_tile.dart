@@ -25,6 +25,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
 /// [ContactTile] intended to be used as a search result representing the
@@ -48,21 +49,22 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
-      final ChatId? chatId = user?.user.value.dialog?.id ??
-          contact?.user.value?.user.value.dialog?.id;
+      final ChatId? chatId =
+          user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
 
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
       final bool selected = router.routes.lastWhereOrNull((e) =>
-              e.startsWith('${Routes.chat}/$chatId') ||
+              e.startsWith('${Routes.chats}/$chatId') ||
               e.startsWith('${Routes.user}/$userId')) !=
           null;
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ContactTile(
-          key: key,
           contact: contact,
           user: user,
           darken: 0,
@@ -75,8 +77,24 @@ class SearchUserTile extends StatelessWidget {
                 RegExp(r'.{4}'),
                 (match) => '${match.group(0)} ',
               )}',
-              style: const TextStyle(color: Color(0xFF888888)),
+              style: selected
+                  ? style.fonts.labelMediumOnPrimary
+                  : style.fonts.labelMediumSecondary,
             ),
+          ],
+          trailing: [
+            if (user?.user.value.isBlocked != null ||
+                contact?.user.value?.user.value.isBlocked != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.block,
+                  color: selected
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
+                  size: 20,
+                ),
+              )
           ],
         ),
       );

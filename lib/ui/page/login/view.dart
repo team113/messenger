@@ -20,76 +20,68 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'widget/primary_button.dart';
 
 /// View for logging in or recovering access on.
 ///
 /// Intended to be displayed with the [show] method.
 class LoginView extends StatelessWidget {
-  const LoginView({Key? key}) : super(key: key);
+  const LoginView({super.key, this.initial, this.onSuccess});
+
+  /// Initial [LoginViewStage] this [LoginView] should open.
+  final LoginViewStage? initial;
+
+  /// Callback, called when this [LoginView] successfully signs into an account.
+  ///
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const LoginView());
+  static Future<T?> show<T>(
+    BuildContext context, {
+    LoginViewStage? initial,
+    void Function()? onSuccess,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: LoginView(initial: initial, onSuccess: onSuccess),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextTheme theme = Theme.of(context).textTheme;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('LoginView'),
-      init: LoginController(Get.find()),
+      init: LoginController(
+        Get.find(),
+        initial: initial,
+        onSuccess: onSuccess,
+      ),
       builder: (LoginController c) {
         return Obx(() {
           final Widget header;
           final List<Widget> children;
 
-          // Returns a primary styled [OutlinedRoundedButton].
-          Widget primaryButton({
-            Key? key,
-            String? title,
-            VoidCallback? onPressed,
-          }) {
-            return OutlinedRoundedButton(
-              key: key,
-              maxWidth: double.infinity,
-              title: Text(
-                title ?? '',
-                style: TextStyle(
-                  color: onPressed == null ? Colors.black : Colors.white,
-                ),
-              ),
-              onPressed: onPressed,
-              color: Theme.of(context).colorScheme.secondary,
-            );
-          }
-
           switch (c.stage.value) {
             case LoginViewStage.recovery:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'label_recover_account'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_recover_account'.l10n,
               );
 
               children = [
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: theme.headline3?.copyWith(
-                    fontSize: 15,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  style: style.fonts.labelLargeSecondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -98,7 +90,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_sign_in_input'.l10n,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed:
@@ -111,21 +103,13 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recoveryCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'label_recover_account'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_recover_account'.l10n,
               );
 
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: theme.headline3?.copyWith(
-                    fontSize: 15,
-                    color: const Color(0xFF888888),
-                  ),
+                  style: style.fonts.labelLargeSecondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -135,7 +119,7 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.recoveryCode.isEmpty.value
@@ -149,21 +133,13 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.recoveryPassword:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = null,
-                header: Center(
-                  child: Text(
-                    'label_recover_account'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_recover_account'.l10n,
               );
 
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: theme.headline3?.copyWith(
-                    fontSize: 15,
-                    color: const Color(0xFF888888),
-                  ),
+                  style: style.fonts.labelLargeSecondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -173,7 +149,7 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -186,13 +162,13 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
                   onPressed: c.newPassword.isEmpty.value ||
@@ -204,14 +180,32 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signUpOrSignIn:
+              header = ModalPopupHeader(text: 'label_sign_in'.l10n);
+
+              children = [
+                PrimaryButton(
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {
+                    c.fallback = c.stage.value;
+                    c.stage.value = null;
+                  },
+                ),
+                const SizedBox(height: 25 / 2),
+                PrimaryButton(
+                  title: 'btn_one_time_account'.l10n,
+                  onPressed: c.register,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
             default:
               header = ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_entrance'.l10n,
-                    style: theme.headline3?.copyWith(fontSize: 18),
-                  ),
-                ),
+                text: 'label_entrance'.l10n,
+                onBack: c.fallback == null
+                    ? null
+                    : () => c.stage.value = c.fallback,
               );
 
               children = [
@@ -220,10 +214,7 @@ class LoginView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
                     child: Text(
                       'label_password_changed'.l10n,
-                      style: theme.headline3?.copyWith(
-                        fontSize: 15,
-                        color: const Color(0xFF888888),
-                      ),
+                      style: style.fonts.labelLargeSecondary,
                     ),
                   ),
                 const SizedBox(height: 12),
@@ -244,14 +235,11 @@ class LoginView extends StatelessWidget {
                       obscure: c.obscurePassword.value,
                       onSuffixPressed: c.obscurePassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgLoader.asset(
+                      trailing: SvgImage.asset(
                         'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                         width: 17.07,
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-                      child: WidgetButton(
+                      subtitle: WidgetButton(
                         onPressed: () {
                           c.recovery.clear();
                           c.recoveryCode.clear();
@@ -263,14 +251,14 @@ class LoginView extends StatelessWidget {
                         },
                         child: Text(
                           'btn_forgot_password'.l10n,
-                          style: const TextStyle(color: Color(0xFF00A3FF)),
+                          style: style.fonts.bodySmallPrimary,
                         ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 25),
-                primaryButton(
+                PrimaryButton(
                   key: const Key('LoginButton'),
                   title: 'btn_login'.l10n,
                   onPressed: c.signIn,
@@ -286,16 +274,20 @@ class LoginView extends StatelessWidget {
             fadeInCurve: Curves.easeOut,
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
-            child: ListView(
-              key: Key('${c.stage.value}'),
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map((e) =>
-                    Padding(padding: ModalPopup.padding(context), child: e)),
-                const SizedBox(height: 12),
-              ],
+            child: Scrollbar(
+              controller: c.scrollController,
+              child: ListView(
+                controller: c.scrollController,
+                key: Key('${c.stage.value}'),
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           );
         });

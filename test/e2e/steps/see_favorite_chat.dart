@@ -27,6 +27,7 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I see "Example" chat as favorite
+/// - Then I see "Example" chat as unfavorite
 final StepDefinitionGeneric seeChatAsFavorite =
     then2<String, FavoriteStatus, CustomWorld>(
   'I see {string} chat as {favorite}',

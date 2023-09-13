@@ -21,16 +21,18 @@ query GetAttachments($id: ChatItemId!) {
             __typename
             ... on ChatMessage {
                 repliesTo {
-                    node {
-                        __typename
-                        ... on ChatMessage {
-                            attachments {
-                                __typename
-                                ... on ImageAttachment {
-                                    ...ImageAttachment
-                                }
-                                ... on FileAttachment {
-                                    ...FileAttachment
+                    original {
+                        node {
+                            __typename
+                            ... on ChatMessage {
+                                attachments {
+                                    __typename
+                                    ... on ImageAttachment {
+                                        ...ImageAttachment
+                                    }
+                                    ... on FileAttachment {
+                                        ...FileAttachment
+                                    }
                                 }
                             }
                         }
@@ -47,18 +49,16 @@ query GetAttachments($id: ChatItemId!) {
                 }
             }
             ... on ChatForward {
-                item {
-                    node {
-                        __typename
-                        ... on ChatMessage {
-                            attachments {
-                                __typename
-                                ... on ImageAttachment {
-                                    ...ImageAttachment
-                                }
-                                ... on FileAttachment {
-                                    ...FileAttachment
-                                }
+                quote {
+                    __typename
+                    ... on ChatMessageQuote {
+                        attachments {
+                            __typename
+                            ... on ImageAttachment {
+                                ...ImageAttachment
+                            }
+                            ... on FileAttachment {
+                                ...FileAttachment
                             }
                         }
                     }

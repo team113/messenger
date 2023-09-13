@@ -22,6 +22,8 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
+import '/themes.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
@@ -31,20 +33,20 @@ import '/util/platform_utils.dart';
 class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
-    Key? key,
-    this.source = MediaSourceKind.Device,
+    super.key,
+    this.source = MediaSourceKind.device,
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
     this.label,
     this.mirror = false,
     this.muted = false,
-    this.outline,
+    this.border,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
     this.framelessBuilder,
-  }) : super(key: key);
+  });
 
   /// Renderer to display WebRTC video stream from.
   final RtcVideoRenderer renderer;
@@ -86,8 +88,8 @@ class RtcVideoView extends StatefulWidget {
   /// Only effective under the web, since only web has default context menu.
   final bool enableContextMenu;
 
-  /// Optional outline of this video.
-  final Color? outline;
+  /// Optional border to apply to this [RtcVideoView].
+  final Border? border;
 
   /// Calculates an optimal [BoxFit] mode for the provided [renderer].
   static BoxFit determineBoxFit(
@@ -96,7 +98,7 @@ class RtcVideoView extends StatefulWidget {
     BoxConstraints constraints,
     BuildContext context,
   ) {
-    if (source == MediaSourceKind.Display ||
+    if (source == MediaSourceKind.display ||
         (renderer.width == 0 && renderer.height == 0)) {
       return BoxFit.contain;
     } else {
@@ -177,12 +179,15 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
       mirror: widget.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
+      autoRotate: !widget.mirror,
     );
 
     // Wait for the size to be determined if necessary.
@@ -193,7 +198,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           children: [
             Offstage(child: video),
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CircularProgressIndicator())
+            const Center(child: CustomProgressIndicator(size: 64))
           ],
         );
       }
@@ -212,7 +217,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           return Stack(
             children: [
               Offstage(child: video),
-              const Center(child: CircularProgressIndicator())
+              const Center(child: CustomProgressIndicator(size: 64))
             ],
           );
         }
@@ -243,18 +248,19 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // [aspected] otherwise.
     Widget clipped(BoxFit? fit) => widget.borderRadius == null
         ? aspected(fit)
-        : ClipRRect(borderRadius: widget.borderRadius, child: aspected(fit));
+        : ClipRRect(
+            borderRadius: widget.borderRadius ?? BorderRadius.zero,
+            child: aspected(fit),
+          );
 
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
-    Widget outlined(BoxFit? fit) => Container(
-          decoration: widget.outline == null
-              ? null
-              : BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(color: widget.outline!),
-                  borderRadius: widget.borderRadius,
-                ),
+    Widget outlined(BoxFit? fit) => AnimatedContainer(
+          duration: 200.milliseconds,
+          decoration: BoxDecoration(
+            border: widget.border,
+            borderRadius: widget.borderRadius?.add(BorderRadius.circular(4)),
+          ),
           child: clipped(fit),
         );
 
@@ -263,7 +269,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         RtcVideoRenderer renderer = widget.renderer;
 
         BoxFit? fit;
-        if (widget.source != MediaSourceKind.Display) {
+        if (widget.source != MediaSourceKind.display) {
           fit = widget.fit;
         }
 
@@ -288,7 +294,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                       margin: const EdgeInsets.only(bottom: 7),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        color: const Color(0xDD818181),
+                        color: style.colors.secondaryOpacity87,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -296,7 +302,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                         children: [
                           if (widget.muted) const SizedBox(width: 1),
                           if (widget.muted)
-                            SvgLoader.asset(
+                            const SvgImage.asset(
                               'assets/icons/microphone_off_small.svg',
                               width: 11,
                             ),
@@ -306,17 +312,12 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                               child: widget.label != null
                                   ? Padding(
                                       padding: EdgeInsets.only(
-                                          left: widget.muted ? 6 : 1),
+                                        left: widget.muted ? 6 : 1,
+                                      ),
                                       child: Text(
                                         widget.label!,
-                                        style: context.theme.outlinedButtonTheme
-                                            .style!.textStyle!
-                                            .resolve({
-                                          MaterialState.disabled
-                                        })!.copyWith(
-                                          fontSize: 13,
-                                          color: Colors.white,
-                                        ),
+                                        style:
+                                            style.fonts.headlineSmallOnPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),

@@ -28,52 +28,73 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '../mock/overflow_error.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
+import 'parameters/availability_status.dart';
 import 'parameters/download_status.dart';
+import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
+import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
 import 'parameters/position_status.dart';
 import 'parameters/search_category.dart';
+import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
-import 'steps/contact_is_favorite.dart';
 import 'steps/contact.dart';
+import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
+import 'steps/drag_chat.dart';
+import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
+import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
+import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
+import 'steps/popup_windows.dart';
 import 'steps/restart_app.dart';
+import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
+import 'steps/scroll_until.dart';
+import 'steps/see_chat_avatar.dart';
+import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
+import 'steps/see_chat_selection.dart';
 import 'steps/see_contact_position.dart';
+import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
+import 'steps/see_favorite_monolog.dart';
 import 'steps/see_search_results.dart';
 import 'steps/sees_as_online.dart';
+import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
+import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/tap_chat.dart';
+import 'steps/tap_chat_in_search_view.dart';
+import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_message.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -85,7 +106,10 @@ import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
 import 'steps/wait_until_attachment_fetched.dart';
 import 'steps/wait_until_attachment_status.dart';
+import 'steps/wait_until_chat.dart';
+import 'steps/wait_until_contact.dart';
 import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
@@ -101,10 +125,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
-        contactIsFavorite,
+        checkCopyText,
         contact,
+        contactIsFavorite,
         copyFromField,
         downloadFile,
+        dragChatDown,
+        dragContactDown,
         fillField,
         fillFieldN,
         goToUserPage,
@@ -115,31 +142,49 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
+        iAmInMonolog,
+        iTapChatWith,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
         longPressWidget,
+        monologAvailability,
         noInternetConnection,
         openChatInfo,
         pasteToField,
+        popupWindows,
         restartApp,
         returnToPreviousPage,
+        rightClickWidget,
         scrollAndSee,
+        scrollUntilPresent,
         seeChatAsFavorite,
         seeChatAsMuted,
+        seeChatAvatarAs,
+        seeChatAvatarAsNone,
         seeChatInSearchResults,
-        seeChatPosition,
+        seeChatMessages,
+        seeChatSelection,
         seeContactAsFavorite,
         seeContactPosition,
+        seeContactSelection,
         seeDraftInDialog,
+        seeFavoriteChatPosition,
+        seeMonologAsFavorite,
         seeUserInSearchResults,
         seesAs,
+        seesDialogWithMe,
+        seesNoDialogWithMe,
+        selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,
         sendsMessageWithException,
         signInAs,
+        tapChat,
+        tapContact,
         tapDropdownItem,
+        tapMessage,
         tapText,
         tapUserInSearchResults,
         tapWidget,
@@ -147,6 +192,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         twoUsers,
         untilAttachmentExists,
         untilAttachmentFetched,
+        untilChatExists,
+        untilContactExists,
+        untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
         updateAvatar,
@@ -176,14 +224,18 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        AvailabilityStatusParameter(),
         DownloadStatusParameter(),
+        EnabledParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
+        IterableAmountParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
         SearchCategoryParameter(),
+        SelectionStatusParameter(),
         SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
@@ -192,14 +244,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  FlutterError.onError = ignoreOverflowErrors;
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
   return Future.sync(app.main);
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<Session> createUser(
+Future<CustomUser> createUser(
   TestUser user,
   CustomWorld world, {
   UserPassword? password,
@@ -207,7 +258,7 @@ Future<Session> createUser(
   final provider = GraphQlProvider();
   final result = await provider.signUp();
 
-  world.sessions[user.name] = CustomUser(
+  final CustomUser customUser = CustomUser(
     Session(
       result.createUser.session.token,
       result.createUser.session.expireAt,
@@ -216,16 +267,16 @@ Future<Session> createUser(
     result.createUser.user.num,
   );
 
+  world.sessions[user.name] = customUser;
+
   provider.token = result.createUser.session.token;
   await provider.updateUserName(UserName(user.name));
   if (password != null) {
     await provider.updateUserPassword(null, password);
   }
   provider.disconnect();
-  return Session(
-    result.createUser.session.token,
-    result.createUser.session.expireAt,
-  );
+
+  return customUser;
 }
 
 /// Extension adding an ability to find the [Widget]s without skipping the

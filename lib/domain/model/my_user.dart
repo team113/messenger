@@ -23,7 +23,6 @@ import '/domain/model/avatar.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
-import 'image_gallery_item.dart';
 import 'mute_duration.dart';
 import 'user.dart';
 
@@ -37,13 +36,11 @@ class MyUser extends HiveObject {
     required this.num,
     this.login,
     this.name,
-    this.bio,
     this.hasPassword = false,
     required this.emails,
     required this.phones,
     this.chatDirectLink,
     this.unreadChatsCount = 0,
-    this.gallery,
     this.status,
     this.callCover,
     this.avatar,
@@ -83,15 +80,11 @@ class MyUser extends HiveObject {
   @HiveField(3)
   UserName? name;
 
-  /// Arbitrary descriptive information about this [MyUser].
-  @HiveField(4)
-  UserBio? bio;
-
   /// Indicator whether this [MyUser] has a password.
   ///
   /// Password allows [MyUser] to perform a sign-in, when combined with a
   /// [login], [num], [emails] or [phones].
-  @HiveField(5)
+  @HiveField(4)
   bool hasPassword;
 
   /// List of already confirmed email addresses.
@@ -99,7 +92,7 @@ class MyUser extends HiveObject {
   /// Any confirmed email address can be used in combination with
   /// password to sign-in a [MyUser].
   /// All confirmed email addresses can be used for a password recovery.
-  @HiveField(6)
+  @HiveField(5)
   final MyUserEmails emails;
 
   /// List of already confirmed phone numbers.
@@ -107,35 +100,31 @@ class MyUser extends HiveObject {
   /// Any confirmed phone number can be used in combination with
   /// password to sign-in a [MyUser].
   /// All confirmed phone numbers can be used for a password recovery.
-  @HiveField(7)
+  @HiveField(6)
   MyUserPhones phones;
 
-  /// [ImageGalleryItem]s of this [MyUser].
-  @HiveField(8)
-  List<ImageGalleryItem>? gallery;
-
   /// Count of the unread Chats of this [MyUser].
-  @HiveField(9)
+  @HiveField(7)
   int unreadChatsCount;
 
   /// [ChatDirectLink] to the `Chat` with this [MyUser].
-  @HiveField(10)
+  @HiveField(8)
   ChatDirectLink? chatDirectLink;
 
   /// Custom text status of this [MyUser].
-  @HiveField(11)
+  @HiveField(9)
   UserTextStatus? status;
 
   /// Call cover of this [MyUser].
-  @HiveField(12)
+  @HiveField(10)
   UserCallCover? callCover;
 
   /// Avatar of this [MyUser].
-  @HiveField(13)
+  @HiveField(11)
   UserAvatar? avatar;
 
   /// Presence of this [MyUser].
-  @HiveField(14)
+  @HiveField(12)
   int presenceIndex;
 
   Presence get presence => Presence.values[presenceIndex];
@@ -144,11 +133,11 @@ class MyUser extends HiveObject {
   }
 
   /// Online state of this [MyUser].
-  @HiveField(15)
+  @HiveField(13)
   bool online;
 
   /// Mute duration of this [MyUser].
-  @HiveField(16)
+  @HiveField(14)
   MuteDuration? muted;
 }
 

@@ -19,7 +19,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/user.dart';
+import '/domain/model/user.dart';
+import 'chat.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -62,18 +63,21 @@ abstract class AbstractUserRepository {
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id);
 
-  /// Blacklists the specified [User] for the authenticated [MyUser].
-  Future<void> blacklistUser(UserId id);
+  /// Blocks the specified [User] for the authenticated [MyUser].
+  Future<void> blockUser(UserId id, BlocklistReason? reason);
 
-  /// Removes the specified [User] from the blacklist of the authenticated
+  /// Removes the specified [User] from the blocklist of the authenticated
   /// [MyUser].
-  Future<void> unblacklistUser(UserId id);
+  Future<void> unblockUser(UserId id);
 }
 
 /// Unified reactive [User] entity.
 abstract class RxUser {
   /// Returns reactive value of the [User] this [RxUser] represents.
   Rx<User> get user;
+
+  /// Returns reactive value of the [RxChat]-dialog with this [RxUser].
+  Rx<RxChat?> get dialog;
 
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;

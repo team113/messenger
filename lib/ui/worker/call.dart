@@ -18,26 +18,26 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:callkeep/callkeep.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vibration/vibration.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
+import '/util/audio_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -50,20 +50,21 @@ class CallWorker extends DisposableService {
     this._background,
     this._callService,
     this._chatService,
+    this._myUserService,
     this._notificationService,
   );
 
   /// [BackgroundWorker] used to get data from its service.
   final BackgroundWorker _background;
 
-  /// [AudioPlayer] currently playing an audio.
-  AudioPlayer? _audioPlayer;
-
   /// [CallService] used to get reactive changes of [OngoingCall]s.
   final CallService _callService;
 
   /// [ChatService] used to get the [Chat] an [OngoingCall] is happening in.
   final ChatService _chatService;
+
+  /// [MyUserService] used to get [MyUser.muted] status.
+  final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
@@ -90,24 +91,40 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] to the data coming from the [_background] service.
   StreamSubscription? _onDataReceived;
 
+  /// [StreamSubscription] for canceling the [_outgoing] sound playing.
+  StreamSubscription? _outgoingAudio;
+
+  /// [StreamSubscription] for canceling the [_incoming] sound playing.
+  StreamSubscription? _incomingAudio;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get _myUser => _myUserService.myUser;
+
+  /// Returns the name of an incoming call sound asset.
+  String get _incoming =>
+      PlatformUtils.isWeb ? 'chinese-web.mp3' : 'chinese.mp3';
+
+  /// Returns the name of an outgoing call sound asset.
+  String get _outgoing => 'ringing.mp3';
+
   @override
   void onInit() {
-    _initAudio();
+    AudioUtils.ensureInitialized();
     _initBackgroundService();
     _initWebUtils();
 
     bool wakelock = _callService.calls.isNotEmpty;
-    if (wakelock) {
-      Wakelock.enable().onError((_, __) => false);
+    if (wakelock && !PlatformUtils.isLinux) {
+      WakelockPlus.enable().onError((_, __) => false);
     }
 
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
-        Wakelock.enable().onError((_, __) => false);
+        WakelockPlus.enable().onError((_, __) => false);
       } else if (wakelock && _callService.calls.isEmpty) {
         wakelock = false;
-        Wakelock.disable().onError((_, __) => false);
+        WakelockPlus.disable().onError((_, __) => false);
       }
 
       switch (event.op) {
@@ -126,9 +143,9 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (calling) {
-              play('ringing.mp3');
+              play(_outgoing);
             } else if (!PlatformUtils.isMobile || isInForeground) {
-              play('chinese.mp3');
+              play(_incoming, fade: true);
               Vibration.hasVibrator().then((bool? v) {
                 _vibrationTimer?.cancel();
 
@@ -169,19 +186,21 @@ class CallWorker extends DisposableService {
                     !isInForeground && !(await _callKeep.hasPhoneAccount());
               }
 
-              if (showNotification) {
+              if (showNotification && _myUser.value?.muted == null) {
                 _chatService.get(c.chatId.value).then((RxChat? chat) {
-                  String? title = chat?.title.value ??
-                      c.caller?.name?.val ??
-                      c.caller?.num.val;
+                  if (chat?.chat.value.muted == null) {
+                    String? title = chat?.title.value ??
+                        c.caller?.name?.val ??
+                        c.caller?.num.val;
 
-                  _notificationService.show(
-                    title ?? 'label_incoming_call'.l10n,
-                    body: title == null ? null : 'label_incoming_call'.l10n,
-                    payload: '${Routes.chat}/${c.chatId}',
-                    icon: chat?.avatar.value?.original.url,
-                    playSound: false,
-                  );
+                    _notificationService.show(
+                      title ?? 'label_incoming_call'.l10n,
+                      body: title == null ? null : 'label_incoming_call'.l10n,
+                      payload: '${Routes.chats}/${c.chatId}',
+                      icon: chat?.avatar.value?.original.url,
+                      playSound: false,
+                    );
+                  }
                 });
               }
             }
@@ -261,12 +280,8 @@ class CallWorker extends DisposableService {
 
   @override
   void onClose() {
-    _audioPlayer?.dispose();
-
-    [
-      AudioCache.instance.loadedFiles['audio/ringing.mp3'],
-      AudioCache.instance.loadedFiles['audio/chinese.mp3'],
-    ].whereNotNull().forEach(AudioCache.instance.clear);
+    _outgoingAudio?.cancel();
+    _incomingAudio?.cancel();
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -283,19 +298,24 @@ class CallWorker extends DisposableService {
   }
 
   /// Plays the given [asset].
-  Future<void> play(String asset) async {
-    runZonedGuarded(() async {
-      await _audioPlayer?.setReleaseMode(ReleaseMode.loop);
-      await _audioPlayer?.play(
-        AssetSource('audio/$asset'),
-        position: Duration.zero,
-        mode: PlayerMode.mediaPlayer,
-      );
-    }, (e, _) {
-      if (!e.toString().contains('NotAllowedError')) {
-        throw e;
+  Future<void> play(String asset, {bool fade = false}) async {
+    if (_myUser.value?.muted == null) {
+      if (asset == _incoming) {
+        final previous = _incomingAudio;
+        _incomingAudio = AudioUtils.play(
+          AudioSource.asset('audio/$asset'),
+          fade: fade ? 1.seconds : Duration.zero,
+        );
+        previous?.cancel();
+      } else {
+        final previous = _outgoingAudio;
+        _outgoingAudio = AudioUtils.play(
+          AudioSource.asset('audio/$asset'),
+          fade: fade ? 1.seconds : Duration.zero,
+        );
+        previous?.cancel();
       }
-    });
+    }
   }
 
   /// Stops the audio that is currently playing.
@@ -305,20 +325,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
-    await _audioPlayer?.setReleaseMode(ReleaseMode.release);
-    await _audioPlayer?.stop();
-    await _audioPlayer?.release();
-  }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer();
-      await AudioCache.instance
-          .loadAll(['audio/ringing.mp3', 'audio/chinese.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
-    }
+    _incomingAudio?.cancel();
+    _outgoingAudio?.cancel();
   }
 
   /// Initializes a connection to the [_background] worker.

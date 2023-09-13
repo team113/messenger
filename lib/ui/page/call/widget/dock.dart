@@ -31,7 +31,7 @@ import 'animated_transition.dart';
 /// Reorderable [Row] of provided [items].
 class Dock<T extends Object> extends StatefulWidget {
   const Dock({
-    Key? key,
+    super.key,
     required this.items,
     required this.itemBuilder,
     this.onReorder,
@@ -40,7 +40,7 @@ class Dock<T extends Object> extends StatefulWidget {
     this.onDragEnded,
     this.onLeave,
     this.onWillAccept,
-  }) : super(key: key);
+  });
 
   /// Items this [Dock] reorders.
   final List<T> items;
@@ -350,7 +350,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           ),
         ),
       );
-      Overlay.of(context)?.insert(_entry!);
+      Overlay.of(context).insert(_entry!);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _removeOverlay();
@@ -485,7 +485,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       builder: (_) => AnimatedTransition(
         beginRect: beginRect,
         endRect: endRect,
-        animationDuration: jumpDuration,
+        duration: jumpDuration,
         onEnd: () {
           onEnd();
           _removeOverlay();
@@ -494,7 +494,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       ),
     );
 
-    Overlay.of(context)?.insert(_entry!);
+    Overlay.of(context).insert(_entry!);
   }
 
   /// Removes the [_entry].

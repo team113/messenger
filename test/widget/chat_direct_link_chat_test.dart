@@ -39,13 +39,14 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -53,19 +54,21 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/info/view.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_direct_link_chat_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_direct_link_widget');
 
@@ -85,7 +88,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -111,7 +113,7 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
@@ -119,12 +121,17 @@ void main() async {
   );
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
   AuthService authService =
@@ -134,9 +141,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -162,12 +166,21 @@ void main() async {
   await chatItemHiveProvider.clear();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
       theme: Themes.light(),
-      home: Scaffold(body: child),
+      home: Builder(
+        builder: (context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
     );
   }
 
@@ -175,18 +188,18 @@ void main() async {
       (WidgetTester tester) async {
     BigInt ver = BigInt.one;
     when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatVersion('0'),
-    )).thenAnswer((_) => Future.value(chatEvents.stream));
+      any,
+    )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+        .thenAnswer(
+            (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.recentChats(
       first: 120,
@@ -199,7 +212,7 @@ void main() async {
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
 
     when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.createChatDirectLink(any,
             groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
@@ -253,8 +266,8 @@ void main() async {
       },
     );
 
-    when(graphQlProvider.contactsEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.contactsEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -266,16 +279,17 @@ void main() async {
             }
           },
         )
-      ])),
+      ]),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
     AbstractCallRepository callRepository = CallRepository(
@@ -293,12 +307,14 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       contactProvider,
-      UserRepository(graphQlProvider, userProvider, galleryItemProvider),
+      UserRepository(graphQlProvider, userProvider),
       sessionProvider,
     );
 
@@ -315,7 +331,7 @@ void main() async {
     final link = find.byKey(const Key('LinkField'), skipOffstage: false);
     await tester.dragUntilVisible(
       link,
-      find.byKey(const Key('ChatInfoListView')),
+      find.byKey(const Key('ChatInfoScrollable')),
       const Offset(1, 0),
     );
 
@@ -341,7 +357,6 @@ void main() async {
     await Get.deleteAll(force: true);
   });
 
-  await galleryItemProvider.clear();
   await contactProvider.clear();
   await userProvider.clear();
   await chatProvider.clear();

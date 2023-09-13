@@ -18,21 +18,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/my_profile/controller.dart';
-import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/widget_button.dart';
+import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/menu_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the `HomeTab.menu` tab.
+/// View of the [HomeTab.menu] tab.
 class MenuTabView extends StatelessWidget {
-  const MenuTabView({Key? key}) : super(key: key);
+  const MenuTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,39 +42,63 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final style = Theme.of(context).style;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Row(
-              children: [
-                Material(
-                  elevation: 6,
-                  type: MaterialType.circle,
-                  shadowColor: const Color(0x55000000),
-                  color: Colors.white,
-                  child: InkWell(
-                    onTap: context.isNarrow &&
-                            ModalRoute.of(context)?.canPop == true
-                        ? Navigator.of(context).pop
-                        : null,
-                    customBorder: const CircleBorder(),
+            title: ContextMenuRegion(
+              selector: c.profileKey,
+              alignment: Alignment.topLeft,
+              margin: const EdgeInsets.only(top: 7, right: 32),
+              enablePrimaryTap: true,
+              actions: [
+                ContextMenuButton(
+                  label: 'label_presence_present'.l10n,
+                  onPressed: () => c.setPresence(Presence.present),
+                  showTrailing: true,
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.acceptAuxiliaryColor,
+                    ),
+                  ),
+                ),
+                ContextMenuButton(
+                  label: 'label_presence_away'.l10n,
+                  onPressed: () => c.setPresence(Presence.away),
+                  showTrailing: true,
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.warningColor,
+                    ),
+                  ),
+                ),
+              ],
+              child: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
+                          key: c.profileKey,
                           radius: 17,
-                          badge: false,
                         );
                       }),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: WidgetButton(
-                    onPressed: () => StatusView.show(context),
+                  const SizedBox(width: 10),
+                  Flexible(
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -85,19 +111,13 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.val ??
                                   'dot'.l10n * 3,
-                              style: const TextStyle(color: Colors.black),
+                              style: style.fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
-                                c.myUser.value?.presence.localizedString() ??
-                                    'dot'.l10n * 3,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption
-                                    ?.copyWith(
-                                      color:
-                                          c.myUser.value?.presence.getColor(),
-                                    ),
+                                c.myUser.value?.status?.val ??
+                                    'label_online'.l10n,
+                                style: style.fonts.labelMediumSecondary,
                               );
                             }),
                           ],
@@ -105,17 +125,18 @@ class MenuTabView extends StatelessWidget {
                       }),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-              ],
+                  const SizedBox(width: 10),
+                ],
+              ),
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : const [SizedBox(width: 23)],
+                : const [SizedBox(width: 20)],
           ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
+          body: SafeScrollbar(
+            controller: c.scrollController,
             child: ListView.builder(
+              controller: c.scrollController,
               key: const Key('MenuListView'),
               itemCount: ProfileTab.values.length,
               itemBuilder: (context, i) {
@@ -127,82 +148,27 @@ class MenuTabView extends StatelessWidget {
                   required String title,
                   required String subtitle,
                   required IconData icon,
-                  VoidCallback? onTap,
+                  void Function()? onPressed,
                 }) {
                   return Obx(() {
-                    return Padding(
+                    final bool inverted = tab == router.profileSection.value &&
+                        router.route == Routes.me;
+
+                    return MenuButton(
                       key: key,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: SizedBox(
-                        height: 73,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            border: style.cardBorder,
-                            color: Colors.transparent,
-                          ),
-                          child: Material(
-                            type: MaterialType.card,
-                            borderRadius: style.cardRadius,
-                            color: tab == router.profileSection.value &&
-                                    router.route == Routes.me
-                                ? style.cardSelectedColor
-                                : style.cardColor,
-                            child: InkWell(
-                              borderRadius: style.cardRadius,
-                              onTap: onTap ??
-                                  () {
-                                    if (router.profileSection.value == tab) {
-                                      router.profileSection.refresh();
-                                    } else {
-                                      router.profileSection.value = tab;
-                                    }
-                                    router.me();
-                                  },
-                              hoverColor: style.cardHoveredColor,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      icon,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    const SizedBox(width: 18),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          DefaultTextStyle(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headline5!,
-                                            child: Text(title),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          DefaultTextStyle.merge(
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            child: Text(subtitle),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      icon: icon,
+                      title: title,
+                      subtitle: subtitle,
+                      inverted: inverted,
+                      onPressed: onPressed ??
+                          () {
+                            if (router.profileSection.value == tab) {
+                              router.profileSection.refresh();
+                            } else {
+                              router.profileSection.value = tab;
+                            }
+                            router.me();
+                          },
                     );
                   });
                 }
@@ -242,6 +208,14 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.chats:
+                    child = card(
+                      icon: Icons.chat_bubble,
+                      title: 'label_chats'.l10n,
+                      subtitle: 'label_timeline_style'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.calls:
                     if (PlatformUtils.isDesktop && PlatformUtils.isWeb) {
                       child = card(
@@ -266,6 +240,22 @@ class MenuTabView extends StatelessWidget {
                     }
                     break;
 
+                  case ProfileTab.notifications:
+                    child = card(
+                      icon: Icons.notifications,
+                      title: 'label_notifications'.l10n,
+                      subtitle: 'label_sound_and_vibrations'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.storage:
+                    child = card(
+                      icon: Icons.storage,
+                      title: 'label_storage'.l10n,
+                      subtitle: 'label_cache_and_downloads'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.language:
                     child = card(
                       key: const Key('Language'),
@@ -273,6 +263,15 @@ class MenuTabView extends StatelessWidget {
                       title: 'label_language'.l10n,
                       subtitle: L10n.chosen.value?.name ??
                           'label_current_language'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.blocklist:
+                    child = card(
+                      key: const Key('Blocked'),
+                      icon: Icons.block,
+                      title: 'label_blocked_users'.l10n,
+                      subtitle: 'label_your_blacklist'.l10n,
                     );
                     break;
 
@@ -286,7 +285,6 @@ class MenuTabView extends StatelessWidget {
                     } else {
                       return const SizedBox();
                     }
-
                     break;
 
                   case ProfileTab.danger:
@@ -304,7 +302,7 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.logout,
                       title: 'btn_logout'.l10n,
                       subtitle: 'label_end_session'.l10n,
-                      onTap: () async {
+                      onPressed: () async {
                         if (await c.confirmLogout()) {
                           router.go(await c.logout());
                           router.tab = HomeTab.chats;

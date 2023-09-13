@@ -18,22 +18,22 @@
 fragment ChatForward on ChatForward {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     at
     ver
-    item {
-        node {
-            __typename
-            ... on ChatMemberInfo {
-                ...ChatMemberInfo
-            }
-            ... on ChatCall {
-                 ...ChatCall
-            }
-            ... on ChatMessage {
-                ...ChatMessage
-            }
+    quote {
+        __typename
+        ... on ChatMessageQuote {
+            ...ChatMessageQuote
         }
-        cursor
+        ... on ChatCallQuote {
+            ...ChatCallQuote
+        }
+        ... on ChatInfoQuote {
+            ...ChatInfoQuote
+        }
     }
 }

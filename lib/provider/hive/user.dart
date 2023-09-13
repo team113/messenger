@@ -21,8 +21,6 @@ import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
@@ -42,16 +40,16 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   @override
   void registerAdapters() {
+    Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
+    Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveUserAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
-    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
     Hive.maybeRegisterAdapter(UserNameAdapter());

@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -41,8 +42,7 @@ class ChangePasswordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -53,59 +53,54 @@ class ChangePasswordView extends StatelessWidget {
           switch (c.stage.value) {
             case ChangePasswordFlowStage.set:
             case ChangePasswordFlowStage.changed:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      c.stage.value == ChangePasswordFlowStage.set
-                          ? 'label_password_set'.l10n
-                          : 'label_password_changed'.l10n,
-                      style: thin?.copyWith(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.primary,
+              child = Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Text(
+                        c.stage.value == ChangePasswordFlowStage.set
+                            ? 'label_password_set'.l10n
+                            : 'label_password_changed'.l10n,
+                        style: style.fonts.bodyMediumSecondary,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 25),
-                  OutlinedRoundedButton(
-                    key: const Key('Close'),
-                    maxWidth: double.infinity,
-                    title: Text(
-                      'btn_close'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
+                    const SizedBox(height: 25),
+                    OutlinedRoundedButton(
+                      key: const Key('Close'),
+                      maxWidth: double.infinity,
+                      title: Text(
+                        'btn_close'.l10n,
+                        style: style.fonts.bodyMediumOnPrimary,
+                      ),
+                      onPressed: Navigator.of(context).pop,
+                      color: style.colors.primary,
                     ),
-                    onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ],
+                  ],
+                ),
               );
               break;
 
             default:
-              child = ListView(
-                shrinkWrap: true,
-                children: [
-                  Obx(() {
-                    if (c.myUser.value?.hasPassword != true) {
-                      return Padding(
+              child = Scrollbar(
+                controller: c.scrollController,
+                child: ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: [
+                    if (!c.hasPassword)
+                      Padding(
                         padding: const EdgeInsets.only(bottom: 25),
                         child: Text(
                           'label_password_not_set_info'.l10n,
-                          style: thin?.copyWith(
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          style: style.fonts.bodyMediumSecondary,
                         ),
-                      );
-                    }
-
-                    return const SizedBox();
-                  }),
-                  Obx(() {
-                    if (c.myUser.value?.hasPassword == true) {
-                      return Padding(
+                      )
+                    else
+                      Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: ReactiveTextField(
                           state: c.oldPassword,
@@ -113,67 +108,64 @@ class ChangePasswordView extends StatelessWidget {
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: c.obscurePassword.toggle,
                           treatErrorAsStatus: false,
-                          trailing: SvgLoader.asset(
+                          trailing: SvgImage.asset(
                             'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                             width: 17.07,
                           ),
                         ),
-                      );
-                    }
-
-                    return const SizedBox();
-                  }),
-                  ReactiveTextField(
-                    key: const Key('NewPasswordField'),
-                    state: c.newPassword,
-                    label: 'label_new_password'.l10n,
-                    obscure: c.obscureNewPassword.value,
-                    onSuffixPressed: c.obscureNewPassword.toggle,
-                    treatErrorAsStatus: false,
-                    trailing: SvgLoader.asset(
-                      'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                      width: 17.07,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ReactiveTextField(
-                    key: const Key('RepeatPasswordField'),
-                    state: c.repeatPassword,
-                    label: 'label_repeat_password'.l10n,
-                    obscure: c.obscureRepeatPassword.value,
-                    onSuffixPressed: c.obscureRepeatPassword.toggle,
-                    treatErrorAsStatus: false,
-                    trailing: SvgLoader.asset(
-                      'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                      width: 17.07,
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    final bool enabled;
-                    if (c.myUser.value?.hasPassword == true) {
-                      enabled = !c.oldPassword.isEmpty.value &&
-                          !c.newPassword.isEmpty.value &&
-                          !c.repeatPassword.isEmpty.value;
-                    } else {
-                      enabled = !c.newPassword.isEmpty.value &&
-                          !c.repeatPassword.isEmpty.value;
-                    }
-
-                    return OutlinedRoundedButton(
-                      key: const Key('Proceed'),
-                      maxWidth: double.infinity,
-                      title: Text(
-                        'btn_proceed'.l10n,
-                        style: thin?.copyWith(
-                          color: enabled ? Colors.white : Colors.black,
-                        ),
                       ),
-                      onPressed: enabled ? c.changePassword : null,
-                      color: Theme.of(context).colorScheme.secondary,
-                    );
-                  }),
-                ],
+                    ReactiveTextField(
+                      key: const Key('NewPasswordField'),
+                      state: c.newPassword,
+                      label: 'label_new_password'.l10n,
+                      obscure: c.obscureNewPassword.value,
+                      onSuffixPressed: c.obscureNewPassword.toggle,
+                      treatErrorAsStatus: false,
+                      trailing: SvgImage.asset(
+                        'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
+                        width: 17.07,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ReactiveTextField(
+                      key: const Key('RepeatPasswordField'),
+                      state: c.repeatPassword,
+                      label: 'label_repeat_password'.l10n,
+                      obscure: c.obscureRepeatPassword.value,
+                      onSuffixPressed: c.obscureRepeatPassword.toggle,
+                      treatErrorAsStatus: false,
+                      trailing: SvgImage.asset(
+                        'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
+                        width: 17.07,
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                    Obx(() {
+                      final bool enabled;
+                      if (c.myUser.value?.hasPassword == true) {
+                        enabled = !c.oldPassword.isEmpty.value &&
+                            !c.newPassword.isEmpty.value &&
+                            !c.repeatPassword.isEmpty.value;
+                      } else {
+                        enabled = !c.newPassword.isEmpty.value &&
+                            !c.repeatPassword.isEmpty.value;
+                      }
+
+                      return OutlinedRoundedButton(
+                        key: const Key('Proceed'),
+                        maxWidth: double.infinity,
+                        title: Text(
+                          'btn_proceed'.l10n,
+                          style: enabled
+                              ? style.fonts.bodyMediumOnPrimary
+                              : style.fonts.bodyMedium,
+                        ),
+                        onPressed: enabled ? c.changePassword : null,
+                        color: style.colors.primary,
+                      );
+                    }),
+                  ],
+                ),
               );
               break;
           }
@@ -185,15 +177,10 @@ class ChangePasswordView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      c.myUser.value?.hasPassword == true &&
-                              c.stage.value != ChangePasswordFlowStage.set
-                          ? 'label_change_password'.l10n
-                          : 'label_set_password'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
+                  text: c.hasPassword &&
+                          c.stage.value != ChangePasswordFlowStage.set
+                      ? 'label_change_password'.l10n
+                      : 'label_set_password'.l10n,
                 ),
                 const SizedBox(height: 13),
                 Flexible(

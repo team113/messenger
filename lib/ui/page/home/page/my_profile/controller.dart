@@ -17,28 +17,29 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
+import '/domain/model/media_settings.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
-import '/ui/widget/text_field.dart';
+import '/themes.dart';
+import '/ui/worker/cache.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -55,29 +56,30 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [FlutterListViewController] of the profile's [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
-  /// Index of the initial profile page section to show in a [FlutterListView].
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
+  /// Index of the initial profile page section to show in a
+  /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
-  /// [OngoingCall] used for getting local media devices.
-  late final Rx<OngoingCall> call;
+  /// Indicator whether there's an ongoing [toggleMute] happening.
+  ///
+  /// Used to discard repeated toggling.
+  final RxBool isMuting = RxBool(false);
 
-  /// [MyUser.name]'s field state.
-  late final TextFieldState name;
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-  /// [MyUser.num]'s copyable state.
-  late final TextFieldState num;
-
-  /// [MyUser.chatDirectLink]'s copyable state.
-  late final TextFieldState link;
-
-  /// [MyUser.login]'s field state.
-  late final TextFieldState login;
-
-  /// [MyUser.status]'s field state.
-  late final TextFieldState status;
+  /// Index of an item from [ProfileTab] that should be highlighted.
+  final RxnInt highlightIndex = RxnInt(null);
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -85,23 +87,19 @@ class MyProfileController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
-  Timer? _nameTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [link] field.
-  Timer? _linkTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [login] field.
-  Timer? _loginTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [status] field.
-  Timer? _statusTimer;
-
-  /// Worker to react on [myUser] changes.
-  Worker? _myUserWorker;
-
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
+
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
+  StreamSubscription? _devicesSubscription;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -112,20 +110,20 @@ class MyProfileController extends GetxController {
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => call.value.devices;
+  /// Returns the current [MediaSettings] value.
+  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns ID of the currently used video device.
-  RxnString get camera => call.value.videoDevice;
-
-  /// Returns ID of the currently used microphone device.
-  RxnString get mic => call.value.audioDevice;
-
-  /// Returns ID of the currently used output device.
-  RxnString get output => call.value.outputDevice;
+  /// Returns the [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   @override
   void onInit() {
+    if (!PlatformUtils.isMobile) {
+      _devicesSubscription =
+          MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+      MediaUtils.enumerateDevices().then((e) => devices.value = e);
+    }
+
     listInitIndex = router.profileSection.value?.index ?? 0;
 
     bool ignoreWorker = false;
@@ -138,266 +136,37 @@ class MyProfileController extends GetxController {
           ignoreWorker = false;
         } else {
           ignorePositions = true;
-          await listController.sliverController.animateToIndex(
-            tab?.index ?? 0,
+          await itemScrollController.scrollTo(
+            index: tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
+
+          _highlight(tab);
         }
       },
     );
 
-    listController.sliverController.onPaintItemPositionsCallback =
-        (height, positions) {
-      if (positions.isNotEmpty && !ignorePositions) {
-        final ProfileTab tab = ProfileTab.values[positions.first.index];
+    positionsListener.itemPositions.addListener(() {
+      if (!ignorePositions) {
+        final ProfileTab tab = ProfileTab
+            .values[positionsListener.itemPositions.value.first.index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
           Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
-    };
-
-    _myUserWorker = ever(
-      _myUserService.myUser,
-      (MyUser? v) {
-        if (!name.focus.hasFocus &&
-            !name.changed.value &&
-            name.editable.value) {
-          name.unchecked = v?.name?.val;
-        }
-        if (!login.focus.hasFocus &&
-            !login.changed.value &&
-            login.editable.value) {
-          login.unchecked = v?.login?.val;
-        }
-        if (!link.focus.hasFocus &&
-            !link.changed.value &&
-            link.editable.value) {
-          link.unchecked = v?.chatDirectLink?.slug.val;
-        }
-      },
-    );
-
-    name = TextFieldState(
-      text: myUser.value?.name?.val,
-      approvable: true,
-      onChanged: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        s.error.value = null;
-        try {
-          if (s.text.isNotEmpty) {
-            UserName(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _nameTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService
-                .updateUserName(s.text.isNotEmpty ? UserName(s.text) : null);
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    num = TextFieldState(
-      text: myUser.value?.num.val.replaceAllMapped(
-        RegExp(r'.{4}'),
-        (match) => '${match.group(0)} ',
-      ),
-      editable: false,
-    );
-
-    link = TextFieldState(
-      text: myUser.value?.chatDirectLink?.slug.val ??
-          ChatDirectLinkSlug.generate(10).val,
-      approvable: true,
-      submitted: myUser.value?.chatDirectLink != null,
-      onChanged: (s) {
-        s.error.value = null;
-
-        try {
-          ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
-        try {
-          slug = ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (slug == null || slug == myUser.value?.chatDirectLink?.slug) {
-          return;
-        }
-
-        if (s.error.value == null) {
-          _linkTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _myUserService.createChatDirectLink(slug);
-            s.status.value = RxStatus.success();
-            await Future.delayed(const Duration(seconds: 1));
-            s.status.value = RxStatus.empty();
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    login = TextFieldState(
-      text: myUser.value?.login?.val,
-      approvable: true,
-      onChanged: (s) async {
-        s.error.value = null;
-
-        if (s.text.isEmpty) {
-          s.unchecked = myUser.value?.login?.val ?? '';
-          s.status.value = RxStatus.empty();
-          return;
-        }
-
-        try {
-          UserLogin(s.text);
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_login_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        if (s.error.value == null) {
-          _loginTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.updateUserLogin(UserLogin(s.text));
-            s.status.value = RxStatus.success();
-            _loginTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } on UpdateUserLoginException catch (e) {
-            s.error.value = e.toMessage();
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    status = TextFieldState(
-      text: myUser.value?.status?.val ?? '',
-      approvable: true,
-      onChanged: (s) {
-        s.error.value = null;
-
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          _statusTimer?.cancel();
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.updateUserStatus(
-              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
-            );
-            s.status.value = RxStatus.success();
-            _statusTimer = Timer(
-              const Duration(milliseconds: 1500),
-              () => s.status.value = RxStatus.empty(),
-            );
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.status.value = RxStatus.empty();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
-
-    if (!PlatformUtils.isMobile) {
-      // TODO: This is a really bad hack. We should not create a call here.
-      //       Required functionality should be decoupled from the
-      //       [OngoingCall] or reimplemented here.
-      call = Rx<OngoingCall>(OngoingCall(
-        const ChatId('settings'),
-        const UserId(''),
-        state: OngoingCallState.local,
-        mediaSettings: _settingsRepo.mediaSettings.value,
-        withAudio: false,
-        withVideo: false,
-        withScreen: false,
-      ));
-
-      call.value.init();
-    }
+    });
 
     super.onInit();
   }
 
   @override
   void onClose() {
-    _myUserWorker?.dispose();
     _profileWorker?.dispose();
-    call.value.dispose();
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
@@ -418,6 +187,26 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Toggles [MyUser.muted] status.
+  Future<void> toggleMute(bool enabled) async {
+    if (!isMuting.value) {
+      isMuting.value = true;
+
+      try {
+        await _myUserService.toggleMute(
+          enabled ? null : MuteDuration.forever(),
+        );
+      } on ToggleMyUserMuteException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        isMuting.value = false;
+      }
+    }
+  }
+
   /// Deletes the [MyUser.avatar] and [MyUser.callCover].
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
@@ -434,45 +223,94 @@ class MyProfileController extends GetxController {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.image,
         allowMultiple: false,
-        withReadStream: true,
+        withData: true,
       );
 
-      if (result != null) {
+      if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-
-        final List<Future> futures = [];
-        for (var e in List<ImageGalleryItem>.from(
-          myUser.value?.gallery ?? [],
-          growable: false,
-        ).map((e) => e.id)) {
-          futures.add(_myUserService.deleteGalleryItem(e));
-        }
-
-        List<Future<ImageGalleryItem?>> uploads = result.files
-            .map((e) => NativeFile.fromPlatformFile(e))
-            .map((e) => _myUserService.uploadGalleryItem(e))
-            .toList();
-        ImageGalleryItem? item = (await Future.wait(uploads)).firstOrNull;
-        if (item != null) {
-          futures.add(_updateAvatar(item.id));
-        }
-
-        await Future.wait(futures);
+        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
   }
 
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with an [ImageGalleryItem]
-  /// with the provided [id].
-  ///
-  /// If [id] is `null`, then deletes the [MyUser.avatar] and
-  /// [MyUser.callCover].
-  Future<void> _updateAvatar(GalleryItemId? id) async {
+  /// Deletes the provided [email] from [MyUser.emails].
+  Future<void> deleteEmail(UserEmail email) async {
     try {
-      await _myUserService.updateAvatar(id);
-      await _myUserService.updateCallCover(id);
+      await _myUserService.deleteUserEmail(email);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Deletes the provided [phone] from [MyUser.phones].
+  Future<void> deletePhone(UserPhone phone) async {
+    try {
+      await _myUserService.deleteUserPhone(phone);
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Deletes [myUser]'s account.
+  Future<void> deleteAccount() async {
+    try {
+      await _myUserService.deleteMyUser();
+      router.go(Routes.auth);
+      router.tab = HomeTab.chats;
+    } catch (_) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Sets the [ApplicationSettings.loadImages] value.
+  Future<void> setLoadImages(bool enabled) =>
+      _settingsRepo.setLoadImages(enabled);
+
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
+  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
+    await _myUserService.createChatDirectLink(slug);
+  }
+
+  /// Updates [MyUser.name] field for the authenticated [MyUser].
+  ///
+  /// If [name] is null, then resets [MyUser.name] field.
+  Future<void> updateUserName(UserName? name) async {
+    await _myUserService.updateUserName(name);
+  }
+
+  /// Updates or resets the [MyUser.status] field of the authenticated
+  /// [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    await _myUserService.updateUserStatus(status);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  ///
+  /// Throws [UpdateUserLoginException].
+  Future<void> updateUserLogin(UserLogin login) async {
+    await _myUserService.updateUserLogin(login);
+  }
+
+  /// Deletes the cache used by the application.
+  Future<void> clearCache() => CacheWorker.instance.clear();
+
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
+  ///
+  /// If [file] is `null`, then deletes the [MyUser.avatar] and
+  /// [MyUser.callCover].
+  Future<void> _updateAvatar(NativeFile? file) async {
+    try {
+      await Future.wait([
+        _myUserService.updateAvatar(file),
+        _myUserService.updateCallCover(file)
+      ]);
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);
     } on UpdateUserCallCoverException catch (e) {
@@ -481,6 +319,16 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Highlights the provided [tab].
+  Future<void> _highlight(ProfileTab? tab) async {
+    highlightIndex.value = tab?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
   }
 }
 
@@ -493,8 +341,6 @@ extension PresenceL10n on Presence {
         return 'label_presence_present'.l10n;
       case Presence.away:
         return 'label_presence_away'.l10n;
-      case Presence.hidden:
-        return 'label_presence_hidden'.l10n;
       case Presence.artemisUnknown:
         return null;
     }
@@ -502,13 +348,13 @@ extension PresenceL10n on Presence {
 
   /// Returns a [Color] representing this [Presence].
   Color? getColor() {
+    final Style style = Theme.of(router.context!).extension<Style>()!;
+
     switch (this) {
       case Presence.present:
-        return Colors.green;
+        return style.colors.acceptAuxiliaryColor;
       case Presence.away:
-        return Colors.orange;
-      case Presence.hidden:
-        return Colors.grey;
+        return style.colors.warningColor;
       case Presence.artemisUnknown:
         return null;
     }

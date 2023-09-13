@@ -25,7 +25,7 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
@@ -34,27 +34,32 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class CameraSwitchView extends StatelessWidget {
-  const CameraSwitchView(this._call, {super.key});
+  const CameraSwitchView({super.key, this.onChanged, this.camera});
 
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  /// Callback, called when the selected camera device changes.
+  final void Function(String)? onChanged;
+
+  /// ID of the initially selected video device.
+  final String? camera;
 
   /// Displays a [CameraSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required Rx<OngoingCall> call,
+    void Function(String)? onChanged,
+    String? camera,
   }) {
-    return ModalPopup.show(context: context, child: CameraSwitchView(call));
+    return ModalPopup.show(
+      context: context,
+      child: CameraSwitchView(onChanged: onChanged, camera: camera),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: CameraSwitchController(_call, Get.find()),
+      init: CameraSwitchController(Get.find(), camera: camera),
       builder: (CameraSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: const Duration(milliseconds: 250),
@@ -63,14 +68,7 @@ class CameraSwitchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_camera'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_camera'.l10n),
               Flexible(
                 child: ListView(
                   shrinkWrap: true,
@@ -78,44 +76,36 @@ class CameraSwitchView extends StatelessWidget {
                     const SizedBox(height: 13),
                     Padding(
                       padding: ModalPopup.padding(context),
-                      child: StreamBuilder(
-                        stream: c.localTracks?.changes,
-                        builder: (context, snapshot) {
-                          final RtcVideoRenderer? local = c.localTracks
-                              ?.firstWhereOrNull((t) =>
-                                  t.source == MediaSourceKind.Device &&
-                                  t.renderer.value is RtcVideoRenderer)
-                              ?.renderer
-                              .value as RtcVideoRenderer?;
-                          return Center(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                height: 250,
-                                width: 370,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: local == null
-                                    ? Center(
-                                        child: SvgLoader.asset(
-                                          'assets/icons/no_video.svg',
-                                          width: 48.54,
-                                          height: 42,
-                                        ),
-                                      )
-                                    : webrtc.VideoView(
-                                        local.inner,
-                                        objectFit:
-                                            webrtc.VideoViewObjectFit.cover,
-                                        mirror: true,
-                                      ),
+                      child: Obx(() {
+                        final RtcVideoRenderer? local = c.renderer.value;
+                        return Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              height: 250,
+                              width: 370,
+                              decoration: BoxDecoration(
+                                color: style.colors.secondary,
+                                borderRadius: BorderRadius.circular(10),
                               ),
+                              child: local == null
+                                  ? const Center(
+                                      child: SvgImage.asset(
+                                        'assets/icons/no_video.svg',
+                                        width: 48.54,
+                                        height: 42,
+                                      ),
+                                    )
+                                  : webrtc.VideoView(
+                                      local.inner,
+                                      objectFit:
+                                          webrtc.VideoViewObjectFit.cover,
+                                      mirror: true,
+                                    ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      }),
                     ),
                     const SizedBox(height: 25),
                     Obx(() {
@@ -123,62 +113,25 @@ class CameraSwitchView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemCount: c.devices.video().length,
+                        itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceInfo e =
-                                c.devices.video().toList()[i];
+                            final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||
                                     c.camera.value == e.deviceId();
 
-                            return Material(
-                              borderRadius: BorderRadius.circular(10),
-                              color: selected
-                                  ? style.cardSelectedColor.withOpacity(0.8)
-                                  : Colors.white.darken(0.05),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(10),
-                                onTap: () => c.setVideoDevice(e.deviceId()),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          e.label(),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 15),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: AnimatedSwitcher(
-                                          duration: 200.milliseconds,
-                                          child: selected
-                                              ? CircleAvatar(
-                                                  backgroundColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                  radius: 12,
-                                                  child: const Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 12,
-                                                  ),
-                                                )
-                                              : const SizedBox(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            return RectangleButton(
+                              selected: selected,
+                              onPressed: selected
+                                  ? null
+                                  : () {
+                                      c.camera.value = e.deviceId();
+                                      (onChanged ?? c.setVideoDevice)
+                                          .call(e.deviceId());
+                                    },
+                              label: e.label(),
                             );
                           });
                         },

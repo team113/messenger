@@ -24,8 +24,7 @@ import '../model/my_user.dart';
 import '../model/user.dart';
 import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/repository/user.dart';
 import '/routes.dart';
@@ -78,11 +77,6 @@ class MyUserService extends DisposableService {
   /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin login) =>
       _userRepo.updateUserLogin(login);
-
-  /// Updates [MyUser.bio] field for the authenticated [MyUser].
-  ///
-  /// If [bio] is `null`, then resets [MyUser.bio] field.
-  Future<void> updateUserBio(UserBio? bio) => _userRepo.updateUserBio(bio);
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) =>
@@ -173,26 +167,24 @@ class MyUserService extends DisposableService {
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
   Future<void> deleteChatDirectLink() => _userRepo.deleteChatDirectLink();
 
-  /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<ImageGalleryItem?> uploadGalleryItem(
-    NativeFile galleryItem, {
+  /// Updates or resets the [MyUser.avatar] field with the provided image
+  /// [file].
+  Future<void> updateAvatar(
+    NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
   }) =>
-      _userRepo.uploadGalleryItem(galleryItem, onSendProgress: onSendProgress);
+      _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
 
-  /// Removes the specified [GalleryItem] from the authenticated [MyUser]'s
-  /// gallery.
-  Future<void> deleteGalleryItem(GalleryItemId id) =>
-      _userRepo.deleteGalleryItem(id);
+  /// Updates or resets the [MyUser.callCover] field with the provided image
+  /// [file].
+  Future<void> updateCallCover(
+    NativeFile? file, {
+    void Function(int count, int total)? onSendProgress,
+  }) =>
+      _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
 
-  /// Updates or resets the [MyUser.avatar] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> updateAvatar(GalleryItemId? id) => _userRepo.updateAvatar(id);
-
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> updateCallCover(GalleryItemId? id) =>
-      _userRepo.updateCallCover(id);
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
+  Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);
 
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async => await _userRepo.clearCache();

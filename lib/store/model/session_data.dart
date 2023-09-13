@@ -17,8 +17,8 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/session.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/util/new_type.dart';
 import 'contact.dart';

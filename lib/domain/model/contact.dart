@@ -78,7 +78,7 @@ class ChatContact extends HiveObject {
   /// Position of this [ChatContact] in a favorites list of the authenticated
   /// [MyUser].
   @HiveField(6)
-  ChatContactPosition? favoritePosition;
+  ChatContactFavoritePosition? favoritePosition;
 }
 
 /// Unique ID of a [ChatContact].
@@ -89,14 +89,14 @@ class ChatContactId extends NewType<String> {
 
 /// Position of a [ChatContact] in a favorites list of the authenticated
 /// [MyUser].
-@HiveType(typeId: ModelTypeId.chatContactPosition)
-class ChatContactPosition extends NewType<double>
-    implements Comparable<ChatContactPosition> {
-  const ChatContactPosition(double val) : super(val);
+@HiveType(typeId: ModelTypeId.chatContactFavoritePosition)
+class ChatContactFavoritePosition extends NewType<double>
+    implements Comparable<ChatContactFavoritePosition> {
+  const ChatContactFavoritePosition(double val) : super(val);
 
-  factory ChatContactPosition.parse(String val) =>
-      ChatContactPosition(double.parse(val));
+  factory ChatContactFavoritePosition.parse(String val) =>
+      ChatContactFavoritePosition(double.parse(val));
 
   @override
-  int compareTo(ChatContactPosition other) => val.compareTo(other.val);
+  int compareTo(ChatContactFavoritePosition other) => val.compareTo(other.val);
 }

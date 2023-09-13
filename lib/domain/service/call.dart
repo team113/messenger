@@ -44,7 +44,7 @@ class CallService extends DisposableService {
     this._callsRepo,
   );
 
-  /// Unmodifiable map of the current [OngoingCall]s.
+  /// Unmodifiable map of the currently displayed [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;
 
   /// [AuthService] to get the authenticated [MyUser].
@@ -82,7 +82,12 @@ class CallService extends DisposableService {
         withVideo: withVideo,
         withScreen: withScreen,
       );
-      call.value.connect(this);
+
+      if (isClosed) {
+        call.value.dispose();
+      } else {
+        call.value.connect(this);
+      }
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -127,7 +132,11 @@ class CallService extends DisposableService {
         );
       }
 
-      call?.value.connect(this);
+      if (isClosed) {
+        call?.value.dispose();
+      } else {
+        call?.value.connect(this);
+      }
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -136,7 +145,7 @@ class CallService extends DisposableService {
     }
   }
 
-  /// Leaves an [OngoingCall] identified by the given [chatId].
+  /// Leaves or declines an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
@@ -144,6 +153,8 @@ class CallService extends DisposableService {
       call.value.state.value = OngoingCallState.ended;
       call.value.dispose();
     }
+
+    deviceId ??= WebUtils.getCall(chatId)?.deviceId;
 
     if (deviceId != null) {
       await _callsRepo.leave(chatId, deviceId);
@@ -208,6 +219,17 @@ class CallService extends DisposableService {
     }
   }
 
+  /// Removes the specified [User] from the [ChatCall] of the specified
+  /// [Chat]-group by authority of the authenticated [MyUser].
+  ///
+  /// If the specified [User] participates in the [ChatCall] from multiple
+  /// devices simultaneously, then removes all the devices at once.
+  Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
+    if (_callsRepo.contains(chatId)) {
+      await _callsRepo.removeChatCallMember(chatId, userId);
+    }
+  }
+
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
@@ -230,7 +252,7 @@ class CallService extends DisposableService {
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) =>
@@ -263,4 +285,7 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) =>
       _callsRepo.removeCredentials(id);
+
+  /// Returns a [RxChat] by the provided [id].
+  Future<RxChat?> getChat(ChatId id) => _chatService.get(id);
 }

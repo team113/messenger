@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
@@ -49,6 +51,23 @@ final StepDefinitionGeneric tapUserInSearchResults =
             final finder = context.world.appDriver
                 .findByKeySkipOffstage('SearchContact_$id');
 
+            await context.world.appDriver.scrollUntilVisible(
+              finder,
+              scrollable: find.descendant(
+                of: find.byKey(const Key('SearchScrollable')),
+                matching: find.byWidgetPredicate((widget) {
+                  // TODO: Find a proper way to differentiate [Scrollable]s from
+                  //       [TextField]s:
+                  //       https://github.com/flutter/flutter/issues/76981
+                  if (widget is Scrollable) {
+                    return widget.restorationId == null;
+                  }
+                  return false;
+                }),
+              ),
+              dy: 100,
+            );
+
             if (await context.world.appDriver.isPresent(finder)) {
               await context.world.appDriver.scrollIntoView(finder);
               await context.world.appDriver.tap(
@@ -66,6 +85,23 @@ final StepDefinitionGeneric tapUserInSearchResults =
 
             final finder = context.world.appDriver
                 .findByKeySkipOffstage('SearchUser_$userId');
+
+            await context.world.appDriver.scrollUntilVisible(
+              finder,
+              scrollable: find.descendant(
+                of: find.byKey(const Key('SearchScrollable')),
+                matching: find.byWidgetPredicate((widget) {
+                  // TODO: Find a proper way to differentiate [Scrollable]s from
+                  //       [TextField]s:
+                  //       https://github.com/flutter/flutter/issues/76981
+                  if (widget is Scrollable) {
+                    return widget.restorationId == null;
+                  }
+                  return false;
+                }),
+              ),
+              dy: 100,
+            );
 
             if (await context.world.appDriver.isPresent(finder)) {
               await context.world.appDriver.scrollIntoView(finder);

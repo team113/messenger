@@ -146,6 +146,28 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
     }
     super.clear();
   }
+
+  @override
+  void removeRange(int start, int end) {
+    List<E> stored = List.from(this, growable: false);
+    super.removeRange(start, end);
+
+    for (int i = start; i < end; ++i) {
+      if (!contains(stored[i])) {
+        _changes.add(ListChangeNotification<E>.removed(stored[i], i));
+      }
+    }
+  }
+
+  @override
+  void insertAll(int index, Iterable<E> iterable) {
+    super.insertAll(index, iterable);
+    for (int i = 0; i < iterable.length; i++) {
+      _changes.add(
+        ListChangeNotification<E>.added(iterable.elementAt(i), i + index),
+      );
+    }
+  }
 }
 
 /// Change in an [ObsList].

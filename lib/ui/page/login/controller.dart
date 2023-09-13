@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show CreateSessionErrorCode;
@@ -26,22 +27,33 @@ import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
         CreateSessionException,
-        RecoverUserPasswordException,
         ResetUserPasswordException,
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
   recovery,
   recoveryCode,
   recoveryPassword,
+  signUpOrSignIn,
 }
 
 /// [GetxController] of a [LoginView].
 class LoginController extends GetxController {
-  LoginController(this._auth);
+  LoginController(
+    this._authService, {
+    LoginViewStage? initial,
+    this.onSuccess,
+  }) : stage = Rx(initial);
+
+  /// Callback, called when this [LoginController] successfully signs into an
+  /// account.
+  ///
+  /// If not specified, the [RouteLinks.home] redirect is invoked.
+  final void Function()? onSuccess;
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -73,11 +85,17 @@ class LoginController extends GetxController {
   /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// [LoginViewStage] currently being displayed.
-  final Rx<LoginViewStage?> stage = Rx(null);
+  final Rx<LoginViewStage?> stage;
+
+  /// [LoginViewStage] to fallback to in special cases.
+  LoginViewStage? fallback;
 
   /// Authentication service providing the authentication capabilities.
-  final AuthService _auth;
+  final AuthService _authService;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -96,7 +114,7 @@ class LoginController extends GetxController {
   UserLogin? _recoveryLogin;
 
   /// Current authentication status.
-  Rx<RxStatus> get authStatus => _auth.status;
+  Rx<RxStatus> get authStatus => _authService.status;
 
   @override
   void onInit() {
@@ -192,7 +210,7 @@ class LoginController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
-      await _auth.signIn(
+      await _authService.signIn(
         UserPassword(password.text),
         login: userLogin,
         num: num,
@@ -200,15 +218,11 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      router.home();
+      (onSuccess ?? router.home)();
     } on FormatException {
-      password.error.value = 'err_incorrect_password'.l10n;
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
-        case CreateSessionErrorCode.unknownUser:
-          login.error.value = e.toMessage();
-          break;
-
         case CreateSessionErrorCode.wrongPassword:
           password.error.value = e.toMessage();
           break;
@@ -227,6 +241,19 @@ class LoginController extends GetxController {
     } finally {
       login.status.value = RxStatus.empty();
       password.status.value = RxStatus.empty();
+    }
+  }
+
+  /// Creates a new one-time account right away.
+  Future<void> register() async {
+    try {
+      await _authService.register();
+      (onSuccess ?? router.home)();
+    } on ConnectionException {
+      MessagePopup.error('err_data_transfer'.l10n);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
@@ -266,7 +293,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.recoverUserPassword(
+      await _authService.recoverUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -280,8 +307,6 @@ class LoginController extends GetxController {
       recovery.error.value = 'err_account_not_found'.l10n;
     } on ArgumentError {
       recovery.error.value = 'err_account_not_found'.l10n;
-    } on RecoverUserPasswordException catch (e) {
-      recovery.error.value = e.toMessage();
     } catch (e) {
       recovery.unsubmit();
       recovery.error.value = 'err_data_transfer'.l10n;
@@ -307,7 +332,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _auth.validateUserPasswordRecoveryCode(
+      await _authService.validateUserPasswordRecoveryCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -379,7 +404,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _auth.resetUserPassword(
+      await _authService.resetUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,

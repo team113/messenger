@@ -23,42 +23,50 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/media_utils.dart';
+import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
-  MicrophoneSwitchController(this._call, this._settingsRepository);
-
-  /// Local [OngoingCall] for enumerating and displaying local media.
-  final Rx<OngoingCall> _call;
+  MicrophoneSwitchController(this._settingsRepository, {String? mic})
+      : mic = RxnString(mic);
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  /// ID of the initially selected microphone device.
+  RxnString mic;
 
-  /// Returns ID of the currently used video device.
-  RxnString get mic => _call.value.audioDevice;
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+
+  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
+  /// the [devices].
+  StreamSubscription? _devicesSubscription;
 
   @override
-  void onInit() {
-    _call.value.setAudioEnabled(true);
+  void onInit() async {
+    _devicesSubscription = MediaUtils.onDeviceChange.listen(
+      (e) => devices.value = e.audio().toList(),
+    );
+
+    await WebUtils.microphonePermission();
+    devices.value =
+        await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+
     super.onInit();
   }
 
   @override
   void onClose() {
-    _call.value.setAudioEnabled(false);
+    _devicesSubscription?.cancel();
     super.onClose();
   }
 
   /// Sets device with [id] as a used by default microphone device.
   Future<void> setAudioDevice(String id) async {
-    await Future.wait([
-      _call.value.setAudioDevice(id),
-      _settingsRepository.setAudioDevice(id),
-    ]);
+    await _settingsRepository.setAudioDevice(id);
   }
 }

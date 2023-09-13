@@ -42,14 +42,22 @@ class AuthService extends GetxService {
   /// Currently authorized session's [Credentials].
   final Rx<Credentials?> credentials = Rx(null);
 
+  /// Authorization status.
+  ///
+  /// Can be:
+  /// - `status.isEmpty` meaning that `MyUser` is unauthorized;
+  /// - `status.isLoading` meaning that authorization data is being fetched
+  ///   from storage;
+  /// - `status.isLoadingMore` meaning that `MyUser` is authorized according to
+  ///   the storage, but network request to the server is still in-flight;
+  /// - `status.isSuccess` meaning successful authorization.
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
   /// [SessionDataHiveProvider] used to store user [Session].
   final SessionDataHiveProvider _sessionProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
-
-  /// Authorization status.
-  final Rx<RxStatus> _status = Rx<RxStatus>(RxStatus.loading());
 
   /// [Timer] used to periodically check the [Session.expireAt] and refresh it
   /// if necessary.
@@ -72,19 +80,15 @@ class AuthService extends GetxService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
-  /// Authorization status.
-  ///
-  /// Can be:
-  /// - `status.isEmpty` meaning that `MyUser` is unauthorized;
-  /// - `status.isLoading` meaning that authorization data is being fetched
-  ///   from storage;
-  /// - `status.isLoadingMore` meaning that `MyUser` is authorized according to
-  ///   the storage, but network request to the server is still in-flight;
-  /// - `status.isSuccess` meaning successful authorization.
-  Rx<RxStatus> get status => _status;
-
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
+
+  /// Indicates whether the [credentials] require a refresh.
+  bool get _shouldRefresh =>
+      credentials.value?.session.expireAt
+          .subtract(_accessTokenMinTtl)
+          .isBefore(PreciseDateTime.now().toUtc()) ==
+      true;
 
   @override
   void onClose() {
@@ -117,34 +121,29 @@ class AuthService extends GetxService {
     Session? session = creds?.session;
     RememberedSession? remembered = creds?.rememberedSession;
 
-    // Listen to the [Credentials] changes if this window is a popup.
-    if (WebUtils.isPopup) {
-      _storageSubscription = WebUtils.onStorageChange.listen((e) {
-        if (e.key == 'credentials') {
-          if (e.newValue == null) {
-            _authRepository.token = null;
-            credentials.value = null;
-            _status.value = RxStatus.empty();
-          } else {
-            Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+    // Listen to the [Credentials] changes.
+    _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      if (e.key == 'credentials') {
+        if (e.newValue != null) {
+          Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+          if (creds.session.token != credentials.value?.session.token &&
+              creds.userId == credentials.value?.userId) {
             _authRepository.token = creds.session.token;
             _authRepository.applyToken();
             credentials.value = creds;
-            _status.value = RxStatus.success();
+            status.value = RxStatus.success();
           }
-
-          if (_tokenGuard.isLocked) {
-            _tokenGuard.release();
+        } else {
+          if (!WebUtils.isPopup) {
+            router.go(_unauthorized());
           }
         }
-      });
-    } else {
-      // Update the [Credentials] otherwise.
-      WebUtils.credentials = creds;
-      _sessionSubscription = _sessionProvider.boxEvents
-          .listen((e) => WebUtils.credentials = e.value?.credentials);
-      WebUtils.removeAllCalls();
-    }
+      }
+    });
+
+    WebUtils.credentials = creds;
+    _sessionSubscription = _sessionProvider.boxEvents
+        .listen((e) => WebUtils.credentials = e.value?.credentials);
 
     if (session == null) {
       return _unauthorized();
@@ -152,7 +151,7 @@ class AuthService extends GetxService {
       if (remembered == null) {
         if (session.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
           _authorized(creds!);
-          _status.value = RxStatus.success();
+          status.value = RxStatus.success();
           return null;
         }
       } else if (remembered.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
@@ -162,24 +161,13 @@ class AuthService extends GetxService {
             .isBefore(PreciseDateTime.now().toUtc())) {
           renewSession();
         }
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
         return null;
       }
 
       return _unauthorized();
     }
   }
-
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  Future<bool> checkUserIdentifiable(
-          {UserLogin? login,
-          UserNum? num,
-          UserEmail? email,
-          UserPhone? phone}) async =>
-      await _authRepository.checkUserIdentifiable(login, num, email, phone);
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
@@ -251,13 +239,13 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
-    _status.value = RxStatus.loading();
+    status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
         var data = await _authRepository.signUp();
         _authorized(data);
         _sessionProvider.setCredentials(data);
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
         rethrow;
@@ -276,7 +264,7 @@ class AuthService extends GetxService {
       UserNum? num,
       UserEmail? email,
       UserPhone? phone}) async {
-    _status.value = RxStatus.loadingMore();
+    status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {
         Credentials data = await _authRepository.signIn(
@@ -288,7 +276,7 @@ class AuthService extends GetxService {
         );
         _authorized(data);
         _sessionProvider.setCredentials(data);
-        _status.value = RxStatus.success();
+        status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
         rethrow;
@@ -299,7 +287,7 @@ class AuthService extends GetxService {
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {
-    _status.value = RxStatus.loading();
+    status.value = RxStatus.loading();
 
     try {
       await _authRepository.logout();
@@ -321,15 +309,17 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [session].
   Future<void> renewSession() async {
-    bool alreadyRenewing = _tokenGuard.isLocked;
+    if (WebUtils.credentialsUpdating) {
+      // Wait until the [Credentials] are done updating in another tab.
+      await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
 
-    // Acquire the lock if this window is a popup.
-    if (WebUtils.isPopup) {
-      // The lock will be release once new [Credentials] are acquired via the
-      // [WebUtils.onStorageChange] stream.
-      await _tokenGuard.acquire();
-      alreadyRenewing = true;
+      if (!_shouldRefresh) {
+        // [Credentials] are successfully updated.
+        return;
+      }
     }
+
+    final bool alreadyRenewing = _tokenGuard.isLocked;
 
     // Do not perform renew since some other task has already renewed it. But
     // still wait for the lock to be sure that session was renewed when current
@@ -337,15 +327,18 @@ class AuthService extends GetxService {
     return _tokenGuard.protect(() async {
       if (!alreadyRenewing) {
         try {
+          WebUtils.credentialsUpdating = true;
           Credentials data = await _authRepository
               .renewSession(credentials.value!.rememberedSession.token);
           _authorized(data);
 
           _sessionProvider.setCredentials(data);
-          _status.value = RxStatus.success();
+          status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
           rethrow;
+        } finally {
+          WebUtils.credentialsUpdating = false;
         }
       }
     });
@@ -363,15 +356,11 @@ class AuthService extends GetxService {
     _refreshTimer?.cancel();
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
-      if (credentials.value?.rememberedSession != null &&
-          credentials.value?.session.expireAt
-                  .subtract(_accessTokenMinTtl)
-                  .isBefore(PreciseDateTime.now().toUtc()) ==
-              true) {
+      if (credentials.value?.rememberedSession != null && _shouldRefresh) {
         renewSession();
       }
     });
-    _status.value = RxStatus.loadingMore();
+    status.value = RxStatus.loadingMore();
   }
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
@@ -379,7 +368,7 @@ class AuthService extends GetxService {
     _sessionProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
-    _status.value = RxStatus.empty();
+    status.value = RxStatus.empty();
     _refreshTimer?.cancel();
     return Routes.auth;
   }

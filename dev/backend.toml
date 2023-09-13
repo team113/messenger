@@ -1,18 +1,29 @@
 [mode]
 debug = true
 
-[media_server.medea.server.client.http]
-bind_port = 8090
-[media_server.medea.ice.embedded]
-min_relay_port = 49160
-max_relay_port = 49200
-
 [smtp]
 port = 1025
 user = "robot"
 pass = "test"
 [smtp.tls]
 verify_cert = false
+
+[fcm]
+files_url = "http://localhost/files"
+
+[l10n.fluent]
+locales = ["en-US", "ru-RU"]
+[l10n.fluent.refresh]
+url = "https://raw.githubusercontent.com/team113/messenger/201-push-notifications/assets/l10n"
+
+[media_server.medea.server.client.http]
+bind_port = 8090
+[media_server.medea.ice.embedded]
+min_relay_port = 49160
+max_relay_port = 49200
+
+[background.keeper.instance]
+name = "backend"
 
 [background.event_handler.create_call_heartbeat]
 period = "150ms"

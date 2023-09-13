@@ -36,11 +36,12 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -56,10 +57,9 @@ import '../mock/graphql_provider.dart';
 Map<String, dynamic> _caller([String? id]) => {
       'id': id ?? 'id',
       'num': '1234567890123456',
-      'gallery': {'nodes': []},
       'mutualContactsCount': 0,
       'isDeleted': false,
-      'isBlacklisted': {'blacklisted': false, 'ver': '0'},
+      'isBlocked': {'blacklisted': false, 'ver': '0'},
       'presence': 'AWAY',
       'ver': '0',
     };
@@ -79,11 +79,16 @@ var chatData = {
   'lastDelivery': '1970-01-01T00:00:00+00:00',
   'lastItem': null,
   'lastReadItem': null,
-  'gallery': {'nodes': []},
   'unreadCount': 0,
   'totalCount': 0,
   'ongoingCall': null,
   'ver': '0'
+};
+
+var chatsQuery = {
+  'recentChats': {
+    'nodes': [chatData],
+  }
 };
 
 void main() async {
@@ -94,8 +99,6 @@ void main() async {
   await myUserProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var provider = SessionDataHiveProvider();
   await provider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -111,6 +114,10 @@ void main() async {
   await chatProvider.clear();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -121,7 +128,7 @@ void main() async {
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         RememberedSession(
-          const RememberToken('token'),
+          const RefreshToken('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         const UserId('me'),
@@ -133,10 +140,9 @@ void main() async {
         {
           'id': 'first',
           'chatId': 'chatId',
-          'authorId': 'authorId',
+          'author': _caller(),
           'answered': false,
           'at': DateTime.now().toString(),
-          'caller': _caller(),
           'withVideo': false,
           'members': [
             {
@@ -157,13 +163,14 @@ void main() async {
     AuthService authService = Get.put(AuthService(authRepository, provider));
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -184,6 +191,8 @@ void main() async {
         draftProvider,
         userRepository,
         provider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -212,10 +221,9 @@ void main() async {
                   '__typename': 'ChatCall',
                   'id': 'first',
                   'chatId': 'chatId',
-                  'authorId': 'authorId',
+                  'author': _caller(),
                   'answered': false,
                   'at': DateTime.now().toString(),
-                  'caller': _caller(),
                   'conversationStartedAt': null,
                   'finishReason': 'UNANSWERED',
                   'finishedAt': DateTime.now().toString(),
@@ -251,10 +259,9 @@ void main() async {
           'call': {
             'id': 'second',
             'chatId': 'chatId',
-            'authorId': 'authorId',
+            'author': _caller(),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller(),
             'withVideo': false,
             'members': [
               {
@@ -285,13 +292,14 @@ void main() async {
     AuthService authService = Get.put(AuthService(authRepository, provider));
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -312,6 +320,8 @@ void main() async {
         draftProvider,
         userRepository,
         provider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -324,7 +334,7 @@ void main() async {
     expect(callService.calls.length, 0);
 
     callService.call(
-      const ChatId('outcoming'),
+      const ChatId('outgoing'),
       withAudio: false,
       withVideo: false,
       withScreen: false,
@@ -335,11 +345,11 @@ void main() async {
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
-    expect(callService.calls.values.first.value.chatId.value.val, 'outcoming');
+    expect(callService.calls.values.first.value.chatId.value.val, 'outgoing');
     expect(callService.calls.values.first.value.caller?.id.val, 'me');
 
     callService.leave(
-      const ChatId('outcoming'),
+      const ChatId('outgoing'),
       const ChatCallDeviceId('device'),
     );
 
@@ -359,10 +369,11 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
 
     CallRepository callRepository = Get.put(
       CallRepository(
@@ -381,6 +392,8 @@ void main() async {
         draftProvider,
         userRepository,
         provider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -400,10 +413,9 @@ void main() async {
           'call': {
             'id': 'id',
             'chatId': 'incoming',
-            'authorId': 'authorId',
+            'author': _caller(),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller(),
             'withVideo': false,
             'members': [
               {
@@ -438,10 +450,9 @@ void main() async {
           'call': {
             'id': 'id',
             'chatId': 'incoming',
-            'authorId': 'authorId',
+            'author': _caller(),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller(),
             'withVideo': false,
             'members': [
               {
@@ -490,14 +501,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
 
   @override
-  Future<Stream<QueryResult>> callEvents(
+  Stream<QueryResult> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) =>
-      Future.value(_heartbeat.stream);
+      _heartbeat.stream;
 
   @override
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(QueryResult.internal(
@@ -511,11 +522,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         parserFn: (_) => null,
       )),
     );
-    return Future.value(chatEventsStream.stream);
+    return chatEventsStream.stream;
   }
 
   @override
-  Future<Stream<QueryResult>> incomingCallsTopEvents(int count) {
+  Stream<QueryResult> incomingCallsTopEvents(int count) {
     ongoingCallStream.add(QueryResult.internal(
       source: QueryResultSource.network,
       data: {
@@ -526,12 +537,16 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       },
       parserFn: (_) => null,
     ));
-    return Future.value(ongoingCallStream.stream);
+    return ongoingCallStream.stream;
   }
 
   @override
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) =>
-      Future.value(const Stream.empty());
+  Stream<QueryResult> recentChatsTopEvents(
+    int count, {
+    bool noFavorite = false,
+    bool? withOngoingCalls,
+  }) =>
+      const Stream.empty();
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
@@ -546,10 +561,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
           'call': {
             'id': 'id',
             'chatId': chatId.val,
-            'authorId': 'me',
+            'author': _caller('me'),
             'answered': false,
             'at': DateTime.now().toString(),
-            'caller': _caller('me'),
             'withVideo': false,
             'members': [
               {
@@ -581,10 +595,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               'call': {
                 'id': 'id',
                 'chatId': chatId.val,
-                'authorId': 'me',
+                'author': _caller('me'),
                 'answered': false,
                 'at': DateTime.now().toString(),
-                'caller': _caller('me'),
                 'withVideo': false,
                 'members': [
                   {
@@ -611,12 +624,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     RecentChatsCursor? after,
     int? last,
     RecentChatsCursor? before,
+    bool noFavorite = false,
+    bool? withOngoingCalls,
   }) async {
-    return RecentChats$Query.fromJson({
-      'recentChats': {
-        'nodes': [chatData]
-      }
-    });
+    return RecentChats$Query.fromJson(chatsQuery);
   }
 
   @override
@@ -638,10 +649,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                   '__typename': 'ChatCall',
                   'id': 'id',
                   'chatId': chatId.val,
-                  'authorId': 'authorId',
+                  'author': _caller('me'),
                   'answered': false,
                   'at': DateTime.now().toString(),
-                  'caller': _caller('me'),
                   'conversationStartedAt': null,
                   'finishReason': 'UNANSWERED',
                   'finishedAt': DateTime.now().toString(),
@@ -690,10 +700,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                 'call': {
                   'id': 'id',
                   'chatId': chatId.val,
-                  'authorId': 'me',
+                  'author': _caller('me'),
                   'answered': false,
                   'at': DateTime.now().toString(),
-                  'caller': _caller('me'),
                   'withVideo': false,
                   'members': [
                     {
@@ -717,7 +726,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<GetChat$Query> getChat(ChatId id) async {
-    return GetChat$Query.fromJson(chatData);
+    return GetChat$Query.fromJson({'chat': chatData});
   }
 
   Map<String, dynamic> userData = {
@@ -725,10 +734,8 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'num': '1234567890123456',
     'login': null,
     'name': null,
-    'bio': null,
     'emails': {'confirmed': []},
     'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
     'chatDirectLink': null,
     'hasPassword': false,
     'unreadChatsCount': 0,
@@ -736,4 +743,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
   };
+
+  @override
+  Future<ChatMixin?> getMonolog() async {
+    return GetMonolog$Query.fromJson({'monolog': null}).monolog;
+  }
+
+  @override
+  Future<GetUser$Query> getUser(UserId id) async {
+    return GetUser$Query.fromJson({'user': null});
+  }
 }

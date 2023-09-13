@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -36,6 +37,9 @@ class ConfirmLogoutController extends GetxController {
 
   /// [ConfirmLogoutViewStage] currently being displayed.
   final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
 
   /// Field for password input.
   late final TextFieldState password;

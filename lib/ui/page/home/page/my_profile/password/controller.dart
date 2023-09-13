@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -38,6 +39,9 @@ class ChangePasswordController extends GetxController {
   /// [ChangePasswordFlowStage] currently being displayed.
   final Rx<ChangePasswordFlowStage?> stage = Rx(null);
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   /// [TextFieldState] of the current [MyUser]'s password.
   late final TextFieldState oldPassword;
 
@@ -55,6 +59,9 @@ class ChangePasswordController extends GetxController {
 
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
+
+  /// Indicator whether [MyUser] has a password set.
+  late bool hasPassword;
 
   /// [MyUserService] updating the [MyUser]'s password.
   final MyUserService _myUserService;
@@ -75,6 +82,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
+      onSubmitted: (s) => newPassword.focus.requestFocus(),
     );
     newPassword = TextFieldState(
       onChanged: (s) {
@@ -87,6 +95,7 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
+      onSubmitted: (s) => repeatPassword.focus.requestFocus(),
     );
     repeatPassword = TextFieldState(
       onChanged: (s) {
@@ -96,7 +105,10 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
+      onSubmitted: (s) => changePassword(),
     );
+
+    hasPassword = myUser.value?.hasPassword ?? false;
 
     super.onInit();
   }

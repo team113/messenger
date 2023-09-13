@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/util/localized_exception.dart';
 
@@ -41,13 +42,13 @@ class GraphQlProviderExceptions {
   /// [parse]s exceptions of the given [result] and throws if any.
   static void fire(QueryResult result,
       [Exception Function(Map<String, dynamic>)? handleException]) {
-    Exception? exception = parse(result, handleException);
+    Object? exception = parse(result, handleException);
     if (exception != null) throw exception;
   }
 
   /// Returns an exception of the given [result] with [handleException] if it
   /// has the specified error code or `null` if no exception was found.
-  static Exception? parse(QueryResult result,
+  static Object? parse(QueryResult result,
       [Exception Function(Map<String, dynamic>)? handleException]) {
     if (result.hasException) {
       if (result.exception == null) {
@@ -74,6 +75,9 @@ class GraphQlProviderExceptions {
                 e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
             null) {
           return const AuthorizationException();
+        } else if (result.exception!.graphqlErrors.any(
+            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
+          return const InvalidScalarException<UserPhone>();
         }
 
         return GraphQlException(result.exception!.graphqlErrors);
@@ -208,6 +212,14 @@ class ResubscriptionRequiredException implements Exception {
   String toString() => 'ResubscriptionRequiredException()';
 }
 
+/// Exception of an invalid GraphQL scalar being parsed when expecting the [T].
+class InvalidScalarException<T> implements Exception {
+  const InvalidScalarException();
+
+  @override
+  String toString() => 'InvalidScalarException<$T>()';
+}
+
 /// Exception of `Mutation.createSession` described in the [code].
 class CreateSessionException with LocalizedExceptionMixin implements Exception {
   const CreateSessionException(this.code);
@@ -221,10 +233,8 @@ class CreateSessionException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case CreateSessionErrorCode.unknownUser:
-        return 'err_account_not_found'.l10n;
       case CreateSessionErrorCode.wrongPassword:
-        return 'err_incorrect_password'.l10n;
+        return 'err_incorrect_login_or_password'.l10n;
       case CreateSessionErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -255,12 +265,14 @@ class CreateDialogException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case CreateDialogChatErrorCode.blacklisted:
+      case CreateDialogChatErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case CreateDialogChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case CreateDialogChatErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
+      case CreateDialogChatErrorCode.useMonolog:
+        return 'err_use_monolog'.l10n;
     }
   }
 }
@@ -286,7 +298,7 @@ class CreateGroupChatException
         return 'err_wrong_members_count'.l10n;
       case CreateGroupChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case CreateGroupChatErrorCode.blacklisted:
+      case CreateGroupChatErrorCode.blocked:
         return 'err_blacklisted'.l10n;
     }
   }
@@ -330,12 +342,10 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case StartChatCallErrorCode.blacklisted:
+      case StartChatCallErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case StartChatCallErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
-      case StartChatCallErrorCode.monolog:
-        return 'err_call_monolog'.l10n;
       case StartChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -398,7 +408,7 @@ class DeclineChatCallException
   final DeclineChatCallErrorCode code;
 
   @override
-  String toString() => 'LeaveChatCallException($code)';
+  String toString() => 'DeclineChatCallException($code)';
 
   @override
   String toMessage() {
@@ -431,7 +441,7 @@ class UpdateUserLoginException
       case UpdateUserLoginErrorCode.occupied:
         return 'err_login_occupied'.l10n;
       case UpdateUserLoginErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
     }
   }
 }
@@ -457,6 +467,8 @@ class UploadAttachmentException
         return 'err_no_filename'.l10n;
       case UploadAttachmentErrorCode.tooBigSize:
         return 'err_size_too_big'.l10n;
+      case UploadAttachmentErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
       case UploadAttachmentErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -515,33 +527,6 @@ class CreateChatContactException
   }
 }
 
-/// Exception of `Mutation.recoverUserPassword` described in the [code].
-class RecoverUserPasswordException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const RecoverUserPasswordException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final RecoverUserPasswordErrorCode code;
-
-  @override
-  String toString() => 'RecoverUserPasswordException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case RecoverUserPasswordErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case RecoverUserPasswordErrorCode.codeLimitExceeded:
-        return 'err_code_limit_exceed'.l10n;
-      case RecoverUserPasswordErrorCode.nowhereToSend:
-        return 'err_nowhere_to_send'.l10n;
-      case RecoverUserPasswordErrorCode.unknownUser:
-        return 'err_account_not_found'.l10n;
-    }
-  }
-}
-
 /// Exception of `Mutation.validateUserPasswordRecoveryCode` described in the
 /// [code].
 class ValidateUserPasswordRecoveryCodeException
@@ -560,8 +545,6 @@ class ValidateUserPasswordRecoveryCodeException
     switch (code) {
       case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case ValidateUserPasswordRecoveryErrorCode.unknownUser:
-        return 'err_wrong_recovery_code'.l10n;
       case ValidateUserPasswordRecoveryErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -585,8 +568,6 @@ class ResetUserPasswordException
     switch (code) {
       case ResetUserPasswordErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case ResetUserPasswordErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
       case ResetUserPasswordErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -610,7 +591,7 @@ class AddChatMemberException with LocalizedExceptionMixin implements Exception {
         return 'err_unknown'.l10n;
       case AddChatMemberErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
-      case AddChatMemberErrorCode.blacklisted:
+      case AddChatMemberErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case AddChatMemberErrorCode.notGroup:
         return 'err_not_group'.l10n;
@@ -635,10 +616,10 @@ class RenameChatException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case RenameChatErrorCode.unknownChat:
         return 'err_contact_unknown_chat'.l10n;
-      case RenameChatErrorCode.notGroup:
-        return 'err_contact_not_group'.l10n;
       case RenameChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case RenameChatErrorCode.dialog:
+        return 'err_dialog'.l10n;
     }
   }
 }
@@ -658,7 +639,7 @@ class PostChatMessageException
   @override
   String toMessage() {
     switch (code) {
-      case PostChatMessageErrorCode.blacklisted:
+      case PostChatMessageErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case PostChatMessageErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
@@ -737,8 +718,6 @@ class AddUserEmailException with LocalizedExceptionMixin implements Exception {
         return 'err_unknown'.l10n;
       case AddUserEmailErrorCode.busy:
         return 'err_you_already_has_unconfirmed_email'.l10n;
-      case AddUserEmailErrorCode.occupied:
-        return 'err_email_occupied'.l10n;
       case AddUserEmailErrorCode.tooMany:
         return 'err_too_many_emails'.l10n;
     }
@@ -813,7 +792,7 @@ class ConfirmUserEmailException
       case ConfirmUserEmailErrorCode.artemisUnknown:
         return 'err_data_transfer'.l10n;
       case ConfirmUserEmailErrorCode.occupied:
-        return 'err_wrong_recovery_code'.l10n;
+        return 'err_email_occupied'.l10n;
       case ConfirmUserEmailErrorCode.wrongCode:
         return 'err_wrong_recovery_code'.l10n;
     }
@@ -860,8 +839,6 @@ class AddUserPhoneException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case AddUserPhoneErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case AddUserPhoneErrorCode.occupied:
-        return 'err_phone_occupied'.l10n;
       case AddUserPhoneErrorCode.busy:
         return 'err_you_already_has_unconfirmed_phone'.l10n;
       case AddUserPhoneErrorCode.tooMany:
@@ -1099,7 +1076,7 @@ class UseChatDirectLinkException
     switch (code) {
       case UseChatDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case UseChatDirectLinkErrorCode.blacklisted:
+      case UseChatDirectLinkErrorCode.blocked:
         return 'err_you_are_blacklisted'.l10n;
       case UseChatDirectLinkErrorCode.unknownDirectLink:
         return 'err_unknown_chat_direct_link'.l10n;
@@ -1155,8 +1132,14 @@ class UpdateUserAvatarException
         return 'err_invalid_crop_coordinates'.l10n;
       case UpdateUserAvatarErrorCode.invalidCropPoints:
         return 'err_invalid_crop_points'.l10n;
-      case UpdateUserAvatarErrorCode.unknownGalleryItem:
-        return 'err_unknown_gallery_item'.l10n;
+      case UpdateUserAvatarErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateUserAvatarErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateUserAvatarErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateUserAvatarErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
       case UpdateUserAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1182,39 +1165,39 @@ class UpdateUserCallCoverException
         return 'err_invalid_crop_coordinates'.l10n;
       case UpdateUserCallCoverErrorCode.invalidCropPoints:
         return 'err_invalid_crop_points'.l10n;
-      case UpdateUserCallCoverErrorCode.unknownGalleryItem:
-        return 'err_unknown_gallery_item'.l10n;
+      case UpdateUserCallCoverErrorCode.malformed:
+        return 'err_uploaded_file_malformed'.l10n;
+      case UpdateUserCallCoverErrorCode.unsupportedFormat:
+        return 'err_unsupported_format'.l10n;
+      case UpdateUserCallCoverErrorCode.tooBigSize:
+        return 'err_size_too_big'.l10n;
+      case UpdateUserCallCoverErrorCode.tooBigDimensions:
+        return 'err_dimensions_too_big'.l10n;
       case UpdateUserCallCoverErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
 }
 
-/// Exception of `Mutation.uploadUserGalleryItem` described in the [code].
-class UploadUserGalleryItemException
+/// Exception of `Mutation.toggleMyUserMute` described in the [code].
+class ToggleMyUserMuteException
     with LocalizedExceptionMixin
     implements Exception {
-  const UploadUserGalleryItemException(this.code);
+  const ToggleMyUserMuteException(this.code);
 
   /// Reason of why the mutation has failed.
-  final UploadUserGalleryItemErrorCode code;
+  final ToggleMyUserMuteErrorCode code;
 
   @override
-  String toString() => 'UploadUserGalleryItemException($code)';
+  String toString() => 'ToggleMyUserMuteException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case UploadUserGalleryItemErrorCode.malformed:
-        return 'err_uploaded_file_malformed'.l10n;
-      case UploadUserGalleryItemErrorCode.unsupportedFormat:
-        return 'err_unsupported_format'.l10n;
-      case UploadUserGalleryItemErrorCode.artemisUnknown:
+      case ToggleMyUserMuteErrorCode.tooShort:
+        return 'err_too_short'.l10n;
+      case ToggleMyUserMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case UploadUserGalleryItemErrorCode.tooBigSize:
-        return 'err_size_too_big'.l10n;
-      case UploadUserGalleryItemErrorCode.tooBigDimensions:
-        return 'err_dimensions_too_big'.l10n;
     }
   }
 }
@@ -1235,7 +1218,7 @@ class TransformDialogCallIntoGroupCallException
   @override
   String toMessage() {
     switch (code) {
-      case TransformDialogCallIntoGroupCallErrorCode.blacklisted:
+      case TransformDialogCallIntoGroupCallErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.notDialog:
         return 'err_not_dialog'.l10n;
@@ -1268,7 +1251,7 @@ class ForwardChatItemsException
   @override
   String toMessage() {
     switch (code) {
-      case ForwardChatItemsErrorCode.blacklisted:
+      case ForwardChatItemsErrorCode.blocked:
         return 'err_blacklisted'.l10n;
       case ForwardChatItemsErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
@@ -1321,6 +1304,8 @@ class UpdateChatAvatarException
         return 'err_dimensions_too_big'.l10n;
       case UpdateChatAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case UpdateChatAvatarErrorCode.dialog:
+        return 'err_dialog'.l10n;
     }
   }
 }
@@ -1346,6 +1331,8 @@ class ToggleChatMuteException
         return 'err_unknown_chat'.l10n;
       case ToggleChatMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+      case ToggleChatMuteErrorCode.monolog:
+        return 'err_monolog'.l10n;
     }
   }
 }
@@ -1440,46 +1427,94 @@ class UnfavoriteChatContactException
   }
 }
 
-/// Exception of `Mutation.blacklistUser` described in the [code].
-class BlacklistUserException with LocalizedExceptionMixin implements Exception {
-  const BlacklistUserException(this.code);
+/// Exception of `Mutation.blockUser` described in the [code].
+class BlockUserException with LocalizedExceptionMixin implements Exception {
+  const BlockUserException(this.code);
 
   /// Reason of why the mutation has failed.
-  final BlacklistUserErrorCode code;
+  final BlockUserErrorCode code;
 
   @override
-  String toString() => 'BlacklistUserException($code)';
+  String toString() => 'BlockUserErrorCode($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case BlacklistUserErrorCode.unknownUser:
+      case BlockUserErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
-      case BlacklistUserErrorCode.artemisUnknown:
+      case BlockUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
 }
 
-/// Exception of `Mutation.unblacklistUser` described in the [code].
-class UnblacklistUserException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const UnblacklistUserException(this.code);
+/// Exception of `Mutation.unblockUser` described in the [code].
+class UnblockUserException with LocalizedExceptionMixin implements Exception {
+  const UnblockUserException(this.code);
 
   /// Reason of why the mutation has failed.
-  final UnblacklistUserErrorCode code;
+  final UnblockUserErrorCode code;
 
   @override
-  String toString() => 'UnblacklistUserException($code)';
+  String toString() => 'UnblockUserException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case UnblacklistUserErrorCode.unknownUser:
+      case UnblockUserErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
-      case UnblacklistUserErrorCode.artemisUnknown:
+      case UnblockUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.clearChat` described in the [code].
+class ClearChatException with LocalizedExceptionMixin implements Exception {
+  const ClearChatException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ClearChatErrorCode code;
+
+  @override
+  String toString() => 'ClearChatException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ClearChatErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case ClearChatErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
+      case ClearChatErrorCode.unknownChatItem:
+        return 'err_unknown_chat_item'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.removeChatCallMember` described in the [code].
+class RemoveChatCallMemberException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const RemoveChatCallMemberException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final RemoveChatCallMemberErrorCode code;
+
+  @override
+  String toString() => 'RemoveChatCallMemberException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case RemoveChatCallMemberErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case RemoveChatCallMemberErrorCode.notGroup:
+        return 'err_not_group'.l10n;
+      case RemoveChatCallMemberErrorCode.notMember:
+        return 'err_not_member'.l10n;
+      case RemoveChatCallMemberErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
     }
   }
 }
