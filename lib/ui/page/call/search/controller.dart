@@ -605,7 +605,7 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Ensures the [ChatView] is scrollable.
+  /// Ensures the [scrollController] is scrollable.
   Future<void> _ensureScrollable() async {
     if ((categories.contains(SearchCategory.contact) &&
             contactsSearchResult.value?.hasNext.value != false) ||
