@@ -640,7 +640,9 @@ class Fonts {
     required this.counter,
   })  : displayLargeOnPrimary = displayLargeOnPrimary ??
             displayLarge.copyWith(
-                color: onPrimary, fontWeight: FontWeight.bold),
+              color: onPrimary,
+              fontWeight: FontWeight.bold,
+            ),
         displayLargeSecondary =
             displayLargeSecondary ?? displayLarge.copyWith(color: secondary),
         displayMediumSecondary =

@@ -253,8 +253,8 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Creates a new [MyUser]  and sends a confirmation [ConfirmationCode] to
-  /// [MyUser]'s provided [email].
+  /// Creates a new [MyUser] and sends a [ConfirmationCode] to [MyUser]'s
+  /// provided [email].
   Future<Credentials> signUpWithEmail(UserEmail email) async {
     try {
       final creds = await _authRepository.signUp();

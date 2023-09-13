@@ -79,7 +79,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: style.fonts.displaySmall,
+            style: style.fonts.displaySmallSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -148,12 +148,17 @@ class AuthView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ...header,
-            AnimatedLogo(
-              key: const ValueKey('Logo'),
-              riveAsset: 'assets/images/logo/head.riv',
-              onInit: Config.disableInfiniteAnimations
-                  ? null
-                  : (a) => _setBlink(c, a),
+            Obx(
+              () {
+                return AnimatedLogo(
+                  key: const ValueKey('Logo'),
+                  svgAsset:
+                      'assets/images/logo/head000${c.logoFrame.value}.svg',
+                  onInit: Config.disableInfiniteAnimations
+                      ? null
+                      : (a) => _setBlink(c, a),
+                );
+              },
             ),
             ...footer,
           ],
@@ -213,6 +218,8 @@ class AuthView extends StatelessWidget {
     a.addController(machine);
 
     c.blink = machine.findInput<bool>('blink') as SMITrigger?;
+
+    await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
