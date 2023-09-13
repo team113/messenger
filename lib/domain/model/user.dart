@@ -28,6 +28,7 @@ import 'avatar.dart';
 import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
+import '/l10n/l10n.dart';
 
 part 'user.g.dart';
 
@@ -161,6 +162,20 @@ class UserNum extends NewType<String> {
     }
 
     return UserNum._(val);
+  }
+
+  /// Returns [UserNum] as String formatted as quartets
+  @override
+  String toString() {
+    String formattedUserNum = '';
+
+    for (int i = 0; i < val.length; i++) {
+      if (i % 4 == 0 && i > 0) {
+        formattedUserNum += 'space'.l10n;
+      }
+      formattedUserNum += val[i];
+    }
+    return formattedUserNum;
   }
 
   /// Creates an object without any validation.
