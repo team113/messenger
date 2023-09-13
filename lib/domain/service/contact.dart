@@ -88,7 +88,8 @@ class ContactService extends DisposableService {
     UserName? name,
     UserEmail? email,
     UserPhone? phone,
-  }) => _contactRepository.search(
+  }) =>
+      _contactRepository.search(
         name: name,
         email: email,
         phone: phone,

@@ -55,7 +55,8 @@ class UserService extends DisposableService {
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
-  }) => _userRepository.search(
+  }) =>
+      _userRepository.search(
         num: num,
         name: name,
         login: login,

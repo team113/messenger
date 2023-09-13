@@ -314,10 +314,10 @@ class ContactRepository implements AbstractContactRepository {
   ///
   /// This is a fuzzy search.
   Future<Page<RxChatContact, ChatContactsCursor>> searchByName(
-      UserName name, {
-        ChatContactsCursor? after,
-        int? first,
-      }) =>
+    UserName name, {
+    ChatContactsCursor? after,
+    int? first,
+  }) =>
       _search(name: name, after: after, first: first);
 
   /// Searches [ChatContact]s by the provided [UserEmail].

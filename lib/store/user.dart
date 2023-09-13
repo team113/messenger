@@ -122,25 +122,27 @@ class UserRepository implements AbstractUserRepository {
       );
     }
     final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
-    SearchResultImpl(pagination: pagination);
+        SearchResultImpl(pagination: pagination);
 
     if (num == null && name == null && login == null && link == null) {
       return searchResult;
     }
 
-    final List<RxUser> users = this.users.values
+    final List<RxUser> users = this
+        .users
+        .values
         .where((u) =>
-    (num != null && u.user.value.num == num) ||
-        (name != null &&
-            u.user.value.name?.val
-                .toLowerCase()
-                .contains(name.val.toLowerCase()) ==
-                true))
+            (num != null && u.user.value.num == num) ||
+            (name != null &&
+                u.user.value.name?.val
+                        .toLowerCase()
+                        .contains(name.val.toLowerCase()) ==
+                    true))
         .toList();
 
     searchResult.items.value = {for (var u in users) u.id: u};
     searchResult.status.value =
-    users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
+        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
 
     void add(RxUser? u) {
       if (u != null) {
@@ -268,10 +270,10 @@ class UserRepository implements AbstractUserRepository {
   ///
   /// This is a fuzzy search.
   Future<Page<RxUser, UsersCursor>> searchByName(
-      UserName name, {
-        UsersCursor? after,
-        int? first,
-      }) =>
+    UserName name, {
+    UsersCursor? after,
+    int? first,
+  }) =>
       _search(name: name, after: after, first: first);
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
@@ -465,7 +467,7 @@ class SearchResultImpl<K extends Comparable, T, C>
 
           case OperationKind.removed:
           case OperationKind.updated:
-          // No-op.
+            // No-op.
             break;
         }
       });

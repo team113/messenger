@@ -79,7 +79,6 @@ abstract class RxUser {
 
 /// Result of a search query.
 abstract class SearchResult<K extends Comparable, T> {
-
   /// Found [T] items themselves.
   final RxMap<K, T> items = RxMap<K, T>();
 
