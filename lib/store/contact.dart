@@ -246,6 +246,10 @@ class ContactRepository implements AbstractContactRepository {
     UserEmail? email,
     UserPhone? phone,
   }) {
+    if (name == null && email == null && phone == null) {
+      return SearchResultImpl();
+    }
+
     Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
     if (name != null) {
       pagination = Pagination(
@@ -263,10 +267,6 @@ class ContactRepository implements AbstractContactRepository {
     }
     final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
         searchResult = SearchResultImpl(pagination: pagination);
-
-    if (name == null && email == null && phone == null) {
-      return searchResult;
-    }
 
     final List<RxChatContact> contacts = [
       ...this.contacts.values,

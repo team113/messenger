@@ -51,20 +51,26 @@ final StepDefinitionGeneric tapUserInSearchResults =
             final finder = context.world.appDriver
                 .findByKeySkipOffstage('SearchContact_$id');
 
+            final scrollable = find.descendant(
+              of: find.byKey(const Key('SearchScrollable')),
+              matching: find.byWidgetPredicate((widget) {
+                // TODO: Find a proper way to differentiate [Scrollable]s from
+                //       [TextField]s:
+                //       https://github.com/flutter/flutter/issues/76981
+                if (widget is Scrollable) {
+                  return widget.restorationId == null;
+                }
+                return false;
+              }),
+            );
+
+            if(!await context.world.appDriver.isPresent(scrollable)) {
+              return false;
+            }
+
             await context.world.appDriver.scrollUntilVisible(
               finder,
-              scrollable: find.descendant(
-                of: find.byKey(const Key('SearchScrollable')),
-                matching: find.byWidgetPredicate((widget) {
-                  // TODO: Find a proper way to differentiate [Scrollable]s from
-                  //       [TextField]s:
-                  //       https://github.com/flutter/flutter/issues/76981
-                  if (widget is Scrollable) {
-                    return widget.restorationId == null;
-                  }
-                  return false;
-                }),
-              ),
+              scrollable: scrollable,
               dy: 100,
             );
 
@@ -86,20 +92,26 @@ final StepDefinitionGeneric tapUserInSearchResults =
             final finder = context.world.appDriver
                 .findByKeySkipOffstage('SearchUser_$userId');
 
+            final scrollable = find.descendant(
+              of: find.byKey(const Key('SearchScrollable')),
+              matching: find.byWidgetPredicate((widget) {
+                // TODO: Find a proper way to differentiate [Scrollable]s from
+                //       [TextField]s:
+                //       https://github.com/flutter/flutter/issues/76981
+                if (widget is Scrollable) {
+                  return widget.restorationId == null;
+                }
+                return false;
+              }),
+            );
+
+            if(!await context.world.appDriver.isPresent(scrollable)) {
+              return false;
+            }
+
             await context.world.appDriver.scrollUntilVisible(
               finder,
-              scrollable: find.descendant(
-                of: find.byKey(const Key('SearchScrollable')),
-                matching: find.byWidgetPredicate((widget) {
-                  // TODO: Find a proper way to differentiate [Scrollable]s from
-                  //       [TextField]s:
-                  //       https://github.com/flutter/flutter/issues/76981
-                  if (widget is Scrollable) {
-                    return widget.restorationId == null;
-                  }
-                  return false;
-                }),
-              ),
+              scrollable: scrollable,
               dy: 100,
             );
 

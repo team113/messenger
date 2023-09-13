@@ -106,6 +106,10 @@ class UserRepository implements AbstractUserRepository {
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) {
+    if (num == null && name == null && login == null && link == null) {
+      return SearchResultImpl();
+    }
+
     Pagination<RxUser, UsersCursor, UserId>? pagination;
     if (name != null) {
       pagination = Pagination(
@@ -123,10 +127,6 @@ class UserRepository implements AbstractUserRepository {
     }
     final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
         SearchResultImpl(pagination: pagination);
-
-    if (num == null && name == null && login == null && link == null) {
-      return searchResult;
-    }
 
     final List<RxUser> users = this
         .users
@@ -500,7 +500,9 @@ class SearchResultImpl<K extends Comparable, T, C>
   @override
   Future<void> next() async {
     if (pagination != null && nextLoading.isFalse) {
-      status.value = RxStatus.loadingMore();
+      if(status.value.isSuccess) {
+        status.value = RxStatus.loadingMore();
+      }
 
       int length = items.length;
       while (hasNext.isTrue && length == items.length) {

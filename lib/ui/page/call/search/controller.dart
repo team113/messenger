@@ -295,6 +295,72 @@ class SearchController extends GetxController {
     }
   }
 
+  /// Searches the [ChatContact]s based on the provided [query].
+  ///
+  /// Query may be a [UserName], [UserEmail] or [UserPhone].
+  void _searchContacts(String query) {
+    _contactsSearchStatusWorker?.dispose();
+    _contactsSearchStatusWorker = null;
+
+    if (query.isNotEmpty) {
+      UserName? name;
+      UserEmail? email;
+      UserPhone? phone;
+
+      try {
+        name = UserName(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      try {
+        email = UserEmail(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      try {
+        phone = UserPhone(query);
+      } catch (e) {
+        // No-op.
+      }
+
+      if (name != null || email != null || phone != null) {
+        searchStatus.value = searchStatus.value.isSuccess
+            ? RxStatus.loadingMore()
+            : RxStatus.loading();
+        final SearchResult<ChatContactId, RxChatContact> result =
+            _contactService.search(name: name, email: email, phone: phone);
+
+        contactsSearchResult.value?.dispose();
+        contactsSearchResult.value = result;
+        searchStatus.value = result.status.value;
+
+        _contactsSearchStatusWorker = ever(result.status, (RxStatus s) {
+          if (contactsSearchResult.value?.items.isNotEmpty == true ||
+              !categories.contains(SearchCategory.user)) {
+            searchStatus.value = s;
+          }
+
+          if (s.isSuccess && !s.isLoadingMore) {
+            _populateContacts();
+            _ensureScrollable();
+          }
+        });
+
+        _populateContacts();
+      } else {
+        searchStatus.value = RxStatus.empty();
+        contactsSearchResult.value?.dispose();
+        contactsSearchResult.value = null;
+      }
+    } else {
+      searchStatus.value = RxStatus.empty();
+      contactsSearchResult.value?.dispose();
+      contactsSearchResult.value = null;
+    }
+  }
+
   /// Searches the [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
@@ -355,69 +421,6 @@ class SearchController extends GetxController {
       searchStatus.value = RxStatus.empty();
       usersSearchResult.value?.dispose();
       usersSearchResult.value = null;
-    }
-  }
-
-  /// Searches the [ChatContact]s based on the provided [query].
-  ///
-  /// Query may be a [UserName], [UserEmail] or [UserPhone].
-  void _searchContacts(String query) {
-    _contactsSearchStatusWorker?.dispose();
-    _contactsSearchStatusWorker = null;
-
-    if (query.isNotEmpty) {
-      UserName? name;
-      UserEmail? email;
-      UserPhone? phone;
-
-      try {
-        name = UserName(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        email = UserEmail(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        phone = UserPhone(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      if (name != null || email != null || phone != null) {
-        searchStatus.value = searchStatus.value.isSuccess
-            ? RxStatus.loadingMore()
-            : RxStatus.loading();
-        final SearchResult<ChatContactId, RxChatContact> result =
-            _contactService.search(name: name, email: email, phone: phone);
-
-        contactsSearchResult.value?.dispose();
-        contactsSearchResult.value = result;
-        searchStatus.value = result.status.value;
-
-        _contactsSearchStatusWorker = ever(result.status, (RxStatus s) {
-          searchStatus.value = s;
-
-          if (s.isSuccess && !s.isLoadingMore) {
-            _populateContacts();
-            _ensureScrollable();
-          }
-        });
-
-        _populateContacts();
-      } else {
-        searchStatus.value = RxStatus.empty();
-        contactsSearchResult.value?.dispose();
-        contactsSearchResult.value = null;
-      }
-    } else {
-      searchStatus.value = RxStatus.empty();
-      contactsSearchResult.value?.dispose();
-      contactsSearchResult.value = null;
     }
   }
 
