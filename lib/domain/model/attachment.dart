@@ -120,12 +120,12 @@ class FileAttachment extends Attachment {
 
   /// Downloads this [FileAttachment].
   Future<void> download() async {
-      CacheWorker.instance.download(
-        original.url,
-        filename,
-        original.size,
-        checksum: original.checksum,
-      );
+    CacheWorker.instance.download(
+      original.url,
+      filename,
+      original.size,
+      checksum: original.checksum,
+    );
   }
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
