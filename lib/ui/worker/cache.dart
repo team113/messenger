@@ -577,6 +577,7 @@ class Downloading {
         filename,
         size,
         path: path,
+        checksum: checksum,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
       );
