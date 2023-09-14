@@ -80,6 +80,8 @@ class Themes {
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
       danger: colors.dangerColor,
+      displayBold:
+          textStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 27),
       displayLarge:
           textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 27),
       displayMedium:
@@ -585,6 +587,8 @@ class Fonts {
     Color? secondary,
     Color? onPrimary,
     Color? danger,
+    required this.displayBold,
+    TextStyle? displayBoldOnPrimary,
     required this.displayLarge,
     TextStyle? displayLargeOnPrimary,
     TextStyle? displayLargeSecondary,
@@ -641,11 +645,10 @@ class Fonts {
     required this.input,
     required this.error,
     required this.counter,
-  })  : displayLargeOnPrimary = displayLargeOnPrimary ??
-            displayLarge.copyWith(
-              color: onPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+  })  : displayBoldOnPrimary =
+            displayBoldOnPrimary ?? displayBold.copyWith(color: onPrimary),
+        displayLargeOnPrimary =
+            displayLargeOnPrimary ?? displayLarge.copyWith(color: onPrimary),
         displayLargeSecondary =
             displayLargeSecondary ?? displayLarge.copyWith(color: secondary),
         displayMediumSecondary =
@@ -716,6 +719,12 @@ class Fonts {
             bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary),
         bodyTinyOnPrimary =
             bodyTinyOnPrimary ?? bodyTiny.copyWith(color: onPrimary);
+
+  /// Bold version of display text of `onBackground` color.
+  final TextStyle displayBold;
+
+  /// [displayBold] of `onPrimary` color.
+  final TextStyle displayBoldOnPrimary;
 
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
@@ -893,6 +902,9 @@ class Fonts {
     }
 
     return Fonts(
+      displayBold: TextStyle.lerp(font.displayBold, other.displayBold, t)!,
+      displayBoldOnPrimary: TextStyle.lerp(
+          font.displayBoldOnPrimary, other.displayBoldOnPrimary, t)!,
       displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
       displayLargeOnPrimary: TextStyle.lerp(
           font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
