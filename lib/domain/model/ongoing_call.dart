@@ -1568,10 +1568,10 @@ class OngoingCall {
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
     track.onEnded(() {
       MediaKind.video;
-      if(track.kind() == MediaKind.audio) {
+      if (track.kind() == MediaKind.audio) {
         setAudioEnabled(false);
       } else {
-        if(track.mediaSourceKind() == MediaSourceKind.device) {
+        if (track.mediaSourceKind() == MediaSourceKind.device) {
           setVideoEnabled(false);
         } else {
           setScreenShareEnabled(false);
@@ -1748,7 +1748,7 @@ class RtcVideoRenderer extends RtcRenderer {
     if (track is LocalMediaTrack) {
       autoRotate = false;
 
-      if(PlatformUtils.isMobile) {
+      if (PlatformUtils.isMobile) {
         mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
       } else {
         mirror = track.mediaSourceKind() == MediaSourceKind.device;
