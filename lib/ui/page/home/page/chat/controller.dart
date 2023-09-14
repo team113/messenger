@@ -1528,7 +1528,7 @@ extension ChatViewExt on Chat {
 
       case ChatKind.dialog:
         User? partner = users.firstWhereOrNull((u) => u.id != me);
-        final partnerName = partner?.name?.val ?? partner?.num.val;
+        final partnerName = partner?.name?.val ?? partner?.num.toString();
         if (partnerName != null) {
           title = partnerName;
         }
@@ -1538,7 +1538,7 @@ extension ChatViewExt on Chat {
         if (name == null) {
           title = users
               .take(3)
-              .map((u) => u.name?.val ?? u.num.val)
+              .map((u) => u.name?.val ?? u.num.toString())
               .join('comma_space'.l10n);
           if (members.length > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);

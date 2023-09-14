@@ -38,7 +38,8 @@ class UserNameCopyable extends StatelessWidget {
     return Paddings.basic(
       CopyableTextField(
         key: const Key('NameField'),
-        state: TextFieldState(text: name?.val ?? num.val, editable: false),
+        state:
+            TextFieldState(text: name?.val ?? num.toString(), editable: false),
         label: 'label_name'.l10n,
       ),
     );
