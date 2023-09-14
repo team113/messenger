@@ -329,11 +329,7 @@ class HiveRxChat extends RxChat {
           break;
 
         case OperationKind.removed:
-          final int i =
-              messages.indexWhere((e) => e.value.id == event.value?.value.id);
-          if (i != -1) {
-            messages.removeAt(i);
-          }
+          messages.removeWhere((e) => e.value.id == event.value?.value.id);
           break;
 
         case OperationKind.updated:

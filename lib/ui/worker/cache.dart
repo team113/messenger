@@ -239,10 +239,7 @@ class CacheWorker extends DisposableService {
     String? checksum,
     String? path,
   }) {
-    Downloading? downloading;
-    if (checksum != null) {
-      downloading = downloads[checksum]?..start(url, path: path);
-    }
+    Downloading? downloading = downloads[checksum]?..start(url, path: path);
 
     if (downloading == null) {
       downloading = Downloading(

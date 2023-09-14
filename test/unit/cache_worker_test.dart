@@ -38,7 +38,7 @@ void main() async {
   tearDownAll(() => cache.listSync().forEach((e) => e.deleteSync()));
 
   test('CacheWorker adds files to cache', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -52,7 +52,7 @@ void main() async {
   });
 
   test('CacheWorker clears its files', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -68,7 +68,7 @@ void main() async {
   });
 
   test('CacheWorker finds stored files', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'), 'checksum');
@@ -106,7 +106,7 @@ void main() async {
   test('CacheWorker optimizes its resources correctly', () async {
     await cacheInfoHiveProvider.set(maxSize: 1024 * 1024);
 
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     for (int i = 0; i < 100; i++) {

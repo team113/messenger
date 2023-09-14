@@ -352,7 +352,7 @@ void main() async {
 
   testWidgets('ChatView successfully sends a message with an attachment',
       (WidgetTester tester) async {
-    CacheWorker.instance = CacheWorker(null);
+    CacheWorker.instance = CacheWorker(null, null);
 
     AuthService authService = Get.put(
       AuthService(
