@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -119,14 +120,14 @@ class FileAttachment extends Attachment {
   }
 
   /// Downloads this [FileAttachment].
-  Future<void> download() async {
-    CacheWorker.instance.download(
-      original.url,
-      filename,
-      original.size,
-      checksum: original.checksum,
-    );
-  }
+  Future<File?>? download() => CacheWorker.instance
+      .download(
+        original.url,
+        filename,
+        original.size,
+        checksum: original.checksum,
+      )
+      .future;
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
   Future<bool> open() =>

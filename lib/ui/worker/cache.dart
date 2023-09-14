@@ -246,7 +246,7 @@ class CacheWorker extends DisposableService {
         checksum,
         filename,
         size,
-        onFinished: (file) {
+        onDownloaded: (file) {
           if (checksum != null) {
             _downloadLocal?.put(checksum, file.path);
           }
@@ -298,7 +298,7 @@ class CacheWorker extends DisposableService {
         filename,
         size,
         file.path,
-        onFinished: (file) => _downloadLocal?.put(checksum, file.path),
+        onDownloaded: (file) => _downloadLocal?.put(checksum, file.path),
       );
       _downloadLocal?.put(checksum, file.path);
     }
@@ -309,8 +309,8 @@ class CacheWorker extends DisposableService {
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`
   Future<bool> open(String? checksum, int? size) async {
     Downloading? downloading = downloads[checksum];
-    if (downloading != null) {
-      File file = File(downloading.file!.path);
+    if (downloading?.file != null) {
+      File file = downloading!.file!;
 
       if (await file.exists() && await file.length() == size) {
         await OpenFile.open(file.path);
@@ -520,7 +520,7 @@ class FIFOCache {
 
 /// A file downloading.
 class Downloading {
-  Downloading(this.checksum, this.filename, this.size, {this.onFinished});
+  Downloading(this.checksum, this.filename, this.size, {this.onDownloaded});
 
   /// Creates a [Downloading] as completed.
   Downloading.completed(
@@ -528,7 +528,7 @@ class Downloading {
     this.filename,
     this.size,
     String path, {
-    this.onFinished,
+    this.onDownloaded,
   }) {
     file = File(path);
     status.value = DownloadStatus.isFinished;
@@ -553,7 +553,7 @@ class Downloading {
   Rx<DownloadStatus> status = Rx(DownloadStatus.notStarted);
 
   /// Callback, called when the [file] is downloaded.
-  void Function(File)? onFinished;
+  void Function(File)? onDownloaded;
 
   /// [Completer] resolving once the [file] is downloaded.
   Completer<File?>? _completer;
@@ -584,7 +584,7 @@ class Downloading {
 
       if (file != null) {
         status.value = DownloadStatus.isFinished;
-        onFinished?.call(file!);
+        onDownloaded?.call(file!);
       } else {
         status.value = DownloadStatus.notStarted;
       }
@@ -597,7 +597,9 @@ class Downloading {
   /// Cancels the [file] downloading.
   void cancel() {
     status.value = DownloadStatus.notStarted;
-    _completer?.complete(null);
+    if (_completer?.isCompleted == false) {
+      _completer?.complete(null);
+    }
     _completer = null;
     _token.cancel();
     _token = CancelToken();
