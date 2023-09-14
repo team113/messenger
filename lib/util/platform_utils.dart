@@ -54,9 +54,6 @@ class PlatformUtilsImpl {
   /// Cache directory.
   Directory? _cacheDirectory;
 
-  /// Path to the temporary directory.
-  Directory? _temporaryDirectory;
-
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
 
@@ -293,16 +290,6 @@ class PlatformUtilsImpl {
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
-  /// Returns a path to the temporary directory.
-  Future<Directory> get temporaryDirectory async {
-    if (_temporaryDirectory != null) {
-      return _temporaryDirectory!;
-    }
-
-    _temporaryDirectory = await getTemporaryDirectory();
-    return _temporaryDirectory!;
-  }
-
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {
@@ -352,8 +339,7 @@ class PlatformUtilsImpl {
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      final Directory directory =
-          temporary ? await temporaryDirectory : await downloadsDirectory;
+      final Directory directory = await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('${directory.path}/$filename');
@@ -380,7 +366,6 @@ class PlatformUtilsImpl {
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-    bool temporary = false,
   }) async {
     dynamic completeWith;
 
@@ -420,7 +405,6 @@ class PlatformUtilsImpl {
                     filename,
                     size: size,
                     url: url,
-                    temporary: temporary,
                   );
                 } catch (e) {
                   onError(e);
@@ -441,9 +425,7 @@ class PlatformUtilsImpl {
             if (path == null) {
               final String name = p.basenameWithoutExtension(filename);
               final String extension = p.extension(filename);
-              final Directory directory = temporary
-                  ? await temporaryDirectory
-                  : await downloadsDirectory;
+              final Directory directory = await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
               for (int i = 1; await file!.exists(); ++i) {

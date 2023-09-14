@@ -26,11 +26,13 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/cache_info.dart';
 import '/domain/service/disposable_service.dart';
 import '/provider/hive/cache.dart';
+import '/provider/hive/download.dart';
 import '/util/backoff.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
@@ -41,7 +43,7 @@ import '/util/platform_utils.dart';
 /// 1) In-memory cache, represented in [FIFOCache].
 /// 2) [File]-system cache.
 class CacheWorker extends DisposableService {
-  CacheWorker(this._cacheLocal) {
+  CacheWorker(this._cacheLocal, this._downloadLocal) {
     instance = this;
   }
 
@@ -57,6 +59,9 @@ class CacheWorker extends DisposableService {
 
   /// [CacheInfo] local [Hive] storage.
   final CacheInfoHiveProvider? _cacheLocal;
+
+  /// Downloaded [File.path]s local [Hive] storage.
+  final DownloadHiveProvider? _downloadLocal;
 
   /// [Directory.list] subscription used in [_updateInfo].
   StreamSubscription? _cacheSubscription;
@@ -199,7 +204,10 @@ class CacheWorker extends DisposableService {
   /// Adds the provided [data] to the cache.
   FutureOr<File?> add(Uint8List data, [String? checksum]) {
     checksum ??= sha256.convert(data).toString();
-    FIFOCache.set(checksum, data);
+
+    if (!FIFOCache.exists(checksum)) {
+      FIFOCache.set(checksum, data);
+    }
 
     return _mutex.protect(() async {
       final Directory? cache = await PlatformUtils.cacheDirectory;
@@ -237,14 +245,86 @@ class CacheWorker extends DisposableService {
     }
 
     if (downloading == null) {
-      downloading = Downloading(checksum, filename, size)
-        ..start(url, path: path);
+      downloading = Downloading(
+        checksum,
+        filename,
+        size,
+        onFinished: (file) {
+          if (checksum != null) {
+            _downloadLocal?.put(checksum, file.path);
+          }
+        },
+      )..start(url, path: path);
       if (checksum != null) {
         downloads[checksum] = downloading;
       }
     }
 
     return downloading;
+  }
+
+  /// Checks that the [File] with provided parameters is downloaded.
+  Future<File?> checkDownloaded({
+    required String filename,
+    String? checksum,
+    int? size,
+    String? url,
+  }) async {
+    Downloading? downloading = downloads[checksum];
+    if (downloading != null) {
+      return downloading.file;
+    }
+
+    File? file;
+    if (checksum != null) {
+      String? path = await _downloadLocal?.get(checksum);
+
+      if (path != null) {
+        file = File(path);
+
+        if (!await file.exists() || await file.length() != size) {
+          file = null;
+          _downloadLocal?.remove(checksum);
+        }
+      }
+    } else {
+      file = await PlatformUtils.fileExists(
+        filename,
+        size: size,
+        url: url,
+      );
+    }
+
+    if (checksum != null && file != null) {
+      CacheWorker.instance.downloads[checksum] = Downloading.completed(
+        checksum,
+        filename,
+        size,
+        file.path,
+        onFinished: (file) => _downloadLocal?.put(checksum, file.path),
+      );
+      _downloadLocal?.put(checksum, file.path);
+    }
+
+    return file;
+  }
+
+  /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`
+  Future<bool> open(String? checksum, int? size) async {
+    Downloading? downloading = downloads[checksum];
+    if (downloading != null) {
+      File file = File(downloading.file!.path);
+
+      if (await file.exists() && await file.length() == size) {
+        await OpenFile.open(file.path);
+        return true;
+      } else {
+        downloading.markAsNotStarted();
+        _downloadLocal?.remove(checksum!);
+      }
+    }
+
+    return false;
   }
 
   /// Indicates whether [checksum] is in the cache.
@@ -443,10 +523,16 @@ class FIFOCache {
 
 /// A file downloading.
 class Downloading {
-  Downloading(this.checksum, this.filename, this.size);
+  Downloading(this.checksum, this.filename, this.size, {this.onFinished});
 
   /// Creates a [Downloading] as completed.
-  Downloading.completed(this.checksum, this.filename, this.size, String path) {
+  Downloading.completed(
+    this.checksum,
+    this.filename,
+    this.size,
+    String path, {
+    this.onFinished,
+  }) {
     file = File(path);
     status.value = DownloadStatus.isFinished;
   }
@@ -468,6 +554,9 @@ class Downloading {
 
   /// [DownloadStatus] of this [Downloading].
   Rx<DownloadStatus> status = Rx(DownloadStatus.notStarted);
+
+  /// Callback, called when the [file] is downloaded.
+  void Function(File)? onFinished;
 
   /// [Completer] resolving once the [file] is downloaded.
   Completer<File?>? _completer;
@@ -498,6 +587,7 @@ class Downloading {
 
       if (file != null) {
         status.value = DownloadStatus.isFinished;
+        onFinished?.call(file!);
       } else {
         status.value = DownloadStatus.notStarted;
       }
@@ -514,6 +604,14 @@ class Downloading {
     _completer = null;
     _token.cancel();
     _token = CancelToken();
+  }
+
+  /// Marks this [Downloading] as not started.
+  void markAsNotStarted() {
+    if (status.value == DownloadStatus.isFinished) {
+      status.value = DownloadStatus.notStarted;
+      file = null;
+    }
   }
 }
 

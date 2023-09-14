@@ -332,8 +332,7 @@ class HiveRxChat extends RxChat {
           final int i =
               messages.indexWhere((e) => e.value.id == event.value?.value.id);
           if (i != -1) {
-            final Rx<ChatItem> item = messages.removeAt(i);
-            _disposeAttachments(item.value);
+            messages.removeAt(i);
           }
           break;
 
@@ -361,9 +360,6 @@ class HiveRxChat extends RxChat {
   /// Disposes this [HiveRxChat].
   Future<void> dispose() async {
     status.value = RxStatus.loading();
-    for (ChatItem item in messages.map((e) => e.value)) {
-      _disposeAttachments(item);
-    }
     messages.clear();
     reads.clear();
     _aroundToken.cancel();
@@ -811,17 +807,17 @@ class HiveRxChat extends RxChat {
   }
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
-  /// [Attachment]s, if any.
+  /// [FileAttachment]s, if any.
   void _add(ChatItem item) {
     if (!PlatformUtils.isWeb) {
       if (item is ChatMessage) {
-        for (var a in item.attachments) {
+        for (var a in item.attachments.whereType<FileAttachment>()) {
           a.init();
         }
       } else if (item is ChatForward) {
         ChatItemQuote nested = item.quote;
         if (nested is ChatMessageQuote) {
-          for (var a in nested.attachments) {
+          for (var a in nested.attachments.whereType<FileAttachment>()) {
             a.init();
           }
         }
@@ -835,24 +831,7 @@ class HiveRxChat extends RxChat {
         (e) => item.key.compareTo(e.value.key) == 1,
       );
     } else {
-      _disposeAttachments(messages[i].value);
       messages[i].value = item;
-    }
-  }
-
-  /// Invokes the [Attachment.dispose] in the provided [item].
-  void _disposeAttachments(ChatItem item) async {
-    if (item is ChatMessage) {
-      for (var e in item.attachments) {
-        e.dispose();
-      }
-    } else if (item is ChatForward) {
-      ChatItemQuote nested = item.quote;
-      if (nested is ChatMessageQuote) {
-        for (var e in nested.attachments) {
-          e.dispose();
-        }
-      }
     }
   }
 
@@ -1136,7 +1115,7 @@ class HiveRxChat extends RxChat {
               final message = await get(event.itemId);
               if (message != null) {
                 (message.value as ChatMessage).text = event.text;
-                _local.put(message);
+                put(message);
               }
               break;
 
@@ -1155,7 +1134,7 @@ class HiveRxChat extends RxChat {
               if (message != null) {
                 event.call.at = message.value.at;
                 message.value = event.call;
-                _local.put(message);
+                put(message);
               }
               break;
 
@@ -1229,7 +1208,7 @@ class HiveRxChat extends RxChat {
                     if (message != null) {
                       call.at = message.value.at;
                       message.value = call;
-                      _local.put(message);
+                      put(message);
                     }
                   }
                 }
