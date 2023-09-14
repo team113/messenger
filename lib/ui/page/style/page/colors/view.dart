@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
 import '/themes.dart';
@@ -210,19 +211,43 @@ class _ColorsViewState extends State<ColorsView> {
         controller: _scrollController,
         children: [
           const SizedBox(height: 16 + 5),
-          const Header('Colors'),
-          const SizedBox(height: 16),
-          ColorSchemaWidget(
-            colors,
-            inverted: widget.inverted,
-            dense: widget.dense,
+          Block(
+            title: 'Colors',
+            unconstrained: true,
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+            children: [
+              ColorSchemaWidget(
+                colors,
+                inverted: widget.inverted,
+                dense: widget.dense,
+              ),
+            ],
           ),
-          const SubHeader('Avatars'),
-          ColorSchemaWidget(
-            avatars,
-            inverted: widget.inverted,
-            dense: widget.dense,
+          Block(
+            title: 'Avatars',
+            unconstrained: true,
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+            children: [
+              ColorSchemaWidget(
+                avatars,
+                inverted: widget.inverted,
+                dense: widget.dense,
+              ),
+            ],
           ),
+          // const Header('Colors'),
+          // const SizedBox(height: 16),
+          // ColorSchemaWidget(
+          //   colors,
+          //   inverted: widget.inverted,
+          //   dense: widget.dense,
+          // ),
+          // const SubHeader('Avatars'),
+          // ColorSchemaWidget(
+          //   avatars,
+          //   inverted: widget.inverted,
+          //   dense: widget.dense,
+          // ),
           const SizedBox(height: 16),
         ],
       ),

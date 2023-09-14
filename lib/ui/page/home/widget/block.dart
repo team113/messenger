@@ -30,6 +30,7 @@ class Block extends StatelessWidget {
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.children = const [],
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    this.unconstrained = false,
   });
 
   /// Optional header of this [Block].
@@ -44,6 +45,7 @@ class Block extends StatelessWidget {
   final List<Widget> children;
 
   final EdgeInsets padding;
+  final bool unconstrained;
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +62,9 @@ class Block extends StatelessWidget {
             color: style.messageColor,
             borderRadius: BorderRadius.circular(15),
           ),
-          constraints:
-              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          constraints: (context.isNarrow || unconstrained)
+              ? null
+              : const BoxConstraints(maxWidth: 400),
           padding: padding,
           child: Column(
             crossAxisAlignment: crossAxisAlignment,
@@ -73,7 +76,9 @@ class Block extends StatelessWidget {
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       child: Text(
                         title!,
                         textAlign: TextAlign.center,

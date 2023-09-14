@@ -17,8 +17,11 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
@@ -53,23 +56,23 @@ class _TypographyViewState extends State<TypographyView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Iterable<(TextStyle, String)> styles = [
-      (style.fonts.displayLarge, 'displayLarge'),
-      (style.fonts.displayMedium, 'displayMedium'),
-      (style.fonts.displaySmall, 'displaySmall'),
-      (style.fonts.headlineLarge, 'headlineLarge'),
-      (style.fonts.headlineMedium, 'headlineMedium'),
-      (style.fonts.headlineSmall, 'headlineSmall'),
-      (style.fonts.titleLarge, 'titleLarge'),
-      (style.fonts.titleMedium, 'titleMedium'),
-      (style.fonts.titleSmall, 'titleSmall'),
-      (style.fonts.labelLarge, 'labelLarge'),
-      (style.fonts.labelMedium, 'labelMedium'),
-      (style.fonts.labelSmall, 'labelSmall'),
-      (style.fonts.bodyLarge, 'bodyLarge'),
-      (style.fonts.bodyMedium, 'bodyMedium'),
-      (style.fonts.bodySmall, 'bodySmall'),
-    ];
+    // final Iterable<(TextStyle, String)> styles = [
+    //   (style.fonts.displayLarge, 'displayLarge'),
+    //   (style.fonts.displayMedium, 'displayMedium'),
+    //   (style.fonts.displaySmall, 'displaySmall'),
+    //   (style.fonts.headlineLarge, 'headlineLarge'),
+    //   (style.fonts.headlineMedium, 'headlineMedium'),
+    //   (style.fonts.headlineSmall, 'headlineSmall'),
+    //   (style.fonts.titleLarge, 'titleLarge'),
+    //   (style.fonts.titleMedium, 'titleMedium'),
+    //   (style.fonts.titleSmall, 'titleSmall'),
+    //   (style.fonts.labelLarge, 'labelLarge'),
+    //   (style.fonts.labelMedium, 'labelMedium'),
+    //   (style.fonts.labelSmall, 'labelSmall'),
+    //   (style.fonts.bodyLarge, 'bodyLarge'),
+    //   (style.fonts.bodyMedium, 'bodyMedium'),
+    //   (style.fonts.bodySmall, 'bodySmall'),
+    // ];
 
     Iterable<(TextStyle, String)> fonts = [
       (style.fonts.displayLarge, 'displayLarge'),
@@ -140,6 +143,23 @@ class _TypographyViewState extends State<TypographyView> {
       (FontWeight.w700, 'SFUI-Bold'),
     ];
 
+    final Map<double, List<TextStyle>> styles = {};
+
+    for (var f in fonts) {
+      final List<TextStyle>? list = styles[f.$1.fontSize];
+      if (list != null) {
+        list.add(f.$1);
+      } else {
+        styles[f.$1.fontSize!] = [f.$1];
+      }
+    }
+
+    for (var k in styles.keys) {
+      styles[k]?.sort(
+        (a, b) => b.fontWeight!.index.compareTo(a.fontWeight!.index),
+      );
+    }
+
     return SafeScrollbar(
       controller: _scrollController,
       margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
@@ -147,15 +167,278 @@ class _TypographyViewState extends State<TypographyView> {
         controller: _scrollController,
         children: [
           const SizedBox(height: 16 + 5),
-          const Header('Typography'),
-          const SubHeader('Families'),
-          BuilderWrap(
-            families,
-            inverted: widget.inverted,
-            dense: widget.dense,
-            (e) =>
-                FontFamily(e, inverted: widget.inverted, dense: widget.dense),
+          Block(
+            unconstrained: true,
+            title: 'Font families',
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...families.map((e) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: style.fonts.displayLarge.copyWith(
+                        color: style.colors.onBackground,
+                        fontWeight: e.$1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    WidgetButton(
+                      onPressed: () {},
+                      child: Text(
+                        e.$2,
+                        style: style.fonts.labelSmallPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                );
+              }),
+            ],
           ),
+
+          ...styles.keys.map((e) {
+            return Block(
+              title: 'Font $e',
+              unconstrained: true,
+              children: [
+                ...styles[e]!.map((f) {
+                  final HSLColor hsl = HSLColor.fromColor(f.color!);
+
+                  final Color textColor = hsl.lightness > 0.7 || hsl.alpha < 0.4
+                      ? const Color(0xFFFFFFFF)
+                      : const Color(0xFF000000);
+                  final Color background =
+                      hsl.lightness > 0.7 || hsl.alpha < 0.4
+                          ? const Color(0xFF000000)
+                          : const Color(0xFFFFFFFF);
+
+                  return Container(
+                    color: background,
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'bold.onBackground',
+                            style: f,
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                        Text(
+                          'w${f.fontWeight?.value}, ${f.color!.toHex(withAlpha: false)}',
+                          style: TextStyle(color: textColor),
+                        ).fixedDigits(all: true),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            );
+          }),
+
+          // Block(
+          //   title: 'Font 27',
+          //   unconstrained: true,
+          //   children: [
+          //     Container(
+          //       width: double.infinity,
+          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: Text(
+          //               'bold.onBackground',
+          //               style: style.fonts.displayLarge,
+          //               textAlign: TextAlign.start,
+          //             ),
+          //           ),
+          //           const Text('w700, #FF0F0F0'),
+          //         ],
+          //       ),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: Text(
+          //               'bold.primary',
+          //               style: style.fonts.displayLarge
+          //                   .copyWith(color: style.colors.primary),
+          //               textAlign: TextAlign.start,
+          //             ),
+          //           ),
+          //           const Text('w700, #FF0F0F0'),
+          //         ],
+          //       ),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: Text(
+          //               'regular.onBackground',
+          //               style: style.fonts.displayLarge
+          //                   .copyWith(fontWeight: FontWeight.normal),
+          //               textAlign: TextAlign.start,
+          //             ),
+          //           ),
+          //           const Text('w400, #FF0F0F0'),
+          //         ],
+          //       ),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       color: Colors.black,
+          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: Text(
+          //               'light.onBackground',
+          //               style: style.fonts.displayLarge.copyWith(
+          //                 fontWeight: FontWeight.w300,
+          //                 color: style.colors.background,
+          //               ),
+          //               textAlign: TextAlign.start,
+          //             ),
+          //           ),
+          //           const Text(
+          //             'w300, #FF0F0F0',
+          //             style: TextStyle(color: Colors.white),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+
+          Block(
+            title: 'Fonts',
+            unconstrained: true,
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: Text(
+                  'bold27',
+                  style: style.fonts.displayLarge,
+                  textAlign: TextAlign.start,
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'bold27.onBackground',
+                        style: style.fonts.displayLarge,
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                    const Text('#FF0F0F0'),
+                  ],
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'bold27.primary',
+                        style: style.fonts.displayLarge
+                            .copyWith(color: style.colors.primary),
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                    const Text('#FF0F0F0'),
+                  ],
+                ),
+              ),
+
+              // ...fonts.map((e) {
+              //   final HSLColor hsl = HSLColor.fromColor(e.$1.color!);
+              //   final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
+              //       ? const Color(0xFF000000)
+              //       : const Color(0xFFFFFFFF);
+
+              //   return Container(
+              //     color: background,
+              //     width: double.infinity,
+              //     padding: const EdgeInsets.all(8),
+              //     child: Row(
+              //       children: [
+              //         Expanded(
+              //           child: Text(
+              //             // e.$2,
+              //             e.$2 == 'displayLarge' ? 'bold27\$onBackround' : e.$2,
+              //             style: e.$1,
+              //             textAlign: TextAlign.start,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   );
+              // }),
+            ],
+          ),
+
+          // Block(
+          //   title: 'Families',
+          //   unconstrained: true,
+          //   // padding: EdgeInsets.zero,
+          //   children: [
+          //     BuilderWrap(
+          //       families,
+          //       inverted: widget.inverted,
+          //       dense: widget.dense,
+          //       (e) => FontFamily(
+          //         e,
+          //         inverted: widget.inverted,
+          //         dense: widget.dense,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // Block(
+          //   title: 'Families',
+          //   unconstrained: true,
+          //   // padding: EdgeInsets.zero,
+          //   children: [
+          //     BuilderWrap(
+          //       families,
+          //       inverted: widget.inverted,
+          //       dense: widget.dense,
+          //       (e) => FontFamily(
+          //         e,
+          //         inverted: widget.inverted,
+          //         dense: widget.dense,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // const Header('Typography'),
+          // const SubHeader('Families'),
+          // BuilderWrap(
+          //   families,
+          //   inverted: widget.inverted,
+          //   dense: widget.dense,
+          //   (e) =>
+          //       FontFamily(e, inverted: widget.inverted, dense: widget.dense),
+          // ),
           const SubHeader('Fonts'),
           BuilderWrap(
             fonts,
@@ -184,7 +467,23 @@ class _TypographyViewState extends State<TypographyView> {
           // ),
           const SubHeader('Styles'),
           BuilderWrap(
-            styles,
+            [
+              (style.fonts.displayLarge, 'displayLarge'),
+              (style.fonts.displayMedium, 'displayMedium'),
+              (style.fonts.displaySmall, 'displaySmall'),
+              (style.fonts.headlineLarge, 'headlineLarge'),
+              (style.fonts.headlineMedium, 'headlineMedium'),
+              (style.fonts.headlineSmall, 'headlineSmall'),
+              (style.fonts.titleLarge, 'titleLarge'),
+              (style.fonts.titleMedium, 'titleMedium'),
+              (style.fonts.titleSmall, 'titleSmall'),
+              (style.fonts.labelLarge, 'labelLarge'),
+              (style.fonts.labelMedium, 'labelMedium'),
+              (style.fonts.labelSmall, 'labelSmall'),
+              (style.fonts.bodyLarge, 'bodyLarge'),
+              (style.fonts.bodyMedium, 'bodyMedium'),
+              (style.fonts.bodySmall, 'bodySmall'),
+            ],
             inverted: widget.inverted,
             dense: widget.dense,
             (e) => FontStyleWidget(e, inverted: widget.inverted),
