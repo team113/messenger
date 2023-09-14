@@ -405,7 +405,7 @@ class EndCallButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] toggling the speaker.
+/// [RoundFloatingButton] switching a speaker output.
 class SpeakerButton extends CallButton {
   const SpeakerButton(CallController c) : super(c);
 
