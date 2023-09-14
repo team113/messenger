@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -32,9 +31,6 @@ class AuthController extends GetxController {
 
   /// Current logo's animation frame.
   RxInt logoFrame = RxInt(0);
-
-  /// [SMITrigger] triggering the blinking animation.
-  SMITrigger? blink;
 
   /// Authorization service used for signing up.
   final AuthService _auth;
@@ -64,8 +60,6 @@ class AuthController extends GetxController {
 
   /// Resets the [logoFrame] and starts the blinking animation.
   void animate() {
-    blink?.fire();
-
     logoFrame.value = 1;
     _animationTimer?.cancel();
     _animationTimer = Timer.periodic(

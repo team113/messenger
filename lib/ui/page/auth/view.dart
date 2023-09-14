@@ -17,9 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
-import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -152,11 +150,7 @@ class AuthView extends StatelessWidget {
               () {
                 return AnimatedLogo(
                   key: const ValueKey('Logo'),
-                  svgAsset:
-                      'assets/images/logo/head000${c.logoFrame.value}.svg',
-                  onInit: Config.disableInfiniteAnimations
-                      ? null
-                      : (a) => _setBlink(c, a),
+                  index: c.logoFrame.value,
                 );
               },
             ),
@@ -208,18 +202,6 @@ class AuthView extends StatelessWidget {
         );
       },
     );
-  }
-
-  /// Sets the [AuthController.blink] from the provided [Artboard] and invokes
-  /// a [AuthController.animate] to animate it.
-  Future<void> _setBlink(AuthController c, Artboard a) async {
-    final StateMachineController machine =
-        StateMachineController(a.stateMachines.first);
-    a.addController(machine);
-
-    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-
-    await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.

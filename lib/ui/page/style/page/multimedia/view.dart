@@ -20,7 +20,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:rive/rive.dart';
 
 import '/themes.dart';
-import '/ui/page/auth/widget/animated_logo.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
@@ -140,7 +139,8 @@ class MultimediaView extends StatelessWidget {
             width: 210,
             height: 300,
             subtitle: 'AnimatedLogo',
-            child: AnimatedLogo(
+            child: RiveAnimation.asset(
+              'assets/images/logo/logo.riv',
               onInit: (a) async {
                 final StateMachineController machine =
                     StateMachineController(a.stateMachines.first);

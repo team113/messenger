@@ -21,12 +21,11 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import 'prefix_button.dart';
 
-/// Button with a [leading] icon or [asset] and a [title].
+/// [PrefixButton] with an [asset] as a prefix and a [title].
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
     required this.title,
-    this.leading,
     this.asset = '',
     this.assetWidth = 20,
     this.assetHeight = 20,
@@ -37,10 +36,7 @@ class SignButton extends StatelessWidget {
   /// Title of this [SignButton].
   final String title;
 
-  /// [Widget] to display as a leading.
-  final Widget? leading;
-
-  /// Asset to display as a leading.
+  /// Asset to display as a `prefix`.
   final String asset;
 
   /// Width of the [asset].
@@ -49,7 +45,7 @@ class SignButton extends StatelessWidget {
   ///  Height of the [asset].
   final double assetHeight;
 
-  /// Padding to apply to the [leading].
+  /// Padding to apply to the `prefix`.
   final EdgeInsets padding;
 
   /// Callback to call when this button is pressed.
@@ -65,13 +61,12 @@ class SignButton extends StatelessWidget {
         style: style.fonts.titleLarge,
         onPressed: onPressed ?? () {},
         prefix: Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),
-          child: leading ??
-              SvgImage.asset(
-                'assets/icons/$asset.svg',
-                width: assetWidth,
-                height: assetHeight,
-              ),
+          padding: const EdgeInsets.only(left: 16).add(padding),
+          child: SvgImage.asset(
+            'assets/icons/$asset.svg',
+            width: assetWidth,
+            height: assetHeight,
+          ),
         ),
       ),
     );

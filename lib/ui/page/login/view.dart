@@ -74,24 +74,6 @@ class LoginView extends StatelessWidget {
       ),
       builder: (LoginController c) {
         return Obx(() {
-          Widget builder(Widget header, List<Widget> children) {
-            return ListView(
-              controller: c.scrollController,
-              shrinkWrap: true,
-              children: [
-                header,
-                const SizedBox(height: 12),
-                ...children.map(
-                  (e) => Padding(
-                    padding: ModalPopup.padding(context),
-                    child: e,
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-            );
-          }
-
           final Widget header;
           final List<Widget> children;
 
@@ -431,7 +413,21 @@ class LoginView extends StatelessWidget {
             child: Scrollbar(
               key: Key('${c.stage.value}'),
               controller: c.scrollController,
-              child: builder(header, children),
+              child: ListView(
+                controller: c.scrollController,
+                shrinkWrap: true,
+                children: [
+                  header,
+                  const SizedBox(height: 12),
+                  ...children.map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: e,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           );
         });

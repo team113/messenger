@@ -16,57 +16,33 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Animated logo, displaying the provided [riveAsset], when higher than 250
-/// pixels, or otherwise the specified [svgAsset].
+/// Animated logo, displaying the [SvgImage] based on the provided [index].
 class AnimatedLogo extends StatelessWidget {
   const AnimatedLogo({
     super.key,
-    this.svgAsset,
-    this.riveAsset = 'assets/images/logo/logo.riv',
-    this.onInit,
+    this.index = 0,
     this.height = 166,
   });
 
-  /// Path to an asset to put into the [RiveAnimation].
-  final String riveAsset;
-
-  /// Callback, called when underlying [RiveAnimation] has been initialized.
-  final void Function(Artboard)? onInit;
-
-  /// Path to an asset to put into the [SvgImage].
-  final String? svgAsset;
+  /// Index of an asset to put into path of the [SvgImage].
+  final int index;
 
   /// Height of the logo.
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    if (svgAsset != null) {
-      return SvgImage.asset(
-        svgAsset!,
-        height: height,
-        fit: BoxFit.contain,
-        placeholderBuilder: (context) {
-          return const Center(child: CustomProgressIndicator());
-        },
-      );
-    } else {
-      return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 350),
-        child: AnimatedSize(
-          curve: Curves.ease,
-          duration: const Duration(milliseconds: 200),
-          child: SizedBox(
-            height: 250,
-            child: RiveAnimation.asset(riveAsset, onInit: onInit),
-          ),
-        ),
-      );
-    }
+    return SvgImage.asset(
+      'assets/images/logo/head000$index.svg',
+      height: height,
+      fit: BoxFit.contain,
+      placeholderBuilder: (context) {
+        return const Center(child: CustomProgressIndicator());
+      },
+    );
   }
 }
