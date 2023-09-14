@@ -255,15 +255,12 @@ class AuthService extends GetxService {
 
   /// Creates a new [MyUser] and sends a [ConfirmationCode] to [MyUser]'s
   /// provided [email].
-  Future<Credentials> signUpWithEmail(UserEmail email) async {
+  Future<void> signUpWithEmail(UserEmail email) async {
     try {
-      final creds = await _authRepository.signUp();
+      final creds = await _authRepository.signUpWithEmail(email);
 
       _authorized(creds);
-
-      _authRepository.addUserEmail(email);
-
-      return creds;
+      _sessionProvider.setCredentials(creds);
     } catch (e) {
       _unauthorized();
       rethrow;
@@ -274,12 +271,9 @@ class AuthService extends GetxService {
   /// [Credentials].
   Future<void> confirmEmailCode(
     ConfirmationCode code,
-    Credentials creds,
   ) async {
     try {
-      await _authRepository.confirmEmailCode(code, creds);
-
-      _sessionProvider.setCredentials(creds);
+      await _authRepository.confirmEmailCode(code);
     } catch (e) {
       rethrow;
     }
@@ -287,12 +281,10 @@ class AuthService extends GetxService {
 
   /// Resends the [ConfirmationCode] for the [MyUser] identified by [Credentials].
   ///
-  /// [Credentials] can be received from [signUpWithEmail].
-  Future<void> resendEmail(Credentials creds) async {
+  /// [Credentials] can be received from [signUpWithEmailold].
+  Future<void> resendEmailCode() async {
     try {
-      _authorized(creds);
-
-      await _authRepository.resendEmail(creds);
+      await _authRepository.resendEmailCode();
     } catch (e) {
       _unauthorized();
       rethrow;

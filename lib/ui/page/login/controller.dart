@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
-import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
@@ -87,9 +86,6 @@ class LoginController extends GetxController {
 
   /// [LoginView] stage to go back to.
   LoginViewStage? backStage;
-
-  /// [Credentials] of the current user.
-  Credentials? creds;
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
@@ -221,7 +217,7 @@ class LoginController extends GetxController {
         stage.value = LoginViewStage.signUpWithEmailCode;
 
         try {
-          creds = await _authService.signUpWithEmail(UserEmail(email.text));
+          await _authService.signUpWithEmail(UserEmail(email.text));
           s.unsubmit();
         } on AddUserEmailException catch (e) {
           s.error.value = e.toMessage();
@@ -245,7 +241,6 @@ class LoginController extends GetxController {
         try {
           await _authService.confirmEmailCode(
             ConfirmationCode(emailCode.text),
-            creds!,
           );
 
           (onSuccess ?? router.home)();
@@ -583,7 +578,7 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendEmail(creds!);
+      await _authService.resendEmailCode();
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
