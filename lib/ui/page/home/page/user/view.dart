@@ -115,7 +115,7 @@ class UserView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.toString()}'),
+                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,

@@ -23,12 +23,12 @@ import 'package:hive/hive.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model_type_id.dart';
+import '/l10n/l10n.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
-import '/l10n/l10n.dart';
 
 part 'user.g.dart';
 
@@ -164,7 +164,7 @@ class UserNum extends NewType<String> {
     return UserNum._(val);
   }
 
-  /// Returns [UserNum] as String formatted as quartets
+  /// Returns [UserNum] as [String] formatted in quartets.
   @override
   String toString() {
     String formattedUserNum = '';
