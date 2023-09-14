@@ -1566,6 +1566,19 @@ class OngoingCall {
   /// Adds the provided [track] to the local tracks and initializes video
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
+    track.onEnded(() {
+      MediaKind.video;
+      if(track.kind() == MediaKind.audio) {
+        setAudioEnabled(false);
+      } else {
+        if(track.mediaSourceKind() == MediaSourceKind.device) {
+          setVideoEnabled(false);
+        } else {
+          setScreenShareEnabled(false);
+        }
+      }
+    });
+
     if (track.kind() == MediaKind.video) {
       LocalTrackState state;
       switch (track.mediaSourceKind()) {
@@ -1733,9 +1746,21 @@ abstract class RtcRenderer {
 class RtcVideoRenderer extends RtcRenderer {
   RtcVideoRenderer(MediaTrack track) : super(track.getTrack()) {
     if (track is LocalMediaTrack) {
-      inner.mirror = track.mediaSourceKind() == MediaSourceKind.device;
+      autoRotate = false;
+
+      if(PlatformUtils.isMobile) {
+        mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
+      } else {
+        mirror = track.mediaSourceKind() == MediaSourceKind.device;
+      }
     }
   }
+
+  /// Indicator whether this [RtcVideoRenderer] should be mirrored.
+  bool mirror = false;
+
+  /// Indicator whether this [RtcVideoRenderer] should be auto rotated.
+  bool autoRotate = true;
 
   /// Actual [webrtc.VideoRenderer].
   final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();

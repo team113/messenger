@@ -109,9 +109,6 @@ class ParticipantWidget extends StatelessWidget {
                           as RtcVideoRenderer,
                       source: participant.source,
                       key: participant.videoKey,
-                      mirror:
-                          participant.member.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       border:
