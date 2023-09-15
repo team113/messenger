@@ -30,6 +30,7 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -277,7 +278,7 @@ class CallController extends GetxController {
   /// current frame.
   bool _secondaryRelocated = false;
 
-  /// [AudioPlayer] playing a reconnection sound.
+  /// [StreamSubscription] for canceling a reconnection sound.
   StreamSubscription? _reconnectAudio;
 
   /// Max width of the minimized view in percentage of the screen width.
@@ -433,7 +434,7 @@ class CallController extends GetxController {
   /// Returns a name of the current [OngoingCall]'s caller.
   String? get callerName =>
       _currentCall.value.caller?.name?.val ??
-      _currentCall.value.caller?.num.val;
+      _currentCall.value.caller?.num.toString();
 
   /// Indicates whether a drag and drop videos hint should be displayed.
   bool get showDragAndDropVideosHint =>
@@ -533,9 +534,14 @@ class CallController extends GetxController {
             .toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] = '${chat.value?.members.length ?? 1}';
-        args['duration'] = duration.value.hhMmSs();
-        if (income) {
-          args['gpc'] = ((duration.value.inMinutes + 1) * 3).toString();
+
+        if (Config.disableInfiniteAnimations) {
+          args['duration'] = Duration.zero.hhMmSs();
+        } else {
+          args['duration'] = duration.value.hhMmSs();
+          if (income) {
+            args['gpc'] = ((duration.value.inMinutes + 1) * 3).toString();
+          }
         }
         break;
 
@@ -768,11 +774,6 @@ class CallController extends GetxController {
       }
 
       // Ensure [EndCallButton] is always in the list.
-      // if (persisted!.whereType<ReconnectButton>().isEmpty) {
-      //   persisted.insert(0, ReconnectButton(this));
-      // }
-
-      // Ensure [EndCallButton] is always in the list.
       if (persisted!.whereType<EndCallButton>().isEmpty) {
         persisted.add(EndCallButton(this));
       }
@@ -874,9 +875,6 @@ class CallController extends GetxController {
             focusAll();
           }
 
-          print(
-              '${_settingsRepository.applicationSettings.value?.leaveWhenAlone == true}, ${e.value?.isConnected.value == true}, ${e.key?.userId != me.id.userId}, ${_currentCall.value.members.keys} vs ${me.id}');
-
           if (_settingsRepository.applicationSettings.value?.leaveWhenAlone ==
                   true &&
               e.value?.isConnected.value == true &&
@@ -889,16 +887,6 @@ class CallController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // if (e.key != e.oldKey && e.oldKey != null) {
-          //   for (var m in [
-          //     ..._findParticipants(e.oldKey!, MediaSourceKind.device),
-          //     ..._findParticipants(e.oldKey!, MediaSourceKind.display),
-          //   ]) {
-          //     m.member = e.value!;
-          //     print('member is now ${e.value?.id}');
-          //   }
-          // }
-
           _insureCorrectGrouping();
           break;
       }
@@ -910,12 +898,12 @@ class CallController extends GetxController {
           .add(Timer(_notificationDuration, () => notifications.remove(e)));
     });
 
-    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) async {
+    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
       if (b) {
         _reconnectAudio =
             AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
       } else {
-        await _reconnectAudio?.cancel();
+        _reconnectAudio?.cancel();
       }
     });
   }
@@ -2091,6 +2079,7 @@ class CallController extends GetxController {
                 ? e.video.value == null
                 : e.audio.value == null &&
                     e.video.value?.source != MediaSourceKind.display);
+        participant.member = member;
         if (track.kind == MediaKind.video) {
           participant.video.value = track;
         } else {
@@ -2184,7 +2173,7 @@ class Participant {
         audio = Rx(audio);
 
   /// [CallMember] this [Participant] represents.
-  final CallMember member;
+  CallMember member;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;

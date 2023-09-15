@@ -409,6 +409,13 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
+  /// and deletes the current active [ChatDirectLink] of the given [Chat]-group
+  /// (if any).
+  Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
+    await _chatService.createChatDirectLink(chatId, slug!);
+  }
+
   /// Fetches the [chat].
   void _fetchChat() async {
     status.value = RxStatus.loading();

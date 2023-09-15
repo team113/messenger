@@ -45,7 +45,7 @@ class CallCoverWidget extends StatelessWidget {
     return Stack(
       children: [
         if (cover == null)
-          SvgImage.asset(
+          const SvgImage.asset(
             'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,
@@ -53,7 +53,7 @@ class CallCoverWidget extends StatelessWidget {
           ),
         if (user != null)
           LayoutBuilder(builder: (context, constraints) {
-            final String? title = user?.name?.val ?? user?.num.val;
+            final String? title = user?.name?.val ?? user?.num.toString();
             final int? color = user?.num.val.sum();
 
             final Color gradient;

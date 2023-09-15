@@ -61,7 +61,7 @@ dependencies:
   intl: ^0.18.0
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.2
+  medea_flutter_webrtc: 0.8.3-dev+rev.65596bcbac8d7aa997e4877697aaffec7dcf53f8
   medea_jason: ^0.4.0
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
@@ -145,6 +145,8 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^6.2.0
+  # TODO: Remove when `medea_jason` updates.
+  flutter_rust_bridge: 1.81.0
   # TODO: Remove when hivedb/hive#1034 is fixed:
   #       https://github.com/hivedb/hive/issues/1034
   hive:
@@ -166,6 +168,9 @@ dependency_overrides:
     git:
       url: https://github.com/SleepySquash/rive_common_to_fix_cpp_issue.git
       ref: d9ee97afae0088b3b9f96f38a8ecd1d5dc893df5
+  # medea_flutter_webrtc:
+  #   git: https://github.com/instrumentisto/medea-flutter-webrtc
+  # flutter_rust_bridge: ^1.81.0
 
 flutter:
   uses-material-design: true

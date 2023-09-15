@@ -78,8 +78,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (isAudioDisabled) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 3, right: 3),
+          const Padding(
+            padding: EdgeInsets.only(left: 3, right: 3),
             child: SvgImage.asset(
               'assets/icons/audio_off_small.svg',
               width: 20.88,
@@ -90,8 +90,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
         );
       } else if (isMuted) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
+          const Padding(
+            padding: EdgeInsets.only(left: 2, right: 2),
             child: SvgImage.asset(
               'assets/icons/microphone_off_small.svg',
               height: 16.5,
@@ -102,8 +102,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (participant.member.quality.value <= 1) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 3),
+          const Padding(
+            padding: EdgeInsets.only(left: 2, right: 3),
             child: SvgImage.asset(
               'assets/icons/low_signal_level.svg',
               height: 15.5,
@@ -119,8 +119,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
         if (isVideoDisabled) {
           additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
+            const Padding(
+              padding: EdgeInsets.only(left: 4, right: 4),
               child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
@@ -129,8 +129,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
           );
         } else {
           additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
+            const Padding(
+              padding: EdgeInsets.only(left: 4, right: 4),
               child: SvgImage.asset(
                 'assets/icons/screen_share_small.svg',
                 height: 12,
@@ -143,8 +143,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 5),
+          const Padding(
+            padding: EdgeInsets.only(left: 5, right: 5),
             child: SvgImage.asset(
               'assets/icons/video_off_small.svg',
               width: 19.8,
@@ -158,7 +158,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         padding: const EdgeInsets.only(left: 3, right: 3),
         child: Text(
           participant.user.value?.user.value.name?.val ??
-              participant.user.value?.user.value.num.val ??
+              participant.user.value?.user.value.num.toString() ??
               'dot'.l10n * 3,
           style: style.fonts.bodyMediumOnPrimary,
           maxLines: 1,
@@ -188,8 +188,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? style.colors.onSecondaryOpacity20
-                    : style.colors.onSecondary,
+                    ? style.colors.primaryAuxiliaryOpacity25
+                    : style.colors.primaryDarkOpacity70,
               ),
               padding: EdgeInsets.only(
                 left: 6,

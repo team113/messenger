@@ -31,7 +31,9 @@ import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
@@ -106,7 +108,7 @@ class ChatInfoView extends StatelessWidget {
                               ),
                               if (c.chat?.chat.value.muted != null) ...[
                                 const SizedBox(width: 5),
-                                SvgImage.asset(
+                                const SvgImage.asset(
                                   'assets/icons/muted.svg',
                                   width: 19.99 * 0.6,
                                   height: 15 * 0.6,
@@ -129,7 +131,7 @@ class ChatInfoView extends StatelessWidget {
                   offset: const Offset(0, 1),
                   child: AnimatedButton(
                     onPressed: () => router.chat(id, push: true),
-                    child: SvgImage.asset(
+                    child: const SvgImage.asset(
                       'assets/icons/chat.svg',
                       width: 20.12,
                       height: 21.62,
@@ -141,7 +143,7 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(width: 28),
                     AnimatedButton(
                       onPressed: () => c.call(true),
-                      child: SvgImage.asset(
+                      child: const SvgImage.asset(
                         'assets/icons/chat_video_call.svg',
                         height: 17,
                       ),
@@ -150,7 +152,7 @@ class ChatInfoView extends StatelessWidget {
                   const SizedBox(width: 28),
                   AnimatedButton(
                     onPressed: () => c.call(false),
-                    child: SvgImage.asset(
+                    child: const SvgImage.asset(
                       'assets/icons/chat_audio_call.svg',
                       height: 19,
                     ),
@@ -174,12 +176,12 @@ class ChatInfoView extends StatelessWidget {
                         child: AnimatedSwitcher(
                           duration: 300.milliseconds,
                           child: c.inCall
-                              ? SvgImage.asset(
+                              ? const SvgImage.asset(
                                   'assets/icons/call_end.svg',
                                   width: 22,
                                   height: 22,
                                 )
-                              : SvgImage.asset(
+                              : const SvgImage.asset(
                                   'assets/icons/audio_call_start.svg',
                                   width: 10,
                                   height: 10,
@@ -199,10 +201,18 @@ class ChatInfoView extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   Block(
-                    title: 'label_profile'.l10n,
+                    title: 'label_public_information'.l10n,
                     children: [
-                      _avatar(c, context),
-                      const SizedBox(height: 15),
+                      BigAvatarWidget.chat(
+                        c.chat,
+                        key: Key('ChatAvatar_${c.chat!.id}'),
+                        loading: c.avatar.value.isLoading,
+                        onUpload: c.pickAvatar,
+                        onDelete: c.chat?.avatar.value != null
+                            ? c.deleteAvatar
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
                       _name(c, context),
                     ],
                   ),
@@ -213,7 +223,12 @@ class ChatInfoView extends StatelessWidget {
                     ),
                     Block(
                       title: 'label_direct_chat_link'.l10n,
-                      children: [_link(c, context)],
+                      children: [
+                        DirectLinkField(
+                          c.chat?.chat.value.directLink,
+                          onSubmit: c.createChatDirectLink,
+                        ),
+                      ],
                     ),
                   ],
                   Block(
@@ -233,92 +248,6 @@ class ChatInfoView extends StatelessWidget {
   /// Basic [Padding] wrapper.
   Widget _padding(Widget child) =>
       Padding(padding: const EdgeInsets.all(8), child: child);
-
-  /// Returns a [Chat.avatar] visual representation along with its manipulation
-  /// buttons.
-  Widget _avatar(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            WidgetButton(
-              key: Key('ChatAvatar_${c.chat!.id}'),
-              onPressed: c.chat?.chat.value.avatar == null
-                  ? c.pickAvatar
-                  : () async {
-                      await GalleryPopup.show(
-                        context: context,
-                        gallery: GalleryPopup(
-                          initialKey: c.avatarKey,
-                          children: [
-                            GalleryItem.image(
-                              c.chat!.chat.value.avatar!.original.url,
-                              c.chat!.chat.value.id.val,
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-              child: AvatarWidget.fromRxChat(
-                c.chat,
-                key: c.avatarKey,
-                radius: 100,
-              ),
-            ),
-            Positioned.fill(
-              child: Obx(() {
-                return AnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: c.avatar.value.isLoading
-                      ? Container(
-                          width: 200,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.colors.onBackgroundOpacity13,
-                          ),
-                          child: const Center(child: CustomProgressIndicator()),
-                        )
-                      : const SizedBox.shrink(),
-                );
-              }),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            WidgetButton(
-              key: const Key('UploadAvatar'),
-              onPressed: c.pickAvatar,
-              child: Text(
-                'btn_upload'.l10n,
-                style: style.fonts.bodySmallPrimary,
-              ),
-            ),
-            if (c.chat?.chat.value.avatar != null) ...[
-              Text(
-                'space_or_space'.l10n,
-                style: style.fonts.bodySmall,
-              ),
-              WidgetButton(
-                key: const Key('DeleteAvatar'),
-                onPressed: c.deleteAvatar,
-                child: Text(
-                  'btn_delete'.l10n.toLowerCase(),
-                  style: style.fonts.bodySmall.copyWith(color: style.colors.primary),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ],
-    );
-  }
 
   /// Returns a [Chat.name] editable field.
   Widget _name(ChatInfoController c, BuildContext context) {
@@ -343,79 +272,13 @@ class ChatInfoView extends StatelessWidget {
                   offset: const Offset(0, -1),
                   child: Transform.scale(
                     scale: 1.15,
-                    child: SvgImage.asset('assets/icons/copy.svg', height: 15),
+                    child: const SvgImage.asset(
+                      'assets/icons/copy.svg',
+                      height: 15,
+                    ),
                   ),
                 ),
         ),
-      );
-    });
-  }
-
-  /// Returns a [Chat.directLink] editable field.
-  Widget _link(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ReactiveTextField(
-            key: const Key('LinkField'),
-            state: c.link,
-            onSuffixPressed: c.link.isEmpty.value
-                ? null
-                : () {
-                    PlatformUtils.copy(
-                      text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                    );
-
-                    MessagePopup.success('label_copied'.l10n);
-                  },
-            trailing: c.link.isEmpty.value
-                ? null
-                : Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Transform.scale(
-                      scale: 1.15,
-                      child:
-                          SvgImage.asset('assets/icons/copy.svg', height: 15),
-                    ),
-                  ),
-            label: '${Config.origin}/',
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),
-            child: Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_transition_count'.l10nfmt({
-                              'count':
-                                  c.chat?.chat.value.directLink?.usageCount ?? 0
-                            }) +
-                            'dot_space'.l10n,
-                        style: style.fonts.labelSmall.copyWith(
-                          color: style.colors.secondary,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'label_details'.l10n,
-                        style: style.fonts.labelSmall.copyWith(
-                          color: style.colors.primary,
-                        ),
-                        recognizer: TapGestureRecognizer()..onTap = () {},
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       );
     });
   }
@@ -484,7 +347,8 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child:
+                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
           ),
@@ -518,12 +382,12 @@ class ChatInfoView extends StatelessWidget {
                 child: Transform.scale(
                   scale: 1.15,
                   child: muted
-                      ? SvgImage.asset(
+                      ? const SvgImage.asset(
                           'assets/icons/btn_mute.svg',
                           width: 18.68,
                           height: 15,
                         )
-                      : SvgImage.asset(
+                      : const SvgImage.asset(
                           'assets/icons/btn_unmute.svg',
                           width: 17.86,
                           height: 15,
@@ -540,7 +404,8 @@ class ChatInfoView extends StatelessWidget {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
         ),
@@ -552,7 +417,8 @@ class ChatInfoView extends StatelessWidget {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
         ),
@@ -564,7 +430,8 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child:
+                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
           ),
@@ -575,7 +442,8 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child:
+                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
           ),
@@ -586,7 +454,8 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child:
+                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
           ),

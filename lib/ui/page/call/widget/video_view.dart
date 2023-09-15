@@ -302,7 +302,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                         children: [
                           if (widget.muted) const SizedBox(width: 1),
                           if (widget.muted)
-                            SvgImage.asset(
+                            const SvgImage.asset(
                               'assets/icons/microphone_off_small.svg',
                               width: 11,
                             ),
@@ -317,9 +317,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                       child: Text(
                                         widget.label!,
                                         style:
-                                            style.fonts.headlineSmall.copyWith(
-                                          color: style.colors.onPrimary,
-                                        ),
+                                            style.fonts.headlineSmallOnPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),

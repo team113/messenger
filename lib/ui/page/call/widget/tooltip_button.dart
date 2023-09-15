@@ -58,8 +58,7 @@ class TooltipButton extends StatelessWidget {
         : Tooltip(
             verticalOffset: verticalOffset,
             message: hint!,
-            textStyle: style.fonts.headlineSmall.copyWith(
-              color: style.colors.onPrimary,
+            textStyle: style.fonts.headlineSmallOnPrimary.copyWith(
               shadows: [
                 Shadow(blurRadius: 6, color: style.colors.onBackground),
                 Shadow(blurRadius: 6, color: style.colors.onBackground),
