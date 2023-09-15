@@ -413,7 +413,7 @@ class CallController extends GetxController {
   /// Returns a name of the current [OngoingCall]'s caller.
   String? get callerName =>
       _currentCall.value.caller?.name?.val ??
-      _currentCall.value.caller?.num.val;
+      _currentCall.value.caller?.num.toString();
 
   /// Indicates whether a drag and drop videos hint should be displayed.
   bool get showDragAndDropVideosHint =>

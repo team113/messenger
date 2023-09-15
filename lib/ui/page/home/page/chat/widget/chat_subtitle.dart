@@ -144,7 +144,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         final Iterable<String> typings = widget.chat.typingUsers
             .where((e) => e.id != widget.me)
-            .map((e) => e.name?.val ?? e.num.val);
+            .map((e) => e.name?.val ?? e.num.toString());
 
         return Row(
           mainAxisSize: MainAxisSize.min,

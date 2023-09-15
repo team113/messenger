@@ -55,7 +55,7 @@ class ContactService extends DisposableService {
 
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) => _contactRepository
-      .createChatContact(user.name ?? UserName(user.num.val), user.id);
+      .createChatContact(user.name ?? UserName(user.num.toString()), user.id);
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
   /// address book.

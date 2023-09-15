@@ -158,7 +158,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         padding: const EdgeInsets.only(left: 3, right: 3),
         child: Text(
           participant.user.value?.user.value.name?.val ??
-              participant.user.value?.user.value.num.val ??
+              participant.user.value?.user.value.num.toString() ??
               'dot'.l10n * 3,
           style: style.fonts.bodyMediumOnPrimary,
           maxLines: 1,

@@ -16,9 +16,15 @@ All user visible changes to this project will be documented in this file. This p
 - UI
     - Save as context menu button for media. ([#423], [#370] [#140]) 
 
+### Changed
+
+- UI:
+    - Display Gapopa ID in quartets. ([#587])
+
 [#140]: /../../issues/140
 [#370]: /../../issues/370
 [#423]: /../../pull/423
+[#541]: /../../pull/587
 
 
 
