@@ -412,7 +412,7 @@ class _BackgroundService {
                 // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
-                  call.author.name?.val ?? call.author.num.val,
+                  call.author.name?.val ?? call.author.num.toString(),
                 );
               }
 
@@ -438,7 +438,7 @@ class _BackgroundService {
               // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
-                call.author.name?.val ?? call.author.num.val,
+                call.author.name?.val ?? call.author.num.toString(),
               );
             }
             break;
