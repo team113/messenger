@@ -396,7 +396,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 PrimaryButton(
-                  title: 'btn_one_time_account'.l10n,
+                  title: 'btn_one_time_account'.l10nfmt({'break': ' '}),
                   onPressed: c.register,
                 ),
                 const SizedBox(height: 16),
@@ -419,12 +419,8 @@ class LoginView extends StatelessWidget {
                 children: [
                   header,
                   const SizedBox(height: 12),
-                  ...children.map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: e,
-                    ),
-                  ),
+                  ...children.map((e) =>
+                      Padding(padding: ModalPopup.padding(context), child: e)),
                   const SizedBox(height: 12),
                 ],
               ),
