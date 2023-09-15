@@ -267,8 +267,7 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Confirms the provided [ConfirmationCode] for the [MyUser] identified by
-  /// [Credentials].
+  /// Confirms email with the provided [ConfirmationCode] for the [MyUser].
   Future<void> confirmEmailCode(
     ConfirmationCode code,
   ) async {
@@ -279,9 +278,7 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Resends the [ConfirmationCode] for the [MyUser] identified by [Credentials].
-  ///
-  /// [Credentials] can be received from [signUpWithEmailold].
+  /// Resends the [ConfirmationCode] for the [MyUser].
   Future<void> resendEmailCode() async {
     try {
       await _authRepository.resendEmailCode();
