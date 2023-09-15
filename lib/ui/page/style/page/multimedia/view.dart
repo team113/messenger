@@ -25,6 +25,7 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
+import '/ui/page/work/widget/interactive_logo.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import 'widget/playable_asset.dart';
@@ -139,6 +140,13 @@ class MultimediaView extends StatelessWidget {
             width: 210,
             height: 300,
             subtitle: 'AnimatedLogo',
+            child: const InteractiveLogo(),
+          ),
+          SubtitleContainer(
+            inverted: inverted,
+            width: 210,
+            height: 300,
+            subtitle: 'logo.riv',
             child: RiveAnimation.asset(
               'assets/images/logo/logo.riv',
               onInit: (a) async {

@@ -101,9 +101,7 @@ class AuthView extends StatelessWidget {
                 height: 23,
               ),
             ),
-            onPressed: () => LoginView.show(
-              context,
-            ),
+            onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
@@ -146,14 +144,12 @@ class AuthView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ...header,
-            Obx(
-              () {
-                return AnimatedLogo(
-                  key: const ValueKey('Logo'),
-                  index: c.logoFrame.value,
-                );
-              },
-            ),
+            Obx(() {
+              return AnimatedLogo(
+                key: const ValueKey('Logo'),
+                index: c.logoFrame.value,
+              );
+            }),
             ...footer,
           ],
         );

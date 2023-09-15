@@ -483,7 +483,7 @@ label_delivered = Delivered
 label_details = Details.
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
-label_didnt_receive_code = Didn't receive the code?
+label_did_not_receive_code = Didn't receive the code?
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_description =
     Users who came via a direct link to

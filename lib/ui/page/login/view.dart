@@ -140,8 +140,10 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                Text('label_recovery_enter_new_password'.l10n,
-                    style: style.fonts.titleLargeSecondary),
+                Text(
+                  'label_recovery_enter_new_password'.l10n,
+                  style: style.fonts.titleLargeSecondary,
+                ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('PasswordField'),
@@ -196,7 +198,7 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   return Text(
                     c.resendEmailTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
+                        ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );

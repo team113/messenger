@@ -21,12 +21,12 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import 'prefix_button.dart';
 
-/// [PrefixButton] with an [asset] as a prefix and a [title].
+/// [PrefixButton] with an [asset] as a prefix.
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
     required this.title,
-    this.asset = '',
+    required this.asset,
     this.assetWidth = 20,
     this.assetHeight = 20,
     this.padding = EdgeInsets.zero,
@@ -36,7 +36,7 @@ class SignButton extends StatelessWidget {
   /// Title of this [SignButton].
   final String title;
 
-  /// Asset to display as a `prefix`.
+  /// Asset to display as a [PrefixButton.prefix].
   final String asset;
 
   /// Width of the [asset].
@@ -45,10 +45,10 @@ class SignButton extends StatelessWidget {
   ///  Height of the [asset].
   final double assetHeight;
 
-  /// Padding to apply to the `prefix`.
+  /// Additional padding to apply to the [asset].
   final EdgeInsets padding;
 
-  /// Callback to call when this button is pressed.
+  /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
   @override
@@ -59,7 +59,7 @@ class SignButton extends StatelessWidget {
       child: PrefixButton(
         title: title,
         style: style.fonts.titleLarge,
-        onPressed: onPressed ?? () {},
+        onPressed: onPressed,
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16).add(padding),
           child: SvgImage.asset(

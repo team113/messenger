@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Stylized button with the optional [prefix] widget.
+/// Stylized [InkWell]-based button with the optional [prefix].
 class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,
@@ -45,24 +45,18 @@ class PrefixButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final BorderRadius borderRadius = BorderRadius.circular(
-      15 * 0.72,
-    );
+    final BorderRadius borderRadius = BorderRadius.circular(11);
+
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
         Container(
-          constraints: const BoxConstraints(
-            maxWidth: double.infinity,
-          ),
+          constraints: const BoxConstraints(maxWidth: double.infinity),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: style.colors.onPrimary,
             borderRadius: borderRadius,
-            border: Border.all(
-              width: 0.5,
-              color: style.colors.secondary,
-            ),
+            border: Border.all(width: 0.5, color: style.colors.secondary),
           ),
           child: Material(
             color: style.colors.transparent,
@@ -77,8 +71,8 @@ class PrefixButton extends StatelessWidget {
                   maxHeight: double.infinity,
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 8 * 0.7,
-                  vertical: 6 * 0.7,
+                  horizontal: 5.6,
+                  vertical: 4.2,
                 ),
                 child: Row(
                   children: [

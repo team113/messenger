@@ -30,7 +30,7 @@ class AuthController extends GetxController {
   AuthController(this._auth);
 
   /// Current logo's animation frame.
-  RxInt logoFrame = RxInt(0);
+  final RxInt logoFrame = RxInt(0);
 
   /// Authorization service used for signing up.
   final AuthService _auth;

@@ -22,23 +22,18 @@ import '/ui/widget/svg/svg.dart';
 
 /// Animated logo, displaying the [SvgImage] based on the provided [index].
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo({
-    super.key,
-    this.index = 0,
-    this.height = 166,
-  });
+  const AnimatedLogo({super.key, this.index = 0});
 
-  /// Index of an asset to put into path of the [SvgImage].
+  /// Index of logo animation.
+  ///
+  /// Should be in [0, 9] range inclusive.
   final int index;
-
-  /// Height of the logo.
-  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SvgImage.asset(
       'assets/images/logo/head000$index.svg',
-      height: height,
+      height: 166,
       fit: BoxFit.contain,
       placeholderBuilder: (context) {
         return const Center(child: CustomProgressIndicator());

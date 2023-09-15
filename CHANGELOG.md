@@ -14,10 +14,10 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI: 
+    - Display Gapopa ID in quartets. ([#587])
     - Auth page:
         - Redesigned login modal and AuthView. ([#564], [#533])
     - Redesigned language selection modal. ([#533])
-    - Display Gapopa ID in quartets. ([#587])
 
 [#533]: /../../pull/533 
 [#564]: /../../issue/564

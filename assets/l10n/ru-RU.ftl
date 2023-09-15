@@ -499,7 +499,7 @@ label_delivered = Доставлено
 label_details = Подробнее.
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
-label_didnt_receive_code = Не получили код?
+label_did_not_receive_code = Не получили код?
 
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
