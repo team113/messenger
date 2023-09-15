@@ -246,14 +246,19 @@ class _ChatWatchData {
                   if (msg.author.id == action.user.id) {
                     body.write(
                       'label_was_added'.l10nfmt(
-                        {'author': '${action.user.name ?? action.user.num}'},
+                        {
+                          'author':
+                              '${action.user.name ?? action.user.num.toString()}'
+                        },
                       ),
                     );
                   } else {
                     body.write(
                       'label_user_added_user'.l10nfmt({
-                        'author': msg.author.name?.val ?? msg.author.num.val,
-                        'user': action.user.name?.val ?? action.user.num.val,
+                        'author':
+                            msg.author.name?.val ?? msg.author.num.toString(),
+                        'user':
+                            action.user.name?.val ?? action.user.num.toString(),
                       }),
                     );
                   }
@@ -265,14 +270,19 @@ class _ChatWatchData {
                   if (msg.author.id == action.user.id) {
                     body.write(
                       'label_was_removed'.l10nfmt(
-                        {'author': '${action.user.name ?? action.user.num}'},
+                        {
+                          'author':
+                              '${action.user.name ?? action.user.num.toString()}'
+                        },
                       ),
                     );
                   } else {
                     body.write(
                       'label_user_removed_user'.l10nfmt({
-                        'author': msg.author.name?.val ?? msg.author.num.val,
-                        'user': action.user.name?.val ?? action.user.num.val,
+                        'author':
+                            msg.author.name?.val ?? msg.author.num.toString(),
+                        'user':
+                            action.user.name?.val ?? action.user.num.toString(),
                       }),
                     );
                   }
@@ -281,7 +291,7 @@ class _ChatWatchData {
                 case ChatInfoActionKind.avatarUpdated:
                   final action = msg.action as ChatInfoActionAvatarUpdated;
                   final Map<String, dynamic> args = {
-                    'author': msg.author.name?.val ?? msg.author.num.val,
+                    'author': msg.author.name?.val ?? msg.author.num.toString(),
                   };
 
                   if (action.avatar == null) {
@@ -294,7 +304,7 @@ class _ChatWatchData {
                 case ChatInfoActionKind.nameUpdated:
                   final action = msg.action as ChatInfoActionNameUpdated;
                   final Map<String, dynamic> args = {
-                    'author': msg.author.name?.val ?? msg.author.num.val,
+                    'author': msg.author.name?.val ?? msg.author.num.toString(),
                     if (action.name != null) 'name': action.name?.val,
                   };
 

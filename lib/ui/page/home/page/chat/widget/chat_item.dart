@@ -486,7 +486,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
               final Map<String, dynamic> args = {
-                'author': user.name?.val ?? user.num.val,
+                'author': user.name?.val ?? user.num.toString(),
               };
 
               return Text.rich(
@@ -541,8 +541,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             user ??= action.user;
 
             final Map<String, dynamic> args = {
-              'author': author.name?.val ?? author.num.val,
-              'user': user.name?.val ?? user.num.val,
+              'author': author.name?.val ?? author.num.toString(),
+              'user': user.name?.val ?? user.num.toString(),
             };
 
             return Text.rich(
@@ -570,9 +570,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         } else {
           final Map<String, dynamic> args = {
             'author': widget.user?.user.value.name?.val ??
-                widget.user?.user.value.num.val ??
+                widget.user?.user.value.num.toString() ??
                 action.user.name?.val ??
-                action.user.num.val,
+                action.user.num.toString(),
           };
 
           content = Text.rich(
@@ -603,8 +603,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             user ??= action.user;
 
             final Map<String, dynamic> args = {
-              'author': author.name?.val ?? author.num.val,
-              'user': user.name?.val ?? user.num.val,
+              'author': author.name?.val ?? author.num.toString(),
+              'user': user.name?.val ?? user.num.toString(),
             };
 
             return Text.rich(
@@ -631,7 +631,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           });
         } else {
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.val,
+            'author': action.user.name?.val ?? action.user.num.toString(),
           };
 
           content = Text.rich(
@@ -658,7 +658,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.val,
+          'author': user.name?.val ?? user.num.toString(),
         };
 
         final String phrase1, phrase2;
@@ -693,7 +693,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.val,
+          'author': user.name?.val ?? user.num.toString(),
           if (action.name != null) 'name': action.name?.val,
         };
 
@@ -797,7 +797,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         text: widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.val ??
+                            widget.user?.user.value.num.toString() ??
                             'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () => router.user(_author, push: true),
@@ -1064,7 +1064,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       child: SelectionText.rich(
                         TextSpan(
                           text: widget.user?.user.value.name?.val ??
-                              widget.user?.user.value.num.val ??
+                              widget.user?.user.value.num.toString() ??
                               'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => router.user(_author, push: true),
@@ -1274,7 +1274,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     Expanded(
                       child: Text(
                         data?.user.value.name?.val ??
-                            data?.user.value.num.val ??
+                            data?.user.value.num.toString() ??
                             'dot'.l10n * 3,
                         style: style.fonts.bodyLarge.copyWith(color: color),
                       ),
