@@ -54,10 +54,11 @@ abstract class AbstractAuthRepository {
   /// repository.
   Future<void> logout();
 
-  /// Starts registration process by sending [ConfirmationCode] to provided [email].
+  /// Starts registration process by creating new user and sending [ConfirmationCode]
+  /// to provided [email].
   Future<Credentials> signUpWithEmail(UserEmail email);
 
-  /// Confirms  `email` with the provided [ConfirmationCode] and register new user.
+  /// Confirms  `email` with the provided [ConfirmationCode].
   Future<void> confirmEmailCode(ConfirmationCode code);
 
   /// Sends a new [ConfirmationCode] to  `email`.
