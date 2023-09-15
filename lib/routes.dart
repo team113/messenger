@@ -109,7 +109,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { work, contacts, public, chats, menu }
+enum HomeTab { balance, work, public, chats, menu }
 
 /// List of [Routes.work] page sections.
 enum WorkTab { freelance, frontend, backend }
@@ -348,8 +348,8 @@ class AppRouteInformationParser
 
     if (route.startsWith(Routes.work) || route == Routes.faq) {
       tab = HomeTab.work;
-    } else if (route.startsWith(Routes.contacts)) {
-      tab = HomeTab.contacts;
+    } else if (route.startsWith(Routes.balance)) {
+      tab = HomeTab.balance;
     } else if (route.startsWith(Routes.chats)) {
       tab = HomeTab.chats;
     } else if (route.startsWith(Routes.menu) || route == Routes.me) {
@@ -377,8 +377,8 @@ class AppRouteInformationParser
           route = Routes.work;
           break;
 
-        case HomeTab.contacts:
-          route = Routes.contacts;
+        case HomeTab.balance:
+          route = Routes.balance;
           break;
 
         case HomeTab.chats:
@@ -822,12 +822,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
-        case HomeTab.work:
-          WebUtils.title('$prefix${'label_work_with_us'.l10n}');
+        case HomeTab.balance:
+          WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
           break;
 
-        case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
+        case HomeTab.work:
+          WebUtils.title('$prefix${'label_work_with_us'.l10n}');
           break;
 
         case HomeTab.chats:

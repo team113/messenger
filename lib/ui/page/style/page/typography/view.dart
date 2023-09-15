@@ -75,19 +75,19 @@ class _TypographyViewState extends State<TypographyView> {
     // ];
 
     Iterable<(TextStyle, String)> fonts = [
-      (style.fonts.displayLarge, 'displayLarge'),
-      (style.fonts.displayLargeOnPrimary, 'displayLargeOnPrimary'),
-      (style.fonts.displayMedium, 'displayMedium'),
-      (style.fonts.displayMediumSecondary, 'displayMediumSecondary'),
-      (style.fonts.displaySmall, 'displaySmall'),
-      (style.fonts.displaySmallOnPrimary, 'displaySmallOnPrimary'),
-      (style.fonts.displaySmallSecondary, 'displaySmallSecondary'),
-      (style.fonts.headlineLarge, 'headlineLarge'),
-      (style.fonts.headlineLargeOnPrimary, 'headlineLarge'),
-      (style.fonts.headlineMedium, 'headlineMedium'),
-      (style.fonts.headlineMediumOnPrimary, 'headlineMedium'),
-      (style.fonts.headlineSmall, 'headlineSmall'),
-      (style.fonts.headlineSmallOnPrimary, 'headlineSmallOnPrimary'),
+      (style.fonts.displayLarge, 'onBackground'),
+      (style.fonts.displayLargeOnPrimary, 'onPrimary'),
+      (style.fonts.displayMedium, 'onBackground'),
+      (style.fonts.displayMediumSecondary, 'secondary'),
+      (style.fonts.displaySmall, 'onBackground'),
+      (style.fonts.displaySmallOnPrimary, 'onPrimary'),
+      (style.fonts.displaySmallSecondary, 'secondary'),
+      (style.fonts.headlineLarge, 'onBackground'),
+      (style.fonts.headlineLargeOnPrimary, 'onPrimary'),
+      (style.fonts.headlineMedium, 'onBackground'),
+      (style.fonts.headlineMediumOnPrimary, 'onPrimary'),
+      (style.fonts.headlineSmall, 'onBackground'),
+      (style.fonts.headlineSmallOnPrimary, 'onPrimary'),
       (
         style.fonts.headlineSmallOnPrimary.copyWith(
           shadows: [
@@ -95,42 +95,44 @@ class _TypographyViewState extends State<TypographyView> {
             Shadow(blurRadius: 6, color: style.colors.onBackground),
           ],
         ),
-        'headlineSmallOnPrimary (shadows)',
+        'onPrimary',
       ),
-      (style.fonts.headlineSmallSecondary, 'headlineSmall'),
-      (style.fonts.titleLarge, 'titleLarge'),
-      (style.fonts.titleLargeOnPrimary, 'titleLarge'),
-      (style.fonts.titleLargeSecondary, 'titleLarge'),
-      (style.fonts.titleMedium, 'titleMedium'),
-      (style.fonts.titleMediumDanger, 'titleMediumDanger'),
-      (style.fonts.titleMediumOnPrimary, 'titleMediumOnPrimary'),
-      (style.fonts.titleMediumPrimary, 'titleMediumPrimary'),
-      (style.fonts.titleMediumSecondary, 'titleMediumSecondary'),
-      (style.fonts.titleSmall, 'titleSmall'),
-      (style.fonts.titleSmallOnPrimary, 'titleSmallOnPrimary'),
-      (style.fonts.labelLarge, 'labelLarge'),
-      (style.fonts.labelLargeOnPrimary, 'labelLargeOnPrimary'),
-      (style.fonts.labelLargePrimary, 'labelLargePrimary'),
-      (style.fonts.labelLargeSecondary, 'labelLargeSecondary'),
-      (style.fonts.labelMedium, 'labelMedium'),
-      (style.fonts.labelMediumOnPrimary, 'labelMediumOnPrimary'),
-      (style.fonts.labelMediumPrimary, 'labelMediumPrimary'),
-      (style.fonts.labelMediumSecondary, 'labelMediumSecondary'),
-      (style.fonts.labelSmall, 'labelSmall'),
-      (style.fonts.labelSmallOnPrimary, 'labelSmallOnPrimary'),
-      (style.fonts.labelSmallPrimary, 'labelSmallPrimary'),
-      (style.fonts.labelSmallSecondary, 'labelSmallSecondary'),
-      (style.fonts.bodyLarge, 'bodyLarge'),
-      (style.fonts.bodyLargePrimary, 'bodyLargePrimary'),
-      (style.fonts.bodyLargeSecondary, 'bodyLargeSecondary'),
-      (style.fonts.bodyMedium, 'bodyMedium'),
-      (style.fonts.bodyMediumOnPrimary, 'bodyMediumOnPrimary'),
-      (style.fonts.bodyMediumPrimary, 'bodyMediumPrimary'),
-      (style.fonts.bodyMediumSecondary, 'bodyMediumSecondary'),
-      (style.fonts.bodySmall, 'bodySmall'),
-      (style.fonts.bodySmallOnPrimary, 'bodySmallOnPrimary'),
-      (style.fonts.bodySmallPrimary, 'bodySmallPrimary'),
-      (style.fonts.bodySmallSecondary, 'bodySmallSecondary'),
+      (style.fonts.headlineSmallSecondary, 'secondary'),
+      (style.fonts.titleLarge, 'onBackground'),
+      (style.fonts.titleLargeOnPrimary, 'onPrimary'),
+      (style.fonts.titleLargeSecondary, 'secondary'),
+      (style.fonts.titleMedium, 'onBackground'),
+      (style.fonts.titleMediumDanger, 'danger'),
+      (style.fonts.titleMediumOnPrimary, 'onPrimary'),
+      (style.fonts.titleMediumPrimary, 'primary'),
+      (style.fonts.titleMediumSecondary, 'secondary'),
+      (style.fonts.titleSmall, 'onBackground'),
+      (style.fonts.titleSmallOnPrimary, 'onPrimary'),
+      (style.fonts.labelLarge, 'onBackground'),
+      (style.fonts.labelLargeOnPrimary, 'onPrimary'),
+      (style.fonts.labelLargePrimary, 'primary'),
+      (style.fonts.labelLargeSecondary, 'secondary'),
+      (style.fonts.labelMedium, 'onBackground'),
+      (style.fonts.labelMediumOnPrimary, 'onPrimary'),
+      (style.fonts.labelMediumPrimary, 'primary'),
+      (style.fonts.labelMediumSecondary, 'secondary'),
+      (style.fonts.labelSmall, 'onBackground'),
+      (style.fonts.labelSmallOnPrimary, 'onPrimary'),
+      (style.fonts.labelSmallPrimary, 'primary'),
+      (style.fonts.labelSmallSecondary, 'secondary'),
+      (style.fonts.bodyLarge, 'onBackground'),
+      (style.fonts.bodyLargePrimary, 'primary'),
+      (style.fonts.bodyLargeSecondary, 'secondary'),
+      (style.fonts.bodyMedium, 'onBackground'),
+      (style.fonts.bodyMediumOnPrimary, 'onPrimary'),
+      (style.fonts.bodyMediumPrimary, 'primary'),
+      (style.fonts.bodyMediumSecondary, 'secondary'),
+      (style.fonts.bodySmall, 'onBackground'),
+      (style.fonts.bodySmallOnPrimary, 'onPrimary'),
+      (style.fonts.bodySmallPrimary, 'primary'),
+      (style.fonts.bodySmallSecondary, 'secondary'),
+      (style.fonts.bodyTiny, 'onBackground'),
+      (style.fonts.bodyTinyOnPrimary, 'onPrimary'),
     ];
 
     fonts = fonts.sorted(
@@ -138,25 +140,39 @@ class _TypographyViewState extends State<TypographyView> {
     );
 
     final List<(FontWeight, String)> families = [
-      (FontWeight.w300, 'SFUI-Light'),
-      (FontWeight.w400, 'SFUI-Regular'),
-      (FontWeight.w700, 'SFUI-Bold'),
+      (FontWeight.w300, 'SFUI-Light + Gapopa'),
+      (FontWeight.w400, 'SFUI-Regular + Gapopa'),
+      (FontWeight.w700, 'SFUI-Bold + Gapopa'),
     ];
 
-    final Map<double, List<TextStyle>> styles = {};
+    final Map<double, List<(TextStyle, String)>> styles = {};
 
     for (var f in fonts) {
-      final List<TextStyle>? list = styles[f.$1.fontSize];
+      final List<(TextStyle, String)>? list = styles[f.$1.fontSize];
       if (list != null) {
-        list.add(f.$1);
+        list.add(f);
       } else {
-        styles[f.$1.fontSize!] = [f.$1];
+        styles[f.$1.fontSize!] = [f];
       }
     }
 
     for (var k in styles.keys) {
       styles[k]?.sort(
-        (a, b) => b.fontWeight!.index.compareTo(a.fontWeight!.index),
+        (a, b) => b.$1.fontWeight!.index.compareTo(a.$1.fontWeight!.index),
+      );
+    }
+
+    TableRow row(String name, Object? value) {
+      return TableRow(
+        children: [
+          TableCell(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Text(name),
+            ),
+          ),
+          TableCell(child: Text('${value?.toString()}')),
+        ],
       );
     }
 
@@ -172,12 +188,27 @@ class _TypographyViewState extends State<TypographyView> {
             title: 'Font families',
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Center(
+              //   child: DefaultTextStyle(
+              //     style: style.fonts.labelMedium,
+              //     child: Table(
+              //       defaultColumnWidth: const IntrinsicColumnWidth(),
+              //       children: [
+              //         row('Height', style.fonts.bodyLarge.height),
+              //         row('Word spacing', style.fonts.bodyLarge.wordSpacing),
+              //         row('Letter spacing',
+              //             style.fonts.bodyLarge.letterSpacing),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
               ...families.map((e) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
+                      '¤, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: style.fonts.displayLarge.copyWith(
@@ -197,23 +228,58 @@ class _TypographyViewState extends State<TypographyView> {
                   ],
                 );
               }),
+              const SizedBox(height: 16),
+              Text(
+                'Font height is ${style.fonts.bodyLarge.height}, word spacing is ${style.fonts.bodyLarge.wordSpacing}, letter spacing is ${style.fonts.bodyLarge.letterSpacing}',
+                style: style.fonts.labelMedium,
+              ),
+              // Text(
+              //   'Families share the following attributes:',
+              //   style: style.fonts.labelMedium,
+              // ),
+              // const SizedBox(height: 8),
             ],
           ),
 
           ...styles.keys.map((e) {
+            final String name = switch (e) {
+              27 => 'Largest',
+              24 => 'Larger',
+              18 => 'Large',
+              17 => 'Medium',
+              15 => 'Normal',
+              13 => 'Small',
+              11 => 'Smaller',
+              9 => 'Smallest',
+              _ => '',
+            };
+
             return Block(
-              title: 'Font $e',
+              title: '$name (${e.toInt()} pt)',
               unconstrained: true,
               children: [
                 ...styles[e]!.map((f) {
-                  final HSLColor hsl = HSLColor.fromColor(f.color!);
+                  final String weight = switch (f.$1.fontWeight) {
+                    FontWeight.w900 => 'heavy',
+                    FontWeight.w800 => 'extraBold',
+                    FontWeight.w700 => 'bold',
+                    FontWeight.w600 => 'semiBold',
+                    FontWeight.w500 => 'medium',
+                    FontWeight.w400 => 'regular',
+                    FontWeight.w300 => 'light',
+                    FontWeight.w200 => 'extraLight',
+                    FontWeight.w100 => 'thin',
+                    _ => '',
+                  };
+
+                  final HSLColor hsl = HSLColor.fromColor(f.$1.color!);
 
                   final Color textColor = hsl.lightness > 0.7 || hsl.alpha < 0.4
                       ? const Color(0xFFFFFFFF)
                       : const Color(0xFF000000);
                   final Color background =
                       hsl.lightness > 0.7 || hsl.alpha < 0.4
-                          ? const Color(0xFF000000)
+                          ? const Color(0xFF888888)
                           : const Color(0xFFFFFFFF);
 
                   return Container(
@@ -224,13 +290,16 @@ class _TypographyViewState extends State<TypographyView> {
                       children: [
                         Expanded(
                           child: Text(
-                            'bold.onBackground',
-                            style: f,
+                            '${name.toLowerCase()}.$weight.${f.$2}',
+                            style: f.$1,
                             textAlign: TextAlign.start,
                           ),
                         ),
+
+                        // TODO: If not enough space, then this should be
+                        //       display under the `Expanded`, or something.
                         Text(
-                          'w${f.fontWeight?.value}, ${f.color!.toHex(withAlpha: false)}',
+                          'w${f.$1.fontWeight?.value}, ${f.$1.color!.toHex(withAlpha: false)}',
                           style: TextStyle(color: textColor),
                         ).fixedDigits(all: true),
                       ],
@@ -321,80 +390,80 @@ class _TypographyViewState extends State<TypographyView> {
           //   ],
           // ),
 
-          Block(
-            title: 'Fonts',
-            unconstrained: true,
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                child: Text(
-                  'bold27',
-                  style: style.fonts.displayLarge,
-                  textAlign: TextAlign.start,
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'bold27.onBackground',
-                        style: style.fonts.displayLarge,
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    const Text('#FF0F0F0'),
-                  ],
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'bold27.primary',
-                        style: style.fonts.displayLarge
-                            .copyWith(color: style.colors.primary),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    const Text('#FF0F0F0'),
-                  ],
-                ),
-              ),
+          // Block(
+          //   title: 'Fonts',
+          //   unconstrained: true,
+          //   padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+          //   children: [
+          //     Container(
+          //       width: double.infinity,
+          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          //       child: Text(
+          //         'bold27',
+          //         style: style.fonts.displayLarge,
+          //         textAlign: TextAlign.start,
+          //       ),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: Text(
+          //               'bold27.onBackground',
+          //               style: style.fonts.displayLarge,
+          //               textAlign: TextAlign.start,
+          //             ),
+          //           ),
+          //           const Text('#FF0F0F0'),
+          //         ],
+          //       ),
+          //     ),
+          //     Container(
+          //       width: double.infinity,
+          //       padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
+          //       child: Row(
+          //         children: [
+          //           Expanded(
+          //             child: Text(
+          //               'bold27.primary',
+          //               style: style.fonts.displayLarge
+          //                   .copyWith(color: style.colors.primary),
+          //               textAlign: TextAlign.start,
+          //             ),
+          //           ),
+          //           const Text('#FF0F0F0'),
+          //         ],
+          //       ),
+          //     ),
 
-              // ...fonts.map((e) {
-              //   final HSLColor hsl = HSLColor.fromColor(e.$1.color!);
-              //   final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
-              //       ? const Color(0xFF000000)
-              //       : const Color(0xFFFFFFFF);
+          //     // ...fonts.map((e) {
+          //     //   final HSLColor hsl = HSLColor.fromColor(e.$1.color!);
+          //     //   final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
+          //     //       ? const Color(0xFF000000)
+          //     //       : const Color(0xFFFFFFFF);
 
-              //   return Container(
-              //     color: background,
-              //     width: double.infinity,
-              //     padding: const EdgeInsets.all(8),
-              //     child: Row(
-              //       children: [
-              //         Expanded(
-              //           child: Text(
-              //             // e.$2,
-              //             e.$2 == 'displayLarge' ? 'bold27\$onBackround' : e.$2,
-              //             style: e.$1,
-              //             textAlign: TextAlign.start,
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   );
-              // }),
-            ],
-          ),
+          //     //   return Container(
+          //     //     color: background,
+          //     //     width: double.infinity,
+          //     //     padding: const EdgeInsets.all(8),
+          //     //     child: Row(
+          //     //       children: [
+          //     //         Expanded(
+          //     //           child: Text(
+          //     //             // e.$2,
+          //     //             e.$2 == 'displayLarge' ? 'bold27\$onBackround' : e.$2,
+          //     //             style: e.$1,
+          //     //             textAlign: TextAlign.start,
+          //     //           ),
+          //     //         ),
+          //     //       ],
+          //     //     ),
+          //     //   );
+          //     // }),
+          //   ],
+          // ),
 
           // Block(
           //   title: 'Families',
@@ -439,14 +508,14 @@ class _TypographyViewState extends State<TypographyView> {
           //   (e) =>
           //       FontFamily(e, inverted: widget.inverted, dense: widget.dense),
           // ),
-          const SubHeader('Fonts'),
-          BuilderWrap(
-            fonts,
-            inverted: widget.inverted,
-            dense: widget.dense,
-            (e) =>
-                FontWidget(e, inverted: widget.inverted, dense: widget.dense),
-          ),
+          // const SubHeader('Fonts'),
+          // BuilderWrap(
+          //   fonts,
+          //   inverted: widget.inverted,
+          //   dense: widget.dense,
+          //   (e) =>
+          //       FontWidget(e, inverted: widget.inverted, dense: widget.dense),
+          // ),
           // const SubHeader('Typefaces'),
           // BuilderWrap(
           //   styles,
@@ -465,29 +534,29 @@ class _TypographyViewState extends State<TypographyView> {
           //     dense: widget.dense,
           //   ),
           // ),
-          const SubHeader('Styles'),
-          BuilderWrap(
-            [
-              (style.fonts.displayLarge, 'displayLarge'),
-              (style.fonts.displayMedium, 'displayMedium'),
-              (style.fonts.displaySmall, 'displaySmall'),
-              (style.fonts.headlineLarge, 'headlineLarge'),
-              (style.fonts.headlineMedium, 'headlineMedium'),
-              (style.fonts.headlineSmall, 'headlineSmall'),
-              (style.fonts.titleLarge, 'titleLarge'),
-              (style.fonts.titleMedium, 'titleMedium'),
-              (style.fonts.titleSmall, 'titleSmall'),
-              (style.fonts.labelLarge, 'labelLarge'),
-              (style.fonts.labelMedium, 'labelMedium'),
-              (style.fonts.labelSmall, 'labelSmall'),
-              (style.fonts.bodyLarge, 'bodyLarge'),
-              (style.fonts.bodyMedium, 'bodyMedium'),
-              (style.fonts.bodySmall, 'bodySmall'),
-            ],
-            inverted: widget.inverted,
-            dense: widget.dense,
-            (e) => FontStyleWidget(e, inverted: widget.inverted),
-          ),
+          // const SubHeader('Styles'),
+          // BuilderWrap(
+          //   [
+          //     (style.fonts.displayLarge, 'displayLarge'),
+          //     (style.fonts.displayMedium, 'displayMedium'),
+          //     (style.fonts.displaySmall, 'displaySmall'),
+          //     (style.fonts.headlineLarge, 'headlineLarge'),
+          //     (style.fonts.headlineMedium, 'headlineMedium'),
+          //     (style.fonts.headlineSmall, 'headlineSmall'),
+          //     (style.fonts.titleLarge, 'titleLarge'),
+          //     (style.fonts.titleMedium, 'titleMedium'),
+          //     (style.fonts.titleSmall, 'titleSmall'),
+          //     (style.fonts.labelLarge, 'labelLarge'),
+          //     (style.fonts.labelMedium, 'labelMedium'),
+          //     (style.fonts.labelSmall, 'labelSmall'),
+          //     (style.fonts.bodyLarge, 'bodyLarge'),
+          //     (style.fonts.bodyMedium, 'bodyMedium'),
+          //     (style.fonts.bodySmall, 'bodySmall'),
+          //   ],
+          //   inverted: widget.inverted,
+          //   dense: widget.dense,
+          //   (e) => FontStyleWidget(e, inverted: widget.inverted),
+          // ),
           const SizedBox(height: 16),
         ],
       ),

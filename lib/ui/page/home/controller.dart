@@ -157,7 +157,7 @@ class HomeController extends GetxController {
         partner = settings?.partnerTabEnabled ?? false;
 
         if (partner) {
-          if (router.tab.index < HomeTab.contacts.index) {
+          if (router.tab.index < HomeTab.work.index) {
           } else {
             SchedulerBinding.instance.addPostFrameCallback((_) {
               pages.jumpToPage(
@@ -166,7 +166,7 @@ class HomeController extends GetxController {
             });
           }
         } else {
-          if (router.tab.index <= HomeTab.contacts.index) {
+          if (router.tab.index <= HomeTab.work.index) {
           } else {
             pages.jumpToPage(max(router.tab.index - 1, 0));
           }

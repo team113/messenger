@@ -208,6 +208,36 @@ flutter:
           weight: 300
         - asset: assets/fonts/Gapopa-Bold.ttf
           weight: 700
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSans-Light.ttf
+          weight: 300
+    - family: NotoSansDisplay
+      fonts:
+        - asset: assets/fonts/NotoSansDisplay2-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/NotoSansDisplay2-Bold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansDisplay2-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansDisplay2-Light.ttf
+          weight: 300
+    - family: NotoSansMono
+      fonts:
+        - asset: assets/fonts/NotoSansMono-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/NotoSansMono-Bold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansMono-Light.ttf
+          weight: 300
 
 sentry:
   upload_native_symbols: true

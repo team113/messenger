@@ -180,7 +180,7 @@ class _HomeViewState extends State<HomeView> {
                           children: [
                             if (c.settings.value?.balanceTabEnabled != false)
                               KeepAlivePage(
-                                key: c.keys[HomeTab.contacts],
+                                key: c.keys[HomeTab.balance],
                                 child: const BalanceTabView(),
                               ),
                             if (c.settings.value?.partnerTabEnabled != false)
@@ -377,18 +377,18 @@ class _HomeViewState extends State<HomeView> {
                                     final Widget child;
 
                                     if (c.myUser.value?.muted != null) {
-                                      child = SvgImage.asset(
+                                      child = const SvgImage.asset(
                                         'assets/icons/chats_muted5.svg',
-                                        key: const Key('Muted'),
+                                        key: Key('Muted'),
                                         width: 39.26,
                                         height: 33.5,
                                       );
                                     } else {
                                       child = Transform.translate(
                                         offset: const Offset(0, 0.5),
-                                        child: SvgImage.asset(
+                                        child: const SvgImage.asset(
                                           'assets/icons/chats6.svg',
-                                          key: const Key('Unmuted'),
+                                          key: Key('Unmuted'),
                                           width: 39.26,
                                           height: 33.5,
                                         ),

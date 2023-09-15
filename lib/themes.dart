@@ -75,12 +75,14 @@ class Themes {
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'SFUI',
+      fontFamily: 'NotoSansDisplay',
       fontFamilyFallback: const ['.SF UI Display'],
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
       height: 1.3,
+      letterSpacing: 0,
+      wordSpacing: 0,
     );
 
     final Fonts fonts = Fonts(
