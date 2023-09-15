@@ -26,7 +26,7 @@ class AnimatedLogo extends StatelessWidget {
 
   /// Index of logo animation.
   ///
-  /// Should be in [0, 9] range inclusive.
+  /// Should be in 0..9 range inclusive.
   final int index;
 
   @override

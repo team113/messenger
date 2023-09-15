@@ -88,10 +88,6 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   Future<Credentials> signUpWithEmail(UserEmail email) async {
-    if (_graphQlProvider.token != null) {
-      throw Exception('Shouldn\'t be invoked with non-`null` token');
-    }
-
     final response = await _graphQlProvider.signUp();
 
     final creds = Credentials(
@@ -106,11 +102,11 @@ class AuthRepository implements AbstractAuthRepository {
       response.createUser.user.id,
     );
 
+    // TODO(review): Don't lose active seesion.
     _graphQlProvider.token = creds.session.token;
-
     await _graphQlProvider.addUserEmail(email);
-
     _graphQlProvider.token = null;
+
     return creds;
   }
 
