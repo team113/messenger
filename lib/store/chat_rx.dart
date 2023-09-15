@@ -964,7 +964,6 @@ class HiveRxChat extends RxChat {
 
       final List<Attachment> all = [];
 
-      item = stored.value;
       if (item is ChatMessage) {
         all.addAll(item.attachments);
         for (ChatItemQuote replied in item.repliesTo) {
@@ -992,6 +991,7 @@ class HiveRxChat extends RxChat {
         replace(a);
       }
 
+      stored.value = item;
       _pagination.put(stored);
     }
   }

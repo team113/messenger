@@ -23,6 +23,7 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -1085,15 +1086,10 @@ class _GalleryPopupState extends State<GalleryPopup>
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await CacheWorker.instance
-              .download(
-                item.link,
-                item.name,
-                item.size,
-                checksum: item.checksum,
-                path: path,
-              )
-              .future;
+          return SchedulerBinding.instance.addPostFrameCallback((_) {
+            item = widget.children[_page];
+            _download(item, path: path);
+          });
         } else {
           rethrow;
         }
