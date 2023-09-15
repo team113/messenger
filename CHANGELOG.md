@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.10]
+## [0.1.0-alpha.10] · 2023-??-??
 [0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
 
 [Diff](/../../compare/v0.1.0-alpha.9.4...v0.1.0-alpha.10) | [Milestone](/../../milestone/9)
@@ -17,9 +17,11 @@ All user visible changes to this project will be documented in this file. This p
     - Auth page:
         - Redesigned login modal and AuthView. ([#564], [#533])
     - Redesigned language selection modal. ([#533])
+    - Display Gapopa ID in quartets. ([#587])
 
 [#533]: /../../pull/533 
 [#564]: /../../issue/564
+[#587]: /../../pull/587
 
 
 

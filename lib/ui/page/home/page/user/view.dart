@@ -115,7 +115,7 @@ class UserView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
@@ -350,7 +350,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
@@ -371,7 +372,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
@@ -392,7 +394,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
@@ -413,7 +416,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),

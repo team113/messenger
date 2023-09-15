@@ -141,7 +141,7 @@ class ConfirmLogoutView extends StatelessWidget {
                         TextSpan(
                           style: style.fonts.titleLarge,
                           text: c.myUser.value?.name?.val ??
-                              c.myUser.value?.num.val ??
+                              c.myUser.value?.num.toString() ??
                               '',
                         ),
                         TextSpan(
