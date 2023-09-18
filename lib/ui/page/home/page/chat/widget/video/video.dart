@@ -204,6 +204,7 @@ class _VideoViewState extends State<VideoView> {
   Future<void> _initVideo() async {
     Uint8List? bytes;
     File? file;
+
     if (widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
       CacheEntry cache = await CacheWorker.instance.get(

@@ -225,8 +225,10 @@ class CacheWorker extends DisposableService {
 
           _optimizeCache();
         }
+
         return file;
       }
+
       return null;
     });
   }
@@ -237,9 +239,9 @@ class CacheWorker extends DisposableService {
     String filename,
     int? size, {
     String? checksum,
-    String? path,
+    String? to,
   }) {
-    Downloading? downloading = downloads[checksum]?..start(url, path: path);
+    Downloading? downloading = downloads[checksum]?..start(url, to: to);
 
     if (downloading == null) {
       downloading = Downloading(
@@ -251,7 +253,8 @@ class CacheWorker extends DisposableService {
             _downloadLocal?.put(checksum, file.path);
           }
         },
-      )..start(url, path: path);
+      )..start(url, to: to);
+
       if (checksum != null) {
         downloads[checksum] = downloading;
       }
@@ -267,14 +270,14 @@ class CacheWorker extends DisposableService {
     int? size,
     String? url,
   }) async {
-    Downloading? downloading = downloads[checksum];
+    final Downloading? downloading = downloads[checksum];
     if (downloading != null) {
       return downloading.file;
     }
 
     File? file;
     if (checksum != null) {
-      String? path = await _downloadLocal?.get(checksum);
+      final String? path = await _downloadLocal?.get(checksum);
 
       if (path != null) {
         file = File(path);
@@ -285,32 +288,31 @@ class CacheWorker extends DisposableService {
         }
       }
     } else {
-      file = await PlatformUtils.fileExists(
-        filename,
-        size: size,
-        url: url,
-      );
+      file = await PlatformUtils.fileExists(filename, size: size, url: url);
     }
 
     if (checksum != null && file != null) {
-      CacheWorker.instance.downloads[checksum] = Downloading.completed(
+      downloads[checksum] = Downloading.completed(
         checksum,
         filename,
         size,
         file.path,
         onDownloaded: (file) => _downloadLocal?.put(checksum, file.path),
       );
+
       _downloadLocal?.put(checksum, file.path);
     }
 
     return file;
   }
 
-  /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`
+  /// Opens a [File] identified by its [checksum], if downloaded, or otherwise
+  /// returns `false`.
   Future<bool> open(String? checksum, int? size) async {
-    Downloading? downloading = downloads[checksum];
+    final Downloading? downloading = downloads[checksum];
+
     if (downloading?.file != null) {
-      File file = downloading!.file!;
+      final File file = downloading!.file!;
 
       if (await file.exists() && await file.length() == size) {
         await OpenFile.open(file.path);
@@ -518,11 +520,11 @@ class FIFOCache {
   static void clear() => _cache.clear();
 }
 
-/// A file downloading.
+/// [File] downloading entry.
 class Downloading {
   Downloading(this.checksum, this.filename, this.size, {this.onDownloaded});
 
-  /// Creates a [Downloading] as completed.
+  /// Creates a completed [Downloading].
   Downloading.completed(
     this.checksum,
     this.filename,
@@ -534,26 +536,26 @@ class Downloading {
     status.value = DownloadStatus.isFinished;
   }
 
-  /// SHA-256 checksum of the file this [Downloading] is bound to.
+  /// SHA-256 checksum of the [file] this [Downloading] is bound to.
   final String? checksum;
 
-  /// Filename of the file this [Downloading] is bound to.
+  /// Filename of the [file] this [Downloading] is bound to.
   final String filename;
 
-  /// Size in bytes of the file this [Downloading] is bound to.
-  int? size;
+  /// Size in bytes of the [file] this [Downloading] is bound to.
+  final int? size;
 
-  /// Downloaded file.
+  /// Downloaded file itself.
   File? file;
 
   /// Progress of this [Downloading].
-  RxDouble progress = RxDouble(0);
+  final RxDouble progress = RxDouble(0);
 
   /// [DownloadStatus] of this [Downloading].
-  Rx<DownloadStatus> status = Rx(DownloadStatus.notStarted);
+  final Rx<DownloadStatus> status = Rx(DownloadStatus.notStarted);
 
   /// Callback, called when the [file] is downloaded.
-  void Function(File)? onDownloaded;
+  final void Function(File)? onDownloaded;
 
   /// [Completer] resolving once the [file] is downloaded.
   Completer<File?>? _completer;
@@ -566,7 +568,7 @@ class Downloading {
   Future<File?>? get future => _completer?.future;
 
   /// Starts the [file] downloading.
-  Future<void> start(String url, {String? path}) async {
+  Future<void> start(String url, {String? to}) async {
     progress.value = 0;
     status.value = DownloadStatus.inProgress;
     _completer = Completer<File?>();
@@ -576,7 +578,7 @@ class Downloading {
         url,
         filename,
         size,
-        path: path,
+        path: to,
         checksum: checksum,
         onReceiveProgress: (count, total) => progress.value = count / total,
         cancelToken: _token,
@@ -627,7 +629,7 @@ enum DownloadStatus {
   isFinished,
 }
 
-/// Cache entry.
+/// Cache entry of [file] and/or its [bytes].
 class CacheEntry {
   CacheEntry({this.file, this.bytes});
 

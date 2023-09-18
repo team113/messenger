@@ -1071,7 +1071,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem].
-  Future<void> _download(GalleryItem item, {String? path}) async {
+  Future<void> _download(GalleryItem item, {String? to}) async {
     try {
       try {
         await CacheWorker.instance
@@ -1080,7 +1080,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               item.name,
               item.size,
               checksum: item.checksum,
-              path: path,
+              to: to,
             )
             .future;
       } catch (_) {
@@ -1088,7 +1088,7 @@ class _GalleryPopupState extends State<GalleryPopup>
           await item.onError?.call();
           return SchedulerBinding.instance.addPostFrameCallback((_) {
             item = widget.children[_page];
-            _download(item, path: path);
+            _download(item, to: to);
           });
         } else {
           rethrow;
@@ -1105,17 +1105,17 @@ class _GalleryPopupState extends State<GalleryPopup>
     }
   }
 
-  /// Downloads the provided [GalleryItem] using save-as dialog.
+  /// Downloads the provided [GalleryItem] using `save as` dialog.
   Future<void> _saveAs(GalleryItem item) async {
     try {
-      String? path = await FilePicker.platform.saveFile(
+      String? to = await FilePicker.platform.saveFile(
         fileName: item.name,
         type: item.isVideo ? FileType.video : FileType.image,
         lockParentWindow: true,
       );
 
-      if (path != null) {
-        _download(item, path: path);
+      if (to != null) {
+        _download(item, to: to);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

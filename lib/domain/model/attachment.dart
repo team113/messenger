@@ -51,14 +51,14 @@ abstract class Attachment extends HiveObject {
   @HiveField(2)
   String filename;
 
-  /// [Downloading] of this [Attachment].
+  /// Returns the [Downloading] of this [Attachment], if any.
   Downloading? get downloading =>
       CacheWorker.instance.downloads[original.checksum];
 
-  /// Indicates whether this [Attachment] is downloading.
+  /// Indicates whether downloading of this [Attachment] is in progress.
   bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
 
-  /// Return [DownloadStatus] of this [Attachment].
+  /// Returns [DownloadStatus] of this [Attachment].
   DownloadStatus get downloadStatus =>
       downloading?.status.value ?? DownloadStatus.notStarted;
 }
