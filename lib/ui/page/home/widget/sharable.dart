@@ -29,7 +29,7 @@ import '/util/platform_utils.dart';
 /// Sharable field opening a [Share] modal with the provided [share] content.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
-    Key? key,
+    super.key,
     required String? text,
     this.share,
     this.icon,
@@ -37,7 +37,7 @@ class SharableTextField extends StatelessWidget {
     this.style,
     this.trailing,
     this.leading,
-  }) : super(key: key) {
+  }) {
     state = TextFieldState(text: text, editable: false);
   }
 

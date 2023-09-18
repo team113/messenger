@@ -105,7 +105,7 @@ class Routes {
   static const restart = '/restart';
 
   // TODO: Styles page related, should be removed at some point.
-  static const style = '/style';
+  static const style = '/dev/style';
 }
 
 /// List of [Routes.home] page tabs.

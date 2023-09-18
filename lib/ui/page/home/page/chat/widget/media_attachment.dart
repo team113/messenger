@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -81,14 +82,18 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final Attachment attachment = widget.attachment;
 
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
 
+    final Widget child;
+
     if (isImage) {
       if (attachment is LocalAttachment) {
-        return Obx(() {
+        child = Obx(() {
           if (attachment.file.bytes.value == null) {
             return const Center(
               child: SizedBox(
@@ -115,7 +120,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
-        return RetryImage.attachment(
+        child = RetryImage.attachment(
           attachment as ImageAttachment,
           fit: widget.fit,
           width: widget.width,
@@ -127,25 +132,33 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       }
     } else {
       if (attachment is LocalAttachment) {
-        return Obx(() {
-          if (attachment.file.bytes.value == null) {
-            return const Center(
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: CircularProgressIndicator(),
-              ),
-            );
-          } else {
-            return VideoThumbnail.bytes(
-              attachment.file.bytes.value!,
-              height: widget.height,
-              width: widget.width,
-            );
-          }
-        });
+        if (attachment.file.path == null) {
+          child = Obx(() {
+            if (attachment.file.bytes.value == null) {
+              return const Center(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            } else {
+              return VideoThumbnail.bytes(
+                attachment.file.bytes.value!,
+                height: widget.height,
+                width: widget.width,
+              );
+            }
+          });
+        } else {
+          child = VideoThumbnail.file(
+            attachment.file.path!,
+            height: widget.height,
+            width: widget.width,
+          );
+        }
       } else {
-        return VideoThumbnail.url(
+        child = VideoThumbnail.url(
           attachment.original.url,
           checksum: attachment.original.checksum,
           height: widget.height,
@@ -154,5 +167,34 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         );
       }
     }
+
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        child,
+        Obx(() {
+          if (attachment.isDownloading) {
+            return Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: style.colors.onBackgroundOpacity27,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Center(
+                    child: Icon(Icons.download, color: style.colors.onPrimary),
+                  ),
+                ),
+              ),
+            );
+          } else {
+            return const SizedBox();
+          }
+        }),
+      ],
+    );
   }
 }

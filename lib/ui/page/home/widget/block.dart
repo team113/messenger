@@ -39,6 +39,7 @@ class Block extends StatelessWidget {
   /// Indicator whether this [Block] should be highlighted.
   final bool highlight;
 
+  /// [CrossAxisAlignment] to apply to the [children].
   final CrossAxisAlignment crossAxisAlignment;
 
   /// [Widget]s to display.

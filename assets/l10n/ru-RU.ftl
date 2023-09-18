@@ -211,6 +211,7 @@ btn_report = Пожаловаться
 btn_resend = Повторить
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
+btn_save_as = Сохранить как
 btn_save_to_gallery = Сохранить в галерею
 btn_saved_messages = Сохранённые сообщения
 btn_select = Выбрать

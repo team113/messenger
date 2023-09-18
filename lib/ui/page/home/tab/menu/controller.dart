@@ -29,7 +29,7 @@ import 'confirm/view.dart';
 
 export 'view.dart';
 
-/// Controller of the `HomeTab.menu` tab.
+/// Controller of the [HomeTab.menu] tab.
 class MenuTabController extends GetxController {
   MenuTabController(this._authService, this._myUserService);
 

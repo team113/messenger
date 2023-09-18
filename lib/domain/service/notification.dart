@@ -28,9 +28,11 @@ import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/domain/model/file.dart';
 import '/domain/model/fcm_registration_token.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
 import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -166,7 +168,7 @@ class NotificationService extends DisposableService {
     String title, {
     String? body,
     String? payload,
-    String? icon,
+    ImageFile? icon,
     String? tag,
     String? image,
     String? sound,
@@ -203,23 +205,50 @@ class NotificationService extends DisposableService {
         title,
         body: body,
         lang: payload,
-        icon: icon ?? image,
+        icon: icon?.url ?? image,
         tag: tag,
       ).onError((_, __) => false);
-    } else if (!PlatformUtils.isWindows) {
+    } else if (PlatformUtils.isWindows) {
+      File? file;
+      if (icon != null) {
+        file = (await CacheWorker.instance.get(
+          url: icon.url,
+          checksum: icon.checksum,
+          responseType: CacheResponseType.file,
+        ))
+            .file;
+      }
+
+      await WinToast.instance().showCustomToast(
+        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+            '<toast activationType="Foreground" launch="${payload ?? ''}">'
+            '  <visual addImageQuery="true">'
+            '      <binding template="ToastGeneric">'
+            '          <text>$title</text>'
+            '          <text>${body ?? ''}</text>'
+            '          <image placement="appLogoOverride" hint-crop="circle" id="1" src="${file?.path ?? ''}"/>'
+            '      </binding>'
+            '  </visual>'
+            '</toast>',
+        tag: 'Gapopa',
+      );
+    } else {
       String? imagePath;
 
       // In order to show an image in local notification, we need to download it
       // first to a [File] and then pass the path to it to the plugin.
       if (image != null) {
         try {
-          // TODO: Images should be downloaded to cache.
-          final File? file = await PlatformUtils.download(
-            image,
-            'notification_${DateTime.now()}.jpg',
-            null,
-            temporary: true,
-          );
+          File? file;
+
+          if (icon != null) {
+            file = (await CacheWorker.instance.get(
+              url: icon.url,
+              checksum: icon.checksum,
+              responseType: CacheResponseType.file,
+            ))
+                .file;
+          }
 
           imagePath = file?.path;
         } catch (_) {

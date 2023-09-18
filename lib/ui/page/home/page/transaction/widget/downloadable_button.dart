@@ -21,6 +21,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/worker/cache.dart';
 
 class DownloadableButton extends StatefulWidget {
   const DownloadableButton(this.attachment, {super.key});
@@ -39,7 +40,7 @@ class _DownloadableFileState extends State<DownloadableButton> {
     return Obx(() {
       Widget leading = Container();
 
-      switch (e.downloadStatus.value) {
+      switch (e.downloadStatus) {
         case DownloadStatus.inProgress:
           leading = Stack(
             key: const Key('InProgress'),
@@ -56,7 +57,9 @@ class _DownloadableFileState extends State<DownloadableButton> {
                 child: CircularProgressIndicator(
                   strokeWidth: 5,
                   key: const Key('Downloading'),
-                  value: e.progress.value == 0 ? null : e.progress.value,
+                  value: e.downloading?.progress.value == 0
+                      ? null
+                      : e.downloading?.progress.value,
                   color: Colors.white.withOpacity(0.7),
                 ),
               ),
@@ -99,7 +102,7 @@ class _DownloadableFileState extends State<DownloadableButton> {
 
       return FieldButton(
         onPressed: () async {
-          if (e.downloadStatus.value == DownloadStatus.inProgress) {
+          if (e.downloadStatus == DownloadStatus.inProgress) {
             e.cancelDownload();
           } else {
             if (await e.open() == false) {

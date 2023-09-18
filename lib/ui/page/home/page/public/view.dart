@@ -53,7 +53,6 @@ import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'controller.dart';
-import 'widget/post.dart';
 
 class PublicView extends StatefulWidget {
   const PublicView(this.id, {Key? key}) : super(key: key);
@@ -247,20 +246,22 @@ class _PublicViewState extends State<PublicView>
                                   throw Exception('Unreachable');
                                 }
 
-                                return PostWidget(
-                                  animation: _animation,
-                                  item: e,
-                                  me: c.me,
-                                  getUser: c.getUser,
-                                  onGallery: c.calculateGallery,
-                                  onDelete: () => c.deleteMessage(e.value),
-                                  onAttachmentError: () async {
-                                    await c.chat?.updateAttachments(e.value);
-                                    await Future.delayed(
-                                      Duration.zero,
-                                    );
-                                  },
-                                );
+                                return const SizedBox();
+
+                                // return PostWidget(
+                                //   animation: _animation,
+                                //   item: e,
+                                //   me: c.me,
+                                //   getUser: c.getUser,
+                                //   onGallery: c.calculateGallery,
+                                //   onDelete: () => c.deleteMessage(e.value),
+                                //   onAttachmentError: () async {
+                                //     await c.chat?.updateAttachments(e.value);
+                                //     await Future.delayed(
+                                //       Duration.zero,
+                                //     );
+                                //   },
+                                // );
                               } else if (element is ChatForwardElement) {
                                 return Container();
                               } else if (element is DateTimeElement) {

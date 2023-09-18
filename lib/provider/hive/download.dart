@@ -15,30 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-import '/themes.dart';
-import '/ui/widget/svg/svg.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-/// [Widget] which returns a raised hand icon with animation.
-class RaisedHand extends StatelessWidget {
-  const RaisedHand(this.raised, {super.key});
+import 'base.dart';
 
-  /// Indicator whether a hand is raised or not.
-  final bool raised;
+/// [Hive] storage for [File.path]s.
+class DownloadHiveProvider extends HiveLazyProvider<String> {
+  @override
+  Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+  String get boxName => 'download';
 
-    return AnimatedOpacity(
-      duration: const Duration(milliseconds: 150),
-      opacity: raised ? 1 : 0,
-      child: CircleAvatar(
-        radius: 45,
-        backgroundColor: style.colors.secondaryOpacity87,
-        child: const SvgImage.asset('assets/icons/hand_up.svg', width: 90),
-      ),
-    );
-  }
+  @override
+  void registerAdapters() {}
+
+  /// Returns a list of [File.path]s from [Hive].
+  Future<Iterable<String>> get downloads => valuesSafe;
+
+  /// Puts the provided [File.path] to [Hive].
+  Future<void> put(String checksum, String path) => putSafe(checksum, path);
+
+  /// Returns a [File.path] from [Hive] by its [checksum].
+  Future<String?> get(String checksum) => getSafe(checksum);
+
+  /// Removes an [File.path] from [Hive] by its [checksum].
+  Future<void> remove(String checksum) => deleteSafe(checksum);
 }

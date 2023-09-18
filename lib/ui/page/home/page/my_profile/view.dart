@@ -28,6 +28,7 @@ import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
@@ -105,7 +106,7 @@ class MyProfileView extends StatelessWidget {
               actions: [
                 AnimatedButton(
                   onPressed: () {},
-                  child: SvgImage.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/search.svg',
                     width: 17.77,
                   ),
@@ -143,7 +144,7 @@ class MyProfileView extends StatelessWidget {
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
                       return block(
-                        title: 'label_profile'.l10n,
+                        title: 'label_public_information'.l10n,
                         children: [
                           Obx(() {
                             return BigAvatarWidget.myUser(
@@ -181,7 +182,9 @@ class MyProfileView extends StatelessWidget {
                         title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
-                            Obx(() => UserNumCopyable(c.myUser.value?.num)),
+                            Obx(() {
+                              return UserNumCopyable(c.myUser.value?.num);
+                            }),
                           ),
                           Paddings.basic(
                             Obx(() {
@@ -518,26 +521,22 @@ Widget _emails(BuildContext context, MyProfileController c) {
                 offset: const Offset(0, -1),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  child: const SvgImage.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
-              child: RichText(
+              subtitle: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: style.fonts.bodySmall.copyWith(
-                        color: style.colors.secondary,
-                      ),
+                      style: style.fonts.labelMediumSecondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.bodySmall.copyWith(
-                        color: style.colors.primary,
-                      ),
+                      style: style.fonts.labelMediumPrimary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -600,7 +599,8 @@ Widget _emails(BuildContext context, MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child:
+                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () => AddEmailView.show(
@@ -1940,7 +1940,7 @@ Widget _notifications(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
-  return _dense(
+  return Paddings.dense(
     const Column(
       children: [
         DownloadButton(
@@ -2082,7 +2082,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                     Text(
                       'label_gb_slash_gb'.l10nfmt({
                         'a': (size / GB).toPrecision(2),
-                        'b': (max ~/ GB).toDouble().toPrecision(2),
+                        'b': max ~/ GB,
                       }),
                       style: style.fonts.labelSmall,
                     ),

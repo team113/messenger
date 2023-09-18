@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/domain/model/attachment.dart';
@@ -145,7 +146,7 @@ class ChatWorker extends DisposableService {
                 'authorNum': msg.author.num.val,
               }),
               payload: '${Routes.chats}/${c.chat.value.id}',
-              icon: c.avatar.value?.original.url,
+              icon: c.avatar.value?.original,
               tag: c.chat.value.lastItem != null
                   ? '${c.chat.value.id}_${c.chat.value.lastItem?.id}'
                   : null,
@@ -165,7 +166,7 @@ class ChatWorker extends DisposableService {
             c.title.value,
             body: body,
             payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original.url,
+            icon: c.avatar.value?.original,
             tag: tag,
             image: image,
             sound: sound,

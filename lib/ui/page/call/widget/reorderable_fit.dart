@@ -25,8 +25,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
-import '/util/audio_utils.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/audio_utils.dart';
 import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
@@ -398,7 +398,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 /// Stateful component of a [ReorderableFit].
 class _ReorderableFit<T extends Object> extends StatefulWidget {
   const _ReorderableFit({
-    Key? key,
+    super.key,
     required this.children,
     required this.itemBuilder,
     this.decoratorBuilder,
@@ -430,7 +430,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.allowDraggingLast = true,
     this.itemConstraints,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
@@ -988,7 +988,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 /// [_ReorderableItem] wrapped in a [DraggableDough].
 class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   const _ReorderableDraggable({
-    Key? key,
+    super.key,
     required this.item,
     required this.sharedKey,
     required this.cellKey,
@@ -1001,7 +1001,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
     this.enabled = true,
     this.itemConstraints,
-  }) : super(key: key);
+  });
 
   /// Item stored in this [_ReorderableDraggable].
   final T item;
@@ -1168,13 +1168,13 @@ class _ReorderableDraggableState<T extends Object>
 /// specified reactive [constraints].
 class _Resizable extends StatelessWidget {
   const _Resizable({
-    Key? key,
+    super.key,
     required this.cellKey,
     required this.layout,
     required this.position,
     required this.constraints,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [GlobalKey] of a cell this [_Resizable] occupies.
   final GlobalKey cellKey;

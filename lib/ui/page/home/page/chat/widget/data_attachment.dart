@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfx/pdfx.dart';
@@ -61,82 +62,13 @@ class _DataAttachmentState extends State<DataAttachment> {
 
     final Attachment e = widget.attachment;
 
-    if (e is FileAttachment && e.isPdf && false) {
-      return MouseRegion(
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        child: Padding(
-          key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-          child: WidgetButton(
-            onPressed: widget.onPressed,
-            child: Row(
-              children: [
-                FutureBuilder(
-                  future: e.bytes(),
-                  builder: (context, data) {
-                    return PdfPreview(data.data);
-                  },
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              p.basenameWithoutExtension(e.filename),
-                              style: style.fonts.bodyLarge,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Text(
-                            p.extension(e.filename),
-                            style: style.fonts.bodyLarge,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'label_kb'.l10nfmt({
-                              'amount': e.original.size == null
-                                  ? 'dot'.l10n * 3
-                                  : e.original.size! ~/ 1024
-                            }),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.fonts.headlineSmall.copyWith(
-                              color: style.colors.secondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     return Obx(() {
       final style = Theme.of(context).style;
 
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus.value) {
+        switch (e.downloadStatus) {
           case DownloadStatus.inProgress:
             leading = InkWell(
               key: const Key('CancelDownloading'),
@@ -161,12 +93,12 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                     stops: [
                       0,
-                      e.progress.value,
-                      e.progress.value,
+                      e.downloading?.progress.value ?? 0,
+                      e.downloading?.progress.value ?? 0,
                     ],
                   ),
                 ),
-                child: Center(
+                child: const Center(
                   child: SvgImage.asset(
                     'assets/icons/cancel.svg',
                     width: 9,
@@ -189,7 +121,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               child: Center(
                 child: Transform.translate(
                   offset: const Offset(0.3, -0.5),
-                  child: SvgImage.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/file.svg',
                     height: 12.5,
                   ),
@@ -213,8 +145,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                   color: style.colors.primary,
                 ),
               ),
-              child: KeyedSubtree(
-                key: const Key('Sent'),
+              child: const KeyedSubtree(
+                key: Key('Sent'),
                 child: Center(
                   child: SvgImage.asset(
                     'assets/icons/arrow_down.svg',
@@ -276,6 +208,13 @@ class _DataAttachmentState extends State<DataAttachment> {
                   child: AnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (previous.isNotEmpty) previous.first,
+                        if (current != null) current,
+                      ],
+                    ),
                     child: leading,
                   ),
                 ),

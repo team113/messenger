@@ -27,7 +27,8 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
+import '../controller.dart'
+    show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';

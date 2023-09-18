@@ -148,9 +148,7 @@ class ChatsTabView extends StatelessWidget {
                           child: Center(
                             child: Text(
                               'label_synchronization'.l10n,
-                              style: style.fonts.labelMedium.copyWith(
-                                color: style.colors.secondary,
-                              ),
+                              style: style.fonts.labelMediumSecondary,
                             ),
                           ),
                         );
@@ -286,7 +284,7 @@ class ChatsTabView extends StatelessWidget {
                                       color:
                                           Theme.of(context).colorScheme.primary,
                                     )
-                                  : SvgImage.asset(
+                                  : const SvgImage.asset(
                                       'assets/icons/search.svg',
                                       width: 17.77,
                                     ),
@@ -302,9 +300,9 @@ class ChatsTabView extends StatelessWidget {
 
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
-                          child = SvgImage.asset(
+                          child = const SvgImage.asset(
                             'assets/icons/search_exit.svg',
-                            key: const Key('CloseSearch'),
+                            key: Key('CloseSearch'),
                             height: 11,
                           );
                         } else {
@@ -321,9 +319,9 @@ class ChatsTabView extends StatelessWidget {
                               )
                             : Transform.translate(
                                 offset: const Offset(-1, 0),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/contacts_switch.svg',
-                                  key: const Key('Contacts'),
+                                  key: Key('Contacts'),
                                   alignment: Alignment.center,
                                   width: 22.4,
                                   height: 20.8,

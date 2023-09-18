@@ -175,6 +175,11 @@ class _RetryImageState extends State<RetryImage> {
       _canceled = true;
     }
 
+    // We're expecting a checksum to properly fetch the image from the cache.
+    if (widget.checksum == null && widget.fallbackChecksum == null) {
+      widget.onForbidden?.call();
+    }
+
     super.initState();
   }
 
@@ -292,12 +297,12 @@ class _RetryImageState extends State<RetryImage> {
                                 ),
                               ],
                             ),
-                            child: SvgImage.asset(
+                            child: const SvgImage.asset(
                               'assets/icons/download.svg',
                               height: 40,
                             ),
                           )
-                        : SvgImage.asset(
+                        : const SvgImage.asset(
                             'assets/icons/close_primary.svg',
                             height: 13,
                           ),
@@ -365,7 +370,7 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
+    final FutureOr<CacheEntry> result = CacheWorker.instance.get(
       url: widget.fallbackUrl!,
       checksum: widget.fallbackChecksum,
       cancelToken: _fallbackToken,
@@ -374,10 +379,10 @@ class _RetryImageState extends State<RetryImage> {
       },
     );
 
-    if (result is Uint8List?) {
-      _fallback = result;
+    if (result is CacheEntry) {
+      _fallback = result.bytes ?? _fallback;
     } else {
-      _fallback = await result;
+      _fallback = (await result).bytes ?? _fallback;
     }
 
     if (mounted) {
@@ -387,7 +392,7 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads the [_image] from the provided URL.
   FutureOr<void> _loadImage() async {
-    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
+    final FutureOr<CacheEntry> result = CacheWorker.instance.get(
       url: widget.url,
       checksum: widget.checksum,
       onReceiveProgress: (received, total) {
@@ -404,10 +409,10 @@ class _RetryImageState extends State<RetryImage> {
       },
     );
 
-    if (result is Uint8List?) {
-      _image = result;
+    if (result is CacheEntry) {
+      _image = result.bytes ?? _image;
     } else {
-      _image = await result;
+      _image = (await result).bytes ?? _image;
     }
 
     _isSvg = false;

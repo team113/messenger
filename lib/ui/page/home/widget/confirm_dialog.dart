@@ -39,15 +39,14 @@ class ConfirmDialogVariant<T> {
 /// Intended to be displayed with the [show] method.
 class ConfirmDialog extends StatefulWidget {
   ConfirmDialog({
-    Key? key,
+    super.key,
     this.description,
     required this.title,
     required this.variants,
     this.initial = 0,
     this.label,
     this.additional = const [],
-  })  : assert(variants.isNotEmpty),
-        super(key: key);
+  }) : assert(variants.isNotEmpty);
 
   /// [ConfirmDialogVariant]s of this [ConfirmDialog].
   final List<ConfirmDialogVariant> variants;
@@ -214,7 +213,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: style.fonts.bodyMedium.copyWith(color: style.colors.onPrimary),
+              style: style.fonts.bodyMedium
+                  .copyWith(color: style.colors.onPrimary),
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());

@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 
 /// Rounded rectangular button representing an [OngoingCall] happening.
 class RectangularCallButton extends StatelessWidget {
@@ -72,7 +72,7 @@ class RectangularCallButton extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   text,
-                  style: style.fonts.bodyMedium.copyWith(color: style.colors.onPrimary),
+                  style: style.fonts.bodyMediumOnPrimary,
                 ).fixedDigits(),
               ],
             ),

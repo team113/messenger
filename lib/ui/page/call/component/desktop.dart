@@ -101,7 +101,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: style.colors.onSecondaryOpacity20,
+                color: style.colors.primaryAuxiliaryOpacity25,
               ),
             ),
           );

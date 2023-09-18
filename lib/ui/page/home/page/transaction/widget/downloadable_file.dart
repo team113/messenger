@@ -23,6 +23,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:path/path.dart' as p;
 
 class DownloadableFile extends StatefulWidget {
@@ -53,7 +54,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
     return Obx(() {
       Widget leading = Container();
 
-      switch (e.downloadStatus.value) {
+      switch (e.downloadStatus) {
         case DownloadStatus.inProgress:
           leading = InkWell(
             key: const Key('InProgress'),
@@ -77,8 +78,8 @@ class _DownloadableFileState extends State<DownloadableFile> {
                   ],
                   stops: [
                     0,
-                    e.progress.value,
-                    e.progress.value,
+                    e.downloading?.progress.value ?? 0.5,
+                    e.downloading?.progress.value ?? 1,
                   ],
                 ),
               ),

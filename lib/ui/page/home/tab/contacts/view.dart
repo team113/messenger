@@ -145,9 +145,9 @@ class ContactsTabView extends StatelessWidget {
 
                 if (c.search.value != null) {
                   if (c.search.value?.search.isEmpty.value == false) {
-                    child = SvgImage.asset(
+                    child = const SvgImage.asset(
                       'assets/icons/search_exit.svg',
-                      key: const Key('CloseSearch'),
+                      key: Key('CloseSearch'),
                       height: 11,
                     );
                   } else {
@@ -162,11 +162,11 @@ class ContactsTabView extends StatelessWidget {
                           key: const Key('CloseGroupSearching'),
                           height: c.search.value != null ? 11 : 15,
                         )
-                      : SvgImage.asset(
+                      : const SvgImage.asset(
                           'assets/icons/chats_switch.svg',
                           width: 27.04,
                           height: 23.36,
-                          key: const Key('Chats'),
+                          key: Key('Chats'),
                         );
                 }
 
@@ -304,7 +304,7 @@ class ContactsTabView extends StatelessWidget {
                                 size: 20,
                                 color: Theme.of(context).colorScheme.primary,
                               )
-                            : SvgImage.asset(
+                            : const SvgImage.asset(
                                 'assets/icons/search.svg',
                                 width: 17.77,
                               ),
