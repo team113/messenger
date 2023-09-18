@@ -20,8 +20,10 @@ import 'dart:ui';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -39,6 +41,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -502,6 +505,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: e.isVideo
                     ? VideoView(
                         e.link,
+                        checksum: e.checksum,
                         showInterfaceFor: _isInitialPage ? 3.seconds : null,
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
@@ -572,6 +576,10 @@ class _GalleryPopupState extends State<GalleryPopup>
               onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
+              label: 'btn_save_as'.l10n,
+              onPressed: () => _saveAs(widget.children[_page]),
+            ),
+            ContextMenuButton(
               label: 'btn_info'.l10n,
               onPressed: () {},
             ),
@@ -581,6 +589,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             child: e.isVideo
                 ? VideoView(
                     e.link,
+                    checksum: e.checksum,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
                     isFullscreen: _isFullscreen,
@@ -1062,24 +1071,25 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem].
-  Future<void> _download(GalleryItem item) async {
+  Future<void> _download(GalleryItem item, {String? to}) async {
     try {
       try {
-        await PlatformUtils.download(
-          item.link,
-          item.name,
-          item.size,
-          checksum: item.checksum,
-        );
+        await CacheWorker.instance
+            .download(
+              item.link,
+              item.name,
+              item.size,
+              checksum: item.checksum,
+              to: to,
+            )
+            .future;
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(
-            item.link,
-            item.name,
-            item.size,
-            checksum: item.checksum,
-          );
+          return SchedulerBinding.instance.addPostFrameCallback((_) {
+            item = widget.children[_page];
+            _download(item, to: to);
+          });
         } else {
           rethrow;
         }
@@ -1089,6 +1099,23 @@ class _GalleryPopupState extends State<GalleryPopup>
         MessagePopup.success(item.isVideo
             ? 'label_video_downloaded'.l10n
             : 'label_image_downloaded'.l10n);
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] using `save as` dialog.
+  Future<void> _saveAs(GalleryItem item) async {
+    try {
+      String? to = await FilePicker.platform.saveFile(
+        fileName: item.name,
+        type: item.isVideo ? FileType.video : FileType.image,
+        lockParentWindow: true,
+      );
+
+      if (to != null) {
+        _download(item, to: to);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

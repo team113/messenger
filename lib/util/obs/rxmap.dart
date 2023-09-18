@@ -75,7 +75,7 @@ class RxObsMap<K, V> extends MapMixin<K, V>
   }
 
   @override
-  V? operator [](Object? key) => value[key as K];
+  V? operator [](Object? key) => value[key as K?];
 
   @override
   void operator []=(K key, V value) {
