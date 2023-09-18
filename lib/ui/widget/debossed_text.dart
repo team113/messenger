@@ -23,18 +23,6 @@ class DebossedText extends StatelessWidget {
   final TextStyle? style;
 
   /// Shadows of the [text] that create the effect of debossed text.
-  final shadowsWithGradient = const [
-    Shadow(
-      color: Colors.white,
-      blurRadius: 0,
-      offset: Offset(0.5, 0.5),
-    ),
-    Shadow(
-      color: Colors.black,
-      blurRadius: 0,
-      offset: Offset(-0.5, -0.5),
-    ),
-  ];
   final shadows = const [
     Shadow(
       color: Colors.white,
@@ -51,16 +39,22 @@ class DebossedText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (gradient != null) {
-      return ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: (bounds) => gradient!.createShader(bounds),
-        child: Text(
+      return Stack(children: [
+        Text(
           text,
           style: style?.copyWith(
-            shadows: shadowsWithGradient,
+            shadows: shadows,
           ),
         ),
-      );
+        ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) => gradient!.createShader(bounds),
+          child: Text(
+            text,
+            style: style?.copyWith(),
+          ),
+        ),
+      ]);
     }
     return Text(
       text,
