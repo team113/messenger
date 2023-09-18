@@ -7,7 +7,7 @@ class DebossedText extends StatelessWidget {
     required this.text,
     required this.textColor,
     this.gradient,
-    this.styles = const TextStyle(),
+    this.style = const TextStyle(),
   });
 
   /// [text] to be displayed.
@@ -17,12 +17,24 @@ class DebossedText extends StatelessWidget {
   final Color textColor;
 
   /// Gradient of the [text] instead of [textColor].
-  final Gradient? gradient;
+  final LinearGradient? gradient;
 
   /// Styles of the [text].
-  final TextStyle? styles;
+  final TextStyle? style;
 
   /// Shadows of the [text] that create the effect of debossed text.
+  final shadowsWithGradient = const [
+    Shadow(
+      color: Colors.white,
+      blurRadius: 0,
+      offset: Offset(0.5, 0.5),
+    ),
+    Shadow(
+      color: Colors.black,
+      blurRadius: 0,
+      offset: Offset(-0.5, -0.5),
+    ),
+  ];
   final shadows = const [
     Shadow(
       color: Colors.white,
@@ -38,17 +50,23 @@ class DebossedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // creates a [Paint] object for gradient [text].
-    final Paint paint = Paint()
-      ..shader =
-          gradient?.createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0));
-
+    if (gradient != null) {
+      return ShaderMask(
+        blendMode: BlendMode.srcIn,
+        shaderCallback: (bounds) => gradient!.createShader(bounds),
+        child: Text(
+          text,
+          style: style?.copyWith(
+            shadows: shadowsWithGradient,
+          ),
+        ),
+      );
+    }
     return Text(
       text,
-      style: styles?.copyWith(
+      style: style?.copyWith(
         shadows: shadows,
-        foreground: gradient != null ? paint : null,
-        color: gradient == null ? textColor : null,
+        color: textColor,
       ),
     );
   }
