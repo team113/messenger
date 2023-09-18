@@ -48,3 +48,26 @@ final StepDefinitionGeneric haveGroupNamed =
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+/// Creates a [Chat]-groups with the authenticated [MyUser].
+///
+/// Examples:
+/// - Given Alice has 5 groups.
+final StepDefinitionGeneric hasGroups = given2<TestUser, int, CustomWorld>(
+  '{user} has {int} groups',
+  (TestUser user, int count, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.session.token;
+
+    List<Future> futures = [];
+    for (int i = 0; i < count; i++) {
+      futures.add(provider.createGroupChat([]));
+    }
+
+    await Future.wait(futures);
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);

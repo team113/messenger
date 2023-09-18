@@ -76,7 +76,8 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 /// - `Given user Bob`
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
   'user {user}',
-  (TestUser name, context) => createUser(name, context.world),
+  (TestUser name, context) =>
+      createUser(name, context.world, password: UserPassword('123')),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
@@ -88,8 +89,10 @@ final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
 final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   'users {user} and {user}',
   (TestUser user1, TestUser user2, context) async {
-    await createUser(user1, context.world);
-    await createUser(user2, context.world);
+    var password = UserPassword('123');
+
+    await createUser(user1, context.world, password: password);
+    await createUser(user2, context.world, password: password);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

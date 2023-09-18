@@ -136,6 +136,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldN,
         goToUserPage,
         hasDialogWithMe,
+        hasGroups,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
