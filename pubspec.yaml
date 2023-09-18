@@ -198,6 +198,8 @@ flutter:
         - asset: assets/fonts/SFUIDisplay-Light.ttf
           weight: 300
         - asset: assets/fonts/SFUIDisplay-Bold.ttf
+          weight: 600
+        - asset: assets/fonts/SFUIDisplay-Bold.ttf
           weight: 700
     - family: Gapopa
       fonts:
@@ -220,13 +222,13 @@ flutter:
           weight: 300
     - family: NotoSansDisplay
       fonts:
-        - asset: assets/fonts/NotoSansDisplay2-Bold.ttf
+        - asset: assets/fonts/NotoSansDisplayG-Bold.ttf
           weight: 700
-        - asset: assets/fonts/NotoSansDisplay2-Bold.ttf
+        - asset: assets/fonts/NotoSansDisplayG-Bold.ttf
           weight: 600
-        - asset: assets/fonts/NotoSansDisplay2-Regular.ttf
+        - asset: assets/fonts/NotoSansDisplayG-Regular.ttf
           weight: 400
-        - asset: assets/fonts/NotoSansDisplay2-Light.ttf
+        - asset: assets/fonts/NotoSansDisplayG-Regular.ttf
           weight: 300
     - family: NotoSansMono
       fonts:

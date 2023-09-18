@@ -28,8 +28,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import 'page/colors/view.dart';
 import 'page/typography/view.dart';
 import 'page/widgets/view.dart';
@@ -84,28 +82,35 @@ class StyleView extends StatelessWidget {
             ),
             actions: [
               Obx(() {
-                return WidgetButton(
-                  onPressed: c.inverted.toggle,
-                  child: Container(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: SizedBox(
-                        width: 23,
-                        key: c.inverted.value
-                            ? const Key('Dark')
-                            : const Key('Light'),
-                        child: c.inverted.value
-                            ? const SvgImage.asset(
-                                'assets/icons/dark_mode.svg',
-                                width: 20.8,
-                                height: 20.8,
-                              )
-                            : const SvgImage.asset(
-                                'assets/icons/light_mode1.svg',
-                                width: 23,
-                                height: 23,
-                              ),
+                return AnimatedOpacity(
+                  duration: 300.milliseconds,
+                  curve: Curves.ease,
+                  opacity: c.tab.value == StyleTab.typography ? 0 : 1,
+                  child: WidgetButton(
+                    onPressed: c.tab.value == StyleTab.typography
+                        ? null
+                        : c.inverted.toggle,
+                    child: Container(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: SizedBox(
+                          width: 23,
+                          key: c.inverted.value
+                              ? const Key('Dark')
+                              : const Key('Light'),
+                          child: c.inverted.value
+                              ? const SvgImage.asset(
+                                  'assets/icons/dark_mode.svg',
+                                  width: 20.8,
+                                  height: 20.8,
+                                )
+                              : const SvgImage.asset(
+                                  'assets/icons/light_mode1.svg',
+                                  width: 23,
+                                  height: 23,
+                                ),
+                        ),
                       ),
                     ),
                   ),

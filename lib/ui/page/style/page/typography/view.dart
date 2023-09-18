@@ -16,20 +16,20 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
-import '/ui/page/style/widget/builder_wrap.dart';
-import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
-import 'widget/family.dart';
-import 'widget/font.dart';
-import 'widget/style.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatefulWidget {
@@ -55,24 +55,6 @@ class _TypographyViewState extends State<TypographyView> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-
-    // final Iterable<(TextStyle, String)> styles = [
-    //   (style.fonts.displayLarge, 'displayLarge'),
-    //   (style.fonts.displayMedium, 'displayMedium'),
-    //   (style.fonts.displaySmall, 'displaySmall'),
-    //   (style.fonts.headlineLarge, 'headlineLarge'),
-    //   (style.fonts.headlineMedium, 'headlineMedium'),
-    //   (style.fonts.headlineSmall, 'headlineSmall'),
-    //   (style.fonts.titleLarge, 'titleLarge'),
-    //   (style.fonts.titleMedium, 'titleMedium'),
-    //   (style.fonts.titleSmall, 'titleSmall'),
-    //   (style.fonts.labelLarge, 'labelLarge'),
-    //   (style.fonts.labelMedium, 'labelMedium'),
-    //   (style.fonts.labelSmall, 'labelSmall'),
-    //   (style.fonts.bodyLarge, 'bodyLarge'),
-    //   (style.fonts.bodyMedium, 'bodyMedium'),
-    //   (style.fonts.bodySmall, 'bodySmall'),
-    // ];
 
     Iterable<(TextStyle, String)> fonts = [
       (style.fonts.displayLarge, 'onBackground'),
@@ -139,10 +121,17 @@ class _TypographyViewState extends State<TypographyView> {
       (a, b) => b.$1.fontSize?.compareTo(a.$1.fontSize ?? 0) ?? 0,
     );
 
-    final List<(FontWeight, String)> families = [
-      (FontWeight.w300, 'SFUI-Light + Gapopa'),
-      (FontWeight.w400, 'SFUI-Regular + Gapopa'),
-      (FontWeight.w700, 'SFUI-Bold + Gapopa'),
+    final List<(FontWeight, String, String)> families = [
+      (
+        FontWeight.w400,
+        'Noto Sans Display Regular + Gapopa',
+        'NotoSansDisplayG-Regular.ttf'
+      ),
+      (
+        FontWeight.w700,
+        'Noto Sans Display Bold + Gapopa',
+        'NotoSansDisplayG-Bold.ttf'
+      ),
     ];
 
     final Map<double, List<(TextStyle, String)>> styles = {};
@@ -162,20 +151,6 @@ class _TypographyViewState extends State<TypographyView> {
       );
     }
 
-    TableRow row(String name, Object? value) {
-      return TableRow(
-        children: [
-          TableCell(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Text(name),
-            ),
-          ),
-          TableCell(child: Text('${value?.toString()}')),
-        ],
-      );
-    }
-
     return SafeScrollbar(
       controller: _scrollController,
       margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
@@ -188,27 +163,12 @@ class _TypographyViewState extends State<TypographyView> {
             title: 'Font families',
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Center(
-              //   child: DefaultTextStyle(
-              //     style: style.fonts.labelMedium,
-              //     child: Table(
-              //       defaultColumnWidth: const IntrinsicColumnWidth(),
-              //       children: [
-              //         row('Height', style.fonts.bodyLarge.height),
-              //         row('Word spacing', style.fonts.bodyLarge.wordSpacing),
-              //         row('Letter spacing',
-              //             style.fonts.bodyLarge.letterSpacing),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(height: 16),
               ...families.map((e) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '¤, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
+                      '123¤G, G¤123, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: style.fonts.displayLarge.copyWith(
@@ -218,7 +178,29 @@ class _TypographyViewState extends State<TypographyView> {
                     ),
                     const SizedBox(height: 4),
                     WidgetButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        String? to;
+
+                        if (!PlatformUtils.isWeb) {
+                          to = await FilePicker.platform.saveFile(
+                            fileName: e.$3,
+                            lockParentWindow: true,
+                          );
+
+                          if (to == null) {
+                            return;
+                          }
+                        }
+
+                        await PlatformUtils.download(
+                          '${Config.origin}/assets/assets/${e.$3}',
+                          e.$3,
+                          null,
+                          path: to,
+                        );
+
+                        MessagePopup.success('${e.$3} downloaded');
+                      },
                       child: Text(
                         e.$2,
                         style: style.fonts.labelSmallPrimary,
@@ -233,14 +215,8 @@ class _TypographyViewState extends State<TypographyView> {
                 'Font height is ${style.fonts.bodyLarge.height}, word spacing is ${style.fonts.bodyLarge.wordSpacing}, letter spacing is ${style.fonts.bodyLarge.letterSpacing}',
                 style: style.fonts.labelMedium,
               ),
-              // Text(
-              //   'Families share the following attributes:',
-              //   style: style.fonts.labelMedium,
-              // ),
-              // const SizedBox(height: 8),
             ],
           ),
-
           ...styles.keys.map((e) {
             final String name = switch (e) {
               27 => 'Largest',
@@ -290,7 +266,7 @@ class _TypographyViewState extends State<TypographyView> {
                       children: [
                         Expanded(
                           child: Text(
-                            '${name.toLowerCase()}.$weight.${f.$2}',
+                            '123¤G, G¤123 ${name.toLowerCase()}.$weight.${f.$2}',
                             style: f.$1,
                             textAlign: TextAlign.start,
                           ),
@@ -299,9 +275,25 @@ class _TypographyViewState extends State<TypographyView> {
                         // TODO: If not enough space, then this should be
                         //       display under the `Expanded`, or something.
                         Text(
-                          'w${f.$1.fontWeight?.value}, ${f.$1.color!.toHex(withAlpha: false)}',
+                          'w${f.$1.fontWeight?.value}',
                           style: TextStyle(color: textColor),
                         ).fixedDigits(all: true),
+                        Text(', ', style: TextStyle(color: textColor)),
+                        WidgetButton(
+                          onPressed: () async {
+                            Clipboard.setData(
+                              ClipboardData(
+                                text: f.$1.color!.toHex(withAlpha: false),
+                              ),
+                            );
+
+                            MessagePopup.success('Hash is copied');
+                          },
+                          child: Text(
+                            f.$1.color!.toHex(withAlpha: false),
+                            style: TextStyle(color: textColor),
+                          ).fixedDigits(all: true),
+                        ),
                       ],
                     ),
                   );
@@ -309,254 +301,6 @@ class _TypographyViewState extends State<TypographyView> {
               ],
             );
           }),
-
-          // Block(
-          //   title: 'Font 27',
-          //   unconstrained: true,
-          //   children: [
-          //     Container(
-          //       width: double.infinity,
-          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Text(
-          //               'bold.onBackground',
-          //               style: style.fonts.displayLarge,
-          //               textAlign: TextAlign.start,
-          //             ),
-          //           ),
-          //           const Text('w700, #FF0F0F0'),
-          //         ],
-          //       ),
-          //     ),
-          //     Container(
-          //       width: double.infinity,
-          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Text(
-          //               'bold.primary',
-          //               style: style.fonts.displayLarge
-          //                   .copyWith(color: style.colors.primary),
-          //               textAlign: TextAlign.start,
-          //             ),
-          //           ),
-          //           const Text('w700, #FF0F0F0'),
-          //         ],
-          //       ),
-          //     ),
-          //     Container(
-          //       width: double.infinity,
-          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Text(
-          //               'regular.onBackground',
-          //               style: style.fonts.displayLarge
-          //                   .copyWith(fontWeight: FontWeight.normal),
-          //               textAlign: TextAlign.start,
-          //             ),
-          //           ),
-          //           const Text('w400, #FF0F0F0'),
-          //         ],
-          //       ),
-          //     ),
-          //     Container(
-          //       width: double.infinity,
-          //       color: Colors.black,
-          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Text(
-          //               'light.onBackground',
-          //               style: style.fonts.displayLarge.copyWith(
-          //                 fontWeight: FontWeight.w300,
-          //                 color: style.colors.background,
-          //               ),
-          //               textAlign: TextAlign.start,
-          //             ),
-          //           ),
-          //           const Text(
-          //             'w300, #FF0F0F0',
-          //             style: TextStyle(color: Colors.white),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ],
-          // ),
-
-          // Block(
-          //   title: 'Fonts',
-          //   unconstrained: true,
-          //   padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-          //   children: [
-          //     Container(
-          //       width: double.infinity,
-          //       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //       child: Text(
-          //         'bold27',
-          //         style: style.fonts.displayLarge,
-          //         textAlign: TextAlign.start,
-          //       ),
-          //     ),
-          //     Container(
-          //       width: double.infinity,
-          //       padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Text(
-          //               'bold27.onBackground',
-          //               style: style.fonts.displayLarge,
-          //               textAlign: TextAlign.start,
-          //             ),
-          //           ),
-          //           const Text('#FF0F0F0'),
-          //         ],
-          //       ),
-          //     ),
-          //     Container(
-          //       width: double.infinity,
-          //       padding: const EdgeInsets.fromLTRB(48, 8, 8, 8),
-          //       child: Row(
-          //         children: [
-          //           Expanded(
-          //             child: Text(
-          //               'bold27.primary',
-          //               style: style.fonts.displayLarge
-          //                   .copyWith(color: style.colors.primary),
-          //               textAlign: TextAlign.start,
-          //             ),
-          //           ),
-          //           const Text('#FF0F0F0'),
-          //         ],
-          //       ),
-          //     ),
-
-          //     // ...fonts.map((e) {
-          //     //   final HSLColor hsl = HSLColor.fromColor(e.$1.color!);
-          //     //   final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
-          //     //       ? const Color(0xFF000000)
-          //     //       : const Color(0xFFFFFFFF);
-
-          //     //   return Container(
-          //     //     color: background,
-          //     //     width: double.infinity,
-          //     //     padding: const EdgeInsets.all(8),
-          //     //     child: Row(
-          //     //       children: [
-          //     //         Expanded(
-          //     //           child: Text(
-          //     //             // e.$2,
-          //     //             e.$2 == 'displayLarge' ? 'bold27\$onBackround' : e.$2,
-          //     //             style: e.$1,
-          //     //             textAlign: TextAlign.start,
-          //     //           ),
-          //     //         ),
-          //     //       ],
-          //     //     ),
-          //     //   );
-          //     // }),
-          //   ],
-          // ),
-
-          // Block(
-          //   title: 'Families',
-          //   unconstrained: true,
-          //   // padding: EdgeInsets.zero,
-          //   children: [
-          //     BuilderWrap(
-          //       families,
-          //       inverted: widget.inverted,
-          //       dense: widget.dense,
-          //       (e) => FontFamily(
-          //         e,
-          //         inverted: widget.inverted,
-          //         dense: widget.dense,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // Block(
-          //   title: 'Families',
-          //   unconstrained: true,
-          //   // padding: EdgeInsets.zero,
-          //   children: [
-          //     BuilderWrap(
-          //       families,
-          //       inverted: widget.inverted,
-          //       dense: widget.dense,
-          //       (e) => FontFamily(
-          //         e,
-          //         inverted: widget.inverted,
-          //         dense: widget.dense,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // const Header('Typography'),
-          // const SubHeader('Families'),
-          // BuilderWrap(
-          //   families,
-          //   inverted: widget.inverted,
-          //   dense: widget.dense,
-          //   (e) =>
-          //       FontFamily(e, inverted: widget.inverted, dense: widget.dense),
-          // ),
-          // const SubHeader('Fonts'),
-          // BuilderWrap(
-          //   fonts,
-          //   inverted: widget.inverted,
-          //   dense: widget.dense,
-          //   (e) =>
-          //       FontWidget(e, inverted: widget.inverted, dense: widget.dense),
-          // ),
-          // const SubHeader('Typefaces'),
-          // BuilderWrap(
-          //   styles,
-          //   inverted: widget.inverted,
-          //   dense: widget.dense,
-          //   (e) => FontWidget(
-          //     (
-          //       e.$1.copyWith(
-          //         color: widget.inverted
-          //             ? const Color(0xFFFFFFFF)
-          //             : const Color(0xFF000000),
-          //       ),
-          //       e.$2,
-          //     ),
-          //     inverted: widget.inverted,
-          //     dense: widget.dense,
-          //   ),
-          // ),
-          // const SubHeader('Styles'),
-          // BuilderWrap(
-          //   [
-          //     (style.fonts.displayLarge, 'displayLarge'),
-          //     (style.fonts.displayMedium, 'displayMedium'),
-          //     (style.fonts.displaySmall, 'displaySmall'),
-          //     (style.fonts.headlineLarge, 'headlineLarge'),
-          //     (style.fonts.headlineMedium, 'headlineMedium'),
-          //     (style.fonts.headlineSmall, 'headlineSmall'),
-          //     (style.fonts.titleLarge, 'titleLarge'),
-          //     (style.fonts.titleMedium, 'titleMedium'),
-          //     (style.fonts.titleSmall, 'titleSmall'),
-          //     (style.fonts.labelLarge, 'labelLarge'),
-          //     (style.fonts.labelMedium, 'labelMedium'),
-          //     (style.fonts.labelSmall, 'labelSmall'),
-          //     (style.fonts.bodyLarge, 'bodyLarge'),
-          //     (style.fonts.bodyMedium, 'bodyMedium'),
-          //     (style.fonts.bodySmall, 'bodySmall'),
-          //   ],
-          //   inverted: widget.inverted,
-          //   dense: widget.dense,
-          //   (e) => FontStyleWidget(e, inverted: widget.inverted),
-          // ),
           const SizedBox(height: 16),
         ],
       ),

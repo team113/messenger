@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/routes.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -66,7 +67,7 @@ class SourceCodeBlock extends StatelessWidget {
             Text('(', style: style.fonts.bodyMedium),
             button(
               label: 'открыть отдельно',
-              link: 'https://gapopa.net/style',
+              link: '${Config.origin}${Routes.style}',
             ),
             Text(')', style: style.fonts.bodyMedium),
           ],

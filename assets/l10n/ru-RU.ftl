@@ -803,6 +803,7 @@ label_presence_hidden = Не показывать
 label_presence_present = Онлайн
 label_profile = Профиль
 label_public_section_hint = Аватар и имя
+label_public_information = Публичная информация
 label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
 label_reason = Причина

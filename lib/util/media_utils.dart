@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'log.dart';
@@ -49,6 +50,10 @@ class MediaUtilsImpl {
 
   /// Returns the [Jason] instance of these [MediaUtils].
   Jason? get jason {
+    if (kDebugMode && PlatformUtils.isMacOS) {
+      return null;
+    }
+
     if (_jason == null) {
       try {
         _jason = Jason();

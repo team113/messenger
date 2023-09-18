@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
@@ -67,7 +66,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _avatars(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -82,7 +81,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _fields(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -97,7 +96,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _buttons(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -112,7 +111,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _switches(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -127,7 +126,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _containment(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -142,7 +141,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _system(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -157,7 +156,7 @@ class ElementsView extends StatelessWidget {
 
   /// Builds the animation [Column].
   Widget _navigation(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),

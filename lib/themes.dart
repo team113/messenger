@@ -91,39 +91,39 @@ class Themes {
       onPrimary: colors.onPrimary,
       danger: colors.dangerColor,
       displayLarge:
-          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
+          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.w700),
       displayMedium:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+          textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 24),
       displaySmall:
-          textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
+          textStyle.copyWith(fontWeight: FontWeight.w700, fontSize: 11),
       headlineLarge: textStyle.copyWith(fontSize: 18),
       headlineMedium:
-          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
+          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w400),
       headlineSmall: textStyle.copyWith(fontSize: 13),
-      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
+      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w400),
       titleMedium: textStyle.copyWith(fontSize: 15),
-      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
-      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w400),
       labelMedium:
-          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
       labelSmall: textStyle.copyWith(
         fontSize: 11,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         letterSpacing: 0.4,
       ),
       bodyLarge: textStyle,
-      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
-      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
+      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w400),
+      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
+      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w400),
       error: textStyle.copyWith(fontSize: 13, color: colors.dangerColor),
       input: textStyle.copyWith(
         fontSize: 15,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         color: colors.secondaryHighlightDarkest,
       ),
       counter: textStyle.copyWith(
         fontSize: 13,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         color: colors.secondaryHighlightDarkest,
       ),
     );

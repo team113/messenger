@@ -22,10 +22,7 @@ import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
 import '/themes.dart';
-import '/ui/page/style/widget/builder_wrap.dart';
-import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
-import 'widget/color.dart';
 import 'widget/color_schema.dart';
 
 /// View of the [StyleTab.colors] page.
