@@ -1567,15 +1567,22 @@ class OngoingCall {
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
     track.onEnded(() {
-      MediaKind.video;
-      if (track.kind() == MediaKind.audio) {
-        setAudioEnabled(false);
-      } else {
-        if (track.mediaSourceKind() == MediaSourceKind.device) {
-          setVideoEnabled(false);
-        } else {
-          setScreenShareEnabled(false);
-        }
+      switch (track.kind()) {
+        case MediaKind.audio:
+          setAudioEnabled(false);
+          break;
+
+        case MediaKind.video:
+          switch (track.mediaSourceKind()) {
+            case MediaSourceKind.device:
+              setVideoEnabled(false);
+              break;
+
+            case MediaSourceKind.display:
+              setScreenShareEnabled(false);
+              break;
+          }
+          break;
       }
     });
 
