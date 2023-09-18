@@ -219,7 +219,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 as RtcVideoRenderer?;
 
         if (c.videoState.value != LocalTrackState.disabled && local != null) {
-          return RtcVideoView(local, mirror: true, fit: BoxFit.cover);
+          return RtcVideoView(local, fit: BoxFit.cover);
         }
 
         return Stack(
