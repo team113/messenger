@@ -130,9 +130,9 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
   Future<void> putSafe(dynamic key, T value) async {
-      if (_isReady && _box.isOpen) {
-        await _box.put(key, value);
-      }
+    if (_isReady && _box.isOpen) {
+      await _box.put(key, value);
+    }
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
@@ -147,21 +147,19 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) async {
-      if (_isReady && _box.isOpen) {
-        await _box.delete(key);
-      }
-      return Future.value();
+    if (_isReady && _box.isOpen) {
+      await _box.delete(key);
+    }
+    return Future.value();
   }
 
   /// Exception-safe wrapper for [BoxBase.deleteAt] deleting a value by the
   /// given [index] from the [box].
   Future<void> deleteAtSafe(int index) {
-    return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        return box.deleteAt(index);
-      }
-      return Future.value();
-    });
+    if (_isReady && _box.isOpen) {
+      return box.deleteAt(index);
+    }
+    return Future.value();
   }
 }
 

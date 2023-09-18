@@ -269,11 +269,12 @@ class Pagination<T, C, K extends Comparable> {
     }
 
     if (compare != null) {
-      if (compare!.call(item, lastItem as T) == 1) {
+      if (lastItem != null && compare!.call(item, lastItem as T) == 1) {
         if (hasNext.isFalse) {
           await put();
         }
-      } else if (compare!.call(item, firstItem as T) == -1) {
+      } else if (firstItem != null &&
+          compare!.call(item, firstItem as T) == -1) {
         if (hasPrevious.isFalse) {
           await put();
         }

@@ -249,34 +249,25 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
   @override
   int compareTo(Chat other, [UserId? me]) {
-    if (ongoingCall != null &&
-        other.ongoingCall == null) {
+    if (ongoingCall != null && other.ongoingCall == null) {
       return -1;
-    } else if (ongoingCall == null &&
-        other.ongoingCall != null) {
+    } else if (ongoingCall == null && other.ongoingCall != null) {
       return 1;
-    } else if (ongoingCall != null &&
-        other.ongoingCall != null) {
-      return ongoingCall!.at
-          .compareTo(other.ongoingCall!.at);
+    } else if (ongoingCall != null && other.ongoingCall != null) {
+      return ongoingCall!.at.compareTo(other.ongoingCall!.at);
     }
 
-    if (favoritePosition != null &&
-        other.favoritePosition == null) {
+    if (favoritePosition != null && other.favoritePosition == null) {
       return -1;
-    } else if (favoritePosition == null &&
-        other.favoritePosition != null) {
+    } else if (favoritePosition == null && other.favoritePosition != null) {
       return 1;
-    } else if (favoritePosition != null &&
-        other.favoritePosition != null) {
-      return favoritePosition!
-          .compareTo(other.favoritePosition!);
+    } else if (favoritePosition != null && other.favoritePosition != null) {
+      return favoritePosition!.compareTo(other.favoritePosition!);
     }
 
     if (id.isLocalWith(me) && !other.id.isLocalWith(me)) {
       return 1;
-    } else if (!id.isLocalWith(me) &&
-        other.id.isLocalWith(me)) {
+    } else if (!id.isLocalWith(me) && other.id.isLocalWith(me)) {
       return -1;
     }
 

@@ -41,6 +41,11 @@ class CombinedPagination<T, K extends Comparable> {
           .nextLoading ??
       RxBool(false);
 
+  /// List of the items fetched from the [paginations].
+  List<T> get items => paginations
+      .map((e) => e.$2.items.values.toList())
+      .reduce((value, e) => value..addAll(e));
+
   /// Returns a [Stream] of changes of the [paginations].
   Stream<MapChangeNotification<K, T>> get changes =>
       StreamGroup.merge(paginations.map((e) => e.$2.items.changes));
