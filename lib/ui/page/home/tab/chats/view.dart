@@ -888,39 +888,25 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   sliver: SliverList(
                                     delegate: SliverChildListDelegate.fixed(
-                                      chats.mapIndexed((i, e) {
-                                        final Widget widget =
-                                            AnimationConfiguration
-                                                .staggeredList(
-                                          position: i,
-                                          duration: const Duration(
-                                            milliseconds: 375,
-                                          ),
-                                          child: SlideAnimation(
-                                            horizontalOffset: 50,
-                                            child: FadeInAnimation(
-                                              child: tile(e),
+                                      [
+                                        ...chats.mapIndexed((i, e) {
+                                          return AnimationConfiguration
+                                              .staggeredList(
+                                            position: i,
+                                            duration: const Duration(
+                                              milliseconds: 375,
                                             ),
-                                          ),
-                                        );
-
-                                        if (chats.length - 1 == i) {
-                                          return Obx(() {
-                                            if (c.hasNext.isTrue) {
-                                              return Column(
-                                                children: [
-                                                  widget,
-                                                  const CustomProgressIndicator(),
-                                                ],
-                                              );
-                                            } else {
-                                              return widget;
-                                            }
-                                          });
-                                        } else {
-                                          return widget;
-                                        }
-                                      }).toList(),
+                                            child: SlideAnimation(
+                                              horizontalOffset: 50,
+                                              child: FadeInAnimation(
+                                                child: tile(e),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                        if (c.hasNext.isTrue)
+                                          const CustomProgressIndicator()
+                                      ],
                                     ),
                                   ),
                                 ),

@@ -300,6 +300,17 @@ class Pagination<T, C, K extends Comparable> {
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
     items.remove(key);
+
+    if (compare != null) {
+      if (firstItem != null && key == onKey(firstItem as T)) {
+        firstItem = items.values.sorted(compare!).first;
+      }
+
+      if (lastItem != null && key == onKey(lastItem as T)) {
+        lastItem = items.values.sorted(compare!).last;
+      }
+    }
+
     return provider.remove(key);
   }
 }
