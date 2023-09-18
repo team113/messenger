@@ -102,10 +102,11 @@ class AuthRepository implements AbstractAuthRepository {
       response.createUser.user.id,
     );
 
-    // TODO(review): Don't lose active seesion.
-    _graphQlProvider.token = creds.session.token;
-    await _graphQlProvider.addUserEmail(email);
-    _graphQlProvider.token = null;
+    await _graphQlProvider.addUserEmail(
+      email,
+      token: creds.session.token,
+      raw: true,
+    );
 
     return creds;
   }

@@ -26,6 +26,7 @@ import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
@@ -495,9 +496,15 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the provided [email]
   /// is already present in a [MyUser.emails] field (either in confirmed or
   /// unconfirmed sub-field).
-  Future<MyUserEventsVersionedMixin?> addUserEmail(UserEmail email) async {
+  Future<MyUserEventsVersionedMixin?> addUserEmail(
+    UserEmail email, {
+    bool raw = false,
+    AccessToken? token,
+  }) async {
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
+      raw: raw,
+      overrideToken: token,
       MutationOptions(
         operationName: 'AddUserEmail',
         document: AddUserEmailMutation(variables: variables).document,

@@ -163,9 +163,11 @@ class GraphQlClient {
   Future<QueryResult> mutate(
     MutationOptions options, {
     bool raw = false,
+    AccessToken? overrideToken,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (raw) {
+      token = overrideToken;
       QueryResult result =
           await (await _newClient(true)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);

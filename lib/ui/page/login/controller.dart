@@ -25,6 +25,7 @@ import '/api/backend/schema.dart'
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
+import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -157,6 +158,9 @@ class LoginController extends GetxController {
   /// [Timer] used to disable `Proceed` button for [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
+  /// [Credentials] of the current user.
+  Credentials? _creds;
+
   /// Current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
@@ -215,9 +219,9 @@ class LoginController extends GetxController {
       },
       onSubmitted: (s) async {
         stage.value = LoginViewStage.signUpWithEmailCode;
-
         try {
-          await _authService.signUpWithEmail(UserEmail(email.text));
+          _creds = await _authService
+              .signUpWithEmail(UserEmail(email.text.toLowerCase()));
           s.unsubmit();
         } on AddUserEmailException catch (e) {
           s.error.value = e.toMessage();
@@ -238,9 +242,11 @@ class LoginController extends GetxController {
 
     emailCode = TextFieldState(
       onSubmitted: (s) async {
+        s.status.value = RxStatus.loading();
         try {
           await _authService.confirmEmailCode(
             ConfirmationCode(emailCode.text),
+            _creds,
           );
 
           (onSuccess ?? router.home)();

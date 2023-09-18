@@ -112,6 +112,7 @@ class MockGraphQlClient extends GraphQlClient {
   Future<QueryResult> mutate(
     MutationOptions options, {
     bool raw = false,
+    AccessToken? overrideToken,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (delay != null) {
@@ -122,7 +123,12 @@ class MockGraphQlClient extends GraphQlClient {
       throw const ConnectionException('Mocked');
     }
 
-    return super.mutate(options, raw: raw, onException: onException);
+    return super.mutate(
+      options,
+      raw: raw,
+      onException: onException,
+      overrideToken: overrideToken,
+    );
   }
 
   @override
