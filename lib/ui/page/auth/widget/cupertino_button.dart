@@ -67,6 +67,8 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
+        onLongPressUp: () => setState(() => _clicked = false),
+        onLongPressCancel: () => setState(() => _clicked = false),
         onTapDown: (_) => setState(() => _clicked = true),
         onTapUp: (_) {
           setState(() => _clicked = false);

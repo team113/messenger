@@ -104,10 +104,13 @@ void main() async {
           ConfirmationCode('1234'), UserPassword('test123')),
     ).thenAnswer((_) => Future.value());
 
-    await tester.pumpWidget(createWidgetForTesting(
+    await tester.pumpWidget(
+      createWidgetForTesting(
         child: const LoginView(
-      initial: LoginViewStage.signInWithPassword,
-    )));
+          initial: LoginViewStage.signInWithPassword,
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     final accessRecoveryTile = find.text('btn_forgot_password'.l10n);

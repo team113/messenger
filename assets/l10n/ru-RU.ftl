@@ -195,7 +195,10 @@ btn_mute_chat = Отключить звук
 btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
-btn_one_time_account = Одноразовый{$newline}аккаунт
+btn_one_time_account = Одноразовый аккаунт
+btn_one_time_account_desc =
+    Одноразовый
+    аккаунт
 btn_participants = Участники
 btn_participants_desc =
     Список
@@ -203,7 +206,6 @@ btn_participants_desc =
 btn_password = Пароль
 btn_paste = Вставить
 btn_personalize = Персонализация
-btn_phone_number = Номер телефона
 btn_proceed = Продолжить
 btn_remove = Удалить
 btn_rename = Переименовать
@@ -500,7 +502,6 @@ label_details = Подробнее.
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
 label_did_not_receive_code = Не получили код?
-
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -717,10 +718,6 @@ label_sign_in_with_password = Войти с паролем
 label_sign_up = Регистрация
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
-label_sign_up_code_phone_sent =
-    Проверочный код был отправлен на номер телефона {$text}
-label_sign_up_email_already_occupied = E-mail {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
-label_sign_up_phone_already_occupied = Номер телефона {$text} не может быть использован для регистрации нового аккаунта, т.к. он привязан к существующему аккаунту. Выполнить вход?
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация

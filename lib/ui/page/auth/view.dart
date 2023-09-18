@@ -47,14 +47,17 @@ class AuthView extends StatelessWidget {
             const SizedBox(height: 4),
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
+              style: style.fonts.labelLargeSecondary,
               onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
             StyledCupertinoButton(
               padding: const EdgeInsets.all(8),
               label: 'btn_work_with_us'.l10n,
+              style: style.fonts.labelMediumSecondary,
               onPressed: () => router.work(null),
             ),
+            const SizedBox(height: 8),
           ],
         );
 
@@ -123,10 +126,9 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('btn_one_time_account'.l10nfmt({'newline': '\n'})),
+            subtitle: Text('btn_one_time_account_desc'.l10n),
             maxWidth: 210,
             height: 46,
-            maxlines: 2,
             leading: Transform.translate(
               offset: const Offset(4, 0),
               child: const SvgImage.asset(
@@ -157,43 +159,20 @@ class AuthView extends StatelessWidget {
         return Listener(
           key: const Key('AuthView'),
           onPointerDown: (_) => c.animate(),
-          child: Container(
-            color: style.colors.transparent,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                IgnorePointer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: style.colors.background,
-                  ),
-                ),
-                const IgnorePointer(
-                  child: SvgImage.asset(
-                    'assets/images/background_light.svg',
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                CustomScrollView(
-                  slivers: [
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 8),
-                          Expanded(child: Center(child: column)),
-                          const SizedBox(height: 8),
-                          status,
-                        ],
-                      ),
-                    ),
+          child: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Expanded(child: Center(child: column)),
+                    const SizedBox(height: 8),
+                    status,
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },

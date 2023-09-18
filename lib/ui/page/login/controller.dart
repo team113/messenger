@@ -120,7 +120,7 @@ class LoginController extends GetxController {
   /// Amount of attempts to sign up with a wrong code.
   int codeAttempts = 0;
 
-  /// Timeout of a [resendEmail].
+  /// Timeout of a code submit.
   final RxInt codeTimeout = RxInt(0);
 
   /// Timeout of a [resendEmail].
@@ -360,7 +360,8 @@ class LoginController extends GetxController {
           ++signInAttempts;
 
           if (signInAttempts >= 3) {
-            // Wrong password was entered three times. Login is possible in N seconds.
+            // Wrong password was entered three times. Login is possible in N
+            // seconds.
             signInAttempts = 0;
             _setSignInTimer();
           }
@@ -589,7 +590,7 @@ class LoginController extends GetxController {
     }
   }
 
-  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  /// Starts or stops the [_signInTimer] based on [enabled] value.
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
       signInTimeout.value = 30;

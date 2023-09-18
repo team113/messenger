@@ -35,7 +35,6 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
     this.shadows,
-    this.maxlines,
   });
 
   /// Primary content of this button.
@@ -82,9 +81,6 @@ class OutlinedRoundedButton extends StatelessWidget {
   /// [BoxShadow]s to apply to this button.
   final List<BoxShadow>? shadows;
 
-  /// Maximum number of lines for the [title].
-  final int? maxlines;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -128,7 +124,6 @@ class OutlinedRoundedButton extends StatelessWidget {
                     ],
                   ),
                 DefaultTextStyle.merge(
-                  maxLines: maxlines ?? 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: style.fonts.titleLarge,
@@ -141,7 +136,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          title ?? Container(),
+                          title ?? const SizedBox(),
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(

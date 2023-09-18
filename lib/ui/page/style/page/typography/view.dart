@@ -94,6 +94,7 @@ class TypographyView extends StatelessWidget {
       ),
       (style.fonts.headlineSmallSecondary, 'headlineSmall'),
       (style.fonts.titleLarge, 'titleLarge'),
+      (style.fonts.titleLargePrimary, 'titleLargePrimary'),
       (style.fonts.titleLargeOnPrimary, 'titleLargeOnPrimary'),
       (style.fonts.titleLargeSecondary, 'titleLargeSecondary'),
       (style.fonts.titleMedium, 'titleMedium'),

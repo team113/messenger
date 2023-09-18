@@ -75,7 +75,6 @@ class Themes {
     );
 
     final Fonts fonts = Fonts(
-      onBackground: colors.onBackground,
       primary: colors.primary,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
@@ -153,7 +152,10 @@ class Themes {
             contextMenuBackgroundColor: colors.secondaryHighlight,
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: textStyle.copyWith(color: colors.primary),
+            linkStyle: textStyle.copyWith(
+              color: colors.primary,
+              fontWeight: FontWeight.w300,
+            ),
             messageColor: colors.onPrimary,
             primaryBorder: Border.all(
               color: colors.secondaryHighlightDark,
@@ -582,7 +584,6 @@ class Style extends ThemeExtension<Style> {
 /// [TextStyle]s used throughout the application.
 class Fonts {
   Fonts({
-    Color? onBackground,
     Color? primary,
     Color? secondary,
     Color? onPrimary,
@@ -607,7 +608,7 @@ class Fonts {
     TextStyle? headlineSmallSecondary,
     TextStyle? headlineSmallOnPrimary,
     required this.titleLarge,
-    TextStyle? titleLargeOpacity40,
+    TextStyle? titleLargePrimary,
     TextStyle? titleLargeSecondary,
     TextStyle? titleLargeOnPrimary,
     required this.titleMedium,
@@ -667,8 +668,8 @@ class Fonts {
             headlineSmallSecondary ?? headlineSmall.copyWith(color: secondary),
         headlineSmallOnPrimary =
             headlineSmallOnPrimary ?? headlineSmall.copyWith(color: onPrimary),
-        titleLargeOpacity40 = titleLargeOpacity40 ??
-            titleLarge.copyWith(color: onBackground?.withOpacity(0.4)),
+        titleLargePrimary =
+            titleLargePrimary ?? titleLarge.copyWith(color: primary),
         titleLargeSecondary =
             titleLargeSecondary ?? titleLarge.copyWith(color: secondary),
         titleLargeOnPrimary =
@@ -780,8 +781,8 @@ class Fonts {
   /// Large version of title text of `onBackground` color.
   final TextStyle titleLarge;
 
-  /// [titleLarge] of `onBackground` color with 40% opacity.
-  final TextStyle titleLargeOpacity40;
+  /// [titleLarge] of `primary` color.
+  final TextStyle titleLargePrimary;
 
   /// [titleLarge] of `secondary` color.
   final TextStyle titleLargeSecondary;
@@ -937,8 +938,8 @@ class Fonts {
       headlineSmallOnPrimary: TextStyle.lerp(
           font.headlineSmallOnPrimary, other.headlineSmallOnPrimary, t)!,
       titleLarge: TextStyle.lerp(font.titleLarge, other.titleLarge, t)!,
-      titleLargeOpacity40: TextStyle.lerp(
-          font.titleLargeOpacity40, other.titleLargeOpacity40, t)!,
+      titleLargePrimary:
+          TextStyle.lerp(font.titleLargePrimary, other.titleLargePrimary, t)!,
       titleLargeSecondary: TextStyle.lerp(
           font.titleLargeSecondary, other.titleLargeSecondary, t)!,
       titleLargeOnPrimary: TextStyle.lerp(

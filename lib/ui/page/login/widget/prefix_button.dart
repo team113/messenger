@@ -79,11 +79,10 @@ class PrefixButton extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: DefaultTextStyle.merge(
-                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                         style: onPressed == null
-                            ? style.fonts.titleLargeOpacity40
+                            ? style.fonts.titleLargeSecondary
                             : style.fonts.titleLarge,
                         child: Center(child: Text(title)),
                       ),

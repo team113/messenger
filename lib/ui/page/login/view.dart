@@ -113,8 +113,10 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                Text('label_recovery_code_sent'.l10n,
-                    style: style.fonts.titleLargeSecondary),
+                Text(
+                  'label_recovery_code_sent'.l10n,
+                  style: style.fonts.titleLargeSecondary,
+                ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('RecoveryCodeField'),
@@ -213,9 +215,9 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
-                        color: enabled ? style.colors.primary : null,
-                      ),
+                      style: enabled
+                          ? style.fonts.titleLargePrimary
+                          : style.fonts.titleLarge,
                     ),
                   );
                 }),
@@ -268,11 +270,9 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: enabled
-                              ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
-                        ),
+                        style: enabled
+                            ? style.fonts.titleLargeOnPrimary
+                            : style.fonts.titleLarge,
                       ),
                       onPressed: enabled ? c.email.submit : null,
                       color: style.colors.primary,
@@ -398,7 +398,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 PrimaryButton(
-                  title: 'btn_one_time_account'.l10nfmt({'newline': ' '}),
+                  title: 'btn_one_time_account'.l10n,
                   onPressed: c.register,
                 ),
                 const SizedBox(height: 16),
