@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +39,8 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  }) : bytes = null;
+  })  : bytes = null,
+        path = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   const VideoThumbnail.bytes(
@@ -47,7 +50,19 @@ class VideoThumbnail extends StatefulWidget {
     this.width,
     this.onError,
   })  : url = null,
-        checksum = null;
+        checksum = null,
+        path = null;
+
+  /// Constructs a [VideoThumbnail] from the provided file [path].
+  const VideoThumbnail.file(
+    this.path, {
+    super.key,
+    this.height,
+    this.width,
+    this.onError,
+  })  : url = null,
+        checksum = null,
+        bytes = null;
 
   /// URL of the video to display.
   final String? url;
@@ -57,6 +72,9 @@ class VideoThumbnail extends StatefulWidget {
 
   /// Byte data of the video to display.
   final Uint8List? bytes;
+
+  /// Path to the video [File] to display.
+  final String? path;
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
@@ -175,20 +193,34 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
     Uint8List? bytes = widget.bytes;
+    File? file;
+
+    if (widget.path != null) {
+      file = File(widget.path!);
+    }
+
     if (bytes == null &&
+        file == null &&
         widget.checksum != null &&
         CacheWorker.instance.exists(widget.checksum!)) {
-      bytes = await CacheWorker.instance.get(checksum: widget.checksum!);
+      final CacheEntry cache = await CacheWorker.instance.get(
+        checksum: widget.checksum!,
+        responseType: CacheResponseType.file,
+      );
+
+      bytes = cache.bytes;
+      file = cache.file;
+    } else if (bytes != null) {
+      file = await CacheWorker.instance.add(bytes) ?? file;
     }
 
     try {
-      if (bytes != null) {
+      if (file != null) {
+        await _controller.player.open(Media(file.path), play: false);
+      } else if (bytes != null) {
         await _controller.player.open(await Media.memory(bytes), play: false);
       } else {
-        await _controller.player.open(
-          Media(widget.url!),
-          play: false,
-        );
+        await _controller.player.open(Media(widget.url!), play: false);
       }
     } catch (_) {
       // No-op.

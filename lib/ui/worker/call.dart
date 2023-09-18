@@ -191,13 +191,13 @@ class CallWorker extends DisposableService {
                   if (chat?.chat.value.muted == null) {
                     String? title = chat?.title.value ??
                         c.caller?.name?.val ??
-                        c.caller?.num.val;
+                        c.caller?.num.toString();
 
                     _notificationService.show(
                       title ?? 'label_incoming_call'.l10n,
                       body: title == null ? null : 'label_incoming_call'.l10n,
                       payload: '${Routes.chats}/${c.chatId}',
-                      icon: chat?.avatar.value?.original.url,
+                      icon: chat?.avatar.value?.original,
                       playSound: false,
                     );
                   }

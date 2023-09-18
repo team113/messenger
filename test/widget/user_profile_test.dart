@@ -411,7 +411,7 @@ void main() async {
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserScrollable')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('5769space2360space9862space1822space'), findsOneWidget);
+    expect(find.text('5769space2360space9862space1822'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));

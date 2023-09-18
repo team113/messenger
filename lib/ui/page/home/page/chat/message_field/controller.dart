@@ -239,6 +239,7 @@ class MessageFieldController extends GetxController {
       type: type,
       allowMultiple: true,
       withReadStream: true,
+      lockParentWindow: true,
     );
 
     if (result != null && result.files.isNotEmpty) {

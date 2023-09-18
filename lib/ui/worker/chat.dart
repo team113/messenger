@@ -148,7 +148,7 @@ class ChatWorker extends DisposableService {
             c.title.value,
             body: 'label_you_were_added_to_group'.l10n,
             payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original.url,
+            icon: c.avatar.value?.original,
             tag: c.chat.value.id.val,
           );
 
@@ -165,7 +165,7 @@ class ChatWorker extends DisposableService {
             c.title.value,
             body: body,
             payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original.url,
+            icon: c.avatar.value?.original,
             tag: tag,
           );
 
@@ -249,8 +249,8 @@ class _ChatWatchData {
                 } else {
                   body.write(
                     'label_user_added_user'.l10nfmt({
-                      'author': msg.author.name?.val ?? msg.author.num.val,
-                      'user': action.user.name?.val ?? action.user.num.val,
+                      'author': msg.author.name?.val ?? msg.author.num.toString(),
+                      'user': action.user.name?.val ?? action.user.num.toString(),
                     }),
                   );
                 }
@@ -268,8 +268,8 @@ class _ChatWatchData {
                 } else {
                   body.write(
                     'label_user_removed_user'.l10nfmt({
-                      'author': msg.author.name?.val ?? msg.author.num.val,
-                      'user': action.user.name?.val ?? action.user.num.val,
+                      'author': msg.author.name?.val ?? msg.author.num.toString(),
+                      'user': action.user.name?.val ?? action.user.num.toString(),
                     }),
                   );
                 }
@@ -278,7 +278,7 @@ class _ChatWatchData {
               case ChatInfoActionKind.avatarUpdated:
                 final action = msg.action as ChatInfoActionAvatarUpdated;
                 final Map<String, dynamic> args = {
-                  'author': msg.author.name?.val ?? msg.author.num.val,
+                  'author': msg.author.name?.val ?? msg.author.num.toString(),
                 };
 
                 if (action.avatar == null) {
@@ -291,7 +291,7 @@ class _ChatWatchData {
               case ChatInfoActionKind.nameUpdated:
                 final action = msg.action as ChatInfoActionNameUpdated;
                 final Map<String, dynamic> args = {
-                  'author': msg.author.name?.val ?? msg.author.num.val,
+                  'author': msg.author.name?.val ?? msg.author.num.toString(),
                   if (action.name != null) 'name': action.name?.val,
                 };
 
