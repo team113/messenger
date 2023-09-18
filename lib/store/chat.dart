@@ -52,6 +52,7 @@ import '/provider/hive/monolog.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
+import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
@@ -152,32 +153,16 @@ class ChatRepository extends DisposableInterface
   ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
-  RxBool get hasNext => _recentPagination?.hasNext ?? RxBool(false);
+  RxBool get hasNext => _pagination?.hasNext ?? RxBool(false);
 
   @override
-  RxBool get nextLoading => _callsPagination?.nextLoading.isTrue == true
-      ? _callsPagination!.nextLoading
-      : _favoritesPagination?.nextLoading.isTrue == true
-          ? _favoritesPagination!.nextLoading
-          : _recentPagination?.nextLoading ?? RxBool(false);
+  RxBool get nextLoading => _pagination?.nextLoading ?? RxBool(false);
 
-  /// [Pagination] loading [chats] with active calls.
-  Pagination<HiveChat, RecentChatsCursor, ChatId>? _callsPagination;
-
-  /// [Pagination] loading favorite [chats].
-  Pagination<HiveChat, FavoriteChatsCursor, ChatId>? _favoritesPagination;
-
-  /// [Pagination] loading [chats] with pagination.
-  Pagination<HiveChat, RecentChatsCursor, ChatId>? _recentPagination;
-
-  /// Subscription to the [_callsPagination] changes.
-  StreamSubscription? _callsPaginationSubscription;
-
-  /// Subscription to the [_favoritesPagination] changes.
-  StreamSubscription? _favoritePaginationSubscription;
+  /// [CombinedPagination] loading [chats] with pagination.
+  CombinedPagination<HiveChat, ChatId>? _pagination;
 
   /// Subscription to the [_recentPagination] changes.
-  StreamSubscription? _recentPaginationSubscription;
+  StreamSubscription? _paginationSubscription;
 
   @override
   Future<void> init({
@@ -203,26 +188,13 @@ class ChatRepository extends DisposableInterface
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.cancel();
-    _callsPaginationSubscription?.cancel();
-    _favoritePaginationSubscription?.cancel();
-    _recentPaginationSubscription?.cancel();
+    _paginationSubscription?.cancel();
 
     super.onClose();
   }
 
   @override
-  Future<void> next() async {
-    if (_callsPagination != null && _callsPagination!.hasNext.isTrue) {
-      await _callsPagination!.next();
-    } else {
-      if (_favoritesPagination != null &&
-          _favoritesPagination!.hasNext.isTrue) {
-        await _favoritesPagination!.next();
-      } else {
-        await _recentPagination?.next();
-      }
-    }
-  }
+  Future<void> next() async => _pagination?.next();
 
   @override
   Future<void> clear() {
@@ -1230,13 +1202,7 @@ class ChatRepository extends DisposableInterface
     if (!pagination) {
       // If [chat] received not from pagination then try put it to the
       // pagination.
-      if (chat.value.ongoingCall != null) {
-        _callsPagination?.put(chat);
-      } else if (chat.value.favoritePosition != null) {
-        _favoritesPagination?.put(chat);
-      } else {
-        _recentPagination?.put(chat);
-      }
+      await _pagination?.put(chat);
     }
 
     return _add(chat, pagination: pagination);
@@ -1351,7 +1317,8 @@ class ChatRepository extends DisposableInterface
 
     await clear();
 
-    _callsPagination = Pagination(
+    Pagination<HiveChat, RecentChatsCursor, ChatId> callsPagination =
+        Pagination(
       onKey: (e) => e.value.id,
       perPage: 30,
       provider: GraphQlPageProvider(
@@ -1363,9 +1330,11 @@ class ChatRepository extends DisposableInterface
           withOngoingCalls: true,
         ),
       ),
+      compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    _favoritesPagination = Pagination(
+    Pagination<HiveChat, FavoriteChatsCursor, ChatId> favoritesPagination =
+        Pagination(
       onKey: (e) => e.value.id,
       perPage: 30,
       provider: GraphQlPageProvider(
@@ -1376,9 +1345,11 @@ class ChatRepository extends DisposableInterface
           last: last,
         ),
       ),
+      compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    _recentPagination = Pagination(
+    Pagination<HiveChat, RecentChatsCursor, ChatId> recentPagination =
+        Pagination(
       onKey: (e) => e.value.id,
       perPage: 30,
       provider: GraphQlPageProvider(
@@ -1389,10 +1360,19 @@ class ChatRepository extends DisposableInterface
           last: last,
         ),
       ),
+      compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    _callsPaginationSubscription =
-        _callsPagination!.changes.listen((event) async {
+    _pagination = CombinedPagination([
+      ((e) => e.value.ongoingCall != null, callsPagination),
+      ((e) => e.value.favoritePosition != null, favoritesPagination),
+      (
+        (e) => e.value.ongoingCall == null && e.value.favoritePosition == null,
+        recentPagination,
+      ),
+    ]);
+
+    _paginationSubscription = _pagination!.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -1406,49 +1386,12 @@ class ChatRepository extends DisposableInterface
       }
     });
 
-    _favoritePaginationSubscription =
-        _favoritesPagination!.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
-          break;
-
-        case OperationKind.removed:
-          remove(event.value!.value.id);
-          break;
-      }
-    });
-
-    _recentPaginationSubscription?.cancel();
-    _recentPaginationSubscription =
-        _recentPagination!.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
-          break;
-
-        case OperationKind.removed:
-          remove(event.value!.value.id);
-          break;
-      }
-    });
-
-    await _callsPagination!.around();
-    if (_callsPagination!.hasNext.isFalse) {
-      await _favoritesPagination!.around();
-      if (_favoritesPagination!.hasNext.isFalse) {
-        await _recentPagination!.around();
-      }
-    }
+    await _pagination!.around();
 
     status.value = RxStatus.success();
   }
 
-  /// Subscribes to the remote updates of the [сhats].
+  /// Subscribes to the remote updates of the [chats].
   Stream<RecentChatsEvent> _recentChatsRemoteEvents() =>
       _graphQlProvider.recentChatsTopEvents(3).asyncExpand((event) async* {
         var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
