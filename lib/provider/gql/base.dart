@@ -162,12 +162,11 @@ class GraphQlClient {
   /// [GraphQLClient] and without [AuthorizationException] handling.
   Future<QueryResult> mutate(
     MutationOptions options, {
-    bool raw = false,
-    AccessToken? overrideToken,
+    (bool, AccessToken?) raw = (false, null),
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw) {
-      token = overrideToken;
+    if (raw.$1) {
+      token = raw.$2;
       QueryResult result =
           await (await _newClient(true)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);

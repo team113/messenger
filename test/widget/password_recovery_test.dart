@@ -106,9 +106,7 @@ void main() async {
 
     await tester.pumpWidget(
       createWidgetForTesting(
-        child: const LoginView(
-          initial: LoginViewStage.signInWithPassword,
-        ),
+        child: const LoginView(initial: LoginViewStage.signInWithPassword),
       ),
     );
     await tester.pumpAndSettle();

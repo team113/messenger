@@ -47,25 +47,32 @@ abstract class AbstractAuthRepository {
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
-  Future<Credentials> signIn(UserPassword password,
-      {UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone});
+  Future<Credentials> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 
   /// Deletes a [Session] of the [MyUser] identified by the [token] of this
   /// repository.
   Future<void> logout();
 
-  /// Starts registration process by creating a new user and sending a
-  /// [ConfirmationCode] to provided [email].
-  Future<Credentials> signUpWithEmail(UserEmail email);
-
-  /// Finishes registration by confirming `email` with the provided
-  /// [ConfirmationCode].
-  Future<void> confirmEmailCode(ConfirmationCode code);
-
-  /// Sends a new [ConfirmationCode] to `email`.
+  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
   ///
-  /// Email can be received from [signUpWithEmail].
-  Future<void> resendEmailCode();
+  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
+  /// [confirmSignUpEmail] in order to successfully sign up.
+  ///
+  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
+  Future<void> signUpWithEmail(UserEmail email);
+
+  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
+  Future<Credentials> confirmSignUpEmail(ConfirmationCode code);
+
+  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
+  /// [signUpWithEmail].
+  Future<void> resendSignUpEmail();
 
   /// Validates the current [AccessToken].
   Future<void> validateToken();

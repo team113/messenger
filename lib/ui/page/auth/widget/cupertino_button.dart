@@ -79,19 +79,15 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
           child: AnimatedDefaultTextStyle(
             curve: Curves.ease,
             duration: const Duration(milliseconds: 100),
-            // Don't use copywith with styles rule omitted.
-            style: (widget.style ?? style.fonts.labelMediumSecondary).copyWith(
-              color: (widget.style ?? style.fonts.labelMediumSecondary)
-                  .color
-                  ?.withOpacity(
-                    _clicked
-                        ? 0.5
-                        : _hovered
-                            ? 0.7
-                            : 1,
-                  ),
+            style: (widget.style ?? style.fonts.labelMediumSecondary),
+            child: Opacity(
+              opacity: _clicked
+                  ? 0.5
+                  : _hovered
+                      ? 0.7
+                      : 1,
+              child: Text(widget.label),
             ),
-            child: Text(widget.label),
           ),
         ),
       ),

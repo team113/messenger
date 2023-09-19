@@ -77,11 +77,11 @@ class LanguageSelectionView extends StatelessWidget {
                               'name': e.name,
                             }),
                             selected: c.selected.value == e,
-                            onPressed: () {
+                            onPressed: () async {
                               c.selected.value = e;
 
                               if (c.selected.value != null) {
-                                c.setLocalization(c.selected.value!);
+                                await c.setLocalization(c.selected.value!);
                               }
                             });
                       });

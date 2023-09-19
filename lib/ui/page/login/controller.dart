@@ -25,7 +25,6 @@ import '/api/backend/schema.dart'
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
-import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -155,9 +154,6 @@ class LoginController extends GetxController {
   /// [Timer] used to disable resend code button [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
-  /// [Credentials] of the current user.
-  Credentials? _creds;
-
   /// Current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
@@ -217,7 +213,7 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         stage.value = LoginViewStage.signUpWithEmailCode;
         try {
-          _creds = await _authService
+          await _authService
               .signUpWithEmail(UserEmail(email.text.toLowerCase()));
           s.unsubmit();
         } on AddUserEmailException catch (e) {
@@ -241,10 +237,8 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService.confirmEmailCode(
-            ConfirmationCode(emailCode.text),
-            _creds,
-          );
+          await _authService
+              .confirmSignUpEmail(ConfirmationCode(emailCode.text));
 
           (onSuccess ?? router.home)();
         } on ConfirmUserEmailException catch (e) {
@@ -582,7 +576,7 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendEmailCode();
+      await _authService.resendSignUpEmail();
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {

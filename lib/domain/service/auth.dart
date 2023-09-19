@@ -253,42 +253,30 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Creates a new user and sends a [ConfirmationCode] to user's provided
-  /// [email].
-  Future<Credentials> signUpWithEmail(UserEmail email) async {
-    try {
-      final creds = await _authRepository.signUpWithEmail(email);
-      return creds;
-    } catch (e) {
-      rethrow;
-    }
-  }
+  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
+  ///
+  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
+  /// [confirmSignUpEmail] in order to successfully sign up.
+  ///
+  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
+  Future<void> signUpWithEmail(UserEmail email) =>
+      _authRepository.signUpWithEmail(email);
 
-  /// Finishes registration by confirming email with the provided
-  /// [ConfirmationCode] and authorize the user.
-  Future<void> confirmEmailCode(
-    ConfirmationCode code,
-    Credentials? creds,
-  ) async {
+  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
+  Future<void> confirmSignUpEmail(ConfirmationCode code) async {
     try {
-      await _authRepository.confirmEmailCode(code);
-      _authorized(creds!);
+      final Credentials creds = await _authRepository.confirmSignUpEmail(code);
+      _authorized(creds);
       _sessionProvider.setCredentials(creds);
     } catch (e) {
+      _unauthorized();
       rethrow;
     }
   }
 
-  /// Resends the [ConfirmationCode] to provided `email`.
-  ///
-  /// Email can be received from [signUpWithEmail].
-  Future<void> resendEmailCode() async {
-    try {
-      await _authRepository.resendEmailCode();
-    } catch (e) {
-      rethrow;
-    }
-  }
+  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
+  /// [signUpWithEmail].
+  Future<void> resendSignUpEmail() => _authRepository.resendSignUpEmail();
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
@@ -296,11 +284,13 @@ class AuthService extends GetxService {
   /// The created [Session] expires in 1 day after creation.
   ///
   /// Throws [CreateSessionException].
-  Future<void> signIn(UserPassword password,
-      {UserLogin? login,
-      UserNum? num,
-      UserEmail? email,
-      UserPhone? phone}) async {
+  Future<void> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  }) async {
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {

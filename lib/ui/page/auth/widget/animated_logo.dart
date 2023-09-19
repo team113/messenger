@@ -31,13 +31,23 @@ class AnimatedLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.asset(
-      'assets/images/logo/head000$index.svg',
-      height: 166,
-      fit: BoxFit.contain,
-      placeholderBuilder: (context) {
-        return const Center(child: CustomProgressIndicator());
-      },
+    return Stack(
+      children: [
+        // Load the whole [SvgImage]s beforehand to reduce possible frame drops.
+        ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
+            .map((e) => Offstage(child: SvgImage.asset(e)))
+            .toList(),
+
+        // Animation itself.
+        SvgImage.asset(
+          'assets/images/logo/head000$index.svg',
+          height: 166,
+          fit: BoxFit.contain,
+          placeholderBuilder: (context) {
+            return const Center(child: CustomProgressIndicator());
+          },
+        ),
+      ],
     );
   }
 }

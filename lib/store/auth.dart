@@ -33,6 +33,11 @@ class AuthRepository implements AbstractAuthRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  // TODO: Temporary solution, wait for support from backend.
+  /// [Credentials] of [Session] created with [signUpWithEmail] returned in
+  /// successful [confirmSignUpEmail].
+  Credentials? _signUpCredentials;
+
   @override
   set token(AccessToken? token) {
     _graphQlProvider.token = token;
@@ -87,10 +92,13 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> signUpWithEmail(UserEmail email) async {
+  Future<void> signUpWithEmail(UserEmail email) async {
+    _signUpCredentials = null;
+
     final response = await _graphQlProvider.signUp();
 
-    final creds = Credentials(
+    // TODO: Add `Credentials` to backend extensions.
+    _signUpCredentials = Credentials(
       Session(
         response.createUser.session.token,
         response.createUser.session.expireAt,
@@ -104,19 +112,19 @@ class AuthRepository implements AbstractAuthRepository {
 
     await _graphQlProvider.addUserEmail(
       email,
-      token: creds.session.token,
-      raw: true,
+      raw: (true, _signUpCredentials!.session.token),
     );
-
-    return creds;
   }
 
   @override
-  Future<void> confirmEmailCode(ConfirmationCode code) async =>
-      await _graphQlProvider.confirmEmailCode(code);
+  Future<Credentials> confirmSignUpEmail(ConfirmationCode code) async {
+    await _graphQlProvider.confirmEmailCode(code);
+    return _signUpCredentials!;
+  }
 
   @override
-  Future<void> resendEmailCode() async => await _graphQlProvider.resendEmail();
+  Future<void> resendSignUpEmail() async =>
+      await _graphQlProvider.resendEmail();
 
   @override
   Future<void> logout() async => await _graphQlProvider.deleteSession();

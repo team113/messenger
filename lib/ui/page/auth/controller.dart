@@ -29,7 +29,7 @@ export 'view.dart';
 class AuthController extends GetxController {
   AuthController(this._auth);
 
-  /// Current logo's animation frame.
+  /// Current [AnimatedLogo] animation frame.
   final RxInt logoFrame = RxInt(0);
 
   /// Authorization service used for signing up.

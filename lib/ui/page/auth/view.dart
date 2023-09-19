@@ -67,9 +67,6 @@ class AuthView extends StatelessWidget {
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(e)))
-              .toList(),
           Text(
             'Messenger',
             style: style.fonts.displayLargeSecondary,
@@ -162,11 +159,7 @@ class AuthView extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              IgnorePointer(
-                child: ColoredBox(
-                  color: style.colors.background,
-                ),
-              ),
+              IgnorePointer(child: ColoredBox(color: style.colors.background)),
               const IgnorePointer(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',
