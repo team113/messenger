@@ -601,7 +601,9 @@ class ChatsTabView extends StatelessWidget {
                                   child = Column(
                                     children: [
                                       child,
-                                      const CustomProgressIndicator(),
+                                      const CustomProgressIndicator(
+                                        key: Key('SearchLoading'),
+                                      ),
                                     ],
                                   );
                                 }

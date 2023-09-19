@@ -253,6 +253,7 @@ class ContactRepository implements AbstractContactRepository {
     Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
     if (name != null) {
       pagination = Pagination(
+        perPage: 30,
         provider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) {
             return searchByName(
