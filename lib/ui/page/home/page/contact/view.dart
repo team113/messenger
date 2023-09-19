@@ -106,7 +106,7 @@ class ContactView extends StatelessWidget {
                   onPressed: c.openChat,
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: SvgImage.asset(
+                    child: const SvgImage.asset(
                       'assets/icons/chat.svg',
                       width: 20.12,
                       height: 21.62,
@@ -117,7 +117,7 @@ class ContactView extends StatelessWidget {
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(true),
-                    child: SvgImage.asset(
+                    child: const SvgImage.asset(
                       'assets/icons/chat_video_call.svg',
                       height: 17,
                     ),
@@ -126,7 +126,7 @@ class ContactView extends StatelessWidget {
                 const SizedBox(width: 28),
                 WidgetButton(
                   onPressed: () => c.call(false),
-                  child: SvgImage.asset(
+                  child: const SvgImage.asset(
                     'assets/icons/chat_audio_call.svg',
                     height: 19,
                   ),

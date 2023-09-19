@@ -686,7 +686,8 @@ Widget _phones(BuildContext context, MyProfileController c) {
                 offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                  child: const SvgImage.asset('assets/icons/delete.svg',
+                      height: 14),
                 ),
               ),
               onPressed: () {
@@ -766,7 +767,8 @@ Widget _phones(BuildContext context, MyProfileController c) {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child:
+                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
             onPressed: () => AddPhoneView.show(
@@ -878,7 +880,8 @@ Widget _danger(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -1),
             child: Transform.scale(
               scale: 1.15,
-              child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child:
+                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
@@ -891,7 +894,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.danger] section.
 Widget _workWithUs(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
+  // final style = Theme.of(context).style;
 
   return Column(
     children: [
@@ -973,7 +976,7 @@ Widget _background(BuildContext context, MyProfileController c) {
                     children: [
                       Positioned.fill(
                         child: c.background.value == null
-                            ? SvgImage.asset(
+                            ? const SvgImage.asset(
                                 'assets/images/background_light.svg',
                                 width: double.infinity,
                                 height: double.infinity,
@@ -2104,7 +2107,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
 }
 
 Widget _devices(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
+  // final style = Theme.of(context).style;
 
   return Paddings.dense(
     Column(

@@ -200,7 +200,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           return Row(
             children: [
               if (chat.muted != null) ...[
-                SvgImage.asset(
+                const SvgImage.asset(
                   'assets/icons/muted_dark.svg',
                   width: 19.99 * 0.6,
                   height: 15 * 0.6,

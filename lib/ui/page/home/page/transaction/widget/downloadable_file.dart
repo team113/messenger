@@ -83,7 +83,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                   ],
                 ),
               ),
-              child: Center(
+              child: const Center(
                 child: SvgImage.asset(
                   'assets/icons/cancel.svg',
                   width: 11,
@@ -128,7 +128,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            child: Center(
+            child: const Center(
               child: SvgImage.asset(
                 'assets/icons/arrow_down.svg',
                 width: 10.55,

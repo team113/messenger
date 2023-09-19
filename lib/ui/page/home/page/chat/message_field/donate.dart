@@ -275,7 +275,7 @@ class _MenuButtonState extends State<_MenuButton> {
                   key: _key,
                   duration: const Duration(milliseconds: 100),
                   scale: _hovered ? 1.05 : 1,
-                  child: SvgImage.asset(
+                  child: const SvgImage.asset(
                     // 'assets/icons/donate_mini$prefix.svg',
                     'assets/icons/donate_mini.svg',
                     width: 22.84,
@@ -296,7 +296,7 @@ class _MenuButtonState extends State<_MenuButton> {
               const Spacer(),
               const SizedBox(width: 16),
               if (!widget.canSend)
-                AnimatedButton(
+                const AnimatedButton(
                   child: SizedBox(
                     height: 40,
                     width: 50,
@@ -312,7 +312,7 @@ class _MenuButtonState extends State<_MenuButton> {
               else
                 WidgetButton(
                   onPressed: () => widget.onSend?.call(null),
-                  child: SizedBox(
+                  child: const SizedBox(
                     // color: Colors.red,
                     height: 40,
                     width: 50,

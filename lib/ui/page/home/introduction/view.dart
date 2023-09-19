@@ -487,7 +487,7 @@ class IntroductionView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/copy.svg', height: 15),
+                child: const SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
       label: 'label_your_direct_link'.l10n,

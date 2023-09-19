@@ -564,10 +564,10 @@ class _HomeViewState extends State<HomeView> {
 
           return Stack(
             children: [
-              Positioned.fill(
+              const Positioned.fill(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',
-                  key: const Key('DefaultBackground'),
+                  key: Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,

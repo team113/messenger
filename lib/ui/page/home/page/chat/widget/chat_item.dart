@@ -1739,7 +1739,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: SvgImage.asset(
+                              trailing: const SvgImage.asset(
                                 'assets/icons/copy_small.svg',
                                 height: 18,
                               ),
@@ -1753,7 +1753,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_reply'.l10n
                                     : 'btn_reply_message'.l10n,
-                                trailing: SvgImage.asset(
+                                trailing: const SvgImage.asset(
                                   'assets/icons/reply.svg',
                                   height: 18,
                                 ),
@@ -1765,7 +1765,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: SvgImage.asset(
+                                trailing: const SvgImage.asset(
                                   'assets/icons/forward.svg',
                                   height: 18,
                                 ),
@@ -1787,7 +1787,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: SvgImage.asset(
+                                trailing: const SvgImage.asset(
                                   'assets/icons/edit.svg',
                                   height: 18,
                                 ),
@@ -1804,7 +1804,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : PlatformUtils.isMobile
                                       ? 'btn_pin'.l10n
                                       : 'btn_pin_message'.l10n,
-                              trailing: SvgImage.asset(
+                              trailing: const SvgImage.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
@@ -1816,7 +1816,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgImage.asset(
+                              trailing: const SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 height: 18,
                               ),
@@ -1862,7 +1862,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: SvgImage.asset(
+                              trailing: const SvgImage.asset(
                                 'assets/icons/send_small.svg',
                                 width: 18.37,
                                 height: 16,
@@ -1874,7 +1874,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: SvgImage.asset(
+                              trailing: const SvgImage.asset(
                                 'assets/icons/delete_small.svg',
                                 width: 17.75,
                                 height: 17,

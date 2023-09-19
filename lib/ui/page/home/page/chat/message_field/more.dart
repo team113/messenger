@@ -268,9 +268,9 @@ class _MenuButtonState extends State<_MenuButton> {
                       child: AnimatedSwitcher(
                         duration: 100.milliseconds,
                         child: widget.pinned
-                            ? SvgImage.asset(
+                            ? const SvgImage.asset(
                                 'assets/icons/unpin4.svg',
-                                key: const Key('Unpin'),
+                                key: Key('Unpin'),
                                 width: 15.5,
                                 height: 17,
                               )

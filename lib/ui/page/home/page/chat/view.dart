@@ -236,7 +236,7 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',
                                   height: 17,
                                 ),
@@ -245,7 +245,7 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: SvgImage.asset(
+                                child: const SvgImage.asset(
                                   'assets/icons/chat_audio_call.svg',
                                   height: 19,
                                 ),
@@ -263,7 +263,7 @@ class _ChatViewState extends State<ChatView>
                                   color: style.colors.dangerColor,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/call_end.svg',
                                     width: 32,
@@ -280,7 +280,7 @@ class _ChatViewState extends State<ChatView>
                                   color: style.colors.primary,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/audio_call_start.svg',
                                     width: 15,
@@ -323,7 +323,7 @@ class _ChatViewState extends State<ChatView>
                                         c.paidDisclaimerDismissed.value = false;
                                         c.paidDisclaimer.value = true;
                                       },
-                                      child: SvgImage.asset(
+                                      child: const SvgImage.asset(
                                         'assets/icons/g_coin.svg',
                                         width: 24,
                                         height: 24,
@@ -450,7 +450,7 @@ class _ChatViewState extends State<ChatView>
                                                 label: PlatformUtils.isMobile
                                                     ? 'btn_unpin'.l10n
                                                     : 'btn_unpin_message'.l10n,
-                                                trailing: SvgImage.asset(
+                                                trailing: const SvgImage.asset(
                                                   'assets/icons/send_small.svg',
                                                   width: 18.37,
                                                   height: 16,
@@ -1510,7 +1510,7 @@ class _ChatViewState extends State<ChatView>
                       // color: Colors.red,
                       margin: const EdgeInsets.only(left: 4),
                       alignment: Alignment.center,
-                      child: SvgImage.asset(
+                      child: const SvgImage.asset(
                         'assets/icons/close_primary.svg',
                         width: 8,
                         height: 8,

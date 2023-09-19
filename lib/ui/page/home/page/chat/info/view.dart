@@ -15,11 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -34,13 +32,11 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -366,7 +362,7 @@ class ChatInfoView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: SvgImage.asset('assets/icons/delete.svg', height: 14),
+                child: const SvgImage.asset('assets/icons/delete.svg', height: 14),
               ),
             ),
           );

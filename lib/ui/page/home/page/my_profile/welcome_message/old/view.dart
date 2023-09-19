@@ -27,7 +27,6 @@ import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -276,53 +275,6 @@ class WelcomeMessageView extends StatelessWidget {
             .bodyLarge
             ?.copyWith(color: Colors.black);
 
-        final Widget editOrDelete = info(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              WidgetButton(
-                onPressed: () {
-                  c.send.editing.value = true;
-
-                  c.send.field.unchecked = c.message.value?.text?.val ?? '';
-
-                  c.send.attachments.value = c.message.value?.attachments
-                          .map(
-                            (e) => MapEntry(
-                              GlobalKey(),
-                              e,
-                            ),
-                          )
-                          .toList() ??
-                      [];
-                },
-                child: Text(
-                  'btn_edit'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-              Text(
-                'space_or_space'.l10n,
-                style: const TextStyle(color: Colors.black, fontSize: 11),
-              ),
-              WidgetButton(
-                key: const Key('DeleteAvatar'),
-                onPressed: () => c.message.value = null,
-                child: Text(
-                  'btn_delete'.l10n.toLowerCase(),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-
         // return Obx(() {
         return CustomDropTarget(
           key: const Key('WelcomeMessageView'),
@@ -363,13 +315,11 @@ class WelcomeMessageView extends StatelessWidget {
                             child: Container(
                               color: Colors.transparent,
                               child: c.background.value == null
-                                  ? Container(
-                                      child: SvgImage.asset(
-                                        'assets/images/background_light.svg',
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover,
-                                      ),
+                                  ? const SvgImage.asset(
+                                      'assets/images/background_light.svg',
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      fit: BoxFit.cover,
                                     )
                                   : Image.memory(
                                       c.background.value!,

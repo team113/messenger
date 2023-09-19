@@ -49,16 +49,6 @@ class ContactsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> divider = [
-      const SizedBox(height: 10),
-      Container(
-        width: double.infinity,
-        color: const Color(0xFFE0E0E0),
-        height: 0.5,
-      ),
-      const SizedBox(height: 10),
-    ];
-
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(
@@ -93,7 +83,6 @@ class ContactsTabView extends StatelessWidget {
               Widget child;
 
               if (c.searching.value) {
-                Style style = Theme.of(context).extension<Style>()!;
                 child = Theme(
                   data: Theme.of(context).copyWith(
                     shadowColor: const Color(0x55000000),
@@ -173,9 +162,8 @@ class ContactsTabView extends StatelessWidget {
                       c.searchStatus.value = RxStatus.empty();
                       c.searching.value = false;
                     },
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 12, right: 14, top: 2),
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: 12, right: 14, top: 2),
                       child: SizedBox(
                         width: 29.69,
                         child: SvgImage.asset(
@@ -198,12 +186,12 @@ class ContactsTabView extends StatelessWidget {
                           width: 29.69,
                           height: 21,
                           child: c.sorting.value
-                              ? SvgImage.asset(
+                              ? const SvgImage.asset(
                                   'assets/icons/sort_abc.svg',
                                   width: 30,
                                   height: 21,
                                 )
-                              : SvgImage.asset(
+                              : const SvgImage.asset(
                                   'assets/icons/sort_time.svg',
                                   width: 30,
                                   height: 21,
@@ -234,8 +222,8 @@ class ContactsTabView extends StatelessWidget {
                             );
                           }
                         },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 20, right: 12),
                     child: SvgImage.asset(
                       'assets/icons/search.svg',
                       width: 17.77,
@@ -532,15 +520,15 @@ class ContactsTabView extends StatelessWidget {
                       snapshot.data != null)
                     Obx(() {
                       if (snapshot.data!.chat.value.muted != null) {
-                        return Row(
+                        return const Row(
                           children: [
-                            const SizedBox(width: 5),
+                            SizedBox(width: 5),
                             SvgImage.asset(
                               'assets/icons/muted.svg',
                               width: 19.99,
                               height: 15,
                             ),
-                            const SizedBox(width: 5),
+                            SizedBox(width: 5),
                           ],
                         );
                       }

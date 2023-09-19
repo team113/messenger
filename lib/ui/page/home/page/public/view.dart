@@ -27,10 +27,8 @@ import 'package:intl/intl.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
@@ -104,8 +102,6 @@ class _PublicViewState extends State<PublicView>
             );
           }
 
-          Style style = Theme.of(context).extension<Style>()!;
-
           return Scaffold(
             appBar: CustomAppBar(
               title: Row(
@@ -164,7 +160,7 @@ class _PublicViewState extends State<PublicView>
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: WidgetButton(
                     onPressed: () {},
-                    child: SvgImage.asset(
+                    child: const SvgImage.asset(
                       'assets/icons/search_green.svg',
                       width: 17.77,
                     ),
@@ -234,18 +230,6 @@ class _PublicViewState extends State<PublicView>
                               if (element is ChatMessageElement ||
                                   element is ChatCallElement ||
                                   element is ChatInfoElement) {
-                                Rx<ChatItem> e;
-
-                                if (element is ChatMessageElement) {
-                                  e = element.item;
-                                } else if (element is ChatCallElement) {
-                                  e = element.item;
-                                } else if (element is ChatInfoElement) {
-                                  e = element.item;
-                                } else {
-                                  throw Exception('Unreachable');
-                                }
-
                                 return const SizedBox();
 
                                 // return PostWidget(
@@ -287,43 +271,10 @@ class _PublicViewState extends State<PublicView>
                 ),
               );
             }),
-            floatingActionButton: false && context.isNarrow
-                ? SizedBox.square(
-                    dimension: 50,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        if (router.navigation.value == null) {
-                          // router.navigation.value = Padding(
-                          //   padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                          //   child: _sendField(context, c),
-                          // );
-                        } else {
-                          // router.navigation.value = null;
-                        }
-                      },
-                      backgroundColor: const Color(0xFF63B4FF),
-                      child: Obx(() {
-                        return router.navigation.value == null
-                            ? const Icon(
-                                Icons.add_rounded,
-                                color: Colors.white,
-                                size: 36,
-                              )
-                            : const Icon(
-                                Icons.close_rounded,
-                                color: Colors.white,
-                                size: 32,
-                              );
-                      }),
-                    ),
-                  )
-                : null,
-            bottomNavigationBar: false && context.isNarrow
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                    child: _sendField(context, c),
-                  ),
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+              child: _sendField(context, c),
+            ),
           );
         });
       },
@@ -494,7 +445,7 @@ class _PublicViewState extends State<PublicView>
                     if (!PlatformUtils.isMobile || PlatformUtils.isWeb)
                       WidgetButton(
                         onPressed: c.pickFile,
-                        child: SizedBox(
+                        child: const SizedBox(
                           width: 56,
                           height: 56,
                           child: Center(
@@ -522,7 +473,7 @@ class _PublicViewState extends State<PublicView>
                             child: _attachmentSelection(c),
                           );
                         },
-                        child: SizedBox(
+                        child: const SizedBox(
                           width: 56,
                           height: 56,
                           child: Center(
@@ -564,18 +515,18 @@ class _PublicViewState extends State<PublicView>
                     const SizedBox(width: 0),
                     WidgetButton(
                       onPressed: c.send.submit,
-                      child: SizedBox(
+                      child: const SizedBox(
                         width: 56,
                         height: 56,
                         child: Center(
                           child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 150),
+                            duration: Duration(milliseconds: 150),
                             child: SizedBox(
-                              key: const Key('Send'),
+                              key: Key('Send'),
                               width: 25.18,
                               height: 22.85,
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 0),
+                                padding: EdgeInsets.only(top: 0),
                                 child: SvgImage.asset(
                                   'assets/icons/send_green.svg',
                                   height: 22.85,
@@ -816,7 +767,7 @@ class _PublicViewState extends State<PublicView>
                                       // color: Colors.black.withOpacity(0.05),
                                       color: style.cardColor,
                                     ),
-                                    child: Center(
+                                    child: const Center(
                                       child: SvgImage.asset(
                                         'assets/icons/close_primary.svg',
                                         width: 7,
@@ -880,7 +831,7 @@ class _PublicViewState extends State<PublicView>
         button(
           text: isAndroid ? 'Фото' : 'Камера',
           onPressed: c.pickImageFromCamera,
-          child: SvgImage.asset(
+          child: const SvgImage.asset(
             'assets/icons/make_photo.svg',
             width: 60,
             height: 60,
@@ -890,7 +841,7 @@ class _PublicViewState extends State<PublicView>
           button(
             text: 'Видео',
             onPressed: c.pickVideoFromCamera,
-            child: SvgImage.asset(
+            child: const SvgImage.asset(
               'assets/icons/video_on.svg',
               width: 60,
               height: 60,
@@ -899,7 +850,7 @@ class _PublicViewState extends State<PublicView>
         button(
           text: 'Галерея',
           onPressed: c.pickMedia,
-          child: SvgImage.asset(
+          child: const SvgImage.asset(
             'assets/icons/gallery.svg',
             width: 60,
             height: 60,
@@ -908,7 +859,7 @@ class _PublicViewState extends State<PublicView>
         button(
           text: 'Файл',
           onPressed: c.pickFile,
-          child: SvgImage.asset(
+          child: const SvgImage.asset(
             'assets/icons/file.svg',
             width: 60,
             height: 60,

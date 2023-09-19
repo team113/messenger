@@ -547,7 +547,7 @@ class MessageFieldView extends StatelessWidget {
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.bounceInOut,
                         scale: c.moreOpened.value ? 1.1 : 1,
-                        child: SvgImage.asset(
+                        child: const SvgImage.asset(
                           'assets/icons/chat_more1.svg',
                           height: 22,
                           width: 22,
@@ -647,7 +647,7 @@ class MessageFieldView extends StatelessWidget {
                                 child: AnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: c.forwarding.value
-                                      ? AnimatedButton(
+                                      ? const AnimatedButton(
                                           child: SvgImage.asset(
                                             'assets/icons/forward.svg',
                                             width: 26,
@@ -1126,7 +1126,7 @@ class MessageFieldView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 12),
-          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
+          const SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -1261,7 +1261,7 @@ class MessageFieldView extends StatelessWidget {
           color: style.cardColor,
         ),
         alignment: Alignment.center,
-        child: SvgImage.asset(
+        child: const SvgImage.asset(
           'assets/icons/close_primary.svg',
           width: 8 * 1.3,
           height: 8 * 1.3,

@@ -62,7 +62,7 @@ class SafeScrollbar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
       return Padding(
-        padding: margin ?? EdgeInsets.symmetric(vertical: 5),
+        padding: margin ?? const EdgeInsets.symmetric(vertical: 5),
         child: child,
       );
     }

@@ -146,7 +146,7 @@ class MenuTabView extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
                     if (router.accounts.value == 0) {
-                      return AnimatedButton(
+                      return const AnimatedButton(
                         child: SvgImage.asset(
                           'assets/icons/add_account.svg',
                           width: 22.37,

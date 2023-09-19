@@ -65,8 +65,8 @@ class TransactionView extends StatelessWidget {
             actions: [
               WidgetButton(
                 onPressed: () => ContactSupportView.show(context, e),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 18),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 18),
                   child: SvgImage.asset(
                     'assets/icons/help.svg',
                     height: 23,

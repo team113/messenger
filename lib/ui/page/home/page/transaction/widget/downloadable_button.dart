@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -46,9 +45,9 @@ class _DownloadableFileState extends State<DownloadableButton> {
             key: const Key('InProgress'),
             alignment: Alignment.center,
             children: [
-              SvgImage.asset(
+              const SvgImage.asset(
                 'assets/icons/download_cancel.svg',
-                key: const Key('CancelDownloading'),
+                key: Key('CancelDownloading'),
                 width: 40,
                 height: 40,
               ),
@@ -83,9 +82,9 @@ class _DownloadableFileState extends State<DownloadableButton> {
           break;
 
         case DownloadStatus.notStarted:
-          leading = SvgImage.asset(
+          leading = const SvgImage.asset(
             'assets/icons/download.svg',
-            key: const Key('Download'),
+            key: Key('Download'),
             width: 40,
             height: 40,
           );

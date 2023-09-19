@@ -17,9 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/vacancy.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -81,83 +78,80 @@ class WorkTabView extends StatelessWidget {
             child: ListView(
               controller: c.scrollController,
               children: [
-                if (false)
-                  VacancyWidget(
-                    'Баланс: \$9999.99',
-                    trailing: const [
-                      Column(
-                        children: [
-                          SvgImage.asset(
-                            'assets/icons/external_link_blue.svg',
-                            height: 16,
-                            width: 16,
-                          ),
-                          const SizedBox(height: 21),
-                        ],
-                      ),
-                    ],
-                    subtitle: [
-                      // const SizedBox(height: 4),
-                      Text(
-                        // '\$${c.balance.value / 100}',
-                        'Вывести деньги',
-                        style: style.fonts.bodySmallSecondary,
-                      )
-                    ],
-                    onPressed: () async {
-                      await launchUrl(
-                        Uri.https('google.com', 'search', {'q': 'withdraw'}),
-                      );
-                    },
-                  ),
-                if (false)
-                  VacancyWidget(
-                    'Транзакции',
-                    subtitle: [
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Новых транзакций: ',
-                              style: style.fonts.bodySmall
-                                  .copyWith(color: style.colors.secondary),
-                            ),
-                            TextSpan(
-                              text: '4',
-                              style: style.fonts.bodySmall
-                                  .copyWith(color: style.colors.dangerColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    trailing: const [
-                      Column(
-                        children: [
-                          SvgImage.asset(
-                            'assets/icons/external_link_blue.svg',
-                            height: 16,
-                            width: 16,
-                          ),
-                          SizedBox(height: 21),
-                        ],
-                      ),
-                    ],
-                    onPressed: () async {
-                      await launchUrl(
-                        Uri.https(
-                          'google.com',
-                          'search',
-                          {'q': 'transactions'},
-                        ),
-                      );
-                    },
-                  ),
-                if (false)
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
-                    child: Center(child: Text('Работайте с нами')),
-                  ),
+                // VacancyWidget(
+                //   'Баланс: \$9999.99',
+                //   trailing: const [
+                //     Column(
+                //       children: [
+                //         SvgImage.asset(
+                //           'assets/icons/external_link_blue.svg',
+                //           height: 16,
+                //           width: 16,
+                //         ),
+                //         SizedBox(height: 21),
+                //       ],
+                //     ),
+                //   ],
+                //   subtitle: [
+                //     // const SizedBox(height: 4),
+                //     Text(
+                //       // '\$${c.balance.value / 100}',
+                //       'Вывести деньги',
+                //       style: style.fonts.bodySmallSecondary,
+                //     )
+                //   ],
+                //   onPressed: () async {
+                //     await launchUrl(
+                //       Uri.https('google.com', 'search', {'q': 'withdraw'}),
+                //     );
+                //   },
+                // ),
+                // VacancyWidget(
+                //   'Транзакции',
+                //   subtitle: [
+                //     Text.rich(
+                //       TextSpan(
+                //         children: [
+                //           TextSpan(
+                //             text: 'Новых транзакций: ',
+                //             style: style.fonts.bodySmall
+                //                 .copyWith(color: style.colors.secondary),
+                //           ),
+                //           TextSpan(
+                //             text: '4',
+                //             style: style.fonts.bodySmall
+                //                 .copyWith(color: style.colors.dangerColor),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ],
+                //   trailing: const [
+                //     Column(
+                //       children: [
+                //         SvgImage.asset(
+                //           'assets/icons/external_link_blue.svg',
+                //           height: 16,
+                //           width: 16,
+                //         ),
+                //         SizedBox(height: 21),
+                //       ],
+                //     ),
+                //   ],
+                //   onPressed: () async {
+                //     await launchUrl(
+                //       Uri.https(
+                //         'google.com',
+                //         'search',
+                //         {'q': 'transactions'},
+                //       ),
+                //     );
+                //   },
+                // ),
+                // const Padding(
+                //   padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
+                //   child: Center(child: Text('Работайте с нами')),
+                // ),
                 ...WorkTab.values.map((e) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),

@@ -17,9 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 class VacancyWidget extends StatelessWidget {
   const VacancyWidget(

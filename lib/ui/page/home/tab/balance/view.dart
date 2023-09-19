@@ -49,14 +49,14 @@ class BalanceTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.adding.value) {
-                  child = SvgImage.asset(
+                  child = const SvgImage.asset(
                     'assets/icons/info.svg',
                     width: 20,
                     height: 20,
                   );
                 } else {
-                  child = SvgImage.asset(
-                    key: const Key('Search'),
+                  child = const SvgImage.asset(
+                    key: Key('Search'),
                     'assets/icons/search.svg',
                     width: 17.77,
                   );
@@ -79,7 +79,7 @@ class BalanceTabView extends StatelessWidget {
                 if (c.adding.value) {
                   child = Transform.translate(
                     offset: const Offset(0, -1),
-                    child: SizedBox(
+                    child: const SizedBox(
                       child: SvgImage.asset(
                         'assets/icons/transactions.svg',
                         width: 19,
@@ -88,8 +88,8 @@ class BalanceTabView extends StatelessWidget {
                     ),
                   );
                 } else {
-                  child = SvgImage.asset(
-                    key: const Key('CloseSearch'),
+                  child = const SvgImage.asset(
+                    key: Key('CloseSearch'),
                     'assets/icons/add_funds.svg',
                     height: 19.94,
                   );

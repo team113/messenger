@@ -18,9 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/worker/cache.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:path/path.dart' as p;
-import 'package:pdfx/pdfx.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
@@ -28,7 +26,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import 'pdf_preview.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -49,16 +46,16 @@ class _DataAttachmentState extends State<DataAttachment> {
   /// Indicator whether this [DataAttachment] is hovered.
   bool _hovered = false;
 
-  final GlobalKey _pdfKey = GlobalKey();
+  // final GlobalKey _pdfKey = GlobalKey();
 
-  final Future<PdfDocument> _document =
-      PdfDocument.openAsset('assets/resume.pdf');
-  PdfDocument? _loaded;
-  PdfPage? _page;
+  // final Future<PdfDocument> _document =
+  //     PdfDocument.openAsset('assets/resume.pdf');
+  // PdfDocument? _loaded;
+  // PdfPage? _page;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     final Attachment e = widget.attachment;
 

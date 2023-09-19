@@ -57,7 +57,7 @@ class DonateWidget extends StatelessWidget {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: SvgImage.asset(
+              child: const SvgImage.asset(
                 'assets/images/bar2.svg',
                 fit: BoxFit.cover,
                 height: double.infinity,
