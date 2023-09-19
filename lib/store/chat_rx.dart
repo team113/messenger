@@ -766,9 +766,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  int compareTo(RxChat other) {
-    return chat.value.compareTo(other.chat.value, me);
-  }
+  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
   /// [FileAttachment]s, if any.

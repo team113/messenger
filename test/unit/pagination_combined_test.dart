@@ -24,7 +24,7 @@ import 'package:messenger/store/pagination.dart';
 import 'package:messenger/store/pagination/combined_pagination.dart';
 
 void main() async {
-  test('Pagination correctly invokes its methods', () async {
+  test('CombinedPagination correctly invokes its methods', () async {
     final Pagination<int, int, int> pagination1 = Pagination(
       perPage: 4,
       provider: _ListPageProvider(count: 7),

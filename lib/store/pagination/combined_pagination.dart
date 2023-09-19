@@ -28,7 +28,7 @@ class CombinedPagination<T, K extends Comparable> {
   CombinedPagination(this.paginations);
 
   /// [List] of the [Pagination]s this [CombinedPagination] combines.
-  List<(bool Function(T), Pagination<T, dynamic, K>)> paginations;
+  List<(bool Function(T), Pagination<T, Object, K>)> paginations;
 
   /// Indicated whether this [CombinedPagination] have next page.
   RxBool get hasNext => paginations.last.$2.hasNext;

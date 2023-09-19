@@ -115,6 +115,12 @@ class ChatRepository extends DisposableInterface
   /// [MonologHiveProvider] storing a [ChatId] of the [Chat]-monolog.
   final MonologHiveProvider _monologLocal;
 
+  /// [CombinedPagination] loading [chats] with pagination.
+  CombinedPagination<HiveChat, ChatId>? _pagination;
+
+  /// Subscription to the [_recentPagination] changes.
+  StreamSubscription? _paginationSubscription;
+
   /// [DraftHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _draftSubscription;
 
@@ -157,12 +163,6 @@ class ChatRepository extends DisposableInterface
 
   @override
   RxBool get nextLoading => _pagination?.nextLoading ?? RxBool(false);
-
-  /// [CombinedPagination] loading [chats] with pagination.
-  CombinedPagination<HiveChat, ChatId>? _pagination;
-
-  /// Subscription to the [_recentPagination] changes.
-  StreamSubscription? _paginationSubscription;
 
   @override
   Future<void> init({

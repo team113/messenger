@@ -249,8 +249,10 @@ class _ChatWatchData {
                 } else {
                   body.write(
                     'label_user_added_user'.l10nfmt({
-                      'author': msg.author.name?.val ?? msg.author.num.toString(),
-                      'user': action.user.name?.val ?? action.user.num.toString(),
+                      'author':
+                          msg.author.name?.val ?? msg.author.num.toString(),
+                      'user':
+                          action.user.name?.val ?? action.user.num.toString(),
                     }),
                   );
                 }
@@ -268,8 +270,10 @@ class _ChatWatchData {
                 } else {
                   body.write(
                     'label_user_removed_user'.l10nfmt({
-                      'author': msg.author.name?.val ?? msg.author.num.toString(),
-                      'user': action.user.name?.val ?? action.user.num.toString(),
+                      'author':
+                          msg.author.name?.val ?? msg.author.num.toString(),
+                      'user':
+                          action.user.name?.val ?? action.user.num.toString(),
                     }),
                   );
                 }

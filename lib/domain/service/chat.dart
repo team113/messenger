@@ -48,7 +48,7 @@ class ChatService extends DisposableService {
   /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
-  /// Returns the current paginated [RxChat]s available.
+  /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
   /// Returns the current reactive map of all [RxChat]s available.
@@ -57,10 +57,10 @@ class ChatService extends DisposableService {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
-  /// Indicates whether the [paginationChats] have next page.
+  /// Indicates whether the [paginated] have next page.
   RxBool get hasNext => _chatRepository.hasNext;
 
-  /// Indicates whether the [paginationChats] have next page.
+  /// Indicates whether the [paginated] have next page.
   RxBool get nextLoading => _chatRepository.nextLoading;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
@@ -81,7 +81,7 @@ class ChatService extends DisposableService {
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
 
-  /// Fetches the next [paginationChats] page.
+  /// Fetches the next [paginated] page.
   FutureOr<void> next() => _chatRepository.next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
