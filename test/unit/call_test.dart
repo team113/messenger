@@ -87,7 +87,31 @@ var chatData = {
 
 var chatsQuery = {
   'recentChats': {
-    'nodes': [chatData],
+    'edges': [
+      {
+        'node': chatData,
+        'cursor': 'cursor',
+      }
+    ],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  }
+};
+
+var favoriteQuery = {
+  'favoriteChats': {
+    'edges': [
+    ],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
   }
 };
 
@@ -248,7 +272,7 @@ void main() async {
       ),
     );
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(1.seconds);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -550,7 +574,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     bool noFavorite = false,
     bool? withOngoingCalls,
   }) =>
-      const Stream.empty();
+      Stream.value(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'recentChatsTopEvents': {
+              '__typename': 'SubscriptionInitialized',
+              'ok': true
+            }
+          },
+          parserFn: (_) => null,
+        ),
+      );
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
@@ -632,6 +667,16 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     bool? withOngoingCalls,
   }) async {
     return RecentChats$Query.fromJson(chatsQuery);
+  }
+
+  @override
+  Future<FavoriteChats$Query> favoriteChats({
+    int? first,
+    FavoriteChatsCursor? after,
+    int? last,
+    FavoriteChatsCursor? before,
+  }) async {
+    return FavoriteChats$Query.fromJson(favoriteQuery);
   }
 
   @override
