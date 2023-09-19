@@ -102,7 +102,7 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
 /// - `Given 20 users Charlie`
 final countUsers = given2<int, TestUser, CustomWorld>(
   '{int} users {user}',
-      (int count, TestUser user, context) async {
+  (int count, TestUser user, context) async {
     for (int i = 0; i < count; i++) {
       await createUser(user, context.world);
     }

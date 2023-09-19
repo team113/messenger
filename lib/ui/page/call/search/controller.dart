@@ -282,10 +282,17 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
-    usersSearchResult.value?.dispose();
-    usersSearchResult.value = null;
-    contactsSearchResult.value?.dispose();
-    contactsSearchResult.value = null;
+    if (contactsSearchResult.value != null) {
+      contactsSearchResult.value?.dispose();
+      contactsSearchResult.value = null;
+      _populateContacts();
+    }
+
+    if (usersSearchResult.value != null) {
+      usersSearchResult.value?.dispose();
+      usersSearchResult.value = null;
+      _populateUsers();
+    }
 
     // TODO: Add `Chat`s searching.
     if (categories.contains(SearchCategory.contact)) {
@@ -372,6 +379,7 @@ class SearchController extends GetxController {
       UserNum? num;
       UserName? name;
       UserLogin? login;
+      ChatDirectLinkSlug? link;
 
       try {
         num = UserNum(query);
@@ -391,12 +399,18 @@ class SearchController extends GetxController {
         // No-op.
       }
 
+      try {
+        link = ChatDirectLinkSlug(query);
+      } catch (e) {
+        // No-op.
+      }
+
       if (num != null || name != null || login != null) {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
         final SearchResult<UserId, RxUser> result =
-            _userService.search(num: num, name: name, login: login);
+            _userService.search(num: num, name: name, login: login, link: link);
 
         usersSearchResult.value?.dispose();
         usersSearchResult.value = result;
@@ -520,6 +534,8 @@ class SearchController extends GetxController {
           u.user.value!.id: u,
         ...allContacts,
       };
+    } else {
+      contacts.value = {};
     }
   }
 
@@ -564,6 +580,8 @@ class SearchController extends GetxController {
           u.id: u,
         ...allUsers,
       };
+    } else {
+      users.value = {};
     }
   }
 
