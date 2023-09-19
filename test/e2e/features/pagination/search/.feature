@@ -17,7 +17,7 @@
 
 Feature: Search
 
-  Scenario: Users correctly searched
+  Scenario: Users search work correctly
     Given I am Alice
     And 31 users FindMe
     And I wait until `HomeView` is present
