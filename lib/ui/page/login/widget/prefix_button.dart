@@ -43,7 +43,7 @@ class PrefixButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final styles = Theme.of(context).style;
 
     final BorderRadius borderRadius = BorderRadius.circular(11);
 
@@ -54,17 +54,17 @@ class PrefixButton extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: double.infinity),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: style.colors.onPrimary,
+            color: styles.colors.onPrimary,
             borderRadius: borderRadius,
-            border: Border.all(width: 0.5, color: style.colors.secondary),
+            border: Border.all(width: 0.5, color: styles.colors.secondary),
           ),
           child: Material(
-            color: style.colors.transparent,
+            color: styles.colors.transparent,
             borderRadius: borderRadius,
             child: InkWell(
               borderRadius: borderRadius,
               onTap: onPressed,
-              hoverColor: style.colors.onBackgroundOpacity7,
+              hoverColor: styles.colors.onBackgroundOpacity7,
               child: Container(
                 constraints: const BoxConstraints(
                   minHeight: 46,
@@ -81,9 +81,7 @@ class PrefixButton extends StatelessWidget {
                       child: DefaultTextStyle.merge(
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: onPressed == null
-                            ? style.fonts.titleLargeSecondary
-                            : style.fonts.titleLarge,
+                        style: style,
                         child: Center(child: Text(title)),
                       ),
                     ),

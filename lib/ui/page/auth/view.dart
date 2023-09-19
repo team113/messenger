@@ -159,18 +159,36 @@ class AuthView extends StatelessWidget {
         return Listener(
           key: const Key('AuthView'),
           onPointerDown: (_) => c.animate(),
-          child: CustomScrollView(
-            slivers: [
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    Expanded(child: Center(child: column)),
-                    const SizedBox(height: 8),
-                    status,
-                  ],
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              IgnorePointer(
+                child: ColoredBox(
+                  color: style.colors.background,
                 ),
+              ),
+              const IgnorePointer(
+                child: SvgImage.asset(
+                  'assets/images/background_light.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Expanded(child: Center(child: column)),
+                        const SizedBox(height: 8),
+                        status,
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -186,9 +204,7 @@ class AuthView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ModalPopupHeader(
-            text: 'btn_download'.l10n,
-          ),
+          ModalPopupHeader(text: 'btn_download'.l10n),
           const SizedBox(height: 12),
           Flexible(
             child: ListView(

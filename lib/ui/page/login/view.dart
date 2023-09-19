@@ -193,7 +193,8 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                      .l10nfmt({'text': c.email.text.toLowerCase()}).parseLinks(
+                          [], context),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),

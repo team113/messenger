@@ -69,7 +69,9 @@ class DownloadButton extends StatelessWidget {
                 height: height,
               ),
             ),
-      style: style.fonts.titleMediumPrimary,
+      style: link == null
+          ? style.fonts.titleMedium
+          : style.fonts.titleMediumPrimary,
     );
   }
 }

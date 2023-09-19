@@ -253,8 +253,8 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Creates a new [MyUser] and sends a [ConfirmationCode] to [MyUser]'s
-  /// provided [email].
+  /// Creates a new user and sends a [ConfirmationCode] to user's provided
+  /// [email].
   Future<Credentials> signUpWithEmail(UserEmail email) async {
     try {
       final creds = await _authRepository.signUpWithEmail(email);
@@ -264,7 +264,8 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Confirms email with the provided [ConfirmationCode] for the [MyUser].
+  /// Finishes registration by confirming email with the provided
+  /// [ConfirmationCode] and authorize the user .
   Future<void> confirmEmailCode(
     ConfirmationCode code,
     Credentials? creds,
@@ -278,7 +279,9 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Resends the [ConfirmationCode] for the [MyUser].
+  /// Resends the [ConfirmationCode] to provided `email`.
+  ///
+  /// Email can be received from [signUpWithEmail].
   Future<void> resendEmailCode() async {
     try {
       await _authRepository.resendEmailCode();

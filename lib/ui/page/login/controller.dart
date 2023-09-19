@@ -127,16 +127,13 @@ class LoginController extends GetxController {
   /// Timeout of a [resendEmail].
   final RxInt resendEmailTimeout = RxInt(0);
 
-  /// Indicator whether [UserEmail] confirmation code has been resent.
-  final RxBool resent = RxBool(false);
-
   /// Authentication service providing the authentication capabilities.
   final AuthService _authService;
 
-  /// [Timer] decreasing the [codeTimeout].
+  /// [Timer] used to disable `Proceed` button for [codeTimeout].
   Timer? _codeTimer;
 
-  /// [Timer] decreasing the [signInTimeout].
+  /// [Timer] used to disable `LoginButton` button for [signInTimeout].
   Timer? _signInTimer;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
@@ -155,7 +152,7 @@ class LoginController extends GetxController {
   /// and [resetUserPassword].
   UserLogin? _recoveryLogin;
 
-  /// [Timer] used to disable `Proceed` button for [resendEmailTimeout].
+  /// [Timer] used to disable resend code button [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
   /// [Credentials] of the current user.
@@ -260,6 +257,7 @@ class LoginController extends GetxController {
                 codeAttempts = 0;
                 _setCodeTimer();
               }
+              s.status.value = RxStatus.empty();
               break;
 
             default:
@@ -268,7 +266,7 @@ class LoginController extends GetxController {
           }
         } on FormatException catch (_) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
-
+          s.status.value = RxStatus.empty();
           ++codeAttempts;
           if (codeAttempts >= 3) {
             codeAttempts = 0;
@@ -276,6 +274,7 @@ class LoginController extends GetxController {
           }
         } catch (_) {
           s.error.value = 'err_data_transfer'.l10n;
+          s.status.value = RxStatus.empty();
           s.unsubmit();
         }
       },
@@ -581,7 +580,6 @@ class LoginController extends GetxController {
 
   /// Resends a [ConfirmationCode] to the specified [email].
   Future<void> resendEmail() async {
-    resent.value = true;
     _setResendEmailTimer();
 
     try {
@@ -590,7 +588,6 @@ class LoginController extends GetxController {
       emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;
-      resent.value = false;
       _setResendEmailTimer(false);
       rethrow;
     }
