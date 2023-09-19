@@ -21,6 +21,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Display Gapopa ID in quartets. ([#587])
+    - Work page:
+        - Redesigned icons and texts. ([#597])
     - Redesigned auth page. ([#564], [#533])
     - Redesigned login modal. ([#564], [#533])
     - Redesigned language selection modal. ([#533])
@@ -37,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
 [#533]: /../../pull/533 
 [#564]: /../../issue/564
 [#587]: /../../pull/587
+[#597]: /../../pull/597
 
 
 
