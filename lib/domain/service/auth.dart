@@ -265,7 +265,7 @@ class AuthService extends GetxService {
   }
 
   /// Finishes registration by confirming email with the provided
-  /// [ConfirmationCode] and authorize the user .
+  /// [ConfirmationCode] and authorize the user.
   Future<void> confirmEmailCode(
     ConfirmationCode code,
     Credentials? creds,

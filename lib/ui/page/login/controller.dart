@@ -274,7 +274,6 @@ class LoginController extends GetxController {
           }
         } catch (_) {
           s.error.value = 'err_data_transfer'.l10n;
-          s.status.value = RxStatus.empty();
           s.unsubmit();
         }
       },
