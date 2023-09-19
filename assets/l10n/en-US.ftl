@@ -216,6 +216,7 @@ btn_resend = Resend
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
+btn_save_as = Save as
 btn_save_to_gallery = Save to gallery
 btn_select = Select
 btn_select_and_delete = Select and delete

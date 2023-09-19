@@ -90,7 +90,6 @@ class NativeFile {
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
-  @HiveField(4)
   MediaType? mime;
 
   /// [Mutex] for synchronized access to the [readFile].

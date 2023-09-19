@@ -32,6 +32,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? path,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
@@ -40,7 +41,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     int total = 100;
     for (int count = 0; count <= total; count++) {
       if (cancelToken?.isCancelled == true) {
-        break;
+        return null;
       }
       await Future.delayed(50.milliseconds);
       onReceiveProgress?.call(count, total);

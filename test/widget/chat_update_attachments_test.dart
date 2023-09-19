@@ -434,7 +434,7 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 
-    Get.put(CacheWorker(cacheInfoProvider));
+    Get.put(CacheWorker(cacheInfoProvider, null));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

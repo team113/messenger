@@ -43,6 +43,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? path,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,

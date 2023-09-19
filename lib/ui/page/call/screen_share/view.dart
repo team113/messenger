@@ -99,7 +99,6 @@ class ScreenShareView extends StatelessWidget {
                                             )
                                           : null,
                                       source: MediaSourceKind.display,
-                                      mirror: false,
                                       fit: BoxFit.contain,
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
