@@ -80,7 +80,7 @@ class MyProfileView extends StatelessWidget {
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
             appBar: CustomAppBar(
-              title: Text('label_profile'.l10n),
+              title: Text('label_account'.l10n),
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
             ),

@@ -76,7 +76,7 @@ class FreelanceWorkController extends GetxController {
   /// - each object in the list must define `title`, `body`, `html_url` strings
   /// and `number` integer.
   static const String _url =
-      'https://api.github.com/repos/team113/messenger/issues?direction=asc&labels=help wanted';
+      'https://api.github.com/repos/team113/messenger/issues?direction=asc&labels=help wanted&assignee=none';
 
   /// Returns the authorization [RxStatus].
   Rx<RxStatus> get status => _authService.status;
