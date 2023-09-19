@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
@@ -16,7 +15,7 @@ class FaqView extends StatelessWidget {
     return GetBuilder(
       init: FaqController(),
       builder: (FaqController c) {
-        final style = Theme.of(context).style;
+        // final style = Theme.of(context).style;
 
         return Scaffold(
           appBar: const CustomAppBar(

@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/themes.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
@@ -52,7 +51,7 @@ class WelcomeMessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return GetBuilder(
       init: WelcomeMessageController(

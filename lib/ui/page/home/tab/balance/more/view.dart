@@ -22,7 +22,6 @@ import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
 /// View for changing [MyUser.chatDirectLink] and [MyUser.muted].
@@ -114,45 +113,5 @@ class BalanceMoreView extends StatelessWidget {
         });
       }).toList(),
     );
-
-    return Obx(() {
-      return Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: (c.displayFunds
-                        ? 'label_balance_enabled'
-                        : 'label_balance_disabled')
-                    .l10n,
-                editable: false,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(
-                    platform: TargetPlatform.macOS,
-                  ),
-                  child: Switch.adaptive(
-                    activeColor: Theme.of(context).colorScheme.primary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.displayFunds,
-                    onChanged: c.setDisplayFunds,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    });
   }
 }

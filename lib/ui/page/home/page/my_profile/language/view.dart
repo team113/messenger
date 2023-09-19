@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -48,7 +47,7 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
 
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),

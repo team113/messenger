@@ -39,8 +39,8 @@ class RiveAsset extends StatefulWidget {
 class _RiveAssetState extends State<RiveAsset> {
   StateMachineController? _controller;
   SMIBool? _hover;
-  SMIBool? _pushed;
-  SMITrigger? _click;
+  // SMIBool? _pushed;
+  // SMITrigger? _click;
 
   @override
   void didUpdateWidget(RiveAsset oldWidget) {

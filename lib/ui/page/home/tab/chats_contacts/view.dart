@@ -50,12 +50,6 @@ class ChatsContactsTabView extends StatelessWidget {
               ),
             ],
           );
-
-          if (c.switched.value) {
-            return ContactsTabView(onSwitched: c.switched.toggle);
-          }
-
-          return ChatsTabView(onSwitched: c.switched.toggle);
         });
       },
     );

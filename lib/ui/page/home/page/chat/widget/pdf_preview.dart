@@ -18,8 +18,6 @@ class PdfPreview extends StatefulWidget {
 }
 
 class _PdfPreviewState extends State<PdfPreview> {
-  final GlobalKey _pdfKey = GlobalKey();
-
   PdfPage? _page;
   PdfPageImage? _image;
   RxStatus _status = RxStatus.loading();

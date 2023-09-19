@@ -19,7 +19,6 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 
 import '/l10n/l10n.dart';
@@ -213,7 +212,6 @@ class AccountsView extends StatelessWidget {
               break;
 
             default:
-              final style = Theme.of(context).style;
               children = [
                 ModalPopupHeader(
                   header: Center(

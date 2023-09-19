@@ -256,7 +256,7 @@ class _MyDismissibleClipper extends CustomClipper<Rect> {
   _MyDismissibleClipper({
     required this.axis,
     required this.moveAnimation,
-  })  : super(reclip: moveAnimation);
+  }) : super(reclip: moveAnimation);
 
   final Axis axis;
   final Animation<Offset> moveAnimation;
@@ -304,8 +304,6 @@ class _MyDismissibleState extends State<MyDismissible>
           ..addListener(_handleDismissUpdateValueChanged);
     _updateMoveAnimation();
   }
-
-  OverlayEntry? _entry;
 
   AnimationController? _moveController;
   late Animation<Offset> _moveAnimation;
