@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/ui/widget/menu_button.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// [MenuButton] displaying the provided [work].
 class VacancyWorkButton extends StatelessWidget {
@@ -45,7 +46,23 @@ class VacancyWorkButton extends StatelessWidget {
           WorkTab.frontend => 'Flutter',
           WorkTab.freelance => 'Flutter',
         },
-        icon: Icons.work_rounded,
+        leading: switch (work) {
+          WorkTab.backend => SvgImage.asset(
+              'assets/icons/rust${selected ? '_white' : ''}.svg',
+              width: 32,
+              height: 32,
+            ),
+          WorkTab.frontend => SvgImage.asset(
+              'assets/icons/frontend${selected ? '_white' : ''}.svg',
+              width: 25.87,
+              height: 32,
+            ),
+          WorkTab.freelance => SvgImage.asset(
+              'assets/icons/freelance${selected ? '_white' : ''}.svg',
+              width: 32,
+              height: 32,
+            ),
+        },
         inverted: selected,
         onPressed: () => router.work(work),
       );

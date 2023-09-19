@@ -27,6 +27,7 @@ class MenuButton extends StatelessWidget {
     super.key,
     this.title,
     this.subtitle,
+    this.leading,
     this.icon,
     this.onPressed,
     this.inverted = false,
@@ -40,6 +41,9 @@ class MenuButton extends StatelessWidget {
 
   /// Optional icon of this [MenuButton].
   final IconData? icon;
+
+  /// Optional leading to display before the [title].
+  final Widget? leading;
 
   /// Callback, called when this [MenuButton] is tapped.
   final void Function()? onPressed;
@@ -76,12 +80,14 @@ class MenuButton extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(width: 12),
-                    Icon(
-                      icon,
-                      color: inverted
-                          ? style.colors.onPrimary
-                          : style.colors.primary,
-                    ),
+                    if (leading != null) leading!,
+                    if (icon != null)
+                      Icon(
+                        icon,
+                        color: inverted
+                            ? style.colors.onPrimary
+                            : style.colors.primary,
+                      ),
                     const SizedBox(width: 18),
                     Expanded(
                       child: Column(
