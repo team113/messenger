@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -168,7 +170,7 @@ class _TypographyViewState extends State<TypographyView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '123¤G, G¤123, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
+                      'G, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: style.fonts.displayLarge.copyWith(
@@ -253,6 +255,12 @@ class _TypographyViewState extends State<TypographyView> {
                   final Color textColor = hsl.lightness > 0.7 || hsl.alpha < 0.4
                       ? const Color(0xFFFFFFFF)
                       : const Color(0xFF000000);
+
+                  final Color detailsColor =
+                      hsl.lightness > 0.7 || hsl.alpha < 0.4
+                          ? const Color(0xFFC4C4C4)
+                          : const Color(0xFF888888);
+
                   final Color background =
                       hsl.lightness > 0.7 || hsl.alpha < 0.4
                           ? const Color(0xFF888888)
@@ -263,10 +271,169 @@ class _TypographyViewState extends State<TypographyView> {
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
                           child: Text(
-                            '123¤G, G¤123 ${name.toLowerCase()}.$weight.${f.$2}',
+                            '${name.toLowerCase()}.$weight.${f.$2}  ',
+                            style: f.$1,
+                            textAlign: TextAlign.start,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            8,
+                            0,
+                            0,
+                            max(
+                              0,
+                              ((f.$1.fontSize! - 10) / (27 - 10)) * 5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                'w${f.$1.fontWeight?.value}',
+                                style: style.fonts.labelSmall
+                                    .copyWith(color: detailsColor),
+                              ).fixedDigits(all: true),
+                              Text(
+                                ', ',
+                                style: style.fonts.labelSmall
+                                    .copyWith(color: detailsColor),
+                              ),
+                              WidgetButton(
+                                onPressed: () async {
+                                  Clipboard.setData(
+                                    ClipboardData(
+                                      text: f.$1.color!.toHex(withAlpha: false),
+                                    ),
+                                  );
+
+                                  MessagePopup.success('Hash is copied');
+                                },
+                                child: Text(
+                                  f.$1.color!.toHex(withAlpha: false),
+                                  style: style.fonts.labelSmall
+                                      .copyWith(color: detailsColor),
+                                ).fixedDigits(all: true),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  List<TextSpan> spans([Color? color]) => [
+                        TextSpan(
+                          text: 'w${f.$1.fontWeight?.value} ',
+                          style: style.fonts.labelSmall.copyWith(color: color),
+                        ),
+                        TextSpan(
+                          text: f.$1.color!.toHex(withAlpha: false),
+                          style: style.fonts.labelSmall.copyWith(color: color),
+                        ),
+                      ];
+
+                  // return Container(
+                  //   color: background,
+                  //   width: double.infinity,
+                  //   padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  //   child: Wrap(
+                  //     crossAxisAlignment: WrapCrossAlignment.end,
+                  //     children: [
+                  //       Text(
+                  //         '${name.toLowerCase()}.$weight.${f.$2}',
+                  //         style: f.$1.copyWith(color: textColor),
+                  //         textAlign: TextAlign.start,
+                  //       ),
+                  //       Text.rich(
+                  //         TextSpan(
+                  //           children: [
+                  //             TextSpan(
+                  //               text: 'w${f.$1.fontWeight?.value} ',
+                  //               style: style.fonts.labelSmall
+                  //                   .copyWith(color: textColor),
+                  //             ),
+                  //             TextSpan(
+                  //               text: f.$1.color!.toHex(withAlpha: false),
+                  //               style: style.fonts.labelSmall
+                  //                   .copyWith(color: textColor),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //         textAlign: TextAlign.end,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // );
+
+                  return Stack(
+                    children: [
+                      Container(
+                        color: background,
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '${name.toLowerCase()}.$weight.${f.$2}',
+                                style: f.$1.copyWith(color: textColor),
+                              ),
+                              ...spans(Colors.transparent),
+                              // WidgetSpan(
+                              //   child: Text.rich(
+                              //     TextSpan(
+                              //       children: [
+                              //         TextSpan(
+                              //           text: 'w${f.$1.fontWeight?.value} ',
+                              //           style: style.fonts.labelSmall
+                              //               .copyWith(color: textColor),
+                              //         ),
+                              //         TextSpan(
+                              //           text:
+                              //               f.$1.color!.toHex(withAlpha: false),
+                              //           style: style.fonts.labelSmall
+                              //               .copyWith(color: textColor),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 9, right: 8),
+                            child: Text.rich(
+                              TextSpan(
+                                children: spans(textColor),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+
+                  return Container(
+                    color: background,
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${name.toLowerCase()}.$weight.${f.$2}',
                             style: f.$1,
                             textAlign: TextAlign.start,
                           ),

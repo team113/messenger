@@ -48,17 +48,17 @@ class VacancyWorkButton extends StatelessWidget {
         },
         leading: switch (work) {
           WorkTab.backend => SvgImage.asset(
-              'assets/icons/rust1${selected ? '_white' : ''}.svg',
+              'assets/icons/rust${selected ? '_white' : ''}.svg',
               width: 32,
               height: 32,
             ),
           WorkTab.frontend => SvgImage.asset(
-              'assets/icons/frontend1${selected ? '_white' : ''}.svg',
+              'assets/icons/frontend${selected ? '_white' : ''}.svg',
               width: 25.87,
               height: 32,
             ),
           WorkTab.freelance => SvgImage.asset(
-              'assets/icons/freelance1${selected ? '_white' : ''}.svg',
+              'assets/icons/freelance${selected ? '_white' : ''}.svg',
               width: 32,
               height: 32,
             ),

@@ -26,6 +26,7 @@ class BuilderWrap<T> extends StatelessWidget {
     super.key,
     this.inverted = false,
     this.dense = false,
+    this.alignment = WrapAlignment.center,
   });
 
   /// Items to [Wrap].
@@ -41,6 +42,8 @@ class BuilderWrap<T> extends StatelessWidget {
   /// [Padding]s and roundness.
   final bool dense;
 
+  final WrapAlignment alignment;
+
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
@@ -54,7 +57,7 @@ class BuilderWrap<T> extends StatelessWidget {
         borderRadius: dense ? BorderRadius.zero : BorderRadius.circular(16),
       ),
       child: Wrap(
-        alignment: WrapAlignment.center,
+        alignment: alignment,
         spacing: 16,
         runSpacing: 16,
         children: children.map((e) => builder(e)).toList(),

@@ -211,7 +211,7 @@ class _ColorsViewState extends State<ColorsView> {
           Block(
             title: 'Colors',
             unconstrained: true,
-            padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
             children: [
               ColorSchemaWidget(
                 colors,

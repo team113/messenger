@@ -82,38 +82,38 @@ class StyleView extends StatelessWidget {
             ),
             actions: [
               Obx(() {
-                return AnimatedOpacity(
-                  duration: 300.milliseconds,
-                  curve: Curves.ease,
-                  opacity: c.tab.value == StyleTab.typography ? 0 : 1,
-                  child: WidgetButton(
-                    onPressed: c.tab.value == StyleTab.typography
-                        ? null
-                        : c.inverted.toggle,
-                    child: Container(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: SizedBox(
-                          width: 23,
-                          key: c.inverted.value
-                              ? const Key('Dark')
-                              : const Key('Light'),
-                          child: c.inverted.value
-                              ? const SvgImage.asset(
-                                  'assets/icons/dark_mode.svg',
-                                  width: 20.8,
-                                  height: 20.8,
-                                )
-                              : const SvgImage.asset(
-                                  'assets/icons/light_mode1.svg',
-                                  width: 23,
-                                  height: 23,
-                                ),
-                        ),
+                return
+                    // AnimatedOpacity(
+                    // duration: 300.milliseconds,
+                    // curve: Curves.ease,
+                    // opacity: c.tab.value == StyleTab.typography ? 0 : 1,
+                    // child
+                    WidgetButton(
+                  onPressed: c.inverted.toggle,
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: SizedBox(
+                        width: 23,
+                        key: c.inverted.value
+                            ? const Key('Dark')
+                            : const Key('Light'),
+                        child: c.inverted.value
+                            ? const SvgImage.asset(
+                                'assets/icons/dark_mode.svg',
+                                width: 20.8,
+                                height: 20.8,
+                              )
+                            : const SvgImage.asset(
+                                'assets/icons/light_mode1.svg',
+                                width: 23,
+                                height: 23,
+                              ),
                       ),
                     ),
                   ),
+                  // ),
                 );
 
                 // return ContextMenuRegion(
@@ -152,38 +152,43 @@ class StyleView extends StatelessWidget {
   Widget _page(StyleController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return ColoredBox(
-      color: style.colors.background,
-      child: PageView(
-        controller: c.pages,
-        onPageChanged: (i) => c.tab.value = StyleTab.values[i],
-        physics: const NeverScrollableScrollPhysics(),
-        children: StyleTab.values.map((e) {
-          return KeepAlivePage(
-            child: switch (e) {
-              StyleTab.colors => Obx(() {
-                  return ColorsView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
-                }),
-              StyleTab.typography => Obx(() {
-                  return TypographyView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
-                }),
-              StyleTab.widgets => Obx(() {
-                  return WidgetsView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
-                }),
-            },
-          );
-        }).toList(),
-      ),
-    );
+    return Obx(() {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        color: c.inverted.value
+            ? style.colors.backgroundAuxiliaryLight
+            : style.colors.background,
+        child: PageView(
+          controller: c.pages,
+          onPageChanged: (i) => c.tab.value = StyleTab.values[i],
+          physics: const NeverScrollableScrollPhysics(),
+          children: StyleTab.values.map((e) {
+            return KeepAlivePage(
+              child: switch (e) {
+                StyleTab.colors => Obx(() {
+                    return ColorsView(
+                      inverted: c.inverted.value,
+                      dense: c.dense.value,
+                    );
+                  }),
+                StyleTab.typography => Obx(() {
+                    return TypographyView(
+                      inverted: c.inverted.value,
+                      dense: c.dense.value,
+                    );
+                  }),
+                StyleTab.widgets => Obx(() {
+                    return WidgetsView(
+                      inverted: c.inverted.value,
+                      dense: c.dense.value,
+                    );
+                  }),
+              },
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   Widget _button(StyleController c, int i) {
