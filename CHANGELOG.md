@@ -6,6 +6,36 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.10] · 2023-??-??
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.4...v0.1.0-alpha.10) | [Milestone](/../../milestone/9)
+
+### Added
+
+- UI:
+    - Chat page:
+        - `Save as` for media attachments. ([#423], [#370]) 
+
+### Changed
+
+- UI:
+    - Display Gapopa ID in quartets. ([#587])
+
+### Fixed
+
+- Mobile:
+    - Back camera being mirrored. ([#301], [#70])
+
+[#70]: /../../issues/70
+[#301]: /../../pull/301
+[#370]: /../../issues/370
+[#423]: /../../pull/423
+[#541]: /../../pull/587
+
+
+
+
 ## [0.1.0-alpha.9.4] · 2023-09-04
 [0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
 

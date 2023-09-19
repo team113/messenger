@@ -23,6 +23,7 @@ import 'package:hive/hive.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model_type_id.dart';
+import '/l10n/l10n.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat.dart';
@@ -164,6 +165,20 @@ class UserNum extends NewType<String> {
     }
 
     return UserNum._(val);
+  }
+
+  /// Returns [UserNum] as [String] formatted in quartets.
+  @override
+  String toString() {
+    String formattedUserNum = '';
+
+    for (int i = 0; i < val.length; i++) {
+      if (i % 4 == 0 && i > 0) {
+        formattedUserNum += 'space'.l10n;
+      }
+      formattedUserNum += val[i];
+    }
+    return formattedUserNum.trim();
   }
 
   /// Creates an object without any validation.

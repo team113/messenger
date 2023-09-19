@@ -11,7 +11,7 @@ PODS:
   - flutter_local_notifications (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
-  - medea_flutter_webrtc (0.8.2):
+  - medea_flutter_webrtc (0.8.3-dev):
     - FlutterMacOS
   - medea_jason (0.4.0):
     - FlutterMacOS
@@ -129,7 +129,7 @@ SPEC CHECKSUMS:
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  medea_flutter_webrtc: 3df07fdf7f364256674e060fba563c8ba1379b73
+  medea_flutter_webrtc: 84357e70fe63bb79f5002762b79e03d245eaa428
   medea_jason: b3355be56a78da19da91aee19a3ac56356d18997
   media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
   media_kit_native_event_loop: 81fd5b45192b72f8b5b69eaf5b540f45777eb8d5

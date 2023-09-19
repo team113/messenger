@@ -15,28 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/widget/text_field.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-/// [CopyableTextField] representation of the provided [UserNum].
-class UserNumCopyable extends StatelessWidget {
-  const UserNumCopyable(this.num, {super.key});
+import 'base.dart';
 
-  /// [UserNum] to display.
-  final UserNum? num;
+/// [Hive] storage for [File.path]s.
+class DownloadHiveProvider extends HiveLazyProvider<String> {
+  @override
+  Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  Widget build(BuildContext context) {
-    return CopyableTextField(
-      state: TextFieldState(
-        text: num?.toString(),
-        editable: false,
-      ),
-      label: 'label_num'.l10n,
-    );
-  }
+  String get boxName => 'download';
+
+  @override
+  void registerAdapters() {}
+
+  /// Returns a list of [File.path]s from [Hive].
+  Future<Iterable<String>> get downloads => valuesSafe;
+
+  /// Puts the provided [File.path] to [Hive].
+  Future<void> put(String checksum, String path) => putSafe(checksum, path);
+
+  /// Returns a [File.path] from [Hive] by its [checksum].
+  Future<String?> get(String checksum) => getSafe(checksum);
+
+  /// Removes an [File.path] from [Hive] by its [checksum].
+  Future<void> remove(String checksum) => deleteSafe(checksum);
 }

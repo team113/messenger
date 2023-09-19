@@ -724,11 +724,13 @@ class MessageFieldView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4, top: 4),
                     child: Obx(() {
-                      final Widget child;
-
-                      if (c.hoveredAttachment.value == e ||
-                          PlatformUtils.isMobile) {
-                        child = InkWell(
+                      return AnimatedOpacity(
+                        duration: 200.milliseconds,
+                        opacity: c.hoveredAttachment.value == e ||
+                                PlatformUtils.isMobile
+                            ? 1
+                            : 0,
+                        child: InkWell(
                           key: const Key('RemovePickedFile'),
                           onTap: () =>
                               c.attachments.removeWhere((a) => a.value == e),
@@ -750,14 +752,7 @@ class MessageFieldView extends StatelessWidget {
                               ),
                             ),
                           ),
-                        );
-                      } else {
-                        child = const SizedBox();
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: child,
+                        ),
                       );
                     }),
                   ),
@@ -962,7 +957,7 @@ class MessageFieldView extends StatelessWidget {
                     ? Obx(() {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
-                              snapshot.data!.user.value.num.val,
+                              snapshot.data!.user.value.num.toString(),
                           style: style.fonts.bodyLarge.copyWith(color: color),
                         );
                       })

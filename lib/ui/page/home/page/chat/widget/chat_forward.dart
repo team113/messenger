@@ -318,7 +318,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           child: SelectionText.rich(
                             TextSpan(
                               text: widget.user?.user.value.name?.val ??
-                                  widget.user?.user.value.num.val ??
+                                  widget.user?.user.value.num.toString() ??
                                   'dot'.l10n * 3,
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () =>
@@ -434,7 +434,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         child: SelectionText.rich(
                           TextSpan(
                             text: data?.user.value.name?.val ??
-                                data?.user.value.num.val ??
+                                data?.user.value.num.toString() ??
                                 'dot'.l10n * 3,
                             recognizer: TapGestureRecognizer()
                               ..onTap =
@@ -714,7 +714,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         text: widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.val ??
+                            widget.user?.user.value.num.toString() ??
                             'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
                           ..onTap =
