@@ -104,8 +104,7 @@ var chatsQuery = {
 
 var favoriteQuery = {
   'favoriteChats': {
-    'edges': [
-    ],
+    'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
