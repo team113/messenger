@@ -498,7 +498,7 @@ mixin UserGraphQlMixin {
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserEmail(
     UserEmail email, {
-    (bool, AccessToken?) raw = (false, null),
+    RawClientOptions? raw,
   }) async {
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(

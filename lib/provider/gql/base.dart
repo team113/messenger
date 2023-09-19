@@ -158,15 +158,15 @@ class GraphQlClient {
   /// and returns a [Future] which resolves with the [QueryResult] or throws an
   /// [Exception].
   ///
-  /// If [raw] is `true` then the request is immediately performed on a new
+  /// If [raw] is non-`null`, then the request is immediately performed on a new
   /// [GraphQLClient] and without [AuthorizationException] handling.
   Future<QueryResult> mutate(
     MutationOptions options, {
-    (bool, AccessToken?) raw = (false, null),
+    RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw.$1) {
-      token = raw.$2;
+    if (raw != null) {
+      token = raw.token;
       QueryResult result =
           await (await _newClient(true)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);
@@ -552,4 +552,12 @@ class SubscriptionHandle {
       }
     }
   }
+}
+
+/// Options for raw [GraphQlClient] instance.
+class RawClientOptions {
+  const RawClientOptions([this.token]);
+
+  /// [AccessToken] to pass to raw [GraphQlClient].
+  final AccessToken? token;
 }

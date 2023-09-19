@@ -21,6 +21,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 
@@ -112,7 +113,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     await _graphQlProvider.addUserEmail(
       email,
-      raw: (true, _signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.session.token),
     );
   }
 

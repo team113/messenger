@@ -122,7 +122,7 @@ mixin AuthGraphQlMixin {
           (SignIn$Mutation.fromJson(data).createSession
                   as SignIn$Mutation$CreateSession$CreateSessionError)
               .code),
-      raw: (true, null),
+      raw: const RawClientOptions(),
     );
     return SignIn$Mutation.fromJson(result.data!).createSession
         as SignIn$Mutation$CreateSession$CreateSessionOk;
@@ -172,7 +172,7 @@ mixin AuthGraphQlMixin {
           (RenewSession$Mutation.fromJson(data).renewSession
                   as RenewSession$Mutation$RenewSession$RenewSessionError)
               .code),
-      raw: (true, null),
+      raw: const RawClientOptions(),
     );
     return RenewSession$Mutation.fromJson(result.data!);
   }
