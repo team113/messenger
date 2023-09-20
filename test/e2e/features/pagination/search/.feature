@@ -21,7 +21,7 @@ Feature: Search
     Given I am Alice
     And 31 users FindMe
     And I wait until `HomeView` is present
-    And I have Internet with delay of 4 seconds
+    And I have Internet with delay of 2 seconds
 
     When I tap `SearchButton` button
     And I fill `SearchField` field with "FindMe"
