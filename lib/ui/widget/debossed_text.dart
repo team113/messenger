@@ -43,8 +43,8 @@ class DebossedText extends StatelessWidget {
         Text(
           text,
           style: style?.copyWith(
-            shadows: shadows,
-          ),
+              //shadows: shadows,
+              ),
         ),
         ShaderMask(
           blendMode: BlendMode.srcIn,
