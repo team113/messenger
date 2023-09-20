@@ -236,7 +236,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     bool noFavorite = false,
     bool? withOngoingCalls,
   }) {
-    return const Stream.empty();
+    return Stream.value(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'recentChatsTopEvents': {
+            '__typename': 'SubscriptionInitialized',
+            'ok': true
+          }
+        },
+        parserFn: (_) => null,
+      ),
+    );
   }
 
   @override

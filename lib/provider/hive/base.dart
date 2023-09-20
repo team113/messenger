@@ -245,7 +245,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   @mustCallSuper
   Future<void> clear() {
     return _mutex.protect(() async {
-      if (_isReady) {
+      if (_isReady && keysSafe.isNotEmpty) {
         await _box.clear();
       }
     });
@@ -302,6 +302,15 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
       }
       return Future.value();
     });
+  }
+
+  /// Releases the lock.
+  @visibleForTesting
+  void release() {
+    if(_mutex.isLocked) {
+      _mutex.release();
+      _mutex = Mutex();
+    }
   }
 }
 

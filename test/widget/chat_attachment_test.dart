@@ -105,12 +105,6 @@ void main() async {
     'ver': '0'
   };
 
-  var recentChats = {
-    'recentChats': {
-      'nodes': [chatData]
-    }
-  };
-
   var blacklist = {
     'edges': [],
     'pageInfo': {
@@ -235,13 +229,6 @@ void main() async {
                 .postChatMessage
             as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned);
   });
-
-  when(graphQlProvider.recentChats(
-    first: 120,
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
   when(
     graphQlProvider.uploadAttachment(
@@ -411,6 +398,7 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
+    chatProvider.release();
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);

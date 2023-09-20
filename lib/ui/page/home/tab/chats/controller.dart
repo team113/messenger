@@ -144,7 +144,7 @@ class ChatsTabController extends GetxController {
   StreamSubscription? _searchSubscription;
 
   /// Subscription for [ChatService.status] changes.
-  late final StreamSubscription _statusSubscription;
+  StreamSubscription? _statusSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -270,7 +270,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
-    _statusSubscription.cancel();
+    _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);

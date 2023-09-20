@@ -1429,7 +1429,7 @@ class ChatRepository extends DisposableInterface
       last: last,
       before: before,
       withOngoingCalls: withOngoingCalls,
-      noFavorite: true,
+      noFavorite: !withOngoingCalls,
     ))
         .recentChats;
 

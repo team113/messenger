@@ -370,6 +370,7 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
+    chatProvider.release();
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
