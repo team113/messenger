@@ -376,6 +376,7 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
+                  key: const Key('PasswordButton'),
                   title: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
