@@ -18,7 +18,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show mustCallSuper, protected;
+import 'package:flutter/foundation.dart'
+    show mustCallSuper, protected, visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -306,12 +307,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   /// Releases the lock.
   @visibleForTesting
-  void release() {
-    if(_mutex.isLocked) {
-      _mutex.release();
-      _mutex = Mutex();
-    }
-  }
+  void release() => _mutex.isLocked ? _mutex.release() : null;
 }
 
 /// [HiveLazyProvider] with [Iterable] functionality support.
