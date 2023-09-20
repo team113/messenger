@@ -168,7 +168,7 @@ class GraphQlClient {
     if (raw != null) {
       token = raw.token;
       QueryResult result =
-          await (await _newClient(true)).mutate(options).timeout(timeout);
+          await (await _newClient(raw)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);
       return result;
     } else {
@@ -380,20 +380,20 @@ class GraphQlClient {
   }
 
   /// Creates a new [GraphQLClient].
-  Future<GraphQLClient> _newClient([bool raw = false]) async {
+  Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
       defaultHeaders: {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },
     );
-    final AuthLink authLink = AuthLink(getToken: () => 'Bearer $token');
+    final AuthLink authLink =
+        AuthLink(getToken: () => 'Bearer ${raw?.token ?? token}');
     final Link httpAuthLink =
         token != null ? authLink.concat(httpLink) : httpLink;
     Link link = httpAuthLink;
-
     // Update the WebSocket connection if not [raw].
-    if (!raw) {
+    if (raw == null) {
       _disposeWebSocket();
 
       // WebSocket connection is meaningful only if the token is provided.
