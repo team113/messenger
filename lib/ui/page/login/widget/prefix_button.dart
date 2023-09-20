@@ -70,10 +70,8 @@ class PrefixButton extends StatelessWidget {
                   minHeight: 46,
                   maxHeight: double.infinity,
                 ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5.6,
-                  vertical: 4.2,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5.6, vertical: 4.2),
                 child: Row(
                   children: [
                     const SizedBox(width: 8),

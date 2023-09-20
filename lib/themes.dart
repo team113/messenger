@@ -152,10 +152,7 @@ class Themes {
             contextMenuBackgroundColor: colors.secondaryHighlight,
             contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
             contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: textStyle.copyWith(
-              color: colors.primary,
-              fontWeight: FontWeight.w300,
-            ),
+            linkStyle: textStyle.copyWith(color: colors.primary),
             messageColor: colors.onPrimary,
             primaryBorder: Border.all(
               color: colors.secondaryHighlightDark,

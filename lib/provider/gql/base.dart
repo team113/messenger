@@ -386,11 +386,13 @@ class GraphQlClient {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },
     );
-    final AuthLink authLink =
-        AuthLink(getToken: () => 'Bearer ${raw?.token ?? token}');
+
+    final AccessToken? bearer = raw?.token ?? token;
+    final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
     final Link httpAuthLink =
-        token != null ? authLink.concat(httpLink) : httpLink;
+        bearer != null ? authLink.concat(httpLink) : httpLink;
     Link link = httpAuthLink;
+
     // Update the WebSocket connection if not [raw].
     if (raw == null) {
       _disposeWebSocket();

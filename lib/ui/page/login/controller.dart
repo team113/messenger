@@ -85,7 +85,7 @@ class LoginController extends GetxController {
   late final TextFieldState emailCode;
 
   /// [LoginView] stage to go back to.
-  LoginViewStage? backStage;
+  LoginViewStage? returnTo;
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);

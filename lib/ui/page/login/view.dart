@@ -195,7 +195,7 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text.toLowerCase()}).parseLinks(
                     [],
-                    context,
+                    style.fonts.titleLargePrimary,
                   ),
                   style: style.fonts.titleLarge,
                 ),
@@ -289,9 +289,9 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signUp:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
-                onBack: c.backStage == null
+                onBack: c.returnTo == null
                     ? null
-                    : () => c.stage.value = c.backStage!,
+                    : () => c.stage.value = c.returnTo!,
               );
 
               children = [
@@ -369,9 +369,9 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signIn:
               header = ModalPopupHeader(
                 text: 'label_sign_in'.l10n,
-                onBack: c.backStage == null
+                onBack: c.returnTo == null
                     ? null
-                    : () => c.stage.value = c.backStage!,
+                    : () => c.stage.value = c.returnTo!,
               );
 
               children = [
@@ -395,7 +395,7 @@ class LoginView extends StatelessWidget {
                 PrimaryButton(
                   title: 'btn_sign_in'.l10n,
                   onPressed: () {
-                    c.backStage = c.stage.value;
+                    c.returnTo = c.stage.value;
                     c.stage.value = LoginViewStage.signIn;
                   },
                 ),
