@@ -126,12 +126,12 @@ class _TypographyViewState extends State<TypographyView> {
     final List<(FontWeight, String, String)> families = [
       (
         FontWeight.w400,
-        'Noto Sans Display Regular + Gapopa',
+        'Noto Sans Display Regular + G',
         'NotoSansDisplayG-Regular.ttf'
       ),
       (
         FontWeight.w700,
-        'Noto Sans Display Bold + Gapopa',
+        'Noto Sans Display Bold + G',
         'NotoSansDisplayG-Bold.ttf'
       ),
     ];
@@ -181,26 +181,9 @@ class _TypographyViewState extends State<TypographyView> {
                     const SizedBox(height: 4),
                     WidgetButton(
                       onPressed: () async {
-                        String? to;
-
-                        if (!PlatformUtils.isWeb) {
-                          to = await FilePicker.platform.saveFile(
-                            fileName: e.$3,
-                            lockParentWindow: true,
-                          );
-
-                          if (to == null) {
-                            return;
-                          }
-                        }
-
-                        await PlatformUtils.download(
+                        await PlatformUtils.saveTo(
                           '${Config.origin}/assets/assets/${e.$3}',
-                          e.$3,
-                          null,
-                          path: to,
                         );
-
                         MessagePopup.success('${e.$3} downloaded');
                       },
                       child: Text(

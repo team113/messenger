@@ -48,8 +48,8 @@ class MultimediaView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<(String, String, bool)> sounds = [
-      ('chinese', 'Incoming call', false),
-      ('chinese-web', 'Web incoming call', false),
+      ('incoming_call', 'Incoming call', false),
+      ('incoming_web_call', 'Web incoming call', false),
       ('ringing', 'Outgoing call', false),
       ('reconnect', 'Call reconnection', false),
       ('message_sent', 'Sended message', true),

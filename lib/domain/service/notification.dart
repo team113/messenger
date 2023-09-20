@@ -196,7 +196,7 @@ class NotificationService extends DisposableService {
     // push notification displayed plays it instead.
     if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
       AudioUtils.once(
-        AudioSource.asset('audio/${sound ?? 'notification2'}.mp3'),
+        AudioSource.asset('audio/${sound ?? 'notification'}.mp3'),
       );
     }
 
@@ -276,7 +276,7 @@ class NotificationService extends DisposableService {
             tag: tag,
           ),
           linux: LinuxNotificationDetails(
-            sound: AssetsLinuxSound('audio/notification2.mp3'),
+            sound: AssetsLinuxSound('audio/notification.mp3'),
           ),
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
@@ -439,7 +439,7 @@ class NotificationService extends DisposableService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
-        AudioUtils.once(AudioSource.asset('audio/notification2.mp3'));
+        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
       });
 
       _token =

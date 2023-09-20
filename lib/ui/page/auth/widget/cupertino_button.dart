@@ -79,7 +79,7 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
               ? 13
               : widget.enlarge
                   ? 17
-                  : 15,
+                  : widget.style?.fontSize ?? 15,
       color: (widget.color ??
               (widget.style ?? style.fonts.labelMediumSecondary).color)
           ?.withOpacity(

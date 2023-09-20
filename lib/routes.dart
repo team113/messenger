@@ -270,6 +270,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.balance ||
             routes.last == Routes.transaction ||
             routes.last == Routes.faq ||
+            routes.last == '/dev' ||
             routes.last == Routes.vacancy) {
           routes.last = Routes.home;
         }

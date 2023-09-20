@@ -178,9 +178,11 @@ class StyleView extends StatelessWidget {
                     );
                   }),
                 StyleTab.widgets => Obx(() {
-                    return WidgetsView(
-                      inverted: c.inverted.value,
-                      dense: c.dense.value,
+                    return SelectionArea(
+                      child: WidgetsView(
+                        inverted: c.inverted.value,
+                        dense: c.dense.value,
+                      ),
                     );
                   }),
               },

@@ -15,41 +15,51 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/auth/widget/animated_logo.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
+import 'package:messenger/ui/page/call/widget/call_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/unread_label.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/video/widget/expand_button.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/unread_counter.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
+import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
+import 'package:messenger/ui/page/home/widget/unblock_button.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/page/style/widget/builder_wrap.dart';
 import 'package:messenger/ui/page/work/widget/interactive_logo.dart';
+import 'package:messenger/ui/page/work/widget/vacancy_button.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
-import 'package:rive/rive.dart';
+import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/platform_utils.dart';
 
-import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/playable_asset.dart';
-import 'widget/subtitle_container.dart';
 
 /// Widgets view of the [Routes.style] page.
 class WidgetsView extends StatefulWidget {
@@ -74,14 +84,14 @@ class _WidgetsViewState extends State<WidgetsView> {
 
   @override
   Widget build(BuildContext context) {
-    final List<(String, String, bool)> sounds = [
-      ('chinese', 'Incoming call', false),
-      ('chinese-web', 'Web incoming call', false),
-      ('ringing', 'Outgoing call', false),
-      ('reconnect', 'Call reconnection', false),
-      ('message_sent', 'Sended message', true),
-      ('notification', 'Notification sound', true),
-      ('pop', 'Pop sound', true),
+    final List<(String, bool)> sounds = [
+      ('incoming_call', false),
+      ('incoming_web_call', false),
+      ('outgoing_call', false),
+      ('reconnect', false),
+      ('message_sent', true),
+      ('notification', true),
+      ('pop', true),
     ];
 
     return SafeScrollbar(
@@ -96,16 +106,6 @@ class _WidgetsViewState extends State<WidgetsView> {
           // const SubHeader('Images'),
           _images(context),
           _animations(context),
-          Block(
-            title: 'Sounds',
-            children: [
-              BuilderWrap(
-                sounds,
-                (e) => PlayableAsset(e.$1, subtitle: e.$2, once: e.$3),
-                dense: true,
-              ),
-            ],
-          ),
           _avatars(context),
           _fields(context),
           _buttons(context),
@@ -114,27 +114,129 @@ class _WidgetsViewState extends State<WidgetsView> {
           _system(context),
           _navigation(context),
           _chat(context),
+          Block(
+            title: 'Sounds',
+            children: [
+              BuilderWrap(
+                sounds,
+                (e) => PlayableAsset(e.$1, once: e.$2),
+                dense: true,
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
+  List<Widget> _element(
+    BuildContext context, {
+    String? title,
+    List<Widget> children = const [],
+  }) {
+    final style = Theme.of(context).style;
+
+    return [
+      if (title != null) ...[
+        Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: style.fonts.headlineMedium,
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+      ...children.map((e) => SelectionContainer.disabled(child: e)),
+      const SizedBox(height: 32),
+    ];
+  }
+
   /// Builds the images [Column].
   Widget _images(BuildContext context) {
-    return Column(
+    final style = Theme.of(context).style;
+
+    return Block(
       children: [
-        const Block(title: 'InteractiveLogo', children: [InteractiveLogo()]),
-        Block(
-          title: 'background_light.svg',
-          padding: const EdgeInsets.only(top: 16),
+        ..._element(
+          context,
+          title: 'InteractiveLogo',
           children: [
-            SubtitleContainer(
-              inverted: widget.inverted,
-              width: 400,
+            const InteractiveLogo(),
+            const SizedBox(height: 8),
+            SelectionContainer.disabled(
+              child: WidgetButton(
+                onPressed: () async {
+                  const String asset = 'head0000.svg';
+                  final file = await PlatformUtils.saveTo(
+                    '${Config.origin}/assets/assets/images/logo/$asset',
+                  );
+                  if (file != null) {
+                    MessagePopup.success('$asset downloaded');
+                  }
+                },
+                child: Text(
+                  'Download',
+                  style: style.fonts.labelSmallPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'background_light.svg',
+          children: [
+            const SvgImage.asset(
+              'assets/images/background_light.svg',
               height: 300,
-              child: const SvgImage.asset(
-                'assets/images/background_light.svg',
-                fit: BoxFit.cover,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 8),
+            SelectionContainer.disabled(
+              child: WidgetButton(
+                onPressed: () async {
+                  const String asset = 'background_light.svg';
+                  final file = await PlatformUtils.saveTo(
+                    '${Config.origin}/assets/assets/images/$asset',
+                  );
+                  if (file != null) {
+                    MessagePopup.success('$asset downloaded');
+                  }
+                },
+                child: Text(
+                  'Download',
+                  style: style.fonts.labelSmallPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'background_dark.svg',
+          children: [
+            const SvgImage.asset(
+              'assets/images/background_dark.svg',
+              height: 300,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(height: 8),
+            SelectionContainer.disabled(
+              child: WidgetButton(
+                onPressed: () async {
+                  const String asset = 'background_dark.svg';
+                  final file = await PlatformUtils.saveTo(
+                    '${Config.origin}/assets/assets/images/$asset',
+                  );
+                  if (file != null) {
+                    MessagePopup.success('$asset downloaded');
+                  }
+                },
+                child: Text(
+                  'Download',
+                  style: style.fonts.labelSmallPrimary,
+                ),
               ),
             ),
           ],
@@ -147,26 +249,10 @@ class _WidgetsViewState extends State<WidgetsView> {
   Widget _animations(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
+    return Block(
       children: [
-        Block(
-          title: 'logo.riv',
-          children: [
-            SubtitleContainer(
-              width: 210,
-              height: 300,
-              inverted: widget.inverted,
-              child: RiveAnimation.asset(
-                'assets/images/logo/logo.riv',
-                onInit: (a) => a.addController(
-                  StateMachineController.fromArtboard(
-                      a, a.stateMachines.first.name)!,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Block(
+        ..._element(
+          context,
           title: 'SpinKitDoubleBounce',
           children: [
             SizedBox(
@@ -175,24 +261,38 @@ class _WidgetsViewState extends State<WidgetsView> {
                 size: 100 / 1.5,
                 duration: const Duration(milliseconds: 4500),
               ),
-            )
+            ),
           ],
         ),
-        const Block(
+        ..._element(
+          context,
           title: 'AnimatedTyping',
-          children: [
+          children: const [
             SizedBox(
               height: 32,
               child: Center(child: AnimatedTyping()),
             )
           ],
         ),
-        const Block(
+        ..._element(
+          context,
           title: 'CustomProgressIndicator',
           children: [
-            SizedBox(
-              child: Center(child: CustomProgressIndicator()),
-            )
+            const SizedBox(child: Center(child: CustomProgressIndicator())),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'CustomProgressIndicator.big',
+          children: [
+            const SizedBox(child: Center(child: CustomProgressIndicator.big())),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'CustomProgressIndicator.primary',
+          children: [
+            SizedBox(child: Center(child: CustomProgressIndicator.primary()))
           ],
         ),
       ],
@@ -235,18 +335,13 @@ class _WidgetsViewState extends State<WidgetsView> {
   Widget _buttons(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
+    return Block(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Block(
+        ..._element(
+          context,
           title: 'MenuButton',
           children: [
-            MenuButton(
-              icon: Icons.person,
-              title: 'Title',
-              subtitle: 'Subtitle',
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
             MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
@@ -258,7 +353,12 @@ class _WidgetsViewState extends State<WidgetsView> {
               inverted: false,
               onPressed: () {},
             ),
-            const SizedBox(height: 8),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'MenuButton(inverted: true)',
+          children: [
             MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
@@ -272,38 +372,56 @@ class _WidgetsViewState extends State<WidgetsView> {
             ),
           ],
         ),
-        Block(
-          title: 'OutlinedRoundedButton',
+        ..._element(
+          context,
+          title: 'OutlinedRoundedButton(title: \'\')',
           children: [
             OutlinedRoundedButton(
               title: const Text('Title'),
               color: Colors.black.withOpacity(0.04),
               onPressed: () {},
             ),
-            const SizedBox(height: 8),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'OutlinedRoundedButton(subtitle: \'\')',
+          children: [
             OutlinedRoundedButton(
               subtitle: const Text('Subtitle'),
               color: Colors.black.withOpacity(0.04),
               onPressed: () {},
             ),
-            const SizedBox(height: 8),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'PrimaryButton',
+          children: [
             PrimaryButton(
               onPressed: () {},
               title: 'PrimaryButton',
             ),
           ],
         ),
-        Block(
+        ..._element(
+          context,
           title: 'WidgetButton',
           children: [
             WidgetButton(onPressed: () {}, child: const Text('Label')),
           ],
         ),
-        Block(
+        ..._element(
+          context,
           title: 'SignButton',
           children: [
             SignButton(onPressed: () {}, text: 'Label'),
-            const SizedBox(height: 8),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'SignButton(asset: \'\')',
+          children: [
             SignButton(
               text: 'E-mail',
               asset: 'email',
@@ -313,16 +431,191 @@ class _WidgetsViewState extends State<WidgetsView> {
             ),
           ],
         ),
-        Block(
+        ..._element(
+          context,
           title: 'StyledCupertinoButton',
           children: [
             StyledCupertinoButton(onPressed: () {}, label: 'Label'),
-            const SizedBox(height: 8),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'StyledCupertinoButton.primary',
+          children: [
             StyledCupertinoButton(
               onPressed: () {},
               label: 'Label',
-              style: style.fonts.labelMediumPrimary,
+              style: style.fonts.labelLargePrimary,
             ),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'RectangleButton',
+          children: [
+            RectangleButton(onPressed: () {}, label: 'Label'),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'RectangleButton(selected: true)',
+          children: [
+            RectangleButton(
+              onPressed: () {},
+              label: 'Label',
+              selected: true,
+            ),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'AnimatedButton',
+          children: [
+            AnimatedButton(
+              onPressed: () {},
+              child: const SvgImage.asset(
+                'assets/icons/chat.svg',
+                width: 20.12,
+                height: 21.62,
+              ),
+            ),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'CallButtonWidget',
+          children: [
+            CallButtonWidget(
+              hint: 'Label\nabove button',
+              asset: 'add_user_small',
+              hinted: true,
+              onPressed: () {},
+            )
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'DownloadButton.windows',
+          children: const [
+            DownloadButton(
+              asset: 'windows5',
+              width: 23.93,
+              height: 24,
+              title: 'Windows',
+              link: '',
+            )
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'DownloadButton.macos',
+          children: const [
+            DownloadButton(
+              asset: 'apple7',
+              width: 21.07,
+              height: 27,
+              title: 'macOS',
+              link: '',
+            )
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'DownloadButton.linux',
+          children: const [
+            DownloadButton(
+              asset: 'linux4',
+              width: 20.57,
+              height: 24,
+              title: 'Linux',
+              link: '',
+            )
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'DownloadButton.appStore',
+          children: const [
+            DownloadButton(
+              asset: 'app_store',
+              width: 23,
+              height: 23,
+              title: 'App Store',
+              link: '',
+            )
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'DownloadButton.googlePlay',
+          children: const [
+            DownloadButton(
+              asset: 'google',
+              width: 20.33,
+              height: 22.02,
+              title: 'Google Play',
+              left: 3,
+              link: '',
+            )
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'DownloadButton.android',
+          children: const [
+            DownloadButton(
+              asset: 'android3',
+              width: 20.99,
+              height: 25,
+              title: 'Android',
+              link: '',
+            ),
+          ],
+        ),
+        ..._element(
+          context,
+          title: 'StyledBackButton',
+          children: [StyledBackButton(canPop: true, onPressed: () {})],
+        ),
+        ..._element(
+          context,
+          title: 'FloatingActionButton',
+          children: [
+            FloatingActionButton.small(
+              onPressed: () {},
+              child: const Icon(Icons.arrow_upward),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton.small(
+              onPressed: () {},
+              child: const Icon(Icons.arrow_downward),
+            ),
+          ],
+        ),
+        ...WorkTab.values
+            .map(
+              (e) => [
+                ..._element(
+                  context,
+                  title: 'VacancyWorkButton(${e.name})',
+                  children: [VacancyWorkButton(e)],
+                ),
+              ],
+            )
+            .flattened,
+        ..._element(
+          context,
+          title: 'UnblockButton',
+          children: [UnblockButton(() {})],
+        ),
+        ..._element(
+          context,
+          title: 'ShadowedRoundedButton',
+          children: [
+            ShadowedRoundedButton(
+              onPressed: () {},
+              child: const Text('Label'),
+            )
           ],
         ),
       ],

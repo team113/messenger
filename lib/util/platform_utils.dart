@@ -20,6 +20,7 @@ import 'dart:io';
 
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -361,6 +362,28 @@ class PlatformUtilsImpl {
     }
 
     return null;
+  }
+
+  Future<File?> saveTo(String url) async {
+    String? to;
+
+    if (!isWeb) {
+      to = await FilePicker.platform.saveFile(
+        fileName: url.split('/').lastOrNull ?? 'file',
+        lockParentWindow: true,
+      );
+
+      if (to == null) {
+        return null;
+      }
+    }
+
+    return await download(
+      url,
+      url.split('/').lastOrNull ?? 'file',
+      null,
+      path: to,
+    );
   }
 
   /// Downloads a file from the provided [url].
