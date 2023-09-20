@@ -166,7 +166,6 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (raw != null) {
-      token = raw.token;
       QueryResult result =
           await (await _newClient(raw)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);
