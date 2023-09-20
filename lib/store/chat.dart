@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
@@ -118,7 +119,7 @@ class ChatRepository extends DisposableInterface
   /// [CombinedPagination] loading [chats] with pagination.
   CombinedPagination<HiveChat, ChatId>? _pagination;
 
-  /// Subscription to the [_recentPagination] changes.
+  /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
 
   /// [DraftHiveProvider.boxEvents] subscription.
@@ -244,6 +245,7 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> remove(ChatId id) {
     chats.remove(id)?.dispose();
+    // TODO(review): shouldn't it be `_pagination.remove`?
     paginated.remove(id);
     return _chatLocal.remove(id);
   }
@@ -386,8 +388,8 @@ class ChatRepository extends DisposableInterface
       return;
     }
 
-    HiveRxChat? chat = chats[id];
-    ChatName? previous = chat?.chat.value.name;
+    final HiveRxChat? chat = chats[id];
+    final ChatName? previous = chat?.chat.value.name;
 
     chat?.chat.update((c) => c?.name = name);
 
@@ -405,8 +407,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
-    HiveRxChat? chat = chats[chatId];
-    ChatMember? member =
+    final HiveRxChat? chat = chats[chatId];
+    final ChatMember? member =
         chat?.chat.value.members.firstWhereOrNull((m) => m.user.id == userId);
 
     if (member != null) {
@@ -427,8 +429,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> hideChat(ChatId id) async {
-    HiveRxChat? chat = chats.remove(id);
-    HiveRxChat? pagination = paginated.remove(id);
+    final HiveRxChat? chat = chats.remove(id);
+    final HiveRxChat? pagination = paginated.remove(id);
     ChatData? monolog;
 
     try {
@@ -481,7 +483,7 @@ class ChatRepository extends DisposableInterface
     ChatMessage message,
     ChatMessageText? text,
   ) async {
-    Rx<ChatItem>? item = chats[message.chatId]
+    final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
 
@@ -504,7 +506,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> deleteChatMessage(ChatMessage message) async {
-    HiveRxChat? chat = chats[message.chatId];
+    final HiveRxChat? chat = chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
       chat?.remove(message.id, message.key);
@@ -537,7 +539,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> deleteChatForward(ChatForward forward) async {
-    HiveRxChat? chat = chats[forward.chatId];
+    final HiveRxChat? chat = chats[forward.chatId];
 
     if (forward.status.value != SendingStatus.sent) {
       chat?.remove(forward.id);
@@ -570,7 +572,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> hideChatItem(ChatId chatId, ChatItemId id) async {
-    HiveRxChat? chat = chats[chatId];
+    final HiveRxChat? chat = chats[chatId];
 
     Rx<ChatItem>? item =
         chat?.messages.firstWhereOrNull((e) => e.value.id == id);
@@ -667,8 +669,8 @@ class ChatRepository extends DisposableInterface
     ChatId chatId,
     ChatDirectLinkSlug slug,
   ) async {
-    HiveRxChat? chat = chats[chatId];
-    ChatDirectLink? link = chat?.chat.value.directLink;
+    final HiveRxChat? chat = chats[chatId];
+    final ChatDirectLink? link = chat?.chat.value.directLink;
 
     chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
 
@@ -682,8 +684,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> deleteChatDirectLink(ChatId groupId) async {
-    HiveRxChat? chat = chats[groupId];
-    ChatDirectLink? link = chat?.chat.value.directLink;
+    final HiveRxChat? chat = chats[groupId];
+    final ChatDirectLink? link = chat?.chat.value.directLink;
 
     chat?.chat.update((c) => c?.directLink = null);
 
@@ -762,8 +764,8 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    HiveRxChat? chat = chats[id];
-    ChatAvatar? avatar = chat?.chat.value.avatar;
+    final HiveRxChat? chat = chats[id];
+    final ChatAvatar? avatar = chat?.chat.value.avatar;
 
     if (file == null) {
       chat?.chat.update((c) => c?.avatar = null);
@@ -861,8 +863,8 @@ class ChatRepository extends DisposableInterface
           events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
           yield const ChatEventsInitialized();
         } else if (events.$$typename == 'Chat') {
-          var event = events as ChatEvents$Subscription$ChatEvents$Chat;
-          var chat = _chat(event);
+          final event = events as ChatEvents$Subscription$ChatEvents$Chat;
+          final chat = _chat(event);
           yield ChatEventsChat(chat);
         } else if (events.$$typename == 'ChatEventsVersioned') {
           var mixin =
@@ -1217,6 +1219,7 @@ class ChatRepository extends DisposableInterface
     if (entry == null) {
       entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
       chats[chatId] = entry;
+
       if (pagination) {
         paginated[chatId] = entry;
       }
@@ -1311,14 +1314,13 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  /// Initializes [_callsPagination], [_favoritesPagination] and [_pagination].
+  /// Initializes [_pagination].
   Future<void> _initPagination() async {
     status.value = RxStatus.loading();
 
     await clear();
 
-    Pagination<HiveChat, RecentChatsCursor, ChatId> callsPagination =
-        Pagination(
+    Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
       onKey: (e) => e.value.id,
       perPage: 30,
       provider: GraphQlPageProvider(
@@ -1333,8 +1335,7 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    Pagination<HiveChat, FavoriteChatsCursor, ChatId> favoritesPagination =
-        Pagination(
+    Pagination<HiveChat, FavoriteChatsCursor, ChatId> favorites = Pagination(
       onKey: (e) => e.value.id,
       perPage: 30,
       provider: GraphQlPageProvider(
@@ -1348,8 +1349,7 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    Pagination<HiveChat, RecentChatsCursor, ChatId> recentPagination =
-        Pagination(
+    Pagination<HiveChat, RecentChatsCursor, ChatId> recent = Pagination(
       onKey: (e) => e.value.id,
       perPage: 30,
       provider: GraphQlPageProvider(
@@ -1364,11 +1364,11 @@ class ChatRepository extends DisposableInterface
     );
 
     _pagination = CombinedPagination([
-      ((e) => e.value.ongoingCall != null, callsPagination),
-      ((e) => e.value.favoritePosition != null, favoritesPagination),
+      ((e) => e.value.ongoingCall != null, calls),
+      ((e) => e.value.favoritePosition != null, favorites),
       (
         (e) => e.value.ongoingCall == null && e.value.favoritePosition == null,
-        recentPagination,
+        recent,
       ),
     ]);
 
@@ -1589,7 +1589,9 @@ class ChatRepository extends DisposableInterface
         } else if (events.$$typename == 'FavoriteChatsList') {
           var chatsList = events
               as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
-          var data = chatsList.chats.nodes.map((e) => e.toData()).toList();
+          var data = chatsList.chats.edges
+              .map((e) => e.node.toData(null, e.cursor))
+              .toList();
           yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
         } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
           var mixin = events
@@ -1643,6 +1645,7 @@ class ChatRepository extends DisposableInterface
         null,
         null,
         null,
+        null,
       ),
       null,
       null,
@@ -1677,4 +1680,33 @@ class ChatData {
 
   /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
   final HiveChatItem? lastReadItem;
+}
+
+void test() {
+  SplayTreeMap<ChatId, HiveChat>? map;
+  map = SplayTreeMap(
+    (a, b) => map![a]!.value.updatedAt.compareTo(map[b]!.value.updatedAt),
+  );
+}
+
+class SortedMap<K, V extends Comparable> {
+  SortedMap(this.compare);
+  final int Function(V, V) compare;
+
+  /// [Map] maintains an O(1) complexity for getting elements.
+  ///
+  /// Removing item by [K] is O(1)
+  final Map<K, V> _keys = {};
+
+  /// [SplayTreeSet] returns the sorted [V] values.
+  late final SplayTreeSet<V> _values = SplayTreeSet(compare);
+
+  void insert(K key, V value) {
+    _keys[key] = value;
+    _values.add(value);
+  }
+
+  void remove(K key) {
+    _values.remove(_keys.remove(key));
+  }
 }

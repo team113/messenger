@@ -73,10 +73,10 @@ class Pagination<T, C, K extends Comparable> {
   C? endCursor;
 
   /// First [T] item in the [items].
-  T? firstItem;
+  T? _firstItem;
 
   /// Last [T] item in the [items].
-  T? lastItem;
+  T? _lastItem;
 
   /// [Mutex] guarding synchronized access to the [init] and [around].
   final Mutex _guard = Mutex();
@@ -115,8 +115,8 @@ class Pagination<T, C, K extends Comparable> {
 
       startCursor = page?.info.startCursor;
       endCursor = page?.info.endCursor;
-      firstItem = page?.edges.firstOrNull ?? firstItem;
-      lastItem = page?.edges.lastOrNull ?? lastItem;
+      _firstItem = page?.edges.firstOrNull ?? _firstItem;
+      _lastItem = page?.edges.lastOrNull ?? _lastItem;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('init(item: $item)... done', 'Pagination');
@@ -147,8 +147,8 @@ class Pagination<T, C, K extends Comparable> {
 
       startCursor = page?.info.startCursor;
       endCursor = page?.info.endCursor;
-      firstItem = page?.edges.firstOrNull ?? firstItem;
-      lastItem = page?.edges.lastOrNull ?? firstItem;
+      _firstItem = page?.edges.firstOrNull ?? _firstItem;
+      _lastItem = page?.edges.lastOrNull ?? _lastItem;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
@@ -165,7 +165,7 @@ class Pagination<T, C, K extends Comparable> {
       if (items.isNotEmpty) {
         final Page<T, C>? page;
         if (compare != null) {
-          page = await provider.after(lastItem, endCursor, perPage);
+          page = await provider.after(_lastItem, endCursor, perPage);
         } else {
           page =
               await provider.after(items[items.lastKey()], endCursor, perPage);
@@ -181,7 +181,7 @@ class Pagination<T, C, K extends Comparable> {
         }
 
         endCursor = page?.info.endCursor ?? endCursor;
-        lastItem = page?.edges.lastOrNull ?? lastItem;
+        _lastItem = page?.edges.lastOrNull ?? _lastItem;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         Log.print('next()... done', 'Pagination');
       } else {
@@ -204,7 +204,7 @@ class Pagination<T, C, K extends Comparable> {
 
       final Page<T, C>? page;
       if (compare != null) {
-        page = await provider.before(firstItem, startCursor, perPage);
+        page = await provider.before(_firstItem, startCursor, perPage);
       } else {
         page = await provider.before(
           items[items.firstKey()],
@@ -224,7 +224,7 @@ class Pagination<T, C, K extends Comparable> {
       }
 
       startCursor = page?.info.startCursor ?? startCursor;
-      firstItem = page?.edges.firstOrNull ?? firstItem;
+      _firstItem = page?.edges.firstOrNull ?? _firstItem;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
       Log.print('previous()... done', 'Pagination');
 
@@ -239,17 +239,17 @@ class Pagination<T, C, K extends Comparable> {
     Log.print('put($item)', 'Pagination');
 
     Future<void> put() async {
-      K key = onKey(item);
+      final K key = onKey(item);
 
       items[key] = item;
 
       if (compare != null) {
-        if (firstItem != null && key == onKey(firstItem as T)) {
-          firstItem = items.values.sorted(compare!).first;
+        if (_firstItem != null && key == onKey(_firstItem as T)) {
+          _firstItem = items.values.sorted(compare!).first;
         }
 
-        if (lastItem != null && key == onKey(lastItem as T)) {
-          lastItem = items.values.sorted(compare!).last;
+        if (_lastItem != null && key == onKey(_firstItem as T)) {
+          _lastItem = items.values.sorted(compare!).last;
         }
       }
 
@@ -269,12 +269,12 @@ class Pagination<T, C, K extends Comparable> {
     }
 
     if (compare != null) {
-      if (lastItem != null && compare!.call(item, lastItem as T) == 1) {
+      if (_lastItem != null && compare!.call(item, _lastItem as T) == 1) {
         if (hasNext.isFalse) {
           await put();
         }
-      } else if (firstItem != null &&
-          compare!.call(item, firstItem as T) == -1) {
+      } else if (_firstItem != null &&
+          compare!.call(item, _firstItem as T) == -1) {
         if (hasPrevious.isFalse) {
           await put();
         }
@@ -303,12 +303,12 @@ class Pagination<T, C, K extends Comparable> {
     items.remove(key);
 
     if (compare != null) {
-      if (firstItem != null && key == onKey(firstItem as T)) {
-        firstItem = items.values.sorted(compare!).first;
+      if (_firstItem != null && key == onKey(_firstItem as T)) {
+        _firstItem = items.values.sorted(compare!).first;
       }
 
-      if (lastItem != null && key == onKey(lastItem as T)) {
-        lastItem = items.values.sorted(compare!).last;
+      if (_lastItem != null && key == onKey(_lastItem as T)) {
+        _lastItem = items.values.sorted(compare!).last;
       }
     }
 

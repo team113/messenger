@@ -125,7 +125,8 @@ class HiveChat extends HiveObject {
     this.ver,
     this.lastItemCursor,
     this.lastReadItemCursor,
-    this.cursor,
+    this.recentCursor,
+    this.favoriteCursor,
   );
 
   /// Persisted [Chat] model.
@@ -147,7 +148,11 @@ class HiveChat extends HiveObject {
   @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
 
-  /// Cursor of the [value].
+  /// Cursor of the [value] when paginating through recent [Chat]s.
   @HiveField(4)
-  RecentChatsCursor? cursor;
+  RecentChatsCursor? recentCursor;
+
+  /// Cursor of the [value] when paginating through favorite [Chat]s.
+  @HiveField(5)
+  FavoriteChatsCursor? favoriteCursor;
 }
