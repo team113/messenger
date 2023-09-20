@@ -406,7 +406,7 @@ class ReactiveTextField extends StatelessWidget {
                             )
                           : const SizedBox(width: double.infinity, height: 1)
                       : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value ?? '',
                             style: style.fonts.labelMedium.copyWith(
