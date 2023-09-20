@@ -52,6 +52,7 @@ class MenuTabView extends StatelessWidget {
               alignment: Alignment.topLeft,
               margin: const EdgeInsets.only(top: 7, right: 32),
               enablePrimaryTap: true,
+              enableLongTap: false,
               actions: [
                 ContextMenuButton(
                   label: 'label_presence_present'.l10n,
