@@ -159,6 +159,20 @@ class _HomeViewState extends State<HomeView> {
                           onPageChanged: (int i) {
                             router.tab = HomeTab.values[i];
                             c.page.value = router.tab;
+
+                            if (!context.isNarrow) {
+                              switch (router.tab) {
+                                case HomeTab.menu:
+                                  router.me();
+                                  break;
+
+                                default:
+                                  if (router.route == Routes.me) {
+                                    router.home();
+                                  }
+                                  break;
+                              }
+                            }
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
