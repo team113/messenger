@@ -78,10 +78,10 @@ class LoginController extends GetxController {
   /// [TextFieldState] of a repeat password text input.
   late final TextFieldState repeatPassword;
 
-  /// [TextFieldState] of a email text input.
+  /// [TextFieldState] for an [UserEmail] text input.
   late final TextFieldState email;
 
-  /// [TextFieldState] of a email code text input.
+  /// [TextFieldState] for [ConfirmationCode] for [UserEmail] input.
   late final TextFieldState emailCode;
 
   /// [LoginView] stage to go back to.
@@ -111,29 +111,32 @@ class LoginController extends GetxController {
   /// If not specified, the [RouteLinks.home] redirect is invoked.
   final void Function()? onSuccess;
 
-  /// Amount of attempts to sign in with a wrong password.
+  /// Amount of [signIn] unsuccessful submitting attempts.
   int signInAttempts = 0;
 
-  /// Timeout of a [signIn].
-  final RxInt signInTimeout = RxInt(0);
-
-  /// Amount of attempts to sign up with a wrong code.
+  /// Amount of [emailCode] unsuccessful submitting attempts.
   int codeAttempts = 0;
 
-  /// Timeout of a code submit.
+  /// Timeout of a [signIn] next invoke attempt.
+  final RxInt signInTimeout = RxInt(0);
+
+  /// Timeout of a [emailCode] next submit attempt.
   final RxInt codeTimeout = RxInt(0);
 
-  /// Timeout of a [resendEmail].
+  /// Timeout of a [resendEmail] next invoke attempt.
   final RxInt resendEmailTimeout = RxInt(0);
 
   /// Authentication service providing the authentication capabilities.
   final AuthService _authService;
 
-  /// [Timer] used to disable `Proceed` button for [codeTimeout].
+  /// [Timer] disabling [emailCode] submitting for [codeTimeout].
   Timer? _codeTimer;
 
-  /// [Timer] used to disable `LoginButton` button for [signInTimeout].
+  /// [Timer] disabling [signIn] invoking for [signInTimeout].
   Timer? _signInTimer;
+
+  /// [Timer] used to disable resend code button [resendEmailTimeout].
+  Timer? _resendEmailTimer;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -150,9 +153,6 @@ class LoginController extends GetxController {
   /// [UserLogin] that was provided in [recoverAccess] used to [validateCode]
   /// and [resetUserPassword].
   UserLogin? _recoveryLogin;
-
-  /// [Timer] used to disable resend code button [resendEmailTimeout].
-  Timer? _resendEmailTimer;
 
   /// Current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
@@ -221,13 +221,12 @@ class LoginController extends GetxController {
           _setResendEmailTimer(false);
 
           stage.value = LoginViewStage.signUpWithEmail;
-        } catch (e) {
+        } catch (_) {
           s.error.value = 'err_data_transfer'.l10n;
           _setResendEmailTimer(false);
           s.unsubmit();
 
           stage.value = LoginViewStage.signUpWithEmail;
-
           rethrow;
         }
       },
@@ -269,6 +268,7 @@ class LoginController extends GetxController {
         } catch (_) {
           s.error.value = 'err_data_transfer'.l10n;
           s.unsubmit();
+          rethrow;
         }
       },
     );
