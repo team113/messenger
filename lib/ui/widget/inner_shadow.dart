@@ -6,27 +6,52 @@ import 'package:flutter/rendering.dart';
 /// Example usage:
 /// ```dart
 /// InnerShadow(
-//   blur: 2,
-//   color: Color.fromARGB(255, 32, 31, 31),
-//   offset: Offset(1, 5),
-//   child: Text(
-//     'Hellow?',
-//     style: TextStyle(
-//         color: Color.fromARGB(255, 120, 226, 49), fontSize: 190),
-//   ),
-// ),
-// ```
+///   innerColor: Color.fromARGB(255, 52, 51, 44),
+///   offset: Offset(1, 12),
+///   blur: 14,
+///   child: Container(
+///     decoration: BoxDecoration(
+///       borderRadius: BorderRadius.all(Radius.circular(8)),
+///       color: Color.fromARGB(255, 113, 94, 218),
+///     ),
+///     height: 100,
+///   ),
+/// ),
+/// ```
+/// ```dart
+///  InnerShadow(
+///                   blur: 2,
+///                   innerColor: Color.fromARGB(255, 221, 93, 93),
+///                   offset: Offset(1, 5),
+///                   child: Text(
+///                     'Hellow?',
+///                     style: TextStyle(
+///                         color: Color.fromARGB(255, 2, 2, 2), fontSize: 190),
+///                   ),
+///                 )
+/// ```
+
+/// Draws an inner shadow to its [child].
+///
+/// The shadow color is taken from the [child]'s styles.
+/// If you need to change the color of the shadow,
+/// change the color of the [child] in styles.
 class InnerShadow extends SingleChildRenderObjectWidget {
   const InnerShadow({
     super.key,
     this.blur = 10,
-    this.color = Colors.black38,
+    required this.innerColor,
     this.offset = const Offset(10, 10),
     Widget? child,
   }) : super(child: child);
 
+  /// Аdds blur to shadow.
   final double blur;
-  final Color color;
+
+  /// Color of the [child].
+  final Color innerColor;
+
+  /// Offset of the shadow.
   final Offset offset;
 
   @override
@@ -40,16 +65,17 @@ class InnerShadow extends SingleChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, RenderInnerShadow renderObject) {
     renderObject
-      ..color = color
+      ..innerColor = innerColor
       ..blur = blur
       ..dx = offset.dx
       ..dy = offset.dy;
   }
 }
 
+/// [RenderObject] for [InnerShadow].
 class RenderInnerShadow extends RenderProxyBox {
   late double blur;
-  late Color color;
+  late Color innerColor;
   late double dx;
   late double dy;
 
@@ -58,24 +84,28 @@ class RenderInnerShadow extends RenderProxyBox {
     if (child == null) return;
 
     final Rect rectOuter = offset & size;
-    final Rect rectInner = Rect.fromLTWH(
-      offset.dx,
-      offset.dy,
-      size.width - dx,
-      size.height - dy,
+
+    final Canvas canvas = context.canvas
+      ..saveLayer(
+        rectOuter,
+        Paint(),
+      );
+    context.paintChild(
+      child!,
+      offset,
     );
-    final Canvas canvas = context.canvas..saveLayer(rectOuter, Paint());
-    context.paintChild(child!, offset);
+
     final Paint shadowPaint = Paint()
-      ..blendMode = BlendMode.srcATop
       ..imageFilter = ImageFilter.blur(sigmaX: blur, sigmaY: blur)
-      ..colorFilter = ColorFilter.mode(color, BlendMode.srcOut);
+      ..colorFilter = ColorFilter.mode(innerColor, BlendMode.srcATop);
 
     canvas
       ..saveLayer(rectOuter, shadowPaint)
-      ..saveLayer(rectInner, Paint())
       ..translate(dx, dy);
+
     context.paintChild(child!, offset);
-    context.canvas.restore();
+    context.canvas
+      ..restore()
+      ..restore();
   }
 }
