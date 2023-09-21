@@ -1291,7 +1291,11 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        _initPagination();
+        await _initPagination();
+        await _initMonolog();
+
+        await Future.delayed(Duration.zero);
+        status.value = RxStatus.success();
         break;
 
       case RecentChatsEventKind.list:
@@ -1391,8 +1395,6 @@ class ChatRepository extends DisposableInterface
     });
 
     await _pagination!.around();
-
-    status.value = RxStatus.success();
   }
 
   /// Subscribes to the remote updates of the [chats].
@@ -1660,11 +1662,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [monolog], fetching it from remote, if none is known.
   Future<void> _initMonolog() async {
-    if (monolog.isLocal) {
+    if (monolog.isLocal && chats[monolog] == null) {
       final ChatMixin? query = await _graphQlProvider.getMonolog();
       if (query == null) {
-        HiveRxChat monolog = await _createLocalDialog(me);
-        paginated[monolog.id] = monolog;
+        await _createLocalDialog(me);
       } else {
         _monologLocal.set(query.id);
       }
