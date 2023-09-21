@@ -31,6 +31,5 @@ Feature: Localization
 
     When I tap `ChangeLanguage` button
     And I tap `Language_en` button
-    And I tap `Proceed` button
     And I tap `CloseButton` button
     Then I wait until text "Account" is present
