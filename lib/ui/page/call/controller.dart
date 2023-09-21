@@ -542,6 +542,8 @@ class CallController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
+    HardwareKeyboard.instance.addHandler(_muteListener);
+
     speakerSwitched = RxBool(!PlatformUtils.isIOS);
 
     fullscreen = RxBool(false);
@@ -903,6 +905,8 @@ class CallController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    HardwareKeyboard.instance.removeHandler(_muteListener);
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
@@ -2086,6 +2090,17 @@ class CallController extends GetxController {
       return true;
     }
 
+    return false;
+  }
+
+  bool _muteListener(KeyEvent e) {
+    if (e is KeyDownEvent &&
+        e.physicalKey ==
+            PhysicalKeyboardKey(
+                _settingsRepository.applicationSettings.value!.muteHotKey)) {
+      toggleAudio();
+      return true;
+    }
     return false;
   }
 
