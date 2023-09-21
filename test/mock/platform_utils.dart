@@ -29,6 +29,20 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   final String? cache;
 
   @override
+  Future<Directory> get downloadsDirectory =>
+      Future.value(Directory('.temp_hive/downloads'));
+
+  @override
+  Future<Directory?> get cacheDirectory =>
+      Future.value(cache == null ? null : Directory(cache!));
+
+  @override
+  Future<bool> get isActive => Future.value(true);
+
+  @override
+  Stream<bool> get onActivityChanged => Stream.value(true);
+
+  @override
   Future<File?> fileExists(
     String filename, {
     int? size,
@@ -50,14 +64,6 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     bool temporary = false,
   }) async =>
       File('test/path');
-
-  @override
-  Future<Directory> get downloadsDirectory =>
-      Future.value(Directory('.temp_hive/downloads'));
-
-  @override
-  Future<Directory?> get cacheDirectory =>
-      Future.value(cache == null ? null : Directory(cache!));
 
   @override
   void keepActive([bool active = true]) {
