@@ -197,7 +197,7 @@ class ChatRepository extends DisposableInterface
   Future<void> next() async {
     await _pagination?.next();
 
-    if(_pagination?.hasNext.value == false) {
+    if (_pagination?.hasNext.value == false) {
       _initMonolog();
     }
   }
