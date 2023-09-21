@@ -316,6 +316,7 @@ class ChatsTabView extends StatelessWidget {
                               alignment: Alignment.topRight,
                               enablePrimaryTap: true,
                               enableSecondaryTap: false,
+                              enableLongTap: false,
                               margin:
                                   const EdgeInsets.only(bottom: 4, right: 0),
                               actions: [
