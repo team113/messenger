@@ -106,8 +106,8 @@ class _WidgetsViewState extends State<WidgetsView> {
           // const SubHeader('Images'),
           _images(context),
           _animations(context),
-          _avatars(context),
-          _fields(context),
+          // _avatars(context),
+          // _fields(context),
           _buttons(context),
           _switches(context),
           _containment(context),
@@ -115,7 +115,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           _navigation(context),
           _chat(context),
           Block(
-            title: 'Sounds',
+            headline: 'Sounds',
             children: [
               BuilderWrap(
                 sounds,
@@ -138,25 +138,118 @@ class _WidgetsViewState extends State<WidgetsView> {
 
     return [
       if (title != null) ...[
-        Center(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: style.fonts.headlineMedium,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: Container(
+                height: 0.5,
+                width: double.infinity,
+                color: Colors.black.withOpacity(0.15),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: style.fonts.labelSmallSecondary.copyWith(
+                color: Colors.black.withOpacity(0.15),
+              ),
+              // style: style.fonts.headlineMedium,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                height: 0.5,
+                width: double.infinity,
+                color: Colors.black.withOpacity(0.15),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
+        // Align(
+        //   alignment: Alignment.centerLeft,
+        //   child: Text(
+        //     title,
+        //     textAlign: TextAlign.center,
+        //     style: style.fonts.labelSmallSecondary,
+        //     // style: style.fonts.headlineMedium,
+        //   ),
+        // ),
+        const SizedBox(height: 8),
       ],
       ...children.map((e) => SelectionContainer.disabled(child: e)),
-      const SizedBox(height: 32),
+      const SizedBox(height: 48),
     ];
+  }
+
+  Widget _downloadButton(String asset, {String? prefix}) {
+    final style = Theme.of(router.context!).style;
+
+    return SelectionContainer.disabled(
+      child: WidgetButton(
+        onPressed: () async {
+          final file = await PlatformUtils.saveTo(
+            '${Config.origin}/assets/assets/images$prefix/$asset',
+          );
+          if (file != null) {
+            MessagePopup.success('$asset downloaded');
+          }
+        },
+        child: Text(
+          'Download',
+          style: style.fonts.labelSmallPrimary,
+        ),
+      ),
+    );
+  }
+
+  Widget _headline({String? title, required Widget child, Widget? subtitle}) {
+    return Block(
+      headline: title ?? child.runtimeType.toString(),
+      children: [
+        const SizedBox(height: 16),
+        SelectionContainer.disabled(child: child),
+        const SizedBox(height: 8),
+        if (subtitle != null) SelectionContainer.disabled(child: subtitle),
+        const SizedBox(height: 8),
+      ],
+    );
   }
 
   /// Builds the images [Column].
   Widget _images(BuildContext context) {
     final style = Theme.of(context).style;
 
+    return Column(
+      children: [
+        _headline(
+          child: const InteractiveLogo(),
+          subtitle: _downloadButton('head0000.svg', prefix: 'logo'),
+        ),
+        _headline(
+          title: 'background_light.svg',
+          child: const SvgImage.asset(
+            'assets/images/background_light.svg',
+            height: 300,
+            fit: BoxFit.cover,
+          ),
+          subtitle: _downloadButton('background_light'),
+        ),
+        _headline(
+          title: 'background_dark.svg',
+          child: const SvgImage.asset(
+            'assets/images/background_dark.svg',
+            height: 300,
+            fit: BoxFit.cover,
+          ),
+          subtitle: _downloadButton('background_dark'),
+        ),
+      ],
+    );
+
     return Block(
+      title: 'Images',
       children: [
         ..._element(
           context,
@@ -249,7 +342,48 @@ class _WidgetsViewState extends State<WidgetsView> {
   Widget _animations(BuildContext context) {
     final style = Theme.of(context).style;
 
+    return Column(
+      children: [
+        _headline(
+          title: 'SpinKitDoubleBounce',
+          child: SizedBox(
+            child: SpinKitDoubleBounce(
+              color: style.colors.secondaryHighlightDark,
+              size: 100 / 1.5,
+              duration: const Duration(milliseconds: 4500),
+            ),
+          ),
+        ),
+        _headline(
+          title: 'AnimatedTyping',
+          child: const SizedBox(
+            height: 32,
+            child: Center(child: AnimatedTyping()),
+          ),
+        ),
+        _headline(
+          title: 'CustomProgressIndicator',
+          child: const SizedBox(
+            child: Center(child: CustomProgressIndicator()),
+          ),
+        ),
+        _headline(
+          title: 'CustomProgressIndicator.big',
+          child: const SizedBox(
+            child: Center(child: CustomProgressIndicator.big()),
+          ),
+        ),
+        _headline(
+          title: 'CustomProgressIndicator.primary',
+          child: SizedBox(
+            child: Center(child: CustomProgressIndicator.primary()),
+          ),
+        ),
+      ],
+    );
+
     return Block(
+      title: 'Animations',
       children: [
         ..._element(
           context,
@@ -335,288 +469,519 @@ class _WidgetsViewState extends State<WidgetsView> {
   Widget _buttons(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Block(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
       children: [
-        ..._element(
-          context,
-          title: 'MenuButton',
-          children: [
-            MenuButton(
-              title: 'Title',
-              subtitle: 'Subtitle',
-              leading: const SvgImage.asset(
-                'assets/icons/frontend.svg',
-                width: 25.87,
-                height: 32,
-              ),
-              inverted: false,
-              onPressed: () {},
+        _headline(
+          child: MenuButton(
+            title: 'Title',
+            subtitle: 'Subtitle',
+            leading: const SvgImage.asset(
+              'assets/icons/frontend.svg',
+              width: 25.87,
+              height: 32,
             ),
-          ],
+            inverted: false,
+            onPressed: () {},
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'MenuButton(inverted: true)',
-          children: [
-            MenuButton(
-              title: 'Title',
-              subtitle: 'Subtitle',
-              leading: const SvgImage.asset(
-                'assets/icons/frontend_white.svg',
-                width: 25.87,
-                height: 32,
-              ),
-              inverted: true,
-              onPressed: () {},
+          child: MenuButton(
+            title: 'Title',
+            subtitle: 'Subtitle',
+            leading: const SvgImage.asset(
+              'assets/icons/frontend_white.svg',
+              width: 25.87,
+              height: 32,
             ),
-          ],
+            inverted: true,
+            onPressed: () {},
+          ),
         ),
-        ..._element(
-          context,
-          title: 'OutlinedRoundedButton(title: \'\')',
-          children: [
-            OutlinedRoundedButton(
-              title: const Text('Title'),
-              color: Colors.black.withOpacity(0.04),
-              onPressed: () {},
-            ),
-          ],
+        _headline(
+          title: 'OutlinedRoundedButton(title)',
+          child: OutlinedRoundedButton(
+            title: const Text('Title'),
+            color: Colors.black.withOpacity(0.04),
+            onPressed: () {},
+          ),
         ),
-        ..._element(
-          context,
-          title: 'OutlinedRoundedButton(subtitle: \'\')',
-          children: [
-            OutlinedRoundedButton(
-              subtitle: const Text('Subtitle'),
-              color: Colors.black.withOpacity(0.04),
-              onPressed: () {},
-            ),
-          ],
+        _headline(
+          title: 'OutlinedRoundedButton(subtitle)',
+          child: OutlinedRoundedButton(
+            subtitle: const Text('Subtitle'),
+            color: Colors.black.withOpacity(0.04),
+            onPressed: () {},
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'PrimaryButton',
-          children: [
-            PrimaryButton(
-              onPressed: () {},
-              title: 'PrimaryButton',
-            ),
-          ],
+          child: PrimaryButton(onPressed: () {}, title: 'PrimaryButton'),
         ),
-        ..._element(
-          context,
-          title: 'WidgetButton',
-          children: [
-            WidgetButton(onPressed: () {}, child: const Text('Label')),
-          ],
+        _headline(
+          child: WidgetButton(onPressed: () {}, child: const Text('Label')),
         ),
-        ..._element(
-          context,
-          title: 'SignButton',
-          children: [
-            SignButton(onPressed: () {}, text: 'Label'),
-          ],
+        _headline(
+          child: SignButton(onPressed: () {}, text: 'Label'),
         ),
-        ..._element(
-          context,
-          title: 'SignButton(asset: \'\')',
-          children: [
-            SignButton(
-              text: 'E-mail',
-              asset: 'email',
-              assetWidth: 21.93,
-              assetHeight: 22.5,
-              onPressed: () {},
-            ),
-          ],
+        _headline(
+          title: 'SignButton(asset)',
+          child: SignButton(
+            text: 'E-mail',
+            asset: 'email',
+            assetWidth: 21.93,
+            assetHeight: 22.5,
+            onPressed: () {},
+          ),
         ),
-        ..._element(
-          context,
-          title: 'StyledCupertinoButton',
-          children: [
-            StyledCupertinoButton(onPressed: () {}, label: 'Label'),
-          ],
+        _headline(
+          child: StyledCupertinoButton(onPressed: () {}, label: 'Label'),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'StyledCupertinoButton.primary',
-          children: [
-            StyledCupertinoButton(
-              onPressed: () {},
-              label: 'Label',
-              style: style.fonts.labelLargePrimary,
-            ),
-          ],
+          child: StyledCupertinoButton(
+            onPressed: () {},
+            label: 'Label',
+            style: style.fonts.labelLargePrimary,
+          ),
         ),
-        ..._element(
-          context,
-          title: 'RectangleButton',
-          children: [
-            RectangleButton(onPressed: () {}, label: 'Label'),
-          ],
+        _headline(
+          child: RectangleButton(onPressed: () {}, label: 'Label'),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'RectangleButton(selected: true)',
-          children: [
-            RectangleButton(
-              onPressed: () {},
-              label: 'Label',
-              selected: true,
+          child: RectangleButton(
+            onPressed: () {},
+            label: 'Label',
+            selected: true,
+          ),
+        ),
+        _headline(
+          child: AnimatedButton(
+            onPressed: () {},
+            child: const SvgImage.asset(
+              'assets/icons/chat.svg',
+              width: 20.12,
+              height: 21.62,
             ),
-          ],
+          ),
         ),
-        ..._element(
-          context,
-          title: 'AnimatedButton',
-          children: [
-            AnimatedButton(
-              onPressed: () {},
-              child: const SvgImage.asset(
-                'assets/icons/chat.svg',
-                width: 20.12,
-                height: 21.62,
-              ),
-            ),
-          ],
+        _headline(
+          child: CallButtonWidget(
+            hint: 'Label\nabove button',
+            asset: 'add_user_small',
+            hinted: true,
+            onPressed: () {},
+          ),
         ),
-        ..._element(
-          context,
-          title: 'CallButtonWidget',
-          children: [
-            CallButtonWidget(
-              hint: 'Label\nabove button',
-              asset: 'add_user_small',
-              hinted: true,
-              onPressed: () {},
-            )
-          ],
-        ),
-        ..._element(
-          context,
+        _headline(
           title: 'DownloadButton.windows',
-          children: const [
-            DownloadButton(
-              asset: 'windows5',
-              width: 23.93,
-              height: 24,
-              title: 'Windows',
-              link: '',
-            )
-          ],
+          child: const DownloadButton(
+            asset: 'windows5',
+            width: 23.93,
+            height: 24,
+            title: 'Windows',
+            link: '',
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'DownloadButton.macos',
-          children: const [
-            DownloadButton(
-              asset: 'apple7',
-              width: 21.07,
-              height: 27,
-              title: 'macOS',
-              link: '',
-            )
-          ],
+          child: const DownloadButton(
+            asset: 'apple7',
+            width: 21.07,
+            height: 27,
+            title: 'macOS',
+            link: '',
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'DownloadButton.linux',
-          children: const [
-            DownloadButton(
-              asset: 'linux4',
-              width: 20.57,
-              height: 24,
-              title: 'Linux',
-              link: '',
-            )
-          ],
+          child: const DownloadButton(
+            asset: 'linux4',
+            width: 20.57,
+            height: 24,
+            title: 'Linux',
+            link: '',
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'DownloadButton.appStore',
-          children: const [
-            DownloadButton(
-              asset: 'app_store',
-              width: 23,
-              height: 23,
-              title: 'App Store',
-              link: '',
-            )
-          ],
+          child: const DownloadButton(
+            asset: 'app_store',
+            width: 23,
+            height: 23,
+            title: 'App Store',
+            link: '',
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'DownloadButton.googlePlay',
-          children: const [
-            DownloadButton(
-              asset: 'google',
-              width: 20.33,
-              height: 22.02,
-              title: 'Google Play',
-              left: 3,
-              link: '',
-            )
-          ],
+          child: const DownloadButton(
+            asset: 'google',
+            width: 20.33,
+            height: 22.02,
+            title: 'Google Play',
+            left: 3,
+            link: '',
+          ),
         ),
-        ..._element(
-          context,
+        _headline(
           title: 'DownloadButton.android',
-          children: const [
-            DownloadButton(
-              asset: 'android3',
-              width: 20.99,
-              height: 25,
-              title: 'Android',
-              link: '',
-            ),
-          ],
+          child: const DownloadButton(
+            asset: 'android3',
+            width: 20.99,
+            height: 25,
+            title: 'Android',
+            link: '',
+          ),
         ),
-        ..._element(
-          context,
-          title: 'StyledBackButton',
-          children: [StyledBackButton(canPop: true, onPressed: () {})],
+        _headline(
+          child: StyledBackButton(canPop: true, onPressed: () {}),
         ),
-        ..._element(
-          context,
-          title: 'FloatingActionButton',
-          children: [
-            FloatingActionButton.small(
-              onPressed: () {},
-              child: const Icon(Icons.arrow_upward),
-            ),
-            const SizedBox(height: 8),
-            FloatingActionButton.small(
-              onPressed: () {},
-              child: const Icon(Icons.arrow_downward),
-            ),
-          ],
+        _headline(
+          title: 'FloatingActionButton(arrow_upward)',
+          child: FloatingActionButton.small(
+            onPressed: () {},
+            child: const Icon(Icons.arrow_upward),
+          ),
+        ),
+        _headline(
+          title: 'FloatingActionButton(arrow_downward)',
+          child: FloatingActionButton.small(
+            onPressed: () {},
+            child: const Icon(Icons.arrow_downward),
+          ),
+        ),
+        _headline(child: UnblockButton(() {})),
+        _headline(
+          child: ShadowedRoundedButton(
+            onPressed: () {},
+            child: const Text('Label'),
+          ),
         ),
         ...WorkTab.values
             .map(
               (e) => [
-                ..._element(
-                  context,
+                _headline(
                   title: 'VacancyWorkButton(${e.name})',
-                  children: [VacancyWorkButton(e)],
+                  child: VacancyWorkButton(e),
                 ),
               ],
             )
             .flattened,
-        ..._element(
-          context,
-          title: 'UnblockButton',
-          children: [UnblockButton(() {})],
-        ),
-        ..._element(
-          context,
-          title: 'ShadowedRoundedButton',
+      ],
+    );
+
+    return Column(
+      children: [
+        Block(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ..._element(
+              context,
+              title: 'MenuButton',
+              children: [
+                MenuButton(
+                  title: 'Title',
+                  subtitle: 'Subtitle',
+                  leading: const SvgImage.asset(
+                    'assets/icons/frontend.svg',
+                    width: 25.87,
+                    height: 32,
+                  ),
+                  inverted: false,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'MenuButton(inverted: true)',
+              children: [
+                MenuButton(
+                  title: 'Title',
+                  subtitle: 'Subtitle',
+                  leading: const SvgImage.asset(
+                    'assets/icons/frontend_white.svg',
+                    width: 25.87,
+                    height: 32,
+                  ),
+                  inverted: true,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'OutlinedRoundedButton(title: \'\')',
+              children: [
+                OutlinedRoundedButton(
+                  title: const Text('Title'),
+                  color: Colors.black.withOpacity(0.04),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'OutlinedRoundedButton(subtitle: \'\')',
+              children: [
+                OutlinedRoundedButton(
+                  subtitle: const Text('Subtitle'),
+                  color: Colors.black.withOpacity(0.04),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'PrimaryButton',
+              children: [
+                PrimaryButton(
+                  onPressed: () {},
+                  title: 'PrimaryButton',
+                ),
+              ],
+            ),
+            // ..._element(
+            //   context,
+            //   title: 'WidgetButton',
+            //   children: [
+            //     WidgetButton(onPressed: () {}, child: const Text('Label')),
+            //   ],
+            // ),
+            ..._element(
+              context,
+              title: 'SignButton',
+              children: [
+                SignButton(onPressed: () {}, text: 'Label'),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'SignButton(asset: \'\')',
+              children: [
+                SignButton(
+                  text: 'E-mail',
+                  asset: 'email',
+                  assetWidth: 21.93,
+                  assetHeight: 22.5,
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'StyledCupertinoButton',
+              children: [
+                StyledCupertinoButton(onPressed: () {}, label: 'Label'),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'StyledCupertinoButton.primary',
+              children: [
+                StyledCupertinoButton(
+                  onPressed: () {},
+                  label: 'Label',
+                  style: style.fonts.labelLargePrimary,
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'RectangleButton',
+              children: [
+                RectangleButton(onPressed: () {}, label: 'Label'),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'RectangleButton(selected: true)',
+              children: [
+                RectangleButton(
+                  onPressed: () {},
+                  label: 'Label',
+                  selected: true,
+                ),
+              ],
+            ),
+            // ..._element(
+            //   context,
+            //   title: 'AnimatedButton',
+            //   children: [
+            //     AnimatedButton(
+            //       onPressed: () {},
+            //       child: const SvgImage.asset(
+            //         'assets/icons/chat.svg',
+            //         width: 20.12,
+            //         height: 21.62,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            ..._element(
+              context,
+              title: 'CallButtonWidget',
+              children: [
+                CallButtonWidget(
+                  hint: 'Label\nabove button',
+                  asset: 'add_user_small',
+                  hinted: true,
+                  onPressed: () {},
+                )
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'DownloadButton.windows',
+              children: const [
+                DownloadButton(
+                  asset: 'windows5',
+                  width: 23.93,
+                  height: 24,
+                  title: 'Windows',
+                  link: '',
+                )
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'DownloadButton.macos',
+              children: const [
+                DownloadButton(
+                  asset: 'apple7',
+                  width: 21.07,
+                  height: 27,
+                  title: 'macOS',
+                  link: '',
+                )
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'DownloadButton.linux',
+              children: const [
+                DownloadButton(
+                  asset: 'linux4',
+                  width: 20.57,
+                  height: 24,
+                  title: 'Linux',
+                  link: '',
+                )
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'DownloadButton.appStore',
+              children: const [
+                DownloadButton(
+                  asset: 'app_store',
+                  width: 23,
+                  height: 23,
+                  title: 'App Store',
+                  link: '',
+                )
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'DownloadButton.googlePlay',
+              children: const [
+                DownloadButton(
+                  asset: 'google',
+                  width: 20.33,
+                  height: 22.02,
+                  title: 'Google Play',
+                  left: 3,
+                  link: '',
+                )
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'DownloadButton.android',
+              children: const [
+                DownloadButton(
+                  asset: 'android3',
+                  width: 20.99,
+                  height: 25,
+                  title: 'Android',
+                  link: '',
+                ),
+              ],
+            ),
+            ..._element(
+              context,
+              title: 'StyledBackButton',
+              children: [StyledBackButton(canPop: true, onPressed: () {})],
+            ),
+            ..._element(
+              context,
+              title: 'FloatingActionButton',
+              children: [
+                FloatingActionButton.small(
+                  onPressed: () {},
+                  child: const Icon(Icons.arrow_upward),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton.small(
+                  onPressed: () {},
+                  child: const Icon(Icons.arrow_downward),
+                ),
+              ],
+            ),
+            ...WorkTab.values
+                .map(
+                  (e) => [
+                    ..._element(
+                      context,
+                      title: 'VacancyWorkButton(${e.name})',
+                      children: [VacancyWorkButton(e)],
+                    ),
+                  ],
+                )
+                .flattened,
+            ..._element(
+              context,
+              title: 'UnblockButton',
+              children: [UnblockButton(() {})],
+            ),
+            ..._element(
+              context,
+              title: 'ShadowedRoundedButton',
+              children: [
+                ShadowedRoundedButton(
+                  onPressed: () {},
+                  child: const Text('Label'),
+                )
+              ],
+            ),
+          ],
+        ),
+        Block(
+          headline: 'ShadowedRoundedButton',
+          children: [
+            const SizedBox(height: 16),
             ShadowedRoundedButton(
               onPressed: () {},
               child: const Text('Label'),
-            )
+            ),
+            const SizedBox(height: 16),
           ],
+        ),
+        _headline(
+          child: WidgetButton(onPressed: () {}, child: const Text('Label')),
+        ),
+        _headline(
+          child: AnimatedButton(
+            onPressed: () {},
+            child: const SvgImage.asset(
+              'assets/icons/chat.svg',
+              width: 20.12,
+              height: 21.62,
+            ),
+          ),
         ),
       ],
     );

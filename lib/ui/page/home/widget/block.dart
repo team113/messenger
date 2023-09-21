@@ -31,6 +31,7 @@ class Block extends StatelessWidget {
     this.children = const [],
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.unconstrained = false,
+    this.headline,
   });
 
   /// Optional header of this [Block].
@@ -48,49 +49,93 @@ class Block extends StatelessWidget {
   final EdgeInsets padding;
   final bool unconstrained;
 
+  final String? headline;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final InputBorder border = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: style.primaryBorder.top.color,
+        // color: style.colors.secondary,
+        width: style.primaryBorder.top.width,
+      ),
+      borderRadius: BorderRadius.circular(15),
+    );
+
     return HighlightedContainer(
       highlight: highlight == true,
       child: Center(
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          decoration: BoxDecoration(
-            border: style.primaryBorder,
-            color: style.messageColor,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          constraints: (context.isNarrow || unconstrained)
-              ? null
-              : const BoxConstraints(maxWidth: 400),
-          padding: padding,
-          child: Column(
-            crossAxisAlignment: crossAxisAlignment,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (title != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        title!,
-                        textAlign: TextAlign.center,
-                        style: style.fonts.headlineMedium,
-                      ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(8, headline == null ? 4 : 32, 8, 4),
+              child: ConstrainedBox(
+                constraints: (context.isNarrow || unconstrained)
+                    ? const BoxConstraints.tightForFinite()
+                    : const BoxConstraints(maxWidth: 400),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: style.messageColor,
+                    focusedBorder: border,
+                    errorBorder: border,
+                    enabledBorder: border,
+                    disabledBorder: border,
+                    focusedErrorBorder: border,
+                    // contentPadding: EdgeInsets.zero,
+                    contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                    border: border,
+                    labelText: headline,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    floatingLabelStyle: style.fonts.headlineLarge
+                        .copyWith(color: style.colors.secondary),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    // margin: const EdgeInsets.all(1),
+
+                    padding: padding,
+                    child: Column(
+                      crossAxisAlignment: crossAxisAlignment,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  title!,
+                                  textAlign: TextAlign.center,
+                                  style: style.fonts.headlineMedium,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ...children,
+                      ],
                     ),
                   ),
                 ),
-              ...children,
-            ],
-          ),
+              ),
+            ),
+            // if (headline != null)
+            //   Positioned(
+            //     top: -4 + 32 - 4,
+            //     left: 32,
+            //     child: Text(
+            //       headline!,
+            //       textAlign: TextAlign.left,
+            //       style: style.fonts.titleMediumSecondary,
+            //     ),
+            //   ),
+          ],
         ),
       ),
     );
