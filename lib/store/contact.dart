@@ -359,6 +359,9 @@ class ContactRepository implements AbstractContactRepository {
     for (HiveChatContact user in result) {
       _putChatContact(user);
     }
+
+    // Wait for [Hive] to populate the added [HiveChatContact] from
+    // [_putChatContact] invoked earlier.
     await Future.delayed(Duration.zero);
 
     List<RxChatContact> contacts =
