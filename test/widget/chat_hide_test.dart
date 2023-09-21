@@ -358,6 +358,11 @@ void main() async {
 
     await tester
         .pumpWidget(createWidgetForTesting(child: const ChatsTabView()));
+
+    while (chatProvider.isLocked) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('chatname'), findsOneWidget);
