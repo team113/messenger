@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
@@ -1680,33 +1679,4 @@ class ChatData {
 
   /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
   final HiveChatItem? lastReadItem;
-}
-
-void test() {
-  SplayTreeMap<ChatId, HiveChat>? map;
-  map = SplayTreeMap(
-    (a, b) => map![a]!.value.updatedAt.compareTo(map[b]!.value.updatedAt),
-  );
-}
-
-class SortedMap<K, V extends Comparable> {
-  SortedMap(this.compare);
-  final int Function(V, V) compare;
-
-  /// [Map] maintains an O(1) complexity for getting elements.
-  ///
-  /// Removing item by [K] is O(1)
-  final Map<K, V> _keys = {};
-
-  /// [SplayTreeSet] returns the sorted [V] values.
-  late final SplayTreeSet<V> _values = SplayTreeSet(compare);
-
-  void insert(K key, V value) {
-    _keys[key] = value;
-    _values.add(value);
-  }
-
-  void remove(K key) {
-    _values.remove(_keys.remove(key));
-  }
 }

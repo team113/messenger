@@ -29,12 +29,14 @@ void main() async {
       perPage: 4,
       provider: _ListPageProvider(count: 7),
       onKey: (i) => i,
+      compare: (a, b) => a.compareTo(b),
     );
 
     final Pagination<int, int, int> pagination2 = Pagination(
       perPage: 4,
       provider: _ListPageProvider(count: 7, start: 7),
       onKey: (i) => i,
+      compare: (a, b) => a.compareTo(b),
     );
 
     final CombinedPagination<int, int> combinedPagination = CombinedPagination(

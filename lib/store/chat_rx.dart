@@ -314,6 +314,7 @@ class HiveRxChat extends RxChat {
     _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
       onKey: (e) => e.value.key,
       provider: _provider,
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
 
     if (id.isLocal) {

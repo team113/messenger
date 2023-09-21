@@ -216,6 +216,10 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
     return [];
   }
 
+  /// Indicates whether the [_mutex] is locked.
+  @visibleForTesting
+  bool get isLocked => _mutex.isLocked;
+
   @protected
   void registerAdapters();
 
@@ -304,10 +308,6 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
       return Future.value();
     });
   }
-
-  /// Releases the lock.
-  @visibleForTesting
-  void release() => _mutex.isLocked ? _mutex.release() : null;
 }
 
 /// [HiveLazyProvider] with [Iterable] functionality support.

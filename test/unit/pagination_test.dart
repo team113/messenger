@@ -43,6 +43,7 @@ void main() async {
       perPage: 4,
       provider: _ListPageProvider(),
       onKey: (i) => i,
+      compare: (a, b) => a.compareTo(b),
     );
 
     await pagination.around(cursor: 20);
@@ -228,6 +229,7 @@ void main() async {
           );
         },
       ),
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
 
     await pagination.around();
