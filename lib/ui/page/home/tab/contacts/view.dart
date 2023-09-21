@@ -190,6 +190,7 @@ class ContactsTabView extends StatelessWidget {
                         key: const Key('ContactsMenu'),
                         alignment: Alignment.topRight,
                         enablePrimaryTap: true,
+                        enableLongTap: false,
                         enableSecondaryTap: false,
                         selector: c.moreKey,
                         margin: const EdgeInsets.only(bottom: 4, right: 0),
