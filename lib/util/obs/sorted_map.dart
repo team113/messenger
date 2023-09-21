@@ -56,7 +56,7 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
   /// Last [V] item.
   V get last => _values.last;
 
-  /// Returns stream of record of changes of this [SortedMap].
+  /// Returns stream of record of changes of this [SortedObsMap].
   Stream<MapChangeNotification<K, V>> get changes => _keys.changes;
 
   @override

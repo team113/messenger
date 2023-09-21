@@ -15,13 +15,13 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chats pagination works correctly
+Feature: Chats pagination
 
   Scenario: Chats pagination works correctly
-    Given users Bob and Alice
+    Given user Alice
     And Alice has 31 groups
     And I sign in as Alice
-    And I have Internet with delay of 5 seconds
+    And I have Internet with delay of 3 seconds
 
     Then I wait until `Chats` is present
 

@@ -194,7 +194,13 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> next() async => _pagination?.next();
+  Future<void> next() async {
+    await _pagination?.next();
+
+    if(_pagination?.hasNext.value == false) {
+      _initMonolog();
+    }
+  }
 
   @override
   Future<void> clear() {
@@ -1286,7 +1292,6 @@ class ChatRepository extends DisposableInterface
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
         _initPagination();
-        _initMonolog();
         break;
 
       case RecentChatsEventKind.list:
