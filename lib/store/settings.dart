@@ -144,6 +144,9 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setLoadImages(enabled);
 
   @override
+  Future<void> setMuteHotKey(int key) => _settingsLocal.setMuteHotKey(key);
+
+  @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) =>
       _callRectLocal.put(chatId, prefs);
 

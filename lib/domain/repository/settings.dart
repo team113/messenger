@@ -87,4 +87,6 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.timelineEnabled] value.
   Future<void> setTimelineEnabled(bool enabled);
+
+  Future<void> setMuteHotKey(int key);
 }
