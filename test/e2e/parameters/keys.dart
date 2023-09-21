@@ -125,7 +125,6 @@ enum WidgetKey {
   SetPassword,
   SetPasswordButton,
   SettingsButton,
-  SignButton,
   SignInButton,
   Signing,
   StartButton,

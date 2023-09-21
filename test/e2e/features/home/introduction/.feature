@@ -37,7 +37,7 @@ Feature: Introduction
     And I tap `ConfirmLogoutButton` button
     Then I wait until `AuthView` is present
 
-    When I tap `SignButton` button
+    When I tap `SignInButton` button
     And I wait until `LoginView` is present
     And I tap `PasswordButton` button
     And I paste to `UsernameField` field
