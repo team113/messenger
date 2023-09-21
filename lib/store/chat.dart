@@ -176,6 +176,12 @@ class ChatRepository extends DisposableInterface
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
+
+    await _initPagination();
+    await _initMonolog();
+
+    await Future.delayed(1.milliseconds);
+    status.value = RxStatus.success();
   }
 
   @override
@@ -1291,11 +1297,7 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        await _initPagination();
-        await _initMonolog();
-
-        await Future.delayed(Duration.zero);
-        status.value = RxStatus.success();
+        // No-op.
         break;
 
       case RecentChatsEventKind.list:
