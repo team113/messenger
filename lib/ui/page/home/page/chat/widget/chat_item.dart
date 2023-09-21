@@ -1880,7 +1880,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       if (string?.isEmpty == true) {
         _text = null;
       } else {
-        _text = string?.parseLinks(_recognizers, router.context);
+        _text = string?.parseLinks(
+          _recognizers,
+          Theme.of(router.context!).style.linkStyle,
+        );
       }
     } else if (msg is ChatForward) {
       throw Exception(
@@ -1904,14 +1907,12 @@ extension LinkParsingExtension on String {
   /// dispose them properly.
   TextSpan parseLinks(
     List<TapGestureRecognizer> recognizers, [
-    BuildContext? context,
+    TextStyle? style,
   ]) {
     final Iterable<RegExpMatch> matches = _regex.allMatches(this);
     if (matches.isEmpty) {
       return TextSpan(text: this);
     }
-
-    final Style? style = context?.theme.extension<Style>()!;
 
     String text = this;
     final List<TextSpan> spans = [];
@@ -1940,7 +1941,7 @@ extension LinkParsingExtension on String {
       spans.add(
         TextSpan(
           text: link,
-          style: style?.linkStyle,
+          style: style,
           recognizer: recognizer
             ..onTap = () async {
               final Uri uri;

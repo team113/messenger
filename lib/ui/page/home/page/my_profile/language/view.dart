@@ -21,10 +21,8 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
 
 /// View for changing the [L10n.chosen].
@@ -49,8 +47,6 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {
@@ -75,14 +71,19 @@ class LanguageSelectionView extends StatelessWidget {
 
                       return Obx(() {
                         return RectangleButton(
-                          key: Key('Language_${e.locale.languageCode}'),
-                          label: 'label_language_entry'.l10nfmt({
-                            'code': e.locale.languageCode.toUpperCase(),
-                            'name': e.name,
-                          }),
-                          selected: c.selected.value == e,
-                          onPressed: () => c.selected.value = e,
-                        );
+                            key: Key('Language_${e.locale.languageCode}'),
+                            label: 'label_language_entry'.l10nfmt({
+                              'code': e.locale.languageCode.toUpperCase(),
+                              'name': e.name,
+                            }),
+                            selected: c.selected.value == e,
+                            onPressed: () async {
+                              c.selected.value = e;
+
+                              if (c.selected.value != null) {
+                                await c.setLocalization(c.selected.value!);
+                              }
+                            });
                       });
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -91,26 +92,6 @@ class LanguageSelectionView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: style.fonts.bodyMediumOnPrimary,
-                  ),
-                  onPressed: () {
-                    if (c.selected.value != null) {
-                      c.setLocalization(c.selected.value!);
-                    }
-
-                    Navigator.of(context).pop();
-                  },
-                  color: style.colors.primary,
-                ),
-              ),
-              const SizedBox(height: 16),
             ],
           ),
         );
