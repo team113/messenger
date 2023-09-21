@@ -176,12 +176,6 @@ class ChatRepository extends DisposableInterface
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
-
-    await _initPagination();
-    await _initMonolog();
-
-    await Future.delayed(1.milliseconds);
-    status.value = RxStatus.success();
   }
 
   @override
@@ -1297,7 +1291,11 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        // No-op.
+        await _initPagination();
+        await _initMonolog();
+
+        await Future.delayed(1.milliseconds);
+        status.value = RxStatus.success();
         break;
 
       case RecentChatsEventKind.list:
@@ -1328,7 +1326,7 @@ class ChatRepository extends DisposableInterface
   Future<void> _initPagination() async {
     status.value = RxStatus.loading();
 
-    await clear();
+    paginated.clear();
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
       onKey: (e) => e.value.id,
