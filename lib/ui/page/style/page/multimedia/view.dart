@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:rive/rive.dart';
 
 import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
@@ -141,20 +140,6 @@ class MultimediaView extends StatelessWidget {
             height: 300,
             subtitle: 'AnimatedLogo',
             child: const InteractiveLogo(),
-          ),
-          SubtitleContainer(
-            inverted: inverted,
-            width: 210,
-            height: 300,
-            subtitle: 'logo.riv',
-            child: RiveAnimation.asset(
-              'assets/images/logo/logo.riv',
-              onInit: (a) async {
-                final StateMachineController machine =
-                    StateMachineController(a.stateMachines.first);
-                a.addController(machine);
-              },
-            ),
           ),
           const SizedBox(height: 16),
           SubtitleContainer(
