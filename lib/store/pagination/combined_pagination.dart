@@ -28,38 +28,38 @@ class CombinedPagination<T, K extends Comparable> {
   const CombinedPagination(this.paginations);
 
   /// [Pagination]s this [CombinedPagination] combines.
-  final List<(bool Function(T), Pagination<T, Object, K>)> paginations;
+  final List<CombinedPaginationEntry<T, Object, K>> paginations;
 
   /// Indicates whether this [CombinedPagination] have next page.
-  RxBool get hasNext => paginations.last.$2.hasNext;
+  RxBool get hasNext => paginations.last.p.hasNext;
 
   /// Indicated whether the [next] page is being fetched.
   RxBool get nextLoading =>
       paginations
-          .firstWhereOrNull((e) => e.$2.nextLoading.isTrue)
-          ?.$2
+          .firstWhereOrNull((e) => e.p.nextLoading.isTrue)
+          ?.p
           .nextLoading ??
       RxBool(false);
 
   /// List of the items fetched from the [paginations].
   List<T> get items => paginations
-      .map((e) => e.$2.items.values.toList())
+      .map((e) => e.p.items.values.toList())
       .reduce((value, e) => value..addAll(e));
 
   /// Returns a [Stream] of changes of the [paginations].
   Stream<MapChangeNotification<K, T>> get changes =>
-      StreamGroup.merge(paginations.map((e) => e.$2.items.changes));
+      StreamGroup.merge(paginations.map((e) => e.p.items.changes));
 
   /// Resets the [paginations] to its initial state.
   Future<void> clear() async {
-    for (final p in paginations.map((e) => e.$2)) {
+    for (final p in paginations.map((e) => e.p)) {
       await p.clear();
     }
   }
 
   /// Fetches the initial page.
   FutureOr<void> around() async {
-    for (final p in paginations.map((e) => e.$2)) {
+    for (final p in paginations.map((e) => e.p)) {
       await p.around();
       if (items.isNotEmpty) {
         break;
@@ -71,19 +71,34 @@ class CombinedPagination<T, K extends Comparable> {
 
   /// Fetches the next page.
   FutureOr<void> next() =>
-      paginations.firstWhereOrNull((e) => e.$2.hasNext.isTrue)?.$2.next();
+      paginations.firstWhereOrNull((e) => e.p.hasNext.isTrue)?.p.next();
 
   /// Adds the provided [item] to the [paginations].
   Future<void> put(T item, {bool ignoreBounds = false}) async {
-    for (final p in paginations.where((p) => p.$1(item)).map((e) => e.$2)) {
+    for (final p in paginations.where((p) => p.addIf(item)).map((e) => e.p)) {
       await p.put(item, ignoreBounds: ignoreBounds);
     }
   }
 
   /// Removes the item with the provided [key].
   Future<void> remove(K key) async {
-    for (final p in paginations.map((e) => e.$2)) {
+    for (final p in paginations.map((e) => e.p)) {
       await p.remove(key);
     }
   }
+}
+
+/// Single [CombinedPagination] entry.
+class CombinedPaginationEntry<T, Object, K> {
+  const CombinedPaginationEntry(this.p, {this.addIf = _defaultOnAdd});
+
+  /// [Pagination] itself.
+  final Pagination<T, Object, K> p;
+
+  /// Callback, indicating whether the provided [T] item should be added to the
+  /// [p], or not.
+  final bool Function(T) addIf;
+
+  /// Returns `true` always.
+  static bool _defaultOnAdd(_) => true;
 }

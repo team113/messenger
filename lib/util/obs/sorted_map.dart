@@ -19,20 +19,19 @@ import 'dart:collection';
 
 import 'map.dart';
 
-/// Automatically sorted observable [Map].
+/// Self-sorting observable [Map].
 class SortedObsMap<K, V> extends MapMixin<K, V> {
-  SortedObsMap(this.compare);
+  SortedObsMap([Comparator<V>? compare])
+      : _compare = compare ?? _defaultCompare<V>();
 
   /// Callback, comparing the provided [V] items.
-  final int Function(V, V) compare;
+  final Comparator<V> _compare;
 
-  /// [Map] maintains an O(1) complexity for getting elements.
-  ///
-  /// Removing item by [K] is O(1)
+  /// [Map] for an constant complexity for getting elements by its keys.
   final ObsMap<K, V> _keys = ObsMap();
 
-  /// [SplayTreeSet] returns the sorted [V] values.
-  late final SplayTreeSet<V> _values = SplayTreeSet(compare);
+  /// [SplayTreeSet] of the sorted [V] values.
+  late final SplayTreeSet<V> _values = SplayTreeSet(_compare);
 
   /// Unsorted [K] keys.
   @override
@@ -83,4 +82,19 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
     _keys.clear();
     _values.clear();
   }
+
+  /// Returns a [Comparator] for the provided [K].
+  static Comparator<K> _defaultCompare<K>() {
+    // If [K] is [Comparable], then just return it.
+    Object compare = Comparable.compare;
+    if (compare is Comparator<K>) {
+      return compare;
+    }
+
+    // Otherwise wrap and cast the arguments on each call.
+    return _dynamicCompare;
+  }
+
+  /// Compares the [a] and [b] dynamically.
+  static int _dynamicCompare(dynamic a, dynamic b) => Comparable.compare(a, b);
 }

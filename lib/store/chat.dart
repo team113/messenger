@@ -134,7 +134,10 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
-  /// Indicator whether [_remoteSubscription] is initialized
+  /// Indicator whether [_remoteSubscription] is initialized.
+  ///
+  /// Used to skip the [_initPagination] invoke in the first
+  /// [RecentChatsEventKind.initialized] event, as [init] already does it.
   bool _remoteSubscriptionInitialized = false;
 
   /// [Mutex]es guarding access to the [get] method.
@@ -1377,11 +1380,15 @@ class ChatRepository extends DisposableInterface
     );
 
     _pagination = CombinedPagination([
-      ((e) => e.value.ongoingCall != null, calls),
-      ((e) => e.value.favoritePosition != null, favorites),
-      (
-        (e) => e.value.ongoingCall == null && e.value.favoritePosition == null,
+      CombinedPaginationEntry(calls, addIf: (e) => e.value.ongoingCall != null),
+      CombinedPaginationEntry(
+        favorites,
+        addIf: (e) => e.value.favoritePosition != null,
+      ),
+      CombinedPaginationEntry(
         recent,
+        addIf: (e) =>
+            e.value.ongoingCall == null && e.value.favoritePosition == null,
       ),
     ]);
 
@@ -1449,9 +1456,11 @@ class ChatRepository extends DisposableInterface
         .recentChats;
 
     return Page(
-      RxList(query.edges
-          .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
-          .toList()),
+      RxList(
+        query.edges
+            .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
+            .toList(),
+      ),
       query.pageInfo.toModel((c) => RecentChatsCursor(c)),
     );
   }
@@ -1474,9 +1483,11 @@ class ChatRepository extends DisposableInterface
             .favoriteChats;
 
     return Page(
-      RxList(query.edges
-          .map((e) => _chat(e.node, favoriteCursor: e.cursor).chat)
-          .toList()),
+      RxList(
+        query.edges
+            .map((e) => _chat(e.node, favoriteCursor: e.cursor).chat)
+            .toList(),
+      ),
       query.pageInfo.toModel((c) => FavoriteChatsCursor(c)),
     );
   }

@@ -136,14 +136,14 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Subscription for [ChatService.paginated] changes.
+  /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Subscription for [ChatService.status] changes.
+  /// Subscription for the [ChatService.status] changes.
   StreamSubscription? _statusSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
@@ -164,7 +164,7 @@ class ChatsTabController extends GetxController {
   /// Returns the [RxStatus] of the [chats] fetching and initialization.
   Rx<RxStatus> get status => _chatService.status;
 
-  /// Indicates whether the [chats] has a next page.
+  /// Indicates whether the [chats] have a next page.
   RxBool get hasNext => _chatService.hasNext;
 
   @override

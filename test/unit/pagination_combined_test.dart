@@ -40,7 +40,10 @@ void main() async {
     );
 
     final CombinedPagination<int, int> combinedPagination = CombinedPagination(
-      [((_) => true, pagination1), ((_) => true, pagination2)],
+      [
+        CombinedPaginationEntry(pagination1),
+        CombinedPaginationEntry(pagination2),
+      ],
     );
 
     await combinedPagination.around();
