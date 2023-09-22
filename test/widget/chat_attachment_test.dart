@@ -105,6 +105,35 @@ void main() async {
     'ver': '0'
   };
 
+  var recentChats = {
+    'recentChats': {
+      'edges': [
+        {
+          'node': chatData,
+          'cursor': 'cursor',
+        }
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
   var blacklist = {
     'edges': [],
     'pageInfo': {
@@ -271,6 +300,23 @@ void main() async {
   )).thenAnswer(
     (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
+
+  when(graphQlProvider.recentChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+    noFavorite: anyNamed('noFavorite'),
+    withOngoingCalls: anyNamed('withOngoingCalls'),
+  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+  when(graphQlProvider.favoriteChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
