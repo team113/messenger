@@ -310,7 +310,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   }
 }
 
-/// [HiveLazyProvider] with [Iterable] functionality support.
+/// [Hive] provider with [Iterable] functionality support.
 ///
 /// Intended to be used as a source for [Pagination] items persisted.
 abstract class IterableHiveProvider<T extends Object, K> {
