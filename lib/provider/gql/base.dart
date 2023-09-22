@@ -158,16 +158,16 @@ class GraphQlClient {
   /// and returns a [Future] which resolves with the [QueryResult] or throws an
   /// [Exception].
   ///
-  /// If [raw] is `true` then the request is immediately performed on a new
+  /// If [raw] is non-`null`, then the request is immediately performed on a new
   /// [GraphQLClient] and without [AuthorizationException] handling.
   Future<QueryResult> mutate(
     MutationOptions options, {
-    bool raw = false,
+    RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw) {
+    if (raw != null) {
       QueryResult result =
-          await (await _newClient(true)).mutate(options).timeout(timeout);
+          await (await _newClient(raw)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);
       return result;
     } else {
@@ -379,20 +379,22 @@ class GraphQlClient {
   }
 
   /// Creates a new [GraphQLClient].
-  Future<GraphQLClient> _newClient([bool raw = false]) async {
+  Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
       defaultHeaders: {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },
     );
-    final AuthLink authLink = AuthLink(getToken: () => 'Bearer $token');
+
+    final AccessToken? bearer = raw?.token ?? token;
+    final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
     final Link httpAuthLink =
-        token != null ? authLink.concat(httpLink) : httpLink;
+        bearer != null ? authLink.concat(httpLink) : httpLink;
     Link link = httpAuthLink;
 
     // Update the WebSocket connection if not [raw].
-    if (!raw) {
+    if (raw == null) {
       _disposeWebSocket();
 
       // WebSocket connection is meaningful only if the token is provided.
@@ -551,4 +553,12 @@ class SubscriptionHandle {
       }
     }
   }
+}
+
+/// Options for raw [GraphQlClient] instance.
+class RawClientOptions {
+  const RawClientOptions([this.token]);
+
+  /// [AccessToken] to pass to raw [GraphQlClient].
+  final AccessToken? token;
 }

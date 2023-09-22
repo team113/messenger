@@ -111,7 +111,7 @@ class MockGraphQlClient extends GraphQlClient {
   @override
   Future<QueryResult> mutate(
     MutationOptions options, {
-    bool raw = false,
+    RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (delay != null) {

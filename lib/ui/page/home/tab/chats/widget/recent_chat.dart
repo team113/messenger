@@ -264,17 +264,15 @@ class RecentChatTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
+      final List<Widget> subtitle;
+
       final Chat chat = rxChat.chat.value;
-
-      ChatItem? item = rxChat.lastItem;
-
-      List<Widget> subtitle = [];
+      final ChatItem? item = rxChat.lastItem;
+      final ChatMessage? draft = rxChat.draft.value;
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
           .map((User user) => user.name?.val ?? user.num.toString());
-
-      ChatMessage? draft = rxChat.draft.value;
 
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
@@ -322,7 +320,7 @@ class RecentChatTile extends StatelessWidget {
             )
           ];
         }
-      } else if (draft != null && !selected && rxChat.unreadCount.value == 0) {
+      } else if (draft != null && !selected) {
         final StringBuffer desc = StringBuffer();
 
         if (draft.text != null) {

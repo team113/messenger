@@ -1238,8 +1238,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       if (item is ChatMessageQuote) {
         final String? string = item.text?.val.trim();
         if (string?.isNotEmpty == true) {
-          _text[forward.value.id] =
-              string!.parseLinks(_recognizers, router.context);
+          _text[forward.value.id] = string!.parseLinks(
+            _recognizers,
+            Theme.of(router.context!).style.linkStyle,
+          );
         }
       }
     }
@@ -1248,7 +1250,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       final ChatMessage item = widget.note.value!.value as ChatMessage;
       final String? string = item.text?.val.trim();
       if (string?.isNotEmpty == true) {
-        _text[item.id] = string!.parseLinks(_recognizers, router.context);
+        _text[item.id] = string!.parseLinks(
+          _recognizers,
+          Theme.of(router.context!).style.linkStyle,
+        );
       }
     }
   }
