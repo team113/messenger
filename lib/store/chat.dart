@@ -134,6 +134,9 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
+  /// Indicator whether [_remoteSubscription] is initialized
+  bool _remoteSubscriptionInitialized = false;
+
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _getGuards = {};
 
@@ -176,6 +179,8 @@ class ChatRepository extends DisposableInterface
 
     _initRemoteSubscription();
     _initFavoriteChatsSubscription();
+
+    _initPagination();
   }
 
   @override
@@ -1291,11 +1296,11 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        await _initPagination();
-        await _initMonolog();
+        if (_remoteSubscriptionInitialized) {
+          await _initPagination();
+        }
 
-        await Future.delayed(1.milliseconds);
-        status.value = RxStatus.success();
+        _remoteSubscriptionInitialized = true;
         break;
 
       case RecentChatsEventKind.list:
@@ -1395,6 +1400,10 @@ class ChatRepository extends DisposableInterface
     });
 
     await _pagination!.around();
+    await _initMonolog();
+
+    await Future.delayed(1.milliseconds);
+    status.value = RxStatus.success();
   }
 
   /// Subscribes to the remote updates of the [chats].
