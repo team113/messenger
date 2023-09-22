@@ -57,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.13.0-beta.2"
+  artemis_custom_gen:
+    dependency: "direct main"
+    description:
+      name: artemis_custom_gen
+      sha256: bdc7d85845b2aad8ffbc806e6062d3da26076fd55ff5759caf228cdbb574e9fc
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   async:
     dependency: "direct main"
     description:

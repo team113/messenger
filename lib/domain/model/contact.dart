@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
@@ -83,6 +84,7 @@ class ChatContact extends HiveObject {
 
 /// Unique ID of a [ChatContact].
 @HiveType(typeId: ModelTypeId.chatContactId)
+@ArtemisCustomType()
 class ChatContactId extends NewType<String> {
   const ChatContactId(String val) : super(val);
 }
@@ -90,6 +92,7 @@ class ChatContactId extends NewType<String> {
 /// Position of a [ChatContact] in a favorites list of the authenticated
 /// [MyUser].
 @HiveType(typeId: ModelTypeId.chatContactFavoritePosition)
+@ArtemisCustomType()
 class ChatContactFavoritePosition extends NewType<double>
     implements Comparable<ChatContactFavoritePosition> {
   const ChatContactFavoritePosition(double val) : super(val);

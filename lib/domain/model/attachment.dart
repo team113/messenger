@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -139,6 +140,7 @@ class FileAttachment extends Attachment {
 
 /// Unique ID of an [Attachment].
 @HiveType(typeId: ModelTypeId.attachmentId)
+@ArtemisCustomType()
 class AttachmentId extends NewType<String> {
   const AttachmentId(String val) : super(val);
 

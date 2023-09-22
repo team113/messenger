@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -144,6 +145,7 @@ class ChatForward extends ChatItem {
 
 /// Unique ID of a [ChatItem].
 @HiveType(typeId: ModelTypeId.chatItemId)
+@ArtemisCustomType()
 class ChatItemId extends NewType<String> {
   const ChatItemId(String val) : super(val);
 
@@ -156,6 +158,7 @@ class ChatItemId extends NewType<String> {
 
 /// Text of a [ChatMessage].
 @HiveType(typeId: ModelTypeId.chatMessageText)
+@ArtemisCustomType()
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(String val) : super(val);
 

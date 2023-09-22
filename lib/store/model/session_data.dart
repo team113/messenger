@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model/session.dart';
@@ -45,6 +46,7 @@ class SessionData extends HiveObject {
 ///
 /// It increases monotonically, so may be used (and is intended to) for
 /// tracking state's actuality.
+@ArtemisCustomType()
 @HiveType(typeId: ModelTypeId.sessionVersion)
 class SessionVersion extends NewType<BigInt> {
   const SessionVersion(BigInt val) : super(val);
@@ -56,6 +58,7 @@ class SessionVersion extends NewType<BigInt> {
 ///
 /// It increases monotonically, so may be used (and is intended to) for
 /// tracking state's actuality.
+@ArtemisCustomType()
 @HiveType(typeId: ModelTypeId.rememberedSessionVersion)
 class RememberedSessionVersion extends NewType<BigInt> {
   const RememberedSessionVersion(BigInt val) : super(val);

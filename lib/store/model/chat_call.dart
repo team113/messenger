@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
@@ -24,6 +25,7 @@ part 'chat_call.g.dart';
 
 /// Cursor of an [OngoingCall] position.
 @HiveType(typeId: ModelTypeId.incomingChatCallsCursor)
+@ArtemisCustomType()
 class IncomingChatCallsCursor extends NewType<String> {
   const IncomingChatCallsCursor(String val) : super(val);
 }

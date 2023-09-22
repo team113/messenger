@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
@@ -25,18 +26,21 @@ part 'contact.g.dart';
 
 /// Version of a [ChatContact]'s state.
 @HiveType(typeId: ModelTypeId.chatContactVersion)
+@ArtemisCustomType()
 class ChatContactVersion extends Version {
   ChatContactVersion(String val) : super(val);
 }
 
 /// Cursor used for a subscription to [ChatContactEvent]s.
 @HiveType(typeId: ModelTypeId.chatContactsListVersion)
+@ArtemisCustomType()
 class ChatContactsListVersion extends Version {
   ChatContactsListVersion(String val) : super(val);
 }
 
 /// Cursor used for [ChatContact]s pagination.
 @HiveType(typeId: ModelTypeId.chatContactsCursor)
+@ArtemisCustomType()
 class ChatContactsCursor extends NewType<String> {
   ChatContactsCursor(String val) : super(val);
 }

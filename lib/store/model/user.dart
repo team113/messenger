@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '/util/new_type.dart';
@@ -25,12 +26,14 @@ part 'user.g.dart';
 
 /// Version of an [User]'s state.
 @HiveType(typeId: ModelTypeId.userVersion)
+@ArtemisCustomType()
 class UserVersion extends Version {
   UserVersion(String val) : super(val);
 }
 
 /// Cursor used for [User]s pagination.
 @HiveType(typeId: ModelTypeId.usersCursor)
+@ArtemisCustomType()
 class UsersCursor extends NewType<String> {
   UsersCursor(String val) : super(val);
 }

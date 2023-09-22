@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
 
@@ -194,6 +195,7 @@ class MyUserEmails {
 }
 
 /// Confirmation code used by [MyUser].
+@ArtemisCustomType()
 class ConfirmationCode extends NewType<String> {
   const ConfirmationCode._(String val) : super(val);
 

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
@@ -39,6 +40,7 @@ class Session extends HiveObject {
 }
 
 /// Unique authentication token of a [Session].
+@ArtemisCustomType()
 @HiveType(typeId: ModelTypeId.accessToken)
 class AccessToken extends NewType<String> {
   const AccessToken(String val) : super(val);
@@ -67,6 +69,7 @@ class RememberedSession extends HiveObject {
 }
 
 /// Type of a [RememberedSession]'s refresh token.
+@ArtemisCustomType()
 @HiveType(typeId: ModelTypeId.rememberedToken)
 class RefreshToken extends NewType<String> {
   const RefreshToken(String val) : super(val);

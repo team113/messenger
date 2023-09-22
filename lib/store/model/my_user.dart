@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
@@ -25,18 +26,21 @@ part 'my_user.g.dart';
 
 /// Version of [MyUser]'s state.
 @HiveType(typeId: ModelTypeId.myUserVersion)
+@ArtemisCustomType()
 class MyUserVersion extends Version {
   MyUserVersion(String val) : super(val);
 }
 
 /// Version of a [ChatDirectLink]'s state.
 @HiveType(typeId: ModelTypeId.chatDirectLinkVersion)
+@ArtemisCustomType()
 class ChatDirectLinkVersion extends Version {
   ChatDirectLinkVersion(String val) : super(val);
 }
 
 /// Cursor of blacklisted [User]s.
 @HiveType(typeId: ModelTypeId.blacklistCursor)
+@ArtemisCustomType()
 class BlocklistCursor extends NewType<String> {
   BlocklistCursor(String val) : super(val);
 }

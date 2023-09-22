@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
@@ -112,6 +113,7 @@ class ChatCallMember {
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
 /// server.
 @HiveType(typeId: ModelTypeId.chatCallCredentials)
+@ArtemisCustomType()
 class ChatCallCredentials extends HiveObject {
   ChatCallCredentials(this.val);
 
@@ -133,12 +135,14 @@ class ChatCallCredentials extends HiveObject {
 
 /// Link for joining a [ChatCall] room on a media server.
 @HiveType(typeId: ModelTypeId.chatCallRoomJoinLink)
+@ArtemisCustomType()
 class ChatCallRoomJoinLink extends NewType<String> {
   const ChatCallRoomJoinLink(String val) : super(val);
 }
 
 /// ID of the device the authenticated [MyUser] starts a [ChatCall] from.
 @HiveType(typeId: ModelTypeId.chatCallDeviceId)
+@ArtemisCustomType()
 class ChatCallDeviceId extends NewType<String> {
   const ChatCallDeviceId(String val) : super(val);
 }

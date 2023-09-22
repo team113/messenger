@@ -17,6 +17,7 @@
 
 import 'dart:math';
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -141,6 +142,7 @@ class User extends HiveObject {
 ///
 /// See more details in [User.id].
 @HiveType(typeId: ModelTypeId.userId)
+@ArtemisCustomType()
 class UserId extends NewType<String> {
   const UserId(String val) : super(val);
 }
@@ -149,6 +151,7 @@ class UserId extends NewType<String> {
 ///
 /// See more details in [User.num].
 @HiveType(typeId: ModelTypeId.userNum)
+@ArtemisCustomType()
 class UserNum extends NewType<String> {
   const UserNum._(String val) : super(val);
 
@@ -187,6 +190,7 @@ class UserNum extends NewType<String> {
 /// [UserLogin] allows [User] to perform a sign-in, when combined with a
 /// password.
 @HiveType(typeId: ModelTypeId.userLogin)
+@ArtemisCustomType()
 class UserLogin extends NewType<String> {
   const UserLogin._(String val) : super(val);
 
@@ -209,6 +213,7 @@ class UserLogin extends NewType<String> {
 ///
 /// See more details in [User.name].
 @HiveType(typeId: ModelTypeId.userName)
+@ArtemisCustomType()
 class UserName extends NewType<String> {
   const UserName._(String val) : super(val);
 
@@ -229,6 +234,7 @@ class UserName extends NewType<String> {
 ///
 /// Password allows [User] to perform a sign-in, when combined with a
 /// [UserLogin], [UserNum], [UserEmail] or [UserPhone].
+@ArtemisCustomType()
 class UserPassword extends NewType<String> {
   const UserPassword._(String val) : super(val);
 
@@ -251,6 +257,7 @@ class UserPassword extends NewType<String> {
 
 /// Email address of an [User].
 @HiveType(typeId: ModelTypeId.userEmail)
+@ArtemisCustomType()
 class UserEmail extends NewType<String> {
   const UserEmail._(String val) : super(val);
 
@@ -266,6 +273,7 @@ class UserEmail extends NewType<String> {
 
 /// Phone number of an [User].
 @HiveType(typeId: ModelTypeId.userPhone)
+@ArtemisCustomType()
 class UserPhone extends NewType<String> {
   const UserPhone._(String val) : super(val);
 
@@ -311,6 +319,7 @@ class ChatDirectLink {
 
 /// Slug of a [ChatDirectLink].
 @HiveType(typeId: ModelTypeId.chatDirectLinkSlug)
+@ArtemisCustomType()
 class ChatDirectLinkSlug extends NewType<String> {
   const ChatDirectLinkSlug._(String val) : super(val);
 
@@ -353,6 +362,7 @@ class ChatDirectLinkSlug extends NewType<String> {
 
 /// Status of an [User].
 @HiveType(typeId: ModelTypeId.userTextStatus)
+@ArtemisCustomType()
 class UserTextStatus extends NewType<String> {
   const UserTextStatus._(String val) : super(val);
 
@@ -399,6 +409,7 @@ class BlocklistRecord {
 
 /// Reason of blocking a [User] by the authenticated [MyUser].
 @HiveType(typeId: ModelTypeId.blocklistReason)
+@ArtemisCustomType()
 class BlocklistReason extends NewType<String> {
   const BlocklistReason(super.val);
 }

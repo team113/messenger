@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:artemis_custom_gen/artemis_custom_gen.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -277,6 +278,7 @@ class LastChatRead {
 }
 
 /// Unique ID of a [Chat].
+@ArtemisCustomType()
 @HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> {
   const ChatId(super.val);
@@ -302,6 +304,7 @@ class ChatId extends NewType<String> {
 ///
 /// Only [Chat]-group can have a name.
 @HiveType(typeId: ModelTypeId.chatName)
+@ArtemisCustomType()
 class ChatName extends NewType<String> {
   const ChatName._(String val) : super(val);
 
@@ -320,6 +323,7 @@ class ChatName extends NewType<String> {
 
 /// Position of this [Chat] in the favorites list of the authenticated [MyUser].
 @HiveType(typeId: ModelTypeId.chatFavoritePosition)
+@ArtemisCustomType()
 class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {
   const ChatFavoritePosition(double val) : super(val);
