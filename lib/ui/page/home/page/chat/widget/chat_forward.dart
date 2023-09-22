@@ -336,8 +336,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             selectable: PlatformUtils.isDesktop || menu,
                             onChanged: (a) => _selection = a,
                             onSelecting: widget.onSelecting,
-                            style:
-                                style.fonts.bodyLarge.copyWith(color: color),
+                            style: style.fonts.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ],
@@ -363,7 +362,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               const Spacer(),
                               MessageTimestamp(
                                 at: _at,
-                                status: SendingStatus.sent,
+                                status: _fromMe ? SendingStatus.sent : null,
                                 read: _isRead,
                                 delivered: widget.chat.value?.lastDelivery
                                         .isBefore(_at) ==
@@ -458,8 +457,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             selectable: PlatformUtils.isDesktop || menu,
                             onChanged: (a) => _selection = a,
                             onSelecting: widget.onSelecting,
-                            style:
-                                style.fonts.bodyLarge.copyWith(color: color),
+                            style: style.fonts.bodyLarge.copyWith(color: color),
                           ),
                         ),
                       ),

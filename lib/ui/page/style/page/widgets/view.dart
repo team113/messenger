@@ -15,14 +15,23 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_call.dart';
+import 'package:messenger/domain/model/chat_info.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
+import 'package:messenger/domain/model/file.dart';
+import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -31,6 +40,7 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/call_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_forward.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/unread_label.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/video/widget/expand_button.dart';
@@ -59,6 +69,7 @@ import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/ui/page/style/widget/scrollable_column.dart';
+import 'widget/expandable_block.dart';
 import 'widget/playable_asset.dart';
 
 /// Widgets view of the [Routes.style] page.
@@ -105,6 +116,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           // const Header('Widgets'),
           // const SubHeader('Images'),
           _images(context),
+          _chat(context),
           _animations(context),
           // _avatars(context),
           // _fields(context),
@@ -113,7 +125,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           _containment(context),
           _system(context),
           _navigation(context),
-          _chat(context),
+
           Block(
             headline: 'Sounds',
             children: [
@@ -1055,20 +1067,77 @@ class _WidgetsViewState extends State<WidgetsView> {
 
   /// Builds the animation [Column].
   Widget _chat(BuildContext context) {
-    // final style = Theme.of(context).style;
+    final style = Theme.of(context).style;
 
     ChatItem message({
       bool fromMe = true,
       SendingStatus status = SendingStatus.sent,
-      String text = 'Lorem ipsum',
+      String? text = 'Lorem ipsum',
+      List<String> attachments = const [],
+      List<ChatItemQuote> repliesTo = const [],
     }) {
       return ChatMessage(
         ChatItemId.local(),
         ChatId.local(const UserId('me')),
         User(UserId(fromMe ? 'me' : '0'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
-        text: ChatMessageText(text),
+        text: text == null ? null : ChatMessageText(text),
+        attachments: attachments.map((e) {
+          if (e == 'file') {
+            return FileAttachment(
+              id: AttachmentId.local(),
+              original: PlainFile(relativeRef: '', size: 12300000),
+              filename: 'Document.pdf',
+            );
+          } else {
+            return LocalAttachment(
+              NativeFile(
+                name: 'Image',
+                size: 2,
+                bytes: base64Decode(
+                  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+                ),
+              ),
+              status: SendingStatus.sent,
+            );
+          }
+        }).toList(),
         status: status,
+        repliesTo: repliesTo,
+      );
+    }
+
+    ChatItem info({
+      bool fromMe = true,
+      required ChatInfoAction action,
+    }) {
+      return ChatInfo(
+        ChatItemId.local(),
+        ChatId.local(const UserId('me')),
+        User(UserId(fromMe ? 'me' : '0'), UserNum('1234123412341234')),
+        PreciseDateTime.now(),
+        action: action,
+      );
+    }
+
+    ChatItem call({
+      bool fromMe = true,
+      bool withVideo = false,
+      bool started = false,
+      int? finishReasonIndex,
+    }) {
+      return ChatCall(
+        const ChatItemId('dwd'),
+        ChatId.local(const UserId('me')),
+        User(UserId(fromMe ? 'me' : '0'), UserNum('1234123412341234')),
+        PreciseDateTime.now(),
+        withVideo: withVideo,
+        members: [],
+        conversationStartedAt: started
+            ? PreciseDateTime.now().subtract(const Duration(hours: 1))
+            : null,
+        finishReasonIndex: finishReasonIndex,
+        finishedAt: finishReasonIndex == null ? null : PreciseDateTime.now(),
       );
     }
 
@@ -1107,26 +1176,66 @@ class _WidgetsViewState extends State<WidgetsView> {
       );
     }
 
+    Widget chatForward(
+      List<ChatItem> v, {
+      ChatItem? note,
+      bool delivered = false,
+      bool read = false,
+      bool fromMe = true,
+      ChatKind kind = ChatKind.dialog,
+    }) {
+      return ChatForwardWidget(
+        forwards: RxList(
+          v
+              .map(
+                (e) => Rx(
+                  ChatForward(
+                    e.id,
+                    e.chatId,
+                    e.author,
+                    e.at,
+                    quote: ChatItemQuote.from(e),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+        authorId: fromMe ? const UserId('me') : const UserId('0'),
+        note: Rx(note == null ? null : Rx(note)),
+        chat: Rx(
+          Chat(
+            ChatId.local(const UserId('me')),
+            kindIndex: kind.index,
+            lastDelivery: delivered
+                ? null
+                : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+            lastReads: [
+              if (read)
+                LastChatRead(
+                  const UserId('fqw'),
+                  PreciseDateTime(DateTime(15000)),
+                ),
+            ],
+          ),
+        ),
+        me: const UserId('me'),
+        reads: [
+          if (read)
+            LastChatRead(
+              const UserId('fqw'),
+              PreciseDateTime(DateTime(15000)),
+            ),
+        ],
+      );
+    }
+
     return Column(
       children: [
-        const Block(title: 'UnreadLabel', children: [UnreadLabel(123)]),
-        Block(
-          title: 'ChatItemWidget',
+        const Block(headline: 'UnreadLabel', children: [UnreadLabel(123)]),
+        ExpandableBlock(
+          // color: style.colors.background,
+          headline: 'ChatItemWidget',
           children: [
-            // Monolog.
-            chatItem(
-              message(),
-              kind: ChatKind.monolog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(),
-              kind: ChatKind.monolog,
-              read: true,
-            ),
-            const SizedBox(height: 32),
-
-            // Dialog.
             chatItem(
               message(status: SendingStatus.sending, text: 'Sending...'),
               kind: ChatKind.dialog,
@@ -1149,46 +1258,336 @@ class _WidgetsViewState extends State<WidgetsView> {
             ),
             const SizedBox(height: 8),
             chatItem(
-              message(status: SendingStatus.sent, text: 'Read message'),
+              message(status: SendingStatus.sent, text: 'Read text message'),
               kind: ChatKind.dialog,
               read: true,
             ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: 'Received text message',
+                fromMe: false,
+              ),
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
 
-            const SizedBox(height: 32),
-
-            // Group.
+            // Replies.
             chatItem(
-              message(status: SendingStatus.sending),
-              kind: ChatKind.group,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.error),
-              kind: ChatKind.group,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.sent),
-              kind: ChatKind.group,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.sent),
-              kind: ChatKind.group,
-              delivered: true,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.sent),
-              kind: ChatKind.group,
+              message(
+                status: SendingStatus.sent,
+                text: 'Sent reply',
+                fromMe: true,
+                repliesTo: [
+                  ChatMessageQuote(
+                    author: const UserId('me'),
+                    at: PreciseDateTime.now(),
+                    text: const ChatMessageText('Replied message'),
+                  )
+                ],
+              ),
               read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: 'Received reply',
+                fromMe: false,
+                repliesTo: [
+                  ChatMessageQuote(
+                    author: const UserId('me'),
+                    at: PreciseDateTime.now(),
+                    text: const ChatMessageText('Replied message'),
+                  )
+                ],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // Image attachments.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: true,
+                attachments: ['image'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: false,
+                attachments: ['image'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // File attachments.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                fromMe: true,
+                attachments: ['file'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: false,
+                attachments: ['file'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // Images attachments.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                fromMe: true,
+                attachments: [
+                  'file',
+                  'file',
+                  'image',
+                  'image',
+                  'image',
+                  'image',
+                  'image'
+                ],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: false,
+                attachments: ['file', 'file', 'image', 'image', 'image'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
             ),
 
+            // Info.
+            const SizedBox(height: 8),
+            chatItem(info(action: const ChatInfoActionCreated(null))),
+            const SizedBox(height: 8),
+            chatItem(
+              info(
+                action: ChatInfoActionMemberAdded(
+                  User(
+                    const UserId('me'),
+                    UserNum('1234123412341234'),
+                    name: UserName('added'),
+                  ),
+                  null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              info(
+                fromMe: false,
+                action: ChatInfoActionMemberAdded(
+                  User(
+                    const UserId('me'),
+                    UserNum('1234123412341234'),
+                    name: UserName('User'),
+                  ),
+                  null,
+                ),
+              ),
+            ),
+
+            // Call.
+            const SizedBox(height: 8),
+            chatItem(call(), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(withVideo: true, fromMe: false), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(withVideo: true), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(withVideo: true, fromMe: false), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(started: true), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(started: true, fromMe: false), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(finishReasonIndex: 2, started: true), read: true),
+            const SizedBox(height: 8),
+          ],
+        ),
+        Block(
+          // color: style.colors.background,
+          headline: 'ChatForwardWidget',
+          children: [
+            const SizedBox(height: 32),
+            chatForward([message()], read: true),
+            const SizedBox(height: 8),
+            chatForward(
+              [message()],
+              read: true,
+              fromMe: false,
+            ),
             const SizedBox(height: 32),
           ],
         ),
       ],
     );
+
+    // return Column(
+    //   children: [
+    //     const Block(headline: 'UnreadLabel', children: [UnreadLabel(123)]),
+    //     Block(
+    //       color: style.colors.background,
+    //       headline: 'ChatItemWidget',
+    //       children: [
+    //         const SizedBox(height: 32),
+    //         // Monolog.
+    //         chatItem(
+    //           message(),
+    //           kind: ChatKind.monolog,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(),
+    //           kind: ChatKind.monolog,
+    //           read: true,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(
+    //             attachments: [
+    //               LocalAttachment(
+    //                 NativeFile(
+    //                   name: 'Image',
+    //                   size: 2,
+    //                   bytes: base64Decode(
+    //                     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    //                   ),
+    //                 ),
+    //                 status: SendingStatus.sent,
+    //               )
+    //             ],
+    //           ),
+    //           kind: ChatKind.monolog,
+    //           read: true,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(
+    //             repliesTo: [
+    //               ChatMessageQuote(
+    //                 author: const UserId('me'),
+    //                 at: PreciseDateTime.now(),
+    //                 text: const ChatMessageText('Replies!'),
+    //               )
+    //             ],
+    //           ),
+    //           kind: ChatKind.monolog,
+    //           read: true,
+    //         ),
+    //         const SizedBox(height: 32),
+
+    //         // Dialog.
+    //         chatItem(
+    //           message(
+    //             status: SendingStatus.sending,
+    //             text: 'Received message',
+    //             fromMe: false,
+    //           ),
+    //           kind: ChatKind.dialog,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sending, text: 'Sending...'),
+    //           kind: ChatKind.dialog,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.error, text: 'Error ocurred'),
+    //           kind: ChatKind.dialog,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sent, text: 'Sent message'),
+    //           kind: ChatKind.dialog,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sent, text: 'Delivered message'),
+    //           kind: ChatKind.dialog,
+    //           delivered: true,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sent, text: 'Read message'),
+    //           kind: ChatKind.dialog,
+    //           read: true,
+    //         ),
+
+    //         const SizedBox(height: 32),
+
+    //         // Group.
+    //         chatItem(
+    //           message(
+    //             status: SendingStatus.sending,
+    //             text: 'Received message',
+    //             fromMe: false,
+    //           ),
+    //           kind: ChatKind.group,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sending),
+    //           kind: ChatKind.group,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.error),
+    //           kind: ChatKind.group,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sent),
+    //           kind: ChatKind.group,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sent),
+    //           kind: ChatKind.group,
+    //           delivered: true,
+    //         ),
+    //         const SizedBox(height: 8),
+    //         chatItem(
+    //           message(status: SendingStatus.sent),
+    //           kind: ChatKind.group,
+    //           read: true,
+    //         ),
+
+    //         const SizedBox(height: 32),
+    //       ],
+    //     ),
+    //   ],
+    // );
   }
 
   /// Builds the animation [Column].

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -32,6 +33,8 @@ class Block extends StatelessWidget {
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.unconstrained = false,
     this.headline,
+    this.underline,
+    this.color,
   });
 
   /// Optional header of this [Block].
@@ -50,6 +53,9 @@ class Block extends StatelessWidget {
   final bool unconstrained;
 
   final String? headline;
+  final Widget? underline;
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -78,49 +84,67 @@ class Block extends StatelessWidget {
                 child: InputDecorator(
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: style.messageColor,
+                    fillColor: color ?? style.messageColor,
                     focusedBorder: border,
                     errorBorder: border,
                     enabledBorder: border,
                     disabledBorder: border,
                     focusedErrorBorder: border,
                     // contentPadding: EdgeInsets.zero,
-                    contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+                    contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                     border: border,
-                    labelText: headline,
+                    // labelText: headline,
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     floatingLabelStyle: style.fonts.headlineLarge
                         .copyWith(color: style.colors.secondary),
                   ),
-                  child: Container(
-                    width: double.infinity,
-                    // margin: const EdgeInsets.all(1),
-
-                    padding: padding,
-                    child: Column(
-                      crossAxisAlignment: crossAxisAlignment,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (title != null)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                child: Text(
-                                  title!,
-                                  textAlign: TextAlign.center,
-                                  style: style.fonts.headlineMedium,
+                  child: Stack(
+                    children: [
+                      Container(
+                        key: Key('${children.length}'),
+                        width: double.infinity,
+                        padding: padding,
+                        child: Column(
+                          crossAxisAlignment: crossAxisAlignment,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (title != null)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                                child: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    child: Text(
+                                      title!,
+                                      textAlign: TextAlign.center,
+                                      style: style.fonts.headlineMedium,
+                                    ),
+                                  ),
                                 ),
                               ),
+                            ...children,
+                          ],
+                        ),
+                      ),
+                      if (headline != null)
+                        Positioned(
+                          child: Text(
+                            headline!,
+                            style: style.fonts.headlineSmall.copyWith(
+                              color: style.colors.secondaryHighlightDarkest,
                             ),
                           ),
-                        ...children,
-                      ],
-                    ),
+                        ),
+                      if (underline != null)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: underline!,
+                        ),
+                    ],
                   ),
                 ),
               ),
