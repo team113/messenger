@@ -18,15 +18,12 @@
 import 'package:flutter/material.dart';
 
 import '/config.dart';
-import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
-/// [FieldButton] stylized with the provided [asset] and [title] downloading a
+/// [PrefixButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
 class DownloadButton extends StatelessWidget {
   const DownloadButton({
@@ -57,39 +54,24 @@ class DownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return FieldButton(
-      text: 'space'.l10n * 4 + title,
-      textAlign: TextAlign.center,
+    return PrefixButton(
+      title: title,
       onPressed: link == null
           ? null
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
-      onTrailingPressed: () {
-        if (link != null) {
-          PlatformUtils.copy(text: '${Config.origin}/artifacts/$link');
-          MessagePopup.success('label_copied'.l10n);
-        }
-      },
       prefix: asset == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Transform.scale(
-                scale: 2,
-                child: SvgImage.asset(
-                  'assets/icons/$asset.svg',
-                  width: width == null ? null : width! / 2,
-                  height: height == null ? null : height! / 2,
-                ),
+              padding: const EdgeInsets.only(left: 20),
+              child: SvgImage.asset(
+                'assets/icons/$asset.svg',
+                width: width,
+                height: height,
               ),
             ),
-      trailing: Transform.translate(
-        offset: const Offset(0, -1),
-        child: Transform.scale(
-          scale: 1.15,
-          child: const SvgImage.asset('assets/icons/copy.svg', height: 15),
-        ),
-      ),
-      style: style.fonts.titleMediumPrimary,
+      style: link == null
+          ? style.fonts.titleMedium
+          : style.fonts.titleMediumPrimary,
     );
   }
 }

@@ -172,7 +172,7 @@ class AuthService extends GetxService {
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
   ///
-  /// Sends a recovery [ConfirmationCode] to [MyUser]'s `email` and `phone`.
+  /// Sends a recovery [ConfirmationCode] to [MyUser]'s [email] and [phone].
   ///
   /// If [MyUser] has no password yet, then this method still may be used for
   /// recovering his sign-in capability.
@@ -253,17 +253,44 @@ class AuthService extends GetxService {
     });
   }
 
+  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
+  ///
+  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
+  /// [confirmSignUpEmail] in order to successfully sign up.
+  ///
+  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
+  Future<void> signUpWithEmail(UserEmail email) =>
+      _authRepository.signUpWithEmail(email);
+
+  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
+  Future<void> confirmSignUpEmail(ConfirmationCode code) async {
+    try {
+      final Credentials creds = await _authRepository.confirmSignUpEmail(code);
+      _authorized(creds);
+      _sessionProvider.setCredentials(creds);
+    } catch (e) {
+      _unauthorized();
+      rethrow;
+    }
+  }
+
+  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
+  /// [signUpWithEmail].
+  Future<void> resendSignUpEmail() => _authRepository.resendSignUpEmail();
+
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
   ///
   /// The created [Session] expires in 1 day after creation.
   ///
   /// Throws [CreateSessionException].
-  Future<void> signIn(UserPassword password,
-      {UserLogin? login,
-      UserNum? num,
-      UserEmail? email,
-      UserPhone? phone}) async {
+  Future<void> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  }) async {
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {

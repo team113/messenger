@@ -28,6 +28,12 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   String? clipboard;
 
   @override
+  Future<bool> get isActive => Future.value(true);
+
+  @override
+  Stream<bool> get onActivityChanged => Stream.value(true);
+
+  @override
   Future<File?> download(
     String url,
     String filename,
