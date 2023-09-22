@@ -25,7 +25,6 @@ enum TestUser {
   Bob,
   Charlie,
   Dave,
-  FindMe,
 }
 
 /// [CustomParameter] of [TestUser]s representing an [User] of a test.
