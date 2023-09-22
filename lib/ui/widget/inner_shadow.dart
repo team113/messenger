@@ -81,15 +81,8 @@ class RenderInnerShadow extends RenderProxyBox {
 
     final Rect rectOuter = offset & size;
 
-    final Canvas canvas = context.canvas
-      ..saveLayer(
-        rectOuter,
-        Paint(),
-      );
-    context.paintChild(
-      child!,
-      offset,
-    );
+    final Canvas canvas = context.canvas..saveLayer(rectOuter, Paint());
+    context.paintChild(child!, offset);
 
     canvas.saveLayer(rectOuter, Paint()..blendMode = BlendMode.srcATop);
 
