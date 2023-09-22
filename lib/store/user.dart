@@ -126,8 +126,6 @@ class UserRepository implements AbstractUserRepository {
         onKey: (RxUser u) => u.id,
       );
     }
-    final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
-        SearchResultImpl(pagination: pagination);
 
     final List<RxUser> users = this
         .users
@@ -141,25 +139,26 @@ class UserRepository implements AbstractUserRepository {
                     true))
         .toList();
 
-    searchResult.items.value = {for (var u in users) u.id: u};
-    searchResult.status.value =
-        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
-
-    void add(RxUser? u) {
+    Map<UserId, RxUser> toMap(RxUser? u) {
       if (u != null) {
-        searchResult.items[u.id] = u;
+        return {u.id: u};
       }
+
+      return {};
     }
 
-    List<Future> futures = [
-      if (num != null) searchByNum(num).then(add),
-      if (name != null) searchResult.pagination!.around(),
-      if (login != null) searchByLogin(login).then(add),
-      if (link != null) searchByLink(link).then(add),
+    List<Future<Map<UserId, RxUser>>> futures = [
+      if (num != null) searchByNum(num).then(toMap),
+      if (login != null) searchByLogin(login).then(toMap),
+      if (link != null) searchByLink(link).then(toMap),
     ];
 
-    Future.wait(futures)
-        .then((_) => searchResult.status.value = RxStatus.success());
+    final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
+        SearchResultImpl(
+      pagination: pagination,
+      initialItems: {for (var u in users) u.id: u},
+      initialFutures: futures,
+    );
 
     return searchResult;
   }
@@ -458,7 +457,11 @@ class UserRepository implements AbstractUserRepository {
 /// Result of a search query.
 class SearchResultImpl<K extends Comparable, T, C>
     implements SearchResult<K, T> {
-  SearchResultImpl({this.pagination}) {
+  SearchResultImpl({
+    this.pagination,
+    Map<K, T> initialItems = const {},
+    List<Future<Map<K, T>>> initialFutures = const [],
+  }) {
     if (pagination != null) {
       _paginationSubscription = pagination!.changes.listen((event) {
         switch (event.op) {
@@ -472,6 +475,24 @@ class SearchResultImpl<K extends Comparable, T, C>
             break;
         }
       });
+    }
+
+    List<Future> futures = initialFutures
+        .map((e) => e.then((value) => items.addAll(value)))
+        .toList();
+
+    if (pagination != null) {
+      futures.add(pagination!.around());
+    }
+
+    if (initialItems.isNotEmpty) {
+      items.value = initialItems;
+      status.value = RxStatus.loadingMore();
+    } else if (futures.isNotEmpty) {
+      status.value = RxStatus.loading();
+
+      Future.wait(futures)
+          .whenComplete(() => status.value = RxStatus.success());
     }
   }
 

@@ -266,8 +266,6 @@ class ContactRepository implements AbstractContactRepository {
         onKey: (RxChatContact u) => u.id,
       );
     }
-    final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
-        searchResult = SearchResultImpl(pagination: pagination);
 
     final List<RxChatContact> contacts = [
       ...this.contacts.values,
@@ -283,24 +281,25 @@ class ContactRepository implements AbstractContactRepository {
                     true))
         .toList();
 
-    searchResult.items.value = {for (var u in contacts) u.id: u};
-    searchResult.status.value =
-        contacts.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
-
-    void add(RxChatContact? c) {
+    Map<ChatContactId, RxChatContact> toMap(RxChatContact? c) {
       if (c != null) {
-        searchResult.items[c.id] = c;
+        return {c.id: c};
       }
+
+      return {};
     }
 
-    List<Future> futures = [
-      if (name != null) searchResult.pagination!.around(),
-      if (email != null) searchByEmail(email).then(add),
-      if (phone != null) searchByPhone(phone).then(add),
+    List<Future<Map<ChatContactId, RxChatContact>>> futures = [
+      if (email != null) searchByEmail(email).then(toMap),
+      if (phone != null) searchByPhone(phone).then(toMap),
     ];
 
-    Future.wait(futures)
-        .then((_) => searchResult.status.value = RxStatus.success());
+    final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
+        searchResult = SearchResultImpl(
+      pagination: pagination,
+      initialItems: {for (var u in contacts) u.id: u},
+      initialFutures: futures,
+    );
 
     return searchResult;
   }
