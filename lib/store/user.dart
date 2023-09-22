@@ -506,8 +506,12 @@ class SearchResultImpl<K extends Comparable, T, C>
       }
 
       int length = items.length;
-      while (hasNext.isTrue && length == items.length) {
+      for (int i = 0; i < 10; i++) {
         await pagination!.next();
+
+        if (length != items.length || hasNext.isFalse) {
+          break;
+        }
       }
 
       status.value = RxStatus.success();
