@@ -250,8 +250,8 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> remove(ChatId id) {
     chats.remove(id)?.dispose();
-    // TODO(review): shouldn't it be `_pagination.remove`?
     paginated.remove(id);
+    _pagination?.remove(id);
     return _chatLocal.remove(id);
   }
 
@@ -868,9 +868,9 @@ class ChatRepository extends DisposableInterface
           events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
           yield const ChatEventsInitialized();
         } else if (events.$$typename == 'Chat') {
-          final event = events as ChatEvents$Subscription$ChatEvents$Chat;
-          final chat = _chat(event);
-          yield ChatEventsChat(chat);
+          final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+          final data = _chat(chat);
+          yield ChatEventsChat(data.chat);
         } else if (events.$$typename == 'ChatEventsVersioned') {
           var mixin =
               events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
@@ -1322,7 +1322,7 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  /// Initializes [_pagination].
+  /// Initializes the [_pagination].
   Future<void> _initPagination() async {
     status.value = RxStatus.loading();
 
@@ -1440,7 +1440,9 @@ class ChatRepository extends DisposableInterface
         .recentChats;
 
     return Page(
-      RxList(query.edges.map((e) => _chat(e.node, e.cursor).chat).toList()),
+      RxList(query.edges
+          .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
+          .toList()),
       query.pageInfo.toModel((c) => RecentChatsCursor(c)),
     );
   }
@@ -1463,7 +1465,9 @@ class ChatRepository extends DisposableInterface
             .favoriteChats;
 
     return Page(
-      RxList(query.edges.map((e) => _chat(e.node).chat).toList()),
+      RxList(query.edges
+          .map((e) => _chat(e.node, favoriteCursor: e.cursor).chat)
+          .toList()),
       query.pageInfo.toModel((c) => FavoriteChatsCursor(c)),
     );
   }
@@ -1519,12 +1523,16 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Constructs a new [ChatData] from the given [ChatMixin] fragment.
-  ChatData _chat(ChatMixin q, [RecentChatsCursor? cursor]) {
+  ChatData _chat(
+    ChatMixin q, {
+    RecentChatsCursor? recentCursor,
+    FavoriteChatsCursor? favoriteCursor,
+  }) {
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toHive());
     }
 
-    return q.toData(cursor);
+    return q.toData(recentCursor, favoriteCursor);
   }
 
   /// Initializes [_favoriteChatsEvents] subscription.

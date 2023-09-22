@@ -186,8 +186,8 @@ class Pagination<T, C, K> {
     if (hasPrevious.isTrue && previousLoading.isFalse) {
       previousLoading.value = true;
 
-      final Page<T, C>? page;
-      page = await provider.before(items.first, startCursor, perPage);
+      final Page<T, C>? page =
+          await provider.before(items.first, startCursor, perPage);
       Log.print(
         'previous()... fetched ${page?.edges.length} items',
         'Pagination',

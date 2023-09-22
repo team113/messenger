@@ -22,8 +22,8 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
-import '/store/chat.dart';
 import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
@@ -87,7 +87,7 @@ class ChatEventsChat extends ChatEvents {
   const ChatEventsChat(this.chat);
 
   /// Initial state itself.
-  final ChatData chat;
+  final HiveChat chat;
 
   @override
   ChatEventsKind get kind => ChatEventsKind.chat;
