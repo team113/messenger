@@ -39,6 +39,7 @@ Feature: Introduction
 
     When I tap `SignInButton` button
     And I wait until `LoginView` is present
+    And I tap `PasswordButton` button
     And I paste to `UsernameField` field
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button

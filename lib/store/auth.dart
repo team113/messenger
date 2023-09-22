@@ -21,6 +21,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 
@@ -32,6 +33,11 @@ class AuthRepository implements AbstractAuthRepository {
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
+
+  // TODO: Temporary solution, wait for support from backend.
+  /// [Credentials] of [Session] created with [signUpWithEmail] returned in
+  /// successful [confirmSignUpEmail].
+  Credentials? _signUpCredentials;
 
   @override
   set token(AccessToken? token) {
@@ -85,6 +91,41 @@ class AuthRepository implements AbstractAuthRepository {
       response.user.id,
     );
   }
+
+  @override
+  Future<void> signUpWithEmail(UserEmail email) async {
+    _signUpCredentials = null;
+
+    final response = await _graphQlProvider.signUp();
+
+    // TODO: Add `Credentials` to backend extensions.
+    _signUpCredentials = Credentials(
+      Session(
+        response.createUser.session.token,
+        response.createUser.session.expireAt,
+      ),
+      RememberedSession(
+        response.createUser.remembered!.token,
+        response.createUser.remembered!.expireAt,
+      ),
+      response.createUser.user.id,
+    );
+
+    await _graphQlProvider.addUserEmail(
+      email,
+      raw: RawClientOptions(_signUpCredentials!.session.token),
+    );
+  }
+
+  @override
+  Future<Credentials> confirmSignUpEmail(ConfirmationCode code) async {
+    await _graphQlProvider.confirmEmailCode(code);
+    return _signUpCredentials!;
+  }
+
+  @override
+  Future<void> resendSignUpEmail() async =>
+      await _graphQlProvider.resendEmail();
 
   @override
   Future<void> logout() async => await _graphQlProvider.deleteSession();
