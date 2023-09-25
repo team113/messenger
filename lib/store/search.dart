@@ -35,7 +35,7 @@ class SearchResultImpl<K extends Comparable, T, C>
 
     for (var f in initial) {
       if (f is Future<Map<K, T>>) {
-        futures.add(f..then((value) => items.add(value)));
+        futures.add(f..then(this.items.addAll));
       } else {
         items.add(f);
       }
