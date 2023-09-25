@@ -372,7 +372,7 @@ class SearchController extends GetxController {
 
   /// Searches the [User]s based on the provided [query].
   ///
-  /// Query may be a [UserNum], [UserName] or [UserLogin].
+  /// Query may be a [UserNum], [UserName], [UserLogin] or [ChatDirectLinkSlug].
   void _searchUsers(String query) {
     _usersSearchStatusWorker?.dispose();
     _usersSearchStatusWorker = null;

@@ -462,6 +462,12 @@ class SearchResultImpl<K extends Comparable, T, C>
     Map<K, T> initialItems = const {},
     List<Future<Map<K, T>>> initialFutures = const [],
   }) {
+    items.value = initialItems;
+
+    List<Future> futures = initialFutures
+        .map((e) => e.then((value) => items.addAll(value)))
+        .toList();
+
     if (pagination != null) {
       _paginationSubscription = pagination!.changes.listen((event) {
         switch (event.op) {
@@ -475,21 +481,20 @@ class SearchResultImpl<K extends Comparable, T, C>
             break;
         }
       });
-    }
 
-    List<Future> futures = initialFutures
-        .map((e) => e.then((value) => items.addAll(value)))
-        .toList();
-
-    if (pagination != null) {
       futures.add(pagination!.around());
     }
 
-    if (initialItems.isNotEmpty) {
-      items.value = initialItems;
-      status.value = RxStatus.loadingMore();
-    } else if (futures.isNotEmpty) {
-      status.value = RxStatus.loading();
+    if (initialItems.isNotEmpty && futures.isEmpty) {
+      status.value = RxStatus.success();
+    }
+
+    if (futures.isNotEmpty) {
+      if (initialItems.isNotEmpty) {
+        status.value = RxStatus.loadingMore();
+      } else {
+        status.value = RxStatus.loading();
+      }
 
       Future.wait(futures)
           .whenComplete(() => status.value = RxStatus.success());
