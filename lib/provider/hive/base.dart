@@ -99,13 +99,9 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Removes all entries from the [Box].
   @mustCallSuper
   Future<void> clear() async {
-    //return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        print('clear start');
-        await box.clear();
-        print('clear end');
-      }
-    //});
+    if (_isReady && _box.isOpen) {
+      await box.clear();
+    }
   }
 
   /// Closes the [Box].
@@ -116,9 +112,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
         _isReady = false;
 
         try {
-          print('close start');
           await _box.close();
-          print('close end');
         } on FileSystemException {
           // No-op.
         }
@@ -134,23 +128,16 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
   Future<void> putSafe(dynamic key, T value) async {
-    //return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        print('putSafe start');
-        await _box.put(key, value);
-        print('putSafe end');
-      }
-    //});
+    if (_isReady && _box.isOpen) {
+      await _box.put(key, value);
+    }
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
   T? getSafe(dynamic key, {T? defaultValue}) {
     if (_isReady && _box.isOpen) {
-      print('getSafe start');
-      var t = box.get(key, defaultValue: defaultValue);
-      print('getSafe end');
-      return t;
+      return box.get(key, defaultValue: defaultValue);
     }
     return null;
   }
@@ -158,13 +145,9 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) async {
-    //return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        print('deleteSafe start');
-        await _box.delete(key);
-        print('deleteSafe end');
-      }
-    //});
+    if (_isReady && _box.isOpen) {
+      await _box.delete(key);
+    }
   }
 }
 
