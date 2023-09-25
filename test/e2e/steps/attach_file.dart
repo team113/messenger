@@ -56,7 +56,7 @@ final StepDefinitionGeneric attachFile =
               Get.find<ChatController>(tag: router.route.split('/').last);
           controller.send.addPlatformAttachment(file);
         }
-        break;dwq
+        break;
 
       case AttachmentType.image:
         final PlatformFile image = PlatformFile(
