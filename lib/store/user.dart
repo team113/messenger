@@ -29,18 +29,19 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/pagination.dart';
-import '/store/user_rx.dart';
 import '/store/pagination/graphql.dart';
-import '/util/obs/obs.dart';
+import '/store/user_rx.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
+import 'search.dart';
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository implements AbstractUserRepository {
@@ -139,6 +140,8 @@ class UserRepository implements AbstractUserRepository {
                     true))
         .toList();
 
+    print('users: $users');
+
     Map<UserId, RxUser> toMap(RxUser? u) {
       if (u != null) {
         return {u.id: u};
@@ -147,17 +150,15 @@ class UserRepository implements AbstractUserRepository {
       return {};
     }
 
-    List<Future<Map<UserId, RxUser>>> futures = [
-      if (num != null) searchByNum(num).then(toMap),
-      if (login != null) searchByLogin(login).then(toMap),
-      if (link != null) searchByLink(link).then(toMap),
-    ];
-
     final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
         SearchResultImpl(
       pagination: pagination,
-      initialItems: {for (var u in users) u.id: u},
-      initialFutures: futures,
+      initial: [
+        {for (var u in users) u.id: u},
+        if (num != null) searchByNum(num).then(toMap),
+        if (login != null) searchByLogin(login).then(toMap),
+        if (link != null) searchByLink(link).then(toMap),
+      ],
     );
 
     return searchResult;
@@ -450,97 +451,6 @@ class UserRepository implements AbstractUserRepository {
       return EventBlocklistRecordRemoved(e.user.toHive(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
-    }
-  }
-}
-
-/// Result of a search query.
-class SearchResultImpl<K extends Comparable, T, C>
-    implements SearchResult<K, T> {
-  SearchResultImpl({
-    this.pagination,
-    Map<K, T> initialItems = const {},
-    List<Future<Map<K, T>>> initialFutures = const [],
-  }) {
-    items.value = initialItems;
-
-    List<Future> futures = initialFutures
-        .map((e) => e.then((value) => items.addAll(value)))
-        .toList();
-
-    if (pagination != null) {
-      _paginationSubscription = pagination!.changes.listen((event) {
-        switch (event.op) {
-          case OperationKind.added:
-            items[event.key!] = event.value as T;
-            break;
-
-          case OperationKind.removed:
-          case OperationKind.updated:
-            // No-op.
-            break;
-        }
-      });
-
-      futures.add(pagination!.around());
-    }
-
-    if (initialItems.isNotEmpty && futures.isEmpty) {
-      status.value = RxStatus.success();
-    }
-
-    if (futures.isNotEmpty) {
-      if (initialItems.isNotEmpty) {
-        status.value = RxStatus.loadingMore();
-      } else {
-        status.value = RxStatus.loading();
-      }
-
-      Future.wait(futures)
-          .whenComplete(() => status.value = RxStatus.success());
-    }
-  }
-
-  @override
-  final RxMap<K, T> items = RxMap<K, T>();
-
-  @override
-  final Rx<RxStatus> status = Rx(RxStatus.empty());
-
-  /// Pagination fetching [items].
-  final Pagination<T, C, K>? pagination;
-
-  /// [StreamSubscription] to the [Pagination.changes].
-  StreamSubscription? _paginationSubscription;
-
-  @override
-  RxBool get hasNext => pagination?.hasNext ?? RxBool(false);
-
-  @override
-  RxBool get nextLoading => pagination?.nextLoading ?? RxBool(false);
-
-  @override
-  void dispose() {
-    _paginationSubscription?.cancel();
-  }
-
-  @override
-  Future<void> next() async {
-    if (pagination != null && nextLoading.isFalse) {
-      if (status.value.isSuccess) {
-        status.value = RxStatus.loadingMore();
-      }
-
-      int length = items.length;
-      for (int i = 0; i < 10; i++) {
-        await pagination!.next();
-
-        if (length != items.length || hasNext.isFalse) {
-          break;
-        }
-      }
-
-      status.value = RxStatus.success();
     }
   }
 }

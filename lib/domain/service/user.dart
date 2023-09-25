@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import 'disposable_service.dart';
 

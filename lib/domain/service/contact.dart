@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
+import '/domain/repository/search.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
