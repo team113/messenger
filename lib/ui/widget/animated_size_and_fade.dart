@@ -63,6 +63,7 @@ class AnimatedSizeAndFade extends StatelessWidget {
     var animatedSize = AnimatedSize(
       duration: sizeDuration,
       curve: sizeCurve,
+      alignment: alignment,
       child: AnimatedSwitcher(
         duration: fadeDuration,
         switchInCurve: fadeInCurve,

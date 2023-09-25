@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -30,11 +29,13 @@ class Block extends StatelessWidget {
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.children = const [],
+    this.expanded = const [],
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.unconstrained = false,
     this.headline,
     this.underline,
     this.color,
+    this.fade = false,
   });
 
   /// Optional header of this [Block].
@@ -48,6 +49,7 @@ class Block extends StatelessWidget {
 
   /// [Widget]s to display.
   final List<Widget> children;
+  final List<Widget> expanded;
 
   final EdgeInsets padding;
   final bool unconstrained;
@@ -56,6 +58,8 @@ class Block extends StatelessWidget {
   final Widget? underline;
 
   final Color? color;
+
+  final bool fade;
 
   @override
   Widget build(BuildContext context) {
@@ -73,93 +77,152 @@ class Block extends StatelessWidget {
     return HighlightedContainer(
       highlight: highlight == true,
       child: Center(
-        child: Stack(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, headline == null ? 4 : 32, 8, 4),
-              child: ConstrainedBox(
-                constraints: (context.isNarrow || unconstrained)
-                    ? const BoxConstraints.tightForFinite()
-                    : const BoxConstraints(maxWidth: 400),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: color ?? style.messageColor,
-                    focusedBorder: border,
-                    errorBorder: border,
-                    enabledBorder: border,
-                    disabledBorder: border,
-                    focusedErrorBorder: border,
-                    // contentPadding: EdgeInsets.zero,
-                    contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                    border: border,
-                    // labelText: headline,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    floatingLabelStyle: style.fonts.headlineLarge
-                        .copyWith(color: style.colors.secondary),
-                  ),
-                  child: Stack(
-                    children: [
-                      Container(
-                        key: Key('${children.length}'),
-                        width: double.infinity,
-                        padding: padding,
-                        child: Column(
-                          crossAxisAlignment: crossAxisAlignment,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (title != null)
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    child: Text(
-                                      title!,
-                                      textAlign: TextAlign.center,
-                                      style: style.fonts.headlineMedium,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(8, headline == null ? 4 : 32, 8, 4),
+          child: ConstrainedBox(
+            constraints: (context.isNarrow || unconstrained)
+                ? const BoxConstraints.tightForFinite()
+                : const BoxConstraints(maxWidth: 400),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: color ?? style.messageColor,
+                focusedBorder: border,
+                errorBorder: border,
+                enabledBorder: border,
+                disabledBorder: border,
+                focusedErrorBorder: border,
+                // contentPadding: EdgeInsets.zero,
+                contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                border: border,
+                // labelText: headline,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                floatingLabelStyle: style.fonts.headlineLarge
+                    .copyWith(color: style.colors.secondary),
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: padding,
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      alignment: Alignment.topCenter,
+                      curve: Curves.easeInOut,
+                      child: Column(
+                        children: [
+                          Column(
+                            crossAxisAlignment: crossAxisAlignment,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (title != null)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      child: Text(
+                                        title!,
+                                        textAlign: TextAlign.center,
+                                        style: style.fonts.headlineMedium,
+                                      ),
                                     ),
                                   ),
                                 ),
+                              ...children,
+                            ],
+                          ),
+                          IgnorePointer(
+                            child: AnimatedSwitcher(
+                              switchInCurve: Curves.easeInOut,
+                              switchOutCurve: Curves.easeInOut,
+                              duration: const Duration(milliseconds: 300),
+                              layoutBuilder: (current, previous) {
+                                List<Widget> children = previous;
+
+                                if (current != null) {
+                                  if (previous.isEmpty) {
+                                    children = [current];
+                                  } else {
+                                    children = [
+                                      Positioned(
+                                        left: 0.0,
+                                        right: 0.0,
+                                        child: Container(child: previous[0]),
+                                      ),
+                                      current,
+                                    ];
+                                  }
+                                }
+
+                                return Stack(
+                                  clipBehavior: Clip.none,
+                                  alignment: Alignment.topCenter,
+                                  children: children,
+                                );
+                              },
+                              child: Column(
+                                key: Key('${expanded.length}'),
+                                crossAxisAlignment: crossAxisAlignment,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    color: style.colors.transparent,
+                                  ),
+                                  ...expanded,
+                                ],
                               ),
-                            ...children,
-                          ],
-                        ),
-                      ),
-                      if (headline != null)
-                        Positioned(
-                          child: Text(
-                            headline!,
-                            style: style.fonts.headlineSmall.copyWith(
-                              color: style.colors.secondaryHighlightDarkest,
                             ),
                           ),
-                        ),
-                      if (underline != null)
-                        Positioned(
-                          top: 0,
-                          right: 0,
-                          child: underline!,
-                        ),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  if (headline != null)
+                    Positioned(
+                      child: Text(
+                        headline!,
+                        style: style.fonts.headlineSmall.copyWith(
+                          color: style.colors.secondaryHighlightDarkest,
+                        ),
+                      ),
+                    ),
+                  if (underline != null)
+                    Positioned(top: 0, right: 0, child: underline!),
+                  if (fade)
+                    Positioned.fill(
+                      child: Column(
+                        children: [
+                          const Spacer(),
+                          Container(
+                            width: double.infinity,
+                            height: 100,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [0, 0.7, 0.9, 1],
+                                colors: [
+                                  Color(0x00FFFFFF),
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFFFFFFFF),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
-            // if (headline != null)
-            //   Positioned(
-            //     top: -4 + 32 - 4,
-            //     left: 32,
-            //     child: Text(
-            //       headline!,
-            //       textAlign: TextAlign.left,
-            //       style: style.fonts.titleMediumSecondary,
-            //     ),
-            //   ),
-          ],
+          ),
         ),
       ),
     );
