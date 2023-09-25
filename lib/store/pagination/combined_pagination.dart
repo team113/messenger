@@ -24,7 +24,7 @@ import '/store/pagination.dart';
 import '/util/obs/obs.dart';
 
 /// Utility combining [Pagination]s.
-class CombinedPagination<T, K extends Comparable> {
+class CombinedPagination<T, K> {
   const CombinedPagination(this.paginations);
 
   /// [Pagination]s this [CombinedPagination] combines.
