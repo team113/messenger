@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -28,6 +27,7 @@ import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
