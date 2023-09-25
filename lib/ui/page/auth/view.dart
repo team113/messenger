@@ -15,8 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -159,7 +162,9 @@ class AuthView extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              IgnorePointer(child: ColoredBox(color: style.colors.background)),
+              if (!PlatformUtils.isWeb)
+                IgnorePointer(
+                    child: ColoredBox(color: style.colors.background)),
               const IgnorePointer(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',
