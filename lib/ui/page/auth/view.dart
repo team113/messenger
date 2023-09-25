@@ -162,7 +162,8 @@ class AuthView extends StatelessWidget {
             children: [
               if (!PlatformUtils.isWeb)
                 IgnorePointer(
-                    child: ColoredBox(color: style.colors.background)),
+                  child: ColoredBox(color: style.colors.background),
+                ),
               const IgnorePointer(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',
