@@ -118,14 +118,22 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> confirmSignUpEmail(ConfirmationCode code) async {
-    await _graphQlProvider.confirmEmailCode(code);
+  Future<Credentials> confirmSignUpEmail(
+    ConfirmationCode code,
+  ) async {
+    await _graphQlProvider.confirmEmailCode(
+      code,
+      raw: RawClientOptions(_signUpCredentials!.session.token),
+    );
     return _signUpCredentials!;
   }
 
   @override
-  Future<void> resendSignUpEmail() async =>
-      await _graphQlProvider.resendEmail();
+  Future<void> resendSignUpEmail() async {
+    await _graphQlProvider.resendEmail(
+      raw: RawClientOptions(_signUpCredentials!.session.token),
+    );
+  }
 
   @override
   Future<void> logout() async => await _graphQlProvider.deleteSession();

@@ -580,9 +580,12 @@ mixin UserGraphQlMixin {
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-      ConfirmationCode code) async {
+    ConfirmationCode code, {
+    RawClientOptions? raw,
+  }) async {
     final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
+      raw: raw,
       MutationOptions(
         operationName: 'ConfirmUserEmail',
         document: ConfirmUserEmailMutation(variables: variables).document,
@@ -655,8 +658,9 @@ mixin UserGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time generates a new [ConfirmationCode].
-  Future<void> resendEmail() async {
+  Future<void> resendEmail({RawClientOptions? raw}) async {
     await client.mutate(
+      raw: raw,
       MutationOptions(
         operationName: 'ResendUserEmailConfirmation',
         document: ResendUserEmailConfirmationMutation().document,
