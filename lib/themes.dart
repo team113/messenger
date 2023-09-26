@@ -76,6 +76,7 @@ class Themes {
 
     final Fonts fonts = Fonts(
       primary: colors.primary,
+      primaryHighlightLightest: colors.primaryHighlightLightest,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
       danger: colors.dangerColor,
@@ -582,6 +583,7 @@ class Style extends ThemeExtension<Style> {
 class Fonts {
   Fonts({
     Color? primary,
+    Color? primaryHighlightLightest,
     Color? secondary,
     Color? onPrimary,
     Color? danger,
@@ -629,6 +631,7 @@ class Fonts {
     TextStyle? labelSmallOnPrimary,
     required this.bodyLarge,
     TextStyle? bodyLargePrimary,
+    TextStyle? bodyLargePrimaryLight,
     TextStyle? bodyLargeSecondary,
     required this.bodyMedium,
     TextStyle? bodyMediumPrimary,
@@ -701,6 +704,8 @@ class Fonts {
             labelSmallOnPrimary ?? labelSmall.copyWith(color: onPrimary),
         bodyLargePrimary =
             bodyLargePrimary ?? bodyLarge.copyWith(color: primary),
+        bodyLargePrimaryLight = bodyLargePrimaryLight ??
+            bodyLarge.copyWith(color: primaryHighlightLightest),
         bodyLargeSecondary =
             bodyLargeSecondary ?? bodyLarge.copyWith(color: secondary),
         bodyMediumPrimary =
@@ -849,6 +854,9 @@ class Fonts {
 
   /// [bodyLarge] of `primary` color.
   final TextStyle bodyLargePrimary;
+
+  /// [bodyLarge] of `primaryHighlightLightest` color.
+  final TextStyle bodyLargePrimaryLight;
 
   /// [bodyLarge] of `secondary` color.
   final TextStyle bodyLargeSecondary;

@@ -405,6 +405,7 @@ label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
     }
+label_audio_message = Audio message
 label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
@@ -538,6 +539,7 @@ label_forwarded_messages = {$count ->
 }
 label_gallery = Gallery
 label_gb_slash_gb = {$a} GB / {$b} GB
+label_gift = Gift
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -702,6 +704,7 @@ label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
 label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
+label_sticker = Sticker
 label_storage = Storage
 label_subtitle_participants = participants
 label_synchronization = Synchronization...
@@ -738,6 +741,7 @@ label_video_call = Video call{$by ->
         *[other] {" "}by {$by}
     }
 label_video_downloaded = Video downloaded.
+label_video_message = Video message
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_wait_seconds = Wait {$for} s

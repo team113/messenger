@@ -18,7 +18,9 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -34,7 +36,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -428,100 +429,141 @@ class MessageFieldView extends StatelessWidget {
   Widget _buildField(MessageFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
-      constraints: const BoxConstraints(minHeight: 56),
-      decoration: BoxDecoration(color: style.cardColor),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          AnimatedButton(
-            enabled: canAttach,
-            onPressed: canAttach
-                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                    ? c.pickFile
-                    : () async {
-                        c.field.focus.unfocus();
-                        await AttachmentSourceSelector.show(
-                          context,
-                          onPickFile: c.pickFile,
-                          onTakePhoto: c.pickImageFromCamera,
-                          onPickMedia: c.pickMedia,
-                          onTakeVideo: c.pickVideoFromCamera,
-                        );
-                      }
-                : null,
-            child: const SizedBox(
-              width: 56,
-              height: 56,
-              child: Center(
-                child: SvgImage.asset(
-                  'assets/icons/attach.svg',
-                  height: 22,
-                  width: 22,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                bottom: 13,
-              ),
-              child: Transform.translate(
-                offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                child: ReactiveTextField(
-                  onChanged: onChanged,
-                  key: fieldKey ?? const Key('MessageField'),
-                  state: c.field,
-                  hint: 'label_send_message_hint'.l10n,
-                  minLines: 1,
-                  maxLines: 7,
-                  filled: false,
-                  dense: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: style.fonts.bodyLarge,
-                  type: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                ),
-              ),
-            ),
-          ),
-          Obx(() {
-            return GestureDetector(
-              onLongPress: canForward ? c.forwarding.toggle : null,
-              child: WidgetButton(
-                onPressed: c.field.submit,
-                child: AnimatedButton(
-                  child: SizedBox(
-                    width: 56,
-                    height: 56,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: 300.milliseconds,
-                        child: c.forwarding.value
-                            ? const SvgImage.asset(
-                                'assets/icons/forward.svg',
-                                width: 26,
-                                height: 22,
-                              )
-                            : SvgImage.asset(
-                                'assets/icons/send.svg',
-                                key: sendKey ?? const Key('Send'),
-                                height: 22.85,
-                                width: 25.18,
-                              ),
-                      ),
-                    ),
+    return LayoutBuilder(builder: (context, constraints) {
+      return Container(
+        key: c.fieldKey,
+        constraints: const BoxConstraints(minHeight: 56),
+        decoration: BoxDecoration(color: style.cardColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            WidgetButton(
+              onPressed: canAttach ? c.toggleMore : null,
+              child: AnimatedButton(
+                child: SizedBox(
+                  width: 50,
+                  height: 56,
+                  child: Center(
+                    child: Obx(() {
+                      return AnimatedScale(
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.bounceInOut,
+                        scale: c.moreOpened.value ? 1.1 : 1,
+                        child: const SvgImage.asset(
+                          'assets/icons/chat_more.svg',
+                          height: 22,
+                          width: 22,
+                        ),
+                      );
+                    }),
                   ),
                 ),
               ),
-            );
-          }),
-        ],
-      ),
-    );
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                  bottom: 13,
+                ),
+                child: Transform.translate(
+                  offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                  child: ReactiveTextField(
+                    onChanged: onChanged,
+                    key: fieldKey ?? const Key('MessageField'),
+                    state: c.field,
+                    hint: 'label_send_message_hint'.l10n,
+                    minLines: 1,
+                    maxLines: 7,
+                    filled: false,
+                    dense: true,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    style: style.fonts.bodyLarge,
+                    type: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Obx(() {
+              int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                c.canPin.value = c.buttons.length < take;
+              });
+
+              final bool sendable = !c.field.isEmpty.value ||
+                  c.attachments.isNotEmpty ||
+                  c.replied.isNotEmpty;
+
+              return Wrap(
+                children: sendable || c.buttons.isEmpty
+                    ? [
+                        Obx(() {
+                          return GestureDetector(
+                            onLongPress:
+                                canForward ? c.forwarding.toggle : null,
+                            child: WidgetButton(
+                              onPressed: c.field.submit,
+                              child: SizedBox(
+                                width: 50,
+                                height: 56,
+                                child: Center(
+                                  child: AnimatedSwitcher(
+                                    duration: 300.milliseconds,
+                                    child: c.forwarding.value
+                                        ? const AnimatedButton(
+                                            child: SvgImage.asset(
+                                              'assets/icons/forward.svg',
+                                              width: 26,
+                                              height: 22,
+                                            ),
+                                          )
+                                        : AnimatedButton(
+                                            child: SvgImage.asset(
+                                              'assets/icons/send.svg',
+                                              key: sendKey ?? const Key('Send'),
+                                              width: 25.44,
+                                              height: 21.91,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        })
+                      ]
+                    : c.buttons.take(take).toList().reversed.mapIndexed((i, e) {
+                        return WidgetButton(
+                          onPressed: () => e.onPressed?.call(true),
+                          child: SizedBox(
+                            width: 50,
+                            height: 56,
+                            child: Center(
+                              child: AnimatedButton(
+                                child: Transform.translate(
+                                  offset: e.offset,
+                                  child: SvgImage.asset(
+                                    'assets/icons/${e.asset}.svg',
+                                    width: e.assetWidth,
+                                    height: e.assetHeight,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+              );
+            }),
+            const SizedBox(width: 3),
+          ],
+        ),
+      );
+    });
   }
 
   /// Returns a visual representation of the provided [Attachment].
@@ -734,24 +776,7 @@ class MessageFieldView extends StatelessWidget {
                           key: const Key('RemovePickedFile'),
                           onTap: () =>
                               c.attachments.removeWhere((a) => a.value == e),
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            margin: const EdgeInsets.only(left: 8, bottom: 8),
-                            child: Container(
-                              key: const Key('Close'),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: style.cardColor,
-                              ),
-                              alignment: Alignment.center,
-                              child: const SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                width: 7,
-                                height: 7,
-                              ),
-                            ),
-                          ),
+                          child: _close(context),
                         ),
                       );
                     }),
@@ -885,10 +910,8 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text(
-        'label_forwarded_message'.l10n,
-        style: style.fonts.bodyLarge,
-      );
+      content =
+          Text('label_forwarded_message'.l10n, style: style.fonts.bodyLarge);
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.fonts.bodyLarge);
@@ -992,40 +1015,46 @@ class MessageFieldView extends StatelessWidget {
           children: [
             Expanded(child: expanded),
             Obx(() {
-              final Widget child;
-
-              child = WidgetButton(
-                key: const Key('CancelReplyButton'),
-                onPressed: onClose,
-                child: Container(
-                  width: 15,
-                  height: 15,
-                  margin: const EdgeInsets.only(right: 4, top: 4),
-                  child: Container(
-                    key: const Key('Close'),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: style.cardColor,
-                    ),
-                    alignment: Alignment.center,
-                    child: const SvgImage.asset(
-                      'assets/icons/close_primary.svg',
-                      width: 7,
-                      height: 7,
-                    ),
-                  ),
-                ),
-              );
-
               return AnimatedOpacity(
                 duration: 200.milliseconds,
                 opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
                     ? 1
                     : 0,
-                child: child,
+                child: WidgetButton(
+                  key: const Key('CancelReplyButton'),
+                  onPressed: onClose,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                    child: _close(context),
+                  ),
+                ),
               );
             }),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// Close button.
+  Widget _close(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Container(
+      width: 16,
+      height: 16,
+      margin: const EdgeInsets.only(left: 8, bottom: 8),
+      child: Container(
+        key: const Key('Close'),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: style.cardColor,
+        ),
+        alignment: Alignment.center,
+        child: const SvgImage.asset(
+          'assets/icons/close_primary.svg',
+          width: 8,
+          height: 8,
         ),
       ),
     );

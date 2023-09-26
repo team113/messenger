@@ -420,6 +420,7 @@ label_audio_call = Аудиозвонок{$by ->
         [x]{""}
         *[other] {" "}от {$by}
     }
+label_audio_message = Аудиосообщение
 label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
@@ -555,6 +556,7 @@ label_forwarded_messages = {$count ->
 }
 label_gallery = Галерея
 label_gb_slash_gb = {$a} GB / {$b} GB
+label_gift = Подарок
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
@@ -724,6 +726,7 @@ label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
+label_sticker = Стикер
 label_storage = Хранилище
 label_subtitle_participants = участников
 label_synchronization = Синхронизация...
@@ -760,6 +763,7 @@ label_video_call = Видеозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_video_downloaded = Видео загружено.
+label_video_message = Видеосообщение
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
 label_wait_seconds = Подождите {$for} с

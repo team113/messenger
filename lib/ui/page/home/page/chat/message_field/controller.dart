@@ -27,6 +27,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -35,9 +36,12 @@ import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'components/buttons.dart';
+import 'components/more.dart';
 
 export 'view.dart';
 
@@ -134,6 +138,9 @@ class MessageFieldController extends GetxController {
   /// [ChatItem] being edited.
   final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
 
+  /// Indicator whether the more panel is opened.
+  final RxBool moreOpened = RxBool(false);
+
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
@@ -145,6 +152,33 @@ class MessageFieldController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [GlobalKey] of the text field.
+  final GlobalKey fieldKey = GlobalKey();
+
+  /// [ChatButton]s displayed in the more panel.
+  late final RxList<ChatButton> panel = RxList([
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
+      TakePhotoButton(this),
+      if (PlatformUtils.isAndroid) TakeVideoButton(this),
+      GalleryButton(this),
+      FileButton(this),
+    ] else
+      AttachmentButton(this),
+    AudioMessageButton(this),
+    VideoMessageButton(this),
+    DonateButton(this),
+    StickerButton(this),
+  ]);
+
+  /// [ChatButton]s displayed in the text field.
+  late final RxList<ChatButton> buttons = RxList([]);
+
+  /// [OverlayEntry] of the more button.
+  OverlayEntry? _moreEntry;
+
+  /// Indicator whether a new [ChatButton] can be pinned to the [buttons].
+  final RxBool canPin = RxBool(true);
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
@@ -169,6 +203,7 @@ class MessageFieldController extends GetxController {
 
   @override
   void onClose() {
+    _moreEntry?.remove();
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
@@ -183,6 +218,19 @@ class MessageFieldController extends GetxController {
     field.clear();
     field.unsubmit();
     onChanged?.call();
+  }
+
+  /// Toggles the [moreOpened].
+  void toggleMore() {
+    if (moreOpened.isTrue) {
+      _moreEntry?.remove();
+      _moreEntry = null;
+    } else {
+      _moreEntry = (OverlayEntry(builder: (_) => MessageFieldMore(this)));
+      router.overlay!.insert(_moreEntry!);
+    }
+
+    moreOpened.toggle();
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
