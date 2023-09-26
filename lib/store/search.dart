@@ -104,6 +104,7 @@ class SearchResultImpl<K extends Comparable, T, C>
         status.value = RxStatus.loadingMore();
       }
 
+      // TODO: Probably shouldn't do that in the store.
       int length = items.length;
       for (int i = 0; i < 10; i++) {
         await pagination!.next();
