@@ -59,8 +59,9 @@ class MockGraphQlProvider extends GraphQlProvider {
 
   @override
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code,
-  ) async {
+    ConfirmationCode code, {
+    RawClientOptions? raw,
+  }) async {
     return null;
   }
 

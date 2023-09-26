@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../domain/model/ongoing_call.dart';
-import '../../call/controller.dart';
+import '/domain/model/ongoing_call.dart';
+import '/ui/page/call/controller.dart';
 import 'controller.dart';
 
 /// View of an [OngoingCall]s overlay.
@@ -44,7 +44,7 @@ class CallOverlayView extends StatelessWidget {
                   .map(
                     (e) => Obx(
                       () => e.call.value.state.value == OngoingCallState.ended
-                          ? Container()
+                          ? const SizedBox()
                           : Listener(
                               onPointerDown: (_) => c.orderFirst(e),
                               child: CallView(
