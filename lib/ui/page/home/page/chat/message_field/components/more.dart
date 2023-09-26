@@ -27,7 +27,9 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'buttons.dart';
 
-/// More button overlay.
+/// Visual representation of the [MessageFieldController.panel].
+///
+/// Intended to be drawn in the overlay.
 class MessageFieldMore extends StatelessWidget {
   const MessageFieldMore(this.c, {super.key});
 
