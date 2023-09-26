@@ -99,16 +99,15 @@ class _HomeViewState extends State<HomeView> {
         backgroundColor: PlatformUtils.isWeb
             ? style.colors.transparent
             : style.colors.onPrimary,
-        body: Stack(
+        body: const Stack(
           children: [
-            if (!PlatformUtils.isWeb)
-              const SvgImage.asset(
-                'assets/images/background_light.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            const Center(child: CustomProgressIndicator()),
+            SvgImage.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Center(child: CustomProgressIndicator()),
           ],
         ),
       );
@@ -432,16 +431,15 @@ class _HomeViewState extends State<HomeView> {
 
           return Stack(
             children: [
-              if (!PlatformUtils.isWeb)
-                const Positioned.fill(
-                  child: SvgImage.asset(
-                    'assets/images/background_light.svg',
-                    key: Key('DefaultBackground'),
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+              const Positioned.fill(
+                child: SvgImage.asset(
+                  'assets/images/background_light.svg',
+                  key: Key('DefaultBackground'),
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
                 ),
+              ),
               Positioned.fill(
                 child: AnimatedSwitcher(
                   duration: 250.milliseconds,
