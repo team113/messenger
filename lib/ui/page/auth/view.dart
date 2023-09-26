@@ -163,7 +163,7 @@ class AuthView extends StatelessWidget {
               // For web, background color is displayed in `index.html` file.
               if (!PlatformUtils.isWeb)
                 IgnorePointer(
-                  child: ColoredBox(color: style.colors.onPrimary),
+                  child: ColoredBox(color: style.colors.background),
                 ),
               const IgnorePointer(
                 child: SvgImage.asset(
