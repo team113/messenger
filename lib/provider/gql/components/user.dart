@@ -502,12 +502,12 @@ mixin UserGraphQlMixin {
   }) async {
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
-      raw: raw,
       MutationOptions(
         operationName: 'AddUserEmail',
         document: AddUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => AddUserEmailException(
           (AddUserEmail$Mutation.fromJson(data).addUserEmail
                   as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
@@ -585,12 +585,12 @@ mixin UserGraphQlMixin {
   }) async {
     final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
-      raw: raw,
       MutationOptions(
         operationName: 'ConfirmUserEmail',
         document: ConfirmUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => ConfirmUserEmailException((ConfirmUserEmail$Mutation
                       .fromJson(data)
                   .confirmUserEmail
@@ -660,11 +660,11 @@ mixin UserGraphQlMixin {
   /// Each time generates a new [ConfirmationCode].
   Future<void> resendEmail({RawClientOptions? raw}) async {
     await client.mutate(
-      raw: raw,
       MutationOptions(
         operationName: 'ResendUserEmailConfirmation',
         document: ResendUserEmailConfirmationMutation().document,
       ),
+      raw: raw,
       onException: (data) => ResendUserEmailConfirmationException(
           ResendUserEmailConfirmation$Mutation.fromJson(data)
                   .resendUserEmailConfirmation

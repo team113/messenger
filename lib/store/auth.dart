@@ -121,6 +121,10 @@ class AuthRepository implements AbstractAuthRepository {
   Future<Credentials> confirmSignUpEmail(
     ConfirmationCode code,
   ) async {
+    if (_signUpCredentials == null) {
+      throw ArgumentError.notNull('_signUpCredentials');
+    }
+
     await _graphQlProvider.confirmEmailCode(
       code,
       raw: RawClientOptions(_signUpCredentials!.session.token),
@@ -130,6 +134,10 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   Future<void> resendSignUpEmail() async {
+    if (_signUpCredentials == null) {
+      throw ArgumentError.notNull('_signUpCredentials');
+    }
+
     await _graphQlProvider.resendEmail(
       raw: RawClientOptions(_signUpCredentials!.session.token),
     );
