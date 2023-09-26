@@ -38,7 +38,7 @@ void main() async {
   tearDownAll(() => cache.listSync().forEach((e) => e.deleteSync()));
 
   test('CacheWorker adds files to cache', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -52,7 +52,7 @@ void main() async {
   });
 
   test('CacheWorker clears its files', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -68,25 +68,34 @@ void main() async {
   });
 
   test('CacheWorker finds stored files', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'), 'checksum');
     expect(worker.exists('checksum'), true);
-    expect(worker.get(checksum: 'checksum'), base64Decode('someData'));
+    expect(
+      (worker.get(checksum: 'checksum') as CacheEntry).bytes,
+      base64Decode('someData'),
+    );
 
     await worker.add(base64Decode('someData1111'), 'checksum1');
     expect(worker.exists('checksum1'), true);
-    expect(worker.get(checksum: 'checksum1'), base64Decode('someData1111'));
+    expect(
+      (worker.get(checksum: 'checksum1') as CacheEntry).bytes,
+      base64Decode('someData1111'),
+    );
 
     FIFOCache.clear();
 
     expect(worker.exists('checksum'), true);
-    expect(await worker.get(checksum: 'checksum'), base64Decode('someData'));
+    expect(
+      (await worker.get(checksum: 'checksum')).bytes,
+      base64Decode('someData'),
+    );
 
     expect(worker.exists('checksum1'), true);
     expect(
-      await worker.get(checksum: 'checksum1'),
+      (await worker.get(checksum: 'checksum1')).bytes,
       base64Decode('someData1111'),
     );
 
@@ -97,7 +106,7 @@ void main() async {
   test('CacheWorker optimizes its resources correctly', () async {
     await cacheInfoHiveProvider.set(maxSize: 1024 * 1024);
 
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider);
+    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
     await worker.onInit();
 
     for (int i = 0; i < 100; i++) {

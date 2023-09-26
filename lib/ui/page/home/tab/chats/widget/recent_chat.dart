@@ -253,12 +253,7 @@ class RecentChatTile extends StatelessWidget {
         selected: inverted,
         avatarBuilder: avatarBuilder,
         enableContextMenu: enableContextMenu,
-        onTap: onTap ??
-            () {
-              if (!isRoute) {
-                router.chat(chat.id);
-              }
-            },
+        onTap: onTap ?? () => router.chat(chat.id),
       );
     });
   }
@@ -269,17 +264,15 @@ class RecentChatTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
+      final List<Widget> subtitle;
+
       final Chat chat = rxChat.chat.value;
-
-      ChatItem? item = rxChat.lastItem;
-
-      List<Widget> subtitle = [];
+      final ChatItem? item = rxChat.lastItem;
+      final ChatMessage? draft = rxChat.draft.value;
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
           .map((User user) => user.name?.val ?? user.num.toString());
-
-      ChatMessage? draft = rxChat.draft.value;
 
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
@@ -327,7 +320,7 @@ class RecentChatTile extends StatelessWidget {
             )
           ];
         }
-      } else if (draft != null && !selected && rxChat.unreadCount.value == 0) {
+      } else if (draft != null && !selected) {
         final StringBuffer desc = StringBuffer();
 
         if (draft.text != null) {
@@ -643,22 +636,34 @@ class RecentChatTile extends StatelessWidget {
       if (e.file.isImage && e.file.bytes.value != null) {
         content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        if (e.file.bytes.value != null) {
+        if (e.file.path == null) {
+          if (e.file.bytes.value == null) {
+            content = Container(
+              color: inverted ? style.colors.onPrimary : style.colors.secondary,
+              child: Icon(
+                Icons.video_file,
+                size: 18,
+                color:
+                    inverted ? style.colors.secondary : style.colors.onPrimary,
+              ),
+            );
+          } else {
+            content = FittedBox(
+              fit: BoxFit.cover,
+              child: VideoThumbnail.bytes(
+                e.file.bytes.value!,
+                key: key,
+                height: 300,
+              ),
+            );
+          }
+        } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.bytes(
-              e.file.bytes.value!,
+            child: VideoThumbnail.file(
+              e.file.path!,
               key: key,
               height: 300,
-            ),
-          );
-        } else {
-          content = Container(
-            color: inverted ? style.colors.onPrimary : style.colors.secondary,
-            child: Icon(
-              Icons.video_file,
-              size: 18,
-              color: inverted ? style.colors.secondary : style.colors.onPrimary,
             ),
           );
         }

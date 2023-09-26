@@ -84,7 +84,7 @@ class CallTitle extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: style.fonts.displayLargeOnPrimary,
+            style: style.fonts.displayBoldOnPrimary,
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)

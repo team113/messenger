@@ -803,20 +803,18 @@ class HiveRxChat extends RxChat {
   }
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
-  /// [Attachment]s, if any.
+  /// [FileAttachment]s, if any.
   void _add(ChatItem item) {
     if (!PlatformUtils.isWeb) {
-      for (ChatItem item in messages.map((e) => e.value)) {
-        if (item is ChatMessage) {
-          for (var a in item.attachments.whereType<FileAttachment>()) {
+      if (item is ChatMessage) {
+        for (var a in item.attachments.whereType<FileAttachment>()) {
+          a.init();
+        }
+      } else if (item is ChatForward) {
+        ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
+          for (var a in nested.attachments.whereType<FileAttachment>()) {
             a.init();
-          }
-        } else if (item is ChatForward) {
-          ChatItemQuote nested = item.quote;
-          if (nested is ChatMessageQuote) {
-            for (var a in nested.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
           }
         }
       }
@@ -966,7 +964,6 @@ class HiveRxChat extends RxChat {
 
       final List<Attachment> all = [];
 
-      item = stored.value;
       if (item is ChatMessage) {
         all.addAll(item.attachments);
         for (ChatItemQuote replied in item.repliesTo) {
@@ -994,6 +991,7 @@ class HiveRxChat extends RxChat {
         replace(a);
       }
 
+      stored.value = item;
       _pagination.put(stored);
     }
   }
@@ -1113,7 +1111,7 @@ class HiveRxChat extends RxChat {
               final message = await get(event.itemId);
               if (message != null) {
                 (message.value as ChatMessage).text = event.text;
-                _local.put(message);
+                put(message);
               }
               break;
 
@@ -1132,7 +1130,7 @@ class HiveRxChat extends RxChat {
               if (message != null) {
                 event.call.at = message.value.at;
                 message.value = event.call;
-                _local.put(message);
+                put(message);
               }
               break;
 
@@ -1206,7 +1204,7 @@ class HiveRxChat extends RxChat {
                     if (message != null) {
                       call.at = message.value.at;
                       message.value = call;
-                      _local.put(message);
+                      put(message);
                     }
                   }
                 }

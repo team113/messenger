@@ -25,6 +25,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -55,7 +56,7 @@ class _DataAttachmentState extends State<DataAttachment> {
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus.value) {
+        switch (e.downloadStatus) {
           case DownloadStatus.inProgress:
             leading = InkWell(
               key: const Key('CancelDownloading'),
@@ -80,8 +81,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                     stops: [
                       0,
-                      e.progress.value,
-                      e.progress.value,
+                      e.downloading?.progress.value ?? 0,
+                      e.downloading?.progress.value ?? 0,
                     ],
                   ),
                 ),
@@ -195,6 +196,13 @@ class _DataAttachmentState extends State<DataAttachment> {
                   child: AnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
+                    layoutBuilder: (current, previous) => Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (previous.isNotEmpty) previous.first,
+                        if (current != null) current,
+                      ],
+                    ),
                     child: leading,
                   ),
                 ),

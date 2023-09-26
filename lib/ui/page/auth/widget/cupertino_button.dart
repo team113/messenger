@@ -67,6 +67,8 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: GestureDetector(
+        onLongPressUp: () => setState(() => _clicked = false),
+        onLongPressCancel: () => setState(() => _clicked = false),
         onTapDown: (_) => setState(() => _clicked = true),
         onTapUp: (_) {
           setState(() => _clicked = false);
@@ -77,18 +79,15 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
           child: AnimatedDefaultTextStyle(
             curve: Curves.ease,
             duration: const Duration(milliseconds: 100),
-            style: (widget.style ?? style.fonts.labelMediumSecondary).copyWith(
-              color: (widget.style ?? style.fonts.labelMediumSecondary)
-                  .color
-                  ?.withOpacity(
-                    _clicked
-                        ? 0.5
-                        : _hovered
-                            ? 0.7
-                            : 1,
-                  ),
+            style: (widget.style ?? style.fonts.labelMediumSecondary),
+            child: Opacity(
+              opacity: _clicked
+                  ? 0.5
+                  : _hovered
+                      ? 0.7
+                      : 1,
+              child: Text(widget.label),
             ),
-            child: Text(widget.label),
           ),
         ),
       ),

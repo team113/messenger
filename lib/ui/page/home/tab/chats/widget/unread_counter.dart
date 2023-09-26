@@ -59,8 +59,8 @@ class UnreadCounter extends StatelessWidget {
       child: Text(
         count > 99 ? '99${'plus'.l10n}' : '$count',
         style: dimmed && inverted
-            ? style.fonts.displaySmallSecondary
-            : style.fonts.displaySmallOnPrimary,
+            ? style.fonts.displayTinySecondary
+            : style.fonts.displayTinyOnPrimary,
         maxLines: 1,
         overflow: TextOverflow.clip,
         textAlign: TextAlign.center,

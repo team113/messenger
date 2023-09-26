@@ -44,9 +44,11 @@ class TypographyView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final Iterable<(TextStyle, String)> styles = [
+      (style.fonts.displayBold, 'displayBold'),
       (style.fonts.displayLarge, 'displayLarge'),
       (style.fonts.displayMedium, 'displayMedium'),
       (style.fonts.displaySmall, 'displaySmall'),
+      (style.fonts.displayTiny, 'displayTiny'),
       (style.fonts.headlineLarge, 'headlineLarge'),
       (style.fonts.headlineMedium, 'headlineMedium'),
       (style.fonts.headlineSmall, 'headlineSmall'),
@@ -63,13 +65,18 @@ class TypographyView extends StatelessWidget {
     ];
 
     final Iterable<(TextStyle, String)> fonts = [
+      (style.fonts.displayBold, 'displayBold'),
+      (style.fonts.displayBoldOnPrimary, 'displayBoldOnPrimary'),
       (style.fonts.displayLarge, 'displayLarge'),
       (style.fonts.displayLargeOnPrimary, 'displayLargeOnPrimary'),
+      (style.fonts.displayLargeSecondary, 'displayLargeSecondary'),
       (style.fonts.displayMedium, 'displayMedium'),
       (style.fonts.displayMediumSecondary, 'displayMediumSecondary'),
       (style.fonts.displaySmall, 'displaySmall'),
-      (style.fonts.displaySmallOnPrimary, 'displaySmallOnPrimary'),
       (style.fonts.displaySmallSecondary, 'displaySmallSecondary'),
+      (style.fonts.displayTiny, 'displayTiny'),
+      (style.fonts.displayTinyOnPrimary, 'displayTinyOnPrimary'),
+      (style.fonts.displayTinySecondary, 'displayTinySecondary'),
       (style.fonts.headlineLarge, 'headlineLarge'),
       (style.fonts.headlineLargeOnPrimary, 'headlineLarge'),
       (style.fonts.headlineMedium, 'headlineMedium'),
@@ -87,8 +94,9 @@ class TypographyView extends StatelessWidget {
       ),
       (style.fonts.headlineSmallSecondary, 'headlineSmall'),
       (style.fonts.titleLarge, 'titleLarge'),
-      (style.fonts.titleLargeOnPrimary, 'titleLarge'),
-      (style.fonts.titleLargeSecondary, 'titleLarge'),
+      (style.fonts.titleLargePrimary, 'titleLargePrimary'),
+      (style.fonts.titleLargeOnPrimary, 'titleLargeOnPrimary'),
+      (style.fonts.titleLargeSecondary, 'titleLargeSecondary'),
       (style.fonts.titleMedium, 'titleMedium'),
       (style.fonts.titleMediumDanger, 'titleMediumDanger'),
       (style.fonts.titleMediumOnPrimary, 'titleMediumOnPrimary'),
