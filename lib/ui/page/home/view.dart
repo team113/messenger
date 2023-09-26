@@ -96,8 +96,21 @@ class _HomeViewState extends State<HomeView> {
 
     if (_deps == null) {
       return Scaffold(
-        backgroundColor: style.colors.onPrimary,
-        body: const Center(child: CustomProgressIndicator()),
+        // For web, background color is displayed in `index.html` file.
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
+        body: const Stack(
+          children: [
+            SvgImage.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Center(child: CustomProgressIndicator()),
+          ],
+        ),
       );
     }
 
@@ -374,7 +387,7 @@ class _HomeViewState extends State<HomeView> {
         // Navigator should be drawn under or above the [sideBar] for the
         // animations to look correctly.
         //
-        // [Container]s are required for the [sideBar] to keep its state.
+        // [SizedBox]es are required for the [sideBar] to keep its state.
         // Otherwise, [Stack] widget will be updated, which will lead its
         // children to be updated as well.
         return CallOverlayView(
@@ -382,16 +395,11 @@ class _HomeViewState extends State<HomeView> {
             return Stack(
               key: const Key('HomeView'),
               children: [
-                Container(
-                  color: style.colors.onPrimary,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isNarrow ? null : navigation),
+                  SizedBox(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isNarrow ? navigation : null),
+                  SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
                     body: Center(child: CustomProgressIndicator()),
