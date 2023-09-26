@@ -129,8 +129,11 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
-  /// [Mutex]es guarding access to the [get] and [_putEntry] methods.
-  final Map<ChatId, Mutex> _guards = {};
+  /// [Mutex]es guarding access to the [get] method.
+  final Map<ChatId, Mutex> _getGuards = {};
+
+  /// [Mutex]es guarding synchronized access to the [_putEntry].
+  final Map<ChatId, Mutex> _putEntryGuards = {};
 
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
@@ -231,13 +234,13 @@ class ChatRepository extends DisposableInterface
 
     // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
     // double invoking.
-    Mutex? mutex = _guards[id];
+    Mutex? mutex = _getGuards[id];
     if (mutex == null) {
       mutex = Mutex();
-      _guards[id] = mutex;
+      _getGuards[id] = mutex;
     }
 
-    return mutex.protect(() async {
+    return await mutex.protect(() async {
       chat = _chats[id];
 
       if (chat == null) {
@@ -1341,10 +1344,11 @@ class ChatRepository extends DisposableInterface
 
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
-    Mutex? mutex = _guards[data.chat.value.id];
+    Mutex? mutex = _putEntryGuards[data.chat.value.id];
+
     if (mutex == null) {
       mutex = Mutex();
-      _guards[data.chat.value.id] = mutex;
+      _putEntryGuards[data.chat.value.id] = mutex;
     }
 
     return await mutex.protect(() async {
@@ -1392,7 +1396,7 @@ class ChatRepository extends DisposableInterface
         entry.put(item);
       }
 
-      _guards.remove(data.chat.value.id);
+      _putEntryGuards.remove(data.chat.value.id);
       return entry;
     });
   }
