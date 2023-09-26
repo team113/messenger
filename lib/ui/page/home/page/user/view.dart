@@ -23,6 +23,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -92,38 +93,43 @@ class UserView extends StatelessWidget {
                       child: DefaultTextStyle.merge(
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
-                          final UserTextStatus? text =
-                              c.user?.user.value.status;
-                          final StringBuffer buffer = StringBuffer();
+                        child: PeriodicBuilder(
+                          period: const Duration(minutes: 1),
+                          builder: (context) => Obx(() {
+                            
+                            final String? status =
+                                c.user?.user.value.getStatus();
+                            final UserTextStatus? text =
+                                c.user?.user.value.status;
+                            final StringBuffer buffer = StringBuffer();
 
-                          if (status != null || text != null) {
-                            buffer.write(text ?? '');
+                            if (status != null || text != null) {
+                              buffer.write(text ?? '');
 
-                            if (status != null && text != null) {
-                              buffer.write('space_vertical_space'.l10n);
+                              if (status != null && text != null) {
+                                buffer.write('space_vertical_space'.l10n);
+                              }
+
+                              buffer.write(status ?? '');
                             }
 
-                            buffer.write(status ?? '');
-                          }
+                            final String subtitle = buffer.toString();
 
-                          final String subtitle = buffer.toString();
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
-                              if (subtitle.isNotEmpty)
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  subtitle,
-                                  style: style.fonts.bodySmallSecondary,
-                                )
-                            ],
-                          );
-                        }),
+                                    '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
+                                if (subtitle.isNotEmpty)
+                                  Text(
+                                    subtitle,
+                                    style: style.fonts.bodySmallSecondary,
+                                  )
+                              ],
+                            );
+                          }),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -199,9 +205,12 @@ class UserView extends StatelessWidget {
                           if (c.user!.user.value.status != null)
                             UserStatusCopyable(c.user!.user.value.status!),
                           if (c.user!.user.value.presence != null)
-                            UserPresenceField(
-                              c.user!.user.value.presence!,
-                              c.user!.user.value.getStatus(),
+                            PeriodicBuilder(
+                              period: const Duration(seconds: 1),
+                              builder: (context) => UserPresenceField(
+                                c.user!.user.value.presence!,
+                                c.user!.user.value.getStatus(),
+                              ),
                             ),
                         ],
                       ),

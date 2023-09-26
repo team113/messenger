@@ -36,6 +36,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
@@ -203,7 +204,12 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog) ChatSubtitle(c.chat!, c.me),
+                                    if (!isMonolog)
+                                      PeriodicBuilder(
+                                        period: const Duration(seconds: 1),
+                                        builder: (context) =>
+                                            ChatSubtitle(c.chat!, c.me),
+                                      ),
                                   ],
                                 ),
                               ),
