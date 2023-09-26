@@ -91,6 +91,7 @@ class ChatForwardView extends StatelessWidget {
       init: ChatForwardController(
         Get.find(),
         Get.find(),
+        Get.find(),
         from: from,
         quotes: quotes,
         text: text,

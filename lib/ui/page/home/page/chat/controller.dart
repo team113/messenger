@@ -331,6 +331,7 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _settingsRepository,
       onChanged: updateDraft,
       onSubmit: () async {
         if (send.forwarding.value) {
@@ -498,6 +499,7 @@ class ChatController extends GetxController {
       edit.value ??= MessageFieldController(
         _chatService,
         _userService,
+        _settingsRepository,
         text: item.text?.val,
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;

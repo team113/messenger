@@ -18,6 +18,8 @@
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
+import '/ui/page/call/component/common.dart';
+import '/ui/page/home/page/chat/message_field/components/buttons.dart';
 
 part 'application_settings.g.dart';
 
@@ -35,6 +37,7 @@ class ApplicationSettings extends HiveObject {
     this.sortContactsByName = true,
     this.loadImages = true,
     this.timelineEnabled = false,
+    this.pinnedActions = const [],
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -81,4 +84,8 @@ class ApplicationSettings extends HiveObject {
   /// in a [Chat].
   @HiveField(9)
   bool timelineEnabled;
+
+  /// [ChatButton]s pinned to the send field.
+  @HiveField(10)
+  List<String> pinnedActions;
 }

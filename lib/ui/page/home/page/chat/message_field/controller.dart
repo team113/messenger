@@ -18,12 +18,14 @@
 import 'dart:async';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -32,6 +34,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
@@ -50,7 +53,8 @@ export 'view.dart';
 class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.onSubmit,
     this.onChanged,
     String? text,
@@ -173,7 +177,7 @@ class MessageFieldController extends GetxController {
   ]);
 
   /// [ChatButton]s displayed in the text field.
-  late final RxList<ChatButton> buttons = RxList([]);
+  late final RxList<ChatButton> buttons;
 
   /// Indicator whether a new [ChatButton] can be pinned to the [buttons].
   final RxBool canPin = RxBool(true);
@@ -187,6 +191,9 @@ class MessageFieldController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [AbstractSettingsRepository], used to get the [buttons] value.
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Worker reacting on the [replied] changes.
   Worker? _repliesWorker;
 
@@ -195,6 +202,10 @@ class MessageFieldController extends GetxController {
 
   /// Worker reacting on the [edited] changes.
   Worker? _editedWorker;
+
+  /// Worker capturing any [buttons] changes to update the
+  /// [ApplicationSettings.pinnedActions] value.
+  Worker? _buttonsWorker;
 
   /// [OverlayEntry] of the more button.
   OverlayEntry? _moreEntry;
@@ -208,6 +219,54 @@ class MessageFieldController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
+    // Constructs a list of [ChatButton]s from the provided [list] of [String]s.
+    List<ChatButton> toButtons(List<String>? list) {
+      List<ChatButton>? persisted = list
+          ?.map((e) {
+            switch (e) {
+              case 'AudioMessageButton':
+                return AudioMessageButton(this);
+
+              case 'VideoMessageButton':
+                return VideoMessageButton(this);
+
+              case 'AttachmentButton':
+                return AttachmentButton(this);
+
+              case 'TakePhotoButton':
+                return TakePhotoButton(this);
+
+              case 'TakeVideoButton':
+                return TakeVideoButton(this);
+
+              case 'GalleryButton':
+                return GalleryButton(this);
+
+              case 'DonateButton':
+                return DonateButton(this);
+
+              case 'FileButton':
+                return FileButton(this);
+
+              case 'StickerButton':
+                return StickerButton(this);
+            }
+          })
+          .whereNotNull()
+          .toList();
+
+      return persisted ?? [];
+    }
+
+    buttons = RxList(
+      toButtons(_settingsRepository.applicationSettings.value?.pinnedActions),
+    );
+
+    _buttonsWorker = ever(buttons, (List<ChatButton> list) {
+      _settingsRepository
+          .setPinnedActions(list.map((e) => e.runtimeType.toString()).toList());
+    });
+
     super.onInit();
   }
 
@@ -217,6 +276,7 @@ class MessageFieldController extends GetxController {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
+    _buttonsWorker?.dispose();
     super.onClose();
   }
 
