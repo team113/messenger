@@ -525,6 +525,7 @@ class TextFieldState extends ReactiveFieldState {
     bool editable = true,
     bool submitted = true,
     bool revalidateOnUnfocus = false,
+    String? error,
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
     isEmpty = RxBool(text?.isEmpty ?? true);
@@ -532,6 +533,7 @@ class TextFieldState extends ReactiveFieldState {
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
     this.approvable = approvable;
+    this.error.value = error;
 
     if (submitted) {
       _previousSubmit = text;
@@ -546,7 +548,7 @@ class TextFieldState extends ReactiveFieldState {
       if (controller.text != prevText) {
         prevText = controller.text;
         if (revalidateOnUnfocus) {
-          error.value = null;
+          this.error.value = null;
         }
       }
     });

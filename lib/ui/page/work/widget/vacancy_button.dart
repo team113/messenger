@@ -17,14 +17,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/routes.dart';
 import '/ui/widget/menu_button.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// [MenuButton] displaying the provided [work].
 class VacancyWorkButton extends StatelessWidget {
-  const VacancyWorkButton(this.work, {super.key});
+  const VacancyWorkButton(
+    this.work, {
+    super.key,
+    this.onPressed = _defaultOnPressed,
+  });
+
+  final void Function(WorkTab work)? onPressed;
 
   /// [WorkTab] to display.
   final WorkTab work;
@@ -64,8 +70,10 @@ class VacancyWorkButton extends StatelessWidget {
             ),
         },
         inverted: selected,
-        onPressed: () => router.work(work),
+        onPressed: onPressed == null ? null : () => onPressed?.call(work),
       );
     });
   }
+
+  static void _defaultOnPressed(WorkTab work) => router.work(work);
 }

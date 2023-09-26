@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
@@ -93,11 +94,13 @@ class SharableTextField extends StatelessWidget {
                   state: state,
                   trailing: trailing ??
                       Transform.translate(
-                        offset: const Offset(2, -4),
-                        child: Icon(
-                          Icons.ios_share_rounded,
-                          color: style.colors.primary,
-                          size: 21,
+                        offset: const Offset(0, -1),
+                        child: Transform.scale(
+                          scale: 1.15,
+                          child: const SvgImage.asset(
+                            'assets/icons/share.svg',
+                            height: 15,
+                          ),
                         ),
                       ),
                   label: label,

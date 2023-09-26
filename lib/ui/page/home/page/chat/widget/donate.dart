@@ -15,8 +15,10 @@ class DonateWidget extends StatelessWidget {
     this.transaction,
     this.title = '',
     this.onTitlePressed,
-    this.height = 100,
+    this.height = _defaultHeight,
   });
+
+  static const double _defaultHeight = 104;
 
   final int donate;
   final List<Widget> header;
@@ -71,7 +73,7 @@ class DonateWidget extends StatelessWidget {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(height: 6 * (height / 100)),
+                  SizedBox(height: 6 * (height / _defaultHeight)),
                   // if (header.isEmpty) const SizedBox(height: 16 + 2),
                   // ...header,
                   Row(
@@ -90,7 +92,7 @@ class DonateWidget extends StatelessWidget {
                                 style: style.fonts.bodyLarge.copyWith(
                                   color: DonateWidget.font,
                                   fontSize: style.fonts.bodyLarge.fontSize! *
-                                      (height / 100),
+                                      (height / _defaultHeight),
                                   // color: color,
                                 ),
                               ),
@@ -109,7 +111,7 @@ class DonateWidget extends StatelessWidget {
                         children: [
                           ...'$donate'.embossedDigits(
                             style: style.fonts.bodyLarge.copyWith(
-                              fontSize: 32 * (height / 100),
+                              fontSize: 32 * (height / _defaultHeight),
                               color: font,
                             ),
                           ),
@@ -120,7 +122,7 @@ class DonateWidget extends StatelessWidget {
                             child: EmbossedText(
                               ' ¤',
                               style: style.fonts.bodyLarge.copyWith(
-                                fontSize: 32 * (height / 100),
+                                fontSize: 32 * (height / _defaultHeight),
                                 // fontFamily: 'Gapopa',
                                 color: font,
                               ),
@@ -131,7 +133,7 @@ class DonateWidget extends StatelessWidget {
                     ),
                   ),
                   // ...footer,
-                  SizedBox(height: 26 * (height / 100)),
+                  SizedBox(height: 26 * (height / _defaultHeight)),
                 ],
               ),
               Padding(
@@ -141,10 +143,8 @@ class DonateWidget extends StatelessWidget {
                       'GIFT',
                       small: true,
                       style: style.systemMessageStyle.copyWith(
-                        // color: const Color(0xFFA98010),
-                        // color: const Color(0xFFFFFE8A),
                         color: DonateWidget.font,
-                        fontSize: 11 * (height / 100),
+                        fontSize: 11 * (height / _defaultHeight),
                       ),
                     ),
               ),

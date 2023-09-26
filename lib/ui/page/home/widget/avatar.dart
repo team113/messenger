@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,7 @@ class AvatarWidget extends StatefulWidget {
   const AvatarWidget({
     super.key,
     this.avatar,
+    this.child,
     this.radius,
     this.maxRadius,
     this.minRadius,
@@ -306,6 +308,13 @@ class AvatarWidget extends StatefulWidget {
   /// [Avatar] to display.
   final Avatar? avatar;
 
+  /// [Widget] to display inside this [AvatarWidget].
+  ///
+  /// No-op, if [avatar] is specified.
+  ///
+  /// Intended to be used on the [Routes.style] page only.
+  final Widget? child;
+
   /// Size of the avatar, expressed as the radius (half the diameter).
   ///
   /// If [radius] is specified, then neither [minRadius] nor [maxRadius] may be
@@ -469,30 +478,31 @@ class _AvatarWidgetState extends State<AvatarWidget> {
                     ),
               ),
             ),
-            if (widget.avatar != null)
+            if (widget.avatar != null || widget.child != null)
               Positioned.fill(
                 child: ClipOval(
-                  child: RetryImage(
-                    key: _imageKey,
-                    maxWidth > 250
-                        ? widget.avatar!.full.url
-                        : maxWidth > 100
-                            ? widget.avatar!.big.url
-                            : maxWidth > 46
-                                ? widget.avatar!.medium.url
-                                : widget.avatar!.small.url,
-                    checksum: maxWidth > 250
-                        ? widget.avatar!.full.checksum
-                        : maxWidth > 100
-                            ? widget.avatar!.big.checksum
-                            : maxWidth > 46
-                                ? widget.avatar!.medium.checksum
-                                : widget.avatar!.small.checksum,
-                    fit: BoxFit.cover,
-                    height: double.infinity,
-                    width: double.infinity,
-                    displayProgress: false,
-                  ),
+                  child: widget.child ??
+                      RetryImage(
+                        key: _imageKey,
+                        maxWidth > 250
+                            ? widget.avatar!.full.url
+                            : maxWidth > 100
+                                ? widget.avatar!.big.url
+                                : maxWidth > 46
+                                    ? widget.avatar!.medium.url
+                                    : widget.avatar!.small.url,
+                        checksum: maxWidth > 250
+                            ? widget.avatar!.full.checksum
+                            : maxWidth > 100
+                                ? widget.avatar!.big.checksum
+                                : maxWidth > 46
+                                    ? widget.avatar!.medium.checksum
+                                    : widget.avatar!.small.checksum,
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                        width: double.infinity,
+                        displayProgress: false,
+                      ),
                 ),
               ),
           ],
