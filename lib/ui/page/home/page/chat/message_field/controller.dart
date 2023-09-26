@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -158,6 +159,10 @@ class MessageFieldController extends GetxController {
 
   /// [ChatButton]s displayed in the more panel.
   late final RxList<ChatButton> panel = RxList([
+    AudioMessageButton(this),
+    VideoMessageButton(this),
+    DonateButton(this),
+    StickerButton(this),
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
       TakePhotoButton(this),
       if (PlatformUtils.isAndroid) TakeVideoButton(this),
@@ -165,10 +170,6 @@ class MessageFieldController extends GetxController {
       FileButton(this),
     ] else
       AttachmentButton(this),
-    AudioMessageButton(this),
-    VideoMessageButton(this),
-    DonateButton(this),
-    StickerButton(this),
   ]);
 
   /// [ChatButton]s displayed in the text field.
@@ -200,6 +201,15 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  @override
+  void onInit() {
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
+    super.onInit();
+  }
 
   @override
   void onClose() {
@@ -329,5 +339,19 @@ class MessageFieldController extends GetxController {
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
+  }
+
+  /// Invokes [toggleMore], if [moreOpened].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (moreOpened.isTrue) {
+      toggleMore();
+      return true;
+    }
+
+    return false;
   }
 }
