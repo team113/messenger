@@ -99,4 +99,7 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
       );
+
+  Future<void> setMuteHotKey(int key) =>
+      putSafe(0, (box.get(0) ?? ApplicationSettings())..muteHotKey = key);
 }

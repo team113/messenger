@@ -35,6 +35,7 @@ class ApplicationSettings extends HiveObject {
     this.sortContactsByName = true,
     this.loadImages = true,
     this.timelineEnabled = false,
+    this.muteHotKey = 0x00070010,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -81,4 +82,7 @@ class ApplicationSettings extends HiveObject {
   /// in a [Chat].
   @HiveField(9)
   bool timelineEnabled;
+
+  @HiveField(10)
+  int muteHotKey;
 }
