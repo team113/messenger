@@ -120,7 +120,13 @@ class Pagination<T, C, K extends Comparable> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
+    final bool locked = _guard.isLocked;
+
     return _guard.protect(() async {
+      if (locked) {
+        return;
+      }
+
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
