@@ -160,6 +160,7 @@ class AuthView extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
+              // For web, background color is displayed in `index.html` file.
               if (!PlatformUtils.isWeb)
                 IgnorePointer(
                   child: ColoredBox(color: style.colors.onPrimary),

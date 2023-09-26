@@ -96,6 +96,7 @@ class _HomeViewState extends State<HomeView> {
 
     if (_deps == null) {
       return Scaffold(
+        // For web, background color is displayed in `index.html` file.
         backgroundColor: PlatformUtils.isWeb
             ? style.colors.transparent
             : style.colors.onPrimary,

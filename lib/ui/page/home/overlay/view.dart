@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../call/controller.dart';
 import '/domain/model/ongoing_call.dart';
+import '/ui/page/call/controller.dart';
 import 'controller.dart';
 
 /// View of an [OngoingCall]s overlay.
