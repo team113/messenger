@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 
 // TODO: Fix HTML web renderer:
 //       https://github.com/flutter/flutter/issues/48417
-/// Draws an inner shadow to its [child].
+/// Draws an inner shadow inside its [child].
 ///
 /// Example usage:
 /// ```dart
@@ -33,7 +33,7 @@ import 'package:flutter/rendering.dart';
 ///      color: Color.fromARGB(255, 2, 2, 2),
 ///      fontSize: 190,
 ///     ),
-///    ),
+///   ),
 /// ),
 /// ```
 class InnerShadow extends SingleChildRenderObjectWidget {
@@ -90,7 +90,9 @@ class RenderInnerShadow extends RenderProxyBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (child == null) return;
+    if (child == null) {
+      return;
+    }
 
     final Rect rectOuter = offset & size;
 
