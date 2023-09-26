@@ -35,18 +35,22 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
+- Web:
+    - Fix background flashing after loading. ([#604], [#549])
 
 [#70]: /../../issues/70
 [#301]: /../../pull/301
 [#370]: /../../issues/370
 [#423]: /../../pull/423
 [#508]: /../../issues/508
-[#533]: /../../pull/533 
+[#533]: /../../pull/533
+[#549]: /../../issues/549
 [#559]: /../../issue/559
-[#564]: /../../issue/564
+[#564]: /../../issues/564
 [#587]: /../../pull/587
 [#597]: /../../pull/597
 [#599]: /../../pull/599
+[#604]: /../../pull/604
 [#609]: /../../pull/609
 
 
