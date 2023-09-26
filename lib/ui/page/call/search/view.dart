@@ -214,6 +214,7 @@ class SearchView extends StatelessWidget {
 
                           if (i == childCount - 1 && c.hasNext.value == true) {
                             child = Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 child,
                                 const CustomProgressIndicator(),

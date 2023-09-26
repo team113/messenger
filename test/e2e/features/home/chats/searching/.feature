@@ -32,3 +32,16 @@ Feature: Chats searching
 
     When I fill `SearchField` field with "Charlie"
     Then I see contact Charlie in search results
+
+  Scenario: Search paginates its results
+    Given I am Alice
+    And 31 users Dave
+    And I wait until `HomeView` is present
+    And I have Internet with delay of 2 seconds
+
+    When I tap `SearchButton` button
+    And I fill `SearchField` field with "Dave"
+    Then I wait until `Search` is present
+
+    When I scroll `SearchScrollable` until `SearchLoading` is present
+    Then I wait until `SearchLoading` is absent

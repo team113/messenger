@@ -31,7 +31,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
-import '/domain/repository/user.dart';
+import '/domain/repository/search.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
@@ -44,6 +44,7 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'search.dart';
 import 'user.dart';
 
 /// Implementation of an [AbstractContactRepository].
@@ -289,16 +290,14 @@ class ContactRepository implements AbstractContactRepository {
       return {};
     }
 
-    List<Future<Map<ChatContactId, RxChatContact>>> futures = [
-      if (email != null) searchByEmail(email).then(toMap),
-      if (phone != null) searchByPhone(phone).then(toMap),
-    ];
-
     final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
         searchResult = SearchResultImpl(
       pagination: pagination,
-      initialItems: {for (var u in contacts) u.id: u},
-      initialFutures: futures,
+      initial: [
+        {for (var u in contacts) u.id: u},
+        if (email != null) searchByEmail(email).then(toMap),
+        if (phone != null) searchByPhone(phone).then(toMap),
+      ],
     );
 
     return searchResult;

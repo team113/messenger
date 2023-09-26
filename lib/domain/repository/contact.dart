@@ -23,6 +23,7 @@ import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 import '/util/obs/obs.dart';
+import 'search.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {

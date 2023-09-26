@@ -95,7 +95,7 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Creates the provide count of new [User]s identified by the provided name.
+/// Creates the provided count of new [User]s with the provided name.
 ///
 /// Examples:
 /// - `Given 10 users Bob`
