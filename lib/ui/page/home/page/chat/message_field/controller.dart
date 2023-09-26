@@ -139,9 +139,6 @@ class MessageFieldController extends GetxController {
   /// [ChatItem] being edited.
   final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
 
-  /// Indicator whether the more panel is opened.
-  final RxBool moreOpened = RxBool(false);
-
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
@@ -153,6 +150,9 @@ class MessageFieldController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// Indicator whether the more panel is opened.
+  final RxBool moreOpened = RxBool(false);
 
   /// [GlobalKey] of the text field.
   final GlobalKey fieldKey = GlobalKey();
@@ -175,9 +175,6 @@ class MessageFieldController extends GetxController {
   /// [ChatButton]s displayed in the text field.
   late final RxList<ChatButton> buttons = RxList([]);
 
-  /// [OverlayEntry] of the more button.
-  OverlayEntry? _moreEntry;
-
   /// Indicator whether a new [ChatButton] can be pinned to the [buttons].
   final RxBool canPin = RxBool(true);
 
@@ -198,6 +195,9 @@ class MessageFieldController extends GetxController {
 
   /// Worker reacting on the [edited] changes.
   Worker? _editedWorker;
+
+  /// [OverlayEntry] of the more button.
+  OverlayEntry? _moreEntry;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;

@@ -15,7 +15,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - `Save as` for media attachments. ([#423], [#370]) 
+        - `Save as` for media attachments. ([#423], [#370])
+        - Pinning/unpinning actions in send field. ([#609], [#559])
 
 ### Changed
 
@@ -41,10 +42,12 @@ All user visible changes to this project will be documented in this file. This p
 [#423]: /../../pull/423
 [#508]: /../../issues/508
 [#533]: /../../pull/533 
+[#559]: /../../issue/559
 [#564]: /../../issue/564
 [#587]: /../../pull/587
 [#597]: /../../pull/597
 [#599]: /../../pull/599
+[#609]: /../../pull/609
 
 
 
