@@ -140,15 +140,7 @@ class UserRepository implements AbstractUserRepository {
                     true))
         .toList();
 
-    print('users: $users');
-
-    Map<UserId, RxUser> toMap(RxUser? u) {
-      if (u != null) {
-        return {u.id: u};
-      }
-
-      return {};
-    }
+    Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
     final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
         SearchResultImpl(
@@ -166,6 +158,13 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<RxUser?> get(UserId id) {
+    RxUser? user = _users[id];
+    if (user != null) {
+      return Future.value(user);
+    }
+
+    // If [user] doesn't exists, we should lock the [mutex] to avoid remote
+    // double invoking.
     Mutex? mutex = _locks[id];
     if (mutex == null) {
       mutex = Mutex();
@@ -173,7 +172,8 @@ class UserRepository implements AbstractUserRepository {
     }
 
     return mutex.protect(() async {
-      RxUser? user = _users[id];
+      user = _users[id];
+
       if (user == null) {
         var query = (await _graphQlProvider.getUser(id)).user;
         if (query != null) {
@@ -245,8 +245,22 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user, {bool ignoreVersion = false}) {
-    _putUser(user, ignoreVersion: ignoreVersion);
+  void put(HiveUser user, {bool ignoreVersion = false}) async {
+    // If the provided [user] doesn't exist in the [_users] yet, then we should
+    // lock the [mutex] to ensure [get] doesn't invoke remote while [put]ting.
+    if (_users.containsKey(user.value.id)) {
+      await _putUser(user, ignoreVersion: ignoreVersion);
+    } else {
+      Mutex? mutex = _locks[user.value.id];
+      if (mutex == null) {
+        mutex = Mutex();
+        _locks[user.value.id] = mutex;
+      }
+
+      await mutex.protect(() async {
+        await _putUser(user, ignoreVersion: ignoreVersion);
+      });
+    }
   }
 
   /// Searches [User]s by the provided [UserNum].

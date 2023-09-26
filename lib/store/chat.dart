@@ -129,11 +129,8 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
-  /// [Mutex]es guarding access to the [get] method.
-  final Map<ChatId, Mutex> _getGuards = {};
-
-  /// [Mutex]es guarding synchronized access to the [_putEntry].
-  final Map<ChatId, Mutex> _putEntryGuards = {};
+  /// [Mutex]es guarding access to the [get] and [_putEntry] methods.
+  final Map<ChatId, Mutex> _guards = {};
 
   /// [dio.CancelToken] for cancelling the [_recentChats] query.
   final dio.CancelToken _cancelToken = dio.CancelToken();
@@ -227,14 +224,22 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    Mutex? mutex = _getGuards[id];
+    HiveRxChat? chat = _chats[id];
+    if (chat != null) {
+      return Future.value(chat);
+    }
+
+    // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
+    // double invoking.
+    Mutex? mutex = _guards[id];
     if (mutex == null) {
       mutex = Mutex();
-      _getGuards[id] = mutex;
+      _guards[id] = mutex;
     }
 
     return mutex.protect(() async {
-      HiveRxChat? chat = _chats[id];
+      chat = _chats[id];
+
       if (chat == null) {
         if (!id.isLocal) {
           var query = (await _graphQlProvider.getChat(id)).chat;
@@ -245,12 +250,12 @@ class ChatRepository extends DisposableInterface
           final HiveChat? hiveChat = _chatLocal.get(id);
           if (hiveChat != null) {
             chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
-            chat.init();
+            chat!.init();
           }
 
           chat ??= await _createLocalDialog(id.userId);
 
-          _chats[id] = chat;
+          _chats[id] = chat!;
         }
       }
 
@@ -1336,10 +1341,10 @@ class ChatRepository extends DisposableInterface
 
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data) async {
-    Mutex? mutex = _putEntryGuards[data.chat.value.id];
+    Mutex? mutex = _guards[data.chat.value.id];
     if (mutex == null) {
       mutex = Mutex();
-      _putEntryGuards[data.chat.value.id] = mutex;
+      _guards[data.chat.value.id] = mutex;
     }
 
     return await mutex.protect(() async {
@@ -1387,7 +1392,7 @@ class ChatRepository extends DisposableInterface
         entry.put(item);
       }
 
-      _putEntryGuards.remove(data.chat.value.id);
+      _guards.remove(data.chat.value.id);
       return entry;
     });
   }
