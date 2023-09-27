@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import 'animated_switcher.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.
 class SelectedDot extends StatelessWidget {
@@ -53,7 +54,7 @@ class SelectedDot extends StatelessWidget {
 
     return SizedBox(
       width: 30,
-      child: AnimatedSwitcher(
+      child: DefaultAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: selected
             ? CircleAvatar(

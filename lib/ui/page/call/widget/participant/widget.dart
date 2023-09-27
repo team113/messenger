@@ -26,6 +26,7 @@ import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 
 /// [Participant] visual representation.
@@ -88,18 +89,11 @@ class ParticipantWidget extends StatelessWidget {
       return Stack(
         children: [
           if (!hasVideo) ...background(),
-          AnimatedSwitcher(
+          DefaultAnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            layoutBuilder: (current, previous) => Stack(
-              alignment: Alignment.center,
-              children: [
-                if (previous.isNotEmpty) previous.first,
-                if (current != null) current,
-              ],
-            ),
             child: !hasVideo
                 ? Container()
                 : Center(
@@ -156,7 +150,10 @@ class ParticipantWidget extends StatelessWidget {
               );
             }
 
-            return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+            return DefaultAnimatedSwitcher(
+              duration: 250.milliseconds,
+              child: child,
+            );
           }),
           Center(
             child: RaisedHand(participant.member.isHandRaised.value),

@@ -27,6 +27,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'allow_overflow.dart';
 import 'animated_button.dart';
+import 'animated_switcher.dart';
 import 'animations.dart';
 import 'svg/svg.dart';
 
@@ -393,7 +394,7 @@ class ReactiveTextField extends StatelessWidget {
               duration: 200.milliseconds,
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: AnimatedSwitcher(
+                child: DefaultAnimatedSwitcher(
                   duration: 200.milliseconds,
                   child: state.error.value == null
                       ? subtitle != null

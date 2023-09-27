@@ -23,6 +23,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/util/message_popup.dart';
 import 'animated_button.dart';
+import 'animated_switcher.dart';
 import 'svg/svg.dart';
 
 /// Styled [ContactTile] representing the provided [RxUser] as a member of some
@@ -70,7 +71,7 @@ class MemberTile extends StatelessWidget {
       trailing: [
         if (inCall != null) ...[
           const SizedBox(width: 8),
-          AnimatedSwitcher(
+          DefaultAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Material(
               key: Key(inCall == true ? 'InCall' : 'NotInCall'),

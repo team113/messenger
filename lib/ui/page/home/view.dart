@@ -28,6 +28,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -268,18 +269,9 @@ class _HomeViewState extends State<HomeView> {
                                       );
                                     }
 
-                                    return AnimatedSwitcher(
+                                    return DefaultAnimatedSwitcher(
                                       key: c.chatsKey,
                                       duration: 200.milliseconds,
-                                      layoutBuilder: (current, previous) =>
-                                          Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          if (previous.isNotEmpty)
-                                            previous.first,
-                                          if (current != null) current,
-                                        ],
-                                      ),
                                       child: child,
                                     );
                                   }),
@@ -442,16 +434,8 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: AnimatedSwitcher(
+                child: DefaultAnimatedSwitcher(
                   duration: 250.milliseconds,
-                  layoutBuilder: (child, previous) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [...previous, if (child != null) child]
-                          .map((e) => Positioned.fill(child: e))
-                          .toList(),
-                    );
-                  },
                   child: image,
                 ),
               ),

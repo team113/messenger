@@ -26,6 +26,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -151,7 +152,7 @@ class MessageInfo extends StatelessWidget {
                           ),
                         );
 
-                        return AnimatedSwitcher(
+                        return DefaultAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: c.search.isEmpty.value ? null : close,
                         );

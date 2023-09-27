@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -281,7 +282,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           alignment: Alignment.bottomCenter,
           children: [
             outlined(fit),
-            AnimatedSwitcher(
+            DefaultAnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
                   ? Container(
