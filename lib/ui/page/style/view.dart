@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -152,13 +153,33 @@ class StyleView extends StatelessWidget {
   Widget _page(StyleController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Obx(() {
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        color: c.inverted.value
-            ? style.colors.backgroundAuxiliaryLight
-            : style.colors.background,
-        child: PageView(
+    return Stack(
+      children: [
+        if (PlatformUtils.isWeb)
+          IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.background,
+            ),
+          ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Obx(() {
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: SvgImage.asset(
+                  key: Key(c.inverted.value ? 'dark' : 'light'),
+                  'assets/images/background_${c.inverted.value ? 'dark' : 'light'}.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              );
+            }),
+          ),
+        ),
+        PageView(
           controller: c.pages,
           onPageChanged: (i) => c.tab.value = StyleTab.values[i],
           physics: const NeverScrollableScrollPhysics(),
@@ -166,31 +187,16 @@ class StyleView extends StatelessWidget {
             return KeepAlivePage(
               child: switch (e) {
                 StyleTab.colors => Obx(() {
-                    return ColorsView(
-                      inverted: c.inverted.value,
-                      dense: c.dense.value,
-                    );
+                    return ColorsView(inverted: c.inverted.value);
                   }),
-                StyleTab.typography => Obx(() {
-                    return TypographyView(
-                      inverted: c.inverted.value,
-                      dense: c.dense.value,
-                    );
-                  }),
-                StyleTab.widgets => Obx(() {
-                    return SelectionArea(
-                      child: WidgetsView(
-                        inverted: c.inverted.value,
-                        dense: c.dense.value,
-                      ),
-                    );
-                  }),
+                StyleTab.typography => const TypographyView(),
+                StyleTab.widgets => const SelectionArea(child: WidgetsView()),
               },
             );
           }).toList(),
         ),
-      );
-    });
+      ],
+    );
   }
 
   Widget _button(StyleController c, int i) {

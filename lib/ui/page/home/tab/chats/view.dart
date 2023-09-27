@@ -22,7 +22,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/animated_button.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -92,7 +92,7 @@ class ChatsTabView extends StatelessWidget {
                   border: (c.searching.value ||
                           c.search.value?.search.isFocused.value == true ||
                           c.search.value?.query.value.isNotEmpty == true)
-                      ? Border.all(color: style.colors.secondary, width: 2)
+                      ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   // border: c.search.value != null || c.selecting.value
                   //     ? Border.all(color: colors.secondary, width: 2)

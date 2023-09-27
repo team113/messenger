@@ -39,7 +39,7 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
-      background: const Color(0xFFF5F8FA),
+      background: Color.fromRGBO(242, 245, 248, 1),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),

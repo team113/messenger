@@ -1574,10 +1574,13 @@ class _ChatViewState extends State<ChatView>
       if (c.edit.value != null) {
         return Padding(
           padding: const EdgeInsets.only(left: 8, right: 8),
-          child: MessageFieldView(
-            key: const Key('EditField'),
-            controller: c.edit.value,
-            onItemPressed: (id) => c.animateTo(id, offsetBasedOnBottom: false),
+          child: SafeArea(
+            child: MessageFieldView(
+              key: const Key('EditField'),
+              controller: c.edit.value,
+              onItemPressed: (id) =>
+                  c.animateTo(id, offsetBasedOnBottom: false),
+            ),
           ),
         );
       }
@@ -1637,13 +1640,15 @@ class _ChatViewState extends State<ChatView>
           }),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),
-            child: MessageFieldView(
-              key: const Key('SendField'),
-              controller: c.send,
-              onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
-              onItemPressed: (id) =>
-                  c.animateTo(id, offsetBasedOnBottom: false),
-              canForward: true,
+            child: SafeArea(
+              child: MessageFieldView(
+                key: const Key('SendField'),
+                controller: c.send,
+                onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+                onItemPressed: (id) =>
+                    c.animateTo(id, offsetBasedOnBottom: false),
+                canForward: true,
+              ),
             ),
           ),
         ],

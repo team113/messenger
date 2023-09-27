@@ -193,20 +193,35 @@ class _ChatTileState extends State<ChatTile> {
                                 child: Row(
                                   children: [
                                     Flexible(
-                                      child: Obx(() {
-                                        return Text(
-                                          widget.chat?.title.value ??
+                                      child: widget.chat == null
+                                          ? Text(
                                               ('dot'.l10n * 3),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: style.fonts.headlineLarge.copyWith(
-                                            color:
-                                                widget.selected || widget.active
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: style.fonts.headlineLarge
+                                                  .copyWith(
+                                                color: widget.selected ||
+                                                        widget.active
                                                     ? style.colors.onPrimary
                                                     : style.colors.onBackground,
-                                          ),
-                                        );
-                                      }),
+                                              ),
+                                            )
+                                          : Obx(() {
+                                              return Text(
+                                                widget.chat?.title.value ??
+                                                    ('dot'.l10n * 3),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                style: style.fonts.headlineLarge
+                                                    .copyWith(
+                                                  color: widget.selected ||
+                                                          widget.active
+                                                      ? style.colors.onPrimary
+                                                      : style
+                                                          .colors.onBackground,
+                                                ),
+                                              );
+                                            }),
                                     ),
                                     ...widget.title,
                                   ],

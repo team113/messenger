@@ -24,7 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
-import 'package:messenger/ui/page/home/widget/animated_button.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -150,29 +150,30 @@ class MessageFieldView extends StatelessWidget {
       builder: (MessageFieldController c) {
         return Theme(
           data: theme(context),
-          child: SafeArea(
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                ],
+          child: Container(
+            key: const Key('SendField'),
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              boxShadow: [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: style.colors.onBackgroundOpacity13,
+                ),
+              ],
+            ),
+            child: ConditionalBackdropFilter(
+              condition: style.cardBlur > 0,
+              filter: ImageFilter.blur(
+                sigmaX: style.cardBlur,
+                sigmaY: style.cardBlur,
               ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
-                ),
-                borderRadius: style.cardRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [_buildHeader(c, context), _buildField(c, context)],
-                ),
+              borderRadius: style.cardRadius,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildHeader(c, context),
+                  _buildField(c, context),
+                ],
               ),
             ),
           ),
@@ -422,7 +423,11 @@ class MessageFieldView extends StatelessWidget {
                                       duration: 200.milliseconds,
                                       child: Padding(
                                         padding: const EdgeInsets.fromLTRB(
-                                            0, 8, 6, 0),
+                                          0,
+                                          8,
+                                          6,
+                                          0,
+                                        ),
                                         child: WidgetButton(
                                           key: const Key('CancelReplyButton'),
                                           onPressed: () =>
@@ -433,27 +438,6 @@ class MessageFieldView extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                // child: Padding(
-                                //   padding: const EdgeInsets.symmetric(vertical: 2),
-                                //   child: Container(
-                                //     padding:
-                                //         const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                                //     decoration: BoxDecoration(
-                                //       color: Colors.white,
-                                //       borderRadius: BorderRadius.circular(10),
-                                //     ),
-                                //     child: Row(
-                                //       children: [
-                                //         Expanded(
-                                //           child: Text(
-                                //             'G${c.donation.value}',
-                                //             style: TextStyle(fontSize: 21),
-                                //           ),
-                                //         ),
-                                //       ],
-                                //     ),
-                                //   ),
-                                // ),
                               ),
                             ),
                           ),

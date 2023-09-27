@@ -225,7 +225,7 @@ class MessageFieldController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
 
-  Rx<MyUser?> get myUser => _myUserService!.myUser;
+  Rx<MyUser?> get myUser => _myUserService?.myUser ?? Rx(null);
 
   @override
   void onClose() {
@@ -337,7 +337,8 @@ class MessageFieldController extends GetxController {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: type,
       allowMultiple: true,
-      withReadStream: true,
+      // withReadStream: true,
+      withData: true,
     );
 
     if (result != null && result.files.isNotEmpty) {

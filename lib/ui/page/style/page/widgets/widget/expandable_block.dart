@@ -11,6 +11,7 @@ class ExpandableBlock extends StatefulWidget {
     this.preview,
     this.take = 11,
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    this.color,
     this.children = const [],
   });
 
@@ -18,6 +19,7 @@ class ExpandableBlock extends StatefulWidget {
   final List<Widget>? preview;
   final int take;
   final EdgeInsets padding;
+  final Color? color;
   final List<Widget> children;
 
   @override
@@ -34,6 +36,7 @@ class _ExpandableBlockState extends State<ExpandableBlock> {
     return Stack(
       children: [
         Block(
+          color: widget.color,
           headline: widget.headline,
           padding: widget.padding,
           // underline: AnimatedButton(

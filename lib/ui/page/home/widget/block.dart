@@ -33,6 +33,7 @@ class Block extends StatelessWidget {
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.unconstrained = false,
     this.headline,
+    this.headlineColor,
     this.underline,
     this.color,
     this.fade = false,
@@ -58,6 +59,7 @@ class Block extends StatelessWidget {
   final Widget? underline;
 
   final Color? color;
+  final Color? headlineColor;
 
   final bool fade;
 
@@ -96,9 +98,6 @@ class Block extends StatelessWidget {
                 contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 border: border,
                 // labelText: headline,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                floatingLabelStyle: style.fonts.headlineLarge
-                    .copyWith(color: style.colors.secondary),
               ),
               child: Stack(
                 children: [
@@ -188,7 +187,8 @@ class Block extends StatelessWidget {
                       child: Text(
                         headline!,
                         style: style.fonts.headlineSmall.copyWith(
-                          color: style.colors.secondaryHighlightDarkest,
+                          color: headlineColor ??
+                              style.colors.secondaryHighlightDarkest,
                         ),
                       ),
                     ),

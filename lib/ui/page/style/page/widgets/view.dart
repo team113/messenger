@@ -25,16 +25,21 @@ import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/avatar.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/chat_info.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/model/file.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/model/user_call_cover.dart';
+import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
@@ -51,11 +56,14 @@ import 'package:messenger/ui/page/home/page/chat/widget/unread_label.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/unread_counter.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
+import 'package:messenger/ui/page/home/widget/chat_tile.dart';
+import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
@@ -67,6 +75,7 @@ import 'package:messenger/ui/page/style/widget/builder_wrap.dart';
 import 'package:messenger/ui/page/work/widget/interactive_logo.dart';
 import 'package:messenger/ui/page/work/widget/vacancy_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
@@ -75,6 +84,8 @@ import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/obs/rxlist.dart';
+import 'package:messenger/util/obs/rxmap.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/ui/page/style/widget/scrollable_column.dart';
@@ -130,7 +141,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           _fields(context),
           _buttons(context),
           _switches(context),
-          _containment(context),
+          _tiles(context),
           _system(context),
           _navigation(context),
           Block(
@@ -228,10 +239,12 @@ class _WidgetsViewState extends State<WidgetsView> {
     required Widget child,
     Widget? subtitle,
     Color? color,
+    Color? headlineColor,
   }) {
     return Block(
       color: color,
       headline: title ?? child.runtimeType.toString(),
+      headlineColor: headlineColor,
       children: [
         const SizedBox(height: 16),
         SelectionContainer.disabled(child: child),
@@ -491,61 +504,80 @@ class _WidgetsViewState extends State<WidgetsView> {
             ),
           ],
         ),
-        _headlines(
-          children: [
-            (
-              'CopyableTextField',
-              CopyableTextField(
-                state: TextFieldState(text: 'Text to copy', editable: false),
-                label: 'Label',
-              ),
-            ),
-          ],
+        _headline(
+          child: CopyableTextField(
+            state: TextFieldState(text: 'Text to copy', editable: false),
+            label: 'Label',
+          ),
         ),
-        _headlines(
-          children: [
-            (
-              'SharableTextField',
-              SharableTextField(
-                text: 'Text to share',
-                label: 'Label',
-              ),
-            ),
-          ],
+        _headline(
+          child: SharableTextField(text: 'Text to share', label: 'Label'),
         ),
-        _headlines(
-          children: [
-            (
-              'ReactivePhoneField',
-              ReactivePhoneField(
-                state: PhoneFieldState(),
-                label: 'Label',
-              ),
-            ),
-          ],
+        _headline(
+          child: ReactivePhoneField(state: PhoneFieldState(), label: 'Label'),
         ),
-        _headlines(
-          children: [
-            (
-              'MessageFieldView()',
-              MessageFieldView(
-                controller: MessageFieldController(null, null, null),
+        _headline(
+          child: MessageFieldView(
+            controller: MessageFieldController(null, null, null),
+          ),
+        ),
+        _headline(
+          title: 'CustomAppBar(search)',
+          child: SizedBox(
+            height: 60,
+            width: 400,
+            child: CustomAppBar(
+              withTop: false,
+              border: Border.all(color: style.colors.primary, width: 2),
+              title: Theme(
+                data: MessageFieldView.theme(context),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: ReactiveTextField(
+                      state: TextFieldState(),
+                      hint: 'label_search'.l10n,
+                      maxLines: 1,
+                      filled: false,
+                      dense: true,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      style: style.fonts.bodyLarge,
+                      onChanged: () {},
+                    ),
+                  ),
+                ),
               ),
+              leading: [
+                AnimatedButton(
+                  decorator: (child) => Container(
+                    padding: const EdgeInsets.only(left: 20, right: 6),
+                    height: double.infinity,
+                    child: child,
+                  ),
+                  onPressed: () {},
+                  child: Icon(
+                    key: const Key('ArrowBack'),
+                    Icons.arrow_back_ios_new,
+                    size: 20,
+                    color: style.colors.primary,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+        ),
+        _headline(
+          title: 'ReactiveTextField(search)',
+          child: ReactiveTextField(
+            key: const Key('SearchTextField'),
+            state: TextFieldState(),
+            label: 'label_search'.l10n,
+            style: style.fonts.titleMedium,
+            onChanged: () {},
+          ),
         ),
       ],
-    );
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
-      child: const Block(
-        title: 'Fields',
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [],
-      ),
     );
   }
 
@@ -556,6 +588,10 @@ class _WidgetsViewState extends State<WidgetsView> {
     return Column(
       children: [
         _headlines(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
           children: [
             (
               'MenuButton',
@@ -588,7 +624,10 @@ class _WidgetsViewState extends State<WidgetsView> {
           ],
         ),
         _headlines(
-          color: Colors.black.withOpacity(0.04),
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
           children: [
             (
               'OutlinedRoundedButton(title)',
@@ -607,6 +646,10 @@ class _WidgetsViewState extends State<WidgetsView> {
           ],
         ),
         _headline(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
           child: ShadowedRoundedButton(
             onPressed: () {},
             child: const Text('Label'),
@@ -712,7 +755,8 @@ class _WidgetsViewState extends State<WidgetsView> {
         ),
         _headline(
           title: 'CallButtonWidget',
-          color: Colors.black.withOpacity(0.04),
+          color: style.colors.primaryAuxiliaryOpacity25,
+          headlineColor: style.colors.onPrimary,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -831,6 +875,10 @@ class _WidgetsViewState extends State<WidgetsView> {
         ),
         _headline(child: UnblockButton(() {})),
         _headlines(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
           children: WorkTab.values
               .map(
                 (e) => (
@@ -850,58 +898,130 @@ class _WidgetsViewState extends State<WidgetsView> {
 
     return Column(
       children: [
-        Block(
+        _headline(
           title: 'SwitchField',
-          children: [
-            ObxValue(
-              (value) {
-                return SwitchField(
-                  text: 'Label',
-                  value: value.value,
-                  onChanged: (b) => value.value = b,
-                );
-              },
-              false.obs,
-            ),
-          ],
+          child: ObxValue(
+            (value) {
+              return SwitchField(
+                text: 'Label',
+                value: value.value,
+                onChanged: (b) => value.value = b,
+              );
+            },
+            false.obs,
+          ),
         ),
       ],
     );
   }
 
   /// Builds the animation [Column].
-  Widget _containment(BuildContext context) {
-    // final style = Theme.of(context).style;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
-      child: const Block(
-        title: 'Containment',
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [],
-      ),
-    );
-  }
-
-  /// Builds the animation [Column].
-  Widget _system(BuildContext context) {
-    // final style = Theme.of(context).style;
+  Widget _tiles(BuildContext context) {
+    final style = Theme.of(context).style;
 
     return Column(
       children: [
-        Block(
-          title: 'UnreadCounter',
+        _headlines(
           children: [
-            SizedBox(
-              child: Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: [
-                  ...List.generate(10, (i) => UnreadCounter(i + 1)),
-                  ...List.generate(10, (i) => UnreadCounter((i + 1) * 10)),
+            (
+              'ContextMenu(desktop)',
+              const ContextMenu(
+                actions: [
+                  ContextMenuButton(label: 'Action 1'),
+                  ContextMenuButton(label: 'Action 2'),
+                  ContextMenuButton(label: 'Action 3'),
+                  ContextMenuDivider(),
+                  ContextMenuButton(label: 'Action 4'),
                 ],
+              )
+            ),
+            (
+              'ContextMenu(mobile)',
+              const ContextMenu(
+                enlarge: true,
+                actions: [
+                  ContextMenuButton(label: 'Action 1', enlarge: true),
+                  ContextMenuButton(label: 'Action 2', enlarge: true),
+                  ContextMenuButton(label: 'Action 3', enlarge: true),
+                  ContextMenuButton(label: 'Action 4', enlarge: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+        _headlines(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
+          children: [
+            (
+              'RecentChatTile',
+              RecentChatTile(DummyRxChat(), onTap: () {}),
+            ),
+            (
+              'RecentChatTile(selected)',
+              RecentChatTile(
+                DummyRxChat(),
+                onTap: () {},
+                selected: true,
+              ),
+            ),
+          ],
+        ),
+        _headlines(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
+          children: [
+            (
+              'ChatTile',
+              ChatTile(chat: DummyRxChat(), onTap: () {}),
+            ),
+            (
+              'ChatTile(selected)',
+              ChatTile(
+                chat: DummyRxChat(),
+                onTap: () {},
+                selected: true,
+              ),
+            ),
+          ],
+        ),
+        _headlines(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
+          ),
+          children: [
+            (
+              'ContactTile',
+              ContactTile(
+                myUser: MyUser(
+                  id: const UserId('123'),
+                  num: UserNum('1234123412341234'),
+                  emails: MyUserEmails(confirmed: []),
+                  phones: MyUserPhones(confirmed: []),
+                  presenceIndex: 0,
+                  online: true,
+                ),
+                onTap: () {},
+              ),
+            ),
+            (
+              'ContactTile(selected)',
+              ContactTile(
+                myUser: MyUser(
+                  id: const UserId('123'),
+                  num: UserNum('1234123412341234'),
+                  emails: MyUserEmails(confirmed: []),
+                  phones: MyUserPhones(confirmed: []),
+                  presenceIndex: 0,
+                  online: true,
+                ),
+                onTap: () {},
+                selected: true,
               ),
             ),
           ],
@@ -911,8 +1031,31 @@ class _WidgetsViewState extends State<WidgetsView> {
   }
 
   /// Builds the animation [Column].
-  Widget _chat(BuildContext context) {
+  Widget _system(BuildContext context) {
     // final style = Theme.of(context).style;
+
+    return const Block(
+      headline: 'UnreadCounter',
+      children: [
+        SizedBox(
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              UnreadCounter(1),
+              UnreadCounter(10),
+              UnreadCounter(90),
+              UnreadCounter(100)
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds the animation [Column].
+  Widget _chat(BuildContext context) {
+    final style = Theme.of(context).style;
 
     ChatItem message({
       bool fromMe = true,
@@ -1075,6 +1218,7 @@ class _WidgetsViewState extends State<WidgetsView> {
     return Column(
       children: [
         Block(
+          color: style.colors.onBackgroundOpacity7,
           headline: 'TimeLabelWidget',
           children: [
             TimeLabelWidget(
@@ -1094,9 +1238,13 @@ class _WidgetsViewState extends State<WidgetsView> {
             )
           ],
         ),
-        const Block(headline: 'UnreadLabel', children: [UnreadLabel(123)]),
+        Block(
+          color: style.colors.onBackgroundOpacity7,
+          headline: 'UnreadLabel',
+          children: const [UnreadLabel(123)],
+        ),
         ExpandableBlock(
-          // color: style.colors.background,
+          color: style.colors.onBackgroundOpacity7,
           padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
           headline: 'ChatItemWidget',
           children: [
@@ -1350,7 +1498,7 @@ class _WidgetsViewState extends State<WidgetsView> {
         ),
         Block(
           padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-          // color: style.colors.background,
+          color: style.colors.onBackgroundOpacity7,
           headline: 'ChatForwardWidget',
           children: [
             const SizedBox(height: 32),
@@ -1513,15 +1661,137 @@ class _WidgetsViewState extends State<WidgetsView> {
   Widget _navigation(BuildContext context) {
     // final style = Theme.of(context).style;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
-      child: const Block(
-        title: 'Navigation',
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [],
-      ),
+    return _headlines(
+      children: [
+        (
+          'CustomAppBar',
+          SizedBox(
+            height: 60,
+            child: CustomAppBar(
+              withTop: false,
+              title: const Text('Title'),
+              leading: [StyledBackButton(onPressed: () {})],
+              actions: const [SizedBox(width: 60)],
+            ),
+          ),
+        ),
+        (
+          'CustomAppBar(leading, actions)',
+          SizedBox(
+            height: 60,
+            child: CustomAppBar(
+              withTop: false,
+              title: const Row(children: [Text('Title')]),
+              padding: const EdgeInsets.only(left: 4, right: 20),
+              leading: [StyledBackButton(onPressed: () {})],
+              actions: [
+                AnimatedButton(
+                  onPressed: () {},
+                  child: const SvgImage.asset(
+                    'assets/icons/chat_video_call.svg',
+                    height: 17,
+                  ),
+                ),
+                const SizedBox(width: 28),
+                AnimatedButton(
+                  key: const Key('AudioCall'),
+                  onPressed: () {},
+                  child: const SvgImage.asset(
+                    'assets/icons/chat_audio_call.svg',
+                    height: 19,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
+
+class DummyRxChat extends RxChat {
+  DummyRxChat() : chat = Rx(Chat(ChatId.local(const UserId('me'))));
+
+  @override
+  final Rx<Chat> chat;
+
+  @override
+  Future<void> addMessage(ChatMessageText text) async {}
+
+  @override
+  Future<void> around() async {}
+
+  @override
+  Rx<Avatar?> get avatar => Rx(null);
+
+  @override
+  UserCallCover? get callCover => null;
+
+  @override
+  int compareTo(RxChat other) => 0;
+
+  @override
+  Rx<ChatMessage?> get draft => Rx(null);
+
+  @override
+  Rx<ChatItem>? get firstUnread => null;
+
+  @override
+  RxBool get hasNext => RxBool(false);
+
+  @override
+  RxBool get hasPrevious => RxBool(false);
+
+  @override
+  ChatItem? get lastItem => null;
+
+  @override
+  UserId? get me => null;
+
+  @override
+  RxObsMap<UserId, RxUser> get members => RxObsMap();
+
+  @override
+  RxObsList<Rx<ChatItem>> get messages => RxObsList();
+
+  @override
+  Future<void> next() async {}
+
+  @override
+  RxBool get nextLoading => RxBool(false);
+
+  @override
+  Future<void> previous() async {}
+
+  @override
+  RxBool get previousLoading => RxBool(false);
+
+  @override
+  RxList<LastChatRead> get reads => RxList();
+
+  @override
+  Future<void> remove(ChatItemId itemId) async {}
+
+  @override
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  }) {}
+
+  @override
+  Rx<RxStatus> get status => Rx(RxStatus.empty());
+
+  @override
+  RxString get title => RxString('Title');
+
+  @override
+  RxList<User> get typingUsers => RxList();
+
+  @override
+  RxInt get unreadCount => RxInt(0);
+
+  @override
+  Future<void> updateAttachments(ChatItem item) async {}
 }
