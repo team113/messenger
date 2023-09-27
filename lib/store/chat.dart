@@ -1205,7 +1205,7 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    var saved = await _chatLocal.get(chat.value.id);
+    final HiveChat? saved = await _chatLocal.get(chat.value.id);
 
     // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
     chat.value.firstItem ??= saved?.value.firstItem;
@@ -1214,9 +1214,9 @@ class ChatRepository extends DisposableInterface
       _chatLocal.put(chat);
     }
 
+    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
     if (!pagination) {
-      // If [chat] received not from pagination then try put it to the
-      // pagination.
       await _pagination?.put(chat);
     }
 

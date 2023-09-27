@@ -218,6 +218,10 @@ class Pagination<T, C, K> {
       await provider.put(item);
     }
 
+    // Bypasses the bounds check.
+    //
+    // Intended to be used to forcefully add items, e.g. when items are
+    // migrating from one source to another.
     if (ignoreBounds) {
       await put();
       return;
