@@ -64,7 +64,11 @@ class ScreenShareView extends StatelessWidget {
       init: ScreenShareController(
         Get.find(),
         call: call,
-        pop: Navigator.of(context).pop,
+        pop: () {
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
