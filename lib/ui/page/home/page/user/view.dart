@@ -95,8 +95,8 @@ class UserView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         child: PeriodicBuilder(
                           period: const Duration(minutes: 1),
+                          delay: c.user!.user.value.getDelay(),
                           builder: (context) => Obx(() {
-                            
                             final String? status =
                                 c.user?.user.value.getStatus();
                             final UserTextStatus? text =
@@ -206,7 +206,8 @@ class UserView extends StatelessWidget {
                             UserStatusCopyable(c.user!.user.value.status!),
                           if (c.user!.user.value.presence != null)
                             PeriodicBuilder(
-                              period: const Duration(seconds: 1),
+                              period: const Duration(minutes: 1),
+                              delay: c.user!.user.value.getDelay(),
                               builder: (context) => UserPresenceField(
                                 c.user!.user.value.presence!,
                                 c.user!.user.value.getStatus(),
