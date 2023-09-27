@@ -132,7 +132,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               }
 
-              return DefaultAnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 250.milliseconds,
                 child: child,
               );
@@ -182,7 +182,7 @@ class ContactsTabView extends StatelessWidget {
                           width: 29.69 + 12 + 18,
                           height: double.infinity,
                           child: Center(
-                            child: DefaultAnimatedSwitcher(
+                            child: SafeAnimatedSwitcher(
                               duration: 250.milliseconds,
                               child: child,
                             ),
@@ -279,7 +279,7 @@ class ContactsTabView extends StatelessWidget {
                       child: child,
                     );
                   },
-                  child: DefaultAnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 250.milliseconds,
                     child: c.search.value != null
                         ? Icon(
@@ -575,7 +575,7 @@ class ContactsTabView extends StatelessWidget {
                   );
                 }),
                 ContextMenuInterceptor(
-                  child: DefaultAnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: child,
                   ),

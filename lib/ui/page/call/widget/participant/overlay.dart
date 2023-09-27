@@ -231,7 +231,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
-                child: DefaultAnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
                   child: child,
                 ),

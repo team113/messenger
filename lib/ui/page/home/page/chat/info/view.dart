@@ -170,7 +170,7 @@ class ChatInfoView extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: DefaultAnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 300.milliseconds,
                           child: c.inCall
                               ? const SvgImage.asset(

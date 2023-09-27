@@ -20,8 +20,8 @@ import 'package:flutter/material.dart';
 /// [AnimatedSwitcher] with exception-safe layout builder.
 ///
 /// Intended to be used instead of the [AnimatedSwitcher].
-class DefaultAnimatedSwitcher extends StatelessWidget {
-  const DefaultAnimatedSwitcher({
+class SafeAnimatedSwitcher extends StatelessWidget {
+  const SafeAnimatedSwitcher({
     super.key,
     required this.duration,
     this.child,
@@ -34,15 +34,17 @@ class DefaultAnimatedSwitcher extends StatelessWidget {
   final Widget? child;
 
   @override
-  Widget build(BuildContext context) => AnimatedSwitcher(
-        duration: duration,
-        layoutBuilder: (current, previous) => Stack(
-          alignment: Alignment.center,
-          children: [
-            if (previous.isNotEmpty) previous.first,
-            if (current != null) current,
-          ],
-        ),
-        child: child,
-      );
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: duration,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: Alignment.center,
+        children: [
+          if (previous.isNotEmpty) previous.first,
+          if (current != null) current,
+        ],
+      ),
+      child: child,
+    );
+  }
 }

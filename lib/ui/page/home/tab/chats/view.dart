@@ -165,7 +165,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
 
-                    return DefaultAnimatedSwitcher(
+                    return SafeAnimatedSwitcher(
                       duration: 250.milliseconds,
                       child: child,
                     );
@@ -233,7 +233,7 @@ class ChatsTabView extends StatelessWidget {
                             child: child,
                           );
                         },
-                        child: DefaultAnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: c.searching.value
                               ? Icon(
@@ -301,7 +301,7 @@ class ChatsTabView extends StatelessWidget {
                                 height: double.infinity,
                                 child: SizedBox(
                                   width: 21.77,
-                                  child: DefaultAnimatedSwitcher(
+                                  child: SafeAnimatedSwitcher(
                                     duration: 250.milliseconds,
                                     child: child,
                                   ),
@@ -917,7 +917,7 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: DefaultAnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: child,
                     ),
@@ -1000,7 +1000,7 @@ class ChatsTabView extends StatelessWidget {
                 child = const SizedBox();
               }
 
-              return DefaultAnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: child,
               );

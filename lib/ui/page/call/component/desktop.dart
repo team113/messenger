@@ -187,7 +187,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             }
                           }
 
-                          return DefaultAnimatedSwitcher(
+                          return SafeAnimatedSwitcher(
                             duration: 400.milliseconds,
                             child: child,
                           );
@@ -238,10 +238,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           }
 
-          return DefaultAnimatedSwitcher(
-            duration: 200.milliseconds,
-            child: child,
-          );
+          return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
         }),
 
         // Reconnection indicator.
@@ -326,7 +323,7 @@ Widget desktopCall(CallController c, BuildContext context) {
             130,
           );
 
-          return DefaultAnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             key: const Key('SecondaryTargetAnimatedSwitcher'),
             duration: 200.milliseconds,
             child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
@@ -527,7 +524,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Display the more hint, if not dismissed.
         Obx(() {
-          return DefaultAnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             duration: 150.milliseconds,
             child: c.showDragAndDropButtonsHint && c.displayMore.value
                 ? Align(
@@ -568,7 +565,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         IgnorePointer(
           child: Obx(() {
             bool preferTitle = c.state.value != OngoingCallState.active;
-            return DefaultAnimatedSwitcher(
+            return SafeAnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: preferTitle &&
                       c.primary
@@ -604,7 +601,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           final bool preferTitle =
               c.state.value != OngoingCallState.active && !isOutgoing;
 
-          return DefaultAnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcherCallTitle'),
             duration: const Duration(milliseconds: 200),
             child: preferTitle
@@ -753,7 +750,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   (c.focused.isEmpty &&
                       c.primary.length + c.secondary.length > 1));
 
-          return DefaultAnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             duration: 150.milliseconds,
             child: c.showDragAndDropVideosHint && mayDragVideo
                 ? Padding(
@@ -1710,7 +1707,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     c.hoveredRenderer.value = null;
                     c.isCursorHidden.value = false;
                   },
-                  child: DefaultAnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
                         ? Container()
@@ -1950,7 +1947,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 width: width,
                 height: height,
                 child: Obx(() {
-                  return DefaultAnimatedSwitcher(
+                  return SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0

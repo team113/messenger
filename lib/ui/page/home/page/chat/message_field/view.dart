@@ -499,7 +499,7 @@ class MessageFieldView extends StatelessWidget {
                     width: 56,
                     height: 56,
                     child: Center(
-                      child: DefaultAnimatedSwitcher(
+                      child: SafeAnimatedSwitcher(
                         duration: 300.milliseconds,
                         child: c.forwarding.value
                             ? const SvgImage.asset(

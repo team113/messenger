@@ -128,7 +128,7 @@ class _VideoViewState extends State<VideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return DefaultAnimatedSwitcher(
+    return SafeAnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: StreamBuilder(
           stream: _controller.player.stream.width,

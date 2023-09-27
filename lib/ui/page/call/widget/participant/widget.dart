@@ -89,7 +89,7 @@ class ParticipantWidget extends StatelessWidget {
       return Stack(
         children: [
           if (!hasVideo) ...background(),
-          DefaultAnimatedSwitcher(
+          SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
@@ -150,7 +150,7 @@ class ParticipantWidget extends StatelessWidget {
               );
             }
 
-            return DefaultAnimatedSwitcher(
+            return SafeAnimatedSwitcher(
               duration: 250.milliseconds,
               child: child,
             );

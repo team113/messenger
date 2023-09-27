@@ -152,7 +152,7 @@ class MessageInfo extends StatelessWidget {
                           ),
                         );
 
-                        return DefaultAnimatedSwitcher(
+                        return SafeAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: c.search.isEmpty.value ? null : close,
                         );

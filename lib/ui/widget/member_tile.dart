@@ -71,7 +71,7 @@ class MemberTile extends StatelessWidget {
       trailing: [
         if (inCall != null) ...[
           const SizedBox(width: 8),
-          DefaultAnimatedSwitcher(
+          SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Material(
               key: Key(inCall == true ? 'InCall' : 'NotInCall'),

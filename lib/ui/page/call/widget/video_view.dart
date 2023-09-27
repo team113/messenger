@@ -282,7 +282,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           alignment: Alignment.bottomCenter,
           children: [
             outlined(fit),
-            DefaultAnimatedSwitcher(
+            SafeAnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
                   ? Container(

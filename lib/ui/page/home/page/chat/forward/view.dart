@@ -143,7 +143,7 @@ class ChatForwardView extends StatelessWidget {
                   ),
                 ),
                 IgnorePointer(
-                  child: DefaultAnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(

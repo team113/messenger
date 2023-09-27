@@ -269,7 +269,7 @@ class _HomeViewState extends State<HomeView> {
                                       );
                                     }
 
-                                    return DefaultAnimatedSwitcher(
+                                    return SafeAnimatedSwitcher(
                                       key: c.chatsKey,
                                       duration: 200.milliseconds,
                                       child: child,
@@ -434,7 +434,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: DefaultAnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: 250.milliseconds,
                   child: image,
                 ),

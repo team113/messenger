@@ -319,7 +319,7 @@ class _RetryImageState extends State<RetryImage> {
       return Stack(
         alignment: Alignment.center,
         children: [
-          DefaultAnimatedSwitcher(
+          SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 150),
             child: _fallback == null
                 ? SizedBox(width: 200, height: widget.height)
@@ -345,7 +345,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
           Positioned.fill(
             child: Center(
-              child: DefaultAnimatedSwitcher(
+              child: SafeAnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
                 child:
                     KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
@@ -358,7 +358,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return KeyedSubtree(
       key: Key('Image_${widget.url}'),
-      child: DefaultAnimatedSwitcher(
+      child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 150),
         child: child,
       ),

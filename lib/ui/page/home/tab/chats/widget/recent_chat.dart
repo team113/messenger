@@ -790,7 +790,7 @@ class RecentChatTile extends StatelessWidget {
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
-        child: DefaultAnimatedSwitcher(
+        child: SafeAnimatedSwitcher(
           duration: 300.milliseconds,
           child: PeriodicBuilder(
             period: Config.disableInfiniteAnimations

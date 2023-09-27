@@ -394,7 +394,7 @@ class ReactiveTextField extends StatelessWidget {
               duration: 200.milliseconds,
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: DefaultAnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: 200.milliseconds,
                   child: state.error.value == null
                       ? subtitle != null

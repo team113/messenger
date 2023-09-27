@@ -74,7 +74,7 @@ class RectangleButton extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   height: 20,
-                  child: DefaultAnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
@@ -96,7 +96,7 @@ class RectangleButton extends StatelessWidget {
                   child: CircleAvatar(
                     backgroundColor: trailingColor,
                     radius: 12,
-                    child: DefaultAnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
                           ? Icon(

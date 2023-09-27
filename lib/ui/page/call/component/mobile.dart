@@ -272,7 +272,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 );
               }
 
-              return DefaultAnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: child,
               );
@@ -336,7 +336,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Dimmed container if any video is displayed while calling.
       Obx(() {
         return IgnorePointer(
-          child: DefaultAnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: (c.state.value != OngoingCallState.active &&
                     c.state.value != OngoingCallState.joining &&
@@ -548,7 +548,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           ];
         }
 
-        return DefaultAnimatedSwitcher(
+        return SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
           child: c.state.value == OngoingCallState.active ||
                   c.state.value == OngoingCallState.joining

@@ -107,7 +107,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           children: [
             _avatar(context),
             Positioned.fill(
-              child: DefaultAnimatedSwitcher(
+              child: SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: widget.loading
                     ? Container(

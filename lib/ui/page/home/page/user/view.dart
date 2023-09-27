@@ -327,7 +327,7 @@ class UserView extends StatelessWidget {
                 child = const CustomProgressIndicator();
               }
 
-              return DefaultAnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: child,
               );

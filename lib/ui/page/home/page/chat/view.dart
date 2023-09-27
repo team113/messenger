@@ -285,7 +285,7 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
                                 onPressed: c.inCall ? c.dropCall : c.joinCall,
-                                child: DefaultAnimatedSwitcher(
+                                child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: child,
                                 ),
@@ -489,7 +489,7 @@ class _ChatViewState extends State<ChatView>
                       return SizedBox(
                         width: 50,
                         height: 50,
-                        child: DefaultAnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 200.milliseconds,
                           child: c.canGoBack.isTrue
                               ? FloatingActionButton.small(
@@ -512,7 +512,7 @@ class _ChatViewState extends State<ChatView>
                   ),
                   IgnorePointer(
                     child: Obx(() {
-                      return DefaultAnimatedSwitcher(
+                      return SafeAnimatedSwitcher(
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(

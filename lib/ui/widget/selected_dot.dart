@@ -54,7 +54,7 @@ class SelectedDot extends StatelessWidget {
 
     return SizedBox(
       width: 30,
-      child: DefaultAnimatedSwitcher(
+      child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: selected
             ? CircleAvatar(

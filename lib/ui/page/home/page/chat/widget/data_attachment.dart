@@ -194,7 +194,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 const SizedBox(width: 6),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: DefaultAnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
                     child: leading,
