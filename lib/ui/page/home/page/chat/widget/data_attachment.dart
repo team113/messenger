@@ -23,6 +23,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
@@ -193,16 +194,9 @@ class _DataAttachmentState extends State<DataAttachment> {
                 const SizedBox(width: 6),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
-                    layoutBuilder: (current, previous) => Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (previous.isNotEmpty) previous.first,
-                        if (current != null) current,
-                      ],
-                    ),
                     child: leading,
                   ),
                 ),
