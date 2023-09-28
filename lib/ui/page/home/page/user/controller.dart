@@ -424,12 +424,12 @@ extension UserViewExt on User {
           return const Duration(days: 1);
         } else if (lastSeenAt != null) {
           final DateTime now = DateTime.now();
-          final DateTime nextMinute =
+          final DateTime lastSeenAtPlusOneMinute =
               lastSeenAt!.val.copyWith(minute: lastSeenAt!.val.minute + 1);
           final int diff = now.difference(lastSeenAt!.val).inSeconds;
 
           if (diff <= 60) {
-            final delay = nextMinute.difference(now).inSeconds;
+            final int delay = lastSeenAtPlusOneMinute.difference(now).inSeconds;
             return Duration(seconds: delay);
           } else if (diff <= 3600) {
             return Duration(seconds: diff % 60 != 0 ? 60 - diff % 60 : 0);
