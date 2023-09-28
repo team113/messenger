@@ -44,14 +44,17 @@ class PeriodicBuilder extends StatefulWidget {
 /// State of a [PeriodicBuilder] maintaining the [_timer].
 class _PeriodicBuilderState extends State<PeriodicBuilder> {
   /// [Timer] rebuilding this [Widget].
-  late final Timer _timer;
+  Timer? _timer;
+
+  /// [Timer] delaying the first rebuild.
+  late final Timer _delayTimer;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(widget.delay, () {
+    _delayTimer = Timer(widget.delay, () {
       setState(() {});
-      _timer = Timer.periodic(widget.delay, (_) {
+      _timer = Timer.periodic(widget.period, (_) {
         if (mounted) {
           setState(() {});
         }
@@ -61,7 +64,9 @@ class _PeriodicBuilderState extends State<PeriodicBuilder> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    if (_timer != null) _timer!.cancel();
+
+    _delayTimer.cancel();
     super.dispose();
   }
 
