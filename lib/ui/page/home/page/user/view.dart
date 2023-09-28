@@ -95,8 +95,9 @@ class UserView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: PeriodicBuilder(
-                          period: c.user!.user.value.getPeriod(),
-                          delay: c.user!.user.value.getDelay(),
+                          delay: c.user?.user.value.getDelay() ?? Duration.zero,
+                          period: c.user?.user.value.getPeriod() ??
+                              const Duration(minutes: 1),
                           builder: (context) => Obx(() {
                             final String? status =
                                 c.user?.user.value.getStatus();
@@ -207,8 +208,10 @@ class UserView extends StatelessWidget {
                             UserStatusCopyable(c.user!.user.value.status!),
                           if (c.user!.user.value.presence != null)
                             PeriodicBuilder(
-                              period: c.user!.user.value.getPeriod(),
-                              delay: c.user!.user.value.getDelay(),
+                              delay: c.user?.user.value.getDelay() ??
+                                  Duration.zero,
+                              period: c.user?.user.value.getPeriod() ??
+                                  const Duration(minutes: 1),
                               builder: (context) => UserPresenceField(
                                 c.user!.user.value.presence!,
                                 c.user!.user.value.getStatus(),

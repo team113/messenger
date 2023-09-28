@@ -207,9 +207,12 @@ class _ChatViewState extends State<ChatView>
                                     }),
                                     if (!isMonolog)
                                       PeriodicBuilder(
-                                          delay: c.chat!.chat.value.getDelay(),
+                                          delay:
+                                              c.chat?.chat.value.getDelay() ??
+                                                  Duration.zero,
                                           period:
-                                              c.chat!.chat.value.getPeriod(),
+                                              c.chat?.chat.value.getPeriod() ??
+                                                  const Duration(minutes: 1),
                                           builder: (context) =>
                                               ChatSubtitle(c.chat!, c.me)),
                                   ],
