@@ -38,6 +38,7 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
@@ -789,7 +790,7 @@ class RecentChatTile extends StatelessWidget {
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
-        child: AnimatedSwitcher(
+        child: SafeAnimatedSwitcher(
           duration: 300.milliseconds,
           child: PeriodicBuilder(
             period: Config.disableInfiniteAnimations

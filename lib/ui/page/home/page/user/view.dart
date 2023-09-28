@@ -33,6 +33,7 @@ import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -336,7 +337,7 @@ class UserView extends StatelessWidget {
                 child = const CustomProgressIndicator();
               }
 
-              return AnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: child,
               );

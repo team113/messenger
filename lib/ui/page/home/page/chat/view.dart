@@ -43,6 +43,7 @@ import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -291,15 +292,8 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
                                 onPressed: c.inCall ? c.dropCall : c.joinCall,
-                                child: AnimatedSwitcher(
+                                child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
-                                  layoutBuilder: (current, previous) => Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      if (previous.isNotEmpty) previous.first,
-                                      if (current != null) current,
-                                    ],
-                                  ),
                                   child: child,
                                 ),
                               ),
@@ -502,7 +496,7 @@ class _ChatViewState extends State<ChatView>
                       return SizedBox(
                         width: 50,
                         height: 50,
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 200.milliseconds,
                           child: c.canGoBack.isTrue
                               ? FloatingActionButton.small(
@@ -525,7 +519,7 @@ class _ChatViewState extends State<ChatView>
                   ),
                   IgnorePointer(
                     child: Obx(() {
-                      return AnimatedSwitcher(
+                      return SafeAnimatedSwitcher(
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
