@@ -971,7 +971,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
-                child: scaler(s
+                child: scaler(
                   // TODO: https://github.com/flutter/flutter/issues/89351
                   cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
                       ? SystemMouseCursors.resizeRow
