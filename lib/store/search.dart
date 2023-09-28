@@ -63,7 +63,7 @@ class SearchResultImpl<K extends Comparable, T, C>
     if (futures.isEmpty) {
       status.value = RxStatus.success();
     } else {
-      if (items.isNotEmpty) {
+      if (this.items.isNotEmpty) {
         status.value = RxStatus.loadingMore();
       } else {
         status.value = RxStatus.loading();

@@ -64,7 +64,7 @@ class SearchController extends GetxController {
   /// [RxChat] this controller is bound to, if any.
   ///
   /// If specified, then the [RxChat.members] of this [chat] will be omitted
-  /// from the [usersSearch].
+  /// from the [usersSearch] and [contactsSearch].
   final RxChat? chat;
 
   /// Reactive list of the selected [ChatContact]s.
