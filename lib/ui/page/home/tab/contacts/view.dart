@@ -689,7 +689,8 @@ class ContactsTabView extends StatelessWidget {
         ],
         subtitle: [
           PeriodicBuilder(
-            period: const Duration(minutes: 1),
+            delay: contact.user.value!.user.value.getDelay(),
+            period: contact.user.value!.user.value.getPeriod(),
             builder: (context) => Padding(
               padding: const EdgeInsets.only(top: 5),
               child: Obx(() {

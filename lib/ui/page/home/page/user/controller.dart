@@ -419,17 +419,14 @@ extension UserViewExt on User {
     final now = DateTime.now();
     final nextMinute = lastSeenAt!.val.copyWith(
       minute: lastSeenAt!.val.minute + 1,
-      millisecond: 0,
-      microsecond: 0,
     );
-
-    final diff = now.difference(lastSeenAt!.val).inSeconds;
 
     switch (presence) {
       case Presence.present:
         if (online) {
           return const Duration(days: 1);
         } else if (lastSeenAt != null) {
+          final diff = now.difference(lastSeenAt!.val).inSeconds;
           if (diff <= 60) {
             final delay = nextMinute.difference(now).inSeconds;
             return Duration(seconds: delay);
@@ -440,6 +437,34 @@ extension UserViewExt on User {
           } else {
             return Duration(
                 seconds: diff % 86400 != 0 ? 86400 - diff % 86400 : 0);
+          }
+        } else {
+          return const Duration(days: 1);
+        }
+      case Presence.away:
+        return const Duration(days: 1);
+      case Presence.artemisUnknown:
+        return const Duration(days: 1);
+      case null:
+        return const Duration(days: 1);
+    }
+  }
+
+  Duration getPeriod() {
+    final now = DateTime.now();
+
+    switch (presence) {
+      case Presence.present:
+        if (online) {
+          return const Duration(days: 1);
+        } else if (lastSeenAt != null) {
+          final diff = now.difference(lastSeenAt!.val).inSeconds;
+          if (diff <= 3600) {
+            return const Duration(minutes: 1);
+          } else if (diff <= 86400) {
+            return const Duration(hours: 1);
+          } else {
+            return const Duration(days: 1);
           }
         } else {
           return const Duration(days: 1);
