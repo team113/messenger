@@ -17,19 +17,17 @@
 
 import 'package:flutter/material.dart';
 
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Small rounded [OutlinedRoundedButton] with a single [icon].
 class StyleCard extends StatelessWidget {
   const StyleCard({
     super.key,
-    this.icon,
     this.onPressed,
     this.inverted = false,
+    required this.child,
   });
-
-  /// [IconData] to display.
-  final IconData? icon;
 
   /// Indicator whether this [StyleCard] should have its colors inverted.
   final bool inverted;
@@ -37,19 +35,25 @@ class StyleCard extends StatelessWidget {
   /// Callback, called when this [StyleCard] is pressed.
   final void Function()? onPressed;
 
+  /// Child to display withing this card.
+  final Widget child;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(6),
-      child: SizedBox(
-        width: 70,
-        child: OutlinedRoundedButton(
-          color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
-          onPressed: onPressed,
-          title: Icon(
-            icon,
-            color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF1F3C5D),
-          ),
+    return AnimatedButton(
+      onPressed: onPressed,
+      decorator: (child) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: child,
+      ),
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.bounceInOut,
+        scale: inverted ? 1.1 : 1,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 150),
+          opacity: inverted ? 1 : 0.7,
+          child: child,
         ),
       ),
     );
