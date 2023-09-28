@@ -107,7 +107,7 @@ class StyleView extends StatelessWidget {
                                 height: 20.8,
                               )
                             : const SvgImage.asset(
-                                'assets/icons/light_mode1.svg',
+                                'assets/icons/light_mode.svg',
                                 width: 23,
                                 height: 23,
                               ),
@@ -179,21 +179,25 @@ class StyleView extends StatelessWidget {
             }),
           ),
         ),
-        PageView(
-          controller: c.pages,
-          onPageChanged: (i) => c.tab.value = StyleTab.values[i],
-          physics: const NeverScrollableScrollPhysics(),
-          children: StyleTab.values.map((e) {
-            return KeepAlivePage(
-              child: switch (e) {
-                StyleTab.colors => Obx(() {
-                    return ColorsView(inverted: c.inverted.value);
-                  }),
-                StyleTab.typography => const TypographyView(),
-                StyleTab.widgets => const SelectionArea(child: WidgetsView()),
-              },
-            );
-          }).toList(),
+        MediaQuery.removePadding(
+          removeTop: true,
+          context: context,
+          child: PageView(
+            controller: c.pages,
+            onPageChanged: (i) => c.tab.value = StyleTab.values[i],
+            physics: const NeverScrollableScrollPhysics(),
+            children: StyleTab.values.map((e) {
+              return KeepAlivePage(
+                child: switch (e) {
+                  StyleTab.colors => Obx(() {
+                      return ColorsView(inverted: c.inverted.value);
+                    }),
+                  StyleTab.typography => const TypographyView(),
+                  StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                },
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
@@ -213,7 +217,7 @@ class StyleView extends StatelessWidget {
             onPressed: () => c.pages.jumpToPage(i),
           ),
         StyleTab.typography => StyleCard(
-            asset: 'typography2',
+            asset: 'typography',
             assetWidth: 24.02,
             assetHeight: 16,
             inverted: selected,

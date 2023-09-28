@@ -155,7 +155,7 @@ class _TypographyViewState extends State<TypographyView> {
     return SafeScrollbar(
       controller: _scrollController,
       margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
-      child: ScrollableColumn(
+      child: ListView(
         controller: _scrollController,
         children: [
           const SizedBox(height: 16 + 5),

@@ -1776,6 +1776,12 @@ class RtcVideoRenderer extends RtcRenderer {
     if (track is LocalMediaTrack) {
       autoRotate = false;
 
+      _delegate.onResize = () {
+        print(
+          '[track] resized to ${_delegate.videoWidth} ${_delegate.videoHeight} ${_delegate.quarterTurnsRotation}',
+        );
+      };
+
       if (PlatformUtils.isMobile) {
         mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
       } else {

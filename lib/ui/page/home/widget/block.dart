@@ -37,6 +37,7 @@ class Block extends StatelessWidget {
     this.underline,
     this.color,
     this.fade = false,
+    this.margin,
   });
 
   /// Optional header of this [Block].
@@ -62,6 +63,7 @@ class Block extends StatelessWidget {
   final Color? headlineColor;
 
   final bool fade;
+  final double? margin;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,8 @@ class Block extends StatelessWidget {
       highlight: highlight == true,
       child: Center(
         child: Padding(
-          padding: EdgeInsets.fromLTRB(8, headline == null ? 4 : 32, 8, 4),
+          padding: EdgeInsets.fromLTRB(
+              8, margin ?? (headline == null ? 4 : 32), 8, 4),
           child: ConstrainedBox(
             constraints: (context.isNarrow || unconstrained)
                 ? const BoxConstraints.tightForFinite()

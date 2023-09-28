@@ -34,6 +34,7 @@ import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/model/file.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/native_file.dart';
+import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -45,30 +46,52 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/controller.dart';
+import 'package:messenger/ui/page/call/widget/animated_participant.dart';
 import 'package:messenger/ui/page/call/widget/call_button.dart';
+import 'package:messenger/ui/page/call/widget/call_title.dart';
+import 'package:messenger/ui/page/call/widget/chat_info_card.dart';
+import 'package:messenger/ui/page/call/widget/dock.dart';
+import 'package:messenger/ui/page/call/widget/dock_decorator.dart';
+import 'package:messenger/ui/page/call/widget/drop_box.dart';
+import 'package:messenger/ui/page/call/widget/launchpad.dart';
+import 'package:messenger/ui/page/call/widget/raised_hand.dart';
+import 'package:messenger/ui/page/call/widget/reorderable_fit.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_forward.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/message_timestamp.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/paid_notification.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/time_label.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/unread_label.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/background_preview.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/login.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/name.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/status.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
+import 'package:messenger/ui/page/home/page/user/widget/blocklist_record.dart';
+import 'package:messenger/ui/page/home/page/user/widget/presence.dart';
+import 'package:messenger/ui/page/home/page/user/widget/status.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/unread_counter.dart';
 import 'package:messenger/ui/page/home/widget/animated_typing.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
+import 'package:messenger/ui/page/home/widget/big_avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/page/home/widget/direct_link.dart';
+import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
 import 'package:messenger/ui/page/home/widget/sharable.dart';
 import 'package:messenger/ui/page/home/widget/unblock_button.dart';
+import 'package:messenger/ui/page/home/widget/wallet.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/page/style/widget/builder_wrap.dart';
@@ -92,6 +115,12 @@ import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/cat.dart';
 import 'widget/expandable_block.dart';
 import 'widget/playable_asset.dart';
+
+// TODO:
+// - ReactiveLoginField
+// - ReactiveLinkField
+// - BigAvatarWidget
+// - etc...
 
 /// Widgets view of the [Routes.style] page.
 class WidgetsView extends StatefulWidget {
@@ -129,21 +158,21 @@ class _WidgetsViewState extends State<WidgetsView> {
     return SafeScrollbar(
       controller: _scrollController,
       margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
-      child: ScrollableColumn(
+      child: ListView(
         controller: _scrollController,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16 + 5),
-          _images(context),
-          _chat(context),
-          _animations(context),
-          _avatars(context),
-          _fields(context),
-          _buttons(context),
-          _switches(context),
-          _tiles(context),
-          _system(context),
-          _navigation(context),
+          ..._images(context),
+          ..._chat(context),
+          ..._animations(context),
+          ..._avatars(context),
+          ..._fields(context),
+          ..._buttons(context),
+          ..._switches(context),
+          ..._tiles(context),
+          ..._system(context),
+          ..._navigation(context),
           Block(
             headline: 'Sounds',
             children: [
@@ -157,60 +186,6 @@ class _WidgetsViewState extends State<WidgetsView> {
         ],
       ),
     );
-  }
-
-  List<Widget> _element(
-    BuildContext context, {
-    String? title,
-    List<Widget> children = const [],
-  }) {
-    final style = Theme.of(context).style;
-
-    return [
-      if (title != null) ...[
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Expanded(
-              child: Container(
-                height: 0.5,
-                width: double.infinity,
-                color: Colors.black.withOpacity(0.15),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: style.fonts.labelSmallSecondary.copyWith(
-                color: Colors.black.withOpacity(0.15),
-              ),
-              // style: style.fonts.headlineMedium,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                height: 0.5,
-                width: double.infinity,
-                color: Colors.black.withOpacity(0.15),
-              ),
-            ),
-          ],
-        ),
-        // Align(
-        //   alignment: Alignment.centerLeft,
-        //   child: Text(
-        //     title,
-        //     textAlign: TextAlign.center,
-        //     style: style.fonts.labelSmallSecondary,
-        //     // style: style.fonts.headlineMedium,
-        //   ),
-        // ),
-        const SizedBox(height: 8),
-      ],
-      ...children.map((e) => SelectionContainer.disabled(child: e)),
-      const SizedBox(height: 48),
-    ];
   }
 
   Widget _downloadButton(String asset, {String? prefix}) {
@@ -240,17 +215,22 @@ class _WidgetsViewState extends State<WidgetsView> {
     Widget? subtitle,
     Color? color,
     Color? headlineColor,
+    bool top = true,
+    bool bottom = true,
   }) {
     return Block(
       color: color,
       headline: title ?? child.runtimeType.toString(),
       headlineColor: headlineColor,
+      margin: top ? null : 4,
       children: [
-        const SizedBox(height: 16),
+        if (top) const SizedBox(height: 16),
         SelectionContainer.disabled(child: child),
-        const SizedBox(height: 8),
-        if (subtitle != null) SelectionContainer.disabled(child: subtitle),
-        const SizedBox(height: 8),
+        if (bottom) ...[
+          const SizedBox(height: 8),
+          if (subtitle != null) SelectionContainer.disabled(child: subtitle),
+          const SizedBox(height: 8),
+        ],
       ],
     );
   }
@@ -291,84 +271,81 @@ class _WidgetsViewState extends State<WidgetsView> {
   }
 
   /// Builds the images [Column].
-  Widget _images(BuildContext context) {
+  List<Widget> _images(BuildContext context) {
     // final style = Theme.of(context).style;
 
-    return Column(
-      children: [
-        _headline(
-          child: const InteractiveLogo(),
-          subtitle: _downloadButton('head0000.svg', prefix: 'logo'),
+    return [
+      _headline(
+        top: false,
+        subtitle: _downloadButton('head0000.svg', prefix: 'logo'),
+        child: const InteractiveLogo(),
+      ),
+      _headline(
+        title: 'background_light.svg',
+        child: const SvgImage.asset(
+          'assets/images/background_light.svg',
+          height: 300,
+          fit: BoxFit.cover,
         ),
-        _headline(
-          title: 'background_light.svg',
-          child: const SvgImage.asset(
-            'assets/images/background_light.svg',
-            height: 300,
-            fit: BoxFit.cover,
-          ),
-          subtitle: _downloadButton('background_light'),
+        subtitle: _downloadButton('background_light'),
+      ),
+      _headline(
+        title: 'background_dark.svg',
+        child: const SvgImage.asset(
+          'assets/images/background_dark.svg',
+          height: 300,
+          fit: BoxFit.cover,
         ),
-        _headline(
-          title: 'background_dark.svg',
-          child: const SvgImage.asset(
-            'assets/images/background_dark.svg',
-            height: 300,
-            fit: BoxFit.cover,
-          ),
-          subtitle: _downloadButton('background_dark'),
-        ),
-      ],
-    );
+        subtitle: _downloadButton('background_dark'),
+      ),
+    ];
   }
 
   /// Builds the animation [Column].
-  Widget _animations(BuildContext context) {
+  List<Widget> _animations(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
-      children: [
-        _headline(
-          title: 'SpinKitDoubleBounce',
-          child: SizedBox(
-            child: SpinKitDoubleBounce(
-              color: style.colors.secondaryHighlightDark,
-              size: 100 / 1.5,
-              duration: const Duration(milliseconds: 4500),
-            ),
+    return [
+      _headline(
+        title: 'SpinKitDoubleBounce',
+        child: SizedBox(
+          child: SpinKitDoubleBounce(
+            color: style.colors.secondaryHighlightDark,
+            size: 100 / 1.5,
+            duration: const Duration(milliseconds: 4500),
           ),
         ),
-        _headline(
-          title: 'AnimatedTyping',
-          child: const SizedBox(
-            height: 32,
-            child: Center(child: AnimatedTyping()),
+      ),
+      _headline(
+        title: 'AnimatedTyping',
+        child: const SizedBox(
+          height: 32,
+          child: Center(child: AnimatedTyping()),
+        ),
+      ),
+      _headlines(
+        children: [
+          (
+            'CustomProgressIndicator',
+            const SizedBox(child: Center(child: CustomProgressIndicator()))
           ),
-        ),
-        _headlines(
-          children: [
-            (
-              'CustomProgressIndicator',
-              const SizedBox(child: Center(child: CustomProgressIndicator()))
-            ),
-            (
-              'CustomProgressIndicator.big',
-              const SizedBox(
-                child: Center(child: CustomProgressIndicator.big()),
-              )
-            ),
-            (
-              'CustomProgressIndicator.primary',
-              SizedBox(child: Center(child: CustomProgressIndicator.primary()))
-            ),
-          ],
-        ),
-      ],
-    );
+          (
+            'CustomProgressIndicator.big',
+            const SizedBox(
+              child: Center(child: CustomProgressIndicator.big()),
+            )
+          ),
+          (
+            'CustomProgressIndicator.primary',
+            SizedBox(child: Center(child: CustomProgressIndicator.primary()))
+          ),
+        ],
+      ),
+    ];
   }
 
   /// Builds the animation [Column].
-  Widget _avatars(BuildContext context) {
+  List<Widget> _avatars(BuildContext context) {
     // final style = Theme.of(context).style;
 
     (String, Widget) avatars(String title, double radius) {
@@ -388,673 +365,678 @@ class _WidgetsViewState extends State<WidgetsView> {
       );
     }
 
-    return _headlines(
-      children: [
-        avatars('01', 100),
-        avatars('02', 32),
-        avatars('03', 30),
-        avatars('04', 20),
-        avatars('05', 17),
-        avatars('06', 16),
-        avatars('07', 13),
-        avatars('08', 10),
-        avatars('09', 8),
-      ],
-    );
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: widget.dense ? 0 : 16),
-      child: const Block(
-        title: 'Avatars',
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return [
+      _headlines(
         children: [
-          AvatarWidget(title: 'AV', radius: 100),
-          AvatarWidget(title: 'AV', radius: 32),
-          AvatarWidget(title: 'AV', radius: 30),
-          AvatarWidget(title: 'AV', radius: 20),
-          AvatarWidget(title: 'AV', radius: 17),
-          AvatarWidget(title: 'AV', radius: 16),
-          AvatarWidget(title: 'AV', radius: 13),
-          AvatarWidget(title: 'AV', radius: 10),
-          AvatarWidget(title: 'AV', radius: 8),
+          avatars('01', 100),
+          avatars('02', 32),
+          avatars('03', 30),
+          avatars('04', 20),
+          avatars('05', 17),
+          avatars('06', 16),
+          avatars('07', 13),
+          avatars('08', 10),
+          avatars('09', 8),
         ],
       ),
-    );
+    ];
   }
 
   /// Builds the animation [Column].
-  Widget _fields(BuildContext context) {
+  List<Widget> _fields(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
-      children: [
-        _headlines(
+    return [
+      _headlines(
+        children: [
+          (
+            'ReactiveTextField',
+            ReactiveTextField(
+              state: TextFieldState(approvable: true),
+              hint: 'Hint',
+              label: 'Label',
+            ),
+          ),
+          (
+            'ReactiveTextField(error)',
+            ReactiveTextField(
+              state: TextFieldState(text: 'Text', error: 'Error text'),
+              hint: 'Hint',
+              label: 'Label',
+            ),
+          ),
+          (
+            'ReactiveTextField(subtitle)',
+            ReactiveTextField(
+              key: const Key('LoginField'),
+              state: TextFieldState(text: 'Text'),
+              onSuffixPressed: () {},
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: const SvgImage.asset(
+                    'assets/icons/copy.svg',
+                    height: 15,
+                  ),
+                ),
+              ),
+              label: 'Label',
+              hint: 'Hint',
+              subtitle: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Subtitle with: '.l10n,
+                      style: style.fonts.labelMediumSecondary,
+                    ),
+                    TextSpan(
+                      text: 'clickable.',
+                      style: style.fonts.labelMediumPrimary,
+                      recognizer: TapGestureRecognizer()..onTap = () {},
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ),
+          (
+            'ReactiveTextField(obscure)',
+            ObxValue(
+              (b) {
+                return ReactiveTextField(
+                  state: TextFieldState(text: 'Text'),
+                  label: 'Obscured text'.l10n,
+                  obscure: b.value,
+                  onSuffixPressed: b.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgImage.asset(
+                    'assets/icons/visible_${b.value ? 'off' : 'on'}.svg',
+                    width: 17.07,
+                  ),
+                );
+              },
+              RxBool(true),
+            ),
+          ),
+        ],
+      ),
+      _headline(
+        child: CopyableTextField(
+          state: TextFieldState(text: 'Text to copy', editable: false),
+          label: 'Label',
+        ),
+      ),
+      _headline(
+        child: SharableTextField(text: 'Text to share', label: 'Label'),
+      ),
+      _headline(
+        child: ReactivePhoneField(state: PhoneFieldState(), label: 'Label'),
+      ),
+      _headline(
+        child: MessageFieldView(
+          controller: MessageFieldController(null, null, null),
+        ),
+      ),
+      _headline(
+        title: 'CustomAppBar(search)',
+        child: SizedBox(
+          height: 60,
+          width: 400,
+          child: CustomAppBar(
+            withTop: false,
+            border: Border.all(color: style.colors.primary, width: 2),
+            title: Theme(
+              data: MessageFieldView.theme(context),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Transform.translate(
+                  offset: const Offset(0, 1),
+                  child: ReactiveTextField(
+                    state: TextFieldState(),
+                    hint: 'label_search'.l10n,
+                    maxLines: 1,
+                    filled: false,
+                    dense: true,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    style: style.fonts.bodyLarge,
+                    onChanged: () {},
+                  ),
+                ),
+              ),
+            ),
+            leading: [
+              AnimatedButton(
+                decorator: (child) => Container(
+                  padding: const EdgeInsets.only(left: 20, right: 6),
+                  height: double.infinity,
+                  child: child,
+                ),
+                onPressed: () {},
+                child: Icon(
+                  key: const Key('ArrowBack'),
+                  Icons.arrow_back_ios_new,
+                  size: 20,
+                  color: style.colors.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      _headline(
+        title: 'ReactiveTextField(search)',
+        child: ReactiveTextField(
+          key: const Key('SearchTextField'),
+          state: TextFieldState(),
+          label: 'label_search'.l10n,
+          style: style.fonts.titleMedium,
+          onChanged: () {},
+        ),
+      ),
+      _headline(child: const UserLoginField(null)),
+      _headline(child: const UserNameField(null)),
+      _headline(child: const UserTextStatusField(null)),
+      _headline(child: const UserPresenceField(Presence.present, 'Online')),
+      _headline(
+        child: const UserStatusCopyable(UserTextStatus.unchecked('Status')),
+      ),
+      _headline(child: const DirectLinkField(null)),
+      _headline(
+        child: BlocklistRecordWidget(
+          BlocklistRecord(
+            userId: const UserId('me'),
+            at: PreciseDateTime.now(),
+          ),
+        ),
+      ),
+    ];
+  }
+
+  /// Builds the animation [Column].
+  List<Widget> _buttons(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return [
+      _headlines(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
+        ),
+        children: [
+          (
+            'MenuButton',
+            MenuButton(
+              title: 'Title',
+              subtitle: 'Subtitle',
+              leading: const SvgImage.asset(
+                'assets/icons/frontend.svg',
+                width: 25.87,
+                height: 32,
+              ),
+              inverted: false,
+              onPressed: () {},
+            ),
+          ),
+          (
+            'MenuButton(inverted: true)',
+            MenuButton(
+              title: 'Title',
+              subtitle: 'Subtitle',
+              leading: const SvgImage.asset(
+                'assets/icons/frontend_white.svg',
+                width: 25.87,
+                height: 32,
+              ),
+              inverted: true,
+              onPressed: () {},
+            ),
+          ),
+        ],
+      ),
+      _headlines(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
+        ),
+        children: [
+          (
+            'OutlinedRoundedButton(title)',
+            OutlinedRoundedButton(
+              title: const Text('Title'),
+              onPressed: () {},
+            ),
+          ),
+          (
+            'OutlinedRoundedButton(subtitle)',
+            OutlinedRoundedButton(
+              subtitle: const Text('Subtitle'),
+              onPressed: () {},
+            ),
+          ),
+        ],
+      ),
+      _headline(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
+        ),
+        child: ShadowedRoundedButton(
+          onPressed: () {},
+          child: const Text('Label'),
+        ),
+      ),
+      _headline(
+        title: 'PrimaryButton',
+        child: PrimaryButton(onPressed: () {}, title: 'PrimaryButton'),
+      ),
+      _headline(
+        child: WidgetButton(
+          onPressed: () {},
+          child: Container(
+            width: 250,
+            height: 150,
+            decoration: BoxDecoration(
+              color: style.colors.onBackgroundOpacity13,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Center(child: Text('Clickable area')),
+          ),
+        ),
+      ),
+      _headlines(
+        children: [
+          ('SignButton', SignButton(onPressed: () {}, text: 'Label')),
+          (
+            'SignButton(asset)',
+            SignButton(
+              text: 'E-mail',
+              asset: 'email',
+              assetWidth: 21.93,
+              assetHeight: 22.5,
+              onPressed: () {},
+            ),
+          ),
+        ],
+      ),
+      _headlines(
+        children: [
+          (
+            'StyledCupertinoButton',
+            StyledCupertinoButton(onPressed: () {}, label: 'Clickable text')
+          ),
+          (
+            'StyledCupertinoButton.primary',
+            StyledCupertinoButton(
+              onPressed: () {},
+              label: 'Clickable text',
+              style: style.fonts.labelLargePrimary,
+            ),
+          ),
+        ],
+      ),
+      _headlines(
+        children: [
+          (
+            'RectangleButton',
+            RectangleButton(onPressed: () {}, label: 'Label'),
+          ),
+          (
+            'RectangleButton(selected: true)',
+            RectangleButton(
+              onPressed: () {},
+              label: 'Label',
+              selected: true,
+            ),
+          ),
+        ],
+      ),
+      _headline(
+        title: 'AnimatedButton',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            (
-              'ReactiveTextField',
-              ReactiveTextField(
-                state: TextFieldState(approvable: true),
-                hint: 'Hint',
-                label: 'Label',
+            AnimatedButton(
+              onPressed: () {},
+              child: const SvgImage.asset(
+                'assets/icons/chats6.svg',
+                width: 39.26,
+                height: 33.5,
               ),
             ),
-            (
-              'ReactiveTextField(error)',
-              ReactiveTextField(
-                state: TextFieldState(text: 'Text', error: 'Error text'),
-                hint: 'Hint',
-                label: 'Label',
+            const SizedBox(width: 32),
+            AnimatedButton(
+              onPressed: () {},
+              child: const SvgImage.asset(
+                'assets/icons/chat_video_call.svg',
+                height: 17,
               ),
             ),
-            (
-              'ReactiveTextField(subtitle)',
-              ReactiveTextField(
-                key: const Key('LoginField'),
-                state: TextFieldState(text: 'Text'),
-                onSuffixPressed: () {},
-                trailing: Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: const SvgImage.asset(
-                      'assets/icons/copy.svg',
-                      height: 15,
-                    ),
-                  ),
-                ),
-                label: 'Label',
-                hint: 'Hint',
-                subtitle: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Subtitle with: '.l10n,
-                        style: style.fonts.labelMediumSecondary,
-                      ),
-                      TextSpan(
-                        text: 'clickable.',
-                        style: style.fonts.labelMediumPrimary,
-                        recognizer: TapGestureRecognizer()..onTap = () {},
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ),
-            (
-              'ReactiveTextField(obscure)',
-              ObxValue(
-                (b) {
-                  return ReactiveTextField(
-                    state: TextFieldState(text: 'Text'),
-                    label: 'Obscured text'.l10n,
-                    obscure: b.value,
-                    onSuffixPressed: b.toggle,
-                    treatErrorAsStatus: false,
-                    trailing: SvgImage.asset(
-                      'assets/icons/visible_${b.value ? 'off' : 'on'}.svg',
-                      width: 17.07,
-                    ),
-                  );
-                },
-                RxBool(true),
+            const SizedBox(width: 32),
+            AnimatedButton(
+              onPressed: () {},
+              child: const SvgImage.asset(
+                'assets/icons/send.svg',
+                width: 25.44,
+                height: 21.91,
               ),
             ),
           ],
         ),
-        _headline(
-          child: CopyableTextField(
-            state: TextFieldState(text: 'Text to copy', editable: false),
-            label: 'Label',
-          ),
-        ),
-        _headline(
-          child: SharableTextField(text: 'Text to share', label: 'Label'),
-        ),
-        _headline(
-          child: ReactivePhoneField(state: PhoneFieldState(), label: 'Label'),
-        ),
-        _headline(
-          child: MessageFieldView(
-            controller: MessageFieldController(null, null, null),
-          ),
-        ),
-        _headline(
-          title: 'CustomAppBar(search)',
-          child: SizedBox(
-            height: 60,
-            width: 400,
-            child: CustomAppBar(
-              withTop: false,
-              border: Border.all(color: style.colors.primary, width: 2),
-              title: Theme(
-                data: MessageFieldView.theme(context),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Transform.translate(
-                    offset: const Offset(0, 1),
-                    child: ReactiveTextField(
-                      state: TextFieldState(),
-                      hint: 'label_search'.l10n,
-                      maxLines: 1,
-                      filled: false,
-                      dense: true,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      style: style.fonts.bodyLarge,
-                      onChanged: () {},
-                    ),
-                  ),
-                ),
+      ),
+      _headline(
+        title: 'CallButtonWidget',
+        color: style.colors.primaryAuxiliaryOpacity25,
+        headlineColor: style.colors.onPrimary,
+        bottom: false,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: CallButtonWidget(
+                color: style.colors.onSecondaryOpacity50,
+                onPressed: () {},
+                withBlur: true,
+                assetWidth: 22,
+                asset: 'fullscreen_enter_white',
               ),
-              leading: [
-                AnimatedButton(
-                  decorator: (child) => Container(
-                    padding: const EdgeInsets.only(left: 20, right: 6),
-                    height: double.infinity,
-                    child: child,
-                  ),
-                  onPressed: () {},
-                  child: Icon(
-                    key: const Key('ArrowBack'),
-                    Icons.arrow_back_ios_new,
-                    size: 20,
-                    color: style.colors.primary,
-                  ),
-                ),
+            ),
+            const SizedBox(width: 32),
+            SizedBox(
+              width: 100,
+              height: 82,
+              child: CallButtonWidget(
+                onPressed: () {},
+                hint: 'Hint'.l10n,
+                asset: 'screen_share_on'.l10n,
+                hinted: true,
+                expanded: true,
+              ),
+            ),
+            const SizedBox(width: 32),
+            SizedBox.square(
+              dimension: CallController.buttonSize,
+              child: CallButtonWidget(
+                hint: 'Hint'.l10n,
+                asset: 'screen_share_on'.l10n,
+                hinted: true,
+                onPressed: () {},
+              ),
+            ),
+          ],
+        ),
+      ),
+      _headlines(
+        children: [
+          (
+            'DownloadButton.windows',
+            const DownloadButton(
+              asset: 'google',
+              width: 20.33,
+              height: 22.02,
+              title: 'Google Play',
+              left: 3,
+              link: '',
+            ),
+          ),
+          (
+            'DownloadButton.macos',
+            const DownloadButton(
+              asset: 'apple7',
+              width: 21.07,
+              height: 27,
+              title: 'macOS',
+              link: '',
+            ),
+          ),
+          (
+            'DownloadButton.linux',
+            const DownloadButton(
+              asset: 'linux4',
+              width: 20.57,
+              height: 24,
+              title: 'Linux',
+              link: '',
+            ),
+          ),
+          (
+            'DownloadButton.appStore',
+            const DownloadButton(
+              asset: 'app_store',
+              width: 23,
+              height: 23,
+              title: 'App Store',
+              link: '',
+            ),
+          ),
+          (
+            'DownloadButton.googlePlay',
+            const DownloadButton(
+              asset: 'google',
+              width: 20.33,
+              height: 22.02,
+              title: 'Google Play',
+              left: 3,
+              link: '',
+            ),
+          ),
+          (
+            'DownloadButton.android',
+            const DownloadButton(
+              asset: 'android3',
+              width: 20.99,
+              height: 25,
+              title: 'Android',
+              link: '',
+            ),
+          ),
+        ],
+      ),
+      _headline(
+        child: StyledBackButton(canPop: true, onPressed: () {}),
+      ),
+      _headlines(
+        children: [
+          (
+            'FloatingActionButton(arrow_upward)',
+            FloatingActionButton.small(
+              heroTag: '1',
+              onPressed: () {},
+              child: const Icon(Icons.arrow_upward),
+            ),
+          ),
+          (
+            'FloatingActionButton(arrow_downward)',
+            FloatingActionButton.small(
+              heroTag: '2',
+              onPressed: () {},
+              child: const Icon(Icons.arrow_downward),
+            ),
+          ),
+        ],
+      ),
+      _headline(child: UnblockButton(() {})),
+      _headlines(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
+        ),
+        children: WorkTab.values
+            .map(
+              (e) => (
+                'VacancyWorkButton(${e.name})',
+                VacancyWorkButton(e, onPressed: (_) {}),
+              ),
+            )
+            .toList(),
+      ),
+    ];
+  }
+
+  /// Builds the animation [Column].
+  List<Widget> _switches(BuildContext context) {
+    // final style = Theme.of(context).style;
+
+    return [
+      _headline(
+        title: 'SwitchField',
+        child: ObxValue(
+          (value) {
+            return SwitchField(
+              text: 'Label',
+              value: value.value,
+              onChanged: (b) => value.value = b,
+            );
+          },
+          false.obs,
+        ),
+      ),
+    ];
+  }
+
+  /// Builds the animation [Column].
+  List<Widget> _tiles(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return [
+      _headlines(
+        children: [
+          (
+            'ContextMenu(desktop)',
+            const ContextMenu(
+              actions: [
+                ContextMenuButton(label: 'Action 1'),
+                ContextMenuButton(label: 'Action 2'),
+                ContextMenuButton(label: 'Action 3'),
+                ContextMenuDivider(),
+                ContextMenuButton(label: 'Action 4'),
+              ],
+            )
+          ),
+          (
+            'ContextMenu(mobile)',
+            const ContextMenu(
+              enlarge: true,
+              actions: [
+                ContextMenuButton(label: 'Action 1', enlarge: true),
+                ContextMenuButton(label: 'Action 2', enlarge: true),
+                ContextMenuButton(label: 'Action 3', enlarge: true),
+                ContextMenuButton(label: 'Action 4', enlarge: true),
               ],
             ),
           ),
+        ],
+      ),
+      _headlines(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
         ),
-        _headline(
-          title: 'ReactiveTextField(search)',
-          child: ReactiveTextField(
-            key: const Key('SearchTextField'),
-            state: TextFieldState(),
-            label: 'label_search'.l10n,
-            style: style.fonts.titleMedium,
-            onChanged: () {},
+        children: [
+          (
+            'RecentChatTile',
+            RecentChatTile(DummyRxChat(), onTap: () {}),
           ),
+          (
+            'RecentChatTile(selected)',
+            RecentChatTile(
+              DummyRxChat(),
+              onTap: () {},
+              selected: true,
+            ),
+          ),
+        ],
+      ),
+      _headlines(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
         ),
-      ],
-    );
+        children: [
+          (
+            'ChatTile',
+            ChatTile(chat: DummyRxChat(), onTap: () {}),
+          ),
+          (
+            'ChatTile(selected)',
+            ChatTile(
+              chat: DummyRxChat(),
+              onTap: () {},
+              selected: true,
+            ),
+          ),
+        ],
+      ),
+      _headlines(
+        color: Color.alphaBlend(
+          style.sidebarColor,
+          style.colors.onBackgroundOpacity7,
+        ),
+        children: [
+          (
+            'ContactTile',
+            ContactTile(
+              myUser: MyUser(
+                id: const UserId('123'),
+                num: UserNum('1234123412341234'),
+                emails: MyUserEmails(confirmed: []),
+                phones: MyUserPhones(confirmed: []),
+                presenceIndex: 0,
+                online: true,
+              ),
+              onTap: () {},
+            ),
+          ),
+          (
+            'ContactTile(selected)',
+            ContactTile(
+              myUser: MyUser(
+                id: const UserId('123'),
+                num: UserNum('1234123412341234'),
+                emails: MyUserEmails(confirmed: []),
+                phones: MyUserPhones(confirmed: []),
+                presenceIndex: 0,
+                online: true,
+              ),
+              onTap: () {},
+              selected: true,
+            ),
+          ),
+        ],
+      ),
+    ];
   }
 
   /// Builds the animation [Column].
-  Widget _buttons(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Column(
-      children: [
-        _headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: [
-            (
-              'MenuButton',
-              MenuButton(
-                title: 'Title',
-                subtitle: 'Subtitle',
-                leading: const SvgImage.asset(
-                  'assets/icons/frontend.svg',
-                  width: 25.87,
-                  height: 32,
-                ),
-                inverted: false,
-                onPressed: () {},
-              ),
-            ),
-            (
-              'MenuButton(inverted: true)',
-              MenuButton(
-                title: 'Title',
-                subtitle: 'Subtitle',
-                leading: const SvgImage.asset(
-                  'assets/icons/frontend_white.svg',
-                  width: 25.87,
-                  height: 32,
-                ),
-                inverted: true,
-                onPressed: () {},
-              ),
-            ),
-          ],
-        ),
-        _headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: [
-            (
-              'OutlinedRoundedButton(title)',
-              OutlinedRoundedButton(
-                title: const Text('Title'),
-                onPressed: () {},
-              ),
-            ),
-            (
-              'OutlinedRoundedButton(subtitle)',
-              OutlinedRoundedButton(
-                subtitle: const Text('Subtitle'),
-                onPressed: () {},
-              ),
-            ),
-          ],
-        ),
-        _headline(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          child: ShadowedRoundedButton(
-            onPressed: () {},
-            child: const Text('Label'),
-          ),
-        ),
-        _headline(
-          title: 'PrimaryButton',
-          child: PrimaryButton(onPressed: () {}, title: 'PrimaryButton'),
-        ),
-        _headline(
-          child: WidgetButton(
-            onPressed: () {},
-            child: Container(
-              width: 250,
-              height: 150,
-              decoration: BoxDecoration(
-                color: style.colors.onBackgroundOpacity13,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(child: Text('Clickable area')),
-            ),
-          ),
-        ),
-        _headlines(
-          children: [
-            ('SignButton', SignButton(onPressed: () {}, text: 'Label')),
-            (
-              'SignButton(asset)',
-              SignButton(
-                text: 'E-mail',
-                asset: 'email',
-                assetWidth: 21.93,
-                assetHeight: 22.5,
-                onPressed: () {},
-              ),
-            ),
-          ],
-        ),
-        _headlines(
-          children: [
-            (
-              'StyledCupertinoButton',
-              StyledCupertinoButton(onPressed: () {}, label: 'Clickable text')
-            ),
-            (
-              'StyledCupertinoButton.primary',
-              StyledCupertinoButton(
-                onPressed: () {},
-                label: 'Clickable text',
-                style: style.fonts.labelLargePrimary,
-              ),
-            ),
-          ],
-        ),
-        _headlines(
-          children: [
-            (
-              'RectangleButton',
-              RectangleButton(onPressed: () {}, label: 'Label'),
-            ),
-            (
-              'RectangleButton(selected: true)',
-              RectangleButton(
-                onPressed: () {},
-                label: 'Label',
-                selected: true,
-              ),
-            ),
-          ],
-        ),
-        _headline(
-          title: 'AnimatedButton',
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedButton(
-                onPressed: () {},
-                child: const SvgImage.asset(
-                  'assets/icons/chats6.svg',
-                  width: 39.26,
-                  height: 33.5,
-                ),
-              ),
-              const SizedBox(width: 32),
-              AnimatedButton(
-                onPressed: () {},
-                child: const SvgImage.asset(
-                  'assets/icons/chat_video_call.svg',
-                  height: 17,
-                ),
-              ),
-              const SizedBox(width: 32),
-              AnimatedButton(
-                onPressed: () {},
-                child: const SvgImage.asset(
-                  'assets/icons/send.svg',
-                  width: 25.44,
-                  height: 21.91,
-                ),
-              ),
-            ],
-          ),
-        ),
-        _headline(
-          title: 'CallButtonWidget',
-          color: style.colors.primaryAuxiliaryOpacity25,
-          headlineColor: style.colors.onPrimary,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 60,
-                height: 60,
-                child: RoundFloatingButton(
-                  color: style.colors.onSecondaryOpacity50,
-                  onPressed: () {},
-                  withBlur: true,
-                  assetWidth: 22,
-                  asset: 'fullscreen_enter_white',
-                ),
-              ),
-              const SizedBox(width: 32),
-              SizedBox.square(
-                dimension: CallController.buttonSize,
-                child: CallButtonWidget(
-                  hint: 'btn_call_screen_on'.l10n,
-                  asset: 'screen_share_on'.l10n,
-                  hinted: true,
-                  onPressed: () {},
-                ),
-              ),
-            ],
-          ),
-        ),
-        _headlines(
-          children: [
-            (
-              'DownloadButton.windows',
-              const DownloadButton(
-                asset: 'google',
-                width: 20.33,
-                height: 22.02,
-                title: 'Google Play',
-                left: 3,
-                link: '',
-              ),
-            ),
-            (
-              'DownloadButton.macos',
-              const DownloadButton(
-                asset: 'apple7',
-                width: 21.07,
-                height: 27,
-                title: 'macOS',
-                link: '',
-              ),
-            ),
-            (
-              'DownloadButton.linux',
-              const DownloadButton(
-                asset: 'linux4',
-                width: 20.57,
-                height: 24,
-                title: 'Linux',
-                link: '',
-              ),
-            ),
-            (
-              'DownloadButton.appStore',
-              const DownloadButton(
-                asset: 'app_store',
-                width: 23,
-                height: 23,
-                title: 'App Store',
-                link: '',
-              ),
-            ),
-            (
-              'DownloadButton.googlePlay',
-              const DownloadButton(
-                asset: 'google',
-                width: 20.33,
-                height: 22.02,
-                title: 'Google Play',
-                left: 3,
-                link: '',
-              ),
-            ),
-            (
-              'DownloadButton.android',
-              const DownloadButton(
-                asset: 'android3',
-                width: 20.99,
-                height: 25,
-                title: 'Android',
-                link: '',
-              ),
-            ),
-          ],
-        ),
-        _headline(
-          child: StyledBackButton(canPop: true, onPressed: () {}),
-        ),
-        _headlines(
-          children: [
-            (
-              'FloatingActionButton(arrow_upward)',
-              FloatingActionButton.small(
-                heroTag: '1',
-                onPressed: () {},
-                child: const Icon(Icons.arrow_upward),
-              ),
-            ),
-            (
-              'FloatingActionButton(arrow_downward)',
-              FloatingActionButton.small(
-                heroTag: '2',
-                onPressed: () {},
-                child: const Icon(Icons.arrow_downward),
-              ),
-            ),
-          ],
-        ),
-        _headline(child: UnblockButton(() {})),
-        _headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: WorkTab.values
-              .map(
-                (e) => (
-                  'VacancyWorkButton(${e.name})',
-                  VacancyWorkButton(e, onPressed: (_) {}),
-                ),
-              )
-              .toList(),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the animation [Column].
-  Widget _switches(BuildContext context) {
+  List<Widget> _system(BuildContext context) {
     // final style = Theme.of(context).style;
 
-    return Column(
-      children: [
-        _headline(
-          title: 'SwitchField',
-          child: ObxValue(
-            (value) {
-              return SwitchField(
-                text: 'Label',
-                value: value.value,
-                onChanged: (b) => value.value = b,
-              );
-            },
-            false.obs,
+    return [
+      const Block(
+        headline: 'UnreadCounter',
+        children: [
+          SizedBox(
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                UnreadCounter(1),
+                UnreadCounter(10),
+                UnreadCounter(90),
+                UnreadCounter(100)
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      ),
+    ];
   }
 
   /// Builds the animation [Column].
-  Widget _tiles(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Column(
-      children: [
-        _headlines(
-          children: [
-            (
-              'ContextMenu(desktop)',
-              const ContextMenu(
-                actions: [
-                  ContextMenuButton(label: 'Action 1'),
-                  ContextMenuButton(label: 'Action 2'),
-                  ContextMenuButton(label: 'Action 3'),
-                  ContextMenuDivider(),
-                  ContextMenuButton(label: 'Action 4'),
-                ],
-              )
-            ),
-            (
-              'ContextMenu(mobile)',
-              const ContextMenu(
-                enlarge: true,
-                actions: [
-                  ContextMenuButton(label: 'Action 1', enlarge: true),
-                  ContextMenuButton(label: 'Action 2', enlarge: true),
-                  ContextMenuButton(label: 'Action 3', enlarge: true),
-                  ContextMenuButton(label: 'Action 4', enlarge: true),
-                ],
-              ),
-            ),
-          ],
-        ),
-        _headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: [
-            (
-              'RecentChatTile',
-              RecentChatTile(DummyRxChat(), onTap: () {}),
-            ),
-            (
-              'RecentChatTile(selected)',
-              RecentChatTile(
-                DummyRxChat(),
-                onTap: () {},
-                selected: true,
-              ),
-            ),
-          ],
-        ),
-        _headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: [
-            (
-              'ChatTile',
-              ChatTile(chat: DummyRxChat(), onTap: () {}),
-            ),
-            (
-              'ChatTile(selected)',
-              ChatTile(
-                chat: DummyRxChat(),
-                onTap: () {},
-                selected: true,
-              ),
-            ),
-          ],
-        ),
-        _headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: [
-            (
-              'ContactTile',
-              ContactTile(
-                myUser: MyUser(
-                  id: const UserId('123'),
-                  num: UserNum('1234123412341234'),
-                  emails: MyUserEmails(confirmed: []),
-                  phones: MyUserPhones(confirmed: []),
-                  presenceIndex: 0,
-                  online: true,
-                ),
-                onTap: () {},
-              ),
-            ),
-            (
-              'ContactTile(selected)',
-              ContactTile(
-                myUser: MyUser(
-                  id: const UserId('123'),
-                  num: UserNum('1234123412341234'),
-                  emails: MyUserEmails(confirmed: []),
-                  phones: MyUserPhones(confirmed: []),
-                  presenceIndex: 0,
-                  online: true,
-                ),
-                onTap: () {},
-                selected: true,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  /// Builds the animation [Column].
-  Widget _system(BuildContext context) {
-    // final style = Theme.of(context).style;
-
-    return const Block(
-      headline: 'UnreadCounter',
-      children: [
-        SizedBox(
-          child: Wrap(
-            spacing: 4,
-            runSpacing: 4,
-            children: [
-              UnreadCounter(1),
-              UnreadCounter(10),
-              UnreadCounter(90),
-              UnreadCounter(100)
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the animation [Column].
-  Widget _chat(BuildContext context) {
+  List<Widget> _chat(BuildContext context) {
     final style = Theme.of(context).style;
 
     ChatItem message({
@@ -1215,499 +1197,562 @@ class _WidgetsViewState extends State<WidgetsView> {
       );
     }
 
-    return Column(
-      children: [
-        Block(
-          color: style.colors.onBackgroundOpacity7,
-          headline: 'TimeLabelWidget',
-          children: [
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(minutes: 10)),
+    return [
+      Block(
+        color: style.colors.onBackgroundOpacity7,
+        headline: 'TimeLabelWidget',
+        children: [
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(minutes: 10)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 1)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 7)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 64)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 365 * 4)),
+          )
+        ],
+      ),
+      Block(
+        color: style.colors.onBackgroundOpacity7,
+        headline: 'UnreadLabel',
+        children: const [UnreadLabel(123)],
+      ),
+      ExpandableBlock(
+        color: style.colors.onBackgroundOpacity7,
+        padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+        headline: 'ChatItemWidget',
+        children: [
+          chatItem(
+            message(
+              status: SendingStatus.sending,
+              text: 'Sending message...',
             ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 1)),
-            ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 7)),
-            ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 64)),
-            ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 365 * 4)),
-            )
-          ],
-        ),
-        Block(
-          color: style.colors.onBackgroundOpacity7,
-          headline: 'UnreadLabel',
-          children: const [UnreadLabel(123)],
-        ),
-        ExpandableBlock(
-          color: style.colors.onBackgroundOpacity7,
-          padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-          headline: 'ChatItemWidget',
-          children: [
-            chatItem(
-              message(
-                status: SendingStatus.sending,
-                text: 'Sending message...',
-              ),
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.error, text: 'Error'),
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.sent, text: 'Sent message'),
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.sent, text: 'Delivered message'),
-              kind: ChatKind.dialog,
-              delivered: true,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(status: SendingStatus.sent, text: 'Read message'),
-              kind: ChatKind.dialog,
-              read: true,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: 'Received message',
-                fromMe: false,
-              ),
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-
-            // Replies.
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: 'Sent reply',
-                fromMe: true,
-                repliesTo: [
-                  ChatMessageQuote(
-                    author: const UserId('me'),
-                    at: PreciseDateTime.now(),
-                    text: const ChatMessageText('Replied message'),
-                  )
-                ],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: 'Received reply',
-                fromMe: false,
-                repliesTo: [
-                  ChatMessageQuote(
-                    author: const UserId('me'),
-                    at: PreciseDateTime.now(),
-                    text: const ChatMessageText('Replied message'),
-                  )
-                ],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-
-            // Image attachments.
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: null,
-                fromMe: true,
-                attachments: ['image'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: null,
-                fromMe: false,
-                attachments: ['image'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-
-            // File attachments.
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: 'Message with file attachment',
-                fromMe: true,
-                attachments: ['file'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: null,
-                fromMe: false,
-                attachments: ['file'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-
-            // Images attachments.
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                fromMe: true,
-                attachments: [
-                  'file',
-                  'file',
-                  'image',
-                  'image',
-                  'image',
-                  'image',
-                  'image'
-                ],
-                text: 'Message with file and image attachments',
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: null,
-                fromMe: false,
-                attachments: ['file', 'file', 'image', 'image', 'image'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: '?donate=1234',
-                fromMe: true,
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: '?donate=1234',
-                fromMe: false,
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: 'Comment?donate=1234',
-                fromMe: true,
-                attachments: ['image'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              message(
-                status: SendingStatus.sent,
-                text: 'Comment?donate=1234',
-                fromMe: false,
-                attachments: ['image'],
-              ),
-              read: true,
-              kind: ChatKind.dialog,
-            ),
-            const SizedBox(height: 8),
-
-            // Info.
-            const SizedBox(height: 8),
-            chatItem(info(action: const ChatInfoActionCreated(null))),
-            const SizedBox(height: 8),
-            chatItem(
-              info(
-                action: ChatInfoActionMemberAdded(
-                  User(
-                    const UserId('me'),
-                    UserNum('1234123412341234'),
-                    name: UserName('added'),
-                  ),
-                  null,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            chatItem(
-              info(
-                fromMe: false,
-                action: ChatInfoActionMemberAdded(
-                  User(
-                    const UserId('me'),
-                    UserNum('1234123412341234'),
-                    name: UserName('User'),
-                  ),
-                  null,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Call.
-            chatItem(call(withVideo: true), read: true),
-            const SizedBox(height: 8),
-            chatItem(call(withVideo: true, fromMe: false), read: true),
-            const SizedBox(height: 8),
-            chatItem(call(started: true), read: true),
-            const SizedBox(height: 8),
-            chatItem(call(started: true, fromMe: false), read: true),
-            const SizedBox(height: 8),
-            chatItem(call(finishReasonIndex: 2, started: true), read: true),
-            const SizedBox(height: 8),
-            chatItem(
-              call(finishReasonIndex: 2, started: true, fromMe: false),
-              read: true,
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-        Block(
-          padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-          color: style.colors.onBackgroundOpacity7,
-          headline: 'ChatForwardWidget',
-          children: [
-            const SizedBox(height: 32),
-            chatForward(
-              [message(text: 'Forwarded message')],
-              read: true,
-              note: message(text: 'Comment'),
-            ),
-            const SizedBox(height: 8),
-            chatForward(
-              [message(text: 'Forwarded message')],
-              read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.error, text: 'Error'),
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.sent, text: 'Sent message'),
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.sent, text: 'Delivered message'),
+            kind: ChatKind.dialog,
+            delivered: true,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.sent, text: 'Read message'),
+            kind: ChatKind.dialog,
+            read: true,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: 'Received message',
               fromMe: false,
-              note: message(text: 'Comment'),
             ),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ],
-    );
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
 
-    // return Column(
-    //   children: [
-    //     const Block(headline: 'UnreadLabel', children: [UnreadLabel(123)]),
-    //     Block(
-    //       color: style.colors.background,
-    //       headline: 'ChatItemWidget',
-    //       children: [
-    //         const SizedBox(height: 32),
-    //         // Monolog.
-    //         chatItem(
-    //           message(),
-    //           kind: ChatKind.monolog,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(),
-    //           kind: ChatKind.monolog,
-    //           read: true,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(
-    //             attachments: [
-    //               LocalAttachment(
-    //                 NativeFile(
-    //                   name: 'Image',
-    //                   size: 2,
-    //                   bytes: base64Decode(
-    //                     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-    //                   ),
-    //                 ),
-    //                 status: SendingStatus.sent,
-    //               )
-    //             ],
-    //           ),
-    //           kind: ChatKind.monolog,
-    //           read: true,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(
-    //             repliesTo: [
-    //               ChatMessageQuote(
-    //                 author: const UserId('me'),
-    //                 at: PreciseDateTime.now(),
-    //                 text: const ChatMessageText('Replies!'),
-    //               )
-    //             ],
-    //           ),
-    //           kind: ChatKind.monolog,
-    //           read: true,
-    //         ),
-    //         const SizedBox(height: 32),
+          // Replies.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: 'Sent reply',
+              fromMe: true,
+              repliesTo: [
+                ChatMessageQuote(
+                  author: const UserId('me'),
+                  at: PreciseDateTime.now(),
+                  text: const ChatMessageText('Replied message'),
+                )
+              ],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: 'Received reply',
+              fromMe: false,
+              repliesTo: [
+                ChatMessageQuote(
+                  author: const UserId('me'),
+                  at: PreciseDateTime.now(),
+                  text: const ChatMessageText('Replied message'),
+                )
+              ],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
 
-    //         // Dialog.
-    //         chatItem(
-    //           message(
-    //             status: SendingStatus.sending,
-    //             text: 'Received message',
-    //             fromMe: false,
-    //           ),
-    //           kind: ChatKind.dialog,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sending, text: 'Sending...'),
-    //           kind: ChatKind.dialog,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.error, text: 'Error ocurred'),
-    //           kind: ChatKind.dialog,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sent, text: 'Sent message'),
-    //           kind: ChatKind.dialog,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sent, text: 'Delivered message'),
-    //           kind: ChatKind.dialog,
-    //           delivered: true,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sent, text: 'Read message'),
-    //           kind: ChatKind.dialog,
-    //           read: true,
-    //         ),
+          // Image attachments.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: true,
+              attachments: ['image'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: false,
+              attachments: ['image'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
 
-    //         const SizedBox(height: 32),
+          // File attachments.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: 'Message with file attachment',
+              fromMe: true,
+              attachments: ['file'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: false,
+              attachments: ['file'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
 
-    //         // Group.
-    //         chatItem(
-    //           message(
-    //             status: SendingStatus.sending,
-    //             text: 'Received message',
-    //             fromMe: false,
-    //           ),
-    //           kind: ChatKind.group,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sending),
-    //           kind: ChatKind.group,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.error),
-    //           kind: ChatKind.group,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sent),
-    //           kind: ChatKind.group,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sent),
-    //           kind: ChatKind.group,
-    //           delivered: true,
-    //         ),
-    //         const SizedBox(height: 8),
-    //         chatItem(
-    //           message(status: SendingStatus.sent),
-    //           kind: ChatKind.group,
-    //           read: true,
-    //         ),
+          // Images attachments.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              fromMe: true,
+              attachments: [
+                'file',
+                'file',
+                'image',
+                'image',
+                'image',
+                'image',
+                'image'
+              ],
+              text: 'Message with file and image attachments',
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: false,
+              attachments: ['file', 'file', 'image', 'image', 'image'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: '?donate=1234',
+              fromMe: true,
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: '?donate=1234',
+              fromMe: false,
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: 'Comment?donate=1234',
+              fromMe: true,
+              attachments: ['image'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: 'Comment?donate=1234',
+              fromMe: false,
+              attachments: ['image'],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
 
-    //         const SizedBox(height: 32),
-    //       ],
-    //     ),
-    //   ],
-    // );
+          // Info.
+          const SizedBox(height: 8),
+          chatItem(info(action: const ChatInfoActionCreated(null))),
+          const SizedBox(height: 8),
+          chatItem(
+            info(
+              action: ChatInfoActionMemberAdded(
+                User(
+                  const UserId('me'),
+                  UserNum('1234123412341234'),
+                  name: UserName('added'),
+                ),
+                null,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            info(
+              fromMe: false,
+              action: ChatInfoActionMemberAdded(
+                User(
+                  const UserId('me'),
+                  UserNum('1234123412341234'),
+                  name: UserName('User'),
+                ),
+                null,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Call.
+          chatItem(call(withVideo: true), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(withVideo: true, fromMe: false), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(started: true), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(started: true, fromMe: false), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(finishReasonIndex: 2, started: true), read: true),
+          const SizedBox(height: 8),
+          chatItem(
+            call(finishReasonIndex: 2, started: true, fromMe: false),
+            read: true,
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+      Block(
+        padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+        color: style.colors.onBackgroundOpacity7,
+        headline: 'ChatForwardWidget',
+        children: [
+          const SizedBox(height: 32),
+          chatForward(
+            [message(text: 'Forwarded message')],
+            read: true,
+            note: message(text: 'Comment'),
+          ),
+          const SizedBox(height: 8),
+          chatForward(
+            [message(text: 'Forwarded message')],
+            read: true,
+            fromMe: false,
+            note: message(text: 'Comment'),
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    ];
   }
 
   /// Builds the animation [Column].
-  Widget _navigation(BuildContext context) {
-    // final style = Theme.of(context).style;
+  List<Widget> _navigation(BuildContext context) {
+    final style = Theme.of(context).style;
 
-    return _headlines(
-      children: [
-        (
-          'CustomAppBar',
-          SizedBox(
-            height: 60,
-            child: CustomAppBar(
-              withTop: false,
-              title: const Text('Title'),
-              leading: [StyledBackButton(onPressed: () {})],
-              actions: const [SizedBox(width: 60)],
+    return [
+      _headlines(
+        children: [
+          (
+            'CustomAppBar',
+            SizedBox(
+              height: 60,
+              child: CustomAppBar(
+                withTop: false,
+                title: const Text('Title'),
+                leading: [StyledBackButton(onPressed: () {})],
+                actions: const [SizedBox(width: 60)],
+              ),
+            ),
+          ),
+          (
+            'CustomAppBar(leading, actions)',
+            SizedBox(
+              height: 60,
+              child: CustomAppBar(
+                withTop: false,
+                title: const Row(children: [Text('Title')]),
+                padding: const EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton(onPressed: () {})],
+                actions: [
+                  AnimatedButton(
+                    onPressed: () {},
+                    child: const SvgImage.asset(
+                      'assets/icons/chat_video_call.svg',
+                      height: 17,
+                    ),
+                  ),
+                  const SizedBox(width: 28),
+                  AnimatedButton(
+                    key: const Key('AudioCall'),
+                    onPressed: () {},
+                    child: const SvgImage.asset(
+                      'assets/icons/chat_audio_call.svg',
+                      height: 19,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      _headline(
+        title: 'DockDecorator(Dock)',
+        child: DockDecorator(
+          child: Dock(
+            items: List.generate(5, (i) => i),
+            itemWidth: 48,
+            isDraggable: (_) => true,
+            onReorder: (buttons) {},
+            onDragStarted: (b) {},
+            onDragEnded: (_) {},
+            onLeave: (_) {},
+            onWillAccept: (d) => true,
+            itemBuilder: (i) => CallButtonWidget(
+              asset: 'more',
+              onPressed: () {},
             ),
           ),
         ),
-        (
-          'CustomAppBar(leading, actions)',
-          SizedBox(
-            height: 60,
-            child: CustomAppBar(
-              withTop: false,
-              title: const Row(children: [Text('Title')]),
-              padding: const EdgeInsets.only(left: 4, right: 20),
-              leading: [StyledBackButton(onPressed: () {})],
-              actions: [
-                AnimatedButton(
+      ),
+      _headline(
+        child: Launchpad(
+          onWillAccept: (_) => true,
+          children: List.generate(
+            8,
+            (i) => SizedBox(
+              width: 100,
+              height: 100,
+              child: Center(
+                child: CallButtonWidget(
+                  asset: 'more',
                   onPressed: () {},
-                  child: const SvgImage.asset(
-                    'assets/icons/chat_video_call.svg',
-                    height: 17,
+                ),
+              ),
+            ),
+          ).toList(),
+        ),
+      ),
+      _headline(
+        title: 'CustomNavigationBar',
+        child: ObxValue(
+          (p) {
+            return CustomNavigationBar(
+              currentIndex: p.value,
+              onTap: (i) => p.value = i,
+              items: [
+                const CustomNavigationBarItem(child: WalletWidget()),
+                const CustomNavigationBarItem(
+                  child: SvgImage.asset(
+                    'assets/icons/partner16.svg',
+                    width: 36,
+                    height: 28,
                   ),
                 ),
-                const SizedBox(width: 28),
-                AnimatedButton(
-                  key: const Key('AudioCall'),
-                  onPressed: () {},
-                  child: const SvgImage.asset(
-                    'assets/icons/chat_audio_call.svg',
-                    height: 19,
+                const CustomNavigationBarItem(
+                  child: SvgImage.asset(
+                    'assets/icons/publics13.svg',
+                    width: 32,
+                    height: 31,
                   ),
                 ),
+                CustomNavigationBarItem(
+                  child: Transform.translate(
+                    offset: const Offset(0, 0.5),
+                    child: const SvgImage.asset(
+                      'assets/icons/chats6.svg',
+                      key: Key('Unmuted'),
+                      width: 39.26,
+                      height: 33.5,
+                    ),
+                  ),
+                ),
+                const CustomNavigationBarItem(child: AvatarWidget(radius: 16)),
               ],
+            );
+          },
+          RxInt(0),
+        ),
+      ),
+      _headline(child: const RaisedHand(true)),
+      _headlines(
+        children: [
+          (
+            'AnimatedParticipant',
+            SizedBox(
+              width: 300,
+              height: 300,
+              child: AnimatedParticipant(
+                Participant(
+                  CallMember.me(const CallMemberId(UserId('me'), null)),
+                  user: DummyRxUser(),
+                ),
+              ),
+            ),
+          ),
+          (
+            'AnimatedParticipant',
+            SizedBox(
+              width: 300,
+              height: 300,
+              child: AnimatedParticipant(
+                Participant(
+                  CallMember.me(
+                    const CallMemberId(UserId('me'), null),
+                    isConnected: true,
+                  ),
+                  user: DummyRxUser(),
+                ),
+              ),
+            ),
+          ),
+          (
+            'AnimatedParticipant',
+            SizedBox(
+              width: 300,
+              height: 300,
+              child: AnimatedParticipant(
+                Participant(
+                  CallMember.me(
+                    const CallMemberId(UserId('me'), null),
+                    isConnected: true,
+                  ),
+                  user: DummyRxUser(),
+                ),
+                rounded: true,
+                muted: true,
+              ),
+            ),
+          ),
+        ],
+      ),
+      _headline(
+        color: style.colors.backgroundAuxiliaryLight,
+        child: const CallTitle(
+          UserId('me'),
+          title: 'Title',
+          state: 'State',
+        ),
+      ),
+      _headline(
+        child: ChatInfoCard(
+          chat: DummyRxChat(),
+          onTap: () {},
+          duration: const Duration(seconds: 10),
+          subtitle: 'Subtitle',
+          trailing: 'Trailing',
+        ),
+      ),
+      _headline(
+        child: const SizedBox(
+          width: 200,
+          height: 200,
+          child: DropBox(),
+        ),
+      ),
+      _headline(
+        child: SizedBox(
+          width: 400,
+          height: 400,
+          child: ReorderableFit(
+            children: List.generate(5, (i) => i),
+            itemBuilder: (i) => Container(
+              color: Colors.primaries[i],
+              child: Center(child: Text('$i')),
             ),
           ),
         ),
-      ],
-    );
+      ),
+      _headline(child: const PaidNotification()),
+      _headline(child: const BackgroundPreview(null)),
+
+      _headline(
+        child: BigAvatarWidget.myUser(
+          null,
+          onDelete: () {},
+          onUpload: () {},
+        ),
+      ),
+
+      // _headline(),
+    ];
   }
+}
+
+class DummyRxUser extends RxUser {
+  @override
+  Rx<RxChat?> get dialog => Rx(null);
+
+  @override
+  void listenUpdates() {}
+
+  @override
+  void stopUpdates() {}
+
+  @override
+  Rx<User> get user => Rx(
+        User(
+          const UserId('me'),
+          UserNum('1234123412341234'),
+          name: UserName('Participant'),
+        ),
+      );
 }
 
 class DummyRxChat extends RxChat {
@@ -1794,4 +1839,26 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<void> updateAttachments(ChatItem item) async {}
+}
+
+class _HoveredBuilder extends StatefulWidget {
+  const _HoveredBuilder(this.builder);
+
+  final Widget Function(bool) builder;
+
+  @override
+  State<_HoveredBuilder> createState() => _HoveredBuilderState();
+}
+
+class _HoveredBuilderState extends State<_HoveredBuilder> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: widget.builder(_hovered),
+    );
+  }
 }
