@@ -18,9 +18,8 @@
 import 'package:flutter/material.dart';
 
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 
-/// Small rounded [OutlinedRoundedButton] with a single [icon].
+/// [AnimatedButton] of the provided [child].
 class StyleCard extends StatelessWidget {
   const StyleCard({
     super.key,
