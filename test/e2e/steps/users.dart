@@ -59,10 +59,15 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
 final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
   'I sign in as {user}',
   (TestUser user, context) async {
-    var password = UserPassword('123');
+    try {
+      var password = UserPassword('123');
 
-    await Get.find<AuthService>()
-        .signIn(password, num: context.world.sessions[user.name]!.userNum);
+      await Get.find<AuthService>()
+          .signIn(password, num: context.world.sessions[user.name]!.userNum);
+    } catch (_) {
+      await Get.find<AuthService>()
+          .signInWith(context.world.sessions[user.name]!.credentials);
+    }
 
     router.home();
   },
@@ -76,8 +81,7 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 /// - `Given user Bob`
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
   'user {user}',
-  (TestUser name, context) =>
-      createUser(name, context.world, password: UserPassword('123')),
+  (TestUser name, context) => createUser(name, context.world),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
@@ -89,10 +93,8 @@ final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
 final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   'users {user} and {user}',
   (TestUser user1, TestUser user2, context) async {
-    var password = UserPassword('123');
-
-    await createUser(user1, context.world, password: password);
-    await createUser(user2, context.world, password: password);
+    await createUser(user1, context.world);
+    await createUser(user2, context.world);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

@@ -39,7 +39,8 @@ final StepDefinitionGeneric sendsAttachmentToMe =
   '{user} sends {string} attachment to me',
   (TestUser user, String filename, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token =
+        context.world.sessions[user.name]?.credentials.session.token;
 
     final String? type = MimeResolver.lookup(filename);
     final MediaType? mime = type != null ? MediaType.parse(type) : null;

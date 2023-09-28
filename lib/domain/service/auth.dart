@@ -311,6 +311,19 @@ class AuthService extends GetxService {
     });
   }
 
+  /// Creates a new [Session] for the [MyUser] identified by the provided
+  /// [credentials].
+  ///
+  /// The created [Session] expires in 1 day after creation.
+  Future<void> signInWith(Credentials credentials) async {
+    status.value = RxStatus.loadingMore();
+    return _tokenGuard.protect(() async {
+      _authorized(credentials);
+      _sessionProvider.setCredentials(credentials);
+      status.value = RxStatus.success();
+    });
+  }
+
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {

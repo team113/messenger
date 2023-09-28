@@ -1407,7 +1407,9 @@ class ChatRepository extends DisposableInterface
     });
 
     await _pagination!.around();
-    await _initMonolog();
+    if (_pagination?.hasNext.value == false) {
+      await _initMonolog();
+    }
 
     await Future.delayed(1.milliseconds);
     status.value = RxStatus.success();
