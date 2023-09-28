@@ -38,6 +38,7 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -164,7 +165,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
 
-                    return AnimatedSwitcher(
+                    return SafeAnimatedSwitcher(
                       duration: 250.milliseconds,
                       child: child,
                     );
@@ -232,7 +233,7 @@ class ChatsTabView extends StatelessWidget {
                             child: child,
                           );
                         },
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: c.searching.value
                               ? Icon(
@@ -300,7 +301,7 @@ class ChatsTabView extends StatelessWidget {
                                 height: double.infinity,
                                 child: SizedBox(
                                   width: 21.77,
-                                  child: AnimatedSwitcher(
+                                  child: SafeAnimatedSwitcher(
                                     duration: 250.milliseconds,
                                     child: child,
                                   ),
@@ -924,7 +925,7 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: child,
                     ),
@@ -1007,7 +1008,10 @@ class ChatsTabView extends StatelessWidget {
                 child = const SizedBox();
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
           ],
         );
