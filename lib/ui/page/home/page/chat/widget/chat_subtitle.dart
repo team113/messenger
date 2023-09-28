@@ -49,7 +49,7 @@ class ChatSubtitle extends StatefulWidget {
   final UserId? me;
 
   /// Indicator whether ongoing activities of the provided [chat] should be
-  /// displayed withing this [ChatSubtitle].
+  /// displayed within this [ChatSubtitle].
   final bool withActivities;
 
   @override

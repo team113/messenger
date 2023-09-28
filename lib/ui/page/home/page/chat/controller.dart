@@ -1574,6 +1574,30 @@ extension ChatViewExt on Chat {
     }
   }
 
+  Duration getPeriod({User? partner}) {
+    switch (kind) {
+      case ChatKind.dialog:
+        return partner?.getPeriod() ?? const Duration(days: 1);
+
+      case ChatKind.group:
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+        return const Duration(days: 1);
+    }
+  }
+
+  Duration getDelay({User? partner}) {
+    switch (kind) {
+      case ChatKind.dialog:
+        return partner?.getDelay() ?? const Duration(days: 1);
+
+      case ChatKind.group:
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+        return const Duration(days: 1);
+    }
+  }
+
   /// Returns a string that is based on [members] or [id] of this [Chat].
   String colorDiscriminant(UserId? me) {
     switch (kind) {
