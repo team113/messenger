@@ -1574,6 +1574,7 @@ extension ChatViewExt on Chat {
     }
   }
 
+  /// Returns [Duration] of a period for [PeriodicBuilder].
   Duration getPeriod({User? partner}) {
     switch (kind) {
       case ChatKind.dialog:
@@ -1586,6 +1587,7 @@ extension ChatViewExt on Chat {
     }
   }
 
+  /// Returns [Duration] of a delay for [PeriodicBuilder].
   Duration getDelay({User? partner}) {
     switch (kind) {
       case ChatKind.dialog:

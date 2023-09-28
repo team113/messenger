@@ -415,18 +415,19 @@ extension UserViewExt on User {
     }
   }
 
+  /// Returns [Duration] of the delay for the [PeriodicBuilder] based on the
+  /// [User.presence] and [User.online] fields.
   Duration getDelay() {
-    final now = DateTime.now();
-    final nextMinute = lastSeenAt!.val.copyWith(
-      minute: lastSeenAt!.val.minute + 1,
-    );
-
     switch (presence) {
       case Presence.present:
         if (online) {
           return const Duration(days: 1);
         } else if (lastSeenAt != null) {
-          final diff = now.difference(lastSeenAt!.val).inSeconds;
+          final DateTime now = DateTime.now();
+          final DateTime nextMinute =
+              lastSeenAt!.val.copyWith(minute: lastSeenAt!.val.minute + 1);
+          final int diff = now.difference(lastSeenAt!.val).inSeconds;
+
           if (diff <= 60) {
             final delay = nextMinute.difference(now).inSeconds;
             return Duration(seconds: delay);
@@ -450,15 +451,16 @@ extension UserViewExt on User {
     }
   }
 
+  /// Returns [Duration] of the period for the [PeriodicBuilder] based on the
+  /// [User.presence] and [User.online] fields.
   Duration getPeriod() {
-    final now = DateTime.now();
-
     switch (presence) {
       case Presence.present:
         if (online) {
           return const Duration(days: 1);
         } else if (lastSeenAt != null) {
-          final diff = now.difference(lastSeenAt!.val).inSeconds;
+          final int diff = DateTime.now().difference(lastSeenAt!.val).inSeconds;
+
           if (diff <= 3600) {
             return const Duration(minutes: 1);
           } else if (diff <= 86400) {
