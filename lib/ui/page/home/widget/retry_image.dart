@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -318,7 +319,7 @@ class _RetryImageState extends State<RetryImage> {
       return Stack(
         alignment: Alignment.center,
         children: [
-          AnimatedSwitcher(
+          SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 150),
             child: _fallback == null
                 ? SizedBox(width: 200, height: widget.height)
@@ -344,7 +345,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
           Positioned.fill(
             child: Center(
-              child: AnimatedSwitcher(
+              child: SafeAnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
                 child:
                     KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
@@ -357,7 +358,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return KeyedSubtree(
       key: Key('Image_${widget.url}'),
-      child: AnimatedSwitcher(
+      child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 150),
         child: child,
       ),
