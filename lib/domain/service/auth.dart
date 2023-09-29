@@ -317,11 +317,11 @@ class AuthService extends GetxService {
   /// The created [Session] expires in 1 day after creation.
   Future<void> signInWith(Credentials credentials) async {
     // Check if the [credentials] are valid.
-    credentials = await _authRepository
-        .renewSession(credentials.rememberedSession.token);
+    credentials =
+        await _authRepository.renewSession(credentials.rememberedSession.token);
 
     status.value = RxStatus.loadingMore();
-    await  _tokenGuard.protect(() async {
+    await _tokenGuard.protect(() async {
       _authorized(credentials);
       _sessionProvider.setCredentials(credentials);
       status.value = RxStatus.success();
