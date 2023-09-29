@@ -32,25 +32,37 @@ final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
     then2<WidgetKey, WidgetKey, FlutterWorld>(
   RegExp(r'I scroll {key} until {key} is present'),
   (WidgetKey list, WidgetKey key, StepContext<FlutterWorld> context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.scrollUntilVisible(
-      context.world.appDriver.findByKeySkipOffstage(key.name),
-      scrollable: find.descendant(
-        of: find.byKey(Key(list.name)),
-        matching: find.byWidgetPredicate((widget) {
-          // TODO: Find a proper way to differentiate [Scrollable]s from
-          //       [TextField]s:
-          //       https://github.com/flutter/flutter/issues/76981
-          if (widget is Scrollable) {
-            return widget.restorationId == null;
-          }
+        Finder scrollable = find.descendant(
+          of: find.byKey(Key(list.name)),
+          matching: find.byWidgetPredicate((widget) {
+            // TODO: Find a proper way to differentiate [Scrollable]s from
+            //       [TextField]s:
+            //       https://github.com/flutter/flutter/issues/76981
+            if (widget is Scrollable) {
+              return widget.restorationId == null;
+            }
+            return false;
+          }),
+        );
+
+        if (!await context.world.appDriver.isPresent(scrollable)) {
           return false;
-        }),
-      ),
-      dy: 100,
-    );
+        }
 
-    await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.scrollUntilVisible(
+          context.world.appDriver.findByKeySkipOffstage(key.name),
+          scrollable: scrollable,
+          dy: 100,
+        );
+
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      },
+    );
   },
 );
