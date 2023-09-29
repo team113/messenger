@@ -44,8 +44,8 @@ import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import 'components/buttons.dart';
-import 'components/more.dart';
+import 'component/more.dart';
+import 'widget/buttons.dart';
 
 export 'view.dart';
 

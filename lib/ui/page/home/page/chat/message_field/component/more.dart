@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../widget/buttons.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -25,7 +26,6 @@ import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'buttons.dart';
 
 /// Visual representation of the [MessageFieldController.panel].
 ///

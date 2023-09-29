@@ -19,7 +19,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -49,6 +49,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/close_button.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -770,7 +771,7 @@ class MessageFieldView extends StatelessWidget {
                           key: const Key('RemovePickedFile'),
                           onTap: () =>
                               c.attachments.removeWhere((a) => a.value == e),
-                          child: _close(context),
+                          child: const CloseButton(),
                         ),
                       );
                     }),
@@ -1017,38 +1018,14 @@ class MessageFieldView extends StatelessWidget {
                 child: WidgetButton(
                   key: const Key('CancelReplyButton'),
                   onPressed: onClose,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
-                    child: _close(context),
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(0, 3, 3, 0),
+                    child: CloseButton(),
                   ),
                 ),
               );
             }),
           ],
-        ),
-      ),
-    );
-  }
-
-  /// Close button.
-  Widget _close(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Container(
-      width: 16,
-      height: 16,
-      margin: const EdgeInsets.only(left: 8, bottom: 8),
-      child: Container(
-        key: const Key('Close'),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: style.cardColor,
-        ),
-        alignment: Alignment.center,
-        child: const SvgImage.asset(
-          'assets/icons/close_primary.svg',
-          width: 8,
-          height: 8,
         ),
       ),
     );

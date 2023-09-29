@@ -19,7 +19,7 @@ import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
 import '/ui/page/call/component/common.dart';
-import '/ui/page/home/page/chat/message_field/components/buttons.dart';
+import '/ui/page/home/page/chat/message_field/widget/buttons.dart';
 
 part 'application_settings.g.dart';
 
