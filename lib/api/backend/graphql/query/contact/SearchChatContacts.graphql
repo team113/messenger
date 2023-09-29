@@ -15,21 +15,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-query SearchUsers(
-    $num: UserNum
-    $login: UserLogin
-    $directLink: ChatDirectLinkSlug
+query SearchChatContacts(
     $name: UserName
+    $email: UserEmail
+    $phone: UserPhone
     $first: Int
-    $after: UsersCursor
+    $after: ChatContactsCursor
     $last: Int
-    $before: UsersCursor
+    $before: ChatContactsCursor
 ) {
-    searchUsers(
-        num: $num
-        login: $login
-        directLink: $directLink
+    searchChatContacts(
         name: $name
+        email: $email
+        phone: $phone
         first: $first
         after: $after
         last: $last
@@ -38,7 +36,7 @@ query SearchUsers(
         edges {
             node {
                 __typename
-                ...User
+                ...ChatContact
             }
             cursor
         }

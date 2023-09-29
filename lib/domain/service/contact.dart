@@ -15,11 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/search.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
@@ -79,4 +82,16 @@ class ContactService extends DisposableService {
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id) =>
       _contactRepository.unfavoriteChatContact(id);
+
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  }) =>
+      _contactRepository.search(
+        name: name,
+        email: email,
+        phone: phone,
+      );
 }

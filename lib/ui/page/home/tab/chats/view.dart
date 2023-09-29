@@ -397,17 +397,17 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         bottom: false,
-                        controller: c.search.value!.controller,
+                        controller: c.search.value!.scrollController,
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(40),
                         ),
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
-                          controller: c.search.value!.controller,
+                          controller: c.search.value!.scrollController,
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
                             final ListElement element = c.elements[i];
-                            final Widget child;
+                            Widget child;
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -480,13 +480,13 @@ class ChatsTabView extends StatelessWidget {
                               child = Center(
                                 child: Container(
                                   margin: const EdgeInsets.fromLTRB(
-                                    10,
+                                    0,
                                     2,
                                     0,
                                     2,
                                   ),
                                   padding: const EdgeInsets.fromLTRB(
-                                    12,
+                                    0,
                                     10,
                                     0,
                                     6,
@@ -502,6 +502,16 @@ class ChatsTabView extends StatelessWidget {
                               );
                             } else {
                               child = const SizedBox();
+                            }
+
+                            if (i == c.elements.length - 1 &&
+                                c.search.value?.hasNext.value == true) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  const CustomProgressIndicator(),
+                                ],
+                              );
                             }
 
                             return child;
@@ -523,16 +533,16 @@ class ChatsTabView extends StatelessWidget {
                       );
                     } else if (c.elements.isNotEmpty) {
                       child = SafeScrollbar(
-                        controller: c.scrollController,
+                        controller: c.search.value!.scrollController,
                         child: AnimationLimiter(
                           key: const Key('Search'),
                           child: ListView.builder(
                             key: const Key('SearchScrollable'),
-                            controller: c.scrollController,
+                            controller: c.search.value!.scrollController,
                             itemCount: c.elements.length,
                             itemBuilder: (_, i) {
                               final ListElement element = c.elements[i];
-                              final Widget child;
+                              Widget child;
 
                               if (element is ChatElement) {
                                 final RxChat chat = element.chat;
@@ -586,6 +596,26 @@ class ChatsTabView extends StatelessWidget {
                                 );
                               } else {
                                 child = const SizedBox();
+                              }
+
+                              if (i == c.elements.length - 1) {
+                                if (c.search.value?.hasNext.value == true) {
+                                  child = Column(
+                                    children: [
+                                      child,
+                                      const CustomProgressIndicator(
+                                        key: Key('SearchLoading'),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                child = Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: CustomNavigationBar.height + 5,
+                                  ),
+                                  child: child,
+                                );
                               }
 
                               return AnimationConfiguration.staggeredList(
