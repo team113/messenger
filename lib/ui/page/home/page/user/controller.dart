@@ -418,13 +418,13 @@ extension UserViewExt on User {
   /// Returns [Duration] of the delay for the [PeriodicBuilder] based on the
   /// [User.presence] and [User.online] fields.
   Duration getDelay() {
-    const Duration month = Duration(days: 30);
+    const Duration zero = Duration.zero;
 
     switch (presence) {
       case Presence.present:
       case Presence.away:
         if (online) {
-          return month;
+          return zero;
         } else if (lastSeenAt != null) {
           final int diff = DateTime.now().difference(lastSeenAt!.val).inSeconds;
           final int remainder;
@@ -443,12 +443,12 @@ extension UserViewExt on User {
             return Duration(seconds: remainder != 0 ? 86400 - remainder : 0);
           }
         } else {
-          return month;
+          return zero;
         }
 
       case Presence.artemisUnknown:
       case null:
-        return month;
+        return zero;
     }
   }
 

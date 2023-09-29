@@ -1583,7 +1583,7 @@ extension ChatViewExt on Chat {
       case ChatKind.group:
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:
-        return const Duration(days: 1);
+        return const Duration(days: 30);
     }
   }
 
@@ -1596,7 +1596,7 @@ extension ChatViewExt on Chat {
       case ChatKind.group:
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:
-        return const Duration(days: 1);
+        return Duration.zero;
     }
   }
 

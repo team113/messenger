@@ -95,8 +95,10 @@ class UserView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: PeriodicBuilder(
-                            delay: c.user!.user.value.getDelay(),
-                            period: c.user!.user.value.getPeriod(),
+                            delay:
+                                c.user?.user.value.getDelay() ?? Duration.zero,
+                            period: c.user?.user.value.getPeriod() ??
+                                const Duration(days: 1),
                             builder: (context) {
                               return Obx(() {
                                 final String? status =
@@ -206,15 +208,16 @@ class UserView extends StatelessWidget {
                           ),
                           if (c.user!.user.value.status != null)
                             UserStatusCopyable(c.user!.user.value.status!),
-                          PeriodicBuilder(
-                              delay: c.user!.user.value.getDelay(),
-                              period: c.user!.user.value.getPeriod(),
-                              builder: (context) {
-                                return UserPresenceField(
-                                  c.user!.user.value.presence!,
-                                  c.user!.user.value.getStatus(),
-                                );
-                              }),
+                          if (c.user!.user.value.presence != null)
+                            PeriodicBuilder(
+                                delay: c.user!.user.value.getDelay(),
+                                period: c.user!.user.value.getPeriod(),
+                                builder: (context) {
+                                  return UserPresenceField(
+                                    c.user!.user.value.presence!,
+                                    c.user!.user.value.getStatus(),
+                                  );
+                                }),
                         ],
                       ),
                       Block(
