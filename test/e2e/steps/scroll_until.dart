@@ -17,52 +17,56 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../world/custom_world.dart';
 
 /// Scrolls the provided [Scrollable] until the specified [WidgetKey] is present
 /// within that list.
 ///
 /// Examples:
 /// - Then I scroll `Menu` until `LogoutButton` is present
-final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
-    then2<WidgetKey, WidgetKey, FlutterWorld>(
+final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
+    then2<WidgetKey, WidgetKey, CustomWorld>(
   RegExp(r'I scroll {key} until {key} is present'),
-  (WidgetKey list, WidgetKey key, StepContext<FlutterWorld> context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+  (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
+    await context.world.appDriver.waitForAppToSettle();
 
-        Finder scrollable = find.descendant(
-          of: find.byKey(Key(list.name)),
-          matching: find.byWidgetPredicate((widget) {
-            // TODO: Find a proper way to differentiate [Scrollable]s from
-            //       [TextField]s:
-            //       https://github.com/flutter/flutter/issues/76981
-            if (widget is Scrollable) {
-              return widget.restorationId == null;
-            }
-            return false;
-          }),
-        );
+    Finder finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-        if (!await context.world.appDriver.isPresent(scrollable)) {
-          return false;
+    Finder scrollable = find.descendant(
+      of: find.byKey(Key(list.name)),
+      matching: find.byWidgetPredicate((widget) {
+        // TODO: Find a proper way to differentiate [Scrollable]s from
+        //       [TextField]s:
+        //       https://github.com/flutter/flutter/issues/76981
+        if (widget is Scrollable) {
+          return widget.restorationId == null;
         }
-
-        await context.world.appDriver.scrollUntilVisible(
-          context.world.appDriver.findByKeySkipOffstage(key.name),
-          scrollable: scrollable,
-          dy: 100,
-        );
-
-        await context.world.appDriver.waitForAppToSettle();
-
-        return true;
-      },
+        return false;
+      }),
     );
+
+    AppDriverAdapter driver = context.world.appDriver;
+    double displayHeight =
+        context.world.appDriver.nativeDriver.view.display.size.height;
+
+    int i = 0;
+    while (i++ < 100 &&
+        (await driver.isAbsent(finder) ||
+            driver.nativeDriver.getCenter(finder).dy > displayHeight - 200)) {
+      double position = (scrollable.evaluate().first.widget as Scrollable)
+          .controller!
+          .position
+          .pixels;
+
+      await context.world.appDriver.scroll(scrollable, dy: position + 200);
+    }
+
+    await context.world.appDriver.waitForAppToSettle();
   },
 );

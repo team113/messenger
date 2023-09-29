@@ -23,6 +23,7 @@ Feature: Chats pagination
     And I sign in as Alice
     And I have Internet with delay of 3 seconds
 
+    When I tap `CloseButton` button
     Then I wait until `Chats` is present
 
     When I scroll `Chats` until `ChatsLoading` is present
