@@ -218,10 +218,6 @@ class _MenuButtonState extends State<_MenuButton> {
                       offset: widget.button.offsetMini,
                       child: SvgImage.asset(
                         'assets/icons/${widget.button.assetMini ?? widget.button.asset}${disabled ? '_disabled' : ''}.svg',
-                        width: widget.button.assetMiniWidth ??
-                            widget.button.assetWidth,
-                        height: widget.button.assetMiniHeight ??
-                            widget.button.assetHeight,
                       ),
                     ),
                   ),

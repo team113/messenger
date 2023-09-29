@@ -545,8 +545,6 @@ class MessageFieldView extends StatelessWidget {
                                 offset: e.offset,
                                 child: SvgImage.asset(
                                   'assets/icons/${e.asset}.svg',
-                                  width: e.assetWidth,
-                                  height: e.assetHeight,
                                 ),
                               ),
                             ),
