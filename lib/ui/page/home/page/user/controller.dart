@@ -418,46 +418,50 @@ extension UserViewExt on User {
   /// Returns [Duration] of the delay for the [PeriodicBuilder] based on the
   /// [User.presence] and [User.online] fields.
   Duration getDelay() {
+    const Duration month = Duration(days: 30);
+
     switch (presence) {
       case Presence.present:
+      case Presence.away:
         if (online) {
-          return const Duration(days: 1);
+          return month;
         } else if (lastSeenAt != null) {
           final int diff = DateTime.now().difference(lastSeenAt!.val).inSeconds;
-          final int delay;
+          final int remainder;
 
           if (diff <= 3600) {
-            delay = diff % 60 != 0 ? 60 - diff % 60 : 0;
+            remainder = diff % 60;
 
-            return Duration(seconds: delay);
+            return Duration(seconds: remainder != 0 ? 60 - remainder : 0);
           } else if (diff <= 86400) {
-            delay = diff % 3600 != 0 ? 3600 - diff % 3600 : 0;
+            remainder = diff % 3600;
 
-            return Duration(seconds: delay);
+            return Duration(seconds: remainder != 0 ? 3600 - remainder : 0);
           } else {
-            delay = diff % 86400 != 0 ? 86400 - diff % 86400 : 0;
+            remainder = diff % 86400;
 
-            return Duration(seconds: delay);
+            return Duration(seconds: remainder != 0 ? 86400 - remainder : 0);
           }
         } else {
-          return const Duration(days: 1);
+          return month;
         }
-      case Presence.away:
-        return const Duration(days: 1);
+
       case Presence.artemisUnknown:
-        return const Duration(days: 1);
       case null:
-        return const Duration(days: 1);
+        return month;
     }
   }
 
   /// Returns [Duration] of the period for the [PeriodicBuilder] based on the
   /// [User.presence] and [User.online] fields.
   Duration getPeriod() {
+    const Duration month = Duration(days: 30);
+
     switch (presence) {
       case Presence.present:
+      case Presence.away:
         if (online) {
-          return const Duration(days: 1);
+          return month;
         } else if (lastSeenAt != null) {
           final int diff = DateTime.now().difference(lastSeenAt!.val).inSeconds;
 
@@ -469,14 +473,12 @@ extension UserViewExt on User {
             return const Duration(days: 1);
           }
         } else {
-          return const Duration(days: 1);
+          return month;
         }
-      case Presence.away:
-        return const Duration(days: 1);
+
       case Presence.artemisUnknown:
-        return const Duration(days: 1);
       case null:
-        return const Duration(days: 1);
+        return month;
     }
   }
 }

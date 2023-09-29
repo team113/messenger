@@ -177,8 +177,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
       if (member != null) {
         return PeriodicBuilder(
-            delay: chat.getDelay(partner: member.user.value),
-            period: chat.getPeriod(partner: member.user.value),
+            delay: chat.getDelay(member.user.value),
+            period: chat.getPeriod(member.user.value),
             builder: (context) {
               return Obx(() {
                 final String? subtitle =
