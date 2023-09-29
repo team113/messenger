@@ -15,33 +15,25 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 /// [Column] of the provided [colors] representing a [Color] scheme.
 class ColorSchemaWidget extends StatelessWidget {
-  const ColorSchemaWidget(
-    this.colors, {
-    super.key,
-    this.inverted = false,
-    this.dense = false,
-  });
+  const ColorSchemaWidget(this.colors, {super.key, this.inverted = false});
 
   /// Records of [Color]s and its descriptions to display.
-  final Iterable<(Color, String?, String?)> colors;
+  final Iterable<(Color, String?)> colors;
 
   /// Indicator whether the background of this [ColorSchemaWidget] should be
   /// inverted.
   final bool inverted;
-
-  /// Indicator whether this [ColorSchemaWidget] should be dense, meaning no
-  /// [Padding]s and roundness.
-  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -50,81 +42,84 @@ class ColorSchemaWidget extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
-      margin: EdgeInsets.symmetric(horizontal: dense ? 0 : 16),
       decoration: BoxDecoration(
-        borderRadius: dense ? BorderRadius.zero : BorderRadius.circular(16),
-        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+        color: inverted ? style.colors.onBackground : style.colors.onPrimary,
       ),
-      child: Column(
-        children: colors.mapIndexed((i, e) {
-          final HSLColor hsl = HSLColor.fromColor(e.$1);
-          final Color text = hsl.lightness > 0.7 || hsl.alpha < 0.4
-              ? const Color(0xFF000000)
-              : const Color(0xFFFFFFFF);
-          final TextStyle textStyle =
-              style.fonts.bodySmall.copyWith(color: text);
+      child: Table(
+        columnWidths: const <int, TableColumnWidth>{
+          0: FlexColumnWidth(),
+          1: IntrinsicColumnWidth(),
+          2: IntrinsicColumnWidth(),
+        },
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: [
+          ...colors.map((e) {
+            final HSLColor hsl = HSLColor.fromColor(e.$1);
+            final Color text = (!inverted || hsl.alpha > 0.7) &&
+                    (hsl.lightness > 0.7 || hsl.alpha < 0.4)
+                ? style.colors.onBackground
+                : style.colors.onPrimary;
+            final TextStyle textStyle =
+                style.fonts.bodySmall.copyWith(color: text);
+            final double paddings = context.isNarrow ? 4 : 128;
 
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.ease,
-            width: double.infinity,
-            height: 50,
-            decoration: BoxDecoration(
-              color: e.$1,
-              borderRadius: BorderRadius.only(
-                topLeft:
-                    i == 0 && !dense ? const Radius.circular(16) : Radius.zero,
-                topRight:
-                    i == 0 && !dense ? const Radius.circular(16) : Radius.zero,
-                bottomLeft: i == colors.length - 1 && !dense
-                    ? const Radius.circular(16)
-                    : Radius.zero,
-                bottomRight: i == colors.length - 1 && !dense
-                    ? const Radius.circular(16)
-                    : Radius.zero,
-              ),
-            ),
-            child: Center(
-              child: Row(
-                children: [
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                    child: SizedBox(width: dense ? 32 : 8),
-                  ),
-                  if (e.$3 != null)
-                    Tooltip(
-                      message: e.$3,
-                      child: Icon(Icons.info_outline, size: 13, color: text),
-                    ),
-                  if (e.$2 != null) ...[
-                    const SizedBox(width: 8),
-                    WidgetButton(
+            return TableRow(
+              decoration: BoxDecoration(color: e.$1),
+              children: [
+                TableCell(
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(paddings, 16, 0, 16),
+                    alignment: Alignment.centerLeft,
+                    child: WidgetButton(
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: e.$2!));
-                        MessagePopup.success('Technical name is copied');
+                        Clipboard.setData(ClipboardData(text: e.$2 ?? ''));
+                        MessagePopup.success('Name is copied');
                       },
-                      child: Text(e.$2!, style: textStyle),
+                      child: Text(e.$2 ?? '', style: textStyle),
                     ),
-                  ],
-                  const Spacer(),
-                  WidgetButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: e.$1.toHex()));
-                      MessagePopup.success('Hash is copied');
-                    },
-                    child: Text(e.$1.toHex(), style: textStyle),
                   ),
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                    child: SizedBox(width: dense ? 32 : 8),
+                ),
+                TableCell(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.fromLTRB(
+                      8,
+                      0,
+                      context.isNarrow ? 8 : 32,
+                      0,
+                    ),
+                    child: WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: e.$1.toHex()));
+                        MessagePopup.success('Color is copied');
+                      },
+                      child: Text(e.$1.toHex(), style: textStyle).fixedDigits(),
+                    ),
                   ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
+                ),
+                TableCell(
+                  child: Container(
+                    padding: EdgeInsets.only(right: paddings),
+                    alignment: Alignment.center,
+                    child: WidgetButton(
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(text: e.$1.toHex(withAlpha: false)),
+                        );
+                        MessagePopup.success('HEX is copied');
+                      },
+                      child: Text(
+                        '${(e.$1.alpha / 255 * 100).round()}% ${e.$1.toHex(withAlpha: false)}',
+                        style: textStyle,
+                      ).fixedDigits(),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
+        ],
       ),
     );
   }

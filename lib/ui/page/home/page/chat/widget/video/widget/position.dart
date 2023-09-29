@@ -20,7 +20,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/util/fixed_digits.dart';
 
 /// Current position and duration of the provided [controller].
 class CurrentPosition extends StatelessWidget {

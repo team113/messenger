@@ -26,6 +26,8 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned auth page. ([#564], [#533])
     - Redesigned login modal. ([#564], [#533])
     - Redesigned language selection modal. ([#533])
+    - Style page:
+        - Redesigned colors tab. ([#616], [#614])
 
 ### Fixed
 
@@ -49,6 +51,8 @@ All user visible changes to this project will be documented in this file. This p
 [#597]: /../../pull/597
 [#599]: /../../pull/599
 [#604]: /../../pull/604
+[#614]: /../../issues/614
+[#616]: /../../pull/616
 
 
 

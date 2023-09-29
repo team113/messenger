@@ -15,28 +15,12 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Contacts selection
+Feature: Cache clearing
 
-  Scenario: User selects and deletes contacts
+  Scenario: Cache is cleaned when application version updates
     Given I am Alice
-    And users Bob and Charlie
-    And contacts Bob and Charlie
-    And I wait until `HomeView` is present
-    And I tap `ContactsButton` button
-    And I wait until "Bob" contact is present
-    And I wait until "Charlie" contact is present
+    Then I wait until `HomeView` is present
 
-    When I tap `ContactsMenu` button
-    And I tap `SelectContactsButton` button
-    Then I see "Bob" contact as unselected
-    And I see "Charlie" contact as unselected
-
-    When I tap "Bob" contact
-    Then I see "Bob" contact as selected
-    When I tap "Charlie" contact
-    Then I see "Charlie" contact as selected
-
-    When I tap `DeleteContacts` button
-    And I tap `Proceed` button
-    Then I wait until "Bob" contact is absent
-    And I wait until "Charlie" contact is absent
+    When application version is updated
+    And I restart app
+    Then I wait until `AuthView` is present
