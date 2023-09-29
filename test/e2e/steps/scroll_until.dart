@@ -38,37 +38,54 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
   (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    Finder finder = context.world.appDriver.findByKeySkipOffstage(key.name);
-
-    Finder scrollable = find.descendant(
-      of: find.byKey(Key(list.name)),
-      matching: find.byWidgetPredicate((widget) {
-        // TODO: Find a proper way to differentiate [Scrollable]s from
-        //       [TextField]s:
-        //       https://github.com/flutter/flutter/issues/76981
-        if (widget is Scrollable) {
-          return widget.restorationId == null;
-        }
-        return false;
-      }),
+    await context.world.appDriver.scrollIntoVisible(
+      context.world.appDriver.findByKeySkipOffstage(key.name),
+      find.descendant(
+        of: find.byKey(Key(list.name)),
+        matching: find.byWidgetPredicate((widget) {
+          // TODO: Find a proper way to differentiate [Scrollable]s from
+          //       [TextField]s:
+          //       https://github.com/flutter/flutter/issues/76981
+          if (widget is Scrollable) {
+            return widget.restorationId == null;
+          }
+          return false;
+        }),
+      ),
+      dy: 200,
     );
-
-    AppDriverAdapter driver = context.world.appDriver;
-    double displayHeight =
-        context.world.appDriver.nativeDriver.view.display.size.height;
-
-    int i = 0;
-    while (i++ < 100 &&
-        (await driver.isAbsent(finder) ||
-            driver.nativeDriver.getCenter(finder).dy > displayHeight - 200)) {
-      final state = driver.nativeDriver.state(scrollable) as ScrollableState;
-      final position = state.position;
-
-      position.jumpTo(min(position.pixels + 200, position.maxScrollExtent));
-
-      await driver.nativeDriver.pump();
-    }
 
     await context.world.appDriver.waitForAppToSettle();
   },
 );
+
+/// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
+/// replacement.
+extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
+    on AppDriverAdapter {
+  /// Scrolls the [scrollable] by [dy] until the [finder] is visible.
+  Future<void> scrollIntoVisible(
+    Finder finder,
+    Finder scrollable, {
+    double dy = 100,
+  }) async {
+    final double height = nativeDriver.view.display.size.height;
+
+    for (int i = 0; i < 100; ++i) {
+      // If [finder] is present and it's within our view, then break the loop.
+      if (await isPresent(finder) &&
+          nativeDriver.getCenter(finder).dy <= height - dy) {
+        break;
+      }
+
+      // Or otherwise keep on scrolling the [scrollable].
+      final ScrollableState state =
+          nativeDriver.state(scrollable) as ScrollableState;
+      final ScrollPosition position = state.position;
+
+      position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
+
+      await nativeDriver.pump();
+    }
+  }
+}

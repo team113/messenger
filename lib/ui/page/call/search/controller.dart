@@ -297,7 +297,7 @@ class SearchController extends GetxController {
       _populateUsers();
     }
 
-    // TODO: Add `Chat`s ad `ChatItem`s searching.
+    // TODO: Add `Chat`s and `ChatItem`s searching.
     if (categories.contains(SearchCategory.contact)) {
       _searchContacts(query);
     } else if (categories.contains(SearchCategory.user)) {

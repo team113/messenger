@@ -27,6 +27,7 @@ import 'package:messenger/ui/page/call/search/controller.dart';
 import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
+import 'scroll_until.dart';
 
 /// Taps on the provided [User] or [ChatContact] found in an ongoing search.
 ///
@@ -68,9 +69,9 @@ final StepDefinitionGeneric tapUserInSearchResults =
               return false;
             }
 
-            await context.world.appDriver.scrollUntilVisible(
+            await context.world.appDriver.scrollIntoVisible(
               finder,
-              scrollable: scrollable,
+              scrollable,
               dy: 100,
             );
 
@@ -109,9 +110,9 @@ final StepDefinitionGeneric tapUserInSearchResults =
               return false;
             }
 
-            await context.world.appDriver.scrollUntilVisible(
+            await context.world.appDriver.scrollIntoVisible(
               finder,
-              scrollable: scrollable,
+              scrollable,
               dy: 100,
             );
 
