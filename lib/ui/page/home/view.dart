@@ -292,9 +292,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.green,
+                                          color: style.colors.acceptAuxiliaryColor,
                                         ),
                                       ),
                                     ),
@@ -306,9 +306,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.orange,
+                                          color: style.colors.warningColor,
                                         ),
                                       ),
                                     ),

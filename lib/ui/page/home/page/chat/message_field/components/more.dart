@@ -93,7 +93,7 @@ class MessageFieldMore extends StatelessWidget {
               child: Container(
                 width: rect?.left ?? constraints.maxWidth,
                 height: constraints.maxHeight,
-                color: Colors.transparent,
+                color: style.colors.transparent,
               ),
             ),
           ),
@@ -111,7 +111,7 @@ class MessageFieldMore extends StatelessWidget {
                     (rect?.left ?? constraints.maxWidth) -
                     50,
                 height: constraints.maxHeight,
-                color: Colors.transparent,
+                color: style.colors.transparent,
               ),
             ),
           ),
@@ -126,7 +126,7 @@ class MessageFieldMore extends StatelessWidget {
                     EdgeInsets.only(left: (rect?.left ?? constraints.maxWidth)),
                 width: 50,
                 height: rect?.top ?? 0,
-                color: Colors.transparent,
+                color: style.colors.transparent,
               ),
             ),
           ),
@@ -136,7 +136,7 @@ class MessageFieldMore extends StatelessWidget {
             bottom: bottom + 10,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: style.colors.onPrimary,
                 borderRadius: style.cardRadius,
                 boxShadow: [
                   CustomBoxShadow(
@@ -198,7 +198,7 @@ class _MenuButtonState extends State<_MenuButton> {
         opaque: false,
         child: WidgetButton(
           onPressed: () {
-            widget.button.onPressed?.call(false);
+            widget.button.onPressed?.call();
             widget.onPressed?.call();
           },
           child: Container(
@@ -230,7 +230,7 @@ class _MenuButtonState extends State<_MenuButton> {
                 Text(
                   widget.button.hint,
                   style: disabled
-                      ? style.fonts.bodyLargePrimaryLight
+                      ? style.fonts.bodyLargePrimaryHighlightLightest
                       : style.fonts.bodyLargePrimary,
                 ),
                 const Spacer(),

@@ -507,7 +507,7 @@ class MessageFieldView extends StatelessWidget {
                           return GestureDetector(
                             onLongPress:
                                 canForward ? c.forwarding.toggle : null,
-                            child: WidgetButton(
+                            child: AnimatedButton(
                               onPressed: c.field.submit,
                               child: SizedBox(
                                 width: 50,
@@ -516,21 +516,17 @@ class MessageFieldView extends StatelessWidget {
                                   child: SafeAnimatedSwitcher(
                                     duration: 300.milliseconds,
                                     child: c.forwarding.value
-                                        ? const AnimatedButton(
-                                            child: SvgImage.asset(
-                                              'assets/icons/forward.svg',
-                                              width: 26,
-                                              height: 22,
-                                            ),
-                                          )
-                                        : AnimatedButton(
-                                            child: SvgImage.asset(
-                                              'assets/icons/send.svg',
-                                              key: sendKey ?? const Key('Send'),
-                                              width: 25.44,
-                                              height: 21.91,
-                                            ),
-                                          ),
+                                        ? const SvgImage.asset(
+                                          'assets/icons/forward.svg',
+                                          width: 26,
+                                          height: 22,
+                                        )
+                                        : SvgImage.asset(
+                                          'assets/icons/send.svg',
+                                          key: sendKey ?? const Key('Send'),
+                                          width: 25.44,
+                                          height: 21.91,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -539,20 +535,18 @@ class MessageFieldView extends StatelessWidget {
                         })
                       ]
                     : c.buttons.take(take).toList().reversed.mapIndexed((i, e) {
-                        return WidgetButton(
-                          onPressed: () => e.onPressed?.call(true),
+                        return AnimatedButton(
+                          onPressed: () => e.onPressed?.call(),
                           child: SizedBox(
                             width: 50,
                             height: 56,
                             child: Center(
-                              child: AnimatedButton(
-                                child: Transform.translate(
-                                  offset: e.offset,
-                                  child: SvgImage.asset(
-                                    'assets/icons/${e.asset}.svg',
-                                    width: e.assetWidth,
-                                    height: e.assetHeight,
-                                  ),
+                              child: Transform.translate(
+                                offset: e.offset,
+                                child: SvgImage.asset(
+                                  'assets/icons/${e.asset}.svg',
+                                  width: e.assetWidth,
+                                  height: e.assetHeight,
                                 ),
                               ),
                             ),

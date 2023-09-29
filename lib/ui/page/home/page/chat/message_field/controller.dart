@@ -163,17 +163,17 @@ class MessageFieldController extends GetxController {
 
   /// [ChatButton]s displayed in the more panel.
   late final RxList<ChatButton> panel = RxList([
-    AudioMessageButton(this),
-    VideoMessageButton(this),
-    DonateButton(this),
-    StickerButton(this),
+    const AudioMessageButton(),
+    const VideoMessageButton(),
+    const DonateButton(),
+    const StickerButton(),
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
-      TakePhotoButton(this),
-      if (PlatformUtils.isAndroid) TakeVideoButton(this),
-      GalleryButton(this),
-      FileButton(this),
+      TakePhotoButton(() => pickImageFromCamera()),
+      if (PlatformUtils.isAndroid) TakeVideoButton(() => pickVideoFromCamera()),
+      GalleryButton(() => pickMedia()),
+      FileButton(() => pickFile()),
     ] else
-      AttachmentButton(this),
+      AttachmentButton(() => pickFile()),
   ]);
 
   /// [ChatButton]s displayed in the text field.
@@ -225,31 +225,31 @@ class MessageFieldController extends GetxController {
           ?.map((e) {
             switch (e) {
               case 'AudioMessageButton':
-                return AudioMessageButton(this);
+                return panel.firstWhere((e) => e is AudioMessageButton);
 
               case 'VideoMessageButton':
-                return VideoMessageButton(this);
+                return panel.firstWhere((e) => e is VideoMessageButton);
 
               case 'AttachmentButton':
-                return AttachmentButton(this);
+                return panel.firstWhere((e) => e is AttachmentButton);
 
               case 'TakePhotoButton':
-                return TakePhotoButton(this);
+                return panel.firstWhere((e) => e is TakePhotoButton);
 
               case 'TakeVideoButton':
-                return TakeVideoButton(this);
+                return panel.firstWhere((e) => e is TakeVideoButton);
 
               case 'GalleryButton':
-                return GalleryButton(this);
+                return panel.firstWhere((e) => e is GalleryButton);
 
               case 'DonateButton':
-                return DonateButton(this);
+                return panel.firstWhere((e) => e is DonateButton);
 
               case 'FileButton':
-                return FileButton(this);
+                return panel.firstWhere((e) => e is FileButton);
 
               case 'StickerButton':
-                return StickerButton(this);
+                return panel.firstWhere((e) => e is StickerButton);
             }
           })
           .whereNotNull()
@@ -308,11 +308,16 @@ class MessageFieldController extends GetxController {
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
+  Future<void> pickMedia() {
+    field.focus.unfocus();
+    return _pickAttachment(
+        PlatformUtils.isIOS ? FileType.media : FileType.image);
+  }
 
   /// Opens the camera app and adds the captured image to the [attachments].
   Future<void> pickImageFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? photo = await ImagePicker().pickImage(
       source: ImageSource.camera,
@@ -328,6 +333,8 @@ class MessageFieldController extends GetxController {
 
   /// Opens the camera app and adds the captured video to the [attachments].
   Future<void> pickVideoFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? video = await ImagePicker().pickVideo(
       source: ImageSource.camera,
@@ -341,7 +348,10 @@ class MessageFieldController extends GetxController {
 
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
+  Future<void> pickFile() {
+    field.focus.unfocus();
+    return _pickAttachment(FileType.any);
+  }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].

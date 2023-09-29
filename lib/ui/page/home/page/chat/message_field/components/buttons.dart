@@ -18,17 +18,15 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
-import '/ui/page/home/page/chat/widget/attachment_selector.dart';
 import '/util/platform_utils.dart';
 
 /// Button in a [MessageFieldView].
 abstract class ChatButton {
-  const ChatButton(this.c);
+  const ChatButton([this.onPressed]);
 
-  /// [MessageFieldController] this [ChatButton] is bound to.
-  final MessageFieldController c;
+  /// Callback, called when this [CallButton] is pressed.
+  final void Function()? onPressed;
 
   /// Returns a text-represented hint for this [CallButton].
   String get hint;
@@ -57,9 +55,6 @@ abstract class ChatButton {
   /// Asset offset of this [CallButton] in mini mode.
   Offset get offsetMini => Offset.zero;
 
-  /// Callback, called when this [CallButton] is pressed.
-  void Function(bool)? get onPressed => null;
-
   @override
   int get hashCode => runtimeType.hashCode;
 
@@ -70,7 +65,7 @@ abstract class ChatButton {
 
 /// [ChatButton] recording an audio massage.
 class AudioMessageButton extends ChatButton {
-  const AudioMessageButton(super.c);
+  const AudioMessageButton([super.onPressed]);
 
   @override
   String get hint => 'label_audio_message'.l10n;
@@ -96,7 +91,7 @@ class AudioMessageButton extends ChatButton {
 
 /// [ChatButton] recording an video massage.
 class VideoMessageButton extends ChatButton {
-  const VideoMessageButton(super.c);
+  const VideoMessageButton([super.onPressed]);
 
   @override
   String get hint => 'label_video_message'.l10n;
@@ -122,23 +117,7 @@ class VideoMessageButton extends ChatButton {
 
 /// [ChatButton] attaching a file.
 class AttachmentButton extends ChatButton {
-  const AttachmentButton(super.c);
-
-  @override
-  void Function(bool)? get onPressed => (_) async {
-        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
-          await c.pickFile();
-        } else {
-          c.field.focus.unfocus();
-          await AttachmentSourceSelector.show(
-            router.context!,
-            onPickFile: c.pickFile,
-            onTakePhoto: c.pickImageFromCamera,
-            onPickMedia: c.pickMedia,
-            onTakeVideo: c.pickVideoFromCamera,
-          );
-        }
-      };
+  const AttachmentButton([super.onPressed]);
 
   @override
   String get hint => 'label_file'.l10n;
@@ -164,13 +143,7 @@ class AttachmentButton extends ChatButton {
 
 /// [ChatButton] taking a photo.
 class TakePhotoButton extends ChatButton {
-  const TakePhotoButton(super.c);
-
-  @override
-  void Function(bool)? get onPressed => (_) async {
-        c.field.focus.unfocus();
-        await c.pickImageFromCamera();
-      };
+  const TakePhotoButton([super.onPressed]);
 
   @override
   String get hint =>
@@ -197,13 +170,7 @@ class TakePhotoButton extends ChatButton {
 
 /// [ChatButton] taking a video.
 class TakeVideoButton extends ChatButton {
-  const TakeVideoButton(super.c);
-
-  @override
-  void Function(bool)? get onPressed => (_) async {
-        c.field.focus.unfocus();
-        await c.pickVideoFromCamera();
-      };
+  const TakeVideoButton([super.onPressed]);
 
   @override
   String get hint => 'label_take_video'.l10n;
@@ -232,13 +199,7 @@ class TakeVideoButton extends ChatButton {
 
 /// [ChatButton] opening a gallery.
 class GalleryButton extends ChatButton {
-  const GalleryButton(super.c);
-
-  @override
-  void Function(bool)? get onPressed => (_) async {
-        c.field.focus.unfocus();
-        await c.pickMedia();
-      };
+  const GalleryButton([super.onPressed]);
 
   @override
   String get hint => 'label_gallery'.l10n;
@@ -264,7 +225,7 @@ class GalleryButton extends ChatButton {
 
 /// [ChatButton] making a gift.
 class DonateButton extends ChatButton {
-  const DonateButton(super.c);
+  const DonateButton([super.onPressed]);
 
   @override
   String get hint => 'label_gift'.l10n;
@@ -293,13 +254,7 @@ class DonateButton extends ChatButton {
 
 /// [ChatButton] attaching a file.
 class FileButton extends ChatButton {
-  const FileButton(super.c);
-
-  @override
-  void Function(bool)? get onPressed => (_) async {
-        c.field.focus.unfocus();
-        await c.pickFile();
-      };
+  const FileButton([super.onPressed]);
 
   @override
   String get hint => 'label_file'.l10n;
@@ -325,7 +280,7 @@ class FileButton extends ChatButton {
 
 /// [ChatButton] opening a stickers table.
 class StickerButton extends ChatButton {
-  const StickerButton(super.c);
+  const StickerButton([super.onPressed]);
 
   @override
   String get hint => 'label_sticker'.l10n;

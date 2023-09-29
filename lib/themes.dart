@@ -631,7 +631,7 @@ class Fonts {
     TextStyle? labelSmallOnPrimary,
     required this.bodyLarge,
     TextStyle? bodyLargePrimary,
-    TextStyle? bodyLargePrimaryLight,
+    TextStyle? bodyLargePrimaryHighlightLightest,
     TextStyle? bodyLargeSecondary,
     required this.bodyMedium,
     TextStyle? bodyMediumPrimary,
@@ -704,7 +704,7 @@ class Fonts {
             labelSmallOnPrimary ?? labelSmall.copyWith(color: onPrimary),
         bodyLargePrimary =
             bodyLargePrimary ?? bodyLarge.copyWith(color: primary),
-        bodyLargePrimaryLight = bodyLargePrimaryLight ??
+        bodyLargePrimaryHighlightLightest = bodyLargePrimaryHighlightLightest ??
             bodyLarge.copyWith(color: primaryHighlightLightest),
         bodyLargeSecondary =
             bodyLargeSecondary ?? bodyLarge.copyWith(color: secondary),
@@ -856,7 +856,7 @@ class Fonts {
   final TextStyle bodyLargePrimary;
 
   /// [bodyLarge] of `primaryHighlightLightest` color.
-  final TextStyle bodyLargePrimaryLight;
+  final TextStyle bodyLargePrimaryHighlightLightest;
 
   /// [bodyLarge] of `secondary` color.
   final TextStyle bodyLargeSecondary;
