@@ -67,6 +67,7 @@ btn_add_to_contacts = Добавить в контакты
 btn_add_to_favorites = Добавить в избранные
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
+btn_audio_message = Аудиосообщение
 btn_back = Назад
 btn_block = Заблокировать
 btn_call_answer_with_audio =
@@ -147,6 +148,7 @@ btn_call_video_off_desc =
     Выключить
     камеру
 btn_call_video_on = Включить камеру
+btn_camera = Камера
 btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
@@ -174,12 +176,15 @@ btn_download = Скачать
 btn_download_application = Скачать приложение
 btn_edit = Редактировать
 btn_email = E-mail
+btn_file = Файл
 btn_forgot_password = Забыли пароль?
 btn_forward = Переслать
 btn_forward_message = Переслать сообщение
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
+btn_gallery = Галерея
 btn_generate_direct_chat_link = Сгенерировать
+btn_gift = Подарок
 btn_hide = Скрыть
 btn_hide_chat = Скрыть чат
 btn_info = Информация
@@ -227,7 +232,10 @@ btn_share = Поделиться
 btn_sign_in = Вход
 btn_sign_up = Регистрация
 btn_start = Начать
+btn_sticker = Стикер
 btn_submit = Применить
+btn_take_photo = Фото
+btn_take_video = Видео
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_unmute = Включить звук
@@ -235,6 +243,7 @@ btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
+btn_video_message = Видеосообщение
 btn_work_with_us = Работайте с нами
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
@@ -420,7 +429,6 @@ label_audio_call = Аудиозвонок{$by ->
         [x]{""}
         *[other] {" "}от {$by}
     }
-label_audio_message = Аудиосообщение
 label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
@@ -547,16 +555,13 @@ label_enter_confirmation_code_hint = Введите проверочный ко�
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
-label_file = Файл
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
 label_forwarded_messages = {$count ->
     [1] Forwarded message
    *[other] Forwarded messages
 }
-label_gallery = Галерея
 label_gb_slash_gb = {$a} GB / {$b} GB
-label_gift = Подарок
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
@@ -726,15 +731,12 @@ label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
-label_sticker = Стикер
 label_storage = Хранилище
 label_subtitle_participants = участников
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
-label_take_photo = Фото
-label_take_video = Видео
 label_timeline_style = Стиль метки времени
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
@@ -765,7 +767,6 @@ label_video_call = Видеозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_video_downloaded = Видео загружено.
-label_video_message = Видеосообщение
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
 label_wait_seconds = Подождите {$for} с

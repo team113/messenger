@@ -56,7 +56,7 @@ class AudioMessageButton extends ChatButton {
   const AudioMessageButton([super.onPressed]);
 
   @override
-  String get hint => 'label_audio_message'.l10n;
+  String get hint => 'btn_audio_message'.l10n;
 
   @override
   String get asset => 'audio_message';
@@ -70,7 +70,7 @@ class VideoMessageButton extends ChatButton {
   const VideoMessageButton([super.onPressed]);
 
   @override
-  String get hint => 'label_video_message'.l10n;
+  String get hint => 'btn_video_message'.l10n;
 
   @override
   String get asset => 'video_message';
@@ -84,7 +84,7 @@ class AttachmentButton extends ChatButton {
   const AttachmentButton([super.onPressed]);
 
   @override
-  String get hint => 'label_file'.l10n;
+  String get hint => 'btn_file'.l10n;
 
   @override
   String get asset => 'file_outlined';
@@ -99,7 +99,7 @@ class TakePhotoButton extends ChatButton {
 
   @override
   String get hint =>
-      PlatformUtils.isAndroid ? 'label_take_photo'.l10n : 'label_camera'.l10n;
+      PlatformUtils.isAndroid ? 'btn_take_photo'.l10n : 'btn_camera'.l10n;
 
   @override
   String get asset => 'take_photo';
@@ -113,7 +113,7 @@ class TakeVideoButton extends ChatButton {
   const TakeVideoButton([super.onPressed]);
 
   @override
-  String get hint => 'label_take_video'.l10n;
+  String get hint => 'btn_take_video'.l10n;
 
   @override
   String get asset => 'take_video';
@@ -130,7 +130,7 @@ class GalleryButton extends ChatButton {
   const GalleryButton([super.onPressed]);
 
   @override
-  String get hint => 'label_gallery'.l10n;
+  String get hint => 'btn_gallery'.l10n;
 
   @override
   String get asset => 'gallery_outlined';
@@ -144,7 +144,7 @@ class DonateButton extends ChatButton {
   const DonateButton([super.onPressed]);
 
   @override
-  String get hint => 'label_gift'.l10n;
+  String get hint => 'btn_gift'.l10n;
 
   @override
   String get asset => 'donate';
@@ -161,7 +161,7 @@ class FileButton extends ChatButton {
   const FileButton([super.onPressed]);
 
   @override
-  String get hint => 'label_file'.l10n;
+  String get hint => 'btn_file'.l10n;
 
   @override
   String get asset => 'file_outlined';
@@ -175,7 +175,7 @@ class StickerButton extends ChatButton {
   const StickerButton([super.onPressed]);
 
   @override
-  String get hint => 'label_sticker'.l10n;
+  String get hint => 'btn_sticker'.l10n;
 
   @override
   String get asset => 'smile';
