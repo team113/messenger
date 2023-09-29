@@ -1442,8 +1442,8 @@ extension ThemeStylesExtension on ThemeData {
 /// Adds the ability to get HEX value of the color.
 extension HexColor on Color {
   /// Returns a HEX string value of this color.
-  String toHex() => '#'
-      '${alpha.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+  String toHex({bool withAlpha = true}) => '#'
+      '${(withAlpha ? alpha.toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
       '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';

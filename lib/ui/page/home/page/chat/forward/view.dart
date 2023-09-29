@@ -26,6 +26,7 @@ import '/domain/model/chat_item_quote_input.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
@@ -143,7 +144,7 @@ class ChatForwardView extends StatelessWidget {
                   ),
                 ),
                 IgnorePointer(
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(

@@ -15,22 +15,36 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/widgets.dart' show PageController;
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
-/// [StyleView] section.
-enum StyleTab { colors, typography, widgets }
+/// [AnimatedSwitcher] with exception-safe layout builder.
+///
+/// Intended to be used instead of the [AnimatedSwitcher].
+class SafeAnimatedSwitcher extends StatelessWidget {
+  const SafeAnimatedSwitcher({
+    super.key,
+    required this.duration,
+    this.child,
+  });
 
-/// Controller of a [StyleView].
-class StyleController extends GetxController {
-  /// Indicator whether the [Color]s of the [StyleView] should be inverted.
-  ///
-  /// Meant to be used as a light/dart theme switch.
-  final RxBool inverted = RxBool(false);
+  /// [Duration] of the switching animation.
+  final Duration duration;
 
-  /// Selected [StyleTab].
-  final Rx<StyleTab> tab = Rx(StyleTab.colors);
+  /// Current [Widget] to display.
+  final Widget? child;
 
-  /// [PageController] controlling the [PageView] of [StyleView].
-  final PageController pages = PageController();
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: duration,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: Alignment.center,
+        children: [
+          if (previous.isNotEmpty) previous.first,
+          if (current != null) current,
+        ],
+      ),
+      child: child,
+    );
+  }
 }

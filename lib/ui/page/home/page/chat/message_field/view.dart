@@ -42,6 +42,7 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -512,7 +513,7 @@ class MessageFieldView extends StatelessWidget {
                                 width: 50,
                                 height: 56,
                                 child: Center(
-                                  child: AnimatedSwitcher(
+                                  child: SafeAnimatedSwitcher(
                                     duration: 300.milliseconds,
                                     child: c.forwarding.value
                                         ? const AnimatedButton(

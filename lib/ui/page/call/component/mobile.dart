@@ -46,6 +46,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -271,7 +272,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                 );
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
 
             if (isOutgoing)
@@ -332,7 +336,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Dimmed container if any video is displayed while calling.
       Obx(() {
         return IgnorePointer(
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: (c.state.value != OngoingCallState.active &&
                     c.state.value != OngoingCallState.joining &&
@@ -544,7 +548,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           ];
         }
 
-        return AnimatedSwitcher(
+        return SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
           child: c.state.value == OngoingCallState.active ||
                   c.state.value == OngoingCallState.joining
