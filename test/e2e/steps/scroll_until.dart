@@ -59,7 +59,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
     while (i++ < 100 &&
         (await driver.isAbsent(finder) ||
             driver.nativeDriver.getCenter(finder).dy > displayHeight - 200)) {
-      double position = (scrollable.evaluate().single.widget as Scrollable)
+      double position = (scrollable.evaluate().first.widget as Scrollable)
           .controller!
           .position
           .pixels;
