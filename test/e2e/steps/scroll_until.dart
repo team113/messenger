@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
@@ -59,12 +61,12 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
     while (i++ < 100 &&
         (await driver.isAbsent(finder) ||
             driver.nativeDriver.getCenter(finder).dy > displayHeight - 200)) {
-      double position = (scrollable.evaluate().first.widget as Scrollable)
-          .controller!
-          .position
-          .pixels;
+      final state = driver.nativeDriver.state(scrollable) as ScrollableState;
+      final position = state.position;
 
-      await context.world.appDriver.scroll(scrollable, dy: position + 200);
+      position.jumpTo(min(position.pixels + 200, position.maxScrollExtent));
+
+      await driver.nativeDriver.pump();
     }
 
     await context.world.appDriver.waitForAppToSettle();
