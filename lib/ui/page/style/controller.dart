@@ -19,16 +19,10 @@ import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
 
 /// [StyleView] section.
-enum StyleTab { colors, typography, multimedia, elements }
+enum StyleTab { colors, typography, widgets }
 
 /// Controller of a [StyleView].
 class StyleController extends GetxController {
-  /// Indicator whether the [StyleView] should be compact, meaning minimal
-  /// [Padding]s.
-  ///
-  /// Intended for the [StyleView] to be used as a reference.
-  final RxBool dense = RxBool(false);
-
   /// Indicator whether the [Color]s of the [StyleView] should be inverted.
   ///
   /// Meant to be used as a light/dart theme switch.

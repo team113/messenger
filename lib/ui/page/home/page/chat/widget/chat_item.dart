@@ -57,6 +57,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
@@ -1880,7 +1881,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       if (string?.isEmpty == true) {
         _text = null;
       } else {
-        _text = string?.parseLinks(_recognizers, router.context);
+        _text = string?.parseLinks(
+          _recognizers,
+          Theme.of(router.context!).style.linkStyle,
+        );
       }
     } else if (msg is ChatForward) {
       throw Exception(
@@ -1904,14 +1908,12 @@ extension LinkParsingExtension on String {
   /// dispose them properly.
   TextSpan parseLinks(
     List<TapGestureRecognizer> recognizers, [
-    BuildContext? context,
+    TextStyle? style,
   ]) {
     final Iterable<RegExpMatch> matches = _regex.allMatches(this);
     if (matches.isEmpty) {
       return TextSpan(text: this);
     }
-
-    final Style? style = context?.theme.extension<Style>()!;
 
     String text = this;
     final List<TextSpan> spans = [];
@@ -1940,7 +1942,7 @@ extension LinkParsingExtension on String {
       spans.add(
         TextSpan(
           text: link,
-          style: style?.linkStyle,
+          style: style,
           recognizer: recognizer
             ..onTap = () async {
               final Uri uri;
@@ -1970,42 +1972,5 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
-  }
-}
-
-// TODO: Remove and use [FontFeature.tabularFigures] when flutter/flutter#118485
-//       is fixed:
-//       https://github.com/flutter/flutter/issues/118485
-/// Extension adding a fixed-length digits [Text] transformer.
-extension FixedDigitsExtension on Text {
-  /// [RegExp] detecting numbers.
-  static final RegExp _regex = RegExp(r'\d');
-
-  /// Returns a [Text] guaranteed to have fixed width of digits in it.
-  Widget fixedDigits() {
-    Text copyWith(String string) {
-      return Text(
-        string,
-        style: style,
-        strutStyle: strutStyle,
-        textAlign: textAlign,
-        textDirection: textDirection,
-        locale: locale,
-        softWrap: softWrap,
-        overflow: overflow,
-        textScaleFactor: textScaleFactor,
-        maxLines: maxLines,
-        textWidthBasis: textWidthBasis,
-        textHeightBehavior: textHeightBehavior,
-        selectionColor: selectionColor,
-      );
-    }
-
-    return Stack(
-      children: [
-        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
-        copyWith(data!),
-      ],
-    );
   }
 }

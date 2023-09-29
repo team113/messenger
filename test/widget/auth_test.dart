@@ -125,10 +125,16 @@ void main() async {
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
-    final goToLoginButton = find.text('btn_login'.l10n);
+    final goToLoginButton = find.text('btn_sign_in'.l10n);
     expect(goToLoginButton, findsOneWidget);
 
     await tester.tap(goToLoginButton);
+    await tester.pumpAndSettle();
+
+    final passwordButton = find.text('btn_password'.l10n);
+    expect(passwordButton, findsOneWidget);
+
+    await tester.tap(passwordButton);
     await tester.pumpAndSettle();
 
     final loginTile = find.byKey(const ValueKey('LoginButton'));

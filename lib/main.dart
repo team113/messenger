@@ -42,6 +42,7 @@ import 'domain/service/notification.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
+import 'provider/hive/download.dart';
 import 'provider/hive/session.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -100,7 +101,7 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
-    Get.put(CacheWorker(Get.findOrNull()));
+    Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
     Get.put(BackgroundWorker(Get.find()));
 
     WebUtils.deleteLoader();
@@ -208,6 +209,7 @@ Future<void> _initHive() async {
 
   if (!PlatformUtils.isWeb) {
     await Get.put(CacheInfoHiveProvider()).init();
+    await Get.put(DownloadHiveProvider()).init();
   }
 }
 

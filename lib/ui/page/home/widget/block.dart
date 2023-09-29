@@ -28,6 +28,8 @@ class Block extends StatelessWidget {
     this.title,
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.expanded,
+    this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.children = const [],
   });
 
@@ -39,6 +41,15 @@ class Block extends StatelessWidget {
 
   /// [CrossAxisAlignment] to apply to the [children].
   final CrossAxisAlignment crossAxisAlignment;
+
+  /// Indicator whether this [Block] should occupy the whole space, if `true`,
+  /// or be fixed width otherwise.
+  ///
+  /// If not specified, then [MobileExtensionOnContext.isNarrow] is used.
+  final bool? expanded;
+
+  /// Padding to apply to the [children].
+  final EdgeInsets padding;
 
   /// [Widget]s to display.
   final List<Widget> children;
@@ -58,20 +69,20 @@ class Block extends StatelessWidget {
             color: style.messageColor,
             borderRadius: BorderRadius.circular(15),
           ),
-          constraints:
-              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-          padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+          constraints: (expanded ?? context.isNarrow)
+              ? null
+              : const BoxConstraints(maxWidth: 400),
+          padding: padding,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: crossAxisAlignment,
             children: [
               if (title != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   child: Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
                       child: Text(title!, style: style.fonts.headlineMedium),
                     ),
                   ),

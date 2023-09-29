@@ -121,6 +121,18 @@ class FrontendWorkView extends StatelessWidget {
                                     'https://github.com/team113/flutter-incubator',
                                   ),
                           ),
+                          TextSpan(
+                            text: '\n'
+                                '\n'
+                                'Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице ',
+                            style: style.fonts.bodyMedium,
+                          ),
+                          TextSpan(
+                            text: 'Freelance.',
+                            style: style.fonts.bodyMediumPrimary,
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => router.work(WorkTab.freelance),
+                          ),
                         ],
                       ),
                     ),

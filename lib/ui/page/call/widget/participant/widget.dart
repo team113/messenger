@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '../../controller.dart';
 import '../call_cover.dart';
@@ -27,6 +26,7 @@ import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 
 /// [Participant] visual representation.
@@ -89,18 +89,11 @@ class ParticipantWidget extends StatelessWidget {
       return Stack(
         children: [
           if (!hasVideo) ...background(),
-          AnimatedSwitcher(
+          SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcher'),
             duration: animate
                 ? const Duration(milliseconds: 200)
                 : const Duration(seconds: 1),
-            layoutBuilder: (current, previous) => Stack(
-              alignment: Alignment.center,
-              children: [
-                if (previous.isNotEmpty) previous.first,
-                if (current != null) current,
-              ],
-            ),
             child: !hasVideo
                 ? Container()
                 : Center(
@@ -109,9 +102,6 @@ class ParticipantWidget extends StatelessWidget {
                           as RtcVideoRenderer,
                       source: participant.source,
                       key: participant.videoKey,
-                      mirror:
-                          participant.member.owner == MediaOwnerKind.local &&
-                              participant.source == MediaSourceKind.device,
                       fit: fit,
                       borderRadius: borderRadius ?? BorderRadius.circular(10),
                       border:
@@ -160,7 +150,10 @@ class ParticipantWidget extends StatelessWidget {
               );
             }
 
-            return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+            return SafeAnimatedSwitcher(
+              duration: 250.milliseconds,
+              child: child,
+            );
           }),
           Center(
             child: RaisedHand(participant.member.isHandRaised.value),

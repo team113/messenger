@@ -28,6 +28,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -96,8 +97,21 @@ class _HomeViewState extends State<HomeView> {
 
     if (_deps == null) {
       return Scaffold(
-        backgroundColor: style.colors.onPrimary,
-        body: const Center(child: CustomProgressIndicator()),
+        // For web, background color is displayed in `index.html` file.
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
+        body: const Stack(
+          children: [
+            SvgImage.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Center(child: CustomProgressIndicator()),
+          ],
+        ),
       );
     }
 
@@ -159,6 +173,20 @@ class _HomeViewState extends State<HomeView> {
                           onPageChanged: (int i) {
                             router.tab = HomeTab.values[i];
                             c.page.value = router.tab;
+
+                            if (!context.isNarrow) {
+                              switch (router.tab) {
+                                case HomeTab.menu:
+                                  router.me();
+                                  break;
+
+                                default:
+                                  if (router.route == Routes.me) {
+                                    router.home();
+                                  }
+                                  break;
+                              }
+                            }
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
@@ -241,18 +269,9 @@ class _HomeViewState extends State<HomeView> {
                                       );
                                     }
 
-                                    return AnimatedSwitcher(
+                                    return SafeAnimatedSwitcher(
                                       key: c.chatsKey,
                                       duration: 200.milliseconds,
-                                      layoutBuilder: (current, previous) =>
-                                          Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          if (previous.isNotEmpty)
-                                            previous.first,
-                                          if (current != null) current,
-                                        ],
-                                      ),
                                       child: child,
                                     );
                                   }),
@@ -360,7 +379,7 @@ class _HomeViewState extends State<HomeView> {
         // Navigator should be drawn under or above the [sideBar] for the
         // animations to look correctly.
         //
-        // [Container]s are required for the [sideBar] to keep its state.
+        // [SizedBox]es are required for the [sideBar] to keep its state.
         // Otherwise, [Stack] widget will be updated, which will lead its
         // children to be updated as well.
         return CallOverlayView(
@@ -368,16 +387,11 @@ class _HomeViewState extends State<HomeView> {
             return Stack(
               key: const Key('HomeView'),
               children: [
-                Container(
-                  color: style.colors.onPrimary,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isNarrow ? null : navigation),
+                  SizedBox(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isNarrow ? navigation : null),
+                  SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
                     body: Center(child: CustomProgressIndicator()),
@@ -420,16 +434,8 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: AnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: 250.milliseconds,
-                  layoutBuilder: (child, previous) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [...previous, if (child != null) child]
-                          .map((e) => Positioned.fill(child: e))
-                          .toList(),
-                    );
-                  },
                   child: image,
                 ),
               ),

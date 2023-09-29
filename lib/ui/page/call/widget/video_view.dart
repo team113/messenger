@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -39,7 +40,6 @@ class RtcVideoView extends StatefulWidget {
     this.enableContextMenu = true,
     this.fit,
     this.label,
-    this.mirror = false,
     this.muted = false,
     this.border,
     this.respectAspectRatio = false,
@@ -53,9 +53,6 @@ class RtcVideoView extends StatefulWidget {
 
   /// [MediaSourceKind] of this [RtcVideoView].
   final MediaSourceKind source;
-
-  /// Indicator whether this video should be horizontally mirrored or not.
-  final bool mirror;
 
   /// [BoxFit] mode of this video.
   final BoxFit? fit;
@@ -184,10 +181,10 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
-      mirror: widget.mirror,
+      mirror: widget.renderer.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
-      autoRotate: !widget.mirror,
+      autoRotate: widget.renderer.autoRotate,
     );
 
     // Wait for the size to be determined if necessary.
@@ -285,7 +282,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           alignment: Alignment.bottomCenter,
           children: [
             outlined(fit),
-            AnimatedSwitcher(
+            SafeAnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
                   ? Container(

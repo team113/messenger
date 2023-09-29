@@ -99,6 +99,7 @@ enum WidgetKey {
   NewPasswordField,
   NoMessages,
   NumCopyable,
+  PasswordButton,
   PasswordExpandable,
   PasswordField,
   PasswordStage,

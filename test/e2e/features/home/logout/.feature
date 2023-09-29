@@ -42,7 +42,8 @@ Feature: Logout confirmation
     When I tap `SignInButton` button
     Then I wait until `LoginView` is present
 
-    When I paste to `UsernameField` field
+    When I tap `PasswordButton` button
+    And I paste to `UsernameField` field
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
     Then I wait until `HomeView` is present

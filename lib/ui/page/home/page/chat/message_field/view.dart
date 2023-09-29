@@ -41,6 +41,7 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -498,7 +499,7 @@ class MessageFieldView extends StatelessWidget {
                     width: 56,
                     height: 56,
                     child: Center(
-                      child: AnimatedSwitcher(
+                      child: SafeAnimatedSwitcher(
                         duration: 300.milliseconds,
                         child: c.forwarding.value
                             ? const SvgImage.asset(
@@ -724,11 +725,13 @@ class MessageFieldView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4, top: 4),
                     child: Obx(() {
-                      final Widget child;
-
-                      if (c.hoveredAttachment.value == e ||
-                          PlatformUtils.isMobile) {
-                        child = InkWell(
+                      return AnimatedOpacity(
+                        duration: 200.milliseconds,
+                        opacity: c.hoveredAttachment.value == e ||
+                                PlatformUtils.isMobile
+                            ? 1
+                            : 0,
+                        child: InkWell(
                           key: const Key('RemovePickedFile'),
                           onTap: () =>
                               c.attachments.removeWhere((a) => a.value == e),
@@ -750,14 +753,7 @@ class MessageFieldView extends StatelessWidget {
                               ),
                             ),
                           ),
-                        );
-                      } else {
-                        child = const SizedBox();
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: child,
+                        ),
                       );
                     }),
                   ),

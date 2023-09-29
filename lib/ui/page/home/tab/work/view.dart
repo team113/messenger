@@ -51,8 +51,9 @@ class WorkTabView extends StatelessWidget {
                 onPressed: router.auth,
                 child: Center(
                   child: Icon(
-                    Icons.handshake_outlined,
+                    Icons.question_mark_rounded,
                     color: style.colors.primary,
+                    size: 22,
                   ),
                 ),
               ),

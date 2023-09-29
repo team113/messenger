@@ -197,7 +197,7 @@ class CallWorker extends DisposableService {
                       title ?? 'label_incoming_call'.l10n,
                       body: title == null ? null : 'label_incoming_call'.l10n,
                       payload: '${Routes.chats}/${c.chatId}',
-                      icon: chat?.avatar.value?.original.url,
+                      icon: chat?.avatar.value?.original,
                       playSound: false,
                     );
                   }

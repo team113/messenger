@@ -26,6 +26,7 @@ import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
@@ -495,7 +496,10 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the provided [email]
   /// is already present in a [MyUser.emails] field (either in confirmed or
   /// unconfirmed sub-field).
-  Future<MyUserEventsVersionedMixin?> addUserEmail(UserEmail email) async {
+  Future<MyUserEventsVersionedMixin?> addUserEmail(
+    UserEmail email, {
+    RawClientOptions? raw,
+  }) async {
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -503,6 +507,7 @@ mixin UserGraphQlMixin {
         document: AddUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => AddUserEmailException(
           (AddUserEmail$Mutation.fromJson(data).addUserEmail
                   as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
@@ -575,7 +580,9 @@ mixin UserGraphQlMixin {
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-      ConfirmationCode code) async {
+    ConfirmationCode code, {
+    RawClientOptions? raw,
+  }) async {
     final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -583,6 +590,7 @@ mixin UserGraphQlMixin {
         document: ConfirmUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => ConfirmUserEmailException((ConfirmUserEmail$Mutation
                       .fromJson(data)
                   .confirmUserEmail
@@ -650,12 +658,13 @@ mixin UserGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time generates a new [ConfirmationCode].
-  Future<void> resendEmail() async {
+  Future<void> resendEmail({RawClientOptions? raw}) async {
     await client.mutate(
       MutationOptions(
         operationName: 'ResendUserEmailConfirmation',
         document: ResendUserEmailConfirmationMutation().document,
       ),
+      raw: raw,
       onException: (data) => ResendUserEmailConfirmationException(
           ResendUserEmailConfirmation$Mutation.fromJson(data)
                   .resendUserEmailConfirmation

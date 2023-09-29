@@ -16,16 +16,20 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 import 'widget/desktop_controls.dart';
@@ -36,6 +40,7 @@ class VideoView extends StatefulWidget {
   const VideoView(
     this.url, {
     super.key,
+    this.checksum,
     this.onClose,
     this.toggleFullscreen,
     this.onController,
@@ -46,6 +51,9 @@ class VideoView extends StatefulWidget {
 
   /// URL of the video to display.
   final String url;
+
+  /// SHA-256 checksum of the video to display.
+  final String? checksum;
 
   /// Callback, called when a close video action is fired.
   final VoidCallback? onClose;
@@ -120,7 +128,7 @@ class _VideoViewState extends State<VideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedSwitcher(
+    return SafeAnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: StreamBuilder(
           stream: _controller.player.stream.width,
@@ -195,8 +203,28 @@ class _VideoViewState extends State<VideoView> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
+    Uint8List? bytes;
+    File? file;
+
+    if (widget.checksum != null &&
+        CacheWorker.instance.exists(widget.checksum!)) {
+      CacheEntry cache = await CacheWorker.instance.get(
+        checksum: widget.checksum!,
+        responseType: CacheResponseType.file,
+      );
+
+      bytes = cache.bytes;
+      file = cache.file;
+    }
+
     try {
-      await _controller.player.open(Media(widget.url));
+      if (file != null) {
+        await _controller.player.open(Media(file.path));
+      } else if (bytes != null) {
+        await _controller.player.open(await Media.memory(bytes));
+      } else {
+        await _controller.player.open(Media(widget.url));
+      }
     } catch (_) {
       // No-op.
     }

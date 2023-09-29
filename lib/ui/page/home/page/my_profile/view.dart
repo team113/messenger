@@ -41,6 +41,7 @@ import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -60,7 +61,6 @@ import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'timeline_switch/view.dart';
 import 'widget/background_preview.dart';
-import 'widget/download_button.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
 import 'widget/status.dart';
@@ -80,7 +80,7 @@ class MyProfileView extends StatelessWidget {
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
             appBar: CustomAppBar(
-              title: Text('label_profile'.l10n),
+              title: Text('label_account'.l10n),
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
             ),
