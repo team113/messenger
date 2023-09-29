@@ -57,6 +57,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
@@ -1971,42 +1972,5 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
-  }
-}
-
-// TODO: Remove and use [FontFeature.tabularFigures] when flutter/flutter#118485
-//       is fixed:
-//       https://github.com/flutter/flutter/issues/118485
-/// Extension adding a fixed-length digits [Text] transformer.
-extension FixedDigitsExtension on Text {
-  /// [RegExp] detecting numbers.
-  static final RegExp _regex = RegExp(r'\d');
-
-  /// Returns a [Text] guaranteed to have fixed width of digits in it.
-  Widget fixedDigits() {
-    Text copyWith(String string) {
-      return Text(
-        string,
-        style: style,
-        strutStyle: strutStyle,
-        textAlign: textAlign,
-        textDirection: textDirection,
-        locale: locale,
-        softWrap: softWrap,
-        overflow: overflow,
-        textScaleFactor: textScaleFactor,
-        maxLines: maxLines,
-        textWidthBasis: textWidthBasis,
-        textHeightBehavior: textHeightBehavior,
-        selectionColor: selectionColor,
-      );
-    }
-
-    return Stack(
-      children: [
-        Opacity(opacity: 0, child: copyWith(data!.replaceAll(_regex, '0'))),
-        copyWith(data!),
-      ],
-    );
   }
 }
