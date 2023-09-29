@@ -424,14 +424,20 @@ extension UserViewExt on User {
           return const Duration(days: 1);
         } else if (lastSeenAt != null) {
           final int diff = DateTime.now().difference(lastSeenAt!.val).inSeconds;
+          final int delay;
 
           if (diff <= 3600) {
-            return Duration(seconds: diff % 60 != 0 ? 60 - diff % 60 : 0);
+            delay = diff % 60 != 0 ? 60 - diff % 60 : 0;
+
+            return Duration(seconds: delay);
           } else if (diff <= 86400) {
-            return Duration(seconds: diff % 3600 != 0 ? 3600 - diff % 3600 : 0);
+            delay = diff % 3600 != 0 ? 3600 - diff % 3600 : 0;
+
+            return Duration(seconds: delay);
           } else {
-            return Duration(
-                seconds: diff % 86400 != 0 ? 86400 - diff % 86400 : 0);
+            delay = diff % 86400 != 0 ? 86400 - diff % 86400 : 0;
+
+            return Duration(seconds: delay);
           }
         } else {
           return const Duration(days: 1);
