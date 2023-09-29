@@ -21,6 +21,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '/themes.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
 import '/ui/page/home/widget/animated_typing.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
@@ -30,9 +31,9 @@ import '/ui/widget/svg/svg.dart';
 import 'widget/playable_asset.dart';
 import 'widget/subtitle_container.dart';
 
-/// View of the [StyleTab.multimedia] page.
-class MultimediaView extends StatelessWidget {
-  const MultimediaView({
+/// View of the [StyleTab.widgets] page.
+class WidgetsView extends StatelessWidget {
+  const WidgetsView({
     super.key,
     this.inverted = false,
     this.dense = false,
@@ -59,6 +60,7 @@ class MultimediaView extends StatelessWidget {
     return ScrollableColumn(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: CustomAppBar.height),
         const SizedBox(height: 16),
         const Header('Multimedia'),
         const SubHeader('Images'),
