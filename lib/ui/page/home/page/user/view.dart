@@ -206,16 +206,15 @@ class UserView extends StatelessWidget {
                           ),
                           if (c.user!.user.value.status != null)
                             UserStatusCopyable(c.user!.user.value.status!),
-                          if (c.user!.user.value.presence != null)
-                            PeriodicBuilder(
-                                delay: c.user!.user.value.getDelay(),
-                                period: c.user!.user.value.getPeriod(),
-                                builder: (context) {
-                                  return UserPresenceField(
-                                    c.user!.user.value.presence!,
-                                    c.user!.user.value.getStatus(),
-                                  );
-                                }),
+                          PeriodicBuilder(
+                              delay: c.user!.user.value.getDelay(),
+                              period: c.user!.user.value.getPeriod(),
+                              builder: (context) {
+                                return UserPresenceField(
+                                  c.user!.user.value.presence!,
+                                  c.user!.user.value.getStatus(),
+                                );
+                              }),
                         ],
                       ),
                       Block(

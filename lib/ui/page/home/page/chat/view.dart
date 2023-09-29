@@ -206,13 +206,8 @@ class _ChatViewState extends State<ChatView>
                                       );
                                     }),
                                     if (!isMonolog)
-                                      PeriodicBuilder(
-                                          delay: c.chat!.chat.value.getDelay(),
-                                          period:
-                                              c.chat!.chat.value.getPeriod(),
-                                          builder: (context) {
-                                            return ChatSubtitle(c.chat!, c.me);
-                                          }),
+                                    
+                                      ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),
                               ),

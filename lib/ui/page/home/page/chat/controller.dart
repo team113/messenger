@@ -1578,7 +1578,7 @@ extension ChatViewExt on Chat {
   Duration getPeriod({User? partner}) {
     switch (kind) {
       case ChatKind.dialog:
-        return partner?.getPeriod() ?? const Duration(days: 1);
+        return partner!.getPeriod();
 
       case ChatKind.group:
       case ChatKind.monolog:
@@ -1591,7 +1591,7 @@ extension ChatViewExt on Chat {
   Duration getDelay({User? partner}) {
     switch (kind) {
       case ChatKind.dialog:
-        return partner?.getDelay() ?? const Duration(days: 1);
+        return partner!.getDelay();
 
       case ChatKind.group:
       case ChatKind.monolog:
