@@ -147,6 +147,15 @@ enum BalanceProvider {
   googlePay,
 }
 
+enum WidgetsTab {
+  media,
+  buttons,
+  fields,
+  chat,
+  calls,
+  misc,
+}
+
 /// Application's router state.
 ///
 /// Any change requires [notifyListeners] to be invoked in order for the router

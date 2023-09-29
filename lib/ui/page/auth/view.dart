@@ -240,19 +240,19 @@ class AuthView extends StatelessWidget {
                     ),
                   ],
                 ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: StyledCupertinoButton(
-                      // color: style.colors.secondary,
-                      label: 'Styles'.l10n,
-                      dense: true,
-                      color: Colors.red,
-                      onPressed: () => router.push(Routes.style),
-                    ),
-                  ),
-                ),
+                // Align(
+                //   alignment: Alignment.topRight,
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(8.0),
+                //     child: StyledCupertinoButton(
+                //       // color: style.colors.secondary,
+                //       label: 'Styles'.l10n,
+                //       dense: true,
+                //       color: Colors.red,
+                //       onPressed: () => router.push(Routes.style),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
