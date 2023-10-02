@@ -26,6 +26,8 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned auth page. ([#564], [#533])
     - Redesigned login modal. ([#564], [#533])
     - Redesigned language selection modal. ([#533])
+    - Style page:
+        - Redesigned colors tab. ([#616], [#614])
 
 ### Fixed
 
@@ -34,6 +36,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
+        - Title jumping around when entering search. ([#613], [#550])
 - Web:
     - Fix background flashing after loading. ([#604], [#549])
 
@@ -44,11 +47,15 @@ All user visible changes to this project will be documented in this file. This p
 [#508]: /../../issues/508
 [#533]: /../../pull/533
 [#549]: /../../issues/549
+[#550]: /../../issues/550
 [#564]: /../../issues/564
 [#587]: /../../pull/587
 [#597]: /../../pull/597
 [#599]: /../../pull/599
 [#604]: /../../pull/604
+[#613]: /../../pull/613
+[#614]: /../../issues/614
+[#616]: /../../pull/616
 
 
 

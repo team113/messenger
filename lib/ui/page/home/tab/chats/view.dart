@@ -38,6 +38,7 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -164,7 +165,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
 
-                    return AnimatedSwitcher(
+                    return SafeAnimatedSwitcher(
                       duration: 250.milliseconds,
                       child: child,
                     );
@@ -232,19 +233,22 @@ class ChatsTabView extends StatelessWidget {
                             child: child,
                           );
                         },
-                        child: AnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: c.searching.value
-                              ? Icon(
-                                  key: const Key('ArrowBack'),
-                                  Icons.arrow_back_ios_new,
-                                  size: 20,
-                                  color: style.colors.primary,
-                                )
-                              : const SvgImage.asset(
-                                  'assets/icons/search.svg',
-                                  width: 17.77,
-                                ),
+                        child: SizedBox(
+                          width: 20,
+                          child: SafeAnimatedSwitcher(
+                            duration: 250.milliseconds,
+                            child: c.searching.value
+                                ? Icon(
+                                    key: const Key('ArrowBack'),
+                                    Icons.arrow_back_ios_new,
+                                    size: 20,
+                                    color: style.colors.primary,
+                                  )
+                                : const SvgImage.asset(
+                                    'assets/icons/search.svg',
+                                    width: 17.77,
+                                  ),
+                          ),
                         ),
                       );
                     }),
@@ -271,84 +275,85 @@ class ChatsTabView extends StatelessWidget {
                         }
                       }
 
-                      return Row(
-                        children: [
-                          if (child != null)
-                            AnimatedButton(
-                              key: c.searching.value
-                                  ? const Key('CloseSearchButton')
-                                  : null,
-                              onPressed: () {
-                                if (c.searching.value) {
-                                  if (c.search.value?.search.isEmpty.value ==
-                                      false) {
-                                    c.search.value?.search.clear();
-                                    c.search.value?.query.value = '';
-                                    c.search.value?.search.focus.requestFocus();
-                                  }
-                                } else if (c.selecting.value) {
-                                  c.toggleSelecting();
-                                } else {
-                                  if (c.groupCreating.value) {
-                                    c.closeGroupCreating();
-                                  }
-                                }
-                              },
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(left: 12, right: 18),
+                      if (child != null) {
+                        return AnimatedButton(
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : null,
+                          onPressed: () {
+                            if (c.searching.value) {
+                              if (c.search.value?.search.isEmpty.value ==
+                                  false) {
+                                c.search.value?.search.clear();
+                                c.search.value?.query.value = '';
+                                c.search.value?.search.focus.requestFocus();
+                              }
+                            } else if (c.selecting.value) {
+                              c.toggleSelecting();
+                            } else {
+                              if (c.groupCreating.value) {
+                                c.closeGroupCreating();
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            height: double.infinity,
+                            child: SizedBox(
+                              width: 21.77,
+                              child: AnimatedSwitcher(
+                                duration: 250.milliseconds,
+                                child: child,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return AnimatedOpacity(
+                        duration: 250.milliseconds,
+                        opacity: c.searching.value ||
+                                c.groupCreating.value ||
+                                c.selecting.value
+                            ? 0
+                            : 1,
+                        child: ContextMenuRegion(
+                          key: const Key('ChatsMenu'),
+                          selector: c.moreKey,
+                          alignment: Alignment.topRight,
+                          enablePrimaryTap: true,
+                          enableSecondaryTap: false,
+                          enableLongTap: false,
+                          margin: const EdgeInsets.only(bottom: 4, right: 0),
+                          actions: [
+                            ContextMenuButton(
+                              label: 'btn_create_group'.l10n,
+                              onPressed: c.startGroupCreating,
+                            ),
+                            ContextMenuButton(
+                              key: const Key('SelectChatsButton'),
+                              label: 'btn_select_and_delete'.l10n,
+                              onPressed: c.toggleSelecting,
+                            ),
+                          ],
+                          child: AnimatedButton(
+                            decorator: (child) {
+                              return Container(
+                                key: c.moreKey,
+                                padding: const EdgeInsets.only(
+                                  left: 12,
+                                  right: 18,
+                                ),
                                 height: double.infinity,
-                                child: SizedBox(
-                                  width: 21.77,
-                                  child: AnimatedSwitcher(
-                                    duration: 250.milliseconds,
-                                    child: child,
-                                  ),
-                                ),
-                              ),
+                                child: child,
+                              );
+                            },
+                            child: Icon(
+                              Icons.more_vert,
+                              color: style.colors.primary,
                             ),
-                          if (!c.searching.value &&
-                              !c.groupCreating.value &&
-                              !c.selecting.value)
-                            ContextMenuRegion(
-                              key: const Key('ChatsMenu'),
-                              selector: c.moreKey,
-                              alignment: Alignment.topRight,
-                              enablePrimaryTap: true,
-                              enableSecondaryTap: false,
-                              enableLongTap: false,
-                              margin:
-                                  const EdgeInsets.only(bottom: 4, right: 0),
-                              actions: [
-                                ContextMenuButton(
-                                  label: 'btn_create_group'.l10n,
-                                  onPressed: c.startGroupCreating,
-                                ),
-                                ContextMenuButton(
-                                  key: const Key('SelectChatsButton'),
-                                  label: 'btn_select_and_delete'.l10n,
-                                  onPressed: c.toggleSelecting,
-                                ),
-                              ],
-                              child: AnimatedButton(
-                                decorator: (child) {
-                                  return Container(
-                                    key: c.moreKey,
-                                    padding: const EdgeInsets.only(
-                                      left: 12,
-                                      right: 18,
-                                    ),
-                                    height: double.infinity,
-                                    child: child,
-                                  );
-                                },
-                                child: Icon(
-                                  Icons.more_vert,
-                                  color: style.colors.primary,
-                                ),
-                              ),
-                            ),
-                        ],
+                          ),
+                        ),
                       );
                     }),
                   ],
@@ -396,17 +401,17 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         bottom: false,
-                        controller: c.search.value!.controller,
+                        controller: c.search.value!.scrollController,
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(40),
                         ),
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
-                          controller: c.search.value!.controller,
+                          controller: c.search.value!.scrollController,
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
                             final ListElement element = c.elements[i];
-                            final Widget child;
+                            Widget child;
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -479,13 +484,13 @@ class ChatsTabView extends StatelessWidget {
                               child = Center(
                                 child: Container(
                                   margin: const EdgeInsets.fromLTRB(
-                                    10,
+                                    0,
                                     2,
                                     0,
                                     2,
                                   ),
                                   padding: const EdgeInsets.fromLTRB(
-                                    12,
+                                    0,
                                     10,
                                     0,
                                     6,
@@ -501,6 +506,16 @@ class ChatsTabView extends StatelessWidget {
                               );
                             } else {
                               child = const SizedBox();
+                            }
+
+                            if (i == c.elements.length - 1 &&
+                                c.search.value?.hasNext.value == true) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  const CustomProgressIndicator(),
+                                ],
+                              );
                             }
 
                             return child;
@@ -522,16 +537,16 @@ class ChatsTabView extends StatelessWidget {
                       );
                     } else if (c.elements.isNotEmpty) {
                       child = SafeScrollbar(
-                        controller: c.scrollController,
+                        controller: c.search.value!.scrollController,
                         child: AnimationLimiter(
                           key: const Key('Search'),
                           child: ListView.builder(
                             key: const Key('SearchScrollable'),
-                            controller: c.scrollController,
+                            controller: c.search.value!.scrollController,
                             itemCount: c.elements.length,
                             itemBuilder: (_, i) {
                               final ListElement element = c.elements[i];
-                              final Widget child;
+                              Widget child;
 
                               if (element is ChatElement) {
                                 final RxChat chat = element.chat;
@@ -585,6 +600,26 @@ class ChatsTabView extends StatelessWidget {
                                 );
                               } else {
                                 child = const SizedBox();
+                              }
+
+                              if (i == c.elements.length - 1) {
+                                if (c.search.value?.hasNext.value == true) {
+                                  child = Column(
+                                    children: [
+                                      child,
+                                      const CustomProgressIndicator(
+                                        key: Key('SearchLoading'),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                child = Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: CustomNavigationBar.height + 5,
+                                  ),
+                                  child: child,
+                                );
                               }
 
                               return AnimationConfiguration.staggeredList(
@@ -916,7 +951,7 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: child,
                     ),
@@ -999,7 +1034,10 @@ class ChatsTabView extends StatelessWidget {
                 child = const SizedBox();
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
           ],
         );

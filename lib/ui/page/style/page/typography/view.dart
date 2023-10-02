@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
 import '/ui/page/style/widget/header.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
@@ -139,6 +140,7 @@ class TypographyView extends StatelessWidget {
 
     return ScrollableColumn(
       children: [
+        const SizedBox(height: CustomAppBar.height),
         const SizedBox(height: 16),
         const Header('Typography'),
         const SubHeader('Fonts'),

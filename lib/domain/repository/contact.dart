@@ -23,6 +23,7 @@ import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 import '/util/obs/obs.dart';
+import 'search.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
@@ -41,6 +42,9 @@ abstract class AbstractContactRepository {
 
   /// Disposes this repository.
   void dispose();
+
+  /// Returns a [ChatContact] by the provided [id].
+  RxChatContact? get(ChatContactId id);
 
   /// Clears the stored [contacts].
   Future<void> clearCache();
@@ -69,6 +73,13 @@ abstract class AbstractContactRepository {
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id);
+
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 }
 
 /// Unified reactive [ChatContact] entity.
