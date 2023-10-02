@@ -38,6 +38,7 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -164,7 +165,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
 
-                    return AnimatedSwitcher(
+                    return SafeAnimatedSwitcher(
                       duration: 250.milliseconds,
                       child: child,
                     );
@@ -232,7 +233,7 @@ class ChatsTabView extends StatelessWidget {
                             child: child,
                           );
                         },
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: c.searching.value
                               ? Icon(
@@ -300,7 +301,7 @@ class ChatsTabView extends StatelessWidget {
                                 height: double.infinity,
                                 child: SizedBox(
                                   width: 21.77,
-                                  child: AnimatedSwitcher(
+                                  child: SafeAnimatedSwitcher(
                                     duration: 250.milliseconds,
                                     child: child,
                                   ),
@@ -396,17 +397,17 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         bottom: false,
-                        controller: c.search.value!.controller,
+                        controller: c.search.value!.scrollController,
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(40),
                         ),
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
-                          controller: c.search.value!.controller,
+                          controller: c.search.value!.scrollController,
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
                             final ListElement element = c.elements[i];
-                            final Widget child;
+                            Widget child;
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -479,13 +480,13 @@ class ChatsTabView extends StatelessWidget {
                               child = Center(
                                 child: Container(
                                   margin: const EdgeInsets.fromLTRB(
-                                    10,
+                                    0,
                                     2,
                                     0,
                                     2,
                                   ),
                                   padding: const EdgeInsets.fromLTRB(
-                                    12,
+                                    0,
                                     10,
                                     0,
                                     6,
@@ -501,6 +502,16 @@ class ChatsTabView extends StatelessWidget {
                               );
                             } else {
                               child = const SizedBox();
+                            }
+
+                            if (i == c.elements.length - 1 &&
+                                c.search.value?.hasNext.value == true) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  const CustomProgressIndicator(),
+                                ],
+                              );
                             }
 
                             return child;
@@ -522,16 +533,16 @@ class ChatsTabView extends StatelessWidget {
                       );
                     } else if (c.elements.isNotEmpty) {
                       child = SafeScrollbar(
-                        controller: c.scrollController,
+                        controller: c.search.value!.scrollController,
                         child: AnimationLimiter(
                           key: const Key('Search'),
                           child: ListView.builder(
                             key: const Key('SearchScrollable'),
-                            controller: c.scrollController,
+                            controller: c.search.value!.scrollController,
                             itemCount: c.elements.length,
                             itemBuilder: (_, i) {
                               final ListElement element = c.elements[i];
-                              final Widget child;
+                              Widget child;
 
                               if (element is ChatElement) {
                                 final RxChat chat = element.chat;
@@ -585,6 +596,26 @@ class ChatsTabView extends StatelessWidget {
                                 );
                               } else {
                                 child = const SizedBox();
+                              }
+
+                              if (i == c.elements.length - 1) {
+                                if (c.search.value?.hasNext.value == true) {
+                                  child = Column(
+                                    children: [
+                                      child,
+                                      const CustomProgressIndicator(
+                                        key: Key('SearchLoading'),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                child = Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: CustomNavigationBar.height + 5,
+                                  ),
+                                  child: child,
+                                );
                               }
 
                               return AnimationConfiguration.staggeredList(
@@ -916,7 +947,7 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: child,
                     ),
@@ -999,7 +1030,10 @@ class ChatsTabView extends StatelessWidget {
                 child = const SizedBox();
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
           ],
         );

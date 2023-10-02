@@ -19,12 +19,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'page/colors/view.dart';
-import 'page/multimedia/view.dart';
 import 'page/typography/view.dart';
+import 'page/widgets/view.dart';
 
 /// View of the [Routes.style] page.
 class StyleView extends StatelessWidget {
@@ -32,145 +38,154 @@ class StyleView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: StyleController(),
       builder: (StyleController c) {
         return Scaffold(
-          backgroundColor: const Color(0xFFFFFFFF),
-          body: SafeArea(
-            child: Column(
-              children: [
-                _appBar(c),
-                Expanded(child: _page(c)),
-              ],
+          backgroundColor: style.colors.background,
+          extendBodyBehindAppBar: true,
+          appBar: CustomAppBar(
+            leading: [
+              StyledBackButton(
+                onPressed: ModalRoute.of(context)?.canPop == true
+                    ? Navigator.of(context).pop
+                    : router.home,
+              ),
+            ],
+            title: Center(
+              child: ListView(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                children: StyleTab.values.map((e) => _button(c, e)).toList(),
+              ),
             ),
+            actions: [
+              Obx(() {
+                return WidgetButton(
+                  onPressed: c.inverted.toggle,
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: SizedBox(
+                        width: 23,
+                        key: c.inverted.value
+                            ? const Key('Dark')
+                            : const Key('Light'),
+                        child: c.inverted.value
+                            ? const SvgImage.asset(
+                                'assets/icons/dark_mode.svg',
+                                width: 20.8,
+                                height: 20.8,
+                              )
+                            : const SvgImage.asset(
+                                'assets/icons/light_mode.svg',
+                                width: 23,
+                                height: 23,
+                              ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
           ),
+          body: _page(c, context),
         );
       },
     );
   }
 
-  /// Returns [Row] of [StyleCard]s and [IconButton]s meant to be an app bar.
-  Widget _appBar(StyleController c) {
-    return Row(
+  /// Returns the [StyleTab] pages view.
+  Widget _page(StyleController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Stack(
       children: [
-        const SizedBox(width: 5),
-        Expanded(
-          child: SizedBox(
-            height: 50,
-            child: CustomScrollView(
-              scrollDirection: Axis.horizontal,
-              slivers: [
-                SliverList.builder(
-                  itemCount: StyleTab.values.length,
-                  itemBuilder: (context, i) {
-                    return Obx(() {
-                      final StyleTab tab = StyleTab.values[i];
-                      final bool selected = c.tab.value == tab;
-
-                      return switch (tab) {
-                        StyleTab.colors => StyleCard(
-                            icon: selected
-                                ? Icons.format_paint
-                                : Icons.format_paint_outlined,
-                            inverted: selected,
-                            onPressed: () => c.pages.jumpToPage(i),
-                          ),
-                        StyleTab.typography => StyleCard(
-                            icon: selected
-                                ? Icons.text_snippet
-                                : Icons.text_snippet_outlined,
-                            inverted: selected,
-                            onPressed: () => c.pages.jumpToPage(i),
-                          ),
-                        StyleTab.multimedia => StyleCard(
-                            icon: selected
-                                ? Icons.play_lesson
-                                : Icons.play_lesson_outlined,
-                            inverted: selected,
-                            onPressed: () => c.pages.jumpToPage(i),
-                          ),
-                        StyleTab.elements => StyleCard(
-                            icon: selected
-                                ? Icons.widgets
-                                : Icons.widgets_outlined,
-                            inverted: selected,
-
-                            // TODO: Implement.
-                            onPressed: null,
-                          ),
-                      };
-                    });
-                  },
+        // For web, background color is displayed in `index.html` file.
+        if (!PlatformUtils.isWeb)
+          IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.background,
+            ),
+          ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Obx(() {
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: SvgImage.asset(
+                  key: Key(c.inverted.value ? 'dark' : 'light'),
+                  'assets/images/background_${c.inverted.value ? 'dark' : 'light'}.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
                 ),
-              ],
-            ),
+              );
+            }),
           ),
         ),
-        Obx(
-          () => IconButton(
-            onPressed: c.dense.toggle,
-            icon: Icon(
-              c.dense.value ? Icons.layers_clear_rounded : Icons.layers_rounded,
-              color: const Color(0xFF1F3C5D),
-            ),
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: PageView(
+            controller: c.pages,
+            onPageChanged: (i) => c.tab.value = StyleTab.values[i],
+            physics: const NeverScrollableScrollPhysics(),
+            children: StyleTab.values.map((e) {
+              return KeepAlivePage(
+                child: switch (e) {
+                  StyleTab.colors => Obx(() {
+                      return ColorsView(inverted: c.inverted.value);
+                    }),
+                  StyleTab.typography => const TypographyView(),
+                  StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                },
+              );
+            }).toList(),
           ),
         ),
-        const SizedBox(width: 5),
-        Obx(
-          () => IconButton(
-            onPressed: c.inverted.toggle,
-            icon: Icon(
-              c.inverted.value
-                  ? Icons.dark_mode_rounded
-                  : Icons.light_mode_rounded,
-              color: c.inverted.value
-                  ? const Color(0xFF1F3C5D)
-                  : const Color(0xFFFFB74D),
-            ),
-          ),
-        ),
-        const SizedBox(width: 15),
       ],
     );
   }
 
-  /// Returns a corresponding [StyleController.tab] page switcher.
-  Widget _page(StyleController c) {
-    return ColoredBox(
-      color: const Color(0xFFF5F5F5),
-      child: PageView(
-        controller: c.pages,
-        onPageChanged: (i) => c.tab.value = StyleTab.values[i],
-        physics: const NeverScrollableScrollPhysics(),
-        children: StyleTab.values.map((e) {
-          return KeepAlivePage(
-            child: switch (e) {
-              StyleTab.colors => Obx(() {
-                  return ColorsView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
-                }),
-              StyleTab.typography => Obx(() {
-                  return TypographyView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
-                }),
-              StyleTab.multimedia => Obx(() {
-                  return MultimediaView(
-                    inverted: c.inverted.value,
-                    dense: c.dense.value,
-                  );
-                }),
+  /// Returns a button representing the provided [StyleTab].
+  Widget _button(StyleController c, StyleTab tab) {
+    return Obx(() {
+      final bool selected = c.tab.value == tab;
 
-              // TODO: Implement.
-              StyleTab.elements => Container(),
-            },
-          );
-        }).toList(),
-      ),
-    );
+      return switch (tab) {
+        StyleTab.colors => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/palette.svg',
+              width: 20.8,
+              height: 20.8,
+            ),
+          ),
+        StyleTab.typography => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/typography.svg',
+              width: 24.02,
+              height: 16,
+            ),
+          ),
+        StyleTab.widgets => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/widgets.svg',
+              width: 18.78,
+              height: 18.78,
+            ),
+          ),
+      };
+    });
   }
 }

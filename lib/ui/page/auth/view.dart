@@ -27,6 +27,7 @@ import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
@@ -159,7 +160,11 @@ class AuthView extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              IgnorePointer(child: ColoredBox(color: style.colors.background)),
+              // For web, background color is displayed in `index.html` file.
+              if (!PlatformUtils.isWeb)
+                IgnorePointer(
+                  child: ColoredBox(color: style.colors.background),
+                ),
               const IgnorePointer(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',

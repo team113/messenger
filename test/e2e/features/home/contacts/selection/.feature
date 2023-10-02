@@ -23,6 +23,8 @@ Feature: Contacts selection
     And contacts Bob and Charlie
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
+    And I wait until "Bob" contact is present
+    And I wait until "Charlie" contact is present
 
     When I tap `ContactsMenu` button
     And I tap `SelectContactsButton` button

@@ -19,26 +19,32 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/api/backend/extension/contact.dart';
+import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/search.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
+import '/store/pagination.dart';
+import '/store/pagination/graphql.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'search.dart';
 import 'user.dart';
 
 /// Implementation of an [AbstractContactRepository].
@@ -235,6 +241,136 @@ class ContactRepository implements AbstractContactRepository {
     }
   }
 
+  @override
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  }) {
+    if (name == null && email == null && phone == null) {
+      return SearchResultImpl();
+    }
+
+    Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
+    if (name != null) {
+      pagination = Pagination(
+        perPage: 30,
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) {
+            return searchByName(
+              name,
+              after: after,
+              first: first,
+            );
+          },
+        ),
+        onKey: (RxChatContact u) => u.id,
+      );
+    }
+
+    final List<RxChatContact> contacts = [
+      ...this.contacts.values,
+      ...favorites.values
+    ]
+        .where((u) =>
+            (phone != null && u.contact.value.phones.contains(phone)) ||
+            (email != null && u.contact.value.emails.contains(email)) ||
+            (name != null &&
+                u.contact.value.name.val
+                        .toLowerCase()
+                        .contains(name.val.toLowerCase()) ==
+                    true))
+        .toList();
+
+    Map<ChatContactId, RxChatContact> toMap(RxChatContact? c) {
+      if (c != null) {
+        return {c.id: c};
+      }
+
+      return {};
+    }
+
+    final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
+        searchResult = SearchResultImpl(
+      pagination: pagination,
+      initial: [
+        {for (var u in contacts) u.id: u},
+        if (email != null) searchByEmail(email).then(toMap),
+        if (phone != null) searchByPhone(phone).then(toMap),
+      ],
+    );
+
+    return searchResult;
+  }
+
+  @override
+  RxChatContact? get(ChatContactId id) {
+    // TODO: Get [ChatContact] from remote if it's not stored locally.
+    return contacts[id] ?? favorites[id];
+  }
+
+  /// Searches [ChatContact]s by the provided [UserName].
+  ///
+  /// This is a fuzzy search.
+  Future<Page<RxChatContact, ChatContactsCursor>> searchByName(
+    UserName name, {
+    ChatContactsCursor? after,
+    int? first,
+  }) =>
+      _search(name: name, after: after, first: first);
+
+  /// Searches [ChatContact]s by the provided [UserEmail].
+  ///
+  /// This is an exact match search.
+  Future<RxChatContact?> searchByEmail(UserEmail email) async =>
+      (await _search(email: email)).edges.firstOrNull;
+
+  /// Searches [ChatContact]s by the provided [UserPhone].
+  ///
+  /// This is an exact match search.
+  Future<RxChatContact?> searchByPhone(UserPhone phone) async =>
+      (await _search(phone: phone)).edges.firstOrNull;
+
+  /// Searches [ChatContact]s by the given criteria.
+  ///
+  /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
+  /// (be non-`null`).
+  Future<Page<RxChatContact, ChatContactsCursor>> _search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+    ChatContactsCursor? after,
+    int? first,
+  }) async {
+    const maxInt = 120;
+    var query = await _graphQlProvider.searchChatContacts(
+      name: name,
+      email: email,
+      phone: phone,
+      after: after,
+      first: first ?? maxInt,
+    );
+
+    final List<HiveChatContact> result =
+        query.searchChatContacts.edges.map((c) => c.node.toHive()).toList();
+
+    for (HiveChatContact user in result) {
+      _putChatContact(user);
+    }
+
+    // Wait for [Hive] to populate the added [HiveChatContact] from
+    // [_putChatContact] invoked earlier.
+    await Future.delayed(Duration.zero);
+
+    List<RxChatContact> contacts =
+        result.map((e) => get(e.value.id)).whereNotNull().toList();
+
+    return Page(
+      RxList(contacts),
+      query.searchChatContacts.pageInfo.toModel((c) => ChatContactsCursor(c)),
+    );
+  }
+
   /// Puts the provided [contact] to [Hive].
   Future<void> _putChatContact(HiveChatContact contact) async {
     var saved = _contactLocal.get(contact.value.id);
@@ -263,6 +399,9 @@ class ContactRepository implements AbstractContactRepository {
                 HiveRxChatContact(_userRepo, event.value)..init();
           } else {
             contact.contact.value = event.value.value;
+            contacts.emit(
+              MapChangeNotification.updated(contact.id, contact.id, contact),
+            );
           }
         } else {
           contacts.remove(ChatContactId(event.key));

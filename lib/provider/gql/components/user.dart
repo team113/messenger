@@ -70,17 +70,31 @@ mixin UserGraphQlMixin {
   ///
   /// Searching by [name] is fuzzy.
   ///
-  /// It's allowed to specify both [first] and [last] at the same time,
-  /// provided that [after] and [before] are equal. In such case the returned
-  /// page will include the [User] pointed by the cursor and the requested
-  /// number of [User]s preceding and following it.
-  ///
-  /// If it's desired to receive the [User] pointed by the cursor without
-  /// querying in both directions, one can specify [first] or [last] as 0.
-  ///
   /// ### Authentication
   ///
   /// Optional.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [User]s are sorted depending on the provided arguments:
+  ///
+  /// - If one of the [num]/[login]/[link] arguments is specified, then an exact
+  /// [User] is returned.
+  ///
+  /// - If the [name] argument is specified, then returned [User]s are sorted
+  /// primarily by the `Levenshtein distance` of their [name]s, and secondary by
+  /// their IDs (if the `Levenshtein distance` is the same), in descending
+  /// order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [User] pointed by the cursor and the
+  /// requested count of [User]s preceding and following it.
+  ///
+  /// If it's desired to receive the [User], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
   Future<SearchUsers$Query> searchUsers({
     UserNum? num,
     UserLogin? login,
@@ -502,12 +516,12 @@ mixin UserGraphQlMixin {
   }) async {
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
-      raw: raw,
       MutationOptions(
         operationName: 'AddUserEmail',
         document: AddUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => AddUserEmailException(
           (AddUserEmail$Mutation.fromJson(data).addUserEmail
                   as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
@@ -580,7 +594,9 @@ mixin UserGraphQlMixin {
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-      ConfirmationCode code) async {
+    ConfirmationCode code, {
+    RawClientOptions? raw,
+  }) async {
     final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -588,6 +604,7 @@ mixin UserGraphQlMixin {
         document: ConfirmUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => ConfirmUserEmailException((ConfirmUserEmail$Mutation
                       .fromJson(data)
                   .confirmUserEmail
@@ -655,12 +672,13 @@ mixin UserGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time generates a new [ConfirmationCode].
-  Future<void> resendEmail() async {
+  Future<void> resendEmail({RawClientOptions? raw}) async {
     await client.mutate(
       MutationOptions(
         operationName: 'ResendUserEmailConfirmation',
         document: ResendUserEmailConfirmationMutation().document,
       ),
+      raw: raw,
       onException: (data) => ResendUserEmailConfirmationException(
           ResendUserEmailConfirmation$Mutation.fromJson(data)
                   .resendUserEmailConfirmation
