@@ -141,8 +141,11 @@ class User extends HiveObject {
 ///
 /// See more details in [User.id].
 @HiveType(typeId: ModelTypeId.userId)
-class UserId extends NewType<String> {
+class UserId extends NewType<String> implements Comparable<UserId> {
   const UserId(String val) : super(val);
+
+  @override
+  int compareTo(UserId other) => val.compareTo(other.val);
 }
 
 /// Unique number of an [User].

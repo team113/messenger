@@ -766,9 +766,8 @@ class ChatController extends GetxController {
               }
 
               if (forward != null) {
-                forward.forwards.removeWhere((e) => e.value.id == item.id);
-
-                if (forward.forwards.isEmpty) {
+                if (forward.forwards.length == 1 &&
+                    forward.forwards.first.value.id == item.id) {
                   elements.remove(forward.id);
 
                   if (forward.note.value != null) {
@@ -776,6 +775,8 @@ class ChatController extends GetxController {
                         ChatMessageElement(forward.note.value!);
                     elements[message.id] = message;
                   }
+                } else {
+                  forward.forwards.removeWhere((e) => e.value.id == item.id);
                 }
               }
             }

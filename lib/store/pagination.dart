@@ -70,6 +70,12 @@ class Pagination<T, C, K extends Comparable> {
   /// [Mutex] guarding synchronized access to the [init] and [around].
   final Mutex _guard = Mutex();
 
+  /// [Mutex] guarding synchronized access to the [next].
+  final Mutex _nextGuard = Mutex();
+
+  /// [Mutex] guarding synchronized access to the [previous].
+  final Mutex _previousGuard = Mutex();
+
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
@@ -114,7 +120,13 @@ class Pagination<T, C, K extends Comparable> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
+    final bool locked = _guard.isLocked;
+
     return _guard.protect(() async {
+      if (locked) {
+        return;
+      }
+
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
@@ -141,63 +153,86 @@ class Pagination<T, C, K extends Comparable> {
   }
 
   /// Fetches a next page of the [items].
-  FutureOr<void> next() async {
-    Log.print('next()...', 'Pagination');
+  Future<void> next() async {
+    final bool locked = _nextGuard.isLocked;
 
-    if (items.isEmpty) {
-      return around();
-    }
-
-    if (hasNext.isTrue && nextLoading.isFalse) {
-      nextLoading.value = true;
-
-      final Page<T, C>? page =
-          await provider.after(items[items.lastKey()], endCursor, perPage);
-      Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
-
-      if (page?.info.startCursor != null) {
-        for (var e in page?.edges ?? []) {
-          items[onKey(e)] = e;
-        }
+    return _nextGuard.protect(() async {
+      if (locked) {
+        return;
       }
 
-      endCursor = page?.info.endCursor ?? endCursor;
-      hasNext.value = page?.info.hasNext ?? hasNext.value;
-      Log.print('next()... done', 'Pagination');
+      if (items.isEmpty) {
+        return around();
+      }
 
-      nextLoading.value = false;
-    }
+      Log.print('next()...', 'Pagination');
+
+      if (hasNext.isTrue && nextLoading.isFalse) {
+        nextLoading.value = true;
+
+        if (items.isNotEmpty) {
+          final Page<T, C>? page =
+              await provider.after(items[items.lastKey()], endCursor, perPage);
+          Log.print(
+            'next()... fetched ${page?.edges.length} items',
+            'Pagination',
+          );
+
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
+          }
+
+          endCursor = page?.info.endCursor ?? endCursor;
+          hasNext.value = page?.info.hasNext ?? hasNext.value;
+          Log.print('next()... done', 'Pagination');
+        } else {
+          await around();
+        }
+
+        nextLoading.value = false;
+      }
+    });
   }
 
   /// Fetches a previous page of the [items].
-  FutureOr<void> previous() async {
-    Log.print('previous()...', 'Pagination');
-    if (items.isEmpty) {
-      return around();
-    }
+  Future<void> previous() async {
+    final bool locked = _previousGuard.isLocked;
 
-    if (hasPrevious.isTrue && previousLoading.isFalse) {
-      previousLoading.value = true;
+    return _previousGuard.protect(() async {
+      if (locked) {
+        return;
+      }
 
-      final Page<T, C>? page =
-          await provider.before(items[items.firstKey()], startCursor, perPage);
-      Log.print(
-        'previous()... fetched ${page?.edges.length} items',
-        'Pagination',
-      );
+      if (items.isEmpty) {
+        return around();
+      }
 
-      if (page?.info.endCursor != null) {
+      Log.print('previous()...', 'Pagination');
+
+      if (hasPrevious.isTrue && previousLoading.isFalse) {
+        previousLoading.value = true;
+
+        final Page<T, C>? page = await provider.before(
+          items[items.firstKey()],
+          startCursor,
+          perPage,
+        );
+        Log.print(
+          'previous()... fetched ${page?.edges.length} items',
+          'Pagination',
+        );
+
         for (var e in page?.edges ?? []) {
           items[onKey(e)] = e;
         }
+
+        startCursor = page?.info.startCursor ?? startCursor;
+        hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+        Log.print('previous()... done', 'Pagination');
+
+        previousLoading.value = false;
       }
-
-      startCursor = page?.info.startCursor ?? startCursor;
-      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      Log.print('previous()... done', 'Pagination');
-
-      previousLoading.value = false;
-    }
+    });
   }
 
   /// Adds the provided [item] to the [items].
@@ -251,7 +286,7 @@ class Page<T, C> {
   final Rx<RxStatus> status = Rx(RxStatus.success());
 
   /// List of the fetched items.
-  final RxList<T> edges;
+  final List<T> edges;
 
   /// [PageInfo] of this [Page].
   PageInfo<C> info;
@@ -259,7 +294,7 @@ class Page<T, C> {
   /// Returns a new [Page] with reversed [info].
   Page<T, C> reversed() {
     return Page(
-      RxList.from(this.edges.reversed),
+      List.from(this.edges.reversed),
       PageInfo(
         hasNext: this.info.hasPrevious,
         hasPrevious: this.info.hasNext,

@@ -15,34 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/config.dart';
 
 import '../world/custom_world.dart';
 
-/// Long presses a [ChatContact] with the provided name.
+/// Changes [Config.version] to a `test.0.0.1` string.
 ///
 /// Examples:
-/// - When I long press "Bob" contact
-final StepDefinitionGeneric longPressContact = when1<String, CustomWorld>(
-  'I long press {string} contact',
-  (name, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
-      try {
-        final finder = context.world.appDriver.findBy(
-          'Contact_${context.world.contacts[name]}',
-          FindType.key,
-        );
-
-        await context.world.appDriver.nativeDriver.longPress(finder);
-        await context.world.appDriver.waitForAppToSettle();
-
-        return true;
-      } catch (_) {
-        return false;
-      }
-    });
-  },
+/// - When application version is updated
+final StepDefinitionGeneric updateAppVersion = then<CustomWorld>(
+  'application version is updated',
+  (context) async => Future.sync(() => Config.version = 'test.0.0.1'),
 );
