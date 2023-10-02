@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// A close button.
+/// A circular close button.
 class CloseButton extends StatelessWidget {
   const CloseButton({super.key});
 
