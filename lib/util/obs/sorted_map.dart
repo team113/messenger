@@ -83,18 +83,14 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
     _values.clear();
   }
 
-  /// Returns a [Comparator] for the provided [K].
-  static Comparator<K> _defaultCompare<K>() {
-    // If [K] is [Comparable], then just return it.
+  /// Returns a [Comparator] for the provided [V].
+  static Comparator<V> _defaultCompare<V>() {
+    // If [V] is [Comparable], then just return it.
     Object compare = Comparable.compare;
-    if (compare is Comparator<K>) {
+    if (compare is Comparator<V>) {
       return compare;
     }
 
-    // Otherwise wrap and cast the arguments on each call.
-    return _dynamicCompare;
+    return (_, __) => 1;
   }
-
-  /// Compares the [a] and [b] dynamically.
-  static int _dynamicCompare(dynamic a, dynamic b) => Comparable.compare(a, b);
 }
