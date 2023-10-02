@@ -32,7 +32,7 @@ class Pagination<T, C, K> {
     this.perPage = 50,
     required this.provider,
     required this.onKey,
-    required this.compare,
+    this.compare,
   });
 
   /// Items per [Page] to fetch.
@@ -61,7 +61,7 @@ class Pagination<T, C, K> {
   final K Function(T) onKey;
 
   /// Callback, comparing the provided [T] items.
-  final int Function(T, T) compare;
+  final int Function(T, T)? compare;
 
   /// Cursor of the first item in the [items] list.
   @visibleForTesting
@@ -256,11 +256,11 @@ class Pagination<T, C, K> {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
       }
-    } else if (compare.call(item, items.last) == 1) {
+    } else if (compare?.call(item, items.last) == 1) {
       if (hasNext.isFalse) {
         await put();
       }
-    } else if (compare.call(item, items.first) == -1) {
+    } else if (compare?.call(item, items.first) == -1) {
       if (hasPrevious.isFalse) {
         await put();
       }

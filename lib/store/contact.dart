@@ -265,7 +265,6 @@ class ContactRepository implements AbstractContactRepository {
           },
         ),
         onKey: (RxChatContact u) => u.id,
-        compare: (a, b) => 1,
       );
     }
 

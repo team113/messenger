@@ -139,6 +139,9 @@ class SearchController extends GetxController {
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
+  /// [Timer] invoking the [_ensureScrollable].
+  Timer? _ensureScrollableTimer;
+
   /// [Chat]s service searching the [Chat]s.
   final ChatService _chatService;
 
@@ -196,6 +199,7 @@ class SearchController extends GetxController {
     _searchWorker?.dispose();
     _usersSearchWorker?.dispose();
     _usersSearchWorker = null;
+    _ensureScrollableTimer?.cancel();
     _contactsSearchWorker?.dispose();
     _contactsSearchWorker = null;
     super.onClose();
@@ -646,6 +650,10 @@ class SearchController extends GetxController {
             scrollController.position.maxScrollExtent < 50) {
           await _next();
           _ensureScrollable();
+        } else {
+          // Ensure all animations are finished as [scrollController.hasClients]
+          // may be `true` during an animation.
+          Timer(1.seconds, _ensureScrollable);
         }
       });
     }

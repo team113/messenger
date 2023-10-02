@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -313,8 +314,7 @@ class AuthService extends GetxService {
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [credentials].
-  ///
-  /// The created [Session] expires in 1 day after creation.
+  @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
     // Check if the [credentials] are valid.
     credentials =
