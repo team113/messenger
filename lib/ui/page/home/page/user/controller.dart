@@ -422,16 +422,12 @@ extension UserViewExt on User {
         if (online) {
           return Duration.zero;
         } else if (lastSeenAt != null) {
-          final now = DateTime.now();
-          final roundedNow = now.subtract(
-            Duration(
-              milliseconds: now.millisecond,
-              microseconds: now.microsecond,
-            ),
-          );
-          final int diff = roundedNow.difference(lastSeenAt!.val).inSeconds + 1;
+          final int diff = DateTime.now()
+                  .toUtc()
+                  .difference(lastSeenAt!.val)
+                  .inMicroseconds ~/
+              1000000;
           final int remainder;
-
           if (diff <= 3600) {
             remainder = diff % 60;
 
@@ -466,7 +462,11 @@ extension UserViewExt on User {
         if (online) {
           return month;
         } else if (lastSeenAt != null) {
-          final int diff = DateTime.now().difference(lastSeenAt!.val).inSeconds;
+          final int diff = DateTime.now()
+                  .toUtc()
+                  .difference(lastSeenAt!.val)
+                  .inMicroseconds ~/
+              1000000;
 
           if (diff <= 3600) {
             return const Duration(minutes: 1);
