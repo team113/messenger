@@ -59,7 +59,11 @@ class CallSettingsView extends StatelessWidget {
       init: CallSettingsController(
         _call,
         Get.find(),
-        pop: Navigator.of(context).pop,
+        pop: () {
+          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).pop();
+          }
+        },
       ),
       builder: (CallSettingsController c) {
         return Stack(

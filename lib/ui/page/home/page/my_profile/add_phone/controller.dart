@@ -68,9 +68,6 @@ class AddPhoneController extends GetxController {
   /// [Timer] decreasing the [resendPhoneTimeout].
   Timer? _resendPhoneTimer;
 
-  /// Indicator whether this [AddPhoneController] is closed.
-  bool _isClosed = false;
-
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -150,9 +147,7 @@ class AddPhoneController extends GetxController {
           s.status.value = RxStatus.loading();
           try {
             await _myUserService.confirmPhoneCode(ConfirmationCode(s.text));
-            if (!_isClosed) {
-              pop?.call();
-            }
+            pop?.call();
             s.clear();
           } on FormatException {
             s.error.value = 'err_wrong_recovery_code'.l10n;
@@ -179,7 +174,6 @@ class AddPhoneController extends GetxController {
 
   @override
   void onClose() {
-    _isClosed = true;
     _setResendPhoneTimer(false);
     super.onClose();
   }

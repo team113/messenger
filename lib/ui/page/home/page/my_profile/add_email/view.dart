@@ -50,7 +50,11 @@ class AddEmailView extends StatelessWidget {
       init: AddEmailController(
         Get.find(),
         initial: email,
-        pop: Navigator.of(context).pop,
+        pop: () {
+          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).pop(true);
+          }
+        },
       ),
       builder: (AddEmailController c) {
         return Obx(() {

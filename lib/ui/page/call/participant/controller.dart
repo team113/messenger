@@ -97,9 +97,6 @@ class ParticipantController extends GetxController {
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
-  /// Indicator whether this [ParticipantController] is closed.
-  bool _isClosed = false;
-
   /// Returns an ID of the [Chat] this modal is bound to.
   Rx<ChatId> get chatId => _call.value.chatId;
 
@@ -148,7 +145,6 @@ class ParticipantController extends GetxController {
 
   @override
   void onClose() {
-    _isClosed = true;
     _chatsSubscription?.cancel();
     _stateWorker?.dispose();
     _chatWorker?.dispose();
@@ -231,7 +227,7 @@ class ParticipantController extends GetxController {
   void _fetchChat() async {
     chat.value = null;
     chat.value = (await _chatService.get(chatId.value));
-    if (chat.value == null && !_isClosed) {
+    if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
     }

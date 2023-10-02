@@ -82,9 +82,6 @@ class ChatForwardController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
-  /// Indicator whether this [ChatForwardController] is closed.
-  bool _isClosed = false;
-
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
@@ -171,9 +168,7 @@ class ChatForwardController extends GetxController {
           ];
 
           await Future.wait(futures);
-          if (!_isClosed) {
-            pop?.call();
-          }
+          pop?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {
@@ -190,7 +185,6 @@ class ChatForwardController extends GetxController {
 
   @override
   void onClose() {
-    _isClosed = true;
     send.onClose();
     super.onClose();
   }

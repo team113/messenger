@@ -69,7 +69,11 @@ class ParticipantView extends StatelessWidget {
         call,
         Get.find(),
         Get.find(),
-        pop: Navigator.of(context).pop,
+        pop: () {
+          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).pop();
+          }
+        },
       ),
       builder: (ParticipantController c) {
         return Obx(() {

@@ -46,7 +46,11 @@ class BlacklistView extends StatelessWidget {
       init: BlacklistController(
         Get.find(),
         Get.find(),
-        pop: Navigator.of(context).pop,
+        pop: () {
+          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).pop(true);
+          }
+        },
       ),
       builder: (BlacklistController c) {
         return Obx(() {

@@ -50,7 +50,11 @@ class AddPhoneView extends StatelessWidget {
       init: AddPhoneController(
         Get.find(),
         initial: phone,
-        pop: Navigator.of(context).pop,
+        pop: () {
+          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(context).pop(true);
+          }
+        },
       ),
       builder: (AddPhoneController c) {
         return Obx(() {

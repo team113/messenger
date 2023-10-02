@@ -68,9 +68,6 @@ class AddEmailController extends GetxController {
   /// [Timer] decreasing the [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
-  /// Indicator whether this [AddEmailController] is closed.
-  bool _isClosed = false;
-
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -148,9 +145,7 @@ class AddEmailController extends GetxController {
           s.status.value = RxStatus.loading();
           try {
             await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
-            if (!_isClosed) {
-              pop?.call();
-            }
+            pop?.call();
             s.clear();
           } on FormatException {
             s.error.value = 'err_wrong_recovery_code'.l10n;
@@ -177,7 +172,6 @@ class AddEmailController extends GetxController {
 
   @override
   void onClose() {
-    _isClosed = true;
     _setResendEmailTimer(false);
     super.onClose();
   }
