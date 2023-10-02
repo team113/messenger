@@ -509,8 +509,8 @@ class MessageFieldView extends StatelessWidget {
                             duration: 300.milliseconds,
                             child: ChatButtonWidget(
                               key: c.forwarding.value
-                                  ? const Key('forward')
-                                  : const Key('send'),
+                                  ? const Key('Forward')
+                                  : sendKey ?? const Key('Send'),
                               asset: c.forwarding.value ? 'forward' : 'send',
                               assetWidth: c.forwarding.value ? 26 : 25.44,
                               asseHeight: c.forwarding.value ? 22 : 21.91,
