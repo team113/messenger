@@ -319,12 +319,12 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
-                  controller: c.scrollController,
+                  controller: c.search.value!.scrollController,
                   child: AnimationLimiter(
                     key: const Key('Search'),
                     child: ListView.builder(
                       key: const Key('SearchScrollable'),
-                      controller: c.scrollController,
+                      controller: c.search.value!.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
                         ListElement? element;
@@ -332,7 +332,7 @@ class ContactsTabView extends StatelessWidget {
                           element = c.elements[i];
                         }
 
-                        final Widget child;
+                        Widget child;
 
                         if (element is ContactElement) {
                           child = SearchUserTile(
@@ -369,6 +369,24 @@ class ContactsTabView extends StatelessWidget {
                           );
                         } else {
                           child = const SizedBox();
+                        }
+
+                        if (i == c.elements.length - 1) {
+                          if (c.search.value?.hasNext.value == true) {
+                            child = Column(
+                              children: [
+                                child,
+                                const CustomProgressIndicator(),
+                              ],
+                            );
+                          }
+
+                          child = Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: CustomNavigationBar.height + 5,
+                            ),
+                            child: child,
+                          );
                         }
 
                         return AnimationConfiguration.staggeredList(

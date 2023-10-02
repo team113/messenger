@@ -130,6 +130,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contact,
         contactIsFavorite,
         copyFromField,
+        countUsers,
         downloadFile,
         dragChatDown,
         dragContactDown,

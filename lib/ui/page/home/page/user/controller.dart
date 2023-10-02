@@ -138,7 +138,9 @@ class UserController extends GetxController {
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+        case OperationKind.updated:
+          if (e.value!.contact.value.users.isNotEmpty &&
+              e.value!.contact.value.users.every((e) => e.id == id)) {
             inContacts.value = true;
           }
           break;
@@ -147,10 +149,6 @@ class UserController extends GetxController {
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inContacts.value = false;
           }
-          break;
-
-        case OperationKind.updated:
-          // No-op.
           break;
       }
     });
