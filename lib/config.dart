@@ -68,6 +68,13 @@ class Config {
   /// Unique identifier of Windows application.
   static late String clsid;
 
+  /// Version of the application, used to clear cache if mismatch is detected.
+  ///
+  /// If not specified, [Pubspec.version] is used.
+  ///
+  /// Intended to be used in E2E testing.
+  static String? version;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - default values;
@@ -119,8 +126,9 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
         : (document['user']?['agent']?['version'] ?? '');
 
-    userAgentVersion =
-        version.isNotEmpty ? version : (Pubspec.ref ?? Pubspec.version);
+    userAgentVersion = version.isNotEmpty
+        ? version
+        : (Pubspec.ref ?? Config.version ?? Pubspec.version);
 
     clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
         ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')

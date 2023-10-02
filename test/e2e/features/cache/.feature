@@ -15,36 +15,12 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-query SearchUsers(
-    $num: UserNum
-    $login: UserLogin
-    $directLink: ChatDirectLinkSlug
-    $name: UserName
-    $first: Int
-    $after: UsersCursor
-    $last: Int
-    $before: UsersCursor
-) {
-    searchUsers(
-        num: $num
-        login: $login
-        directLink: $directLink
-        name: $name
-        first: $first
-        after: $after
-        last: $last
-        before: $before
-    ) {
-        edges {
-            node {
-                __typename
-                ...User
-            }
-            cursor
-        }
-        pageInfo {
-            __typename
-            ...PageInfo
-        }
-    }
-}
+Feature: Cache clearing
+
+  Scenario: Cache is cleaned when application version updates
+    Given I am Alice
+    Then I wait until `HomeView` is present
+
+    When application version is updated
+    And I restart app
+    Then I wait until `AuthView` is present

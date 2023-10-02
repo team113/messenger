@@ -26,6 +26,7 @@ import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
+import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -224,6 +225,13 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
+    HiveRxChat? chat = _chats[id];
+    if (chat != null) {
+      return Future.value(chat);
+    }
+
+    // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
+    // double invoking.
     Mutex? mutex = _getGuards[id];
     if (mutex == null) {
       mutex = Mutex();
@@ -231,7 +239,7 @@ class ChatRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      HiveRxChat? chat = chats[id];
+      chat = chats[id];
       if (chat == null) {
         if (!id.isLocal) {
           var query = (await _graphQlProvider.getChat(id)).chat;
@@ -242,7 +250,7 @@ class ChatRepository extends DisposableInterface
           final HiveChat? hiveChat = await _chatLocal.get(id);
           if (hiveChat != null) {
             chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
-            chat.init();
+            chat!.init();
           }
 
           chat ??= await _createLocalDialog(id.userId);
@@ -1497,6 +1505,7 @@ class ChatRepository extends DisposableInterface
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data, {bool pagination = false}) async {
     Mutex? mutex = _putEntryGuards[data.chat.value.id];
+
     if (mutex == null) {
       mutex = Mutex();
       _putEntryGuards[data.chat.value.id] = mutex;

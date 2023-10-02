@@ -97,3 +97,19 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+/// Creates the provided count of new [User]s with the provided name.
+///
+/// Examples:
+/// - `Given 10 users Bob`
+/// - `Given 20 users Charlie`
+final countUsers = given2<int, TestUser, CustomWorld>(
+  '{int} users {user}',
+  (int count, TestUser user, context) async {
+    for (int i = 0; i < count; i++) {
+      await createUser(user, context.world);
+    }
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);

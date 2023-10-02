@@ -99,6 +99,7 @@ import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
+import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
@@ -129,6 +130,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contact,
         contactIsFavorite,
         copyFromField,
+        countUsers,
         downloadFile,
         dragChatDown,
         dragContactDown,
@@ -198,6 +200,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
+        updateAppVersion,
         updateAvatar,
         updateName,
         user,
