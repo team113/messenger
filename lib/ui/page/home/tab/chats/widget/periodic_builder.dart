@@ -69,7 +69,7 @@ class _PeriodicBuilderState extends State<PeriodicBuilder> {
 
   @override
   void dispose() {
-    if (_timer != null) _timer!.cancel();
+    _timer?.cancel();
     _delayTimer.cancel();
     super.dispose();
   }

@@ -177,47 +177,48 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
       if (member != null) {
         return PeriodicBuilder(
-            delay: chat.getDelay(member.user.value),
-            period: chat.getPeriod(member.user.value),
-            builder: (context) {
-              return Obx(() {
-                final String? subtitle =
-                    chat.getSubtitle(partner: member.user.value);
-                final UserTextStatus? status = member.user.value.status;
-                final Widget child;
+          delay: chat.getDelay(member.user.value),
+          period: chat.getPeriod(member.user.value),
+          builder: (context) {
+            return Obx(() {
+              final String? subtitle =
+                  chat.getSubtitle(partner: member.user.value);
+              final UserTextStatus? status = member.user.value.status;
+              final Widget child;
 
-                if (status != null || subtitle != null) {
-                  final StringBuffer buffer = StringBuffer(status ?? '');
+              if (status != null || subtitle != null) {
+                final StringBuffer buffer = StringBuffer(status ?? '');
 
-                  if (status != null && subtitle != null) {
-                    buffer.write('space_vertical_space'.l10n);
-                  }
-
-                  buffer.write(subtitle ?? '');
-
-                  child = Text(
-                    buffer.toString(),
-                    style: style.fonts.bodySmallSecondary,
-                  );
-                } else {
-                  child = const SizedBox();
+                if (status != null && subtitle != null) {
+                  buffer.write('space_vertical_space'.l10n);
                 }
 
-                return Row(
-                  children: [
-                    if (chat.muted != null) ...[
-                      const SvgImage.asset(
-                        'assets/icons/muted_dark.svg',
-                        width: 19.99 * 0.6,
-                        height: 15 * 0.6,
-                      ),
-                      const SizedBox(width: 5),
-                    ],
-                    Flexible(child: child),
-                  ],
+                buffer.write(subtitle ?? '');
+
+                child = Text(
+                  buffer.toString(),
+                  style: style.fonts.bodySmallSecondary,
                 );
-              });
+              } else {
+                child = const SizedBox();
+              }
+
+              return Row(
+                children: [
+                  if (chat.muted != null) ...[
+                    const SvgImage.asset(
+                      'assets/icons/muted_dark.svg',
+                      width: 19.99 * 0.6,
+                      height: 15 * 0.6,
+                    ),
+                    const SizedBox(width: 5),
+                  ],
+                  Flexible(child: child),
+                ],
+              );
             });
+          },
+        );
       }
     }
 
