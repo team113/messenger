@@ -294,7 +294,8 @@ class _HomeViewState extends State<HomeView> {
                                         height: 10,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: style.colors.acceptAuxiliaryColor,
+                                          color:
+                                              style.colors.acceptAuxiliaryColor,
                                         ),
                                       ),
                                     ),

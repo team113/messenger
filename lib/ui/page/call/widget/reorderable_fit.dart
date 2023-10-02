@@ -872,8 +872,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                         spacing: 0,
                         runSpacing: 0,
                         children: _items
-                            .mapIndexed(
-                              (i, e) => SizedBox(
+                            .map(
+                              (e) => SizedBox(
                                 width: widget.wrapSize,
                                 height: widget.wrapSize,
                                 child: widget.overlayBuilder!(e.item),

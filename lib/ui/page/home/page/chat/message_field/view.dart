@@ -18,7 +18,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +48,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/chat_button.dart';
 import 'widget/close_button.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
@@ -505,53 +505,28 @@ class MessageFieldView extends StatelessWidget {
                 children: sendable || c.buttons.isEmpty
                     ? [
                         Obx(() {
-                          return GestureDetector(
-                            onLongPress:
-                                canForward ? c.forwarding.toggle : null,
-                            child: AnimatedButton(
+                          return SafeAnimatedSwitcher(
+                            duration: 300.milliseconds,
+                            child: ChatButtonWidget(
+                              key: c.forwarding.value
+                                  ? const Key('forward')
+                                  : const Key('send'),
+                              asset: c.forwarding.value ? 'forward' : 'send',
+                              assetWidth: c.forwarding.value ? 26 : 25.44,
+                              asseHeight: c.forwarding.value ? 22 : 21.91,
                               onPressed: c.field.submit,
-                              child: SizedBox(
-                                width: 50,
-                                height: 56,
-                                child: Center(
-                                  child: SafeAnimatedSwitcher(
-                                    duration: 300.milliseconds,
-                                    child: c.forwarding.value
-                                        ? const SvgImage.asset(
-                                          'assets/icons/forward.svg',
-                                          width: 26,
-                                          height: 22,
-                                        )
-                                        : SvgImage.asset(
-                                          'assets/icons/send.svg',
-                                          key: sendKey ?? const Key('Send'),
-                                          width: 25.44,
-                                          height: 21.91,
-                                        ),
-                                  ),
-                                ),
-                              ),
+                              onLongPress:
+                                  canForward ? c.forwarding.toggle : null,
                             ),
                           );
                         })
                       ]
-                    : c.buttons.take(take).toList().reversed.mapIndexed((i, e) {
-                        return AnimatedButton(
-                          onPressed: () => e.onPressed?.call(),
-                          child: SizedBox(
-                            width: 50,
-                            height: 56,
-                            child: Center(
-                              child: Transform.translate(
-                                offset: e.offset,
-                                child: SvgImage.asset(
-                                  'assets/icons/${e.asset}.svg',
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                    : c.buttons
+                        .take(take)
+                        .toList()
+                        .reversed
+                        .map((e) => e.build(hinted: false))
+                        .toList(),
               );
             }),
             const SizedBox(width: 3),

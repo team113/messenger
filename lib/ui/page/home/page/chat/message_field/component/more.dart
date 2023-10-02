@@ -18,13 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../widget/buttons.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
-import '/ui/widget/animated_button.dart';
-import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 /// Visual representation of the [MessageFieldController.panel].
@@ -58,8 +54,8 @@ class MessageFieldMore extends StatelessWidget {
           Obx(() {
             final bool contains = c.buttons.contains(e);
 
-            return _MenuButton(
-              e,
+            return e.build(
+              hinted: true,
               pinned: contains,
               onPinned: contains || c.canPin.value
                   ? () {
@@ -152,120 +148,5 @@ class MessageFieldMore extends StatelessWidget {
         ],
       );
     });
-  }
-}
-
-/// Visual representation of a [ChatButton].
-class _MenuButton extends StatefulWidget {
-  const _MenuButton(
-    this.button, {
-    this.onPressed,
-    this.onPinned,
-    this.pinned = false,
-  });
-
-  /// [ChatButton] of this [_MenuButton].
-  final ChatButton button;
-
-  /// Callback, called when this [_MenuButton] is pressed.
-  final void Function()? onPressed;
-
-  /// Callback, called when this [_MenuButton] is pinned.
-  final void Function()? onPinned;
-
-  /// Indicator whether this [_MenuButton] is pinned.
-  final bool pinned;
-
-  @override
-  State<_MenuButton> createState() => _MenuButtonState();
-}
-
-/// State of a [_MenuButton] maintaining a [_hovered] indicator.
-class _MenuButtonState extends State<_MenuButton> {
-  /// Indicator whether this [_MenuButton] is hovered.
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-    bool disabled = widget.button.onPressed == null;
-
-    return IgnorePointer(
-      ignoring: disabled,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        opaque: false,
-        child: WidgetButton(
-          onPressed: () {
-            widget.button.onPressed?.call();
-            widget.onPressed?.call();
-          },
-          child: Container(
-            width: double.infinity,
-            color: _hovered ? style.colors.onBackgroundOpacity2 : null,
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 16),
-                SizedBox(
-                  width: 26,
-                  child: AnimatedScale(
-                    duration: const Duration(milliseconds: 100),
-                    scale: _hovered ? 1.05 : 1,
-                    child: Transform.translate(
-                      offset: widget.button.offsetMini,
-                      child: SvgImage.asset(
-                        'assets/icons/${widget.button.assetMini ?? widget.button.asset}${disabled ? '_disabled' : ''}.svg',
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  widget.button.hint,
-                  style: disabled
-                      ? style.fonts.bodyLargePrimaryHighlightLightest
-                      : style.fonts.bodyLargePrimary,
-                ),
-                const Spacer(),
-                const SizedBox(width: 16),
-                WidgetButton(
-                  onPressed: widget.onPinned ?? () {},
-                  child: SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: Center(
-                      child: AnimatedButton(
-                        child: AnimatedSwitcher(
-                          duration: 100.milliseconds,
-                          child: widget.pinned
-                              ? const SvgImage.asset(
-                                  'assets/icons/unpin.svg',
-                                  key: Key('Unpin'),
-                                  width: 15.5,
-                                  height: 17,
-                                )
-                              : Transform.translate(
-                                  offset: const Offset(0.5, 0),
-                                  child: SvgImage.asset(
-                                    'assets/icons/pin${widget.onPinned == null || disabled ? '_disabled' : ''}.svg',
-                                    key: const Key('Pin'),
-                                    width: 9.65,
-                                    height: 17,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
