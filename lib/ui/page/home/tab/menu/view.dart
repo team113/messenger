@@ -63,7 +63,7 @@ class MenuTabView extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: style.colors.acceptAuxiliaryColor,
+                      color: style.colors.acceptAuxiliary,
                     ),
                   ),
                 ),
@@ -76,7 +76,7 @@ class MenuTabView extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: style.colors.warningColor,
+                      color: style.colors.warning,
                     ),
                   ),
                 ),

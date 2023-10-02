@@ -46,11 +46,11 @@ class Themes {
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
-      acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: const Color(0xFF4CAF50),
-      declineColor: const Color(0x7FFF0000),
-      dangerColor: const Color(0xFFF44336),
-      warningColor: const Color(0xFFFF9800),
+      accept: const Color(0x7F34B139),
+      acceptAuxiliary: const Color(0xFF4CAF50),
+      decline: const Color(0x7FFF0000),
+      danger: const Color(0xFFF44336),
+      warning: const Color(0xFFFF9800),
       userColors: [
         const Color(0xFF9C27B0),
         const Color(0xFF673AB7),
@@ -79,7 +79,7 @@ class Themes {
       primaryHighlightLightest: colors.primaryHighlightLightest,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
-      danger: colors.dangerColor,
+      danger: colors.danger,
       displayBold:
           textStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 27),
       displayLarge:
@@ -109,7 +109,7 @@ class Themes {
       bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
       bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
       bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
-      error: textStyle.copyWith(fontSize: 13, color: colors.dangerColor),
+      error: textStyle.copyWith(fontSize: 13, color: colors.danger),
       input: textStyle.copyWith(
         fontSize: 15,
         fontWeight: FontWeight.w300,
@@ -245,11 +245,11 @@ class Themes {
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.dangerColor),
+            borderSide: BorderSide(color: colors.danger),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.dangerColor),
+            borderSide: BorderSide(color: colors.danger),
           ),
         ),
         textSelectionTheme: theme.textSelectionTheme.copyWith(
@@ -625,6 +625,7 @@ class Fonts {
     TextStyle? labelMediumPrimary,
     TextStyle? labelMediumSecondary,
     TextStyle? labelMediumOnPrimary,
+    TextStyle? labelMediumDanger,
     required this.labelSmall,
     TextStyle? labelSmallPrimary,
     TextStyle? labelSmallSecondary,
@@ -696,6 +697,8 @@ class Fonts {
             labelMediumSecondary ?? labelMedium.copyWith(color: secondary),
         labelMediumOnPrimary =
             labelMediumOnPrimary ?? labelMedium.copyWith(color: onPrimary),
+        labelMediumDanger =
+            labelMediumDanger ?? labelMedium.copyWith(color: danger),
         labelSmallPrimary =
             labelSmallPrimary ?? labelSmall.copyWith(color: primary),
         labelSmallSecondary =
@@ -837,6 +840,9 @@ class Fonts {
   /// [labelMedium] of `onPrimary` color.
   final TextStyle labelMediumOnPrimary;
 
+  /// [labelMedium] of `danger` color.
+  final TextStyle labelMediumDanger;
+
   /// Small version of label text of `onBackground` color.
   final TextStyle labelSmall;
 
@@ -971,6 +977,8 @@ class Fonts {
           font.labelMediumSecondary, other.labelMediumSecondary, t)!,
       labelMediumOnPrimary: TextStyle.lerp(
           font.labelMediumOnPrimary, other.labelMediumOnPrimary, t)!,
+      labelMediumDanger:
+          TextStyle.lerp(font.labelMediumDanger, other.labelMediumDanger, t)!,
       labelSmall: TextStyle.lerp(font.labelSmall, other.labelSmall, t)!,
       labelSmallPrimary:
           TextStyle.lerp(font.labelSmallPrimary, other.labelSmallPrimary, t)!,
@@ -1055,11 +1063,11 @@ class Palette {
     Color? onBackgroundOpacity50,
     Color? onBackgroundOpacity70,
     required this.transparent,
-    required this.acceptColor,
-    required this.acceptAuxiliaryColor,
-    required this.declineColor,
-    required this.dangerColor,
-    required this.warningColor,
+    required this.accept,
+    required this.acceptAuxiliary,
+    required this.decline,
+    required this.danger,
+    required this.warning,
     required this.userColors,
   })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
         primaryDarkOpacity70 =
@@ -1310,24 +1318,24 @@ class Palette {
   /// interface.
   ///
   /// Used in accept call button.
-  final Color acceptColor;
+  final Color accept;
 
   /// [Color] is used as an auxiliary color to display pleasant action
   /// confirmation messages.
-  final Color acceptAuxiliaryColor;
+  final Color acceptAuxiliary;
 
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
   ///
   /// Used in decline call button.
-  final Color declineColor;
+  final Color decline;
 
   /// [Color] used to indicate dangerous or critical elements in the user
   /// interface.
-  final Color dangerColor;
+  final Color danger;
 
   /// [Color] used to indicate caution, risk, or a potential threat.
-  final Color warningColor;
+  final Color warning;
 
   /// [Color]s associated with the [User].
   ///
@@ -1421,12 +1429,12 @@ class Palette {
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
-      acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t)!,
-      acceptAuxiliaryColor: Color.lerp(
-          color.acceptAuxiliaryColor, other.acceptAuxiliaryColor, t)!,
-      declineColor: Color.lerp(color.declineColor, other.declineColor, t)!,
-      dangerColor: Color.lerp(color.dangerColor, other.dangerColor, t)!,
-      warningColor: Color.lerp(color.warningColor, other.warningColor, t)!,
+      accept: Color.lerp(color.accept, other.accept, t)!,
+      acceptAuxiliary:
+          Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+      decline: Color.lerp(color.decline, other.decline, t)!,
+      danger: Color.lerp(color.danger, other.danger, t)!,
+      warning: Color.lerp(color.warning, other.warning, t)!,
       userColors:
           other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );
