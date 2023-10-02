@@ -41,14 +41,14 @@ class PeriodicBuilder extends StatefulWidget {
   State<PeriodicBuilder> createState() => _PeriodicBuilderState();
 }
 
-/// State of a [PeriodicBuilder] maintaining the [_timer].
+/// State of a [PeriodicBuilder] maintaining the [_timer] and [_delayTimer].
 class _PeriodicBuilderState extends State<PeriodicBuilder> {
   /// [Timer] rebuilding this [Widget].
   Timer? _timer;
 
   /// [Timer] delaying the first invocation of the [builder].
   ///
-  /// Intended to be used for synchronization of last seen ... ago time in
+  /// Intended to be used for synchronization of last seen ... ago phrase in
   /// various places.
   late final Timer _delayTimer;
 
