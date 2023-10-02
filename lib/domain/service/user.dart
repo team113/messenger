@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import 'disposable_service.dart';
 
@@ -50,45 +51,18 @@ class UserService extends DisposableService {
   }
 
   /// Searches [User]s by the given criteria.
-  SearchResult search({
+  SearchResult<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
-  }) {
-    final SearchResult searchResult = SearchResult();
-    if (num == null && name == null && login == null && link == null) {
-      return searchResult;
-    }
-
-    final List<RxUser> users = _userRepository.users.values
-        .where((u) =>
-            (num != null && u.user.value.num == num) ||
-            (name != null && u.user.value.name?.val.contains(name.val) == true))
-        .toList();
-
-    searchResult.users.value = users;
-    searchResult.status.value =
-        users.isEmpty ? RxStatus.loading() : RxStatus.loadingMore();
-
-    FutureOr<List<RxUser>> add(List<RxUser> u) {
-      Set<RxUser> users = searchResult.users.toSet()..addAll(u);
-      searchResult.users.value = users.toList();
-      return searchResult.users;
-    }
-
-    List<Future<List<RxUser>>> futures = [
-      if (num != null) _userRepository.searchByNum(num).then(add),
-      if (name != null) _userRepository.searchByName(name).then(add),
-      if (login != null) _userRepository.searchByLogin(login).then(add),
-      if (link != null) _userRepository.searchByLink(link).then(add),
-    ];
-
-    Future.wait(futures)
-        .then((_) => searchResult.status.value = RxStatus.success());
-
-    return searchResult;
-  }
+  }) =>
+      _userRepository.search(
+        num: num,
+        name: name,
+        login: login,
+        link: link,
+      );
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id) => _userRepository.get(id);
@@ -103,20 +77,4 @@ class UserService extends DisposableService {
 
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async => await _userRepository.clearCache();
-}
-
-/// Result of a [UserService.search] query.
-class SearchResult {
-  /// Found [RxUser]s themselves.
-  final RxList<RxUser> users = RxList<RxUser>();
-
-  /// Reactive [RxStatus] of [users] being fetched.
-  ///
-  /// May be:
-  /// - `status.isEmpty`, meaning the query is not yet started.
-  /// - `status.isLoading`, meaning the [users] are being fetched.
-  /// - `status.isLoadingMore`, meaning some [users] were fetched from local
-  ///   storage.
-  /// - `status.isSuccess`, meaning the [users] were successfully fetched.
-  final Rx<RxStatus> status = Rx(RxStatus.empty());
 }
