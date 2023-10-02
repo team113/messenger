@@ -60,6 +60,9 @@ class AddChatMemberController extends GetxController {
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
+  /// Indicator whether this [AddChatMemberController] is closed.
+  bool _isClosed = false;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -94,6 +97,7 @@ class AddChatMemberController extends GetxController {
 
   @override
   void onClose() {
+    _isClosed = true;
     _chatsSubscription?.cancel();
     super.onClose();
   }
@@ -108,7 +112,9 @@ class AddChatMemberController extends GetxController {
 
       await Future.wait(futures);
 
-      pop?.call();
+      if (!_isClosed) {
+        pop?.call();
+      }
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -123,7 +129,7 @@ class AddChatMemberController extends GetxController {
   void _fetchChat() async {
     chat.value = null;
     chat.value = await _chatService.get(chatId);
-    if (chat.value == null) {
+    if (chat.value == null && !_isClosed) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
     }

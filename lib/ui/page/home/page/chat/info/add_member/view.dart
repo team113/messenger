@@ -49,11 +49,7 @@ class AddChatMemberView extends StatelessWidget {
       init: AddChatMemberController(
         chatId,
         Get.find(),
-        pop: () {
-          if (context.mounted) {
-            Navigator.of(context).pop();
-          }
-        },
+        pop: Navigator.of(context).pop,
       ),
       builder: (AddChatMemberController c) {
         return Obx(() {
