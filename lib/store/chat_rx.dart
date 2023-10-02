@@ -1328,8 +1328,7 @@ class HiveRxChat extends RxChat {
                     final action = msg.action as ChatInfoActionMemberRemoved;
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
-                    // TODO: don't remove last read to know which message can be
-                    //       edited?
+                    // TODO: https://github.com/team113/messenger/issues/627
                     chatEntity.value.lastReads
                         .removeWhere((e) => e.memberId == action.user.id);
                     reads.removeWhere((e) => e.memberId == action.user.id);

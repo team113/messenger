@@ -26,22 +26,22 @@ import 'chat_button.dart';
 abstract class ChatButton {
   const ChatButton([this.onPressed]);
 
-  /// Callback, called when this [CallButton] is pressed.
+  /// Callback, called when this [ChatButton] is pressed.
   final void Function()? onPressed;
 
-  /// Returns a text-represented hint for this [CallButton].
+  /// Returns a text-represented hint for this [ChatButton].
   String get hint;
 
-  /// Asset name of this [CallButton].
+  /// Asset name of this [ChatButton].
   String get asset;
 
-  /// Asset offset of this [CallButton].
+  /// Asset offset of this [ChatButton].
   Offset get offset => Offset.zero;
 
-  /// Asset name of this [CallButton] in mini mode.
+  /// Asset name of this [ChatButton] in mini mode.
   String? get assetMini => null;
 
-  /// Asset offset of this [CallButton] in mini mode.
+  /// Asset offset of this [ChatButton] in mini mode.
   Offset get offsetMini => Offset.zero;
 
   @override
