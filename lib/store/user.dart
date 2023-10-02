@@ -125,6 +125,7 @@ class UserRepository implements AbstractUserRepository {
           },
         ),
         onKey: (RxUser u) => u.id,
+        compare: (a, b) => 1,
       );
     }
 

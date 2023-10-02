@@ -225,7 +225,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<HiveRxChat?> get(ChatId id) async {
-    HiveRxChat? chat = _chats[id];
+    HiveRxChat? chat = chats[id];
     if (chat != null) {
       return Future.value(chat);
     }
@@ -255,7 +255,7 @@ class ChatRepository extends DisposableInterface
 
           chat ??= await _createLocalDialog(id.userId);
 
-          chats[id] = chat;
+          chats[id] = chat!;
         }
       }
 

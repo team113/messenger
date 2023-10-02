@@ -55,22 +55,6 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
       dy: 200,
     );
 
-    AppDriverAdapter driver = context.world.appDriver;
-    double displayHeight =
-        context.world.appDriver.nativeDriver.view.display.size.height;
-
-    int i = 0;
-    while (i++ < 100 &&
-        (await driver.isAbsent(finder) ||
-            driver.nativeDriver.getCenter(finder).dy > displayHeight - 200)) {
-      final state = driver.nativeDriver.state(scrollable) as ScrollableState;
-      final position = state.position;
-
-      position.jumpTo(min(position.pixels + 200, position.maxScrollExtent));
-
-      await driver.nativeDriver.pump();
-    }
-
     await context.world.appDriver.waitForAppToSettle();
   },
 );

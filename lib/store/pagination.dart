@@ -208,27 +208,24 @@ class Pagination<T, C, K> {
       if (hasPrevious.isTrue && previousLoading.isFalse) {
         previousLoading.value = true;
 
-if(items.isNotEmpty) {
-        final Page<T, C>? page = await provider.before(
-          items.first,
-          startCursor,
-          perPage
-        );
-        Log.print(
-          'previous()... fetched ${page?.edges.length} items',
-          'Pagination',
-        );
+        if (items.isNotEmpty) {
+          final Page<T, C>? page =
+              await provider.before(items.first, startCursor, perPage);
+          Log.print(
+            'previous()... fetched ${page?.edges.length} items',
+            'Pagination',
+          );
 
-        for (var e in page?.edges ?? []) {
-          items[onKey(e)] = e;
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
+          }
+
+          startCursor = page?.info.startCursor ?? startCursor;
+          hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+          Log.print('previous()... done', 'Pagination');
+        } else {
+          await around();
         }
-
-        startCursor = page?.info.startCursor ?? startCursor;
-        hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.print('previous()... done', 'Pagination');
-} else {
-  await around();
-}
 
         previousLoading.value = false;
       }
