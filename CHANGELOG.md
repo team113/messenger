@@ -36,6 +36,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
+        - Title jumping around when entering search. ([#613], [#550])
     - Last seen ... ago phrase not updating periodically. ([#610], [#551])
 - Web:
     - Fix background flashing after loading. ([#604], [#549])
@@ -47,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 [#508]: /../../issues/508
 [#533]: /../../pull/533
 [#549]: /../../issues/549
+[#550]: /../../issues/550
 [#551]: /../../issues/551
 [#564]: /../../issues/564
 [#587]: /../../pull/587
@@ -54,6 +56,7 @@ All user visible changes to this project will be documented in this file. This p
 [#599]: /../../pull/599
 [#604]: /../../pull/604
 [#610]: /../../pull/610
+[#613]: /../../pull/613
 [#614]: /../../issues/614
 [#616]: /../../pull/616
 
