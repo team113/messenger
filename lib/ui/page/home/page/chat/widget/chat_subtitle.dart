@@ -29,7 +29,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -176,49 +175,42 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           .firstWhereOrNull((u) => u.user.value.id != widget.me);
 
       if (member != null) {
-        return PeriodicBuilder(
-          delay: chat.getDelay(member.user.value),
-          period: chat.getPeriod(member.user.value),
-          builder: (context) {
-            return Obx(() {
-              final String? subtitle =
-                  chat.getSubtitle(partner: member.user.value);
-              final UserTextStatus? status = member.user.value.status;
-              final Widget child;
+        return Obx(() {
+          final String? subtitle = chat.getSubtitle(partner: member.user.value);
+          final UserTextStatus? status = member.user.value.status;
+          final Widget child;
 
-              if (status != null || subtitle != null) {
-                final StringBuffer buffer = StringBuffer(status ?? '');
+          if (status != null || subtitle != null) {
+            final StringBuffer buffer = StringBuffer(status ?? '');
 
-                if (status != null && subtitle != null) {
-                  buffer.write('space_vertical_space'.l10n);
-                }
+            if (status != null && subtitle != null) {
+              buffer.write('space_vertical_space'.l10n);
+            }
 
-                buffer.write(subtitle ?? '');
+            buffer.write(subtitle ?? '');
 
-                child = Text(
-                  buffer.toString(),
-                  style: style.fonts.bodySmallSecondary,
-                );
-              } else {
-                child = const SizedBox();
-              }
+            child = Text(
+              buffer.toString(),
+              style: style.fonts.bodySmallSecondary,
+            );
+          } else {
+            child = const SizedBox();
+          }
 
-              return Row(
-                children: [
-                  if (chat.muted != null) ...[
-                    const SvgImage.asset(
-                      'assets/icons/muted_dark.svg',
-                      width: 19.99 * 0.6,
-                      height: 15 * 0.6,
-                    ),
-                    const SizedBox(width: 5),
-                  ],
-                  Flexible(child: child),
-                ],
-              );
-            });
-          },
-        );
+          return Row(
+            children: [
+              if (chat.muted != null) ...[
+                const SvgImage.asset(
+                  'assets/icons/muted_dark.svg',
+                  width: 19.99 * 0.6,
+                  height: 15 * 0.6,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(child: child),
+            ],
+          );
+        });
       }
     }
 

@@ -1575,32 +1575,6 @@ extension ChatViewExt on Chat {
     }
   }
 
-  /// Returns [Duration] of a period for [PeriodicBuilder].
-  Duration getPeriod(User partner) {
-    switch (kind) {
-      case ChatKind.dialog:
-        return partner.getPeriod();
-
-      case ChatKind.group:
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
-        return const Duration(days: 30);
-    }
-  }
-
-  /// Returns [Duration] of a delay for [PeriodicBuilder].
-  Duration getDelay(User partner) {
-    switch (kind) {
-      case ChatKind.dialog:
-        return partner.getDelay();
-
-      case ChatKind.group:
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
-        return Duration.zero;
-    }
-  }
-
   /// Returns a string that is based on [members] or [id] of this [Chat].
   String colorDiscriminant(UserId? me) {
     switch (kind) {

@@ -37,7 +37,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
         - Title jumping around when entering search. ([#613], [#550])
-    - Last seen ... ago phrase not updating periodically. ([#610], [#551])
+    - User's last seen status not updating periodically. ([#610], [#551])
 - Web:
     - Fix background flashing after loading. ([#604], [#549])
 

@@ -30,7 +30,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
-import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
@@ -704,27 +703,23 @@ class ContactsTabView extends StatelessWidget {
         ],
         subtitle: [
           if (contact.user.value != null)
-            PeriodicBuilder(
-              delay: contact.user.value!.user.value.getDelay(),
-              period: contact.user.value!.user.value.getPeriod(),
-              builder: (context) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 5),
-                  child: Obx(() {
-                    final subtitle = contact.user.value?.user.value.getStatus();
-                    if (subtitle != null) {
-                      return Text(
-                        subtitle,
-                        style: inverted
-                            ? style.fonts.labelMediumOnPrimary
-                            : style.fonts.labelMediumSecondary,
-                      );
-                    }
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Obx(() {
+                final subtitle = contact.user.value?.user.value
+                    .getStatus(contact.user.value?.lastSeen.value);
 
-                    return const SizedBox();
-                  }),
-                );
-              },
+                if (subtitle != null) {
+                  return Text(
+                    subtitle,
+                    style: inverted
+                        ? style.fonts.labelMediumOnPrimary
+                        : style.fonts.labelMediumSecondary,
+                  );
+                }
+
+                return const SizedBox();
+              }),
             ),
         ],
         trailing: [

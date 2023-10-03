@@ -21,6 +21,7 @@ import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
@@ -36,10 +37,26 @@ class HiveRxUser extends RxUser {
     this._userRepository,
     this._userLocal,
     HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+  )   : user = Rx<User>(hiveUser.value),
+        lastSeen = Rx(hiveUser.value.lastSeenAt) {
+    // Start the [_lastSeenTimer] right away.
+    _runLastSeenTimer();
+
+    // Re-run [_runLastSeenTimer], if [User.lastSeenAt] has been changed.
+    PreciseDateTime? at = user.value.lastSeenAt;
+    _worker = ever(user, (User user) {
+      if (at != user.lastSeenAt) {
+        _runLastSeenTimer();
+        at = user.lastSeenAt;
+      }
+    });
+  }
 
   @override
   final Rx<User> user;
+
+  @override
+  final Rx<PreciseDateTime?> lastSeen;
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
@@ -60,6 +77,12 @@ class HiveRxUser extends RxUser {
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
 
+  /// [Timer] refreshing the [lastSeen] to synchronize its updates.
+  Timer? _lastSeenTimer;
+
+  /// [Worker] reacting on [User] changes.
+  Worker? _worker;
+
   @override
   Rx<RxChat?> get dialog {
     final ChatId id = user.value.dialog;
@@ -69,6 +92,12 @@ class HiveRxUser extends RxUser {
     }
 
     return _dialog;
+  }
+
+  /// Disposes this [HiveRxUser].
+  void dispose() {
+    _lastSeenTimer?.cancel();
+    _worker?.dispose();
   }
 
   @override
@@ -210,5 +239,57 @@ class HiveRxUser extends RxUser {
         }
         break;
     }
+  }
+
+  // TODO: Cover with unit tests.
+  /// Starts the [_lastSeenTimer] refreshing the [lastSeen].
+  void _runLastSeenTimer() {
+    _lastSeenTimer?.cancel();
+    if (user.value.lastSeenAt == null) {
+      return;
+    }
+
+    final DateTime now = DateTime.now();
+    final Duration difference = now.difference(user.value.lastSeenAt!.val);
+
+    final Duration delay;
+    final Duration period;
+
+    if (difference.inHours < 1) {
+      period = const Duration(minutes: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerMinute -
+            difference.inMicroseconds % Duration.microsecondsPerMinute,
+      );
+    } else if (difference.inDays < 1) {
+      period = const Duration(hours: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerHour -
+            difference.inMicroseconds % Duration.microsecondsPerHour,
+      );
+    } else {
+      period = const Duration(days: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerDay -
+            difference.inMicroseconds % Duration.microsecondsPerDay,
+      );
+    }
+
+    _lastSeenTimer = Timer(
+      delay,
+      () {
+        lastSeen.value = user.value.lastSeenAt;
+        lastSeen.refresh();
+
+        _lastSeenTimer?.cancel();
+        _lastSeenTimer = Timer.periodic(
+          period,
+          (timer) {
+            lastSeen.value = user.value.lastSeenAt;
+            lastSeen.refresh();
+          },
+        );
+      },
+    );
   }
 }

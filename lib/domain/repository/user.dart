@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import 'chat.dart';
 import 'search.dart';
@@ -67,6 +68,9 @@ abstract class RxUser {
 
   /// Returns reactive value of the [RxChat]-dialog with this [RxUser].
   Rx<RxChat?> get dialog;
+
+  /// Returns reactive [User.lastSeenAt] value.
+  Rx<PreciseDateTime?> get lastSeen;
 
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;

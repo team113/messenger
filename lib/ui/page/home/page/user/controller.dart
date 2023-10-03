@@ -25,6 +25,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
@@ -385,13 +386,13 @@ class UserController extends GetxController {
 extension UserViewExt on User {
   /// Returns a text represented status of this [User] based on its
   /// [User.presence] and [User.online] fields.
-  String? getStatus() {
+  String? getStatus([PreciseDateTime? lastSeen]) {
     switch (presence) {
       case Presence.present:
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${(lastSeen ?? lastSeenAt)!.val.toDifferenceAgo()}';
         } else {
           return 'label_offline'.l10n;
         }
@@ -400,7 +401,7 @@ extension UserViewExt on User {
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${(lastSeen ?? lastSeenAt)!.val.toDifferenceAgo()}';
         } else {
           return 'label_offline'.l10n;
         }
@@ -412,83 +413,11 @@ extension UserViewExt on User {
         return null;
     }
   }
-
-  /// Returns [Duration] of the delay for the [PeriodicBuilder] based on the
-  /// [User.presence] and [User.online] fields.
-  Duration getDelay() {
-    switch (presence) {
-      case Presence.present:
-      case Presence.away:
-        if (online) {
-          return Duration.zero;
-        } else if (lastSeenAt != null) {
-          final int diff = DateTime.now()
-                  .toUtc()
-                  .difference(lastSeenAt!.val)
-                  .inMicroseconds ~/
-              1000000;
-          final int remainder;
-          if (diff <= 3600) {
-            remainder = diff % 60;
-
-            return Duration(seconds: remainder != 0 ? 60 - remainder : 0);
-          } else if (diff <= 86400) {
-            remainder = diff % 3600;
-
-            return Duration(seconds: remainder != 0 ? 3600 - remainder : 0);
-          } else {
-            remainder = diff % 86400;
-
-            return Duration(seconds: remainder != 0 ? 86400 - remainder : 0);
-          }
-        } else {
-          return Duration.zero;
-        }
-
-      case Presence.artemisUnknown:
-      case null:
-        return Duration.zero;
-    }
-  }
-
-  /// Returns [Duration] of the period for the [PeriodicBuilder] based on the
-  /// [User.presence] and [User.online] fields.
-  Duration getPeriod() {
-    const Duration month = Duration(days: 30);
-
-    switch (presence) {
-      case Presence.present:
-      case Presence.away:
-        if (online) {
-          return month;
-        } else if (lastSeenAt != null) {
-          final int diff = DateTime.now()
-                  .toUtc()
-                  .difference(lastSeenAt!.val)
-                  .inMicroseconds ~/
-              1000000;
-
-          if (diff <= 3600) {
-            return const Duration(minutes: 1);
-          } else if (diff <= 86400) {
-            return const Duration(hours: 1);
-          } else {
-            return const Duration(days: 1);
-          }
-        } else {
-          return month;
-        }
-
-      case Presence.artemisUnknown:
-      case null:
-        return month;
-    }
-  }
 }
 
 /// Extension adding an ability to get text represented indication of how long
 /// ago a [DateTime] happened compared to [DateTime.now].
-extension _DateTimeToAgo on DateTime {
+extension DateTimeToAgo on DateTime {
   /// Returns text representation of a [difference] with [DateTime.now]
   /// indicating how long ago this [DateTime] happened compared to
   /// [DateTime.now].
