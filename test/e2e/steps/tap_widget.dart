@@ -34,13 +34,12 @@ import '../parameters/keys.dart';
 final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
   RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
   (key, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        try {
-          final finder =
-              context.world.appDriver.findByKeySkipOffstage(key.name).first;
+      try {
+        final finder =
+            context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
         await context.world.appDriver.waitForAppToSettle();
         await context.world.appDriver.tap(

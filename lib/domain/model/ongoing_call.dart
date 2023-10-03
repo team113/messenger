@@ -295,9 +295,6 @@ class OngoingCall {
   /// [User] that started this [OngoingCall].
   User? get caller => call.value?.author;
 
-  /// Returns the room on a media server representing this [OngoingCall].
-  RoomHandle? get room => _room;
-
   /// Indicates whether this [OngoingCall] is intended to start with video.
   ///
   /// Used to determine incoming [OngoingCall] type.
@@ -395,8 +392,7 @@ class OngoingCall {
   /// No-op if already [connected].
   void connect(
     CallService? calls, [
-    Stream<ChatCallEvents> Function(ChatItemId, ChatCallDeviceId)?
-        heartbeat,
+    Stream<ChatCallEvents> Function(ChatItemId, ChatCallDeviceId)? heartbeat,
   ]) {
     assert(
       calls != null || heartbeat != null,
@@ -545,7 +541,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.memberLeft:
                   var node = event as EventChatCallMemberLeft;
-                  if (me.id.userId == node.user.id) {
+                  if (calls?.me == node.user.id) {
                     calls?.remove(chatId.value);
                   }
 

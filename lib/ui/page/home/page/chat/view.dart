@@ -226,7 +226,6 @@ class _ChatViewState extends State<ChatView>
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
                               AnimatedButton(
-                                key: const Key('VideoCall'),
                                 onPressed: () => c.call(true),
                                 child: const SvgImage.asset(
                                   'assets/icons/chat_video_call.svg',

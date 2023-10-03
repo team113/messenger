@@ -40,9 +40,9 @@ final StepDefinitionGeneric seeDraftInDialog =
 
     await context.world.appDriver.waitUntil(() async {
       final ChatId dialog = [
-      ...context.world.sessions[user.name]!.dialogs.values,
-      ...context.world.sessions[user.name]!.groups.values,
-    ].first;
+        ...context.world.sessions[user.name]!.dialogs.values,
+        ...context.world.sessions[user.name]!.groups.values,
+      ].first;
 
       final Finder finder = context.world.appDriver.findByDescendant(
         context.world.appDriver.findBy('Chat_$dialog', FindType.key),

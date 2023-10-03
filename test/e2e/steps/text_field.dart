@@ -70,7 +70,11 @@ StepDefinitionGeneric fillFieldWithUser = then1<TestUser, CustomWorld>(
 /// - Then I fill `MessageField` field with 8192 "A" symbols
 StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
   'I fill {key} field with {int} {string} symbol(s)?',
-  (key, quantity, text, context) => _fillField(context.world.appDriver.findBy(key.name, FindType.key), text * quantity, context,),
+  (key, quantity, text, context) => _fillField(
+    context.world.appDriver.findBy(key.name, FindType.key),
+    text * quantity,
+    context,
+  ),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
 );

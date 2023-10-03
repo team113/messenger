@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
 
 import '../../controller.dart';
 import '../call_cover.dart';
@@ -26,6 +25,7 @@ import '../raised_hand.dart';
 import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';

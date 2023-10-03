@@ -112,7 +112,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       content.addAll([
         // Call's primary view.
         Column(
-           key: const Key('ActiveCall'),
+          key: const Key('ActiveCall'),
           children: [
             Obx(() => SizedBox(
                   width: double.infinity,

@@ -65,7 +65,6 @@ class ParticipantView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      key: const Key('ParticipantView'),
       init: ParticipantController(
         call,
         Get.find(),

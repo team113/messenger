@@ -591,7 +591,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             CallRepository callRepository = CallRepository(
               graphQlProvider,
               userRepository,
-              Get.find(),
+              Get.find<ChatCallCredentialsHiveProvider>(),
               settingsRepository,
               me: me,
             );

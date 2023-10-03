@@ -112,7 +112,6 @@ enum WidgetKey {
   NewPasswordField,
   NoMessages,
   NumCopyable,
-  ParticipantView,
   Participants,
   PasswordButton,
   PasswordExpandable,
@@ -160,7 +159,6 @@ enum WidgetKey {
   Unselected,
   UserScrollable,
   UsernameField,
-  VideoCall,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].
