@@ -79,7 +79,7 @@ class TransactionWidget extends StatelessWidget {
             hoveredBorder:
                 selected ? style.primaryBorder : style.cardHoveredBorder,
             border: selected ? style.primaryBorder : style.cardBorder,
-            unselectedHoverColor: style.cardColor.darken(0.03),
+            unselectedHoverColor: style.cardHoveredColor,
             selectedHoverColor: style.colors.primary,
             child: Padding(
               padding: const EdgeInsets.all(12),

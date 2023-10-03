@@ -103,7 +103,7 @@ class _HomeViewState extends State<HomeView> {
     if (_deps == null) {
       return Scaffold(
         backgroundColor: style.colors.onPrimary,
-        body: const Center(child: CustomProgressIndicator()),
+        body: Center(child: CustomProgressIndicator.primary()),
       );
     }
 
@@ -533,8 +533,8 @@ class _HomeViewState extends State<HomeView> {
                   sideBar,
                   Container(child: context.isNarrow ? navigation : null),
                 ] else
-                  const Scaffold(
-                    body: Center(child: CustomProgressIndicator()),
+                  Scaffold(
+                    body: Center(child: CustomProgressIndicator.primary()),
                   )
               ],
             );

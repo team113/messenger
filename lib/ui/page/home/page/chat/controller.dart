@@ -215,7 +215,7 @@ class ChatController extends GetxController {
 
   final RxBool acceptPaid = RxBool(false);
 
-  late final RxBool paidDisclaimer;
+  final RxBool paidDisclaimer = RxBool(false);
   final RxBool paidDisclaimerDismissed = RxBool(false);
   final RxBool paidBorder = RxBool(false);
   final RxBool paidAccepted = RxBool(false);
@@ -729,6 +729,7 @@ class ChatController extends GetxController {
     _ignorePositionChanges = true;
 
     status.value = RxStatus.loading();
+    // await Future.delayed(Duration(seconds: 5));
     chat = await _chatService.get(id);
     if (chat == null) {
       status.value = RxStatus.empty();
@@ -761,7 +762,7 @@ class ChatController extends GetxController {
               e.user.value.name?.val == 'alex2' ||
               e.user.value.name?.val == 'kirey') &&
           chat!.chat.value.isDialog;
-      paidDisclaimer = RxBool(paid);
+      paidDisclaimer.value = paid;
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {

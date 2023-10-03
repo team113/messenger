@@ -150,7 +150,9 @@ class _ChatTileState extends State<ChatTile> {
               unselectedColor: widget.highlight ? paid : normal,
               selectedHoverColor: chosen,
               unselectedHoverColor:
-                  (widget.highlight ? paid : normal).darken(0.03),
+                  widget.highlight ? paid.darken(0.03) : style.cardHoveredColor,
+              // unselectedHoverColor:
+              //     (widget.highlight ? paid : normal).darken(0.03),
               border: widget.selected
                   ? chosenBorder
                   : widget.highlight

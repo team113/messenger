@@ -155,12 +155,19 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: AppBar(),
-              body: const Center(child: CustomProgressIndicator()),
+              appBar: CustomAppBar(
+                padding: const EdgeInsets.only(left: 4, right: 20),
+                leading: const [StyledBackButton()],
+              ),
+              body: Center(child: CustomProgressIndicator.primary()),
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: _bottomBar(c),
+              ),
             );
           }
 
-          final bool isMonolog = c.chat!.chat.value.isMonolog;
+          final bool isMonolog = c.chat?.chat.value.isMonolog == true;
 
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
@@ -213,7 +220,8 @@ class _ChatViewState extends State<ChatView>
                                         maxLines: 1,
                                       );
                                     }),
-                                    if (!isMonolog) ChatSubtitle(c.chat!, c.me),
+                                    if (!isMonolog && c.chat != null)
+                                      ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),
                               ),
@@ -232,7 +240,7 @@ class _ChatViewState extends State<ChatView>
 
                           final List<Widget> children;
 
-                          if (c.chat!.chat.value.ongoingCall == null) {
+                          if (c.chat?.chat.value.ongoingCall == null) {
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
@@ -617,9 +625,11 @@ class _ChatViewState extends State<ChatView>
                                         );
                                       }),
                                       Obx(() {
-                                        if ((c.chat!.status.value.isSuccess ||
-                                                c.chat!.status.value.isEmpty) &&
-                                            c.chat!.messages.isEmpty) {
+                                        if ((c.chat?.status.value.isSuccess ==
+                                                    true ||
+                                                c.chat?.status.value.isEmpty ==
+                                                    true) &&
+                                            c.chat?.messages.isEmpty == true) {
                                           return Center(
                                             child: Container(
                                               margin:
@@ -650,9 +660,12 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                           );
                                         }
-                                        if (c.chat!.status.value.isLoading) {
-                                          return const Center(
-                                            child: CustomProgressIndicator(),
+
+                                        if (c.chat?.status.value.isLoading !=
+                                            false) {
+                                          return Center(
+                                            child: CustomProgressIndicator
+                                                .primary(),
                                           );
                                         }
 
@@ -688,7 +701,7 @@ class _ChatViewState extends State<ChatView>
                       );
                     }),
                     bottomNavigationBar: Padding(
-                      padding: Insets.dense.copyWith(top: 0),
+                      padding: const EdgeInsets.only(bottom: 4),
                       child: _bottomBar(c),
                     ),
                   ),
@@ -1644,7 +1657,8 @@ class _ChatViewState extends State<ChatView>
               child: MessageFieldView(
                 key: const Key('SendField'),
                 controller: c.send,
-                onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+                onChanged:
+                    c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
                 onItemPressed: (id) =>
                     c.animateTo(id, offsetBasedOnBottom: false),
                 canForward: true,

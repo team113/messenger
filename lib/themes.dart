@@ -149,6 +149,8 @@ class Themes {
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
             cardColor: colors.onPrimaryOpacity95,
+            cardHoveredColor: colors.backgroundAuxiliaryLightest,
+            // cardHoveredColor: colors.primaryHighlightShiniest,
             cardHoveredBorder: Border.all(
               color: colors.primaryHighlightShiniest,
               width: 0.5,
@@ -390,6 +392,7 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredColor,
     required this.cardHoveredBorder,
     required this.cardRadius,
     required this.cardSelectedBorder,
@@ -428,6 +431,8 @@ class Style extends ThemeExtension<Style> {
 
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
+
+  final Color cardHoveredColor;
 
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
@@ -496,6 +501,7 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Color? cardHoveredColor,
     Border? cardHoveredBorder,
     BorderRadius? cardRadius,
     Border? cardSelectedBorder,
@@ -523,6 +529,7 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
       cardRadius: cardRadius ?? this.cardRadius,
       cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
@@ -560,6 +567,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,

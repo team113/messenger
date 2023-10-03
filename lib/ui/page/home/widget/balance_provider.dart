@@ -53,7 +53,7 @@ class BalanceProviderWidget extends StatelessWidget {
           border: selected ? style.primaryBorder : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
-          unselectedHoverColor: style.cardColor.darken(0.03),
+          unselectedHoverColor: style.cardHoveredColor,
           selectedHoverColor: colors.secondary,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),

@@ -51,7 +51,9 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = false,
         backgroundColor = null,
         valueColor = null,
-        color = Theme.of(router.context!).style.colors.primary,
+        color = router.context == null
+            ? const Color(0xFF63B4FF)
+            : Theme.of(router.context!).style.colors.primary,
         strokeWidth = 2;
 
   /// Value of this [CustomProgressIndicator].

@@ -90,7 +90,7 @@ class _MenuButtonState extends State<MenuButton> {
                 onTap: widget.onPressed,
                 hoverColor: widget.inverted
                     ? style.activeColor
-                    : style.cardColor.darken(0.03),
+                    : style.cardHoveredColor,
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Row(
