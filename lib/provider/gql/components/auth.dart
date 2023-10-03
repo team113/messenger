@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,35 +25,10 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 
 /// Authentication related functionality.
-abstract class AuthGraphQlMixin {
+mixin AuthGraphQlMixin {
   GraphQlClient get client;
   AccessToken? get token;
   set token(AccessToken? value);
-
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  ///
-  /// ### Authentication
-  ///
-  /// None.
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
-    final variables = CheckUserIdentifiableArguments(
-      num: num,
-      login: login,
-      email: email,
-      phone: phone,
-    );
-    final QueryResult result = await client.query(QueryOptions(
-      operationName: 'CheckUserIdentifiable',
-      document: CheckUserIdentifiableQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return CheckUserIdentifiable$Query.fromJson(result.data!)
-        .checkUserIdentifiable;
-  }
 
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
@@ -146,7 +122,7 @@ abstract class AuthGraphQlMixin {
           (SignIn$Mutation.fromJson(data).createSession
                   as SignIn$Mutation$CreateSession$CreateSessionError)
               .code),
-      raw: true,
+      raw: const RawClientOptions(),
     );
     return SignIn$Mutation.fromJson(result.data!).createSession
         as SignIn$Mutation$CreateSession$CreateSessionOk;
@@ -164,13 +140,13 @@ abstract class AuthGraphQlMixin {
   }
 
   /// Renews a [Session] of the authenticated [MyUser] identified by the
-  /// provided [RememberToken].
+  /// provided [RefreshToken].
   ///
-  /// Invalidates the provided [RememberToken] and returns a new one, which
+  /// Invalidates the provided [RefreshToken] and returns a new one, which
   /// should be used instead.
   ///
   /// The renewed [Session] has its own expiration after renewal, so to renew it
-  /// again use this mutation with the new returned [RememberToken] (omit using
+  /// again use this mutation with the new returned [RefreshToken] (omit using
   /// old ones).
   ///
   /// The expiration of the renewed [RememberedSession] is not prolonged
@@ -184,8 +160,8 @@ abstract class AuthGraphQlMixin {
   ///
   /// ### Non-idempotent
   ///
-  /// Each time creates a new [Session] and generates a new [RememberToken].
-  Future<RenewSession$Mutation> renewSession(RememberToken token) async {
+  /// Each time creates a new [Session] and generates a new [RefreshToken].
+  Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -196,7 +172,7 @@ abstract class AuthGraphQlMixin {
           (RenewSession$Mutation.fromJson(data).renewSession
                   as RenewSession$Mutation$RenewSession$RenewSessionError)
               .code),
-      raw: true,
+      raw: const RawClientOptions(),
     );
     return RenewSession$Mutation.fromJson(result.data!);
   }
@@ -227,7 +203,8 @@ abstract class AuthGraphQlMixin {
       UserEmail? email, UserPhone? phone) async {
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
-          'Exactly one of num/login/email/phone should be specified.');
+        'Exactly one of num/login/email/phone should be specified.',
+      );
     }
 
     final variables = RecoverUserPasswordArguments(
@@ -242,9 +219,6 @@ abstract class AuthGraphQlMixin {
         document: RecoverUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => RecoverUserPasswordException(
-          RecoverUserPassword$Mutation.fromJson(data).recoverUserPassword
-              as RecoverUserPasswordErrorCode),
     );
   }
 

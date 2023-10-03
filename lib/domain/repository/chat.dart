@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,14 +17,16 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
 import '../model/avatar.dart';
 import '../model/chat.dart';
 import '../model/chat_item.dart';
-import '../model/chat_item_quote.dart';
+import '../model/chat_item_quote_input.dart';
 import '../model/mute_duration.dart';
+import '../model/my_user.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../model/user_call_cover.dart';
@@ -35,9 +38,12 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Indicates whether this repository was initialized and [chats] can be
-  /// used.
-  RxBool get isReady;
+  /// Returns the initialization [RxStatus] of this repository and its [chats].
+  Rx<RxStatus> get status;
+
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog;
 
   /// Initializes this repository.
   ///
@@ -46,9 +52,6 @@ abstract class AbstractChatRepository {
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
   });
-
-  /// Disposes this repository.
-  void dispose();
 
   /// Clears the stored [chats].
   Future<void> clearCache();
@@ -65,10 +68,6 @@ abstract class AbstractChatRepository {
   ///
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name);
-
-  /// Creates a dialog [Chat] between the given [responderId] and the
-  /// authenticated [MyUser].
-  Future<RxChat> createDialogChat(UserId responderId);
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
@@ -109,12 +108,12 @@ abstract class AbstractChatRepository {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This method should be called whenever the authenticated [MyUser] reads
-  /// new [ChatItem]s appeared in the Chat's UI and directly influences the
+  /// new [ChatItem]s appeared in the [Chat]'s UI and directly influences the
   /// [Chat.unreadCount] value.
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
@@ -144,7 +143,7 @@ abstract class AbstractChatRepository {
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
-  Future<Stream<dynamic>> keepTyping(ChatId id);
+  Stream<dynamic> keepTyping(ChatId id);
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
   /// [MyUser].
@@ -157,7 +156,7 @@ abstract class AbstractChatRepository {
   Future<void> forwardChatItems(
     ChatId from,
     ChatId to,
-    List<ChatItemQuote> items, {
+    List<ChatItemQuoteInput> items, {
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   });
@@ -181,10 +180,17 @@ abstract class AbstractChatRepository {
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id);
+
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
+  /// provided.
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
-abstract class RxChat {
+abstract class RxChat implements Comparable<RxChat> {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
@@ -212,7 +218,7 @@ abstract class RxChat {
   RxList<User> get typingUsers;
 
   /// Reactive list of [User]s being members of this [chat].
-  RxMap<UserId, RxUser> get members;
+  RxObsMap<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
   RxString get title;
@@ -229,8 +235,50 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
-  /// Fetches the [messages] from the service.
-  Future<void> fetchMessages();
+  /// Indicates whether the [messages] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [messages] is loading.
+  RxBool get nextLoading;
+
+  /// Indicates whether the [messages] have previous page.
+  RxBool get hasPrevious;
+
+  /// Indicator whether a previous page of the [messages] is loading.
+  RxBool get previousLoading;
+
+  /// [LastChatRead]s of this [chat].
+  RxList<LastChatRead> get reads;
+
+  /// Count of [ChatItem]s unread by the authenticated [MyUser] in this
+  /// [RxChat].
+  RxInt get unreadCount;
+
+  /// Indicates whether this [RxChat] is blacklisted or not.
+  bool get blacklisted =>
+      chat.value.isDialog &&
+      members.values
+              .firstWhereOrNull((e) => e.id != me)
+              ?.user
+              .value
+              .isBlocked !=
+          null;
+
+  /// Returns the first [ChatItem] unread by the currently authenticated
+  /// [MyUser] in this [chat].
+  Rx<ChatItem>? get firstUnread;
+
+  /// Returns the last [ChatItem] of this [RxChat].
+  ChatItem? get lastItem;
+
+  /// Fetches the initial [messages] page around the [firstUnread].
+  Future<void> around();
+
+  /// Fetches the next [messages] page.
+  Future<void> next();
+
+  /// Fetches the previous [messages] page.
+  Future<void> previous();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///
@@ -249,4 +297,8 @@ abstract class RxChat {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
+
+  // TODO: Remove when backend supports welcome messages.
+  /// Posts a new [ChatMessage] with the provided [text] by the recipient.
+  Future<void> addMessage(ChatMessageText text);
 }

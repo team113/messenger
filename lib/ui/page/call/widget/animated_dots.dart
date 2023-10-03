@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,20 +20,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 
 /// [Text] represented three dots that change their count over [duration].
 class AnimatedDots extends StatefulWidget {
   const AnimatedDots({
-    Key? key,
+    super.key,
     this.duration = const Duration(milliseconds: 250),
-    this.color = Colors.white,
-  }) : super(key: key);
+  });
 
   /// [Duration] over which the count of dots is changed.
   final Duration duration;
-
-  /// Color of the dots.
-  final Color color;
 
   @override
   State<AnimatedDots> createState() => _AnimatedDotsState();
@@ -66,12 +64,11 @@ class _AnimatedDotsState extends State<AnimatedDots> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return SizedBox(
       width: 13,
-      child: Text(
-        'dot'.l10n * _count,
-        style: TextStyle(color: widget.color),
-      ),
+      child: Text('dot'.l10n * _count, style: style.fonts.titleMediumOnPrimary),
     );
   }
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -108,6 +109,13 @@ abstract class AbstractCallRepository {
   /// specified [Chat]-group by the authenticated [MyUser].
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId);
 
+  /// Removes the specified [User] from the [ChatCall] of the specified
+  /// [Chat]-group by authority of the authenticated [MyUser].
+  ///
+  /// If the specified [User] participates in the [ChatCall] from multiple
+  /// devices simultaneously, then removes all the devices at once.
+  Future<void> removeChatCallMember(ChatId chatId, UserId userId);
+
   /// Generates the [ChatCallCredentials] for a [Chat] identified by the
   /// provided [id].
   ///
@@ -138,7 +146,7 @@ abstract class AbstractCallRepository {
   /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
   /// subscription without leaving the [OngoingCall] will end up by kicking the
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
-  Future<Stream<ChatCallEvents>> heartbeat(
+  Stream<ChatCallEvents> heartbeat(
     ChatItemId id,
     ChatCallDeviceId deviceId,
   );

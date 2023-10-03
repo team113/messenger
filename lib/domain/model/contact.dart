@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -77,25 +78,29 @@ class ChatContact extends HiveObject {
   /// Position of this [ChatContact] in a favorites list of the authenticated
   /// [MyUser].
   @HiveField(6)
-  ChatContactPosition? favoritePosition;
+  ChatContactFavoritePosition? favoritePosition;
 }
 
 /// Unique ID of a [ChatContact].
 @HiveType(typeId: ModelTypeId.chatContactId)
-class ChatContactId extends NewType<String> {
+class ChatContactId extends NewType<String>
+    implements Comparable<ChatContactId> {
   const ChatContactId(String val) : super(val);
+
+  @override
+  int compareTo(ChatContactId other) => val.compareTo(other.val);
 }
 
 /// Position of a [ChatContact] in a favorites list of the authenticated
 /// [MyUser].
-@HiveType(typeId: ModelTypeId.chatContactPosition)
-class ChatContactPosition extends NewType<double>
-    implements Comparable<ChatContactPosition> {
-  const ChatContactPosition(double val) : super(val);
+@HiveType(typeId: ModelTypeId.chatContactFavoritePosition)
+class ChatContactFavoritePosition extends NewType<double>
+    implements Comparable<ChatContactFavoritePosition> {
+  const ChatContactFavoritePosition(double val) : super(val);
 
-  factory ChatContactPosition.parse(String val) =>
-      ChatContactPosition(double.parse(val));
+  factory ChatContactFavoritePosition.parse(String val) =>
+      ChatContactFavoritePosition(double.parse(val));
 
   @override
-  int compareTo(ChatContactPosition other) => val.compareTo(other.val);
+  int compareTo(ChatContactFavoritePosition other) => val.compareTo(other.val);
 }

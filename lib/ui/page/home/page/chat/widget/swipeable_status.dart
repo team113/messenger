@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,19 +23,20 @@ import '/themes.dart';
 /// with a status next to it.
 class SwipeableStatus extends StatelessWidget {
   const SwipeableStatus({
-    Key? key,
+    super.key,
     required this.child,
     required this.swipeable,
     this.animation,
-    this.asStack = false,
+    this.translate = false,
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
     this.isSending = false,
     this.isError = false,
+    this.status = true,
     this.crossAxisAlignment = CrossAxisAlignment.end,
     this.padding = const EdgeInsets.only(bottom: 13),
-  }) : super(key: key);
+  });
 
   /// Expanded width of the [swipeable].
   static const double width = 65;
@@ -48,9 +50,8 @@ class SwipeableStatus extends StatelessWidget {
   /// [AnimationController] controlling this widget.
   final AnimationController? animation;
 
-  /// Indicator whether [swipeable] should be put in a [Stack] instead of a
-  /// [Row].
-  final bool asStack;
+  /// Indicator whether [child] should translate along with the [swipeable].
+  final bool translate;
 
   /// Indicator whether status is sent.
   final bool isSent;
@@ -67,6 +68,9 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is error.
   final bool isError;
 
+  /// Indicator whether status should be displayed.
+  final bool status;
+
   /// Position of a [swipeable] relatively to the [child].
   final CrossAxisAlignment crossAxisAlignment;
 
@@ -79,48 +83,34 @@ class SwipeableStatus extends StatelessWidget {
       return child;
     }
 
-    if (asStack) {
-      return Stack(
-        alignment: crossAxisAlignment == CrossAxisAlignment.end
-            ? Alignment.bottomRight
-            : Alignment.centerRight,
-        children: [
-          child,
-          _animatedBuilder(
-            Padding(
-              padding: padding,
-              child:
-                  SizedBox(width: width, child: _swipeableWithStatus(context)),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return _animatedBuilder(
-      Row(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: crossAxisAlignment,
-        children: [
-          Expanded(child: child),
+    return Stack(
+      alignment: crossAxisAlignment == CrossAxisAlignment.end
+          ? Alignment.bottomRight
+          : Alignment.centerRight,
+      children: [
+        translate ? _animatedBuilder(child, translated: false) : child,
+        _animatedBuilder(
           Padding(
             padding: padding,
-            child: SizedBox(width: width, child: _swipeableWithStatus(context)),
+            child: SizedBox(
+              width: status ? width : width - 15,
+              child: _swipeableWithStatus(context),
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  /// Returns a [Row] of [swipeable] and a status.
+  /// Returns a [Row] of [swipeable] and a optional status.
   Widget _swipeableWithStatus(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return DefaultTextStyle.merge(
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.systemMessageStyle.copyWith(fontSize: 11),
+      style: style.fonts.labelSmallSecondary,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
@@ -133,38 +123,41 @@ class SwipeableStatus extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSent || isDelivered || isRead || isSending || isError)
-              Icon(
-                (isRead || isDelivered)
-                    ? Icons.done_all
-                    : isSending
-                        ? Icons.access_alarm
-                        : isError
-                            ? Icons.error_outline
-                            : Icons.done,
-                color: isRead
-                    ? Theme.of(context).colorScheme.secondary
-                    : isError
-                        ? Colors.red
-                        : Theme.of(context).colorScheme.primary,
-                size: 12,
-              ),
-            const SizedBox(width: 3),
-            swipeable,
+            if (status) ...[
+              if (isSent || isDelivered || isRead || isSending || isError)
+                Icon(
+                  (isRead || isDelivered)
+                      ? Icons.done_all
+                      : isSending
+                          ? Icons.access_alarm
+                          : isError
+                              ? Icons.error_outline
+                              : Icons.done,
+                  color: isRead
+                      ? style.colors.primary
+                      : isError
+                          ? style.colors.dangerColor
+                          : style.colors.secondary,
+                  size: 12,
+                ),
+              const SizedBox(width: 3),
+            ],
+            SelectionContainer.disabled(child: swipeable),
           ],
         ),
       ),
     );
   }
 
-  /// Returns an [AnimatedBuilder] with a [Transform.translate] transition.
-  Widget _animatedBuilder(Widget child) => AnimatedBuilder(
+  // Returns an [AnimatedBuilder] with a [Transform.translate] transition.
+  Widget _animatedBuilder(Widget child, {bool translated = true}) =>
+      AnimatedBuilder(
         animation: animation!,
         builder: (context, child) {
           return Transform.translate(
             offset: Tween(
-              begin: const Offset(width, 0),
-              end: Offset.zero,
+              begin: translated ? const Offset(width, 0) : Offset.zero,
+              end: translated ? Offset.zero : const Offset(-width, 0),
             ).evaluate(animation!),
             child: child,
           );

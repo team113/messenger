@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -48,14 +49,14 @@ class AccessToken extends NewType<String> {
 class RememberedSession extends HiveObject {
   RememberedSession(this.token, this.expireAt);
 
-  /// Unique remember token of this [RememberedSession].
+  /// Unique [RefreshToken] of this [RememberedSession].
   ///
   /// This one should be used for a [Session] renewal and is **NOT** usable as a
   /// [Bearer authentication token][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
   @HiveField(0)
-  final RememberToken token;
+  final RefreshToken token;
 
   /// [PreciseDateTime] of this [RememberedSession] expiration.
   ///
@@ -65,10 +66,10 @@ class RememberedSession extends HiveObject {
   final PreciseDateTime expireAt;
 }
 
-/// Unique authentication token of a [RememberedSession].
+/// Type of a [RememberedSession]'s refresh token.
 @HiveType(typeId: ModelTypeId.rememberedToken)
-class RememberToken extends NewType<String> {
-  const RememberToken(String val) : super(val);
+class RefreshToken extends NewType<String> {
+  const RefreshToken(String val) : super(val);
 }
 
 /// Container of a [Session] and a [RememberedSession] representing the current
@@ -97,7 +98,7 @@ class Credentials {
         PreciseDateTime.parse(data['session']['expireAt']),
       ),
       RememberedSession(
-        RememberToken(data['remembered']['token']),
+        RefreshToken(data['remembered']['token']),
         PreciseDateTime.parse(data['remembered']['expireAt']),
       ),
       UserId(data['userId']),

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,57 +19,77 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
+import 'highlighted_container.dart';
 
 /// Stylized grouped section of the provided [children].
 class Block extends StatelessWidget {
   const Block({
     super.key,
-    this.children = const [],
     this.title,
+    this.highlight = false,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.expanded,
+    this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    this.children = const [],
   });
 
   /// Optional header of this [Block].
   final String? title;
+
+  /// Indicator whether this [Block] should be highlighted.
+  final bool highlight;
+
+  /// [CrossAxisAlignment] to apply to the [children].
+  final CrossAxisAlignment crossAxisAlignment;
+
+  /// Indicator whether this [Block] should occupy the whole space, if `true`,
+  /// or be fixed width otherwise.
+  ///
+  /// If not specified, then [MobileExtensionOnContext.isNarrow] is used.
+  final bool? expanded;
+
+  /// Padding to apply to the [children].
+  final EdgeInsets padding;
 
   /// [Widget]s to display.
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
-    return Center(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-        decoration: BoxDecoration(
-          border: style.primaryBorder,
-          color: style.messageColor,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        constraints:
-            context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (title != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 12),
-                child: Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    child: Text(
-                      title!,
-                      style: style.systemMessageStyle
-                          .copyWith(color: Colors.black, fontSize: 18),
+    return HighlightedContainer(
+      highlight: highlight == true,
+      child: Center(
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          decoration: BoxDecoration(
+            border: style.primaryBorder,
+            color: style.messageColor,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          constraints: (expanded ?? context.isNarrow)
+              ? null
+              : const BoxConstraints(maxWidth: 400),
+          padding: padding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: crossAxisAlignment,
+            children: [
+              if (title != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                      child: Text(title!, style: style.fonts.headlineMedium),
                     ),
                   ),
                 ),
-              ),
-            ...children,
-          ],
+              ...children,
+            ],
+          ),
         ),
       ),
     );

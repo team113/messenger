@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,7 +29,7 @@ import '/ui/widget/context_menu/region.dart';
 /// [Chat] visual representation.
 class ChatTile extends StatelessWidget {
   const ChatTile({
-    Key? key,
+    super.key,
     this.chat,
     this.title = const [],
     this.status = const [],
@@ -39,7 +40,10 @@ class ChatTile extends StatelessWidget {
     this.selected = false,
     this.onTap,
     this.height = 94,
-  }) : super(key: key);
+    this.darken = 0,
+    Widget Function(Widget)? avatarBuilder,
+    this.enableContextMenu = true,
+  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -60,7 +64,7 @@ class ChatTile extends StatelessWidget {
   final List<Widget> subtitle;
 
   /// [ContextMenuRegion.actions] of this [ChatTile].
-  final List<ContextMenuButton> actions;
+  final List<ContextMenuItem> actions;
 
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
@@ -71,29 +75,43 @@ class ChatTile extends StatelessWidget {
   /// Height of this [ChatTile].
   final double height;
 
+  /// Amount of darkening to apply to the background of this [ChatTile].
+  final double darken;
+
+  /// Builder for building an [AvatarWidget] this [ChatTile] displays.
+  ///
+  /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
+  /// [AvatarWidget].
+  final Widget Function(Widget child) avatarBuilder;
+
+  /// Indicator whether context menu should be enabled over this [ChatTile].
+  final bool enableContextMenu;
+
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return ContextMenuRegion(
-      key: Key('ChatTile_${chat?.chat.value.id}'),
+      key: Key('Chat_${chat?.chat.value.id}'),
       preventContextMenu: false,
       actions: actions,
+      indicateOpenedMenu: true,
+      enabled: enableContextMenu,
       child: SizedBox(
         height: height,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
-            selectedColor: style.cardSelectedColor,
-            unselectedColor: style.cardColor,
+            selectedColor: style.colors.primary,
+            unselectedColor: style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
-                selected ? style.primaryBorder : style.cardHoveredBorder,
-            border: selected ? style.primaryBorder : style.cardBorder,
+                selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+            border: selected ? style.cardSelectedBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
-            selectedHoverColor: style.cardSelectedColor,
+            unselectedHoverColor: style.cardColor.darken(darken + 0.03),
+            selectedHoverColor: style.colors.primary,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
@@ -102,7 +120,7 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(
@@ -121,9 +139,9 @@ class ChatTile extends StatelessWidget {
                                         chat?.title.value ?? ('dot'.l10n * 3),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: selected
+                                            ? style.fonts.headlineLargeOnPrimary
+                                            : style.fonts.headlineLarge,
                                       );
                                     }),
                                   ),
@@ -147,4 +165,7 @@ class ChatTile extends StatelessWidget {
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultAvatarBuilder(Widget child) => child;
 }

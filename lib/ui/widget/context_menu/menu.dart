@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,7 +29,8 @@ class ContextMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
+
     final List<Widget> widgets = [];
 
     for (int i = 0; i < actions.length; ++i) {
@@ -39,7 +41,7 @@ class ContextMenu extends StatelessWidget {
       if (context.isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
-            color: const Color(0x11000000),
+            color: style.colors.onBackgroundOpacity7,
             height: 1,
             width: double.infinity,
           ),
@@ -52,11 +54,14 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(color: const Color(0xFFAAAAAA), width: 0.5),
-        boxShadow: const [
+        border: Border.all(
+          color: style.colors.secondaryHighlightDarkest,
+          width: 0.5,
+        ),
+        boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: Color(0x33000000),
+            color: style.colors.onBackgroundOpacity20,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -79,15 +84,36 @@ class ContextMenu extends StatelessWidget {
   }
 }
 
-/// Styled button used in [ContextMenu].
-class ContextMenuButton extends StatefulWidget {
+/// [Widget] to be displayed in a [ContextMenu].
+mixin ContextMenuItem on Widget {}
+
+/// [ContextMenuItem] representing a divider in [ContextMenu].
+class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
+  const ContextMenuDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+      width: double.infinity,
+      height: 1,
+      color: style.colors.secondaryHighlightDark,
+    );
+  }
+}
+
+/// [ContextMenuItem] representing a styled button used in [ContextMenu].
+class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
-    Key? key,
+    super.key,
     required this.label,
     this.leading,
     this.trailing,
+    this.showTrailing = false,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   /// Label of this [ContextMenuButton].
   final String label;
@@ -97,6 +123,11 @@ class ContextMenuButton extends StatefulWidget {
 
   /// Optional trailing widget.
   final Widget? trailing;
+
+  /// Indicator whether the [trailing] should always be displayed.
+  ///
+  /// On mobile platforms the provided [trailing] is always displayed.
+  final bool showTrailing;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -112,7 +143,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -120,26 +151,24 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         setState(() => isMouseOver = false);
         widget.onPressed?.call();
       },
+      onTapCancel: () => setState(() => isMouseOver = false),
       child: MouseRegion(
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
           padding: context.isMobile
-              ? const EdgeInsets.symmetric(horizontal: 18)
+              ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
               : const EdgeInsets.fromLTRB(12, 6, 12, 6),
           margin:
               context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
-          height: context.isMobile ? 50 : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: isMouseOver
                 ? context.isMobile
-                    ? Theme.of(context)
-                        .extension<Style>()!
-                        .contextMenuHoveredColor
-                    : Theme.of(context).colorScheme.secondary
-                : Colors.transparent,
+                    ? style.contextMenuHoveredColor
+                    : style.colors.primary
+                : style.colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -147,7 +176,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               if (widget.leading != null) ...[
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
+                    iconTheme:
+                        IconThemeData(color: style.colors.primaryHighlight),
                   ),
                   child: widget.leading!,
                 ),
@@ -155,20 +185,23 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: style.boldBody.copyWith(
-                  color: (isMouseOver && !context.isMobile)
-                      ? Colors.white
-                      : Colors.black,
-                  fontSize: context.isMobile ? 17 : 14,
-                  fontWeight: FontWeight.w500,
+                style: (isMouseOver && !context.isMobile
+                        ? style.fonts.titleMediumOnPrimary
+                        : style.fonts.titleMedium)
+                    .copyWith(
+                  fontSize: context.isMobile
+                      ? style.fonts.bodyLarge.fontSize
+                      : style.fonts.bodySmall.fontSize,
                 ),
               ),
-              if (context.isMobile && widget.trailing != null) ...[
+              if ((PlatformUtils.isMobile || widget.showTrailing) &&
+                  widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
                 Theme(
                   data: Theme.of(context).copyWith(
-                    iconTheme: const IconThemeData(color: Colors.blue),
+                    iconTheme:
+                        IconThemeData(color: style.colors.primaryHighlight),
                   ),
                   child: widget.trailing!,
                 ),

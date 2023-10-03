@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,17 +30,17 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -60,8 +61,6 @@ void main() async {
   await sessionProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
@@ -74,37 +73,39 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
+
+  var chatData = {
+    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+    'name': 'null',
+    'avatar': null,
+    'members': {'nodes': []},
+    'kind': 'GROUP',
+    'isHidden': false,
+    'muted': null,
+    'directLink': null,
+    'createdAt': '2021-12-15T15:11:18.316846+00:00',
+    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+    'lastReads': [],
+    'lastDelivery': '1970-01-01T00:00:00+00:00',
+    'lastItem': null,
+    'lastReadItem': null,
+    'unreadCount': 0,
+    'totalCount': 0,
+    'ongoingCall': null,
+    'ver': '0'
+  };
 
   var recentChats = {
     'recentChats': {
-      'nodes': [
-        {
-          'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-          'name': 'null',
-          'avatar': null,
-          'members': {'nodes': []},
-          'kind': 'GROUP',
-          'isHidden': false,
-          'muted': null,
-          'directLink': null,
-          'createdAt': '2021-12-15T15:11:18.316846+00:00',
-          'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-          'lastReads': [],
-          'lastDelivery': '1970-01-01T00:00:00+00:00',
-          'lastItem': null,
-          'lastReadItem': null,
-          'gallery': {'nodes': []},
-          'unreadCount': 0,
-          'totalCount': 0,
-          'ongoingCall': null,
-          'ver': '0'
-        }
-      ]
+      'nodes': [chatData],
     }
   };
 
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   AuthService authService = Get.put(
     AuthService(
@@ -115,17 +116,22 @@ void main() async {
   await authService.init();
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
@@ -134,6 +140,7 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
 
@@ -145,8 +152,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -164,6 +171,8 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     return Get.put(ChatService(chatRepository, authService));
@@ -191,22 +200,20 @@ void main() async {
                 'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                 'item': {
                   'node': {
-                    '__typename': 'ChatMemberInfo',
+                    '__typename': 'ChatInfo',
                     'id': 'id',
                     'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                     'authorId': 'me',
                     'at': DateTime.now().toString(),
                     'ver': '0',
-                    'user': {
+                    'author': {
                       '__typename': 'User',
                       'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
                       'num': '1234567890123456',
                       'login': null,
                       'name': null,
-                      'bio': null,
                       'emails': {'confirmed': []},
                       'phones': {'confirmed': []},
-                      'gallery': {'nodes': []},
                       'chatDirectLink': null,
                       'hasPassword': false,
                       'unreadChatsCount': 0,
@@ -215,12 +222,35 @@ void main() async {
                       'online': {'__typename': 'UserOnline'},
                       'mutualContactsCount': 0,
                       'isDeleted': false,
-                      'isBlacklisted': {
+                      'isBlocked': {
                         'blacklisted': false,
                         'ver': '0',
                       },
                     },
-                    'action': 'REMOVED'
+                    'action': {
+                      '__typename': 'ChatInfoActionMemberRemoved',
+                      'user': {
+                        '__typename': 'User',
+                        'id': '0d72d245-8425-467a-9ebd-082d4f47850a',
+                        'num': '1234567890123456',
+                        'login': null,
+                        'name': null,
+                        'emails': {'confirmed': []},
+                        'phones': {'confirmed': []},
+                        'chatDirectLink': null,
+                        'hasPassword': false,
+                        'unreadChatsCount': 0,
+                        'ver': '0',
+                        'presence': 'AWAY',
+                        'online': {'__typename': 'UserOnline'},
+                        'mutualContactsCount': 0,
+                        'isDeleted': false,
+                        'isBlocked': {
+                          'blacklisted': false,
+                          'ver': '0',
+                        },
+                      },
+                    },
                   },
                   'cursor': '123'
                 },

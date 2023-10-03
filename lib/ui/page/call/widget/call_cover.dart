@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -28,7 +30,7 @@ import '/ui/widget/svg/svg.dart';
 ///
 /// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(this.cover, {Key? key, this.user}) : super(key: key);
+  const CallCoverWidget(this.cover, {super.key, this.user});
 
   /// [UserCallCover] to display.
   final UserCallCover? cover;
@@ -38,36 +40,71 @@ class CallCoverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Stack(
       children: [
-        cover == null
-            ? SvgLoader.asset(
-                'assets/images/background_dark.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              )
-            : Stack(
-                children: [
-                  RetryImage(
-                    cover!.full.url,
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: const Color(0x55000000),
-                  )
-                ],
+        if (cover == null)
+          const SvgImage.asset(
+            'assets/images/background_dark.svg',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        if (user != null)
+          LayoutBuilder(builder: (context, constraints) {
+            final String? title = user?.name?.val ?? user?.num.toString();
+            final int? color = user?.num.val.sum();
+
+            final Color gradient;
+
+            if (color != null) {
+              gradient = style
+                  .colors.userColors[color % style.colors.userColors.length];
+            } else if (title != null) {
+              gradient = style.colors.userColors[
+                  (title.hashCode) % style.colors.userColors.length];
+            } else {
+              gradient = style.colors.secondaryBackgroundLightest;
+            }
+
+            return Container(
+              margin: const EdgeInsets.all(0.5),
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [gradient.lighten(), gradient],
+                ),
               ),
-        if (user != null && cover == null)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AvatarWidget.fromUser(user, radius: 60),
-            ),
+              child: Center(
+                child: Text(
+                  title ?? '??',
+                  textAlign: TextAlign.center,
+                  style: style.fonts.titleSmallOnPrimary.copyWith(
+                    fontSize: (style.fonts.titleSmall.fontSize! *
+                            constraints.biggest.shortestSide /
+                            100)
+                        .clamp(15, 108),
+                  ),
+
+                  // Disable the accessibility size settings for this [Text].
+                  textScaleFactor: 1,
+                ),
+              ),
+            );
+          }),
+        if (cover != null)
+          RetryImage(
+            cover!.full.url,
+            key: Key(cover!.full.url),
+            checksum: cover!.full.checksum,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+            displayProgress: false,
           ),
       ],
     );

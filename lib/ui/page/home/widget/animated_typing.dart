@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,15 +19,22 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Animated over the provided [period] circles representing an ongoing typing.
 class AnimatedTyping extends StatefulWidget {
   const AnimatedTyping({
-    Key? key,
+    super.key,
     this.period = const Duration(seconds: 1),
-  }) : super(key: key);
+    this.inverted = false,
+  });
 
   /// [Duration] over which the circles are animated.
   final Duration period;
+
+  /// Indicator whether this [AnimatedTyping] should have inverted color
+  /// relative to its base one.
+  final bool inverted;
 
   @override
   State<AnimatedTyping> createState() => _AnimatedTypingState();
@@ -41,8 +49,10 @@ class _AnimatedTypingState extends State<AnimatedTyping>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this)
-      ..repeat(period: widget.period);
+    _controller = AnimationController(
+      vsync: this,
+      debugLabel: '$runtimeType',
+    )..repeat(period: widget.period);
   }
 
   @override
@@ -53,11 +63,14 @@ class _AnimatedTypingState extends State<AnimatedTyping>
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
-        final Color begin = Theme.of(context).colorScheme.secondary;
-        const Color end = Color(0xFFB6DCFF);
+        final Color begin =
+            widget.inverted ? style.colors.onPrimary : style.colors.primary;
+        final Color end = style.colors.primaryHighlightLightest;
 
         const double size = 4;
         const double spacing = 1.6;
@@ -70,6 +83,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: size,

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,28 +17,37 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
-    Key? key,
+    super.key,
     required this.child,
+    this.behavior,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   /// [Widget] to press.
   final Widget child;
+
+  /// [HitTestBehavior] of this [WidgetButton].
+  final HitTestBehavior? behavior;
 
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return MouseRegion(
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        behavior: behavior,
         child: Container(
-          color: Colors.transparent,
+          color: style.colors.transparent,
           child: child,
         ),
       ),

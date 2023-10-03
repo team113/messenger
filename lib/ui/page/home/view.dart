@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,8 +28,10 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -38,13 +41,15 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/work/view.dart';
+import 'widget/animated_slider.dart';
 import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {Key? key}) : super(key: key);
+  const HomeView(this._depsFactory, {super.key});
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -78,9 +83,6 @@ class _HomeViewState extends State<HomeView> {
     _deps?.dispose();
   }
 
-  /// Called when a dependency of this [State] object changes.
-  ///
-  /// Used to get the [Router] widget from context.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -91,31 +93,49 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(context) {
+    final style = Theme.of(context).style;
+
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        // For web, background color is displayed in `index.html` file.
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
+        body: const Stack(
+          children: [
+            SvgImage.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Center(child: CustomProgressIndicator()),
+          ],
+        ),
+      );
     }
 
     return GetBuilder(
       init: HomeController(Get.find(), Get.find(), Get.find()),
       builder: (HomeController c) {
-        /// Claim priority of the "Back" button dispatcher.
+        // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
         if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
-        /// Side bar uses a little trick to be responsive:
-        ///
-        /// 1. On mobile, side bar is full-width and the navigator's first page
-        ///    is transparent, both visually and tactile. As soon as a new page
-        ///    populates the route stack, it becomes reactive to touches.
-        ///    Navigator is drawn above the side bar in this case.
-        ///
-        /// 2. On desktop/tablet side bar is always shown and occupies the space
-        ///    determined by the `sideBarWidth` value.
-        ///    Navigator is drawn under the side bar (so the page animation is
-        ///    correct).
+        // Side bar uses a little trick to be responsive:
+        //
+        // 1. On mobile, side bar is full-width and the navigator's first page
+        //    is transparent, both visually and tactile. As soon as a new page
+        //    populates the route stack, it becomes reactive to touches.
+        //    Navigator is drawn above the side bar in this case.
+        //
+        // 2. On desktop/tablet side bar is always shown and occupies the space
+        //    determined by the `sideBarWidth` value.
+        //    Navigator is drawn under the side bar (so the page animation is
+        //    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
           opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
@@ -128,34 +148,49 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
-                    backgroundColor:
-                        Theme.of(context).extension<Style>()!.sidebarColor,
+                    backgroundColor: style.sidebarColor,
                     body: Listener(
                       onPointerSignal: (s) {
                         if (s is PointerScrollEvent) {
                           if (s.scrollDelta.dx.abs() < 3 &&
-                              (s.scrollDelta.dy.abs() > 1 ||
+                              (s.scrollDelta.dy.abs() > 3 ||
                                   c.verticalScrollTimer.value != null)) {
                             c.verticalScrollTimer.value?.cancel();
-                            c.verticalScrollTimer.value =
-                                Timer(150.milliseconds, () {
-                              c.verticalScrollTimer.value = null;
-                            });
+                            c.verticalScrollTimer.value = Timer(
+                              300.milliseconds,
+                              () => c.verticalScrollTimer.value = null,
+                            );
                           }
                         }
                       },
                       child: Obx(() {
                         return PageView(
-                          physics: c.verticalScrollTimer.value == null
+                          physics: c.verticalScrollTimer.value == null &&
+                                  router.navigation.value
                               ? null
                               : const NeverScrollableScrollPhysics(),
                           controller: c.pages,
                           onPageChanged: (int i) {
                             router.tab = HomeTab.values[i];
                             c.page.value = router.tab;
+
+                            if (!context.isNarrow) {
+                              switch (router.tab) {
+                                case HomeTab.menu:
+                                  router.me();
+                                  break;
+
+                                default:
+                                  if (router.route == Routes.me) {
+                                    router.home();
+                                  }
+                                  break;
+                              }
+                            }
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: const [
+                            KeepAlivePage(child: WorkTabView()),
                             KeepAlivePage(child: ContactsTabView()),
                             KeepAlivePage(child: ChatsTabView()),
                             KeepAlivePage(child: MenuTabView()),
@@ -166,95 +201,121 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        // [AnimatedOpacity] boilerplate.
-                        Widget tab({required Widget child, HomeTab? tab}) {
-                          return Obx(() {
-                            return AnimatedScale(
-                              duration: 150.milliseconds,
-                              scale: c.page.value == tab ? 1.2 : 1,
-                              child: AnimatedOpacity(
-                                duration: 150.milliseconds,
-                                opacity: c.page.value == tab ? 1 : 0.7,
-                                child: child,
+                        return AnimatedSlider(
+                          duration: 300.milliseconds,
+                          isOpen: router.navigation.value,
+                          beginOffset: const Offset(0.0, 5),
+                          translate: false,
+                          child: CustomNavigationBar(
+                            items: [
+                              const CustomNavigationBarItem(
+                                key: Key('WorkButton'),
+                                child: SvgImage.asset(
+                                  'assets/icons/partner.svg',
+                                  width: 36,
+                                  height: 28,
+                                ),
                               ),
-                            );
-                          });
-                        }
-
-                        return CustomNavigationBar(
-                          items: [
-                            CustomNavigationBarItem(
-                              key: const Key('ContactsButton'),
-                              child: tab(
-                                tab: HomeTab.contacts,
-                                child: SvgLoader.asset(
+                              const CustomNavigationBarItem(
+                                key: Key('ContactsButton'),
+                                child: SvgImage.asset(
                                   'assets/icons/contacts.svg',
-                                  width: 30,
-                                  height: 30,
+                                  width: 32,
+                                  height: 32,
                                 ),
                               ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('ChatsButton'),
-                              badge: c.unreadChatsCount.value == 0
-                                  ? null
-                                  : '${c.unreadChatsCount.value}',
-                              child: tab(
-                                tab: HomeTab.chats,
-                                child: SvgLoader.asset(
-                                  'assets/icons/chats.svg',
-                                  width: 36.06,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            CustomNavigationBarItem(
-                              key: const Key('MenuButton'),
-                              child: ContextMenuRegion(
-                                alignment: Alignment.bottomRight,
-                                moveDownwards: false,
-                                selector: c.profileKey,
-                                width: 220,
-                                margin: PlatformUtils.isMobile
-                                    ? const EdgeInsets.only(bottom: 54)
-                                    : const EdgeInsets.only(
-                                        bottom: 17,
-                                        left: 26,
+                              CustomNavigationBarItem(
+                                key: const Key('ChatsButton'),
+                                badge: c.unreadChatsCount.value == 0
+                                    ? null
+                                    : '${c.unreadChatsCount.value}',
+                                badgeColor: c.myUser.value?.muted != null
+                                    ? style.colors.secondaryHighlightDarkest
+                                    : style.colors.dangerColor,
+                                child: ContextMenuRegion(
+                                  selector: c.chatsKey,
+                                  alignment: Alignment.bottomCenter,
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  actions: [
+                                    if (c.myUser.value?.muted != null)
+                                      ContextMenuButton(
+                                        key: const Key('UnmuteChatsButton'),
+                                        label: 'btn_unmute_chats'.l10n,
+                                        onPressed: () => c.toggleMute(true),
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        key: const Key('MuteChatsButton'),
+                                        label: 'btn_mute_chats'.l10n,
+                                        onPressed: () => c.toggleMute(false),
                                       ),
-                                actions: [
-                                  ContextMenuButton(
-                                    label: 'btn_online'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.present),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.green,
+                                  ],
+                                  child: Obx(() {
+                                    final Widget child;
+
+                                    if (c.myUser.value?.muted != null) {
+                                      child = const SvgImage.asset(
+                                        'assets/icons/chats_muted.svg',
+                                        key: Key('Muted'),
+                                        width: 39.26,
+                                        height: 33.5,
+                                      );
+                                    } else {
+                                      child = const SvgImage.asset(
+                                        'assets/icons/chats.svg',
+                                        key: Key('Unmuted'),
+                                        width: 39.26,
+                                        height: 33.5,
+                                      );
+                                    }
+
+                                    return SafeAnimatedSwitcher(
+                                      key: c.chatsKey,
+                                      duration: 200.milliseconds,
+                                      child: child,
+                                    );
+                                  }),
+                                ),
+                              ),
+                              CustomNavigationBarItem(
+                                key: const Key('MenuButton'),
+                                child: ContextMenuRegion(
+                                  selector: c.profileKey,
+                                  alignment: Alignment.bottomRight,
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  actions: [
+                                    ContextMenuButton(
+                                      label: 'label_presence_present'.l10n,
+                                      onPressed: () =>
+                                          c.setPresence(Presence.present),
+                                      showTrailing: true,
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.green,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_away'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.away),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.orange,
+                                    ContextMenuButton(
+                                      label: 'label_presence_away'.l10n,
+                                      onPressed: () =>
+                                          c.setPresence(Presence.away),
+                                      showTrailing: true,
+                                      trailing: Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_hidden'.l10n,
-                                    onPressed: () =>
-                                        c.setPresence(Presence.hidden),
-                                    leading: const CircleAvatar(
-                                      radius: 8,
-                                      backgroundColor: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                                child: Padding(
-                                  key: c.profileKey,
-                                  padding: const EdgeInsets.only(bottom: 2),
-                                  child: tab(
-                                    tab: HomeTab.menu,
+                                  ],
+                                  child: Padding(
+                                    key: c.profileKey,
+                                    padding: const EdgeInsets.only(bottom: 2),
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
                                       radius: 15,
@@ -262,10 +323,10 @@ class _HomeViewState extends State<HomeView> {
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                          currentIndex: router.tab.index,
-                          onTap: (i) => c.pages.jumpToPage(i),
+                            ],
+                            currentIndex: router.tab.index,
+                            onTap: c.pages.jumpToPage,
+                          ),
                         );
                       }),
                     ),
@@ -289,8 +350,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         );
 
-        /// Nested navigation widget that displays [navigator] in an [Expanded]
-        /// to take all the remaining from the [sideBar] space.
+        // Nested navigation widget that displays [navigator] in an [Expanded]
+        // to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
           ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
@@ -315,12 +376,12 @@ class _HomeViewState extends State<HomeView> {
           }),
         );
 
-        /// Navigator should be drawn under or above the [sideBar] for the
-        /// animations to look correctly.
-        ///
-        /// [Container]s are required for the [sideBar] to keep its state.
-        /// Otherwise, [Stack] widget will be updated, which will lead its
-        /// children to be updated as well.
+        // Navigator should be drawn under or above the [sideBar] for the
+        // animations to look correctly.
+        //
+        // [SizedBox]es are required for the [sideBar] to keep its state.
+        // Otherwise, [Stack] widget will be updated, which will lead its
+        // children to be updated as well.
         return CallOverlayView(
           child: Obx(() {
             return Stack(
@@ -328,12 +389,12 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isNarrow ? null : navigation),
+                  SizedBox(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isNarrow ? navigation : null),
+                  SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator()),
                   )
               ],
             );
@@ -345,6 +406,8 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds the [HomeController.background] visual representation.
   Widget _background(HomeController c) {
+    final style = Theme.of(context).style;
+
     return Positioned.fill(
       child: IgnorePointer(
         child: Obx(() {
@@ -361,31 +424,23 @@ class _HomeViewState extends State<HomeView> {
 
           return Stack(
             children: [
-              Positioned.fill(
-                child: SvgLoader.asset(
+              const Positioned.fill(
+                child: SvgImage.asset(
                   'assets/images/background_light.svg',
-                  key: const Key('DefaultBackground'),
+                  key: Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
               Positioned.fill(
-                child: AnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: 250.milliseconds,
-                  layoutBuilder: (child, previous) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [...previous, if (child != null) child]
-                          .map((e) => Positioned.fill(child: e))
-                          .toList(),
-                    );
-                  },
                   child: image,
                 ),
               ),
-              const Positioned.fill(
-                child: ColoredBox(color: Color(0x0D000000)),
+              Positioned.fill(
+                child: ColoredBox(color: style.colors.onBackgroundOpacity7),
               ),
               if (!context.isNarrow) ...[
                 Row(
@@ -402,7 +457,11 @@ class _HomeViewState extends State<HomeView> {
                         );
                       }),
                     ),
-                    const Expanded(child: ColoredBox(color: Color(0x04000000))),
+                    Expanded(
+                      child: ColoredBox(
+                        color: style.colors.onBackgroundOpacity2,
+                      ),
+                    ),
                   ],
                 ),
               ],

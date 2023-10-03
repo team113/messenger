@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,15 +43,45 @@ class PubspecBuilder implements Builder {
 
   @override
   FutureOr<void> build(BuildStep buildStep) async {
-    YamlMap pubspec = loadYaml(File('pubspec.yaml').readAsStringSync());
-
+    final YamlMap pubspec = loadYaml(File('pubspec.yaml').readAsStringSync());
     final outputId = AssetId(buildStep.inputId.package, 'lib/pubspec.g.dart');
-    await buildStep.writeAsString(
-      outputId,
+
+    final StringBuffer buffer = StringBuffer(
       'class Pubspec {\n'
-      '\tstatic const name = \'${pubspec['name']}\';\n'
-      '\tstatic const version = \'${pubspec['version']}\';\n'
-      '}\n',
+      '  static const String name = \'${pubspec['name']}\';\n'
+      '  static const String version = \'${pubspec['version']}\';\n',
     );
+
+    try {
+      final ProcessResult git =
+          await Process.run('git', ['describe', '--tags', '--dirty']);
+
+      if (git.exitCode == 0) {
+        final String response = git.stdout.toString();
+
+        // Strip the first `v` of the tag and the trailing `\n`.
+        final String ref = response.substring(1, response.length - 1);
+
+        buffer.write('  static const String? ref = \'$ref\';\n');
+      } else {
+        // ignore: avoid_print
+        print(
+          '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
+        );
+
+        buffer.write('  static const String? ref = null;\n');
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print(
+        '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable failed: ${e.toString()}',
+      );
+
+      buffer.write('  static const String? ref = null;\n');
+    }
+
+    buffer.write('}\n');
+
+    await buildStep.writeAsString(outputId, buffer.toString());
   }
 }

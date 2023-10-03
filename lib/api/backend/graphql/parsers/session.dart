@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -75,66 +76,63 @@ List<String?>?
                 fromDartAccessTokenNullableToGraphQLAccessTokenNullable(e))
             .toList();
 
-// RememberToken
+// RefreshToken
 
-RememberToken fromGraphQLRememberTokenToDartRememberToken(String v) =>
-    RememberToken(v);
-String fromDartRememberTokenToGraphQLRememberToken(RememberToken v) => v.val;
-List<RememberToken> fromGraphQLListRememberTokenToDartListRememberToken(
+RefreshToken fromGraphQLRefreshTokenToDartRefreshToken(String v) =>
+    RefreshToken(v);
+String fromDartRefreshTokenToGraphQLRefreshToken(RefreshToken v) => v.val;
+List<RefreshToken> fromGraphQLListRefreshTokenToDartListRefreshToken(
         List<Object?> v) =>
     v
-        .map((e) => fromGraphQLRememberTokenToDartRememberToken(e as String))
+        .map((e) => fromGraphQLRefreshTokenToDartRefreshToken(e as String))
         .toList();
-List<String> fromDartListRememberTokenToGraphQLListRememberToken(
-        List<RememberToken> v) =>
-    v.map((e) => fromDartRememberTokenToGraphQLRememberToken(e)).toList();
-List<RememberToken>?
-    fromGraphQLListNullableRememberTokenToDartListNullableRememberToken(
+List<String> fromDartListRefreshTokenToGraphQLListRefreshToken(
+        List<RefreshToken> v) =>
+    v.map((e) => fromDartRefreshTokenToGraphQLRefreshToken(e)).toList();
+List<RefreshToken>?
+    fromGraphQLListNullableRefreshTokenToDartListNullableRefreshToken(
             List<Object?>? v) =>
         v
-            ?.map(
-                (e) => fromGraphQLRememberTokenToDartRememberToken(e as String))
+            ?.map((e) => fromGraphQLRefreshTokenToDartRefreshToken(e as String))
             .toList();
-List<String>?
-    fromDartListNullableRememberTokenToGraphQLListNullableRememberToken(
-            List<RememberToken>? v) =>
-        v?.map((e) => fromDartRememberTokenToGraphQLRememberToken(e)).toList();
+List<String>? fromDartListNullableRefreshTokenToGraphQLListNullableRefreshToken(
+        List<RefreshToken>? v) =>
+    v?.map((e) => fromDartRefreshTokenToGraphQLRefreshToken(e)).toList();
 
-RememberToken? fromGraphQLRememberTokenNullableToDartRememberTokenNullable(
+RefreshToken? fromGraphQLRefreshTokenNullableToDartRefreshTokenNullable(
         String? v) =>
-    v == null ? null : RememberToken(v);
-String? fromDartRememberTokenNullableToGraphQLRememberTokenNullable(
-        RememberToken? v) =>
+    v == null ? null : RefreshToken(v);
+String? fromDartRefreshTokenNullableToGraphQLRefreshTokenNullable(
+        RefreshToken? v) =>
     v?.val;
-List<RememberToken?>
-    fromGraphQLListRememberTokenNullableToDartListRememberTokenNullable(
+List<RefreshToken?>
+    fromGraphQLListRefreshTokenNullableToDartListRefreshTokenNullable(
             List<Object?> v) =>
         v
             .map((e) =>
-                fromGraphQLRememberTokenNullableToDartRememberTokenNullable(
+                fromGraphQLRefreshTokenNullableToDartRefreshTokenNullable(
                     e as String?))
             .toList();
-List<String?>
-    fromDartListRememberTokenNullableToGraphQLListRememberTokenNullable(
-            List<RememberToken?> v) =>
-        v
-            .map((e) =>
-                fromDartRememberTokenNullableToGraphQLRememberTokenNullable(e))
-            .toList();
-List<RememberToken?>?
-    fromGraphQLListNullableRememberTokenNullableToDartListNullableRememberTokenNullable(
+List<String?> fromDartListRefreshTokenNullableToGraphQLListRefreshTokenNullable(
+        List<RefreshToken?> v) =>
+    v
+        .map(
+            (e) => fromDartRefreshTokenNullableToGraphQLRefreshTokenNullable(e))
+        .toList();
+List<RefreshToken?>?
+    fromGraphQLListNullableRefreshTokenNullableToDartListNullableRefreshTokenNullable(
             List<Object?>? v) =>
         v
             ?.map((e) =>
-                fromGraphQLRememberTokenNullableToDartRememberTokenNullable(
+                fromGraphQLRefreshTokenNullableToDartRefreshTokenNullable(
                     e as String?))
             .toList();
 List<String?>?
-    fromDartListNullableRememberTokenNullableToGraphQLListNullableRememberTokenNullable(
-            List<RememberToken?>? v) =>
+    fromDartListNullableRefreshTokenNullableToGraphQLListNullableRefreshTokenNullable(
+            List<RefreshToken?>? v) =>
         v
             ?.map((e) =>
-                fromDartRememberTokenNullableToGraphQLRememberTokenNullable(e))
+                fromDartRefreshTokenNullableToGraphQLRefreshTokenNullable(e))
             .toList();
 
 // SessionVersion

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -30,17 +31,17 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -48,8 +49,9 @@ import 'package:mockito/mockito.dart';
 
 import 'chat_read_test.mocks.dart';
 
-@GenerateMocks([],
-    customMocks: [MockSpec<GraphQlProvider>(returnNullOnMissingStub: true)])
+@GenerateMocks([], customMocks: [
+  MockSpec<GraphQlProvider>(onMissingStub: OnMissingStub.returnDefault)
+])
 void main() async {
   setUp(Get.reset);
 
@@ -58,8 +60,6 @@ void main() async {
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -76,6 +76,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -92,7 +96,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -101,25 +104,29 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'nodes': [chatData],
     }
   };
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(const Stream.empty()));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
   AuthService authService = Get.put(
@@ -140,11 +147,12 @@ void main() async {
 
     when(graphQlProvider.getChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+    )).thenAnswer(
+        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('1'),
     )).thenAnswer((_) =>
         Future.value(ReadChat$Mutation$ReadChat$ChatEventsVersioned.fromJson(
           {
@@ -159,10 +167,8 @@ void main() async {
                   'num': '1234567890123456',
                   'login': null,
                   'name': null,
-                  'bio': null,
                   'emails': {'confirmed': []},
                   'phones': {'confirmed': []},
-                  'gallery': {'nodes': []},
                   'chatDirectLink': null,
                   'hasPassword': false,
                   'unreadChatsCount': 0,
@@ -171,7 +177,7 @@ void main() async {
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
                   'isDeleted': false,
-                  'isBlacklisted': {
+                  'isBlocked': {
                     'blacklisted': false,
                     'ver': '0',
                   },
@@ -190,10 +196,11 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -211,18 +218,21 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
+    await chatService.get(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
     await chatService.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('1'),
     );
 
     verify(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('1'),
     ));
   });
 
@@ -236,11 +246,13 @@ void main() async {
 
     when(graphQlProvider.getChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+    )).thenAnswer(
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+    );
 
     when(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('0'),
     )).thenThrow(const ReadChatException(ReadChatErrorCode.unknownChat));
 
     Get.put(chatProvider);
@@ -250,10 +262,11 @@ void main() async {
         mediaSettingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -271,21 +284,29 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    await chatService.get(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
 
-    expect(
-      () async => await chatService.readChat(
+    Exception? exception;
+
+    try {
+      await chatService.readChat(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatItemId(''),
-      ),
-      throwsA(isA<ReadChatException>()),
-    );
+        const ChatItemId('0'),
+      );
+    } on ReadChatException catch (e) {
+      exception = e;
+    }
 
     verify(graphQlProvider.readChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatItemId(''),
+      const ChatItemId('0'),
     ));
+
+    assert(exception is ReadChatException);
   });
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,6 +24,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/call.dart';
@@ -35,13 +38,14 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -49,17 +53,21 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_rename_widget');
 
@@ -78,7 +86,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -92,15 +99,37 @@ void main() async {
   };
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
-  var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
+  await sessionProvider.init();
+  await sessionProvider.clear();
+  sessionProvider.setCredentials(
+    Credentials(
+      Session(
+        const AccessToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RememberedSession(
+        const RefreshToken('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
+  var graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
   AuthService authService =
@@ -113,9 +142,6 @@ void main() async {
   var myUserProvider = Get.put(MyUserHiveProvider());
   await myUserProvider.init();
   await myUserProvider.clear();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -137,38 +163,48 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   ));
   await messagesProvider.init();
 
-  Widget createWidgetForTesting({required Widget child}) =>
-      MaterialApp(home: Scaffold(body: child));
+  Widget createWidgetForTesting({required Widget child}) {
+    FlutterError.onError = ignoreOverflowErrors;
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
+  }
 
   testWidgets('ChatView successfully changes chat name',
       (WidgetTester tester) async {
     when(graphQlProvider.recentChatsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatVersion('0'),
-    )).thenAnswer((_) => Future.value(chatEvents.stream));
+      any,
+    )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
             .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+        .thenAnswer(
+            (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.chatItems(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            first: 120))
-        .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-              'chat': {
-                'items': {'edges': []}
-              }
-            })));
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      last: 50,
+    )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+          'chat': {
+            'items': {'edges': []}
+          }
+        })));
 
     when(graphQlProvider.recentChats(
       first: 120,
@@ -177,13 +213,12 @@ void main() async {
       before: null,
     )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
     when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.renameChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -202,10 +237,8 @@ void main() async {
               'num': '1234567890123456',
               'login': null,
               'name': null,
-              'bio': null,
               'emails': {'confirmed': []},
               'phones': {'confirmed': []},
-              'gallery': {'nodes': []},
               'chatDirectLink': null,
               'hasPassword': false,
               'unreadChatsCount': 0,
@@ -214,7 +247,7 @@ void main() async {
               'online': {'__typename': 'UserOnline'},
               'mutualContactsCount': 0,
               'isDeleted': false,
-              'isBlacklisted': {
+              'isBlocked': {
                 'blacklisted': false,
                 'ver': '0',
               },
@@ -243,13 +276,14 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
     AbstractCallRepository callRepository = CallRepository(
@@ -267,6 +301,8 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
       ),
     );
 
@@ -305,7 +341,6 @@ void main() async {
   });
 
   await myUserProvider.clear();
-  await galleryItemProvider.clear();
   await contactProvider.clear();
   await userProvider.clear();
   await chatProvider.clear();

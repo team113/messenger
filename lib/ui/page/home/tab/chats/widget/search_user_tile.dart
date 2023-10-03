@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,6 +25,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
 /// [ContactTile] intended to be used as a search result representing the
@@ -47,18 +49,22 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final ChatId? chatId = user?.user.value.dialog?.id ??
-          contact?.user.value?.user.value.dialog?.id;
+    final style = Theme.of(context).style;
 
-      final bool selected = router.routes
-              .lastWhereOrNull((e) => e.startsWith('${Routes.chat}/$chatId')) !=
+    return Obx(() {
+      final ChatId? chatId =
+          user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
+
+      final UserId? userId = user?.id ?? contact?.user.value?.id;
+
+      final bool selected = router.routes.lastWhereOrNull((e) =>
+              e.startsWith('${Routes.chats}/$chatId') ||
+              e.startsWith('${Routes.user}/$userId')) !=
           null;
 
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ContactTile(
-          key: key,
           contact: contact,
           user: user,
           darken: 0,
@@ -67,12 +73,25 @@ class SearchUserTile extends StatelessWidget {
           subtitle: [
             const SizedBox(height: 5),
             Text(
-              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
-                RegExp(r'.{4}'),
-                (match) => '${match.group(0)} ',
-              )}',
-              style: const TextStyle(color: Color(0xFF888888)),
+              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value ?? user?.user.value.num)}',
+              style: selected
+                  ? style.fonts.labelMediumOnPrimary
+                  : style.fonts.labelMediumSecondary,
             ),
+          ],
+          trailing: [
+            if (user?.user.value.isBlocked != null ||
+                contact?.user.value?.user.value.isBlocked != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.block,
+                  color: selected
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
+                  size: 20,
+                ),
+              )
           ],
         ),
       );

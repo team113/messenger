@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -30,47 +31,42 @@ part 'chat_call.g.dart';
 @HiveType(typeId: ModelTypeId.chatCall)
 class ChatCall extends ChatItem {
   ChatCall(
-    ChatItemId id,
-    ChatId chatId,
-    UserId authorId,
-    PreciseDateTime at, {
-    required this.caller,
+    super.id,
+    super.chatId,
+    super.author,
+    super.at, {
     required this.members,
     required this.withVideo,
     this.conversationStartedAt,
     this.finishReasonIndex,
     this.finishedAt,
     this.joinLink,
-    this.answered = false,
-  }) : super(id, chatId, authorId, at);
-
-  /// [User] who started this [ChatCall].
-  @HiveField(5)
-  final User? caller;
+    this.dialed,
+  });
 
   /// Indicator whether this [ChatCall] is intended to start with video.
-  @HiveField(6)
+  @HiveField(5)
   final bool withVideo;
 
   /// [ChatCallMember]s of this [ChatCall].
-  @HiveField(7)
+  @HiveField(6)
   List<ChatCallMember> members;
 
   /// Link for joining this [ChatCall]'s room on a media server.
-  @HiveField(8)
+  @HiveField(7)
   ChatCallRoomJoinLink? joinLink;
 
   /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
   /// started (after ringing had been finished).
-  @HiveField(9)
+  @HiveField(8)
   PreciseDateTime? conversationStartedAt;
 
   /// [PreciseDateTime] when this [ChatCall] was finished.
-  @HiveField(10)
+  @HiveField(9)
   PreciseDateTime? finishedAt;
 
   /// Reason of why this [ChatCall] was finished.
-  @HiveField(11)
+  @HiveField(10)
   int? finishReasonIndex;
 
   ChatCallFinishReason? get finishReason => finishReasonIndex == null
@@ -80,10 +76,15 @@ class ChatCall extends ChatItem {
     finishReasonIndex = reason?.index;
   }
 
-  /// Indicator whether this [ChatCall] is answered by the authenticated
-  /// [MyUser].
-  @HiveField(12)
-  final bool answered;
+  /// [ChatMember]s being dialed by this [ChatCall] at the moment.
+  ///
+  /// To understand whether the authenticated [MyUser] is dialed by this
+  /// [ChatCall] at the moment, check whether the
+  /// [ChatMembersDialedConcrete.members] contain him or the
+  /// [ChatMembersDialedAll.answeredMembers] do not while the [dialed] is not
+  /// `null`.
+  @HiveField(11)
+  final ChatMembersDialed? dialed;
 }
 
 /// Member of a [ChatCall].
@@ -140,4 +141,34 @@ class ChatCallRoomJoinLink extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatCallDeviceId)
 class ChatCallDeviceId extends NewType<String> {
   const ChatCallDeviceId(String val) : super(val);
+}
+
+/// [ChatMember]s being dialed by a [ChatCall].
+abstract class ChatMembersDialed {
+  const ChatMembersDialed();
+}
+
+/// Information about all [ChatMember]s of a [Chat] being dialed (or redialed)
+/// by a [ChatCall].
+@HiveType(typeId: ModelTypeId.chatMembersDialedAll)
+class ChatMembersDialedAll implements ChatMembersDialed {
+  const ChatMembersDialedAll(this.answeredMembers);
+
+  /// [ChatMember]s who answered (joined or declined) the [ChatCall] already, so
+  /// are not dialed anymore.
+  @HiveField(0)
+  final List<ChatMember> answeredMembers;
+}
+
+/// Information about concrete [ChatMember]s of a [Chat] being dialed (or
+/// redialed) by a [ChatCall].
+@HiveType(typeId: ModelTypeId.chatMembersDialedConcrete)
+class ChatMembersDialedConcrete implements ChatMembersDialed {
+  const ChatMembersDialedConcrete(this.members);
+
+  /// Concrete [ChatMember]s who are dialed (or redialed) by the [ChatCall].
+  ///
+  /// Guaranteed to be non-empty.
+  @HiveField(0)
+  final List<ChatMember> members;
 }

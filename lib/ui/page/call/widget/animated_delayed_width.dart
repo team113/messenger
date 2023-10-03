@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,12 +20,12 @@ import 'package:flutter/material.dart';
 /// [AnimatedContainer] changing its width.
 class AnimatedDelayedWidth extends StatefulWidget {
   const AnimatedDelayedWidth({
-    Key? key,
+    super.key,
     this.delay = Duration.zero,
     required this.beginWidth,
     required this.endWidth,
     this.duration = const Duration(milliseconds: 300),
-  }) : super(key: key);
+  });
 
   /// [Duration] of the delay.
   final Duration delay;

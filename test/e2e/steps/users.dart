@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,11 +34,12 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     var password = UserPassword('123');
 
-    await createUser(
+    final CustomUser me = await createUser(
       user,
       context.world,
       password: password,
     );
+    context.world.me = me.userId;
 
     await Get.find<AuthService>().signIn(
       password,
@@ -88,6 +90,22 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   (TestUser user1, TestUser user2, context) async {
     await createUser(user1, context.world);
     await createUser(user2, context.world);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates the provided count of new [User]s with the provided name.
+///
+/// Examples:
+/// - `Given 10 users Bob`
+/// - `Given 20 users Charlie`
+final countUsers = given2<int, TestUser, CustomWorld>(
+  '{int} users {user}',
+  (int count, TestUser user, context) async {
+    for (int i = 0; i < count; i++) {
+      await createUser(user, context.world);
+    }
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,23 +24,43 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
+  /// [String] set in a mocked [Clipboard].
+  String? clipboard;
+
+  @override
+  Future<bool> get isActive => Future.value(true);
+
+  @override
+  Stream<bool> get onActivityChanged => Stream.value(true);
+
   @override
   Future<File?> download(
     String url,
     String filename,
     int? size, {
+    String? path,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async {
     int total = 100;
     for (int count = 0; count <= total; count++) {
       if (cancelToken?.isCancelled == true) {
-        break;
+        return null;
       }
-      await Future.delayed(40.milliseconds);
+      await Future.delayed(50.milliseconds);
       onReceiveProgress?.call(count, total);
     }
 
     return File('test/path');
+  }
+
+  @override
+  void copy({String? text}) => clipboard = text;
+
+  @override
+  void keepActive([bool active = true]) {
+    // No-op.
   }
 }

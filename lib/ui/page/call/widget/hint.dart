@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,16 +18,17 @@
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Styled popup window with a [text] used to serve as a hint.
 class HintWidget extends StatelessWidget {
   const HintWidget({
-    Key? key,
+    super.key,
     required this.text,
     this.onTap,
     this.isError = false,
-  }) : super(key: key);
+  });
 
   /// Text of a hint.
   final String text;
@@ -39,22 +41,24 @@ class HintWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Card(
       elevation: 8,
-      shadowColor: const Color(0x40000000),
+      shadowColor: style.colors.onBackgroundOpacity27,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      color: const Color(0xFFF4F9FD),
+      color: style.colors.backgroundAuxiliaryLightest,
       margin: EdgeInsets.zero,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 35,
-            decoration: const BoxDecoration(
-              color: Color(0xFFDFEDF9),
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: style.colors.backgroundAuxiliaryLighter,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
@@ -63,27 +67,24 @@ class HintWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 const SizedBox(width: 14),
-                SvgLoader.asset('assets/icons/face.svg', height: 13),
+                const SvgImage.asset('assets/icons/face.svg', height: 13),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xBB818181),
-                    ),
+                    style: style.fonts.bodySmallSecondary,
                   ),
                 ),
                 Center(
                   child: InkResponse(
                     onTap: onTap,
                     radius: 11,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 16,
-                      color: Color(0xBB818181),
+                      color: style.colors.secondaryOpacity87,
                     ),
                   ),
                 ),
@@ -94,13 +95,7 @@ class HintWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
             child: Center(
-              child: Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xBB818181),
-                ),
-              ),
+              child: Text(text, style: style.fonts.bodySmallSecondary),
             ),
           ),
         ],

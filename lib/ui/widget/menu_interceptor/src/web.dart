@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,18 +17,18 @@
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
-import 'dart:ui' as ui;
+import 'dart:ui_web' as ui;
 
 import 'package:flutter/widgets.dart';
 
 /// Wrapper to prevent a default web context menu over its [child].
 class ContextMenuInterceptor extends StatelessWidget {
   ContextMenuInterceptor({
-    Key? key,
+    super.key,
     required this.child,
     this.enabled = true,
     this.debug = false,
-  }) : super(key: key) {
+  }) {
     if (!_registered) {
       _register();
     }

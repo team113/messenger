@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,7 +18,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
-    show MultipartFile, Options, FormData, DioError;
+    show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -32,7 +33,7 @@ import '/store/model/chat.dart';
 import '/util/log.dart';
 
 /// [Chat] related functionality.
-abstract class ChatGraphQlMixin {
+mixin ChatGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns a [Chat] by its ID.
@@ -56,30 +57,49 @@ abstract class ChatGraphQlMixin {
   }
 
   /// Returns non-hidden [Chat]s of the authenticated [MyUser] ordered
-  /// descending by the last updating time.
+  /// descending by their last updating [DateTime].
   ///
-  /// It's allowed to specify both [first] and [last] at the same time, provided
-  /// that [after] and [before] are equal. In such case the returned page will
-  /// include the [Chat] pointed by the cursor and the requested number of
-  /// [Chat]s preceding and following it.
+  /// Use the [noFavorite] argument to exclude favorited [Chat]s from the
+  /// returned result.
   ///
-  /// If it's desired to receive the [Chat] pointed by the cursor without
-  /// querying in both directions, one can specify [first] or [last] as `0`.
+  /// Use the [withOngoingCalls] argument to only include [Chat]s with ongoing
+  /// [ChatCall]s into the returned result (`true`), or to exclude them
+  /// (`false`).
   ///
   /// ### Authentication
   ///
   /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [Chat]s are sorted primarily by their last updating [DateTime],
+  /// and secondary by their IDs (if the last updating [DateTime] is the same),
+  /// in descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [Chat] pointed by the cursor and the
+  /// requested count of [Chat]s preceding and following it.
+  ///
+  /// If it's desired to receive the [Chat], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
   Future<RecentChats$Query> recentChats({
     int? first,
     RecentChatsCursor? after,
     int? last,
     RecentChatsCursor? before,
+    bool noFavorite = false,
+    bool? withOngoingCalls,
   }) async {
     final variables = RecentChatsArguments(
       first: first,
       after: after,
       last: last,
       before: before,
+      noFavorite: noFavorite,
+      withOngoingCalls: withOngoingCalls,
     );
     final QueryResult result = await client.query(
       QueryOptions(
@@ -160,7 +180,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatRenamed].
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionNameUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -287,7 +307,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following ChatEvent may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -322,7 +342,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted] ([ChatMemberInfo]).
+  /// - [EventChatItemPosted] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -389,9 +409,9 @@ abstract class ChatGraphQlMixin {
   /// There is no notion of a single [ChatItem] being read or not separately in
   /// a [Chat]. Only a whole [Chat] as a sequence of [ChatItem]s can be read
   /// until some its position (concrete [ChatItem]). So, any [ChatItem] may be
-  /// considered as read or not by comparing its [ChatItem.at] datetime with the
-  /// [LastChatRead.at] datetime of the authenticated [MyUser]: if it's below
-  /// (less or equal) then the [ChatItem] is read, otherwise it's unread.
+  /// considered as read or not by comparing its [ChatItem.at] with the
+  /// [LastChatRead.at] of the authenticated [MyUser]: if it's below (less or
+  /// equal) then the [ChatItem] is read, otherwise it's unread.
   ///
   /// This mutation should be called whenever the authenticated [MyUser] reads
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
@@ -411,7 +431,9 @@ abstract class ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
   /// already read by the authenticated [MyUser] until the specified [ChatItem].
   Future<ChatEventsVersionedMixin?> readChat(
-      ChatId chatId, ChatItemId untilId) async {
+    ChatId chatId,
+    ChatItemId untilId,
+  ) async {
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -466,8 +488,16 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> recentChatsTopEvents(int count) {
-    final variables = RecentChatsTopEventsArguments(count: count);
+  Stream<QueryResult> recentChatsTopEvents(
+    int count, {
+    bool noFavorite = false,
+    bool? withOngoingCalls,
+  }) {
+    final variables = RecentChatsTopEventsArguments(
+      count: count,
+      noFavorite: noFavorite,
+      withOngoingCalls: withOngoingCalls,
+    );
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'RecentChatsTopEvents',
@@ -524,7 +554,7 @@ abstract class ChatGraphQlMixin {
   /// of subscribing (emits nothing, completes immediately after being
   /// established).
   /// - The authenticated [MyUser] is no longer a member of the [Chat] (emits
-  /// [EventChatItemPosted] with [ChatMemberInfo] of [MyUser] being removed and
+  /// [EventChatItemPosted] with [ChatInfo] of [MyUser] being removed and
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
@@ -532,14 +562,15 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Future<Stream<QueryResult>> chatEvents(ChatId id, ChatVersion? ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver);
+  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function() ver) {
+    final variables = ChatEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -681,7 +712,7 @@ abstract class ChatGraphQlMixin {
     dio.MultipartFile? attachment, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    final variables = UploadAttachmentArguments(upload: null);
+    final variables = UploadAttachmentArguments(file: null);
     final query = MutationOptions(
       operationName: 'UploadAttachment',
       document: UploadAttachmentMutation(variables: variables).document,
@@ -708,10 +739,16 @@ abstract class ChatGraphQlMixin {
             .code),
       );
 
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
       return (UploadAttachment$Mutation.fromJson(response.data['data']))
               .uploadAttachment
           as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk;
-    } on dio.DioError catch (e) {
+    } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UploadAttachmentException(
           UploadAttachmentErrorCode.tooBigSize,
@@ -865,7 +902,7 @@ abstract class ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
-  Future<Stream<QueryResult>> keepTyping(ChatId id) {
+  Stream<QueryResult> keepTyping(ChatId id) {
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -1053,8 +1090,7 @@ abstract class ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatAvatarUpdated] (if [file] argument is specified);
-  /// - [EventChatAvatarDeleted] (if [file] argument is absent or is `null`).
+  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -1109,7 +1145,7 @@ abstract class ChatGraphQlMixin {
 
       return UpdateChatAvatar$Mutation.fromJson(response.data['data'])
           .updateChatAvatar as ChatEventsVersionedMixin?;
-    } on dio.DioError catch (e) {
+    } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateChatAvatarException(
           UpdateChatAvatarErrorCode.tooBigSize,
@@ -1241,9 +1277,10 @@ abstract class ChatGraphQlMixin {
   /// which have already been applied to the state of some [Chat], so a client
   /// side is expected to handle all the events idempotently considering the
   /// `Chat.ver`.
-  Future<Stream<QueryResult>> favoriteChatsEvents(
-      FavoriteChatsListVersion? ver) {
-    final variables = FavoriteChatsEventsArguments(ver: ver);
+  Stream<QueryResult> favoriteChatsEvents(
+    FavoriteChatsListVersion? Function() ver,
+  ) {
+    final variables = FavoriteChatsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'FavoriteChatsEvents',
@@ -1251,6 +1288,91 @@ abstract class ChatGraphQlMixin {
             FavoriteChatsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
+  }
+
+  /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
+  /// authenticated [MyUser] until the specified [ChatItem] inclusively.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent] may be produced on success:
+  /// - [EventChatCleared].
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already cleared until the specified [ChatItem].
+  Future<ChatEventsVersionedMixin?> clearChat(
+    ChatId id,
+    ChatItemId untilId,
+  ) async {
+    final ClearChatArguments variables =
+        ClearChatArguments(id: id, untilId: untilId);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ClearChat',
+        document: ClearChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ClearChatException(
+          (ClearChat$Mutation.fromJson(data).clearChat
+                  as ClearChat$Mutation$ClearChat$ClearChatError)
+              .code),
+    );
+    return ClearChat$Mutation.fromJson(result.data!).clearChat
+        as ChatEventsVersionedMixin?;
+  }
+
+  /// Creates a [Chat]-monolog for the authenticated [MyUser].
+  ///
+  /// There can be only one [Chat]-monolog for the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op if the [Chat]-monolog for the authenticated [MyUser]
+  /// exists already, and returns it.
+  Future<ChatMixin> createMonologChat(ChatName? name) async {
+    final variables = CreateMonologChatArguments(name: name);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'CreateMonologChat',
+        document: CreateMonologChatMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return CreateMonologChat$Mutation.fromJson(result.data!).createMonologChat;
+  }
+
+  /// Returns the monolog [Chat] of the authenticated [MyUser].
+  ///
+  /// If there is no [Chat]-monolog, the one could be created via
+  /// [createMonologChat].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Query returns `null` when no [Chat]-monolog exists for the authenticated
+  /// [MyUser].
+  Future<ChatMixin?> getMonolog() async {
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetMonolog',
+        document: GetMonologQuery().document,
+      ),
+    );
+    return GetMonolog$Query.fromJson(result.data!).monolog;
   }
 }

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,65 +15,74 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:video_player/video_player.dart';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
+
+import '/themes.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import 'src/interface.dart'
-    if (dart.library.io) 'src/io.dart'
-    if (dart.library.html) 'src/web.dart';
+import '/ui/worker/cache.dart';
+import '/util/backoff.dart';
+import '/util/platform_utils.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
-  const VideoThumbnail._({
-    Key? key,
-    this.url,
-    this.bytes,
-    this.height,
-    this.onError,
-  })  : assert(
-            (url != null && bytes == null) || (url == null && bytes != null)),
-        super(key: key);
-
   /// Constructs a [VideoThumbnail] from the provided [url].
-  factory VideoThumbnail.url({
-    Key? key,
-    required String url,
-    double? height,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        url: url,
-        height: height,
-        onError: onError,
-      );
+  const VideoThumbnail.url(
+    this.url, {
+    super.key,
+    this.checksum,
+    this.height,
+    this.width,
+    this.onError,
+  })  : bytes = null,
+        path = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
-  factory VideoThumbnail.bytes({
-    Key? key,
-    required Uint8List bytes,
-    double? height,
-    Future<void> Function()? onError,
-  }) =>
-      VideoThumbnail._(
-        key: key,
-        bytes: bytes,
-        height: height,
-        onError: onError,
-      );
+  const VideoThumbnail.bytes(
+    this.bytes, {
+    super.key,
+    this.height,
+    this.width,
+    this.onError,
+  })  : url = null,
+        checksum = null,
+        path = null;
+
+  /// Constructs a [VideoThumbnail] from the provided file [path].
+  const VideoThumbnail.file(
+    this.path, {
+    super.key,
+    this.height,
+    this.width,
+    this.onError,
+  })  : url = null,
+        checksum = null,
+        bytes = null;
 
   /// URL of the video to display.
   final String? url;
 
+  /// SHA-256 checksum of the video to display.
+  final String? checksum;
+
   /// Byte data of the video to display.
   final Uint8List? bytes;
+
+  /// Path to the video [File] to display.
+  final String? path;
 
   /// Optional height this [VideoThumbnail] occupies.
   final double? height;
 
-  /// Callback, called on the [VideoPlayerController] initialization errors.
+  /// Optional width this [VideoThumbnail] occupies.
+  final double? width;
+
+  /// Callback, called on the video loading errors.
   final Future<void> Function()? onError;
 
   @override
@@ -80,13 +90,13 @@ class VideoThumbnail extends StatefulWidget {
 }
 
 /// State of a [VideoThumbnail], used to initialize and dispose a
-/// [VideoPlayerController].
+/// [VideoController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
-  /// [VideoPlayerController] to display the first frame of the video.
-  late VideoPlayerController _controller;
+  /// [VideoController] to display the first frame of the video.
+  final VideoController _controller = VideoController(Player());
 
-  /// Indicator whether the [_initVideo] has failed.
-  bool _hasError = false;
+  /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
+  CancelToken? _cancelToken;
 
   @override
   void initState() {
@@ -96,7 +106,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller.player.dispose();
+    _cancelToken?.cancel();
     super.dispose();
   }
 
@@ -111,23 +122,31 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   Widget build(BuildContext context) {
-    double width = 0;
-    double height = 0;
-
-    if (_controller.value.isInitialized) {
-      width = _controller.value.size.width;
-      height = _controller.value.size.height;
-
-      if (widget.height != null) {
-        width = width * widget.height! / height;
-        height = widget.height!;
-      }
-    }
+    final style = Theme.of(context).style;
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
-      child: _controller.value.isInitialized
-          ? SizedBox(
+      child: StreamBuilder(
+        stream: _controller.player.stream.width,
+        builder: (_, __) {
+          double width = 0;
+          double height = 0;
+
+          if (widget.width != null && widget.height != null) {
+            width = widget.width!;
+            height = widget.height!;
+          } else if (_controller.player.state.width != null) {
+            width = _controller.player.state.width!.toDouble();
+            height = _controller.player.state.height!.toDouble();
+
+            if (widget.height != null) {
+              width = width * widget.height! / height;
+              height = widget.height!;
+            }
+          }
+
+          if (_controller.player.state.width != null) {
+            return SizedBox(
               width: width,
               height: height,
               child: Stack(
@@ -137,9 +156,17 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                     child: FittedBox(
                       fit: BoxFit.cover,
                       child: SizedBox(
-                        width: _controller.value.size.width,
-                        height: _controller.value.size.height,
-                        child: IgnorePointer(child: VideoPlayer(_controller)),
+                        width:
+                            _controller.player.state.width?.toDouble() ?? 1920,
+                        height:
+                            _controller.player.state.height?.toDouble() ?? 1080,
+                        child: IgnorePointer(
+                          child: Video(
+                            controller: _controller,
+                            fit: BoxFit.cover,
+                            controls: (_) => const SizedBox(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -148,45 +175,85 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                   // [Container] for receiving pointer events over this
                   // [VideoThumbnail], since the [ContextMenuInterceptor] above
                   // intercepts them.
-                  Container(color: Colors.transparent),
+                  Container(color: style.colors.transparent),
                 ],
               ),
-            )
-          : SizedBox(
-              width: 250,
+            );
+          } else {
+            return SizedBox(
+              width: widget.width ?? 250,
               height: widget.height ?? 250,
-              child: _hasError
-                  ? null
-                  : const Center(child: CircularProgressIndicator()),
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    try {
-      if (widget.bytes != null) {
-        _controller = VideoPlayerControllerExt.bytes(widget.bytes!);
-      } else {
-        _controller = VideoPlayerController.network(widget.url!);
-      }
+    Uint8List? bytes = widget.bytes;
+    File? file;
 
-      await _controller.initialize();
-    } on PlatformException catch (e) {
-      if (e.code == 'MEDIA_ERR_SRC_NOT_SUPPORTED') {
-        if (widget.onError != null) {
-          await widget.onError?.call();
-        } else {
-          _hasError = true;
-        }
-      } else {
-        // Plugin is not supported on the current platform.
-        _hasError = true;
-      }
+    if (widget.path != null) {
+      file = File(widget.path!);
     }
 
-    if (mounted) {
-      setState(() {});
+    if (bytes == null &&
+        file == null &&
+        widget.checksum != null &&
+        CacheWorker.instance.exists(widget.checksum!)) {
+      final CacheEntry cache = await CacheWorker.instance.get(
+        checksum: widget.checksum!,
+        responseType: CacheResponseType.file,
+      );
+
+      bytes = cache.bytes;
+      file = cache.file;
+    } else if (bytes != null) {
+      file = await CacheWorker.instance.add(bytes) ?? file;
+    }
+
+    try {
+      if (file != null) {
+        await _controller.player.open(Media(file.path), play: false);
+      } else if (bytes != null) {
+        await _controller.player.open(await Media.memory(bytes), play: false);
+      } else {
+        await _controller.player.open(Media(widget.url!), play: false);
+      }
+    } catch (_) {
+      // No-op.
+    }
+
+    if (widget.url != null && bytes == null) {
+      _cancelToken?.cancel();
+      _cancelToken = CancelToken();
+
+      bool shouldReload = false;
+
+      await Backoff.run(
+        () async {
+          try {
+            await (await PlatformUtils.dio).head(widget.url!);
+
+            // Reinitialize the [_controller] if an unexpected error was
+            // thrown.
+            if (shouldReload) {
+              await _controller.player.open(Media(widget.url!), play: false);
+            }
+          } catch (e) {
+            if (e is DioException && e.response?.statusCode == 403) {
+              widget.onError?.call();
+              _cancelToken?.cancel();
+            } else {
+              shouldReload = true;
+              rethrow;
+            }
+          }
+        },
+        _cancelToken,
+      );
     }
   }
 }

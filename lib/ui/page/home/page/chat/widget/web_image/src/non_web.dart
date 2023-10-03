@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,19 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
-/// Web [html.ImageElement] used to show images natively.
+/// Web [html.ImageElement] showing images natively.
+///
+/// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
+///
+/// Invokes the provided [onForbidden] callback on the `403 Forbidden` HTTP
+/// errors.
 ///
 /// Uses [Image.network] on non-web platforms.
 class WebImage extends StatelessWidget {
   const WebImage(
     this.src, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+    this.onForbidden,
+  });
 
   /// URL of the image to display.
   final String src;
+
+  /// Callback, called when loading an image from the provided [src] fails with
+  /// a forbidden network error.
+  final FutureOr<void> Function()? onForbidden;
 
   @override
   Widget build(BuildContext context) => Image.network(src);

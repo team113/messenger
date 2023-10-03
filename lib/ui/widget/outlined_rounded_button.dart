@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,11 +17,13 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
 /// primary and subtitle text, and a leading icon as well.
 class OutlinedRoundedButton extends StatelessWidget {
   const OutlinedRoundedButton({
-    Key? key,
+    super.key,
     this.title,
     this.subtitle,
     this.leading,
@@ -28,10 +31,11 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.onLongPress,
     this.gradient,
     this.elevation = 0,
-    this.color = Colors.white,
+    this.color,
     this.maxWidth = 250 * 0.7,
     this.height = 60 * 0.7,
-  }) : super(key: key);
+    this.shadows,
+  });
 
   /// Primary content of this button.
   ///
@@ -69,33 +73,41 @@ class OutlinedRoundedButton extends StatelessWidget {
   final double elevation;
 
   /// Maximum width this button is allowed to occupy.
-  final double? maxWidth;
+  final double maxWidth;
 
   /// Height of this button.
   final double? height;
 
+  /// [BoxShadow]s to apply to this button.
+  final List<BoxShadow>? shadows;
+
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Container(
       constraints: BoxConstraints(
-        maxWidth: maxWidth ?? double.infinity,
+        maxWidth: maxWidth,
         minHeight: height ?? 0,
         maxHeight: height ?? double.infinity,
       ),
       decoration: BoxDecoration(
-        color: onPressed == null ? const Color(0xFFEEEEEE) : color,
+        boxShadow: shadows,
+        color: onPressed == null
+            ? style.colors.secondaryHighlight
+            : color ?? style.colors.onPrimary,
         gradient: gradient,
         borderRadius: BorderRadius.circular(15 * 0.7),
       ),
       child: Material(
-        color: Colors.transparent,
+        color: style.colors.transparent,
         elevation: elevation,
         borderRadius: BorderRadius.circular(15 * 0.7),
         child: InkWell(
           borderRadius: BorderRadius.circular(15 * 0.7),
           onTap: onPressed,
           onLongPress: onLongPress,
-          hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.02),
+          hoverColor: style.colors.secondary.withOpacity(0.02),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16 * 0.7,
@@ -112,13 +124,9 @@ class OutlinedRoundedButton extends StatelessWidget {
                     ],
                   ),
                 DefaultTextStyle.merge(
-                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.caption?.copyWith(
-                        color: Colors.black,
-                        fontSize: 24 * 0.7,
-                      ),
+                  style: style.fonts.titleLarge,
                   child: Center(
                     child: Padding(
                       padding: leading == null
@@ -128,11 +136,11 @@ class OutlinedRoundedButton extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          title ?? Container(),
+                          title ?? const SizedBox(),
                           if (subtitle != null) const SizedBox(height: 1 * 0.7),
                           if (subtitle != null)
                             DefaultTextStyle.merge(
-                              style: const TextStyle(fontSize: 13 * 0.7),
+                              style: style.fonts.labelMedium,
                               child: subtitle!,
                             ),
                         ],

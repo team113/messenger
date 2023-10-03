@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,23 +43,19 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
           final finder =
               context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
-          if (await context.world.appDriver.isPresent(finder)) {
-            await context.world.appDriver.scrollIntoView(finder);
-            await context.world.appDriver.waitForAppToSettle();
-            await context.world.appDriver.tap(
-              finder,
-              timeout: context.configuration.timeout,
-            );
-            await context.world.appDriver.waitForAppToSettle();
-            return true;
-          }
-        } catch (_) {
-          // No-op.
-        }
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
 
-        return false;
-      },
-      timeout: 30.seconds,
-    );
+        return true;
+      } catch (_) {
+        // No-op.
+      }
+
+      return false;
+    }, timeout: const Duration(seconds: 20));
   },
 );

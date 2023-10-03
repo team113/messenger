@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -14,10 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -43,36 +44,31 @@ final StepDefinitionGeneric waitUntilMessageStatus =
         await context.world.appDriver.waitForAppToSettle();
 
         final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        final ChatMessage message = chat!.messages
+            Get.find<ChatService>().chats.values.firstWhereOrNull(
+                  (e) => e.chat.value.isRoute(router.route, context.world.me),
+                );
+
+        final ChatMessage? message = chat?.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
-            .firstWhere((e) => e.text?.val == text);
+            .firstWhereOrNull((e) => e.text?.val == text);
 
         final Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('MessageStatus_${message.id}');
+            .findByKeySkipOffstage('MessageStatus_${message?.id}');
 
         if (await context.world.appDriver.isPresent(finder)) {
-          return status == SendingStatus.sending
-              ? context.world.appDriver.isPresent(
-                  context.world.appDriver.findByDescendant(
-                    finder,
-                    context.world.appDriver.findByKeySkipOffstage('Sending'),
-                  ),
-                )
-              : status == SendingStatus.error
-                  ? context.world.appDriver.isPresent(
-                      context.world.appDriver.findByDescendant(
-                        finder,
-                        context.world.appDriver.findByKeySkipOffstage('Error'),
-                      ),
-                    )
-                  : context.world.appDriver.isPresent(
-                      context.world.appDriver.findByDescendant(
-                        finder,
-                        context.world.appDriver.findByKeySkipOffstage('Sent'),
-                      ),
-                    );
+          return context.world.appDriver.isPresent(
+            context.world.appDriver.findByDescendant(
+              finder,
+              context.world.appDriver.findByKeySkipOffstage(
+                status == SendingStatus.sending
+                    ? 'Sending'
+                    : status == SendingStatus.error
+                        ? 'Error'
+                        : 'Sent',
+              ),
+            ),
+          );
         }
 
         return false;

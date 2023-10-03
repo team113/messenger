@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,10 +19,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -36,10 +38,10 @@ void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
+  await blacklistedUsersProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -49,15 +51,15 @@ void main() async {
 
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     var profileService = Get.put(
       MyUserService(
         Get.find(),
         MyUserRepository(
           graphQlProvider,
           myUserProvider,
-          galleryItemProvider,
+          blacklistedUsersProvider,
           userRepository,
         ),
       ),
@@ -79,10 +81,8 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'num': '1234567890123456',
     'login': null,
     'name': null,
-    'bio': null,
     'emails': {'confirmed': []},
     'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
     'chatDirectLink': null,
     'hasPassword': false,
     'unreadChatsCount': 0,
@@ -91,9 +91,19 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
   @override
-  Future<Stream<QueryResult>> myUserEvents(MyUserVersion? ver) async {
-    return Future.value(Stream.fromIterable([
+  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) {
+    return Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,
         source: null,
@@ -101,11 +111,21 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
           'myUserEvents': {'__typename': 'MyUser', ...userData},
         },
       )
-    ]));
+    ]);
   }
 
   @override
-  Future<Stream<QueryResult<Object?>>> keepOnline() {
-    return Future.value(const Stream.empty());
+  Stream<QueryResult<Object?>> keepOnline() {
+    return const Stream.empty();
+  }
+
+  @override
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
+    BlocklistCursor? after,
+    BlocklistCursor? before,
+    int? first,
+    int? last,
+  }) {
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist));
   }
 }

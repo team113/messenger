@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,6 +24,7 @@ Feature: Logout confirmation
     When I copy from `NumCopyable` field
     And I tap `CloseButton` button
     And I tap `MenuButton` button
+    And I scroll `MenuListView` until `LogoutButton` is present
     And I tap `LogoutButton` button
     Then I wait until `ConfirmLogoutView` is present
 
@@ -40,7 +42,8 @@ Feature: Logout confirmation
     When I tap `SignInButton` button
     Then I wait until `LoginView` is present
 
-    When I paste to `UsernameField` field
+    When I tap `PasswordButton` button
+    And I paste to `UsernameField` field
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
     Then I wait until `HomeView` is present

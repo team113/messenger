@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,11 +24,11 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Variant of a [ConfirmDialog].
-class ConfirmDialogVariant {
+class ConfirmDialogVariant<T> {
   const ConfirmDialogVariant({required this.child, this.onProceed});
 
   /// Callback, called when this [ConfirmDialogVariant] is submitted.
-  final void Function()? onProceed;
+  final T? Function()? onProceed;
 
   /// [Widget] representing this [ConfirmDialogVariant].
   final Widget child;
@@ -38,12 +39,14 @@ class ConfirmDialogVariant {
 /// Intended to be displayed with the [show] method.
 class ConfirmDialog extends StatefulWidget {
   ConfirmDialog({
-    Key? key,
+    super.key,
     this.description,
     required this.title,
     required this.variants,
-  })  : assert(variants.isNotEmpty),
-        super(key: key);
+    this.initial = 0,
+    this.label,
+    this.additional = const [],
+  }) : assert(variants.isNotEmpty);
 
   /// [ConfirmDialogVariant]s of this [ConfirmDialog].
   final List<ConfirmDialogVariant> variants;
@@ -54,19 +57,34 @@ class ConfirmDialog extends StatefulWidget {
   /// Optional description to display above the [variants].
   final String? description;
 
+  /// Label of the submit button.
+  final String? label;
+
+  /// [Widget]s to put above the [description].
+  final List<Widget> additional;
+
+  /// Index of the [variants] to be initially selected.
+  final int initial;
+
   /// Displays a [ConfirmDialog] wrapped in a [ModalPopup].
-  static Future<ConfirmDialog?> show(
+  static Future<T?> show<T>(
     BuildContext context, {
     String? description,
     required String title,
     required List<ConfirmDialogVariant> variants,
+    String? label,
+    List<Widget> additional = const [],
+    int initial = 0,
   }) {
-    return ModalPopup.show<ConfirmDialog?>(
+    return ModalPopup.show<T?>(
       context: context,
       child: ConfirmDialog(
         description: description,
         title: title,
         variants: variants,
+        additional: additional,
+        label: label,
+        initial: initial,
       ),
     );
   }
@@ -80,6 +98,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   /// Currently selected [ConfirmDialogVariant].
   late ConfirmDialogVariant _variant;
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
   @override
   void didUpdateWidget(ConfirmDialog oldWidget) {
     if (!widget.variants.contains(_variant)) {
@@ -91,29 +112,29 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _variant = widget.variants.first;
+    _variant = widget.variants[widget.initial];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyText1?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     // Builds a button representing the provided [ConfirmDialogVariant].
     Widget button(ConfirmDialogVariant variant) {
-      final Style style = Theme.of(context).extension<Style>()!;
-
       return Padding(
         padding: ModalPopup.padding(context),
         child: Material(
           type: MaterialType.card,
           borderRadius: style.cardRadius,
           color: _variant == variant
-              ? style.cardSelectedColor.withOpacity(0.8)
+              ? style.colors.primary
               : style.cardColor.darken(0.05),
           child: InkWell(
             onTap: () => setState(() => _variant = variant),
+            hoverColor: _variant == variant
+                ? style.colors.primary
+                : style.cardColor.darken(0.08),
             borderRadius: style.cardRadius,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
@@ -121,10 +142,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 children: [
                   Expanded(
                     child: DefaultTextStyle.merge(
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyText1
-                          ?.copyWith(color: Colors.black, fontSize: 18),
+                      style: _variant == variant
+                          ? style.fonts.headlineMediumOnPrimary
+                          : style.fonts.headlineMedium,
                       child: variant.child,
                     ),
                   ),
@@ -146,22 +166,21 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ModalPopupHeader(
-          header: Center(
-            child: Text(widget.title, style: thin?.copyWith(fontSize: 18)),
-          ),
-        ),
+        ModalPopupHeader(text: widget.title),
         const SizedBox(height: 12),
+        ...widget.additional.map((e) {
+          return Padding(padding: ModalPopup.padding(context), child: e);
+        }),
+        if (widget.additional.isNotEmpty &&
+            (widget.variants.length > 1 || widget.description != null))
+          const SizedBox(height: 15),
         if (widget.description != null)
           Padding(
             padding: ModalPopup.padding(context),
             child: Center(
               child: Text(
                 widget.description!,
-                style: thin?.copyWith(
-                  fontSize: 15,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: style.fonts.labelLargeSecondary,
               ),
             ),
           ),
@@ -169,12 +188,16 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 15),
         if (widget.variants.length > 1)
           Flexible(
-            child: ListView.separated(
-              physics: const ClampingScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (c, i) => button(widget.variants[i]),
-              separatorBuilder: (c, i) => const SizedBox(height: 10),
-              itemCount: widget.variants.length,
+            child: Scrollbar(
+              controller: scrollController,
+              child: ListView.separated(
+                controller: scrollController,
+                physics: const ClampingScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (c, i) => button(widget.variants[i]),
+                separatorBuilder: (c, i) => const SizedBox(height: 10),
+                itemCount: widget.variants.length,
+              ),
             ),
           ),
         if (widget.variants.length > 1 || widget.description != null)
@@ -183,16 +206,15 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           padding: ModalPopup.padding(context),
           child: OutlinedRoundedButton(
             key: const Key('Proceed'),
-            maxWidth: null,
+            maxWidth: double.infinity,
             title: Text(
-              'btn_proceed'.l10n,
-              style: thin?.copyWith(color: Colors.white),
+              widget.label ?? 'btn_proceed'.l10n,
+              style: style.fonts.bodyMediumOnPrimary,
             ),
             onPressed: () {
-              _variant.onProceed?.call();
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(_variant.onProceed?.call());
             },
-            color: Theme.of(context).colorScheme.secondary,
+            color: style.colors.primary,
           ),
         ),
         const SizedBox(height: 12),

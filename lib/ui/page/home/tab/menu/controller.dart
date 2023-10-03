@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,8 +17,10 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
@@ -26,12 +29,18 @@ import 'confirm/view.dart';
 
 export 'view.dart';
 
-/// Controller of the `HomeTab.menu` tab.
+/// Controller of the [HomeTab.menu] tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._auth, this._myUserService);
+  MenuTabController(this._authService, this._myUserService);
 
-  /// Authorization service.
-  final AuthService _auth;
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// [GlobalKey] of an [AvatarWidget] in the tab title.
+  final GlobalKey profileKey = GlobalKey();
+
+  /// [AuthService] used in a [logout].
+  final AuthService _authService;
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
@@ -52,5 +61,9 @@ class MenuTabController extends GetxController {
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _auth.logout();
+  Future<String> logout() => _authService.logout();
+
+  /// Sets the [MyUser.presence] to the provided value.
+  Future<void> setPresence(Presence presence) =>
+      _myUserService.updateUserPresence(presence);
 }

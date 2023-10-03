@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,13 +20,13 @@ import 'package:flutter/material.dart';
 /// Animated translation of the provided [child] on the [offset] changes.
 class AnimatedOffset extends ImplicitlyAnimatedWidget {
   const AnimatedOffset({
-    Key? key,
+    super.key,
     required this.offset,
     required this.child,
     Duration duration = const Duration(milliseconds: 250),
     Curve curve = Curves.linear,
     void Function()? onEnd,
-  }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
+  }) : super(curve: curve, duration: duration, onEnd: onEnd);
 
   /// [Offset] to apply to the [child].
   final Offset offset;

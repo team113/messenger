@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +22,7 @@ import 'package:toml/toml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import 'pubspec.g.dart';
 
 /// Configuration of this application.
 class Config {
@@ -56,6 +58,22 @@ class Config {
   ///
   /// Intended to be used in E2E testing.
   static bool disableInfiniteAnimations = false;
+
+  /// Product identifier of `User-Agent` header to put in network queries.
+  static String userAgentProduct = '';
+
+  /// Version identifier of `User-Agent` header to put in network queries.
+  static String userAgentVersion = '';
+
+  /// Unique identifier of Windows application.
+  static late String clsid;
+
+  /// Version of the application, used to clear cache if mismatch is detected.
+  ///
+  /// If not specified, [Pubspec.version] is used.
+  ///
+  /// Intended to be used in E2E testing.
+  static String? version;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -100,6 +118,22 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         : (document['downloads']?['directory'] ?? '');
 
+    userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+        ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+        : (document['user']?['agent']?['product'] ?? 'Gapopa');
+
+    String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
+        ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
+        : (document['user']?['agent']?['version'] ?? '');
+
+    userAgentVersion = version.isNotEmpty
+        ? version
+        : (Pubspec.ref ?? Config.version ?? Pubspec.version);
+
+    clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
+        ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
+        : (document['windows']?['clsid'] ?? '');
+
     origin = url;
 
     // Change default values to browser's location on web platform.
@@ -139,7 +173,7 @@ class Config {
     // configuration.
     if (confRemote) {
       try {
-        final response = await PlatformUtils.dio
+        final response = await (await PlatformUtils.dio)
             .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
           Map<String, dynamic> remote =
@@ -155,6 +189,10 @@ class Config {
             files = remote['files']?['url'] ?? files;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
+            userAgentProduct =
+                remote['user']?['agent']?['product'] ?? userAgentProduct;
+            userAgentVersion =
+                remote['user']?['agent']?['version'] ?? userAgentVersion;
             origin = url;
           }
         }

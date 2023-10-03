@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,8 +23,32 @@ import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
+  PlatformUtilsMock({this.cache = 'test/.temp_cache'});
+
+  /// Path to the [cacheDirectory].
+  final String? cache;
+
   @override
-  Future<File?> fileExists(String filename, {int? size, String? url}) async {
+  Future<Directory> get downloadsDirectory =>
+      Future.value(Directory('.temp_hive/downloads'));
+
+  @override
+  Future<Directory?> get cacheDirectory =>
+      Future.value(cache == null ? null : Directory(cache!));
+
+  @override
+  Future<bool> get isActive => Future.value(true);
+
+  @override
+  Stream<bool> get onActivityChanged => Stream.value(true);
+
+  @override
+  Future<File?> fileExists(
+    String filename, {
+    int? size,
+    String? url,
+    bool temporary = false,
+  }) async {
     return null;
   }
 
@@ -32,11 +57,16 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? path,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
   }) async =>
       File('test/path');
 
   @override
-  Future<String> get downloadsDirectory => Future.value('.temp_hive/downloads');
+  void keepActive([bool active = true]) {
+    // No-op.
+  }
 }

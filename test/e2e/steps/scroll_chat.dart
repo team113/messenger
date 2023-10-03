@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,6 +28,8 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
+import 'scroll_until.dart';
+
 /// Scrolls the currently opened [Chat] and ensures the provided number of
 /// [ChatMessage]s are visible.
 ///
@@ -43,7 +46,7 @@ final StepDefinitionGeneric<FlutterWorld> scrollAndSee =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
     final Set<ChatItemId> ids = {};
 
-    await context.world.appDriver.scrollUntilVisible(
+    await context.world.appDriver.scrollIntoVisible(
       find.byWidgetPredicate(
         (Widget widget) {
           if (widget is ChatItemWidget) {
@@ -59,7 +62,7 @@ final StepDefinitionGeneric<FlutterWorld> scrollAndSee =
         },
         skipOffstage: false,
       ),
-      scrollable: find.descendant(
+      find.descendant(
         of: find.byKey(const Key('MessagesList')),
         matching: find.byType(Scrollable),
       ),

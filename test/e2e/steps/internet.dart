@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,17 +33,20 @@ import '../world/custom_world.dart';
 /// - I have Internet with delay of 2 seconds
 final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
   'I have Internet with delay of {int} second(s)?',
-  (int delay, context) => Future.sync(() {
+  (int delay, context) async {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = delay.seconds;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
-    PlatformUtils.dio.interceptors.add(
-      DelayedInterceptor(Duration(seconds: delay)),
-    );
-  }),
+
+    PlatformUtils.client?.interceptors
+        .removeWhere((e) => e is DelayedInterceptor);
+
+    (await PlatformUtils.dio)
+        .interceptors
+        .add(DelayedInterceptor(Duration(seconds: delay)));
+  },
 );
 
 /// Removes delay from the [GraphQlProvider] requests.
@@ -51,14 +55,17 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
 /// - I have Internet without delay
 final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
   'I have Internet without delay',
-  (context) => Future.sync(() {
+  (context) async {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
       provider.client.delay = null;
       provider.client.throwException = false;
     }
-    PlatformUtils.dio.interceptors.removeWhere((e) => e is DelayedInterceptor);
-  }),
+
+    (await PlatformUtils.dio)
+        .interceptors
+        .removeWhere((e) => e is DelayedInterceptor);
+  },
 );
 
 /// Makes all [GraphQlProvider] requests throw a [ConnectionException].

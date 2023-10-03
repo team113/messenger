@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,7 +17,6 @@
 
 // ignore_for_file: avoid_print
 
-import 'dart:developer' as developer;
 import 'dart:core' as core;
 
 import '/util/platform_utils.dart';
@@ -26,11 +26,10 @@ import '/util/web/web_utils.dart';
 class Log {
   /// Prints the provided [message] into the console.
   static void print(core.String message, [core.String? tag]) =>
-      PlatformUtils.isWeb
-          ? core.print('[$tag]: $message')
-          : developer.log(message, name: tag ?? '');
+      core.print('[$tag]: $message');
 
   /// Prints the provided [object] into the console as an error.
-  static void error(core.Object? object) =>
-      PlatformUtils.isWeb ? WebUtils.consoleError(object) : core.print(object);
+  static void error(core.Object? object) => PlatformUtils.isWeb
+      ? WebUtils.consoleError(object.toString())
+      : core.print(object);
 }

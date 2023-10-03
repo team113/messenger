@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,13 +22,13 @@ import 'package:flutter/material.dart';
 /// [AnimatedScale] with an optional delay.
 class AnimatedDelayedScale extends StatefulWidget {
   const AnimatedDelayedScale({
-    Key? key,
+    super.key,
     this.delay = Duration.zero,
     this.beginScale = 0,
     this.endScale = 1,
     this.duration = const Duration(milliseconds: 300),
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [Duration] of the delay.
   final Duration delay;

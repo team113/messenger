@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -40,7 +41,7 @@ class SettingsWorker extends DisposableService {
     if (locale == null) {
       _settingsRepository.setLocale(L10n.chosen.value!.toString());
     } else {
-      await L10n.set(Language.from(locale));
+      await L10n.set(Language.fromTag(locale));
     }
 
     _worker = ever(
@@ -48,7 +49,7 @@ class SettingsWorker extends DisposableService {
       (ApplicationSettings? settings) {
         if (locale != settings?.locale) {
           locale = settings?.locale;
-          L10n.set(Language.from(locale) ?? L10n.languages.first);
+          L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
         }
       },
     );

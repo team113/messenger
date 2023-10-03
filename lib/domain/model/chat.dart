@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,8 +28,8 @@ import 'chat_item.dart';
 import 'mute_duration.dart';
 import 'my_user.dart';
 import 'precise_date_time/precise_date_time.dart';
-import 'user_call_cover.dart';
 import 'user.dart';
+import 'user_call_cover.dart';
 
 part 'chat.g.dart';
 
@@ -60,7 +61,7 @@ class Chat extends HiveObject {
 
   /// Unique ID of this [Chat].
   @HiveField(0)
-  final ChatId id;
+  ChatId id;
 
   /// Avatar of this [Chat].
   @HiveField(1)
@@ -123,35 +124,43 @@ class Chat extends HiveObject {
   @HiveField(11)
   PreciseDateTime lastDelivery;
 
-  /// Last [ChatItem] posted in this [Chat].
+  /// First [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
   @HiveField(12)
+  ChatItem? firstItem;
+
+  /// Last [ChatItem] posted in this [Chat].
+  ///
+  /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
+  /// it's `null`.
+  @HiveField(13)
   ChatItem? lastItem;
 
-  /// Last [ChatItem] read by the authenticated [MyUser] in this [Chat].
+  /// ID of the last [ChatItem] read by the authenticated [MyUser] in this
+  /// [Chat].
   ///
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
-  @HiveField(13)
-  ChatItem? lastReadItem;
+  @HiveField(14)
+  ChatItemId? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
-  @HiveField(14)
+  @HiveField(15)
   int unreadCount;
 
   /// Count of [ChatItem]s visible to the authenticated [MyUser] in this [Chat].
-  @HiveField(15)
+  @HiveField(16)
   int totalCount;
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
-  @HiveField(16)
+  @HiveField(17)
   ChatCall? ongoingCall;
 
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
-  @HiveField(17)
+  @HiveField(18)
   ChatFavoritePosition? favoritePosition;
 
   /// Indicates whether this [Chat] is a monolog.
@@ -195,7 +204,35 @@ class Chat extends HiveObject {
 
   /// Indicates whether the provided [ChatItem] was read by some [User] other
   /// than [me].
-  bool isRead(ChatItem item, UserId? me) {
+  ///
+  /// If [members] are provided, then accounts its [ChatMember.joinedAt] for a
+  /// more precise read indication.
+  bool isRead(
+    ChatItem item,
+    UserId? me, [
+    List<ChatMember> members = const [],
+  ]) {
+    if (members.isNotEmpty) {
+      if (members.length <= 1) {
+        return true;
+      }
+
+      final Iterable<ChatMember> membersWithoutMe =
+          members.where((e) => e.user.id != me);
+
+      if (membersWithoutMe.isNotEmpty) {
+        final PreciseDateTime firstJoinedAt =
+            membersWithoutMe.fold<PreciseDateTime>(
+          membersWithoutMe.first.joinedAt,
+          (at, member) => member.joinedAt.isBefore(at) ? member.joinedAt : at,
+        );
+
+        if (item.at.isBefore(firstJoinedAt)) {
+          return true;
+        }
+      }
+    }
+
     return lastReads.firstWhereOrNull(
             (e) => !e.at.isBefore(item.at) && e.memberId != me) !=
         null;
@@ -242,7 +279,23 @@ class LastChatRead {
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> {
-  const ChatId(String val) : super(val);
+  const ChatId(super.val);
+
+  /// Constructs a local [ChatId] from the [id] of the [User] with whom the
+  /// local [Chat] is created.
+  factory ChatId.local(UserId id) => ChatId('local_${id.val}');
+
+  /// Indicates whether this [ChatId] is a dummy ID.
+  bool get isLocal => val.startsWith('local_');
+
+  /// Returns [UserId] part of this [ChatId] if [isLocal].
+  UserId get userId => isLocal
+      ? UserId(val.replaceFirst('local_', ''))
+      : throw Exception('ChatId is not local');
+
+  /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
+  /// equals the provided [id].
+  bool isLocalWith(UserId? id) => isLocal && userId == id;
 }
 
 /// Name of a [Chat].

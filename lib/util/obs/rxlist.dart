@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -146,6 +147,12 @@ class RxObsList<E> extends ListMixin<E>
   }
 
   @override
+  void insert(int index, E element) {
+    _value.insert(index, element);
+    refresh();
+  }
+
+  @override
   void insertAll(int index, Iterable<E> iterable) {
     _value.insertAll(index, iterable);
     refresh();
@@ -167,6 +174,18 @@ class RxObsList<E> extends ListMixin<E>
   @override
   void sort([int Function(E a, E b)? compare]) {
     _value.sort(compare);
+    refresh();
+  }
+
+  @override
+  void removeRange(int start, int end) {
+    _value.removeRange(start, end);
+    refresh();
+  }
+
+  @override
+  void clear() {
+    _value.clear();
     refresh();
   }
 }

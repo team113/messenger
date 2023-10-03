@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,13 +28,21 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   'I long press {string} chat',
   (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(
-      'RecentChat_${context.world.groups[name]}',
-      FindType.key,
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.nativeDriver.longPress(finder);
-    await context.world.appDriver.waitForAppToSettle();
+      try {
+        final finder = context.world.appDriver
+            .findBy('Chat_${context.world.groups[name]}', FindType.key)
+            .first;
+
+        await context.world.appDriver.nativeDriver.longPress(finder);
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
   },
 );

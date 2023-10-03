@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,28 +16,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [AvatarWidget] with caption and subtitle texts used to display
-/// [ChatCall.caller] and [OngoingCall] state.
+/// [ChatCall.author] and [OngoingCall] state.
 class CallTitle extends StatelessWidget {
   const CallTitle(
     this.me, {
-    Key? key,
+    super.key,
     this.chat,
     this.title,
     this.avatar,
     this.state,
     this.withDots = false,
-  }) : super(key: key);
+  });
 
   /// [Chat] that contains the current [OngoingCall].
   final Chat? chat;
@@ -61,6 +62,8 @@ class CallTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return DefaultTextStyle.merge(
       maxLines: 1,
       softWrap: true,
@@ -81,20 +84,16 @@ class CallTitle extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: context.textTheme.headline4?.copyWith(color: Colors.white),
+            style: style.fonts.displayBoldOnPrimary,
           ),
-          if (state != null) const SizedBox(height: 3),
+          if (state != null) const SizedBox(height: 10),
           if (state != null)
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (withDots) const SizedBox(width: 13),
-                Text(
-                  state!,
-                  style:
-                      context.textTheme.caption?.copyWith(color: Colors.white),
-                ),
+                Text(state!, style: style.fonts.headlineMediumOnPrimary),
                 if (withDots) const AnimatedDots(),
               ],
             ),

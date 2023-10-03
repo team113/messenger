@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -39,28 +40,33 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
+import 'package:messenger/provider/hive/monolog.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
-import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -93,7 +99,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -106,23 +111,34 @@ void main() async {
     }
   };
 
-  var graphQlProvider = Get.put<GraphQlProvider>(MockGraphQlProvider());
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  };
+
+  var graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  when(graphQlProvider.keepOnline())
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+  when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
+      .thenAnswer((_) => const Stream.empty());
 
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    ChatVersion('0'),
-  )).thenAnswer((_) => Future.value(chatEvents.stream));
+    any,
+  )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-      .thenAnswer((_) => Future.value(GetChat$Query.fromJson(chatData)));
+      .thenAnswer(
+          (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
   when(graphQlProvider.readChat(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -134,14 +150,27 @@ void main() async {
           const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
       .thenAnswer((_) => Future.value(null));
 
-  when(graphQlProvider.chatItems(
+  when(graphQlProvider.readChat(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          first: 120))
-      .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-            'chat': {
-              'items': {'edges': []}
+          const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0')))
+      .thenAnswer((_) => Future.value(null));
+
+  when(graphQlProvider.chatItems(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    last: 50,
+  )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+        'chat': {
+          'items': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
             }
-          })));
+          }
+        }
+      })));
 
   when(
     graphQlProvider.postChatMessage(
@@ -164,7 +193,15 @@ void main() async {
               '__typename': 'ChatMessage',
               'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'authorId': 'me',
+              'author': {
+                'id': 'me',
+                'num': '1234567890123456',
+                'mutualContactsCount': 0,
+                'isDeleted': false,
+                'isBlocked': {'blacklisted': false, 'ver': '0'},
+                'presence': 'AWAY',
+                'ver': '0',
+              },
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
               'repliesTo': [],
@@ -227,9 +264,24 @@ void main() async {
   when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
   when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => Future.value(const Stream.empty()));
-  when(graphQlProvider.favoriteChatsEvents(null)).thenAnswer(
-    (_) => Future.value(const Stream.empty()),
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.favoriteChatsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.myUserEvents(any))
+      .thenAnswer((realInvocation) => const Stream.empty());
+  when(graphQlProvider.getUser(any))
+      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getMonolog()).thenAnswer(
+    (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
+  when(graphQlProvider.getBlocklist(
+    first: 120,
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
@@ -242,16 +294,13 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
     ),
   );
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -271,6 +320,15 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
+  await blacklistedUsersProvider.init();
+  var monologProvider = MonologHiveProvider();
+  await monologProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -294,6 +352,8 @@ void main() async {
 
   testWidgets('ChatView successfully sends a message with an attachment',
       (WidgetTester tester) async {
+    CacheWorker.instance = CacheWorker(null, null);
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
@@ -305,13 +365,14 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
         applicationSettingsProvider,
         backgroundProvider,
+        callRectProvider,
       ),
     );
     AbstractCallRepository callRepository = CallRepository(
@@ -329,9 +390,18 @@ void main() async {
         draftProvider,
         userRepository,
         sessionProvider,
+        monologProvider,
         me: const UserId('me'),
       ),
     );
+
+    MyUserRepository myUserRepository = MyUserRepository(
+      graphQlProvider,
+      myUserProvider,
+      blacklistedUsersProvider,
+      userRepository,
+    );
+    Get.put(MyUserService(authService, myUserRepository));
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
@@ -348,7 +418,7 @@ void main() async {
 
     ChatController chatController =
         Get.find(tag: '0d72d245-8425-467a-9ebd-082d4f47850b');
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -359,6 +429,7 @@ void main() async {
 
     AttachmentId id1 =
         Get.find<ChatController>(tag: '0d72d245-8425-467a-9ebd-082d4f47850b')
+            .send
             .attachments
             .first
             .value
@@ -372,7 +443,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('RemovePickedFile')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    chatController.addPlatformAttachment(
+    chatController.send.addPlatformAttachment(
       PlatformFile(
         name: 'test.txt',
         size: 2,
@@ -382,6 +453,8 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('Send')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)

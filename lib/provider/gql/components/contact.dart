@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,7 +25,7 @@ import '/domain/model/user.dart';
 import '/store/model/contact.dart';
 
 /// [ChatContact]s related functionality.
-abstract class ContactGraphQlMixin {
+mixin ContactGraphQlMixin {
   GraphQlClient get client;
 
   /// Returns address book of the authenticated [MyUser] ordered alphabetically
@@ -193,14 +194,15 @@ abstract class ContactGraphQlMixin {
   /// which have already been applied to the state of some [ChatContact], so a
   /// client side is expected to handle all the events idempotently considering
   /// the `ChatContact.ver`.
-  Future<Stream<QueryResult>> contactsEvents(ChatContactsListVersion? ver) {
-    final variables = ContactsEventsArguments(ver: ver);
+  Stream<QueryResult> contactsEvents(ChatContactsListVersion? Function() ver) {
+    final variables = ContactsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ContactsEvents',
         document: ContactsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
@@ -222,8 +224,7 @@ abstract class ContactGraphQlMixin {
   /// [ChatContact] has such name already.
   Future<ChatContactEventsVersionedMixin> changeContactName(
       ChatContactId id, UserName name) async {
-    UpdateChatContactNameArguments variables =
-        UpdateChatContactNameArguments(id: id, name: name);
+    final variables = UpdateChatContactNameArguments(id: id, name: name);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'UpdateChatContactName',
@@ -261,7 +262,7 @@ abstract class ContactGraphQlMixin {
   /// [ChatContact] is already favorited at the same position.
   Future<ChatContactEventsVersionedMixin?> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition position,
+    ChatContactFavoritePosition position,
   ) async {
     final variables = FavoriteChatContactArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(
@@ -312,5 +313,66 @@ abstract class ContactGraphQlMixin {
     );
     return UnfavoriteChatContact$Mutation.fromJson(result.data!)
         .unfavoriteChatContact as ChatContactEventsVersionedMixin?;
+  }
+
+  /// Searches [ChatContact]s by the given criteria.
+  ///
+  /// Exactly one of [name]/[email]/[phone] arguments must be specified
+  /// (be non-`null`).
+  ///
+  /// Searching by [email]/[phone] is exact.
+  ///
+  /// Searching by [name] is fuzzy.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned ChatContacts are sorted depending on the provided arguments:
+  ///
+  /// - If one of the [email]/[phone] arguments is specified, then returned
+  /// [ChatContact]s are sorted by their [name]s (by IDs if the [name] is the
+  /// same) in ascending order.
+  ///
+  /// - If the [name] argument is specified, then returned [ChatContact]s are
+  /// sorted primarily by the `Levenshtein distance` of their [name]s, and
+  /// secondary by their IDs (if the `Levenshtein distance` is the same), in
+  /// descending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [ChatContact] pointed by the cursor and the
+  /// requested count of [ChatContact]s preceding and following it.
+  ///
+  /// If it's desired to receive the [ChatContact], pointed by the cursor,
+  /// without querying in both directions, one can specify [first] or [last]
+  /// count as 0.
+  Future<SearchChatContacts$Query> searchChatContacts({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+    int? first,
+    ChatContactsCursor? after,
+    int? last,
+    ChatContactsCursor? before,
+  }) async {
+    final variables = SearchChatContactsArguments(
+      name: name,
+      email: email,
+      phone: phone,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    QueryResult res = await client.query(QueryOptions(
+      document: SearchChatContactsQuery(variables: variables).document,
+      variables: variables.toJson(),
+    ));
+    return SearchChatContacts$Query.fromJson(res.data!);
   }
 }

@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,19 +20,21 @@ Feature: Favorite chats
   Background: User is in group chat with Bob and group chat with Charlie
     Given I am Alice
     And users Bob and Charlie
-    And Bob has "Alice and Bob" group with me
-    And Charlie has "Alice and Charlie" group with me
+    And I have "Alice and Bob" group with Bob
+    And I have "Alice and Charlie" group with Charlie
+    And I wait until "Alice and Bob" chat is present
+    And I wait until "Alice and Charlie" chat is present
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Bob" chat as favorite
-    And I see "Alice and Bob" chat first in chats list
+    And I see "Alice and Bob" chat first in favorites list
 
     When I long press "Alice and Charlie" chat
     And I tap `FavoriteChatButton` button
     Then I see "Alice and Charlie" chat as favorite
-    And I see "Alice and Charlie" chat first in chats list
+    And I see "Alice and Charlie" chat first in favorites list
 
   Scenario: User removes chat from favorites
     Given "Alice and Bob" chat is favorite
@@ -40,4 +43,15 @@ Feature: Favorite chats
     When I long press "Alice and Bob" chat
     And I tap `UnfavoriteChatButton` button
     Then I see "Alice and Bob" chat as unfavorited
-    And I see "Alice and Bob" chat last in chats list
+
+  Scenario: User reorders favorite chats
+    Given "Alice and Bob" chat is favorite
+    And I see "Alice and Bob" chat as favorite
+    And "Alice and Charlie" chat is favorite
+    And I see "Alice and Charlie" chat as favorite
+
+    When I drag "Alice and Bob" chat 200 pixels down
+    Then I see "Alice and Bob" chat last in favorites list
+
+    When I drag "Alice and Charlie" chat 200 pixels down
+    Then I see "Alice and Charlie" chat last in favorites list

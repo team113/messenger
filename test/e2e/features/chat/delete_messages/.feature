@@ -1,4 +1,5 @@
-# Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,7 +32,7 @@ Feature: Chat items are deleted correctly
     And I tap `Delete` button
     And I tap `DeleteForAll` button
     And I tap `Proceed` button
-    Then I wait until text "For deletion" is absent
+    Then I wait until "For deletion" message is absent
 
   Scenario: User hides message
     When I fill `MessageField` field with "For hiding"
@@ -42,4 +43,4 @@ Feature: Chat items are deleted correctly
     And I tap `Delete` button
     And I tap `HideForMe` button
     And I tap `Proceed` button
-    Then I wait until text "For hiding" is absent
+    Then I wait until "For hiding" message is absent

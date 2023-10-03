@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,16 +21,17 @@ import 'package:get/get.dart';
 import '../call/view.dart';
 import '/domain/model/chat.dart';
 import '/routes.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
 
 /// View of the [Routes.call] page.
 class PopupCallView extends StatefulWidget {
   const PopupCallView({
-    Key? key,
+    super.key,
     required this.chatId,
     required this.depsFactory,
-  }) : super(key: key);
+  });
 
   /// ID of a [Chat] this call is taking place in.
   final ChatId chatId;
@@ -61,7 +63,7 @@ class _PopupCallViewState extends State<PopupCallView> {
   @override
   Widget build(BuildContext context) {
     if (_deps == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CustomProgressIndicator()));
     }
 
     return GetBuilder<PopupCallController>(

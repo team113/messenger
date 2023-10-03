@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -73,7 +74,8 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
       ObsList(List<E>.unmodifiable(elements));
 
   /// [StreamController] of changes of this list.
-  final _changes = StreamController<ListChangeNotification<E>>.broadcast();
+  final _changes =
+      StreamController<ListChangeNotification<E>>.broadcast(sync: true);
 
   /// Returns stream of changes of this list.
   Stream<ListChangeNotification<E>> get changes => _changes.stream;
@@ -144,6 +146,28 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
       _changes.add(ListChangeNotification<E>.removed(this[i], length));
     }
     super.clear();
+  }
+
+  @override
+  void removeRange(int start, int end) {
+    List<E> stored = List.from(this, growable: false);
+    super.removeRange(start, end);
+
+    for (int i = start; i < end; ++i) {
+      if (!contains(stored[i])) {
+        _changes.add(ListChangeNotification<E>.removed(stored[i], i));
+      }
+    }
+  }
+
+  @override
+  void insertAll(int index, Iterable<E> iterable) {
+    super.insertAll(index, iterable);
+    for (int i = 0; i < iterable.length; i++) {
+      _changes.add(
+        ListChangeNotification<E>.added(iterable.elementAt(i), i + index),
+      );
+    }
   }
 }
 

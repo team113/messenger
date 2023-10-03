@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +21,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 
@@ -31,6 +33,11 @@ class AuthRepository implements AbstractAuthRepository {
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
+
+  // TODO: Temporary solution, wait for support from backend.
+  /// [Credentials] of [Session] created with [signUpWithEmail] returned in
+  /// successful [confirmSignUpEmail].
+  Credentials? _signUpCredentials;
 
   @override
   set token(AccessToken? token) {
@@ -47,11 +54,6 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   void applyToken() => _graphQlProvider.reconnect();
-
-  @override
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-          UserEmail? email, UserPhone? phone) async =>
-      await _graphQlProvider.checkUserIdentifiable(login, num, email, phone);
 
   @override
   Future<Credentials> signUp() async {
@@ -91,13 +93,64 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
+  Future<void> signUpWithEmail(UserEmail email) async {
+    _signUpCredentials = null;
+
+    final response = await _graphQlProvider.signUp();
+
+    // TODO: Add `Credentials` to backend extensions.
+    _signUpCredentials = Credentials(
+      Session(
+        response.createUser.session.token,
+        response.createUser.session.expireAt,
+      ),
+      RememberedSession(
+        response.createUser.remembered!.token,
+        response.createUser.remembered!.expireAt,
+      ),
+      response.createUser.user.id,
+    );
+
+    await _graphQlProvider.addUserEmail(
+      email,
+      raw: RawClientOptions(_signUpCredentials!.session.token),
+    );
+  }
+
+  @override
+  Future<Credentials> confirmSignUpEmail(
+    ConfirmationCode code,
+  ) async {
+    if (_signUpCredentials == null) {
+      throw ArgumentError.notNull('_signUpCredentials');
+    }
+
+    await _graphQlProvider.confirmEmailCode(
+      code,
+      raw: RawClientOptions(_signUpCredentials!.session.token),
+    );
+    return _signUpCredentials!;
+  }
+
+  @override
+  Future<void> resendSignUpEmail() async {
+    if (_signUpCredentials == null) {
+      throw ArgumentError.notNull('_signUpCredentials');
+    }
+
+    await _graphQlProvider.resendEmail(
+      raw: RawClientOptions(_signUpCredentials!.session.token),
+    );
+  }
+
+  @override
   Future<void> logout() async => await _graphQlProvider.deleteSession();
 
   @override
   Future<void> validateToken() async => await _graphQlProvider.validateToken();
 
   @override
-  Future<Credentials> renewSession(RememberToken token) =>
+  Future<Credentials> renewSession(RefreshToken token) =>
       _graphQlProvider.clientGuard.protect(() async {
         var response = (await _graphQlProvider.renewSession(token)).renewSession
             as RenewSession$Mutation$RenewSession$RenewSessionOk;

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,11 +17,14 @@
 
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:get/get.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// Worker responsible for updating the [RouterState.prefix] with the
 /// [MyUser.unreadChatsCount].
@@ -40,17 +44,11 @@ class MyUserWorker extends DisposableService {
   @override
   void onInit() {
     _updateBadge(_myUser.myUser.value?.unreadChatsCount ?? 0);
-    router.prefix.value = _myUser.myUser.value == null ||
-            _myUser.myUser.value?.unreadChatsCount == 0
-        ? null
-        : '(${_myUser.myUser.value!.unreadChatsCount})';
 
-    _worker = ever(_myUser.myUser, (MyUser? u) {
-      _updateBadge(u?.unreadChatsCount ?? 0);
-      router.prefix.value = u == null || u.unreadChatsCount == 0
-          ? null
-          : '(${u.unreadChatsCount})';
-    });
+    _worker = ever(
+      _myUser.myUser,
+      (MyUser? u) => _updateBadge(u?.unreadChatsCount ?? 0),
+    );
 
     super.onInit();
   }
@@ -59,6 +57,7 @@ class MyUserWorker extends DisposableService {
   void onClose() {
     _worker?.dispose();
     router.prefix.value = null;
+    _updateBadge(0);
     super.onClose();
   }
 
@@ -67,16 +66,41 @@ class MyUserWorker extends DisposableService {
     if (_lastUnreadChatsCount != count) {
       _lastUnreadChatsCount = count;
 
-      try {
-        if (await FlutterAppBadger.isAppBadgeSupported()) {
+      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+        try {
           if (count == 0) {
-            FlutterAppBadger.removeBadge();
+            await WindowsTaskbar.resetOverlayIcon();
           } else {
-            FlutterAppBadger.updateBadgeCount(count);
+            final String number = count > 9 ? '9+' : '$count';
+            await WindowsTaskbar.setOverlayIcon(
+              ThumbnailToolbarAssetIcon(
+                'assets/icons/notification/$number.ico',
+              ),
+            );
           }
+        } catch (_) {
+          // No-op.
         }
-      } catch (_) {
-        // No-op.
+      } else {
+        try {
+          if (await FlutterAppBadger.isAppBadgeSupported()) {
+            if (count == 0) {
+              await FlutterAppBadger.removeBadge();
+            } else {
+              await FlutterAppBadger.updateBadgeCount(count);
+            }
+          }
+        } catch (_) {
+          // No-op.
+        }
+      }
+
+      router.prefix.value = count == 0 ? null : '($count)';
+
+      if (count > 0) {
+        WebUtils.setAlertFavicon();
+      } else {
+        WebUtils.setDefaultFavicon();
       }
     }
   }

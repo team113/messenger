@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,13 +26,13 @@ import 'fit_view.dart';
 /// Uses [FitView], if there's not enough space for the [Wrap].
 class FitWrap extends StatelessWidget {
   const FitWrap({
-    Key? key,
+    super.key,
     required this.children,
     required this.maxSize,
     this.axis = Axis.horizontal,
     this.spacing = 1,
     this.alignment = WrapAlignment.center,
-  }) : super(key: key);
+  });
 
   /// Widgets to put inside a [Wrap].
   final List<Widget> children;

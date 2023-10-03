@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,8 +17,8 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/session.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/util/new_type.dart';
 import 'contact.dart';

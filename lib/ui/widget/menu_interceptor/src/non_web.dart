@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,11 +21,11 @@ import 'package:flutter/widgets.dart';
 class ContextMenuInterceptor extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables
   ContextMenuInterceptor({
+    super.key,
     required this.child,
     enabled = true,
     debug = false,
-    Key? key,
-  }) : super(key: key);
+  });
 
   /// Widget being wrapped.
   final Widget child;

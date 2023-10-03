@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,8 +23,26 @@ import '/util/new_type.dart';
 /// [DateTime] considering the microseconds on any platform, including Web.
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
-  PreciseDateTime(DateTime val, {this.microsecond = 0}) : super(val);
+  PreciseDateTime(super.val, {this.microsecond = 0});
 
+  /// Constructs a new [PreciseDateTime] instance with the given
+  /// [microsecondsSinceEpoch].
+  ///
+  /// The constructed [DateTime] represents 1970-01-01T00:00:00Z +
+  /// [microsecondsSinceEpoch] us in the given time zone (local or UTC).
+  /// ```dart
+  /// final newYearsEve =
+  ///     PreciseDateTime.fromMicrosecondsSinceEpoch(1640901600000000);
+  /// print(newYearsEve); // 2021-12-31 19:30:00.000Z
+  /// ```
+  PreciseDateTime.fromMicrosecondsSinceEpoch(int microsecondsSinceEpoch)
+      : microsecond = microsecondsSinceEpoch % 1000,
+        super(DateTime.fromMillisecondsSinceEpoch(
+          (microsecondsSinceEpoch / 1000).floor(),
+          isUtc: true,
+        ));
+
+  /// Microsecond part of this [PreciseDateTime].
   final int microsecond;
 
   /// Returns the number of microseconds since the "Unix epoch"
@@ -46,6 +65,14 @@ class PreciseDateTime extends NewType<DateTime>
     }
     return val.compareTo(other.val);
   }
+
+  @override
+  int get hashCode => Object.hash(val, microsecond);
+
+  @override
+  bool operator ==(Object other) =>
+      other is PreciseDateTime &&
+      microsecondsSinceEpoch == other.microsecondsSinceEpoch;
 
   /// Returns `true` if this [PreciseDateTime] occurs before [other].
   ///

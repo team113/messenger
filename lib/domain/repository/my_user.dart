@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,23 +17,27 @@
 
 import 'package:get/get.dart';
 
-import '../model/my_user.dart';
-import '../model/user.dart';
 import '/api/backend/schema.dart' show Presence;
-import '/domain/model/gallery_item.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
 
+  /// Returns [User]s blacklisted by the authenticated [MyUser].
+  RxList<RxUser> get blacklist;
+
   /// Initializes the repository.
   ///
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.
   /// Callback [onPasswordUpdated] should be called when [myUser]'s password
   /// is updated.
-  void init({
+  Future<void> init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
   });
@@ -46,11 +51,8 @@ abstract class AbstractMyUserRepository {
   /// the provided [name] is `null`.
   Future<void> updateUserName(UserName? name);
 
-  /// Updates [MyUser.bio] field for the authenticated [MyUser].
-  ///
-  /// Resets [MyUser.bio] field to `null` for the authenticated [MyUser] if the
-  /// provided [bio] is `null`.
-  Future<void> updateUserBio(UserBio? bio);
+  /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status);
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   Future<void> updateUserLogin(UserLogin login);
@@ -119,23 +121,22 @@ abstract class AbstractMyUserRepository {
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
   Future<void> deleteChatDirectLink();
 
-  /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<void> uploadGalleryItem(
-    NativeFile galleryItem, {
+  /// Updates or resets the [MyUser.avatar] field with the provided image
+  /// [file].
+  Future<void> updateAvatar(
+    NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
   });
 
-  /// Removes the specified [GalleryItem] from the authenticated [MyUser]'s
-  /// gallery.
-  Future<void> deleteGalleryItem(GalleryItemId id);
+  /// Updates or resets the [MyUser.callCover] field with the provided image
+  /// [file].
+  Future<void> updateCallCover(
+    NativeFile? file, {
+    void Function(int count, int total)? onSendProgress,
+  });
 
-  /// Updates or resets the [MyUser.avatar] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> updateAvatar(GalleryItemId? id);
-
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> updateCallCover(GalleryItemId? id);
+  /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
+  Future<void> toggleMute(MuteDuration? mute);
 
   /// Disposes the repository.
   void dispose();

@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,7 +34,6 @@ import 'package:flutter_svg/svg.dart';
 Widget svgFromAsset(
   String asset, {
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.contain,
   double? height,
@@ -46,7 +46,6 @@ Widget svgFromAsset(
     SvgPicture.asset(
       asset,
       alignment: Alignment.center,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,
@@ -66,7 +65,6 @@ Widget svgFromBytes(
   Uint8List bytes, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
@@ -77,7 +75,6 @@ Widget svgFromBytes(
     SvgPicture.memory(
       bytes,
       alignment: Alignment.center,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,
@@ -96,7 +93,6 @@ Widget svgFromFile(
   File file, {
   Key? key,
   Alignment alignment = Alignment.center,
-  Color? color,
   bool excludeFromSemantics = false,
   BoxFit fit = BoxFit.cover,
   double? width,
@@ -107,7 +103,6 @@ Widget svgFromFile(
     SvgPicture.file(
       file,
       alignment: Alignment.center,
-      color: color,
       excludeFromSemantics: excludeFromSemantics,
       fit: fit,
       height: height,

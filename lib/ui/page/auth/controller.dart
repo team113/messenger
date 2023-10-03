@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,9 +17,7 @@
 
 import 'dart:async';
 
-import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
-import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -30,17 +29,11 @@ export 'view.dart';
 class AuthController extends GetxController {
   AuthController(this._auth);
 
+  /// Current [AnimatedLogo] animation frame.
+  final RxInt logoFrame = RxInt(0);
+
   /// Authorization service used for signing up.
   final AuthService _auth;
-
-  /// Current logo's animation frame.
-  RxInt logoFrame = RxInt(0);
-
-  /// [SMITrigger] triggering the blinking animation.
-  SMITrigger? blink;
-
-  /// [GlobalKey] of the button opening the [Language] selection.
-  final GlobalKey languageKey = GlobalKey();
 
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
@@ -53,9 +46,6 @@ class AuthController extends GetxController {
     _animationTimer?.cancel();
     super.onClose();
   }
-
-  @override
-  void onReady() => Future.delayed(const Duration(milliseconds: 500), animate);
 
   /// Registers and redirects to the [Routes.home] page.
   Future<void> register() async {
@@ -70,8 +60,6 @@ class AuthController extends GetxController {
 
   /// Resets the [logoFrame] and starts the blinking animation.
   void animate() {
-    blink?.fire();
-
     logoFrame.value = 1;
     _animationTimer?.cancel();
     _animationTimer = Timer.periodic(

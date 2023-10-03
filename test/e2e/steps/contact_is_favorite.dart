@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -55,8 +56,9 @@ final StepDefinitionGeneric contactIsFavorite =
           ? null
           : sortFavorites.first.contact.value.favoritePosition!.val;
 
-      final position =
-          ChatContactPosition(lowest == null ? 9007199254740991 : lowest / 2);
+      final position = ChatContactFavoritePosition(
+        lowest == null ? 9007199254740991 : lowest / 2,
+      );
 
       await provider.favoriteChatContact(contactId, position);
     } else {

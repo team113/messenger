@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,7 +28,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
@@ -47,15 +48,23 @@ void main() async {
     'num': '1234567890123456',
     'login': 'login',
     'name': 'name',
-    'bio': 'bio',
     'emails': {'confirmed': [], 'unconfirmed': null},
     'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
     'hasPassword': true,
     'unreadChatsCount': 0,
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+  };
+
+  var blacklist = {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
   };
 
   var sessionProvider = SessionDataHiveProvider();
@@ -66,25 +75,24 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
+  await blacklistedUsersProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
   });
 
   Get.put(myUserProvider);
-  Get.put(galleryItemProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(sessionProvider);
 
   test(
       'MyUserService successfully adds, removes, confirms phone and resends confirmation code',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -92,11 +100,10 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         )
-      ])),
+      ]),
     );
 
-    when(graphQlProvider.keepOnline())
-        .thenAnswer((_) => Future.value(const Stream.empty()));
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.addUserPhone(UserPhone('+380999999999'))).thenAnswer(
       (_) => Future.value(AddUserPhone$Mutation.fromJson({
@@ -158,18 +165,27 @@ void main() async {
       }).deleteUserPhone),
     );
 
+    when(graphQlProvider.getBlocklist(
+      first: 120,
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
+    );
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      galleryItemProvider,
+      blacklistedUsersProvider,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
@@ -193,8 +209,8 @@ void main() async {
   test(
       'MyUserService throws AddUserPhoneException, ResendUserPhoneConfirmationErrorCode, ConfirmUserPhoneException',
       () async {
-    when(graphQlProvider.myUserEvents(null)).thenAnswer(
-      (_) => Future.value(Stream.fromIterable([
+    when(graphQlProvider.myUserEvents(any)).thenAnswer(
+      (_) => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -202,7 +218,7 @@ void main() async {
             'myUserEvents': {'__typename': 'MyUser', ...userData},
           },
         ),
-      ])),
+      ]),
     );
 
     when(
@@ -226,12 +242,12 @@ void main() async {
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      galleryItemProvider,
+      blacklistedUsersProvider,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});

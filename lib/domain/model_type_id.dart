@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,7 +21,6 @@
 /// previous versions of application. Add new entries to the end.
 class ModelTypeId {
   static const myUser = 0;
-  static const imageGalleryItem = 1;
   static const session = 2;
   static const chatDirectLink = 3;
   static const myUserEmails = 4;
@@ -31,7 +31,6 @@ class ModelTypeId {
   static const myUserPhones = 9;
   static const muteDuration = 10;
   static const chat = 11;
-  static const galleryItemId = 12;
   static const original = 13;
   static const square = 14;
   static const chatContactsCursor = 15;
@@ -41,7 +40,6 @@ class ModelTypeId {
   static const userNum = 19;
   static const userLogin = 20;
   static const userName = 21;
-  static const userBio = 22;
   static const userEmail = 23;
   static const userPhone = 24;
   static const chatDirectLinkSlug = 25;
@@ -50,7 +48,7 @@ class ModelTypeId {
   static const usersCursor = 28;
   static const userVersion = 29;
   static const chatContactId = 30;
-  static const chatContactPosition = 31;
+  static const chatContactFavoritePosition = 31;
   static const chatContactVersion = 32;
   static const chatId = 33;
   static const user = 34;
@@ -77,14 +75,14 @@ class ModelTypeId {
   static const rememberedSession = 55;
   static const rememberedToken = 56;
   static const rememberedSessionVersion = 57;
-  static const chatMemberInfo = 58;
+  static const chatInfo = 58;
   static const chatMessage = 59;
   static const chatForward = 60;
   static const attachmentId = 61;
   static const imageAttachment = 62;
   static const fileAttachment = 63;
   static const chatItemsCursor = 64;
-  static const hiveChatMemberInfo = 65;
+  static const hiveChatInfo = 65;
   static const hiveChatCall = 66;
   static const hiveChatMessage = 67;
   static const hiveChatForward = 68;
@@ -99,8 +97,25 @@ class ModelTypeId {
   static const localAttachment = 77;
   static const mediaType = 78;
   static const hiveBackground = 79;
-  static const storageFile = 80;
+  static const plainFile = 80;
   static const chatCallCredentials = 81;
   static const chatFavoritePosition = 82;
   static const favoriteChatsListVersion = 83;
+  static const blacklistCursor = 84;
+  static const windowPreferences = 85;
+  static const blocklistReason = 86;
+  static const chatMembersDialedAll = 87;
+  static const chatMembersDialedConcrete = 88;
+  static const chatInfoActionAvatarUpdated = 89;
+  static const chatInfoActionCreated = 90;
+  static const chatInfoActionMemberAdded = 91;
+  static const chatInfoActionMemberRemoved = 92;
+  static const chatInfoActionNameUpdated = 93;
+  static const chatMessageQuote = 94;
+  static const chatCallQuote = 95;
+  static const chatInfoQuote = 96;
+  static const blocklistRecord = 97;
+  static const rect = 98;
+  static const cacheInfo = 99;
+  static const imageFile = 100;
 }

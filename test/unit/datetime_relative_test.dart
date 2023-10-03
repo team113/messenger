@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,7 +17,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

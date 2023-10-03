@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,6 +23,7 @@ import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 import '/util/obs/obs.dart';
+import 'search.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
@@ -31,15 +33,18 @@ abstract class AbstractContactRepository {
   /// Returns reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites;
 
-  /// Indicates whether this repository was initialized and [contacts] can be
-  /// used.
-  RxBool get isReady;
+  /// Returns the initialization [RxStatus] of this repository and its
+  /// [contacts] and [favorites].
+  Rx<RxStatus> get status;
 
   /// Initializes this repository.
   Future<void> init();
 
   /// Disposes this repository.
   void dispose();
+
+  /// Returns a [ChatContact] by the provided [id].
+  RxChatContact? get(ChatContactId id);
 
   /// Clears the stored [contacts].
   Future<void> clearCache();
@@ -62,12 +67,19 @@ abstract class AbstractContactRepository {
   /// [MyUser] and sets its position in the favorites list.
   Future<void> favoriteChatContact(
     ChatContactId id,
-    ChatContactPosition? position,
+    ChatContactFavoritePosition? position,
   );
 
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id);
+
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 }
 
 /// Unified reactive [ChatContact] entity.

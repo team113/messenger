@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,18 +17,20 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Draggable widget reporting delta of a dragging through [onDragUpdate]
 /// callback.
 class Scaler extends StatefulWidget {
   const Scaler({
-    Key? key,
+    super.key,
     this.onDragStart,
     this.onDragUpdate,
     this.onDragEnd,
     this.width = size,
     this.height = size,
     this.opacity = 0,
-  }) : super(key: key);
+  });
 
   /// Size of the draggable area, used by default on [width] and [height].
   static const double size = 20;
@@ -64,6 +67,8 @@ class _ScalerState extends State<Scaler> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GestureDetector(
       onPanStart: (details) {
         setState(() {
@@ -86,7 +91,7 @@ class _ScalerState extends State<Scaler> {
         child: Container(
           width: widget.width,
           height: widget.height,
-          color: Colors.blue,
+          color: style.colors.primaryHighlight,
         ),
       ),
     );

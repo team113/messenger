@@ -1,4 +1,5 @@
-// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,6 +19,7 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,19 +30,17 @@ import '../model_type_id.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
-part 'native_file.g.dart';
-
 /// Native file representation.
-@HiveType(typeId: ModelTypeId.nativeFile)
 class NativeFile {
   NativeFile({
     required this.name,
     required this.size,
     this.path,
-    this.bytes,
+    Uint8List? bytes,
     Stream<List<int>>? stream,
     this.mime,
-  }) : _readStream = stream {
+  })  : bytes = Rx(bytes),
+        _readStream = stream {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
       if (path != null) {
@@ -75,26 +75,21 @@ class NativeFile {
       );
 
   /// Absolute path for a cached copy of this file.
-  @HiveField(0)
   final String? path;
 
   /// File name including its extension.
-  @HiveField(1)
   final String name;
 
   /// Byte data of this file.
-  @HiveField(2)
-  Uint8List? bytes;
+  final Rx<Uint8List?> bytes;
 
   /// Size of this file in bytes.
-  @HiveField(3)
   final int size;
 
   /// [MediaType] of this file.
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
-  @HiveField(4)
   MediaType? mime;
 
   /// [Mutex] for synchronized access to the [readFile].
@@ -161,7 +156,7 @@ class NativeFile {
     if (_readStream == null) return null;
 
     _mergedStream ??= StreamGroup.mergeBroadcast([
-      if (bytes != null) _streamOfBytes(),
+      if (bytes.value != null) _streamOfBytes(),
       _readStream!,
     ]);
 
@@ -175,8 +170,9 @@ class NativeFile {
     if (mime == null) {
       if (_readStream != null) {
         return Future(() async {
-          bytes = Uint8List.fromList(await _readStream!.first);
-          var type = MimeResolver.lookup(path ?? name, headerBytes: bytes);
+          bytes.value = Uint8List.fromList(await _readStream!.first);
+          var type =
+              MimeResolver.lookup(path ?? name, headerBytes: bytes.value);
           if (type != null) {
             mime = MediaType.parse(type);
           }
@@ -201,17 +197,17 @@ class NativeFile {
           data.addAll(await queue.next);
         }
 
-        bytes = Uint8List.fromList(data);
+        bytes.value = Uint8List.fromList(data);
         _readStream = null;
       }
 
-      return bytes;
+      return bytes.value;
     });
   }
 
   /// Constructs a [Stream] from the [bytes].
   Stream<List<int>> _streamOfBytes() async* {
-    yield bytes!.toList();
+    yield bytes.value!.toList();
   }
 }
 
@@ -222,26 +218,45 @@ class MediaTypeAdapter extends TypeAdapter<MediaType> {
 
   @override
   MediaType read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
     return MediaType(
-      fields[0] as String,
-      fields[1] as String,
-      (fields[2] as Map).cast<String, String>(),
+      reader.read() as String,
+      reader.read() as String,
+      (reader.read() as Map).cast<String, String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, MediaType obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
       ..write(obj.type)
-      ..writeByte(1)
       ..write(obj.subtype)
-      ..writeByte(2)
       ..write(obj.parameters);
+  }
+}
+
+/// [Hive] adapter for a [NativeFile].
+class NativeFileAdapter extends TypeAdapter<NativeFile> {
+  @override
+  final int typeId = ModelTypeId.nativeFile;
+
+  @override
+  NativeFile read(BinaryReader reader) {
+    return NativeFile(
+      path: reader.read() as String?,
+      name: reader.read() as String,
+      bytes: reader.read() as Uint8List?,
+      size: reader.read() as int,
+      mime: reader.read() as MediaType?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, NativeFile obj) {
+    writer
+      ..write(obj.path)
+      ..write(obj.name)
+      ..write(obj.bytes.value)
+      ..write(obj.size)
+      ..write(obj.mime);
   }
 }
