@@ -168,12 +168,12 @@ class MessageFieldController extends GetxController {
     const DonateButton(),
     const StickerButton(),
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
-      TakePhotoButton(() => pickImageFromCamera()),
-      if (PlatformUtils.isAndroid) TakeVideoButton(() => pickVideoFromCamera()),
-      GalleryButton(() => pickMedia()),
-      FileButton(() => pickFile()),
+      TakePhotoButton(pickImageFromCamera),
+      if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),
+      GalleryButton(pickMedia),
+      FileButton(pickFile),
     ] else
-      AttachmentButton(() => pickFile()),
+      AttachmentButton(pickFile),
   ]);
 
   /// [ChatButton]s displayed in the text field.
@@ -311,7 +311,8 @@ class MessageFieldController extends GetxController {
   Future<void> pickMedia() {
     field.focus.unfocus();
     return _pickAttachment(
-        PlatformUtils.isIOS ? FileType.media : FileType.image);
+      PlatformUtils.isIOS ? FileType.media : FileType.image,
+    );
   }
 
   /// Opens the camera app and adds the captured image to the [attachments].
