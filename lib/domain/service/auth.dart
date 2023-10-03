@@ -18,7 +18,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -312,8 +312,7 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Creates a new [Session] for the [MyUser] identified by the provided
-  /// [credentials].
+  /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
     // Check if the [credentials] are valid.

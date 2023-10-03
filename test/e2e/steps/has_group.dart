@@ -50,8 +50,7 @@ final StepDefinitionGeneric haveGroupNamed =
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Creates the specified amount of [Chat]-groups with the authenticated
-/// [MyUser].
+/// Creates the specified amount of [Chat]-groups for the provided [TestUser].
 ///
 /// Examples:
 /// - Given Alice has 5 groups.

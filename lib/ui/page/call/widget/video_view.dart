@@ -96,21 +96,24 @@ class RtcVideoView extends StatefulWidget {
     BuildContext context,
   ) {
     if (source == MediaSourceKind.display ||
-        (renderer.width == 0 && renderer.height == 0)) {
+        (renderer.width.value == 0 && renderer.height.value == 0)) {
       return BoxFit.contain;
     } else {
       bool contain = false;
 
+      final double aspectRatio = renderer.width.value / renderer.height.value;
+
       if (context.isMobile) {
         // Video is horizontal.
-        if (renderer.aspectRatio >= 1) {
+        if (aspectRatio >= 1) {
           double width = constraints.maxWidth;
-          double height =
-              renderer.height * (constraints.maxWidth / renderer.width);
+          double height = renderer.height.value *
+              (constraints.maxWidth / renderer.width.value);
           double factor = constraints.maxHeight / height;
           contain = factor >= 3.0;
           if (factor < 1) {
-            width = renderer.width * (constraints.maxHeight / renderer.height);
+            width = renderer.width.value *
+                (constraints.maxHeight / renderer.height.value);
             height = constraints.maxHeight;
             factor = constraints.maxWidth / width;
             contain = factor >= 2.5;
@@ -118,28 +121,30 @@ class RtcVideoView extends StatefulWidget {
         }
         // Video is vertical.
         else {
-          double width =
-              renderer.width * (constraints.maxHeight / renderer.height);
+          double width = renderer.width.value *
+              (constraints.maxHeight / renderer.height.value);
           double height = constraints.maxHeight;
           double factor = constraints.maxWidth / width;
           contain = factor >= 3.9;
           if (factor < 1) {
             width = constraints.maxWidth;
-            height = renderer.height * (constraints.maxWidth / renderer.width);
+            height = renderer.height.value *
+                (constraints.maxWidth / renderer.width.value);
             factor = constraints.maxHeight / height;
             contain = factor >= 3.0;
           }
         }
       } else {
         // Video is horizontal.
-        if (renderer.aspectRatio >= 1) {
+        if (aspectRatio >= 1) {
           double width = constraints.maxWidth;
-          double height =
-              renderer.height * (constraints.maxWidth / renderer.width);
+          double height = renderer.height.value *
+              (constraints.maxWidth / renderer.width.value);
           double factor = constraints.maxHeight / height;
           contain = factor >= 2.41;
           if (factor < 1) {
-            width = renderer.width * (constraints.maxHeight / renderer.height);
+            width = renderer.width.value *
+                (constraints.maxHeight / renderer.height.value);
             height = constraints.maxHeight;
             factor = constraints.maxWidth / width;
             contain = factor >= 1.5;
@@ -147,14 +152,15 @@ class RtcVideoView extends StatefulWidget {
         }
         // Video is vertical.
         else {
-          double width =
-              renderer.width * (constraints.maxHeight / renderer.height);
+          double width = renderer.width.value *
+              (constraints.maxHeight / renderer.height.value);
           double height = constraints.maxHeight;
           double factor = constraints.maxWidth / width;
           contain = factor >= 2.0;
           if (factor < 1) {
             width = constraints.maxWidth;
-            height = renderer.height * (constraints.maxWidth / renderer.width);
+            height = renderer.height.value *
+                (constraints.maxWidth / renderer.width.value);
             factor = constraints.maxHeight / height;
             contain = factor >= 2.2;
           }
@@ -189,7 +195,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
-      if (widget.renderer.height == 0) {
+      if (widget.renderer.height.value == 0) {
         _waitTilSizeDetermined();
         return Stack(
           children: [
@@ -205,37 +211,41 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // otherwise.
     Widget aspected(BoxFit? fit) {
       if (widget.respectAspectRatio && fit != BoxFit.cover) {
-        if (widget.renderer.inner.videoHeight == 0) {
-          _waitTilSizeDetermined();
-          if (widget.framelessBuilder != null) {
-            return widget.framelessBuilder!();
+        return Obx(() {
+          if (widget.renderer.height.value == 0) {
+            _waitTilSizeDetermined();
+            if (widget.framelessBuilder != null) {
+              return widget.framelessBuilder!();
+            }
+
+            return Stack(
+              children: [
+                Offstage(child: video),
+                const Center(child: CustomProgressIndicator(size: 64))
+              ],
+            );
           }
 
-          return Stack(
-            children: [
-              Offstage(child: video),
-              const Center(child: CustomProgressIndicator(size: 64))
-            ],
+          return AspectRatio(
+            aspectRatio:
+                widget.renderer.width.value / widget.renderer.height.value,
+            child: video,
           );
-        }
-
-        return AspectRatio(
-          aspectRatio: widget.renderer.inner.videoWidth /
-              widget.renderer.inner.videoHeight,
-          child: video,
-        );
+        });
       }
 
       if (fit == BoxFit.contain) {
-        if (widget.renderer.inner.videoHeight == 0) {
-          return video;
-        }
+        return Obx(() {
+          if (widget.renderer.height.value == 0) {
+            return video;
+          }
 
-        return AspectRatio(
-          aspectRatio: widget.renderer.inner.videoWidth /
-              widget.renderer.inner.videoHeight,
-          child: video,
-        );
+          return AspectRatio(
+            aspectRatio:
+                widget.renderer.width.value / widget.renderer.height.value,
+            child: video,
+          );
+        });
       }
 
       return video;
@@ -338,7 +348,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   void _waitTilSizeDetermined() {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       if (mounted) {
-        if (widget.renderer.inner.videoHeight == 0) {
+        if (widget.renderer.height.value == 0) {
           _waitTilSizeDetermined();
         } else {
           setState(() => widget.onSizeDetermined?.call());

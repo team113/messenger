@@ -38,7 +38,9 @@ class Pagination<T, C, K> {
   /// Items per [Page] to fetch.
   final int perPage;
 
-  /// Map of the items fetched from the [provider].
+  /// Items fetched from the [provider] ordered by their [T] values.
+  ///
+  /// Use [compare] to describe the order.
   late final SortedObsMap<K, T> items = SortedObsMap(compare);
 
   /// [PageProvider] providing the [items].
@@ -60,7 +62,7 @@ class Pagination<T, C, K> {
   /// is required.
   final K Function(T) onKey;
 
-  /// Callback, comparing the provided [T] items.
+  /// Callback, comparing the provided [T] items to order them in the [items].
   final int Function(T, T)? compare;
 
   /// Cursor of the first item in the [items] list.
