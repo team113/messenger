@@ -20,7 +20,7 @@ Feature: Chat muting and unmuting
   Background: User is in group chat with Bob
     Given I am Alice
     And user Bob
-    And Bob has "Alice and Bob" group with me
+    And I have "Alice and Bob" group with Bob
     And I wait until text "Alice and Bob" is present
 
   Scenario: User mutes chat
