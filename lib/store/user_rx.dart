@@ -250,7 +250,8 @@ class HiveRxUser extends RxUser {
     }
 
     final DateTime now = DateTime.now();
-    final Duration difference = now.difference(user.value.lastSeenAt!.val);
+    final Duration difference =
+        now.difference(user.value.lastSeenAt!.val).abs();
 
     final Duration delay;
     final Duration period;
@@ -274,6 +275,9 @@ class HiveRxUser extends RxUser {
             difference.inMicroseconds % Duration.microsecondsPerDay,
       );
     }
+
+    lastSeen.value = user.value.lastSeenAt;
+    lastSeen.refresh();
 
     _lastSeenTimer = Timer(
       delay,

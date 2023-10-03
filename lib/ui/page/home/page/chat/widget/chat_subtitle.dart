@@ -176,7 +176,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
       if (member != null) {
         return Obx(() {
-          final String? subtitle = chat.getSubtitle(partner: member.user.value);
+          final String? subtitle = chat.getSubtitle(partner: member);
           final UserTextStatus? status = member.user.value.status;
           final Widget child;
 

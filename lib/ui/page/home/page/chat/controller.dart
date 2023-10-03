@@ -1561,10 +1561,10 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({User? partner}) {
+  String? getSubtitle({RxUser? partner}) {
     switch (kind) {
       case ChatKind.dialog:
-        return partner?.getStatus();
+        return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
         return '${members.length} ${'label_subtitle_participants'.l10n}';
