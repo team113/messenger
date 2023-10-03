@@ -51,7 +51,7 @@ abstract class ChatButton {
   bool operator ==(Object other) =>
       other is ChatButton && runtimeType == other.runtimeType;
 
-  /// Builds the [Widget] representation of this [CallButton].
+  /// Builds the [Widget] representation of this [ChatButton].
   Widget build({
     bool hinted = true,
     bool pinned = false,
