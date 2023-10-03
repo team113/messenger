@@ -224,13 +224,14 @@ class ChatItemWidget extends StatefulWidget {
         ],
       );
     } else {
-      final ImageFile file = e.original as ImageFile;
+      BoxFit fit = BoxFit.cover;
 
-      final bool isProportional;
-      if (file.width != null && file.height != null) {
-        isProportional = file.height! > file.width! / 3;
-      } else {
-        isProportional = true;
+      final ImageFile file = e.original as ImageFile;
+      final int fileHeight = file.height ?? 300;
+      final num fileWidth = file.width ?? double.infinity;
+
+      if(fileHeight < fileWidth / 3) {
+        fit = BoxFit.contain;
       }
 
       attachment = MediaAttachment(
@@ -238,7 +239,7 @@ class ChatItemWidget extends StatefulWidget {
         attachment: e,
         height: 300,
         width: filled ? double.infinity : null,
-        fit: isProportional ? BoxFit.cover : BoxFit.contain,
+        fit: fit,
         autoLoad: autoLoad,
         onError: onError,
       );
