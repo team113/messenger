@@ -308,10 +308,6 @@ class OngoingCall {
   PreciseDateTime? get conversationStartedAt =>
       call.value?.conversationStartedAt;
 
-  // TODO: Temporary solution. Errors should be captured the other way.
-  /// Returns the stream of the errors happening in this [OngoingCall].
-  Stream<String> get errors => _errors.stream;
-
   /// Returns a [Stream] of the [CallNotification]s.
   Stream<CallNotification> get notifications => _notifications.stream;
 
@@ -478,7 +474,7 @@ class OngoingCall {
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
-              calls.getChat(chatId.value).then((v) {
+              calls?.getChat(chatId.value).then((v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.

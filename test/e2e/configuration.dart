@@ -33,11 +33,13 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/chat.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
+import 'parameters/hand_status.dart';
 import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
@@ -162,6 +164,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         popupWindows,
+        raiseHand,
         restartApp,
         returnToPreviousPage,
         rightClickWidget,
@@ -194,19 +197,20 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapDropdownItem,
         tapMessage,
         tapText,
+        tapUserInSearch,
         tapUserInSearchResults,
         tapWidget,
         twoContacts,
         twoUsers,
         untilAttachmentExists,
         untilAttachmentFetched,
-        untilMyUserHand
         untilChatExists,
         untilContactExists,
         untilMessageExists,
+        untilMyUserHand,
         untilTextExists,
-        untilUserHand
         untilTextExistsWithin,
+        untilUserHand,
         updateAppVersion,
         updateAvatar,
         updateName,

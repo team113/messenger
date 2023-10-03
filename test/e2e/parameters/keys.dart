@@ -22,9 +22,9 @@ import 'package:gherkin/gherkin.dart';
 enum WidgetKey {
   AcceptCallAudio,
   ActiveCall,
-  AddParticipants,
   AddEmail,
   AddMemberButton,
+  AddParticipants,
   AddPhone,
   AlertDialog,
   AlertNoButton,
@@ -63,8 +63,8 @@ enum WidgetKey {
   ContactsTab,
   CopyButton,
   CurrentPasswordField,
-  DeclineCall,
   DangerZone,
+  DeclineCall,
   Delete,
   DeleteAccount,
   DeleteAvatar,
@@ -84,10 +84,10 @@ enum WidgetKey {
   HandDown,
   HandUp,
   HideChatButton,
-  JoinCallButton,
   HideForMe,
   HomeView,
   IntroductionView,
+  JoinCallButton,
   Language,
   Language_en,
   Language_ru,
@@ -148,7 +148,6 @@ enum WidgetKey {
   SignInButton,
   Signing,
   StartButton,
-  VideoCall,
   SuccessStage,
   Unblock,
   UnconfirmedEmail,
@@ -161,6 +160,7 @@ enum WidgetKey {
   Unselected,
   UserScrollable,
   UsernameField,
+  VideoCall,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

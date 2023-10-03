@@ -531,7 +531,7 @@ class CallRepository extends DisposableInterface
       var node = e
           as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallAnswerTimeoutPassed(
         node.callId,
@@ -601,7 +601,7 @@ class CallRepository extends DisposableInterface
       var node = e
           as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
       for (var m in node.call.members) {
-        _userRepo.put(m.user.toHive());
+        _userRepo?.put(m.user.toHive());
       }
       return EventChatCallConversationStarted(
         node.callId,

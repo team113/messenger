@@ -23,7 +23,6 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
-import '../configuration.dart';
 import '../parameters/keys.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';

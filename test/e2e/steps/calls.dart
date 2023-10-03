@@ -55,7 +55,7 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
       withScreen: false,
     );
     await ongoingCall?.value.init();
-    await ongoingCall?.value.connect(null, callRepository.heartbeat);
+    ongoingCall?.value.connect(null, callRepository.heartbeat);
 
     customUser.call = ongoingCall?.value;
     provider.disconnect();
@@ -177,7 +177,7 @@ Future<OngoingCall> _startCall(
     withScreen: false,
   );
   await ongoingCall.value.init();
-  await ongoingCall.value.connect(null, callRepository.heartbeat);
+  ongoingCall.value.connect(null, callRepository.heartbeat);
 
   return ongoingCall.value;
 }

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 
 import '../../controller.dart';
 import '../call_cover.dart';
@@ -75,6 +76,7 @@ class ParticipantWidget extends StatelessWidget {
 
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
+      final UserId? userId = participant.user.value?.id;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
@@ -87,6 +89,7 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       return Stack(
+        key: userId != null ? Key('Participant_$userId') : null,
         children: [
           if (!hasVideo) ...background(),
           SafeAnimatedSwitcher(
