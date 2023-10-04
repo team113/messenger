@@ -26,6 +26,7 @@ import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
+import '/util/navigator.dart';
 import 'controller.dart';
 
 /// View for adding and confirming an [UserPhone].
@@ -50,11 +51,7 @@ class AddPhoneView extends StatelessWidget {
       init: AddPhoneController(
         Get.find(),
         initial: phone,
-        pop: () {
-          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
-            Navigator.of(context).pop(true);
-          }
-        },
+        pop: () => Navigator.of(context).popIfActive(context),
       ),
       builder: (AddPhoneController c) {
         return Obx(() {

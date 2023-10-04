@@ -236,9 +236,9 @@ class SearchView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() {
-                    final bool enabled = this.enabled &&
-                        (c.selectedContacts.isNotEmpty ||
-                            c.selectedUsers.isNotEmpty);
+                    final bool enabled = (c.selectedContacts.isNotEmpty ||
+                            c.selectedUsers.isNotEmpty) &&
+                        this.enabled;
 
                     return OutlinedRoundedButton(
                       key: const Key('SearchSubmitButton'),

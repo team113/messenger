@@ -29,6 +29,7 @@ import '/ui/widget/member_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/navigator.dart';
 import 'controller.dart';
 
 /// [OngoingCall.members] enumeration and administration view.
@@ -69,11 +70,7 @@ class ParticipantView extends StatelessWidget {
         call,
         Get.find(),
         Get.find(),
-        pop: () {
-          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
-            Navigator.of(context).pop();
-          }
-        },
+        pop: () => Navigator.of(context).popIfActive(context),
       ),
       builder: (ParticipantController c) {
         return Obx(() {

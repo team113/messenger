@@ -23,6 +23,7 @@ import '/l10n/l10n.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/navigator.dart';
 import 'controller.dart';
 
 /// [Chat.members] addition view.
@@ -49,11 +50,7 @@ class AddChatMemberView extends StatelessWidget {
       init: AddChatMemberController(
         chatId,
         Get.find(),
-        pop: () {
-          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
-            Navigator.of(context).pop();
-          }
-        },
+        pop: () => Navigator.of(context).popIfActive(context),
       ),
       builder: (AddChatMemberController c) {
         return Obx(() {

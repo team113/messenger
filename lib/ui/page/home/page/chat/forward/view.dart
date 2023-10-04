@@ -32,6 +32,7 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
 import '/ui/widget/modal_popup.dart';
+import '/util/navigator.dart';
 import 'controller.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
@@ -96,11 +97,7 @@ class ChatForwardView extends StatelessWidget {
         quotes: quotes,
         text: text,
         attachments: attachments,
-        pop: () {
-          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
-            Navigator.of(context).pop(true);
-          }
-        },
+        pop: () => Navigator.of(context).popIfActive(context, true),
       ),
       builder: (ChatForwardController c) {
         return Obx(() {

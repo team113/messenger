@@ -26,6 +26,7 @@ import '/ui/page/call/widget/video_view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/navigator.dart';
 import 'controller.dart';
 
 /// View for selecting display for screen sharing.
@@ -64,11 +65,7 @@ class ScreenShareView extends StatelessWidget {
       init: ScreenShareController(
         Get.find(),
         call: call,
-        pop: () {
-          if (context.mounted && ModalRoute.of(context)?.isCurrent == true) {
-            Navigator.of(context).pop();
-          }
-        },
+        pop: () => Navigator.of(context).popIfActive(context),
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
