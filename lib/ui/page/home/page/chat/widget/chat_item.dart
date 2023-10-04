@@ -230,7 +230,7 @@ class ChatItemWidget extends StatefulWidget {
       final int fileHeight = file.height ?? 300;
       final num fileWidth = file.width ?? double.infinity;
 
-      if(fileHeight < fileWidth / 3) {
+      if (fileHeight < fileWidth / 3) {
         fit = BoxFit.contain;
       }
 
