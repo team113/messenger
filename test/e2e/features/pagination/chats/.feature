@@ -21,10 +21,10 @@ Feature: Chats pagination
     Given user Alice
     And Alice has 31 groups
     And I sign in as Alice
-    And I have Internet with delay of 3 seconds
 
     When I tap `CloseButton` button
     Then I wait until `Chats` is present
 
+    Given I have Internet with delay of 3 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
