@@ -180,10 +180,10 @@ class ChatRepository extends DisposableInterface
     status.value = RxStatus.loading();
 
     _initDraftSubscription();
-
     _initRemoteSubscription();
-    _initFavoriteChatsSubscription();
+    _initFavoriteSubscription();
 
+    // TODO: Should display last known list of [Chat]s, until remote responds.
     _initPagination();
   }
 
@@ -1307,6 +1307,8 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
+        // TODO: This re-creates the whole [_pagination], even when an auth
+        //       token is refreshed.
         if (_remoteSubscriptionInitialized) {
           await _initPagination();
         }
@@ -1346,7 +1348,7 @@ class ChatRepository extends DisposableInterface
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
       onKey: (e) => e.value.id,
-      perPage: 30,
+      perPage: 15,
       provider: GraphQlPageProvider(
         fetch: ({after, before, first, last}) => _recentChats(
           after: after,
@@ -1361,7 +1363,7 @@ class ChatRepository extends DisposableInterface
 
     Pagination<HiveChat, FavoriteChatsCursor, ChatId> favorites = Pagination(
       onKey: (e) => e.value.id,
-      perPage: 30,
+      perPage: 15,
       provider: GraphQlPageProvider(
         fetch: ({after, before, first, last}) => _favoriteChats(
           after: after,
@@ -1375,7 +1377,7 @@ class ChatRepository extends DisposableInterface
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> recent = Pagination(
       onKey: (e) => e.value.id,
-      perPage: 30,
+      perPage: 15,
       provider: GraphQlPageProvider(
         fetch: ({after, before, first, last}) => _recentChats(
           after: after,
@@ -1420,6 +1422,7 @@ class ChatRepository extends DisposableInterface
     }
 
     await Future.delayed(1.milliseconds);
+
     status.value = RxStatus.success();
   }
 
@@ -1567,7 +1570,7 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Initializes [_favoriteChatsEvents] subscription.
-  Future<void> _initFavoriteChatsSubscription() async {
+  Future<void> _initFavoriteSubscription() async {
     _favoriteChatsSubscription?.cancel();
     _favoriteChatsSubscription = StreamQueue(
       _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),

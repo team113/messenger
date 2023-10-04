@@ -35,8 +35,7 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
 
     try {
       await context.world.appDriver.waitUntil(() async {
-        provider.token =
-            context.world.sessions[user.name]?.credentials.session.token;
+        provider.token = context.world.sessions[user.name]?.token;
         final dialog = (await provider.recentChats(first: 120))
             .recentChats
             .edges

@@ -30,8 +30,7 @@ final StepDefinitionGeneric seesAs =
   '{user} sees {user} as {status}',
   (TestUser user1, TestUser user2, OnlineStatus status, context) async {
     final provider = GraphQlProvider();
-    provider.token =
-        context.world.sessions[user1.name]?.credentials.session.token;
+    provider.token = context.world.sessions[user1.name]?.token;
 
     await context.world.appDriver.waitUntil(() async {
       var response =

@@ -35,8 +35,7 @@ final StepDefinitionGeneric haveGroupNamed =
   (String name, TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
-    provider.token =
-        context.world.sessions[user.name]?.credentials.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     var chat = await provider.createGroupChat(
       [authService.credentials.value!.userId],
@@ -58,8 +57,7 @@ final StepDefinitionGeneric hasGroups = given2<TestUser, int, CustomWorld>(
   '{user} has {int} groups',
   (TestUser user, int count, context) async {
     final provider = GraphQlProvider();
-    provider.token =
-        context.world.sessions[user.name]?.credentials.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     await Future.wait(
       List.generate(count, (_) => provider.createGroupChat([])),
