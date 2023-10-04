@@ -437,64 +437,68 @@ Widget desktopCall(CallController c, BuildContext context) {
               c.secondaryDrags.value == 0;
 
           return Flexible(
-            child: AnimatedOpacity(
+            child: SafeAnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              opacity: c.displayMore.value ? 1 : 0,
-              child: IgnorePointer(
-                ignoring: !c.displayMore.value,
-                child: Launchpad(
-                  key: const Key('MorePanel'),
-                  onEnter: enabled ? (d) => c.keepUi(true) : null,
-                  onHover: enabled ? (d) => c.keepUi(true) : null,
-                  onExit: enabled ? (d) => c.keepUi() : null,
-                  onAccept: (CallButton data) {
-                    c.buttons.remove(data);
-                    c.draggedButton.value = null;
-                  },
-                  onWillAccept: (CallButton? a) =>
-                      a?.c == c && a?.isRemovable == true,
-                  children: c.panel.map((e) {
-                    return SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Column(
-                        children: [
-                          DelayedDraggable(
-                            feedback: Transform.translate(
-                              offset: const Offset(
-                                CallController.buttonSize / 2 * -1,
-                                CallController.buttonSize / 2 * -1,
-                              ),
-                              child: SizedBox.square(
-                                dimension: CallController.buttonSize,
-                                child: e.build(),
-                              ),
+              child: c.displayMore.value
+                  ? IgnorePointer(
+                      key: const Key('MorePanel'),
+                      ignoring: !c.displayMore.value,
+                      child: Launchpad(
+                        onEnter: enabled ? (d) => c.keepUi(true) : null,
+                        onHover: enabled ? (d) => c.keepUi(true) : null,
+                        onExit: enabled ? (d) => c.keepUi() : null,
+                        onAccept: (CallButton data) {
+                          c.buttons.remove(data);
+                          c.draggedButton.value = null;
+                        },
+                        onWillAccept: (CallButton? a) =>
+                            a?.c == c && a?.isRemovable == true,
+                        children: c.panel.map((e) {
+                          return SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: Column(
+                              children: [
+                                DelayedDraggable(
+                                  feedback: Transform.translate(
+                                    offset: const Offset(
+                                      CallController.buttonSize / 2 * -1,
+                                      CallController.buttonSize / 2 * -1,
+                                    ),
+                                    child: SizedBox.square(
+                                      dimension: CallController.buttonSize,
+                                      child: e.build(),
+                                    ),
+                                  ),
+                                  data: e,
+                                  onDragStarted: () {
+                                    c.showDragAndDropButtonsHint = false;
+                                    c.draggedButton.value = e;
+                                  },
+                                  onDragCompleted: () =>
+                                      c.draggedButton.value = null,
+                                  onDragEnd: (_) =>
+                                      c.draggedButton.value = null,
+                                  onDraggableCanceled: (_, __) =>
+                                      c.draggedButton.value = null,
+                                  maxSimultaneousDrags:
+                                      e.isRemovable ? null : 0,
+                                  dragAnchorStrategy: pointerDragAnchorStrategy,
+                                  child: e.build(hinted: false),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  e.hint,
+                                  style: style.fonts.labelSmallOnPrimary,
+                                  textAlign: TextAlign.center,
+                                )
+                              ],
                             ),
-                            data: e,
-                            onDragStarted: () {
-                              c.showDragAndDropButtonsHint = false;
-                              c.draggedButton.value = e;
-                            },
-                            onDragCompleted: () => c.draggedButton.value = null,
-                            onDragEnd: (_) => c.draggedButton.value = null,
-                            onDraggableCanceled: (_, __) =>
-                                c.draggedButton.value = null,
-                            maxSimultaneousDrags: e.isRemovable ? null : 0,
-                            dragAnchorStrategy: pointerDragAnchorStrategy,
-                            child: e.build(hinted: false),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            e.hint,
-                            style: style.fonts.labelSmallOnPrimary,
-                            textAlign: TextAlign.center,
-                          )
-                        ],
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ),
+                    )
+                  : const SizedBox(),
             ),
           );
         });

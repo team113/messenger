@@ -18,8 +18,8 @@
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/contact.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 
@@ -62,6 +62,16 @@ class CustomUser {
   /// Map of the groups this [CustomUser] is a member.
   Map<String, ChatId> groups = {};
 
-  /// Current [OngoingCall] this [CustomUser] participates in.
-  OngoingCall? call;
+  /// Current [Call] this [CustomUser] participates in.
+  Call? call;
+}
+
+class Call {
+  Call(this.chatId, this.deviceId);
+
+  /// ID of the [Chat] this [Call] takes place in.
+  final ChatId chatId;
+
+  /// ID of the device this [Call] is taking place on.
+  final ChatCallDeviceId deviceId;
 }

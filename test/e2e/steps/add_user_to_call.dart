@@ -34,7 +34,7 @@ final StepDefinitionGeneric addsUserToCall =
     provider.token = customUser.session.token;
 
     provider.addChatMember(
-      customUser.call!.chatId.value,
+      customUser.call!.chatId,
       context.world.sessions[addUser.name]!.userId,
     );
 

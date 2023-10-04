@@ -390,20 +390,10 @@ class OngoingCall {
   /// [OngoingCall] is ready to connect to a media server.
   ///
   /// No-op if already [connected].
-  void connect(
-    CallService? calls, [
-    Stream<ChatCallEvents> Function(ChatItemId, ChatCallDeviceId)? heartbeat,
-  ]) {
-    assert(
-      calls != null || heartbeat != null,
-      'At least one of calls and heartbeat must not be null',
-    );
-
+  void connect(CallService calls) {
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
-
-    heartbeat ??= calls!.heartbeat;
 
     // Adds a [CallMember] identified by its [userId], if none is in the
     // [members] already.
@@ -431,7 +421,7 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = heartbeat(callChatItemId!, deviceId!).listen(
+    _heartbeat = calls.heartbeat(callChatItemId!, deviceId!).listen(
       (e) async {
         switch (e.kind) {
           case ChatCallEventsKind.initialized:
@@ -445,8 +435,8 @@ class OngoingCall {
 
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
-              calls?.remove(chatId.value);
-              calls?.removeCredentials(node.call.id);
+              calls.remove(chatId.value);
+              calls.removeCredentials(node.call.id);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -470,7 +460,7 @@ class OngoingCall {
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
-              calls?.getChat(chatId.value).then((v) {
+              calls.getChat(chatId.value).then((v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
@@ -534,15 +524,15 @@ class OngoingCall {
                 case ChatCallEventKind.finished:
                   var node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
-                    calls?.removeCredentials(node.call.id);
-                    calls?.remove(chatId.value);
+                    calls.removeCredentials(node.call.id);
+                    calls.remove(chatId.value);
                   }
                   break;
 
                 case ChatCallEventKind.memberLeft:
                   var node = event as EventChatCallMemberLeft;
-                  if (calls?.me == node.user.id) {
-                    calls?.remove(chatId.value);
+                  if (calls.me == node.user.id) {
+                    calls.remove(chatId.value);
                   }
 
                   final CallMemberId id =
@@ -642,9 +632,9 @@ class OngoingCall {
                   call.value = node.newCall;
 
                   connected = false;
-                  connect(calls, heartbeat);
+                  connect(calls);
 
-                  calls?.moveCall(
+                  calls.moveCall(
                     chatId: node.chatId,
                     newChatId: node.newChatId,
                     callId: node.callId,

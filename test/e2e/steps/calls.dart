@@ -16,11 +16,14 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/api/backend/extension/call.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
+import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/store/call.dart';
+import 'package:uuid/uuid.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -37,27 +40,33 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
     provider.token = customUser.session.token;
 
     await Future.delayed(1.seconds);
-    var incomingCalls = await provider.incomingCalls();
+    var incomingCall = (await provider.incomingCalls()).nodes.first;
+    var creds = ChatCallCredentials(const Uuid().v4());
 
-    final callRepository = CallRepository(
-      provider,
-      null,
-      null,
-      Get.find(),
-      me: customUser.userId,
-    );
+    var response = await provider.joinChatCall(incomingCall.chatId, creds);
 
-    Rx<OngoingCall>? ongoingCall = await callRepository.join(
-      incomingCalls.nodes.first.chatId,
-      incomingCalls.nodes.first.id,
-      withAudio: false,
-      withVideo: false,
-      withScreen: false,
-    );
-    await ongoingCall?.value.init();
-    ongoingCall?.value.connect(null, callRepository.heartbeat);
+    ChatCall? chatCall = _chatCall(response.event);
 
-    customUser.call = ongoingCall?.value;
+    await _connectToCall(provider, chatCall!, response.deviceId, creds);
+    // provider.callEvents(chatCall!.id, response.deviceId).listen((event) {
+    //   var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+    //
+    //   if (events.$$typename == 'ChatCallEventsVersioned') {
+    //     var mixin = events as ChatCallEventsVersionedMixin;
+    //
+    //     for (var e in mixin.events) {
+    //       if (e.$$typename == 'EventChatCallRoomReady') {
+    //         var node =
+    //             e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
+    //         var room = MediaUtils.jason!.initRoom();
+    //
+    //         room.join('${node.joinLink}?token=$creds');
+    //       }
+    //     }
+    //   }
+    // });
+
+    customUser.call = Call(incomingCall.chatId, response.deviceId);
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -146,8 +155,8 @@ final StepDefinitionGeneric userEndCall = when1<TestUser, CustomWorld>(
     provider.token = customUser.session.token;
 
     await provider.leaveChatCall(
-      customUser.call!.chatId.value,
-      customUser.call!.deviceId!,
+      customUser.call!.chatId,
+      customUser.call!.deviceId,
     );
     provider.disconnect();
   },
@@ -157,27 +166,67 @@ final StepDefinitionGeneric userEndCall = when1<TestUser, CustomWorld>(
 
 /// Starts [ChatCall] by the [User] with the provided [UserId] in the [Chat]
 /// with the provided [ChatId].
-Future<OngoingCall> _startCall(
+Future<Call> _startCall(
   GraphQlProvider provider,
   UserId byUser,
   ChatId chatId,
 ) async {
-  final CallRepository callRepository = CallRepository(
-    provider,
-    null,
-    null,
-    Get.find(),
-    me: byUser,
-  );
+  var creds = ChatCallCredentials(const Uuid().v4());
+  var response = await provider.startChatCall(chatId, creds, false);
 
-  Rx<OngoingCall> ongoingCall = await callRepository.start(
-    chatId,
-    withAudio: false,
-    withVideo: false,
-    withScreen: false,
-  );
-  await ongoingCall.value.init();
-  ongoingCall.value.connect(null, callRepository.heartbeat);
+  ChatCall? chatCall = _chatCall(response.event);
+  await _connectToCall(provider, chatCall!, response.deviceId, creds);
 
-  return ongoingCall.value;
+  return Call(chatId, response.deviceId);
+}
+
+Future<void> _connectToCall(
+  GraphQlProvider provider,
+  ChatCall chatCall,
+  ChatCallDeviceId deviceId,
+  ChatCallCredentials creds,
+) async {
+  var room = Jason().initRoom();
+  room.disableVideo(MediaSourceKind.device);
+  room.disableVideo(MediaSourceKind.display);
+  room.disableAudio();
+
+  room.onFailedLocalMedia((p0) {});
+  room.onConnectionLoss((p0) {});
+  room.onNewConnection((p0) {});
+
+  if (chatCall.joinLink != null) {
+    await room.join('${chatCall.joinLink}?token=$creds');
+  }
+
+  provider.callEvents(chatCall.id, deviceId).listen((event) async {
+    var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+
+    if (events.$$typename == 'ChatCallEventsVersioned') {
+      var mixin = events as ChatCallEventsVersionedMixin;
+
+      for (var e in mixin.events) {
+        if (e.$$typename == 'EventChatCallRoomReady') {
+          var node =
+              e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
+          await room.join('${node.joinLink}?token=$creds');
+        }
+      }
+    }
+  });
+}
+
+/// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].
+ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
+  for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
+    if (e.$$typename == 'EventChatCallStarted') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+      return node.call.toModel();
+    } else if (e.$$typename == 'EventChatCallMemberJoined') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+      return node.call.toModel();
+    }
+  }
+
+  return null;
 }

@@ -36,7 +36,7 @@ final StepDefinitionGeneric raiseHand =
     provider.token = customUser.session.token;
 
     await provider.toggleChatCallHand(
-      customUser.call!.chatId.value,
+      customUser.call!.chatId,
       handStatus == HandStatus.raise,
     );
 
