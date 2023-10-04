@@ -45,6 +45,7 @@ class ChatForwardView extends StatelessWidget {
     required this.quotes,
     this.text,
     this.attachments = const [],
+    this.onSubmitted,
   });
 
   /// ID of the [Chat] the [quotes] are forwarded from.
@@ -59,6 +60,9 @@ class ChatForwardView extends StatelessWidget {
   /// Initial [Attachment]s to attach to the provided [quotes].
   final List<Attachment> attachments;
 
+  /// Callback, called after this [ChatForwardView] was submitted.
+  final void Function()? onSubmitted;
+
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
@@ -66,6 +70,7 @@ class ChatForwardView extends StatelessWidget {
     List<ChatItemQuoteInput> quotes, {
     String? text,
     List<Attachment> attachments = const [],
+    void Function()? onSubmitted,
   }) {
     return ModalPopup.show(
       context: context,
@@ -79,8 +84,9 @@ class ChatForwardView extends StatelessWidget {
         key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        attachments: attachments,
         text: text,
+        attachments: attachments,
+        onSubmitted: onSubmitted,
       ),
     );
   }
@@ -97,7 +103,8 @@ class ChatForwardView extends StatelessWidget {
         quotes: quotes,
         text: text,
         attachments: attachments,
-        pop: () => Navigator.of(context).popIfActive(context, true),
+        onSubmitted: onSubmitted,
+        pop: () => Navigator.of(context).popIfActive(context),
       ),
       builder: (ChatForwardController c) {
         return Obx(() {

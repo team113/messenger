@@ -47,6 +47,7 @@ class ChatForwardController extends GetxController {
     this.text,
     this.pop,
     this.attachments = const [],
+    this.onSubmitted,
     required this.from,
     required this.quotes,
   });
@@ -72,6 +73,9 @@ class ChatForwardController extends GetxController {
 
   /// [Attachment]s to attach to the [quotes].
   final List<Attachment> attachments;
+
+  /// Callback, called after the [send] was submitted.
+  final void Function()? onSubmitted;
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -169,6 +173,7 @@ class ChatForwardController extends GetxController {
 
           await Future.wait(futures);
           pop?.call();
+          onSubmitted?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {
