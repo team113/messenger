@@ -262,7 +262,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
     } else if (favoritePosition == null && other.favoritePosition != null) {
       return 1;
     } else if (favoritePosition != null && other.favoritePosition != null) {
-      return other.favoritePosition!.compareTo(favoritePosition!);
+      return favoritePosition!.compareTo(other.favoritePosition!);
     }
 
     if (id.isLocalWith(me) && !other.id.isLocalWith(me)) {
