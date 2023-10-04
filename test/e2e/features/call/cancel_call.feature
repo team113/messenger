@@ -19,16 +19,16 @@ Feature: Cancel call tests
   Background:
     Given I am Alice
     And user Bob
-    And popup windows is disabled
+    And popup windows are disabled
 
   Scenario: Cancel outgoing dialog call
     Given Bob has dialog with me
     And I am in chat with Bob
 
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     Then I wait until `Call` is present
 
-    When I tap `CancelCall` button
+    When I tap `EndCall` button
     Then I wait until `Call` is absent
 
   Scenario: User cancels outgoing dialog call

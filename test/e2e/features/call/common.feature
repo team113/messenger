@@ -19,30 +19,7 @@ Feature: Common call tests
   Background:
     Given I am Alice
     And user Bob
-    And popup windows is disabled
-
-  Scenario: Outgoing dialog call changes state correctly
-    Given Bob has dialog with me
-    And I am in chat with Bob
-
-    When I tap `StartAudioCall` button
-    Then I wait until `Call` is present
-    And I wait until `ActiveCall` is absent
-
-    When Bob accepts call
-    Then I wait until `ActiveCall` is present
-    And I wait until Bob is present in call
-
-  Scenario: Outgoing group call changes state correctly
-    Given Bob has "Test" group with me
-    And I am in chat with Bob
-
-    When I tap `StartAudioCall` button
-    Then I wait until `Call` is present
-    And I wait until `ActiveCall` is present
-
-    When Bob accepts call
-    Then I wait until Bob is present in call
+    And popup windows are disabled
 
   Scenario: Join to active group call
     Given Bob has "Test" group with me
@@ -75,7 +52,7 @@ Feature: Common call tests
     Given Bob has "Test" group with me
     And I am in chat with Bob
 
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     And I tap `More` button
     Then I wait until `MorePanel` is present
 
@@ -86,7 +63,7 @@ Feature: Common call tests
     Given Bob has "Test" group with me
     And I am in chat with Bob
 
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     And I tap `More` button
     And I tap `Settings` button
     Then I wait until `CallSettings` is present

@@ -21,10 +21,10 @@ Feature: Hand up/down in call tests
     And user Bob
     And Bob has "Test" group with me
     And I am in chat with Bob
-    And popup windows is disabled
+    And popup windows are disabled
 
   Scenario: Hand up and down
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     And I tap `More` button
     And I tap `HandUp` button
     Then I wait until my hand is raised
@@ -33,7 +33,7 @@ Feature: Hand up/down in call tests
     And I wait until my hand is lowered
 
   Scenario: User hand ups and downs
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     And Bob accepts call
     Then I wait until Bob is present in call
 

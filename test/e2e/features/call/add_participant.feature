@@ -19,20 +19,20 @@ Feature: Add participant in call tests
   Background:
     Given I am Alice
     And user Bob
-    And popup windows is disabled
+    And popup windows are disabled
 
   Scenario: Add participant to dialog call
     Given user Charlie
     And Bob has dialog with me
     And I am in chat with Bob
 
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     And Bob accepts call
     And I tap `More` button
     And I tap `Participants` button
     And I tap `AddParticipants` button
     And I fill users search field with user Charlie
-    And I tap Charlie in search results
+    And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
     And Charlie accepts call
     Then I wait until Charlie is present in call
@@ -42,13 +42,13 @@ Feature: Add participant in call tests
     And Bob has "Test" group with me
     And I am in chat with Bob
 
-    When I tap `StartAudioCall` button
+    When I tap `AudioCall` button
     And Bob accepts call
     And I tap `More` button
     And I tap `Participants` button
     And I tap `AddParticipants` button
     And I fill users search field with user Charlie
-    And I tap Charlie in search results
+    And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
     And Charlie accepts call
     Then I wait until Charlie is present in call

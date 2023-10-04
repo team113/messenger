@@ -99,7 +99,6 @@ import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_message.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
-import 'steps/tap_user_in_search.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
@@ -115,6 +114,7 @@ import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_chat.dart';
 import 'steps/wait_until_contact.dart';
 import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
@@ -198,7 +198,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapDropdownItem,
         tapMessage,
         tapText,
-        tapUserInSearch,
         tapUserInSearchResults,
         tapWidget,
         twoContacts,
@@ -212,6 +211,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExists,
         untilTextExistsWithin,
         untilUserHand,
+        untilUserInCallExists,
         updateAppVersion,
         updateAvatar,
         updateName,
