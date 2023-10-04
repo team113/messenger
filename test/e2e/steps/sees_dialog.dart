@@ -61,8 +61,7 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees no dialog with me in recent chats',
   (TestUser user, context) async {
     final provider = GraphQlProvider();
-    provider.token =
-        context.world.sessions[user.name]?.credentials.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
     final dialog = (await provider.recentChats(first: 120))
         .recentChats
         .edges
