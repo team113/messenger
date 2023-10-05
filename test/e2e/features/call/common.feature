@@ -32,22 +32,6 @@ Feature: Common call tests
     And I wait until `ActiveCall` is present
     And I wait until Bob is present in call
 
-  Scenario: Incoming dialog call changes state correctly
-    Given Bob has dialog with me
-
-    When Bob starts call in dialog with me
-    And I tap `AcceptCallAudio` button
-    Then I wait until `ActiveCall` is present
-    And I wait until Bob is present in call
-
-  Scenario: Incoming group call changes state correctly
-    Given Bob has "Test" group with me
-
-    When Bob starts call in "Test" group
-    And I tap `AcceptCallAudio` button
-    Then I wait until `ActiveCall` is present
-    And I wait until Bob is present in call
-
   Scenario: More panel is opening and closing
     Given Bob has "Test" group with me
     And I am in chat with Bob

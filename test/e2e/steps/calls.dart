@@ -16,7 +16,6 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/api/backend/extension/call.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -46,27 +45,11 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
     var response = await provider.joinChatCall(incomingCall.chatId, creds);
 
     ChatCall? chatCall = _chatCall(response.event);
+    Call call = Call(chatCall!, incomingCall.chatId, response.deviceId, creds);
 
-    await _connectToCall(provider, chatCall!, response.deviceId, creds);
-    // provider.callEvents(chatCall!.id, response.deviceId).listen((event) {
-    //   var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
-    //
-    //   if (events.$$typename == 'ChatCallEventsVersioned') {
-    //     var mixin = events as ChatCallEventsVersionedMixin;
-    //
-    //     for (var e in mixin.events) {
-    //       if (e.$$typename == 'EventChatCallRoomReady') {
-    //         var node =
-    //             e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
-    //         var room = MediaUtils.jason!.initRoom();
-    //
-    //         room.join('${node.joinLink}?token=$creds');
-    //       }
-    //     }
-    //   }
-    // });
+    await call.connect(provider);
 
-    customUser.call = Call(incomingCall.chatId, response.deviceId);
+    customUser.call = call;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -175,45 +158,11 @@ Future<Call> _startCall(
   var response = await provider.startChatCall(chatId, creds, false);
 
   ChatCall? chatCall = _chatCall(response.event);
-  await _connectToCall(provider, chatCall!, response.deviceId, creds);
+  Call call = Call(chatCall!, chatId, response.deviceId, creds);
 
-  return Call(chatId, response.deviceId);
-}
+  await call.connect(provider);
 
-Future<void> _connectToCall(
-  GraphQlProvider provider,
-  ChatCall chatCall,
-  ChatCallDeviceId deviceId,
-  ChatCallCredentials creds,
-) async {
-  var room = Jason().initRoom();
-  room.disableVideo(MediaSourceKind.device);
-  room.disableVideo(MediaSourceKind.display);
-  room.disableAudio();
-
-  room.onFailedLocalMedia((p0) {});
-  room.onConnectionLoss((p0) {});
-  room.onNewConnection((p0) {});
-
-  if (chatCall.joinLink != null) {
-    await room.join('${chatCall.joinLink}?token=$creds');
-  }
-
-  provider.callEvents(chatCall.id, deviceId).listen((event) async {
-    var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
-
-    if (events.$$typename == 'ChatCallEventsVersioned') {
-      var mixin = events as ChatCallEventsVersionedMixin;
-
-      for (var e in mixin.events) {
-        if (e.$$typename == 'EventChatCallRoomReady') {
-          var node =
-              e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
-          await room.join('${node.joinLink}?token=$creds');
-        }
-      }
-    }
-  });
+  return call;
 }
 
 /// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].

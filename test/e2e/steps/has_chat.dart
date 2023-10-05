@@ -79,9 +79,9 @@ final StepDefinitionGeneric hasGroupNamed =
 /// Examples:
 /// - Given I have "Name" group with Bob.
 final StepDefinitionGeneric haveGroupNamed =
-given2<String, TestUser, CustomWorld>(
+    given2<String, TestUser, CustomWorld>(
   'I have {string} group with {user}',
-      (String name, TestUser user, context) async {
+  (String name, TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.session.token;
