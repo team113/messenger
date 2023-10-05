@@ -396,9 +396,8 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<void> removeCredentials(ChatItemId id) async {
-    await _credentialsProvider.remove(id);
-  }
+  Future<void> removeCredentials(ChatItemId id) =>
+      _credentialsProvider.remove(id);
 
   @override
   Stream<ChatCallEvents> heartbeat(

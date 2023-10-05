@@ -85,10 +85,10 @@ class Call {
   Call(this.chatCall, this.chatId, this.deviceId, this.creds);
 
   /// [ChatCall] associated with this [Call].
-  ChatCall chatCall;
+  final ChatCall chatCall;
 
   /// One-time secret credentials to authenticate with on a media server.
-  ChatCallCredentials? creds;
+  final ChatCallCredentials? creds;
 
   /// ID of the [Chat] this [Call] takes place in.
   final ChatId chatId;
@@ -97,63 +97,65 @@ class Call {
   final ChatCallDeviceId deviceId;
 
   /// [Jason] instance of this [Call].
-  Jason? jason;
+  Jason? _jason;
 
   /// Room on a media server.
-  RoomHandle? room;
+  RoomHandle? _room;
 
   /// [StreamSubscription] to the call events.
-  StreamSubscription? eventsSubscription;
+  StreamSubscription? _eventsSubscription;
 
   /// Disposes this [Call].
   dispose() {
-    if (room != null) {
+    if (_room != null) {
       try {
-        jason?.closeRoom(room!);
-        room?.free();
+        _jason?.closeRoom(_room!);
+        _room?.free();
       } catch (_) {}
     }
-    jason?.free();
-    eventsSubscription?.cancel();
+    _jason?.free();
+    _eventsSubscription?.cancel();
   }
 
   /// Starts the call events subscription.
   Future<void> connect(GraphQlProvider provider) async {
-    jason = Jason();
-    room = jason!.initRoom();
+    _jason = Jason();
+    _room = _jason!.initRoom();
 
-    room!.onFailedLocalMedia((p0) {});
-    room!.onConnectionLoss((p0) {});
-    room!.onNewConnection((p0) {});
+    _room!.onFailedLocalMedia((p0) {});
+    _room!.onConnectionLoss((p0) {});
+    _room!.onNewConnection((p0) {});
 
     if (chatCall.joinLink != null) {
-      await room!.join('${chatCall.joinLink}?token=$creds');
+      await _room!.join('${chatCall.joinLink}?token=$creds');
     }
 
-    eventsSubscription =
-        provider.callEvents(chatCall.id, deviceId).listen((event) async {
-      var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+    _eventsSubscription = provider.callEvents(chatCall.id, deviceId).listen(
+      (event) async {
+        var events =
+            CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
-      if (events.$$typename == 'ChatCallEventsVersioned') {
-        var mixin = events as ChatCallEventsVersionedMixin;
+        if (events.$$typename == 'ChatCallEventsVersioned') {
+          var mixin = events as ChatCallEventsVersionedMixin;
 
-        for (var e in mixin.events) {
-          if (e.$$typename == 'EventChatCallRoomReady') {
-            var node =
-                e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
-            await room!.join('${node.joinLink}?token=$creds');
-          } else if (e.$$typename == 'ChatCall') {
-            var call = e as CallEvents$Subscription$ChatCallEvents$ChatCall;
-            if (call.joinLink != null) {
-              await room!.join('${call.joinLink}?token=$creds');
+          for (var e in mixin.events) {
+            if (e.$$typename == 'EventChatCallRoomReady') {
+              var node = e
+                  as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
+              await _room!.join('${node.joinLink}?token=$creds');
+            } else if (e.$$typename == 'ChatCall') {
+              var call = e as CallEvents$Subscription$ChatCallEvents$ChatCall;
+              if (call.joinLink != null) {
+                await _room!.join('${call.joinLink}?token=$creds');
+              }
             }
           }
         }
-      }
-    });
+      },
+    );
 
-    await room!.disableVideo(MediaSourceKind.device);
-    await room!.disableVideo(MediaSourceKind.display);
-    await room!.disableAudio();
+    await _room!.disableVideo(MediaSourceKind.device);
+    await _room!.disableVideo(MediaSourceKind.display);
+    await _room!.disableAudio();
   }
 }
