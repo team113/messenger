@@ -21,13 +21,14 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -102,8 +103,21 @@ class _HomeViewState extends State<HomeView> {
 
     if (_deps == null) {
       return Scaffold(
-        backgroundColor: style.colors.onPrimary,
-        body: Center(child: CustomProgressIndicator.primary()),
+        // For web, background color is displayed in `index.html` file.
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
+        body: Stack(
+          children: [
+            const SvgImage.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Center(child: CustomProgressIndicator.primary()),
+          ],
+        ),
       );
     }
 
@@ -172,8 +186,18 @@ class _HomeViewState extends State<HomeView> {
                             router.tab = HomeTab.values[i];
                             c.page.value = router.tab;
 
-                            if (router.route == Routes.me) {
-                              router.pop();
+                            if (!context.isNarrow) {
+                              switch (router.tab) {
+                                case HomeTab.menu:
+                                  router.me();
+                                  break;
+
+                                default:
+                                  if (router.route == Routes.me) {
+                                    router.home();
+                                  }
+                                  break;
+                              }
                             }
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
@@ -458,9 +482,7 @@ class _HomeViewState extends State<HomeView> {
                               ),
                             ],
                             currentIndex: router.tab.index,
-                            onTap: (i) {
-                              c.pages.jumpToPage(i);
-                            },
+                            onTap: c.pages.jumpToPage,
                           ),
                         );
                       }),
@@ -485,8 +507,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         );
 
-        /// Nested navigation widget that displays [navigator] in an [Expanded]
-        /// to take all the remaining from the [sideBar] space.
+        // Nested navigation widget that displays [navigator] in an [Expanded]
+        // to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
           ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
@@ -511,27 +533,22 @@ class _HomeViewState extends State<HomeView> {
           }),
         );
 
-        /// Navigator should be drawn under or above the [sideBar] for the
-        /// animations to look correctly.
-        ///
-        /// [Container]s are required for the [sideBar] to keep its state.
-        /// Otherwise, [Stack] widget will be updated, which will lead its
-        /// children to be updated as well.
+        // Navigator should be drawn under or above the [sideBar] for the
+        // animations to look correctly.
+        //
+        // [SizedBox]s are required for the [sideBar] to keep its state.
+        // Otherwise, [Stack] widget will be updated, which will lead its
+        // children to be updated as well.
         return CallOverlayView(
           child: Obx(() {
             return Stack(
               key: const Key('HomeView'),
               children: [
-                Container(
-                  color: style.colors.onPrimary,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isNarrow ? null : navigation),
+                  SizedBox(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isNarrow ? navigation : null),
+                  SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   Scaffold(
                     body: Center(child: CustomProgressIndicator.primary()),
@@ -574,16 +591,8 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ),
               Positioned.fill(
-                child: AnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: 250.milliseconds,
-                  layoutBuilder: (child, previous) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [...previous, if (child != null) child]
-                          .map((e) => Positioned.fill(child: e))
-                          .toList(),
-                    );
-                  },
                   child: image,
                 ),
               ),

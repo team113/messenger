@@ -17,32 +17,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 /// [Column] of the provided [colors] representing a [Color] scheme.
 class ColorSchemaWidget extends StatelessWidget {
-  const ColorSchemaWidget(
-    this.colors, {
-    super.key,
-    this.inverted = false,
-    this.dense = false,
-  });
+  const ColorSchemaWidget(this.colors, {super.key, this.inverted = false});
 
   /// Records of [Color]s and its descriptions to display.
-  final Iterable<(Color, String?, String?)> colors;
+  final Iterable<(Color, String?)> colors;
 
   /// Indicator whether the background of this [ColorSchemaWidget] should be
   /// inverted.
   final bool inverted;
-
-  /// Indicator whether this [ColorSchemaWidget] should be dense, meaning no
-  /// [Padding]s and roundness.
-  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +43,8 @@ class ColorSchemaWidget extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.ease,
       decoration: BoxDecoration(
-        borderRadius: dense ? BorderRadius.zero : BorderRadius.circular(16),
-        color: inverted ? const Color(0xFF142839) : const Color(0xFFFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+        color: inverted ? style.colors.onBackground : style.colors.onPrimary,
       ),
       child: Table(
         columnWidths: const <int, TableColumnWidth>{
@@ -65,9 +56,10 @@ class ColorSchemaWidget extends StatelessWidget {
         children: [
           ...colors.map((e) {
             final HSLColor hsl = HSLColor.fromColor(e.$1);
-            final Color text = hsl.lightness > 0.7 || hsl.alpha < 0.4
-                ? const Color(0xFF000000)
-                : const Color(0xFFFFFFFF);
+            final Color text = (!inverted || hsl.alpha > 0.7) &&
+                    (hsl.lightness > 0.7 || hsl.alpha < 0.4)
+                ? style.colors.onBackground
+                : style.colors.onPrimary;
             final TextStyle textStyle =
                 style.fonts.bodySmall.copyWith(color: text);
             final double paddings = context.isNarrow ? 4 : 128;
@@ -75,7 +67,6 @@ class ColorSchemaWidget extends StatelessWidget {
             return TableRow(
               decoration: BoxDecoration(color: e.$1),
               children: [
-                // if (!context.isNarrow) const SizedBox(width: 32),
                 TableCell(
                   child: Container(
                     margin: EdgeInsets.fromLTRB(paddings, 16, 0, 16),
@@ -83,7 +74,7 @@ class ColorSchemaWidget extends StatelessWidget {
                     child: WidgetButton(
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: e.$2 ?? ''));
-                        MessagePopup.success('Alpha + HEX is copied');
+                        MessagePopup.success('Name is copied');
                       },
                       child: Text(e.$2 ?? '', style: textStyle),
                     ),
@@ -101,7 +92,7 @@ class ColorSchemaWidget extends StatelessWidget {
                     child: WidgetButton(
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: e.$1.toHex()));
-                        MessagePopup.success('HEX is copied');
+                        MessagePopup.success('Color is copied');
                       },
                       child: Text(e.$1.toHex(), style: textStyle).fixedDigits(),
                     ),
@@ -116,14 +107,15 @@ class ColorSchemaWidget extends StatelessWidget {
                         Clipboard.setData(
                           ClipboardData(text: e.$1.toHex(withAlpha: false)),
                         );
-                        MessagePopup.success('Technical name is copied');
+                        MessagePopup.success('HEX is copied');
                       },
-                      child: Text(e.$1.toPalette(), style: textStyle)
-                          .fixedDigits(),
+                      child: Text(
+                        '${(e.$1.alpha / 255 * 100).round()}% ${e.$1.toHex(withAlpha: false)}',
+                        style: textStyle,
+                      ).fixedDigits(),
                     ),
                   ),
                 ),
-                // if (!context.isNarrow) const SizedBox(width: 32),
               ],
             );
           }),

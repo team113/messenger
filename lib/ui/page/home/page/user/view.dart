@@ -34,11 +34,14 @@ import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -133,13 +136,11 @@ class UserView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: style.fonts.bodySmall.copyWith(
-                                    color: style.colors.secondary,
-                                  ),
+                                  style: style.fonts.bodySmallSecondary,
                                 )
                             ],
                           );
@@ -204,34 +205,10 @@ class UserView extends StatelessWidget {
                         children: [BlocklistRecordWidget(c.isBlocked!)],
                       ),
                     Block(
-                      title: 'label_profile'.l10n,
+                      title: 'label_public_information'.l10n,
                       children: [
-                        WidgetButton(
-                          onPressed: c.user?.user.value.avatar == null
-                              ? null
-                              : () async {
-                                  await GalleryPopup.show(
-                                    context: context,
-                                    gallery: GalleryPopup(
-                                      initialKey: c.avatarKey,
-                                      children: [
-                                        GalleryItem.image(
-                                          c.user!.user.value.avatar!.original
-                                              .url,
-                                          c.user!.id.val,
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                          child: AvatarWidget.fromRxUser(
-                            c.user,
-                            key: c.avatarKey,
-                            radius: 100,
-                            badge: false,
-                          ),
-                        ),
-                        const SizedBox(height: 15),
+                        BigAvatarWidget.user(c.user),
+                        const SizedBox(height: 12),
                         UserNameCopyable(
                           c.user!.user.value.name,
                           c.user!.user.value.num,
@@ -406,13 +383,15 @@ class UserView extends StatelessWidget {
           }),
           ActionButton(
             text: 'btn_hide_chat'.l10n,
-            trailing: const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing:
+                const SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _hideChat(c, context),
           ),
           ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing: const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing:
+                const SvgImage.asset('assets/icons/delete.svg', height: 14),
             onPressed: () => _clearChat(c, context),
           ),
         ],
@@ -431,7 +410,7 @@ class UserView extends StatelessWidget {
                 child = const CustomProgressIndicator();
               }
 
-              return AnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: child,
               );
@@ -616,7 +595,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
@@ -637,7 +617,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
@@ -658,7 +639,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
@@ -679,7 +661,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),

@@ -85,7 +85,7 @@ class BlacklistView extends StatelessWidget {
                           subtitle: [
                             const SizedBox(height: 5),
                             Text(
-                              user.user.value.isBlocked!.at.val.yMd,
+                              user.user.value.isBlocked?.at.val.yMd ?? '',
                               style: style.fonts.bodySmallSecondary,
                             ),
                           ],

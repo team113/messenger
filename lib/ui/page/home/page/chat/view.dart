@@ -45,9 +45,11 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -155,9 +157,9 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: CustomAppBar(
-                padding: const EdgeInsets.only(left: 4, right: 20),
-                leading: const [StyledBackButton()],
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
               ),
               body: Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
@@ -240,7 +242,7 @@ class _ChatViewState extends State<ChatView>
 
                           final List<Widget> children;
 
-                          if (c.chat?.chat.value.ongoingCall == null) {
+                          if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
@@ -302,15 +304,8 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
                                 onPressed: c.inCall ? c.dropCall : c.joinCall,
-                                child: AnimatedSwitcher(
+                                child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
-                                  layoutBuilder: (current, previous) => Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      if (previous.isNotEmpty) previous.first,
-                                      if (current != null) current,
-                                    ],
-                                  ),
                                   child: child,
                                 ),
                               ),
@@ -707,7 +702,7 @@ class _ChatViewState extends State<ChatView>
                   ),
                   IgnorePointer(
                     child: Obx(() {
-                      return AnimatedSwitcher(
+                      return SafeAnimatedSwitcher(
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
@@ -760,13 +755,13 @@ class _ChatViewState extends State<ChatView>
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
 
+    ListElement? previous;
     bool previousSame = false;
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
         element is ChatInfoElement ||
         element is ChatForwardElement) {
-      ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
         if (previous is LoaderElement && i < c.elements.length - 2) {
@@ -804,8 +799,7 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5)) ||
-            previous is UnreadMessagesElement;
+                    const Duration(minutes: 5));
       }
     }
 
@@ -826,18 +820,14 @@ class _ChatViewState extends State<ChatView>
 
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 9,
+          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(e.value.author.id),
-          builder: (_, u) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: c.highlight.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
+          builder: (_, snapshot) => Obx(() {
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatItemWidget(
                 chat: c.chat!.chat,
@@ -852,7 +842,7 @@ class _ChatViewState extends State<ChatView>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
                         m.memberId != e.value.author.id),
-                user: u.data,
+                user: snapshot.data,
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -905,18 +895,14 @@ class _ChatViewState extends State<ChatView>
     } else if (element is ChatForwardElement) {
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 9,
+          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
           future: c.getUser(element.authorId),
           builder: (_, u) => Obx(() {
-            return AnimatedContainer(
-              duration: 400.milliseconds,
-              curve: Curves.ease,
-              color: c.highlight.value == i
-                  ? style.colors.primaryOpacity20
-                  : style.colors.primaryOpacity20.withOpacity(0),
+            return HighlightedContainer(
+              highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: ChatForwardWidget(
                 key: Key('ChatForwardWidget_${element.id}'),
@@ -1051,7 +1037,7 @@ class _ChatViewState extends State<ChatView>
 
         if (c.showLoaders.value) {
           child = SizedBox.square(
-            dimension: ChatController.loadingHeight,
+            dimension: ChatController.loaderHeight,
             child: Center(
               key: const ValueKey(1),
               child: Padding(
@@ -1072,7 +1058,7 @@ class _ChatViewState extends State<ChatView>
                 ? isLast
                     ? ChatController.lastItemBottomOffset
                     : null
-                : ChatController.loadingHeight,
+                : ChatController.loaderHeight,
           );
         }
 
@@ -1577,13 +1563,6 @@ class _ChatViewState extends State<ChatView>
     }
 
     return Obx(() {
-      // if (c.emailNotValidated.value) {
-      //   return UnblockButton(
-      //     () {},
-      //     text: 'E-mail не верифицирован',
-      //   );
-      // }
-
       if (c.edit.value != null) {
         return Padding(
           padding: const EdgeInsets.only(left: 8, right: 8),

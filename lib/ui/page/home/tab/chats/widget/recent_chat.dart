@@ -36,7 +36,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -46,6 +45,7 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
+import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
 import 'rectangular_call_button.dart';
@@ -298,22 +298,15 @@ class RecentChatTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
+      final List<Widget> subtitle;
+
       final Chat chat = rxChat.chat.value;
-
-      final ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      } else {
-        item = chat.lastItem;
-      }
-
-      List<Widget> subtitle = [];
+      final ChatItem? item = rxChat.lastItem;
+      final ChatMessage? draft = rxChat.draft.value;
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
           .map((User user) => user.name?.val ?? user.num.toString());
-
-      ChatMessage? draft = rxChat.draft.value;
 
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
@@ -466,7 +459,7 @@ class RecentChatTile extends StatelessWidget {
                     child: _attachment(
                       e,
                       inverted: inverted,
-                      onError: () => rxChat.updateAttachments(item!),
+                      onError: () => rxChat.updateAttachments(item),
                     ),
                   );
                 }),
@@ -478,7 +471,7 @@ class RecentChatTile extends StatelessWidget {
                   child: _attachment(
                     item.attachments.first,
                     inverted: inverted,
-                    onError: () => rxChat.updateAttachments(item!),
+                    onError: () => rxChat.updateAttachments(item),
                   ),
                 ),
               );
@@ -496,7 +489,7 @@ class RecentChatTile extends StatelessWidget {
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.author.id),
+                          chat.getUser(item.author.id),
                           radius: 10,
                         ),
                 ),
@@ -525,7 +518,7 @@ class RecentChatTile extends StatelessWidget {
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.author.id),
+                          chat.getUser(item.author.id),
                           radius: 10,
                         ),
                 ),
@@ -557,9 +550,9 @@ class RecentChatTile extends StatelessWidget {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
                 content = userBuilder(item.author.id, (context, user) {
-                  user ??= (item as ChatInfo).author;
+                  user ??= item.author;
                   final Map<String, dynamic> args = {
-                    'author': user.name?.val ?? user.num.val,
+                    'author': user.name?.val ?? user.num.toString(),
                   };
 
                   return Text('label_group_created_by'.l10nfmt(args));
@@ -575,20 +568,20 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               content = userBuilder(action.user.id, (context, user) {
-                final User author = (item as ChatInfo).author;
+                final User author = item.author;
                 user ??= action.user;
 
                 if (item.author.id != action.user.id) {
                   final Map<String, dynamic> args = {
-                    'author': author.name?.val ?? author.num.val,
-                    'user': user.name?.val ?? user.num.val,
+                    'author': author.name?.val ?? author.num.toString(),
+                    'user': user.name?.val ?? user.num.toString(),
                   };
 
                   return Text('label_user_added_user'.l10nfmt(args));
                 } else {
                   return Text(
                     'label_was_added'.l10nfmt(
-                      {'author': user.name?.val ?? user.num.val},
+                      {'author': user.name?.val ?? user.num.toString()},
                     ),
                   );
                 }
@@ -600,12 +593,12 @@ class RecentChatTile extends StatelessWidget {
 
               if (item.author.id != action.user.id) {
                 content = userBuilder(action.user.id, (context, user) {
-                  final User author = (item as ChatInfo).author;
+                  final User author = item.author;
                   user ??= action.user;
 
                   final Map<String, dynamic> args = {
-                    'author': author.name?.val ?? author.num.val,
-                    'user': user.name?.val ?? user.num.val,
+                    'author': author.name?.val ?? author.num.toString(),
+                    'user': user.name?.val ?? user.num.toString(),
                   };
 
                   return Text('label_user_removed_user'.l10nfmt(args));
@@ -623,7 +616,7 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionAvatarUpdated;
 
               final Map<String, dynamic> args = {
-                'author': item.author.name?.val ?? item.author.num.val,
+                'author': item.author.name?.val ?? item.author.num.toString(),
               };
 
               if (action.avatar == null) {
@@ -637,7 +630,7 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionNameUpdated;
 
               final Map<String, dynamic> args = {
-                'author': item.author.name?.val ?? item.author.num.val,
+                'author': item.author.name?.val ?? item.author.num.toString(),
                 if (action.name != null) 'name': action.name?.val
               };
 
@@ -658,9 +651,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: style.fonts.bodyMedium.copyWith(
-          color: inverted ? style.colors.onPrimary : style.colors.secondary,
-        ),
+        style: inverted
+            ? style.fonts.bodyMediumOnPrimary
+            : style.fonts.bodyMediumSecondary,
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -675,28 +668,40 @@ class RecentChatTile extends StatelessWidget {
   }) {
     Widget? content;
 
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     if (e is LocalAttachment) {
       if (e.file.isImage && e.file.bytes.value != null) {
         content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        if (e.file.bytes.value != null) {
+        if (e.file.path == null) {
+          if (e.file.bytes.value == null) {
+            content = Container(
+              color: inverted ? style.colors.onPrimary : style.colors.secondary,
+              child: Icon(
+                Icons.video_file,
+                size: 18,
+                color:
+                    inverted ? style.colors.secondary : style.colors.onPrimary,
+              ),
+            );
+          } else {
+            content = FittedBox(
+              fit: BoxFit.cover,
+              child: VideoThumbnail.bytes(
+                e.file.bytes.value!,
+                key: key,
+                height: 300,
+              ),
+            );
+          }
+        } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.bytes(
-              e.file.bytes.value!,
+            child: VideoThumbnail.file(
+              e.file.path!,
               key: key,
               height: 300,
-            ),
-          );
-        } else {
-          content = Container(
-            color: inverted ? style.colors.onPrimary : style.colors.secondary,
-            child: Icon(
-              Icons.video_file,
-              size: 18,
-              color: inverted ? style.colors.secondary : style.colors.onPrimary,
             ),
           );
         }
@@ -771,12 +776,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      } else {
-        item = chat.lastItem;
-      }
+      final ChatItem? item = rxChat.lastItem;
 
       if (item != null && item.author.id == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;
@@ -870,9 +870,7 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: style.fonts.bodyMedium.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
+                          style: style.fonts.bodyMediumOnPrimary,
                         ).fixedDigits();
                       },
                     )
@@ -934,10 +932,7 @@ class RecentChatTile extends StatelessWidget {
       'label_delete_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: TextStyle(color: style.colors.onBackground),
-        ),
+        TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
       additional: [

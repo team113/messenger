@@ -71,9 +71,7 @@ class AddEmailView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_email_confirmation_sent_again'.l10n
                               : 'label_add_email_confirmation_sent'.l10n,
-                          style: style.fonts.titleLarge.copyWith(
-                            color: style.colors.secondary,
-                          ),
+                          style: style.fonts.bodyMediumSecondary,
                         );
                       }),
                     ),
@@ -98,11 +96,9 @@ class AddEmailView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendEmailTimeout.value},
                                       ),
-                                style: style.fonts.bodyMedium.copyWith(
-                                  color: c.resendEmailTimeout.value == 0
-                                      ? style.colors.onPrimary
-                                      : style.colors.onBackground,
-                                ),
+                                style: c.resendEmailTimeout.value == 0
+                                    ? style.fonts.bodyMediumOnPrimary
+                                    : style.fonts.bodyMedium,
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
                                   ? c.resendEmail
@@ -117,11 +113,9 @@ class AddEmailView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: style.fonts.bodyMedium.copyWith(
-                                  color: c.emailCode.isEmpty.value
-                                      ? style.colors.onBackground
-                                      : style.colors.onPrimary,
-                                ),
+                                style: c.emailCode.isEmpty.value
+                                    ? style.fonts.bodyMedium
+                                    : style.fonts.bodyMediumOnPrimary,
                               ),
                               onPressed: c.emailCode.isEmpty.value
                                   ? null
@@ -148,9 +142,7 @@ class AddEmailView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_email_description'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style: style.fonts.bodyMediumSecondary,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -167,11 +159,9 @@ class AddEmailView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: style.fonts.bodyMedium.copyWith(
-                            color: c.email.isEmpty.value
-                                ? style.colors.onBackground
-                                : style.colors.onPrimary,
-                          ),
+                          style: c.email.isEmpty.value
+                              ? style.fonts.bodyMedium
+                              : style.fonts.bodyMediumOnPrimary,
                         ),
                         onPressed:
                             c.email.isEmpty.value ? null : c.email.submit,

@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:messenger/config.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
@@ -30,7 +29,7 @@ import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/themes.dart';
-import '/ui/page/style/widget/scrollable_column.dart';
+import '/util/fixed_digits.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatefulWidget {
@@ -58,6 +57,8 @@ class _TypographyViewState extends State<TypographyView> {
     final style = Theme.of(context).style;
 
     Iterable<(TextStyle, String)> fonts = [
+      (style.fonts.displayBold, 'onBackground'),
+      (style.fonts.displayBoldOnPrimary, 'onPrimary'),
       (style.fonts.displayLarge, 'onBackground'),
       (style.fonts.displayLargeOnPrimary, 'onPrimary'),
       (style.fonts.displayMedium, 'onBackground'),
@@ -205,7 +206,8 @@ class _TypographyViewState extends State<TypographyView> {
             final String name = switch (e) {
               27 => 'Largest',
               24 => 'Larger',
-              18 => 'Large',
+              21 => 'Large',
+              18 => 'Big',
               17 => 'Medium',
               15 => 'Normal',
               13 => 'Small',
@@ -233,10 +235,6 @@ class _TypographyViewState extends State<TypographyView> {
                   };
 
                   final HSLColor hsl = HSLColor.fromColor(f.$1.color!);
-
-                  final Color textColor = hsl.lightness > 0.7 || hsl.alpha < 0.4
-                      ? const Color(0xFFFFFFFF)
-                      : const Color(0xFF000000);
 
                   final Color detailsColor =
                       hsl.lightness > 0.7 || hsl.alpha < 0.4
@@ -304,144 +302,6 @@ class _TypographyViewState extends State<TypographyView> {
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  List<TextSpan> spans([Color? color]) => [
-                        TextSpan(
-                          text: 'w${f.$1.fontWeight?.value} ',
-                          style: style.fonts.labelSmall.copyWith(color: color),
-                        ),
-                        TextSpan(
-                          text: f.$1.color!.toHex(withAlpha: false),
-                          style: style.fonts.labelSmall.copyWith(color: color),
-                        ),
-                      ];
-
-                  // return Container(
-                  //   color: background,
-                  //   width: double.infinity,
-                  //   padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                  //   child: Wrap(
-                  //     crossAxisAlignment: WrapCrossAlignment.end,
-                  //     children: [
-                  //       Text(
-                  //         '${name.toLowerCase()}.$weight.${f.$2}',
-                  //         style: f.$1.copyWith(color: textColor),
-                  //         textAlign: TextAlign.start,
-                  //       ),
-                  //       Text.rich(
-                  //         TextSpan(
-                  //           children: [
-                  //             TextSpan(
-                  //               text: 'w${f.$1.fontWeight?.value} ',
-                  //               style: style.fonts.labelSmall
-                  //                   .copyWith(color: textColor),
-                  //             ),
-                  //             TextSpan(
-                  //               text: f.$1.color!.toHex(withAlpha: false),
-                  //               style: style.fonts.labelSmall
-                  //                   .copyWith(color: textColor),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //         textAlign: TextAlign.end,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // );
-
-                  return Stack(
-                    children: [
-                      Container(
-                        color: background,
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        child: Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '${name.toLowerCase()}.$weight.${f.$2}',
-                                style: f.$1.copyWith(color: textColor),
-                              ),
-                              ...spans(Colors.transparent),
-                              // WidgetSpan(
-                              //   child: Text.rich(
-                              //     TextSpan(
-                              //       children: [
-                              //         TextSpan(
-                              //           text: 'w${f.$1.fontWeight?.value} ',
-                              //           style: style.fonts.labelSmall
-                              //               .copyWith(color: textColor),
-                              //         ),
-                              //         TextSpan(
-                              //           text:
-                              //               f.$1.color!.toHex(withAlpha: false),
-                              //           style: style.fonts.labelSmall
-                              //               .copyWith(color: textColor),
-                              //         ),
-                              //       ],
-                              //     ),
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                      Positioned.fill(
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 9, right: 8),
-                            child: Text.rich(
-                              TextSpan(
-                                children: spans(textColor),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-
-                  return Container(
-                    color: background,
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${name.toLowerCase()}.$weight.${f.$2}',
-                            style: f.$1,
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-
-                        // TODO: If not enough space, then this should be
-                        //       display under the `Expanded`, or something.
-                        Text(
-                          'w${f.$1.fontWeight?.value}',
-                          style: TextStyle(color: textColor),
-                        ).fixedDigits(all: true),
-                        Text(', ', style: TextStyle(color: textColor)),
-                        WidgetButton(
-                          onPressed: () async {
-                            Clipboard.setData(
-                              ClipboardData(
-                                text: f.$1.color!.toHex(withAlpha: false),
-                              ),
-                            );
-
-                            MessagePopup.success('Hash is copied');
-                          },
-                          child: Text(
-                            f.$1.color!.toHex(withAlpha: false),
-                            style: TextStyle(color: textColor),
-                          ).fixedDigits(all: true),
                         ),
                       ],
                     ),

@@ -22,24 +22,20 @@ import '/ui/widget/animated_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({
-    super.key,
-    this.onPressed,
-    this.color,
-    this.canPop = false,
-  });
+  const StyledBackButton({super.key, this.onPressed, this.color});
 
   final Color? color;
 
+  /// Callback, called when this button is pressed.
+  ///
+  /// Invokes [Navigator.maybePop], if not specified.
   final void Function()? onPressed;
-
-  final bool canPop;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    if (canPop || ModalRoute.of(context)?.canPop == true) {
+    if (onPressed != null || ModalRoute.of(context)?.canPop == true) {
       return AnimatedButton(
         onPressed: onPressed ?? () => Navigator.maybePop(context),
         child: Padding(

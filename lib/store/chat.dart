@@ -177,6 +177,16 @@ class ChatRepository extends DisposableInterface
   }) async {
     this.onMemberRemoved = onMemberRemoved;
 
+    // if (!_chatLocal.isEmpty) {
+    //   for (HiveChat c in await _chatLocal.values) {
+    //     if (!c.value.id.isLocal || c.value.isMonolog) {
+    //       final HiveRxChat entry = HiveRxChat(this, _chatLocal, _draftLocal, c);
+    //       chats[c.value.id] = entry;
+    //       entry.init();
+    //     }
+    //   }
+    // }
+
     status.value = RxStatus.loading();
 
     _initDraftSubscription();
@@ -223,6 +233,17 @@ class ChatRepository extends DisposableInterface
     return _chatLocal.clear();
   }
 
+  Future<HiveRxChat?> _getFromHive(ChatId id) async {
+    final HiveChat? hiveChat = await _chatLocal.get(id);
+    final HiveRxChat? existing = chats[id];
+
+    if (hiveChat != null && !chats.containsKey(id)) {
+      return await put(hiveChat);
+    }
+
+    return existing;
+  }
+
   @override
   Future<HiveRxChat?> get(ChatId id) async {
     HiveRxChat? chat = chats[id];
@@ -239,7 +260,7 @@ class ChatRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      chat = chats[id];
+      chat = chats[id] ?? await _getFromHive(id);
       if (chat == null) {
         if (!id.isLocal) {
           var query = (await _graphQlProvider.getChat(id)).chat;

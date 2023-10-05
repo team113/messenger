@@ -48,6 +48,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
@@ -57,6 +58,7 @@ import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -79,7 +81,6 @@ import 'password/view.dart';
 import 'timeline_switch/view.dart';
 import 'welcome_message/view.dart';
 import 'widget/background_preview.dart';
-import 'widget/download_button.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
 import 'widget/status.dart';
@@ -486,14 +487,6 @@ class MyProfileView extends StatelessWidget {
   }
 }
 
-/// Basic [Padding] wrapper.
-Widget _padding(Widget child) =>
-    Padding(padding: const EdgeInsets.all(8), child: child);
-
-/// Dense [Padding] wrapper.
-Widget _dense(Widget child) =>
-    Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 4), child: child);
-
 /// Returns addable list of [MyUser.emails].
 Widget _emails(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
@@ -518,7 +511,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
-                offset: const Offset(0, -1),
+                offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
                   child: const SvgImage.asset(
@@ -650,7 +643,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               ? style.colors.dangerColor
               : null,
           onPressed: () => AddEmailView.show(context),
-          style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -659,12 +652,12 @@ Widget _emails(BuildContext context, MyProfileController c) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets.map((e) => _dense(e)).toList(),
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
     );
   });
 }
 
-/// Returns addable list of [MyUser.emails].
+/// Returns addable list of [MyUser.phones].
 Widget _phones(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -686,8 +679,10 @@ Widget _phones(BuildContext context, MyProfileController c) {
                 offset: const Offset(0, -5),
                 child: Transform.scale(
                   scale: 1.15,
-                  child: const SvgImage.asset('assets/icons/delete.svg',
-                      height: 14),
+                  child: const SvgImage.asset(
+                    'assets/icons/delete.svg',
+                    height: 14,
+                  ),
                 ),
               ),
               onPressed: () {
@@ -780,8 +775,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
               context,
               c.myUser.value!.phones.unconfirmed!,
             ),
-            style:
-                style.fonts.titleMedium.copyWith(color: style.colors.secondary),
+            style: style.fonts.titleMediumSecondary,
           ),
         ),
       ]);
@@ -802,7 +796,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
                   c.myUser.value?.emails.unconfirmed == null
               ? style.colors.dangerColor
               : null,
-          style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
+          style: style.fonts.titleMediumPrimary,
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -844,22 +838,22 @@ Widget _password(BuildContext context, MyProfileController c) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      _dense(
-        FieldButton(
-          key: c.myUser.value?.hasPassword == true
-              ? const Key('ChangePassword')
-              : const Key('SetPassword'),
-          text: c.myUser.value?.hasPassword == true
-              ? 'btn_change_password'.l10n
-              : 'btn_set_password'.l10n,
-          onPressed: () => ChangePasswordView.show(context),
-          border: c.myUser.value?.hasPassword != true
-              ? style.colors.dangerColor
-              : null,
-          style: style.fonts.titleMedium.copyWith(
-            color: style.colors.primary,
-          ),
-        ),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            key: c.myUser.value?.hasPassword == true
+                ? const Key('ChangePassword')
+                : const Key('SetPassword'),
+            text: c.myUser.value?.hasPassword == true
+                ? 'btn_change_password'.l10n
+                : 'btn_set_password'.l10n,
+            onPressed: () => ChangePasswordView.show(context),
+            border: c.myUser.value?.hasPassword != true
+                ? style.colors.dangerColor
+                : null,
+            style: style.fonts.titleMediumPrimary,
+          );
+        }),
       ),
       const SizedBox(height: 10),
     ],
@@ -872,7 +866,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
-      _dense(
+      Paddings.dense(
         FieldButton(
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
@@ -898,7 +892,7 @@ Widget _workWithUs(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
-      _dense(
+      Paddings.dense(
         Obx(() {
           return SwitchField(
             text: 'btn_show'.l10n,
@@ -911,139 +905,6 @@ Widget _workWithUs(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.background] section.
-Widget _background(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
-  Widget message({
-    bool fromMe = true,
-    bool isRead = true,
-    String text = '123',
-  }) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
-      child: IntrinsicWidth(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          decoration: BoxDecoration(
-            color: fromMe
-                ? isRead
-                    ? style.readMessageColor
-                    : style.unreadMessageColor
-                : style.messageColor,
-            borderRadius: BorderRadius.circular(15),
-            border: fromMe
-                ? isRead
-                    ? style.secondaryBorder
-                    : Border.all(
-                        color: style.colors.backgroundAuxiliaryLighter,
-                        width: 0.5,
-                      )
-                : style.primaryBorder,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                child: Text(text, style: style.fonts.bodyLarge),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  return _dense(
-    Column(
-      children: [
-        WidgetButton(
-          onPressed: c.pickBackground,
-          child: Container(
-            decoration: BoxDecoration(
-              border: style.primaryBorder,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Obx(() {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 120,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned.fill(
-                        child: c.background.value == null
-                            ? const SvgImage.asset(
-                                'assets/images/background_light.svg',
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.memory(
-                                c.background.value!,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: message(
-                                fromMe: false,
-                                text: 'label_hello'.l10n,
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: message(
-                                fromMe: true,
-                                text: 'label_hello_reply'.l10n,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Obx(() {
-          return Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  WidgetButton(
-                    onPressed: c.background.value == null
-                        ? c.pickBackground
-                        : c.removeBackground,
-                    child: Text(
-                      c.background.value == null
-                          ? 'btn_upload'.l10n
-                          : 'btn_delete'.l10n,
-                      style:
-                          TextStyle(color: style.colors.primary, fontSize: 11),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
-      ],
-    ),
-  );
-}
-
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
@@ -1052,8 +913,7 @@ Widget _call(BuildContext context, MyProfileController c) {
     mainAxisSize: MainAxisSize.min,
     children: [
       if (PlatformUtils.isDesktop && PlatformUtils.isWeb) ...[
-        // if (PlatformUtils.isWeb) ...[
-        _dense(
+        Paddings.dense(
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -1070,7 +930,7 @@ Widget _call(BuildContext context, MyProfileController c) {
           ),
         ),
         const SizedBox(height: 4),
-        _dense(
+        Paddings.dense(
           Obx(() {
             return FieldButton(
               text: (c.settings.value?.enablePopups ?? true)
@@ -1084,8 +944,7 @@ Widget _call(BuildContext context, MyProfileController c) {
         ),
         const SizedBox(height: 16),
       ],
-      // ],
-      _dense(
+      Paddings.dense(
         Stack(
           alignment: Alignment.centerRight,
           children: [
@@ -1124,35 +983,6 @@ Widget _call(BuildContext context, MyProfileController c) {
           ],
         ),
       ),
-      // _dense(
-      //   Align(
-      //     alignment: Alignment.centerLeft,
-      //     child: Padding(
-      //       padding: const EdgeInsets.only(left: 21.0),
-      //       child: Text(
-      //         'label_leave_group_call_when_alone'.l10n,
-      //         style: style.systemMessageStyle.copyWith(
-      //           color: Theme.of(context).colorScheme.secondary,
-      //           fontSize: 15,
-      //           fontWeight: FontWeight.w400,
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
-      // const SizedBox(height: 4),
-      // _dense(
-      //   Obx(() {
-      //     return FieldButton(
-      //       text: (c.settings.value?.leaveWhenAlone ?? false)
-      //           ? 'label_leave_group_call_when_alone'.l10n
-      //           : 'label_don_t_leave_group_call_when_alone'.l10n,
-      //       maxLines: null,
-      //       onPressed: () => CallLeaveSwitchView.show(context),
-      //       style: TextStyle(color: Theme.of(context).colorScheme.primary),
-      //     );
-      //   }),
-      // ),
     ],
   );
 }
@@ -1189,7 +1019,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: TextStyle(color: style.colors.primary),
+            style: style.fonts.titleMediumPrimary,
           );
         }),
       ),
@@ -1335,14 +1165,6 @@ Widget _welcome(BuildContext context, MyProfileController c) {
           DateFormat.Hm().format(at.val.toLocal()),
           style: style.systemMessageStyle.copyWith(fontSize: 11),
         ),
-        // child: Text(
-        //   '${'label_date_ymd'.l10nfmt({
-        //         'year': at.val.year.toString().padLeft(4, '0'),
-        //         'month': at.val.month.toString().padLeft(2, '0'),
-        //         'day': at.val.day.toString().padLeft(2, '0'),
-        //       })}, 10:04',
-        //   style: style.systemMessageStyle.copyWith(fontSize: 11),
-        // ),
       );
     }
 
@@ -1584,7 +1406,7 @@ Widget _verification(BuildContext context, MyProfileController c) {
               key: const Key('123'),
               children: [
                 const SizedBox(height: 12 * 2),
-                _dense(
+                Paddings.dense(
                   Theme(
                     data: Theme.of(context).copyWith(
                       inputDecorationTheme:
@@ -1654,7 +1476,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   Widget title(String label, [bool enabled = true]) {
-    return _dense(
+    return Paddings.dense(
       Align(
         alignment: Alignment.center,
         child: Padding(
@@ -1682,7 +1504,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
     bool contacts = false,
     bool enabled = true,
   }) {
-    return _padding(
+    return Paddings.basic(
       Stack(
         alignment: Alignment.centerLeft,
         children: [
@@ -1761,7 +1583,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
         const SizedBox(height: 12 * 2),
         title('От индивидуальных пользователей', c.verified.value),
         const SizedBox(height: 6),
-        _dense(
+        Paddings.dense(
           FieldButton(
             text: 'label_users_of'.l10n,
             onPressed: !c.verified.value || c.blacklist.isEmpty
@@ -1797,7 +1619,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   Widget title(String label, [bool enabled = true]) {
-    return _dense(
+    return Paddings.dense(
       Align(
         alignment: Alignment.center,
         child: Padding(
@@ -1825,7 +1647,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
     bool contacts = false,
     bool enabled = true,
   }) {
-    return _padding(
+    return Paddings.basic(
       Stack(
         alignment: Alignment.centerLeft,
         children: [
@@ -1871,7 +1693,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
           enabled: c.verified.value,
           contacts: true,
         ),
-        _padding(
+        Paddings.basic(
           ReactiveTextField(
             key: const Key('StatusField'),
             state: TextFieldState(text: '0'),
@@ -1897,7 +1719,7 @@ Widget _notifications(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
-    return _dense(
+    return Paddings.dense(
       Stack(
         alignment: Alignment.centerRight,
         children: [
@@ -1994,7 +1816,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 Widget _language(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  return _dense(
+  return Paddings.dense(
     FieldButton(
       key: const Key('ChangeLanguage'),
       onPressed: () => LanguageSelectionView.show(
@@ -2016,7 +1838,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
-      _dense(
+      Paddings.dense(
         FieldButton(
           text: 'label_users'.l10n,
           trailing: Text(
@@ -2153,10 +1975,7 @@ Future<void> _deleteEmail(
     'label_delete_email'.l10n,
     description: [
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(
-        text: email.val,
-        style: TextStyle(color: style.colors.onBackground),
-      ),
+      TextSpan(text: email.val, style: style.fonts.labelLarge),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
   );
@@ -2179,10 +1998,7 @@ Future<void> _deletePhone(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(
-        text: phone.val,
-        style: TextStyle(color: style.colors.onBackground),
-      ),
+      TextSpan(text: phone.val, style: style.fonts.labelLarge),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );
@@ -2203,9 +2019,9 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
       TextSpan(
         text: c.myUser.value?.name?.val ??
             c.myUser.value?.login?.val ??
-            c.myUser.value?.num.val ??
+            c.myUser.value?.num.toString() ??
             'dot'.l10n * 3,
-        style: TextStyle(color: style.colors.onBackground),
+        style: style.fonts.labelLarge,
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

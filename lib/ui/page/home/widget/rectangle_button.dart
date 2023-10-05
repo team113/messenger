@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_switcher.dart';
 
 /// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
@@ -65,11 +66,9 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: style.fonts.labelLarge.copyWith(
-                    color: selected
-                        ? style.colors.onPrimary
-                        : style.colors.onBackground,
-                  ),
+                  style: selected
+                      ? style.fonts.labelLargeOnPrimary
+                      : style.fonts.labelLarge,
                 ),
               ),
               const SizedBox(width: 12),
@@ -79,7 +78,7 @@ class RectangleButton extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   height: 20,
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
@@ -101,7 +100,7 @@ class RectangleButton extends StatelessWidget {
                   child: CircleAvatar(
                     backgroundColor: trailingColor,
                     radius: 12,
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
                           ? Icon(

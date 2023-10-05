@@ -465,7 +465,10 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_phone_already_occupied'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.titleLargePrimary,
+                  ),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
@@ -511,14 +514,17 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_up_code_phone_sent'.l10nfmt({
                     'text': c.phone.phone?.international,
-                  }).parseLinks([], context),
+                  }).parseLinks(
+                    [],
+                    style.fonts.titleLargePrimary,
+                  ),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
                   return Text(
                     c.resendPhoneTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
+                        ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -608,7 +614,10 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_email_already_occupied'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.titleLargePrimary,
+                  ),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
@@ -653,14 +662,17 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.titleLargePrimary,
+                  ),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
                   return Text(
                     c.resendEmailTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
+                        ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -860,7 +872,7 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_in_phone_already_occupied'.l10nfmt({
                     'text': c.phone.phone?.international
-                  }).parseLinks([], context),
+                  }).parseLinks([], style.fonts.titleLargePrimary),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
@@ -881,14 +893,14 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_up_code_phone_sent'.l10nfmt({
                     'text': c.phone.phone?.international,
-                  }).parseLinks([], context),
+                  }).parseLinks([], style.fonts.titleLargePrimary),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
                   return Text(
                     c.resendPhoneTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
+                        ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );
@@ -978,7 +990,10 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_in_email_already_occupied'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.titleLargePrimary,
+                  ),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 25),
@@ -998,14 +1013,17 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks([], context),
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.titleLargePrimary,
+                  ),
                   style: style.fonts.titleLarge,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
                   return Text(
                     c.resendEmailTimeout.value == 0
-                        ? 'label_didnt_receive_code'.l10n
+                        ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
                     style: style.fonts.titleLarge,
                   );

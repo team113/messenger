@@ -47,8 +47,6 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final style = Theme.of(context).style;
-
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {

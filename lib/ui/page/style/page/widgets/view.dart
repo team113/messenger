@@ -56,12 +56,10 @@ import 'package:messenger/ui/page/call/widget/drop_box.dart';
 import 'package:messenger/ui/page/call/widget/launchpad.dart';
 import 'package:messenger/ui/page/call/widget/raised_hand.dart';
 import 'package:messenger/ui/page/call/widget/reorderable_fit.dart';
-import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_forward.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/message_timestamp.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/paid_notification.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/time_label.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/unread_label.dart';
@@ -111,7 +109,6 @@ import 'package:messenger/util/obs/rxlist.dart';
 import 'package:messenger/util/obs/rxmap.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/cat.dart';
 import 'widget/expandable_block.dart';
 import 'widget/playable_asset.dart';
@@ -835,9 +832,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           ),
         ],
       ),
-      _headline(
-        child: StyledBackButton(canPop: true, onPressed: () {}),
-      ),
+      _headline(child: StyledBackButton(onPressed: () {})),
       _headlines(
         children: [
           (

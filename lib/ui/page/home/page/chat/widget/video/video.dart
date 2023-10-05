@@ -27,6 +27,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
@@ -127,7 +128,7 @@ class _VideoViewState extends State<VideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedSwitcher(
+    return SafeAnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: StreamBuilder(
           stream: _controller.player.stream.width,

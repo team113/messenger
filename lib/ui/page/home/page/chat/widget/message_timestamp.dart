@@ -91,15 +91,6 @@ class MessageTimestamp extends StatelessWidget {
             ),
             small: true,
           ),
-          // SelectionContainer.disabled(
-          //   child: Text(
-          //     'Gift',
-          //     style: style.systemMessageStyle.copyWith(
-          //       fontSize: fontSize ?? 11,
-          //       color: const Color(0xFFA98010),
-          //     ),
-          //   ),
-          // ),
         ],
         if (donation && (at != null || status != null)) ...[
           Container(

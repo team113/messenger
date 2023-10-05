@@ -42,17 +42,20 @@ class ShadowedRoundedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return OutlinedRoundedButton(
-      title: child,
-      onPressed: onPressed,
-      color: color,
-      shadows: [
-        CustomBoxShadow(
-          blurRadius: 8,
-          color: style.colors.onBackgroundOpacity13,
-          blurStyle: BlurStyle.outer,
-        ),
-      ],
+    return SizedBox(
+      height: 42,
+      child: OutlinedRoundedButton(
+        title: child,
+        onPressed: onPressed,
+        color: color,
+        shadows: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
+      ),
     );
   }
 }

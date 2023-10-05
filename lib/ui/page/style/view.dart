@@ -66,7 +66,6 @@ class StyleView extends StatelessWidget {
             // ),
             leading: [
               StyledBackButton(
-                canPop: true,
                 onPressed: ModalRoute.of(context)?.canPop == true
                     ? Navigator.of(context).pop
                     : router.home,

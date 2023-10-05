@@ -17,240 +17,96 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/page/home/widget/block.dart';
-import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 
 import '/themes.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/color_schema.dart';
 
 /// View of the [StyleTab.colors] page.
-class ColorsView extends StatefulWidget {
-  const ColorsView({
-    super.key,
-    this.inverted = false,
-    this.dense = false,
-  });
+class ColorsView extends StatelessWidget {
+  const ColorsView({super.key, this.inverted = false});
 
   /// Indicator whether this view should have its colors inverted.
   final bool inverted;
-
-  /// Indicator whether this view should be compact, meaning minimal [Padding]s.
-  final bool dense;
-
-  @override
-  State<ColorsView> createState() => _ColorsViewState();
-}
-
-class _ColorsViewState extends State<ColorsView> {
-  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final List<(Color, String, String)> colors = [
-      (style.colors.onBackground, 'onBackground', 'Primary text'),
-      (
-        style.colors.secondaryBackground,
-        'secondaryBackground',
-        'Background text and stroke'
-      ),
-      (
-        style.colors.secondaryBackgroundLight,
-        'secondaryBackgroundLight',
-        'Call background'
-      ),
-      (
-        style.colors.secondaryBackgroundLightest,
-        'secondaryBackgroundLightest',
-        'Background of avatar and call buttons'
-      ),
-      (style.colors.secondary, 'secondary', 'Text and stroke'),
-      (
-        style.colors.secondaryHighlightDarkest,
-        'secondaryHighlightDarkest',
-        'Inscriptions and icons over the background of the call'
-      ),
-      (
-        style.colors.secondaryHighlightDark,
-        'secondaryHighlightDark',
-        'Navigation bar button'
-      ),
-      (
-        style.colors.secondaryHighlight,
-        'secondaryHighlight',
-        'Circular progress indicator'
-      ),
-      (style.colors.background, 'background', 'General background'),
-      (
-        style.colors.secondaryOpacity87,
-        'secondaryOpacity87',
-        'Raised hand and a muted microphone in a call'
-      ),
-      (
-        style.colors.onBackgroundOpacity50,
-        'onBackgroundOpacity50',
-        'Attached file background'
-      ),
-      (
-        style.colors.onBackgroundOpacity40,
-        'onBackgroundOpacity40',
-        'Bottom chat bar'
-      ),
-      (
-        style.colors.onBackgroundOpacity27,
-        'onBackgroundOpacity27',
-        'Floating bar shadow'
-      ),
-      (
-        style.colors.onBackgroundOpacity20,
-        'onBackgroundOpacity20',
-        'Panel with buttons in the call'
-      ),
-      (
-        style.colors.onBackgroundOpacity13,
-        'onBackgroundOpacity13',
-        'Video play/pause button'
-      ),
-      (style.colors.onBackgroundOpacity7, 'onBackgroundOpacity7', 'Dividers'),
-      (
-        style.colors.onBackgroundOpacity2,
-        'onBackgroundOpacity2',
-        'Text "Connecting", "Calling", etc. in a call'
-      ),
-      (style.colors.onPrimary, 'onPrimary', 'Left side of the profile page'),
-      (
-        style.colors.onPrimaryOpacity95,
-        'onPrimaryOpacity95',
-        'Message that was received'
-      ),
-      (
-        style.colors.onPrimaryOpacity50,
-        'onPrimaryOpacity50',
-        'Outline call accept buttons with audio and video'
-      ),
-      (
-        style.colors.onPrimaryOpacity25,
-        'onPrimaryOpacity25',
-        'Shadow of forwarded messages'
-      ),
-      (
-        style.colors.onPrimaryOpacity7,
-        'onPrimaryOpacity7',
-        'Additional background for the call'
-      ),
-      (style.colors.backgroundAuxiliary, 'backgroundAuxiliary', 'Active call'),
-      (
-        style.colors.backgroundAuxiliaryLight,
-        'backgroundAuxiliaryLight',
-        'Profile background'
-      ),
-      (
-        style.colors.onSecondaryOpacity88,
-        'onSecondaryOpacity88',
-        'Top draggable subtitle bar'
-      ),
-      (style.colors.onSecondary, 'onSecondary', 'Call button'),
-      (
-        style.colors.onSecondaryOpacity60,
-        'onSecondaryOpacity60',
-        'Additional top draggable subtitle bar'
-      ),
-      (
-        style.colors.onSecondaryOpacity50,
-        'onSecondaryOpacity50',
-        'Buttons in the gallery'
-      ),
-      (
-        style.colors.onSecondaryOpacity20,
-        'onSecondaryOpacity20',
-        'Mobile selector'
-      ),
-      (style.colors.primaryHighlight, 'primaryHighlight', 'Dropdown menu'),
-      (style.colors.primary, 'primary', 'Inverted buttons and links'),
-      (
-        style.colors.primaryHighlightShiniest,
-        'primaryHighlightShiniest',
-        'Read message'
-      ),
-      (
-        style.colors.primaryHighlightLightest,
-        'primaryHighlightLightest',
-        'Outline of the read message'
-      ),
-      (
-        style.colors.backgroundAuxiliaryLighter,
-        'backgroundAuxiliaryLighter',
-        'Unload'
-      ),
-      (
-        style.colors.backgroundAuxiliaryLightest,
-        'backgroundAuxiliaryLightest',
-        'Background of group members and unread messages'
-      ),
-      (style.colors.acceptLightest, 'acceptLightest', 'User panel'),
-      (style.colors.acceptLighter, 'acceptLighter', 'User panel'),
-      (style.colors.acceptLight, 'acceptLight', 'User panel'),
-      (style.colors.acceptAuxiliaryColor, 'acceptAuxiliaryColor', 'User panel'),
-      (style.colors.acceptColor, 'acceptColor', 'Call accept button'),
-      (style.colors.dangerColor, 'dangerColor', 'Warns of something'),
-      (style.colors.declineColor, 'declineColor', 'End call button'),
-      (style.colors.warningColor, 'warningColor', 'Do not disturb status'),
+    final List<(Color, String)> colors = [
+      (style.colors.onBackground, 'onBackground'),
+      (style.colors.secondaryBackground, 'secondaryBackground'),
+      (style.colors.secondaryBackgroundLight, 'secondaryBackgroundLight'),
+      (style.colors.secondaryBackgroundLightest, 'secondaryBackgroundLightest'),
+      (style.colors.secondary, 'secondary'),
+      (style.colors.secondaryHighlightDarkest, 'secondaryHighlightDarkest'),
+      (style.colors.secondaryHighlightDark, 'secondaryHighlightDark'),
+      (style.colors.secondaryHighlight, 'secondaryHighlight'),
+      (style.colors.background, 'background'),
+      (style.colors.secondaryOpacity87, 'secondaryOpacity87'),
+      (style.colors.onBackgroundOpacity50, 'onBackgroundOpacity50'),
+      (style.colors.onBackgroundOpacity40, 'onBackgroundOpacity40'),
+      (style.colors.onBackgroundOpacity27, 'onBackgroundOpacity27'),
+      (style.colors.onBackgroundOpacity20, 'onBackgroundOpacity20'),
+      (style.colors.onBackgroundOpacity13, 'onBackgroundOpacity13'),
+      (style.colors.onBackgroundOpacity7, 'onBackgroundOpacity7'),
+      (style.colors.onBackgroundOpacity2, 'onBackgroundOpacity2'),
+      (style.colors.onPrimary, 'onPrimary'),
+      (style.colors.onPrimaryOpacity95, 'onPrimaryOpacity95'),
+      (style.colors.onPrimaryOpacity50, 'onPrimaryOpacity50'),
+      (style.colors.onPrimaryOpacity25, 'onPrimaryOpacity25'),
+      (style.colors.onPrimaryOpacity7, 'onPrimaryOpacity7'),
+      (style.colors.backgroundAuxiliary, 'backgroundAuxiliary'),
+      (style.colors.backgroundAuxiliaryLight, 'backgroundAuxiliaryLight'),
+      (style.colors.onSecondaryOpacity88, 'onSecondaryOpacity88'),
+      (style.colors.onSecondary, 'onSecondary'),
+      (style.colors.onSecondaryOpacity60, 'onSecondaryOpacity60'),
+      (style.colors.onSecondaryOpacity50, 'onSecondaryOpacity50'),
+      (style.colors.onSecondaryOpacity20, 'onSecondaryOpacity20'),
+      (style.colors.primaryHighlight, 'primaryHighlight'),
+      (style.colors.primary, 'primary'),
+      (style.colors.primaryHighlightShiniest, 'primaryHighlightShiniest'),
+      (style.colors.primaryHighlightLightest, 'primaryHighlightLightest'),
+      (style.colors.backgroundAuxiliaryLighter, 'backgroundAuxiliaryLighter'),
+      (style.colors.backgroundAuxiliaryLightest, 'backgroundAuxiliaryLightest'),
+      (style.colors.acceptLightest, 'acceptLightest'),
+      (style.colors.acceptLighter, 'acceptLighter'),
+      (style.colors.acceptLight, 'acceptLight'),
+      (style.colors.acceptAuxiliaryColor, 'acceptAuxiliaryColor'),
+      (style.colors.acceptColor, 'acceptColor'),
+      (style.colors.dangerColor, 'dangerColor'),
+      (style.colors.declineColor, 'declineColor'),
+      (style.colors.warningColor, 'warningColor'),
     ];
 
-    final Iterable<(Color, String?, String?)> avatars = style.colors.userColors
-        .mapIndexed((i, color) => (color, 'userColors[$i]', null))
+    final Iterable<(Color, String?)> avatars = style.colors.userColors
+        .mapIndexed((i, color) => (color, 'userColors[$i]'))
         .toList();
 
-    return SafeScrollbar(
-      controller: _scrollController,
-      margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
-      child: ListView(
-        controller: _scrollController,
-        children: [
-          const SizedBox(height: 16 + 5),
-          Block(
-            title: 'Colors',
-            unconstrained: true,
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            children: [
-              ColorSchemaWidget(
-                colors,
-                inverted: widget.inverted,
-                dense: widget.dense,
-              ),
-            ],
-          ),
-          Block(
-            title: 'Avatars',
-            unconstrained: true,
-            padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
-            children: [
-              ColorSchemaWidget(
-                avatars,
-                inverted: widget.inverted,
-                dense: widget.dense,
-              ),
-            ],
-          ),
-          // const Header('Colors'),
-          // const SizedBox(height: 16),
-          // ColorSchemaWidget(
-          //   colors,
-          //   inverted: widget.inverted,
-          //   dense: widget.dense,
-          // ),
-          // const SubHeader('Avatars'),
-          // ColorSchemaWidget(
-          //   avatars,
-          //   inverted: widget.inverted,
-          //   dense: widget.dense,
-          // ),
-          const SizedBox(height: 16),
-        ],
-      ),
+    return ScrollableColumn(
+      children: [
+        const SizedBox(height: CustomAppBar.height),
+        Block(
+          title: 'Colors',
+          unconstrained: true,
+          padding: const EdgeInsets.only(top: 16),
+          children: [
+            ColorSchemaWidget(colors, inverted: inverted),
+          ],
+        ),
+        Block(
+          title: 'Avatars',
+          unconstrained: true,
+          padding: const EdgeInsets.only(top: 16),
+          children: [
+            ColorSchemaWidget(avatars, inverted: inverted),
+            const SizedBox(height: 16),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

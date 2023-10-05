@@ -47,7 +47,7 @@ class Themes {
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       acceptLightest: const Color(0xFFF2FDED),
-      acceptLighter: const Color.fromRGBO(227, 255, 199, 1),
+      acceptLighter: const Color.fromRGBO(217, 253, 211, 1),
       acceptLight: const Color(0xFFBFE3B9),
       acceptColor: const Color(0x7F34B139),
       acceptAuxiliaryColor: const Color(0xFF4CAF50),

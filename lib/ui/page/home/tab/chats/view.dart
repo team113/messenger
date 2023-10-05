@@ -17,15 +17,12 @@
 
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/ui/widget/animated_size_and_fade.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
@@ -35,12 +32,17 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
@@ -94,9 +96,6 @@ class ChatsTabView extends StatelessWidget {
                           c.search.value?.query.value.isNotEmpty == true)
                       ? Border.all(color: style.colors.primary, width: 2)
                       : null,
-                  // border: c.search.value != null || c.selecting.value
-                  //     ? Border.all(color: colors.secondary, width: 2)
-                  //     : null,
                   title: Obx(() {
                     final Widget child;
 
@@ -160,32 +159,7 @@ class ChatsTabView extends StatelessWidget {
                         key: const Key('2'),
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          WidgetButton(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              // crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'label_chats'.l10n,
-                                  // style: TextStyle(
-                                  //   color:
-                                  //       Theme.of(context).colorScheme.primary,
-                                  // ),
-                                ),
-                                // const SizedBox(width: 0),
-                                // Transform.translate(
-                                //   offset: const Offset(0, 2),
-                                //   child: Icon(
-                                //     Icons.more_horiz,
-                                //     size: 16,
-                                //     color:
-                                //         Theme.of(context).colorScheme.primary,
-                                //   ),
-                                // )
-                              ],
-                            ),
-                          ),
+                          Text('label_chats'.l10n),
                           AnimatedSizeAndFade(
                             sizeDuration: const Duration(milliseconds: 300),
                             fadeDuration: const Duration(milliseconds: 300),
@@ -195,7 +169,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     }
 
-                    return AnimatedSwitcher(
+                    return SafeAnimatedSwitcher(
                       duration: 250.milliseconds,
                       child: child,
                     );
@@ -261,7 +235,7 @@ class ChatsTabView extends StatelessWidget {
                       }
 
                       return AnimatedButton(
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: WidgetButton(
                             key: c.searching.value
@@ -281,8 +255,7 @@ class ChatsTabView extends StatelessWidget {
                                       key: const Key('ArrowBack'),
                                       Icons.arrow_back_ios_new,
                                       size: 20,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                      color: style.colors.primary,
                                     )
                                   : const SvgImage.asset(
                                       'assets/icons/search.svg',
@@ -376,14 +349,6 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                // child: SizedBox(
-                                //   // width: 21.77,
-                                //   child: AnimatedSizeAndFade(
-                                //     fadeDuration: 250.milliseconds,
-                                //     sizeDuration: 250.milliseconds,
-                                //     child: child,
-                                //   ),
-                                // ),
                               ),
                             ),
                           if (!c.searching.value &&
@@ -400,13 +365,11 @@ class ChatsTabView extends StatelessWidget {
                                   ContextMenuButton(
                                     label: 'btn_create_group'.l10n,
                                     onPressed: c.startGroupCreating,
-                                    // trailing: const Icon(Icons.group_outlined),
                                   ),
                                   ContextMenuButton(
                                     key: const Key('SelectChatButton'),
                                     label: 'btn_select_and_delete'.l10n,
                                     onPressed: c.toggleSelecting,
-                                    // trailing: const Icon(Icons.select_all),
                                   ),
                                 ],
                                 child: Container(
@@ -418,8 +381,7 @@ class ChatsTabView extends StatelessWidget {
                                   height: double.infinity,
                                   child: Icon(
                                     Icons.more_vert,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    color: style.colors.primary,
                                   ),
                                 ),
                               ),
@@ -472,17 +434,17 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         bottom: false,
-                        // controller: c.search.value!.controller,
+                        controller: c.search.value!.scrollController,
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(40),
                         ),
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
-                          // controller: c.search.value!.controller,
+                          controller: c.search.value!.scrollController,
                           itemCount: c.elements.length,
                           itemBuilder: (context, i) {
                             final ListElement element = c.elements[i];
-                            final Widget child;
+                            Widget child;
 
                             if (element is RecentElement) {
                               child = Obx(() {
@@ -526,9 +488,7 @@ class ChatsTabView extends StatelessWidget {
                                     const SizedBox(height: 5),
                                     Text(
                                       'label_required'.l10n,
-                                      style: style.fonts.bodySmall.copyWith(
-                                        color: style.colors.onPrimary,
-                                      ),
+                                      style: style.fonts.bodySmallOnPrimary,
                                     ),
                                   ],
                                 );
@@ -570,13 +530,25 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                   width: double.infinity,
                                   child: Center(
-                                    child: Text(text,
-                                        style: style.fonts.labelLarge),
+                                    child: Text(
+                                      text,
+                                      style: style.fonts.labelLarge,
+                                    ),
                                   ),
                                 ),
                               );
                             } else {
                               child = const SizedBox();
+                            }
+
+                            if (i == c.elements.length - 1 &&
+                                c.search.value?.hasNext.value == true) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  const CustomProgressIndicator(),
+                                ],
+                              );
                             }
 
                             return child;
@@ -598,16 +570,16 @@ class ChatsTabView extends StatelessWidget {
                       );
                     } else if (c.elements.isNotEmpty) {
                       child = SafeScrollbar(
-                        controller: c.scrollController,
+                        controller: c.search.value!.scrollController,
                         child: AnimationLimiter(
                           key: const Key('Search'),
                           child: ListView.builder(
                             key: const Key('SearchScrollable'),
-                            controller: c.scrollController,
+                            controller: c.search.value!.scrollController,
                             itemCount: c.elements.length,
                             itemBuilder: (_, i) {
                               final ListElement element = c.elements[i];
-                              final Widget child;
+                              Widget child;
 
                               if (element is ChatElement) {
                                 final RxChat chat = element.chat;
@@ -667,6 +639,26 @@ class ChatsTabView extends StatelessWidget {
                                 child = const SizedBox();
                               }
 
+                              if (i == c.elements.length - 1) {
+                                if (c.search.value?.hasNext.value == true) {
+                                  child = Column(
+                                    children: [
+                                      child,
+                                      const CustomProgressIndicator(
+                                        key: Key('SearchLoading'),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                child = Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: CustomNavigationBar.height + 5,
+                                  ),
+                                  child: child,
+                                );
+                              }
+
                               return AnimationConfiguration.staggeredList(
                                 position: i,
                                 duration: const Duration(milliseconds: 375),
@@ -704,11 +696,8 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none(
                       (e) {
-                        final bool isHidden = e.chat.value.isHidden &&
-                            !e.chat.value.isRoute(router.route, c.me);
-
                         return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !isHidden;
+                            !e.chat.value.isHidden;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
@@ -740,13 +729,10 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden) {
+                                  !e.chat.value.isHidden) {
                                 if (e.chat.value.ongoingCall != null) {
                                   calls.add(e);
                                 } else if (e.chat.value.favoritePosition !=
@@ -770,7 +756,9 @@ class ChatsTabView extends StatelessWidget {
                               return Obx(() {
                                 return RecentChatTile(
                                   e,
-                                  key: Key('RecentChat_${e.id}'),
+                                  key: e.chat.value.isMonolog
+                                      ? const Key('ChatMonolog')
+                                      : Key('RecentChat_${e.id}'),
                                   me: c.me,
                                   myUser: c.myUser.value,
                                   blocked: e.blacklisted,
@@ -784,13 +772,27 @@ class ChatsTabView extends StatelessWidget {
                                       : avatarBuilder,
                                   onJoin: () => c.joinCall(e.id),
                                   onDrop: () => c.dropCall(e.id),
-                                  onLeave: () => c.leaveChat(e.id),
+                                  onLeave: e.chat.value.isMonolog
+                                      ? null
+                                      : () => c.leaveChat(e.id),
                                   onHide: () => c.hideChat(e.id),
                                   inCall: () => c.containsCall(e.id),
-                                  onMute: () => c.muteChat(e.id),
-                                  onUnmute: () => c.unmuteChat(e.id),
-                                  onFavorite: () => c.favoriteChat(e.id),
-                                  onUnfavorite: () => c.unfavoriteChat(e.id),
+                                  onMute: e.chat.value.isMonolog ||
+                                          e.chat.value.id.isLocal
+                                      ? null
+                                      : () => c.muteChat(e.id),
+                                  onUnmute: e.chat.value.isMonolog ||
+                                          e.chat.value.id.isLocal
+                                      ? null
+                                      : () => c.unmuteChat(e.id),
+                                  onFavorite: e.chat.value.id.isLocal &&
+                                          !e.chat.value.isMonolog
+                                      ? null
+                                      : () => c.favoriteChat(e.id),
+                                  onUnfavorite: e.chat.value.id.isLocal &&
+                                          !e.chat.value.isMonolog
+                                      ? null
+                                      : () => c.unfavoriteChat(e.id),
                                   onSelect: c.toggleSelecting,
                                   onCreateGroup: c.startGroupCreating,
                                   onTap: c.selecting.value
@@ -814,7 +816,7 @@ class ChatsTabView extends StatelessWidget {
                               slivers: [
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
-                                    top: CustomAppBar.height,
+                                    top: CustomAppBar.height - 4,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -957,27 +959,35 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height + 5,
+                                    bottom: CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),
                                   sliver: SliverList(
                                     delegate: SliverChildListDelegate.fixed(
-                                      chats.mapIndexed((i, e) {
-                                        return AnimationConfiguration
-                                            .staggeredList(
-                                          position: i,
-                                          duration: const Duration(
-                                            milliseconds: 375,
-                                          ),
-                                          child: SlideAnimation(
-                                            horizontalOffset: 50,
-                                            child: FadeInAnimation(
-                                              child: tile(e),
+                                      [
+                                        ...chats.mapIndexed((i, e) {
+                                          return AnimationConfiguration
+                                              .staggeredList(
+                                            position: i,
+                                            duration: const Duration(
+                                              milliseconds: 375,
+                                            ),
+                                            child: SlideAnimation(
+                                              horizontalOffset: 50,
+                                              child: FadeInAnimation(
+                                                child: tile(e),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                        if (c.hasNext.isTrue)
+                                          const Center(
+                                            child: CustomProgressIndicator(
+                                              key: Key('ChatsLoading'),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -990,17 +1000,73 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: child,
                     ),
                   );
                 }),
-                bottomNavigationBar: c.groupCreating.value
-                    ? _createGroup(context, c)
-                    : c.selecting.value
-                        ? _selectButtons(context, c)
-                        : null,
+                bottomNavigationBar: Obx(() {
+                  if (c.groupCreating.value) {
+                    return BottomPaddedRow(
+                      children: [
+                        ShadowedRoundedButton(
+                          onPressed: c.closeGroupCreating,
+                          color: style.colors.onPrimary,
+                          child: Text(
+                            'btn_cancel'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.titleLarge,
+                          ),
+                        ),
+                        ShadowedRoundedButton(
+                          onPressed: c.createGroup,
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_create_group'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.titleLargeOnPrimary,
+                          ),
+                        ),
+                      ],
+                    );
+                  } else if (c.selecting.value) {
+                    return BottomPaddedRow(
+                      children: [
+                        ShadowedRoundedButton(
+                          onPressed: c.toggleSelecting,
+                          child: Text(
+                            'btn_cancel'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.titleLarge,
+                          ),
+                        ),
+                        ShadowedRoundedButton(
+                          key: const Key('DeleteChats'),
+                          onPressed: c.selectedChats.isEmpty
+                              ? null
+                              : () => _hideChats(context, c),
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_delete_count'.l10nfmt({
+                              'count': c.selectedChats.length,
+                            }),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: c.selectedChats.isEmpty
+                                ? style.fonts.titleLarge
+                                : style.fonts.titleLargeOnPrimary,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return const SizedBox();
+                }),
               );
             }),
             Obx(() {
@@ -1017,151 +1083,14 @@ class ChatsTabView extends StatelessWidget {
                 child = const SizedBox();
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
           ],
         );
       },
-    );
-  }
-
-  /// Returns an animated [OutlinedRoundedButton]s for creating a group.
-  Widget _createGroup(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    Widget button({
-      Key? key,
-      Widget? leading,
-      required Widget child,
-      void Function()? onPressed,
-      Color? color,
-    }) {
-      return Expanded(
-        child: SizedBox(
-          height: 42,
-          child: OutlinedRoundedButton(
-            key: key,
-            leading: leading,
-            title: child,
-            onPressed: onPressed,
-            color: color,
-            shadows: [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: style.colors.onBackgroundOpacity13,
-                blurStyle: BlurStyle.outer,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          button(
-            child: Text(
-              'btn_cancel'.l10n,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              style: TextStyle(color: style.colors.onBackground),
-            ),
-            onPressed: c.closeGroupCreating,
-            color: style.colors.onPrimary,
-          ),
-          const SizedBox(width: 10),
-          button(
-            child: Text(
-              'btn_create_group'.l10n,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-              style: TextStyle(color: style.colors.onPrimary),
-            ),
-            onPressed: c.createGroup,
-            color: style.colors.primary,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [Chat]s manipulation.
-  Widget _selectButtons(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: style.colors.onBackgroundOpacity13,
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: SizedBox(
-              height: 42,
-              child: OutlinedRoundedButton(
-                title: Text(
-                  'btn_cancel'.l10n,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(color: style.colors.onBackground),
-                ),
-                onPressed: c.toggleSelecting,
-                shadows: shadows,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: SizedBox(
-                height: 42,
-                child: OutlinedRoundedButton(
-                  key: const Key('DeleteChats'),
-                  title: Text(
-                    'btn_delete_count'
-                        .l10nfmt({'count': c.selectedChats.length}),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: TextStyle(
-                      color: c.selectedChats.isEmpty
-                          ? style.colors.onBackground
-                          : style.colors.onPrimary,
-                    ),
-                  ),
-                  onPressed: c.selectedChats.isEmpty
-                      ? null
-                      : () => _hideChats(context, c),
-                  color: style.colors.primary,
-                  shadows: shadows,
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
     );
   }
 

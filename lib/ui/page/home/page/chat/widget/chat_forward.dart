@@ -441,10 +441,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     children: [
                       Flexible(
                         child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 12,
-                            right: 9,
-                          ),
+                          padding: const EdgeInsets.only(left: 12, right: 9),
                           child: SelectionText.rich(
                             TextSpan(
                               text: data?.user.value.name?.val ??
@@ -536,8 +533,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: MessageTimestamp(
                         at: quote.at,
                         date: true,
-                        fontSize: 12,
-                        // price: widget.paid && !_fromMe ? 123 : null,
+                        fontSize: style.fonts.labelSmall.fontSize,
                       ),
                     ),
                 ],
@@ -562,8 +558,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               child: MessageTimestamp(
                                 at: quote.at,
                                 date: true,
-                                fontSize: 12,
-                                // price: widget.paid && !_fromMe ? 123 : null,
+                                fontSize: style.fonts.labelSmall.fontSize,
                               ),
                             ),
                           ),
@@ -695,17 +690,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: MessageTimestamp(
                               at: quote.at,
                               date: true,
-                              fontSize: 12,
+                              fontSize: style.fonts.labelSmall.fontSize,
                               inverted: true,
-                              // price: widget.paid && !_fromMe ? 123 : null,
                             ),
                           ),
                         )
                       : MessageTimestamp(
                           at: quote.at,
                           date: true,
-                          fontSize: 12,
-                          // price: widget.paid && !_fromMe ? 123 : null,
+                          fontSize: style.fonts.labelSmall.fontSize,
                         ),
                 )
               ],
@@ -1325,8 +1318,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         }
 
         if (string?.isNotEmpty == true) {
-          _text[forward.value.id] =
-              string!.parseLinks(_recognizers, router.context);
+          _text[forward.value.id] = string!.parseLinks(
+            _recognizers,
+            Theme.of(router.context!).style.linkStyle,
+          );
         }
       }
     }
@@ -1344,7 +1339,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       }
 
       if (string?.isNotEmpty == true) {
-        _text[item.id] = string!.parseLinks(_recognizers, router.context);
+        _text[item.id] = string!.parseLinks(
+          _recognizers,
+          Theme.of(router.context!).style.linkStyle,
+        );
       }
     }
   }

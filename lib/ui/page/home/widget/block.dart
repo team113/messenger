@@ -49,12 +49,19 @@ class Block extends StatelessWidget {
   /// [CrossAxisAlignment] to apply to the [children].
   final CrossAxisAlignment crossAxisAlignment;
 
-  /// [Widget]s to display.
-  final List<Widget> children;
   final List<Widget> expanded;
 
+  /// Indicator whether this [Block] should occupy the whole space, if `true`,
+  /// or be fixed width otherwise.
+  ///
+  /// If not specified, then [MobileExtensionOnContext.isNarrow] is used.
+  final bool? unconstrained;
+
+  /// Padding to apply to the [children].
   final EdgeInsets padding;
-  final bool unconstrained;
+
+  /// [Widget]s to display.
+  final List<Widget> children;
 
   final String? headline;
   final Widget? underline;
@@ -81,149 +88,152 @@ class Block extends StatelessWidget {
     return HighlightedContainer(
       highlight: highlight == true,
       child: Center(
-        child: Padding(
+        child: Container(
           padding: EdgeInsets.fromLTRB(
-              8, margin ?? (headline == null ? 4 : 32), 8, 4),
-          child: ConstrainedBox(
-            constraints: (context.isNarrow || unconstrained)
-                ? const BoxConstraints.tightForFinite()
-                : const BoxConstraints(maxWidth: 400),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: color ?? style.messageColor,
-                focusedBorder: border,
-                errorBorder: border,
-                enabledBorder: border,
-                disabledBorder: border,
-                focusedErrorBorder: border,
-                // contentPadding: EdgeInsets.zero,
-                contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                border: border,
-                // labelText: headline,
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: padding,
-                    child: AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      alignment: Alignment.topCenter,
-                      curve: Curves.easeInOut,
-                      child: Column(
-                        children: [
-                          Column(
-                            crossAxisAlignment: crossAxisAlignment,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (title != null)
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                                  child: Center(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      child: Text(
-                                        title!,
-                                        textAlign: TextAlign.center,
-                                        style: style.fonts.headlineMedium,
-                                      ),
+            8,
+            margin ?? (headline == null ? 4 : 32),
+            8,
+            4,
+          ),
+
+          constraints: (unconstrained ?? context.isNarrow)
+              ? null
+              : const BoxConstraints(maxWidth: 400),
+          // constraints: (context.isNarrow || unconstrained)
+          //     ? const BoxConstraints.tightForFinite()
+          //     : const BoxConstraints(maxWidth: 400),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: color ?? style.messageColor,
+              focusedBorder: border,
+              errorBorder: border,
+              enabledBorder: border,
+              disabledBorder: border,
+              focusedErrorBorder: border,
+              contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              border: border,
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: padding,
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.topCenter,
+                    curve: Curves.easeInOut,
+                    child: Column(
+                      children: [
+                        Column(
+                          crossAxisAlignment: crossAxisAlignment,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (title != null)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                                child: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    child: Text(
+                                      title!,
+                                      textAlign: TextAlign.center,
+                                      style: style.fonts.headlineMedium,
                                     ),
                                   ),
                                 ),
-                              ...children,
-                            ],
-                          ),
-                          IgnorePointer(
-                            child: AnimatedSwitcher(
-                              switchInCurve: Curves.easeInOut,
-                              switchOutCurve: Curves.easeInOut,
-                              duration: const Duration(milliseconds: 300),
-                              layoutBuilder: (current, previous) {
-                                List<Widget> children = previous;
-
-                                if (current != null) {
-                                  if (previous.isEmpty) {
-                                    children = [current];
-                                  } else {
-                                    children = [
-                                      Positioned(
-                                        left: 0.0,
-                                        right: 0.0,
-                                        child: Container(child: previous[0]),
-                                      ),
-                                      current,
-                                    ];
-                                  }
-                                }
-
-                                return Stack(
-                                  clipBehavior: Clip.none,
-                                  alignment: Alignment.topCenter,
-                                  children: children,
-                                );
-                              },
-                              child: Column(
-                                key: Key('${expanded.length}'),
-                                crossAxisAlignment: crossAxisAlignment,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: double.infinity,
-                                    color: style.colors.transparent,
-                                  ),
-                                  ...expanded,
-                                ],
                               ),
+                            ...children,
+                          ],
+                        ),
+                        IgnorePointer(
+                          child: AnimatedSwitcher(
+                            switchInCurve: Curves.easeInOut,
+                            switchOutCurve: Curves.easeInOut,
+                            duration: const Duration(milliseconds: 300),
+                            layoutBuilder: (current, previous) {
+                              List<Widget> children = previous;
+
+                              if (current != null) {
+                                if (previous.isEmpty) {
+                                  children = [current];
+                                } else {
+                                  children = [
+                                    Positioned(
+                                      left: 0.0,
+                                      right: 0.0,
+                                      child: Container(child: previous[0]),
+                                    ),
+                                    current,
+                                  ];
+                                }
+                              }
+
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.topCenter,
+                                children: children,
+                              );
+                            },
+                            child: Column(
+                              key: Key('${expanded.length}'),
+                              crossAxisAlignment: crossAxisAlignment,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  color: style.colors.transparent,
+                                ),
+                                ...expanded,
+                              ],
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (headline != null)
+                  Positioned(
+                    child: Text(
+                      headline!,
+                      style: style.fonts.headlineSmall.copyWith(
+                        color: headlineColor ??
+                            style.colors.secondaryHighlightDarkest,
                       ),
                     ),
                   ),
-                  if (headline != null)
-                    Positioned(
-                      child: Text(
-                        headline!,
-                        style: style.fonts.headlineSmall.copyWith(
-                          color: headlineColor ??
-                              style.colors.secondaryHighlightDarkest,
-                        ),
-                      ),
-                    ),
-                  if (underline != null)
-                    Positioned(top: 0, right: 0, child: underline!),
-                  if (fade)
-                    Positioned.fill(
-                      child: Column(
-                        children: [
-                          const Spacer(),
-                          Container(
-                            width: double.infinity,
-                            height: 100,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                stops: [0, 0.7, 0.9, 1],
-                                colors: [
-                                  Color(0x00FFFFFF),
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFFFFFFFF),
-                                ],
-                              ),
+                if (underline != null)
+                  Positioned(top: 0, right: 0, child: underline!),
+                if (fade)
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        const Spacer(),
+                        Container(
+                          width: double.infinity,
+                          height: 100,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: [0, 0.7, 0.9, 1],
+                              colors: [
+                                Color(0x00FFFFFF),
+                                Color(0xFFFFFFFF),
+                                Color(0xFFFFFFFF),
+                                Color(0xFFFFFFFF),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),

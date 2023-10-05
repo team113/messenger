@@ -58,6 +58,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
@@ -497,7 +498,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
               final Map<String, dynamic> args = {
-                'author': user.name?.val ?? user.num.val,
+                'author': user.name?.val ?? user.num.toString(),
               };
 
               return Text.rich(
@@ -552,8 +553,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             user ??= action.user;
 
             final Map<String, dynamic> args = {
-              'author': author.name?.val ?? author.num.val,
-              'user': user.name?.val ?? user.num.val,
+              'author': author.name?.val ?? author.num.toString(),
+              'user': user.name?.val ?? user.num.toString(),
             };
 
             return Text.rich(
@@ -581,9 +582,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         } else {
           final Map<String, dynamic> args = {
             'author': widget.user?.user.value.name?.val ??
-                widget.user?.user.value.num.val ??
+                widget.user?.user.value.num.toString() ??
                 action.user.name?.val ??
-                action.user.num.val,
+                action.user.num.toString(),
           };
 
           content = Text.rich(
@@ -614,8 +615,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             user ??= action.user;
 
             final Map<String, dynamic> args = {
-              'author': author.name?.val ?? author.num.val,
-              'user': user.name?.val ?? user.num.val,
+              'author': author.name?.val ?? author.num.toString(),
+              'user': user.name?.val ?? user.num.toString(),
             };
 
             return Text.rich(
@@ -642,7 +643,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           });
         } else {
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.val,
+            'author': action.user.name?.val ?? action.user.num.toString(),
           };
 
           content = Text.rich(
@@ -669,7 +670,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.val,
+          'author': user.name?.val ?? user.num.toString(),
         };
 
         final String phrase1, phrase2;
@@ -704,7 +705,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.val,
+          'author': user.name?.val ?? user.num.toString(),
           if (action.name != null) 'name': action.name?.val,
         };
 
@@ -796,9 +797,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final bool timestamp =
         (widget.timestamp || msg.donate != null || widget.paid) &&
-            (_text != null ||
-                files.isNotEmpty ||
-                media.isNotEmpty); // || msg.donate != null);
+            (_text != null || files.isNotEmpty || media.isNotEmpty);
 
     return _rounded(
       context,
@@ -859,17 +858,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 _text != null)
               const SizedBox(height: 6),
           ],
-
-          // if (msg.donate != null)
-          //   Padding(
-          //     padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-          //     child: Align(
-          //       alignment:
-          //           _fromMe ? Alignment.centerRight : Alignment.centerLeft,
-          //       child: _donate(context, donate: msg.donate!),
-          //     ),
-          //   ),
-
           if (msg.repliesTo.isNotEmpty) ...[
             ...msg.repliesTo.expand((e) {
               return [
@@ -913,13 +901,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 topLeft: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
-                            avatar)
+                            widget.avatar)
                     ? Radius.zero
                     : const Radius.circular(15),
                 topRight: msg.repliesTo.isNotEmpty ||
                         (!_fromMe &&
                             widget.chat.value?.isGroup == true &&
-                            avatar)
+                            widget.avatar)
                     ? Radius.zero
                     : const Radius.circular(15),
                 bottomLeft:
@@ -1126,7 +1114,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       child: SelectionText.rich(
                         TextSpan(
                           text: widget.user?.user.value.name?.val ??
-                              widget.user?.user.value.num.val ??
+                              widget.user?.user.value.num.toString() ??
                               'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => router.user(_author, push: true),
@@ -1282,9 +1270,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.fonts.titleMedium.copyWith(
-                      color: style.colors.secondary,
-                    ),
+                    style: style.fonts.titleMediumSecondary,
                   ),
                 ),
               ),
@@ -1355,7 +1341,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     Expanded(
                       child: Text(
                         data?.user.value.name?.val ??
-                            data?.user.value.num.val ??
+                            data?.user.value.num.toString() ??
                             'dot'.l10n * 3,
                         style: style.fonts.bodyLarge.copyWith(color: color),
                       ),
@@ -1574,9 +1560,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    final bool avatar =
-        widget.avatar; // || (item is ChatMessage && item.donate != null);
-
     return SwipeableStatus(
       animation: widget.animation,
       translate: _fromMe,
@@ -1690,7 +1673,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               if (!_fromMe && widget.chat.value!.isGroup)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: avatar
+                  child: widget.avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.author.id, push: true),
@@ -2016,7 +1999,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       if (string?.isEmpty == true) {
         _text = null;
       } else {
-        _text = string?.parseLinks(_recognizers, router.context);
+        _text = string?.parseLinks(
+          _recognizers,
+          Theme.of(router.context!).style.linkStyle,
+        );
       }
     } else if (msg is ChatForward) {
       throw Exception(
@@ -2092,14 +2078,12 @@ extension LinkParsingExtension on String {
   /// dispose them properly.
   TextSpan parseLinks(
     List<TapGestureRecognizer> recognizers, [
-    BuildContext? context,
+    TextStyle? style,
   ]) {
     final Iterable<RegExpMatch> matches = _regex.allMatches(this);
     if (matches.isEmpty) {
       return TextSpan(text: this);
     }
-
-    final Style? style = context?.theme.extension<Style>()!;
 
     String text = this;
     final List<TextSpan> spans = [];
@@ -2128,11 +2112,7 @@ extension LinkParsingExtension on String {
       spans.add(
         TextSpan(
           text: link,
-          style: TextStyle(
-            color: style?.linkStyle.color,
-            // decoration: TextDecoration.underline,
-            // decorationThickness: 2,
-          ),
+          style: style,
           recognizer: recognizer
             ..onTap = () async {
               final Uri uri;
@@ -2162,46 +2142,5 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
-  }
-}
-
-/// Extension adding a fixed-length digits [Text] transformer.
-extension FixedDigitsExtension on Text {
-  /// [RegExp] detecting numbers.
-  static final RegExp _regex = RegExp(r'\d');
-
-  /// Returns a [Text] guaranteed to have fixed width of digits in it.
-  Widget fixedDigits({bool all = false}) {
-    Text copyWith(String string, {TextStyle? style}) {
-      return Text(
-        string,
-        style: style ?? this.style,
-        strutStyle: strutStyle,
-        textAlign: textAlign,
-        textDirection: textDirection,
-        locale: locale,
-        softWrap: softWrap,
-        overflow: overflow,
-        textScaleFactor: textScaleFactor,
-        maxLines: maxLines,
-        textWidthBasis: textWidthBasis,
-        textHeightBehavior: textHeightBehavior,
-        selectionColor: selectionColor,
-      );
-    }
-
-    return Stack(
-      children: [
-        Opacity(
-          opacity: 0,
-          child: copyWith(
-            all
-                ? data!.replaceAll(RegExp(r'.'), '0')
-                : data!.replaceAll(_regex, '0'),
-          ),
-        ),
-        copyWith(data!),
-      ],
-    );
   }
 }
