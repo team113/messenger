@@ -28,6 +28,7 @@ import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import 'call.dart';
 import 'file.dart';
@@ -71,20 +72,23 @@ extension ChatConversion on ChatMixin {
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive() => HiveChat(
+  HiveChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+      HiveChat(
         toModel(),
         ver,
         lastItem?.cursor,
         lastReadItem?.cursor,
+        recent,
+        favorite,
       );
 
   /// Constructs a new [ChatData] from this [ChatMixin].
-  ChatData toData() {
+  ChatData toData([RecentChatsCursor? recent, FavoriteChatsCursor? favorite]) {
     var lastItem = this.lastItem?.toHive();
     var lastReadItem = this.lastReadItem?.toHive();
 
     return ChatData(
-      toHive(),
+      toHive(recent, favorite),
       lastItem,
       lastReadItem,
     );

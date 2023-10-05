@@ -565,13 +565,13 @@ class _ChatViewState extends State<ChatView>
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
 
+    ListElement? previous;
     bool previousSame = false;
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
         element is ChatInfoElement ||
         element is ChatForwardElement) {
-      ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
         if (previous is LoaderElement && i < c.elements.length - 2) {
@@ -609,8 +609,7 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5)) ||
-            previous is UnreadMessagesElement;
+                    const Duration(minutes: 5));
       }
     }
 
@@ -631,7 +630,7 @@ class _ChatViewState extends State<ChatView>
 
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 9,
+          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
@@ -695,7 +694,7 @@ class _ChatViewState extends State<ChatView>
     } else if (element is ChatForwardElement) {
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 9,
+          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(

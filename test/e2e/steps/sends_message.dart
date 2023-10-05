@@ -37,7 +37,7 @@ final StepDefinitionGeneric sendsMessageToMe =
   '{user} sends {string} message to me',
   (TestUser user, String msg, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
     await provider.postChatMessage(
       context.world.sessions[user.name]!.dialog!,
       text: ChatMessageText(msg),
@@ -59,7 +59,7 @@ final StepDefinitionGeneric sendsMessageWithException =
   '{user} sends message to me and receives {exception} exception',
   (TestUser user, ExceptionType type, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     Object? exception;
 

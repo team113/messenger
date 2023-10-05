@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/attachment.dart';
@@ -43,14 +45,23 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
-  /// Returns the [RxStatus] of the [chats] initialization.
+  /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
-  /// Returns the current reactive map of [RxChat]s.
+  /// Returns the reactive map the currently paginated [RxChat]s.
+  RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
+
+  /// Returns the current reactive map of all [RxChat]s available.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Indicates whether the [paginated] have next page.
+  RxBool get hasNext => _chatRepository.hasNext;
+
+  /// Indicates whether the [paginated] have next page.
+  RxBool get nextLoading => _chatRepository.nextLoading;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
@@ -69,6 +80,9 @@ class ChatService extends DisposableService {
 
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
+
+  /// Fetches the next [paginated] page.
+  FutureOr<void> next() => _chatRepository.next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///

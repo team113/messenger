@@ -203,138 +203,132 @@ class _ChatWatchData {
     Rx<Chat> c, {
     void Function(String, String?)? onNotification,
     UserId? Function()? me,
-  }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
-    worker = ever(
-      c,
-      (Chat chat) {
-        if (chat.lastItem != null) {
-          if (chat.lastItem!.at.isAfter(updatedAt) &&
-              DateTime.now()
-                      .difference(chat.lastItem!.at.val)
-                      .compareTo(ChatWorker.newMessageThreshold) <=
-                  -1 &&
-              chat.lastItem!.author.id != me?.call() &&
-              chat.muted == null) {
-            final StringBuffer body = StringBuffer();
+  }) {
+    void showNotification(Chat chat) {
+      if (chat.lastItem != null) {
+        if ((updatedAt == null || chat.lastItem!.at.isAfter(updatedAt!)) &&
+            DateTime.now()
+                    .difference(chat.lastItem!.at.val)
+                    .compareTo(ChatWorker.newMessageThreshold) <=
+                -1 &&
+            chat.lastItem!.author.id != me?.call() &&
+            chat.muted == null) {
+          final StringBuffer body = StringBuffer();
 
-            if (chat.lastItem is ChatMessage) {
-              var msg = chat.lastItem as ChatMessage;
-              if (msg.text != null) {
-                body.write(msg.text?.val);
-                if (msg.attachments.isNotEmpty) {
-                  body.write('\n');
-                }
-              }
-
+          if (chat.lastItem is ChatMessage) {
+            var msg = chat.lastItem as ChatMessage;
+            if (msg.text != null) {
+              body.write(msg.text?.val);
               if (msg.attachments.isNotEmpty) {
-                body.write(
-                  'label_attachments'
-                      .l10nfmt({'count': msg.attachments.length}),
-                );
+                body.write('\n');
               }
-            } else if (chat.lastItem is ChatInfo) {
-              final ChatInfo msg = chat.lastItem as ChatInfo;
-
-              switch (msg.action.kind) {
-                case ChatInfoActionKind.created:
-                  // No-op, as it shouldn't be in a notification.
-                  break;
-
-                case ChatInfoActionKind.memberAdded:
-                  final action = msg.action as ChatInfoActionMemberAdded;
-
-                  if (msg.author.id == action.user.id) {
-                    body.write(
-                      'label_was_added'.l10nfmt(
-                        {
-                          'author':
-                              '${action.user.name ?? action.user.num.toString()}'
-                        },
-                      ),
-                    );
-                  } else {
-                    body.write(
-                      'label_user_added_user'.l10nfmt({
-                        'author':
-                            msg.author.name?.val ?? msg.author.num.toString(),
-                        'user':
-                            action.user.name?.val ?? action.user.num.toString(),
-                      }),
-                    );
-                  }
-                  break;
-
-                case ChatInfoActionKind.memberRemoved:
-                  final action = msg.action as ChatInfoActionMemberRemoved;
-
-                  if (msg.author.id == action.user.id) {
-                    body.write(
-                      'label_was_removed'.l10nfmt(
-                        {
-                          'author':
-                              '${action.user.name ?? action.user.num.toString()}'
-                        },
-                      ),
-                    );
-                  } else {
-                    body.write(
-                      'label_user_removed_user'.l10nfmt({
-                        'author':
-                            msg.author.name?.val ?? msg.author.num.toString(),
-                        'user':
-                            action.user.name?.val ?? action.user.num.toString(),
-                      }),
-                    );
-                  }
-                  break;
-
-                case ChatInfoActionKind.avatarUpdated:
-                  final action = msg.action as ChatInfoActionAvatarUpdated;
-                  final Map<String, dynamic> args = {
-                    'author': msg.author.name?.val ?? msg.author.num.toString(),
-                  };
-
-                  if (action.avatar == null) {
-                    body.write('label_avatar_removed'.l10nfmt(args));
-                  } else {
-                    body.write('label_avatar_updated'.l10nfmt(args));
-                  }
-                  break;
-
-                case ChatInfoActionKind.nameUpdated:
-                  final action = msg.action as ChatInfoActionNameUpdated;
-                  final Map<String, dynamic> args = {
-                    'author': msg.author.name?.val ?? msg.author.num.toString(),
-                    if (action.name != null) 'name': action.name?.val,
-                  };
-
-                  if (action.name == null) {
-                    body.write('label_name_removed'.l10nfmt(args));
-                  } else {
-                    body.write('label_name_updated'.l10nfmt(args));
-                  }
-                  break;
-              }
-            } else if (chat.lastItem is ChatForward) {
-              body.write('label_forwarded_message'.l10n);
             }
 
-            if (body.isNotEmpty) {
-              onNotification?.call(body.toString(), chat.lastItem?.id.val);
+            if (msg.attachments.isNotEmpty) {
+              body.write(
+                'label_attachments'.l10nfmt({'count': msg.attachments.length}),
+              );
             }
+          } else if (chat.lastItem is ChatInfo) {
+            final ChatInfo msg = chat.lastItem as ChatInfo;
+
+            switch (msg.action.kind) {
+              case ChatInfoActionKind.created:
+                // No-op, as it shouldn't be in a notification.
+                break;
+
+              case ChatInfoActionKind.memberAdded:
+                final action = msg.action as ChatInfoActionMemberAdded;
+
+                if (msg.author.id == action.user.id) {
+                  body.write(
+                    'label_was_added'.l10nfmt(
+                      {'author': '${action.user.name ?? action.user.num}'},
+                    ),
+                  );
+                } else {
+                  body.write(
+                    'label_user_added_user'.l10nfmt({
+                      'author':
+                          msg.author.name?.val ?? msg.author.num.toString(),
+                      'user':
+                          action.user.name?.val ?? action.user.num.toString(),
+                    }),
+                  );
+                }
+                break;
+
+              case ChatInfoActionKind.memberRemoved:
+                final action = msg.action as ChatInfoActionMemberRemoved;
+
+                if (msg.author.id == action.user.id) {
+                  body.write(
+                    'label_was_removed'.l10nfmt(
+                      {'author': '${action.user.name ?? action.user.num}'},
+                    ),
+                  );
+                } else {
+                  body.write(
+                    'label_user_removed_user'.l10nfmt({
+                      'author':
+                          msg.author.name?.val ?? msg.author.num.toString(),
+                      'user':
+                          action.user.name?.val ?? action.user.num.toString(),
+                    }),
+                  );
+                }
+                break;
+
+              case ChatInfoActionKind.avatarUpdated:
+                final action = msg.action as ChatInfoActionAvatarUpdated;
+                final Map<String, dynamic> args = {
+                  'author': msg.author.name?.val ?? msg.author.num.toString(),
+                };
+
+                if (action.avatar == null) {
+                  body.write('label_avatar_removed'.l10nfmt(args));
+                } else {
+                  body.write('label_avatar_updated'.l10nfmt(args));
+                }
+                break;
+
+              case ChatInfoActionKind.nameUpdated:
+                final action = msg.action as ChatInfoActionNameUpdated;
+                final Map<String, dynamic> args = {
+                  'author': msg.author.name?.val ?? msg.author.num.toString(),
+                  if (action.name != null) 'name': action.name?.val,
+                };
+
+                if (action.name == null) {
+                  body.write('label_name_removed'.l10nfmt(args));
+                } else {
+                  body.write('label_name_updated'.l10nfmt(args));
+                }
+                break;
+            }
+          } else if (chat.lastItem is ChatForward) {
+            body.write('label_forwarded_message'.l10n);
           }
 
-          updatedAt = chat.lastItem!.at;
+          if (body.isNotEmpty) {
+            onNotification?.call(body.toString(), chat.lastItem?.id.val);
+          }
         }
-      },
-    );
+
+        updatedAt = chat.lastItem!.at;
+      }
+    }
+
+    showNotification(c.value);
+
+    worker = ever(c, showNotification);
   }
 
   /// [Worker] to react on the [Chat] updates.
   late final Worker worker;
 
   /// [PreciseDateTime] the [Chat.lastItem] was updated at.
-  PreciseDateTime updatedAt;
+  PreciseDateTime? updatedAt;
 
   /// Disposes the [worker].
   void dispose() {

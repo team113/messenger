@@ -138,6 +138,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldN,
         goToUserPage,
         hasDialogWithMe,
+        hasGroups,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -262,9 +263,16 @@ Future<CustomUser> createUser(
   final result = await provider.signUp();
 
   final CustomUser customUser = CustomUser(
-    Session(
-      result.createUser.session.token,
-      result.createUser.session.expireAt,
+    Credentials(
+      Session(
+        result.createUser.session.token,
+        result.createUser.session.expireAt,
+      ),
+      RememberedSession(
+        result.createUser.remembered!.token,
+        result.createUser.remembered!.expireAt,
+      ),
+      result.createUser.user.id,
     ),
     result.createUser.user.id,
     result.createUser.user.num,
