@@ -279,9 +279,6 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
-  /// Worker capturing any [status] changes.
-  Worker? _statusWorker;
-
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
@@ -415,7 +412,6 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
-    _statusWorker?.dispose();
     _typingSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();

@@ -61,7 +61,7 @@ class CombinedPagination<T, K> {
   FutureOr<void> around() async {
     for (final p in paginations.map((e) => e.p)) {
       await p.around();
-      if (items.isNotEmpty) {
+      if (p.hasNext.isTrue) {
         break;
       } else {
         continue;

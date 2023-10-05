@@ -119,7 +119,7 @@ class HiveRxChat extends RxChat {
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
-  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey, Object>
       _provider;
 
   /// Subscription to [User]s from the [members] list forming the [title].

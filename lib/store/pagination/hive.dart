@@ -28,15 +28,17 @@ import '/store/pagination.dart';
 /// [PageProvider] fetching items from the [Hive].
 ///
 /// [HiveLazyProvider] must be initialized and disposed properly manually.
-class HivePageProvider<T extends Object, C, K extends Object>
+class HivePageProvider<T extends Object, C, K extends Object, S>
     implements PageProvider<T, C, K> {
   HivePageProvider(
     this._provider, {
     required this.getCursor,
     required this.getKey,
+    this.sortingProvider,
     this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
+    this.reversed = false,
   });
 
   /// Callback, called when a key of the provided [T] is required.
@@ -44,6 +46,9 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T? item) getCursor;
+
+  /// [IterableHiveProvider] to fetch the items keys from.
+  IterableHiveProvider<K, S>? sortingProvider;
 
   /// Callback, called to indicate whether the provided [T] is the first.
   final bool Function(T item)? isFirst;
@@ -53,6 +58,9 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
   /// [PaginationStrategy] of [around] invoke.
   PaginationStrategy strategy;
+
+  /// Indicator whether this [HivePageProvider] is reversed.
+  bool reversed;
 
   /// [IterableHiveProvider] to fetch the items from.
   IterableHiveProvider<T, K> _provider;
@@ -71,7 +79,8 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
     Iterable<dynamic>? keys;
 
-    final Iterable<K> providerKeys = _provider.keys;
+    final Iterable<K> providerKeys =
+        await sortingProvider?.values ?? _provider.keys;
     if (item != null) {
       final K key = getKey(item);
       final int initial = providerKeys.toList().indexOf(key);
@@ -105,16 +114,27 @@ class HivePageProvider<T extends Object, C, K extends Object>
   }
 
   @override
-  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
+  FutureOr<Page<T, C>?> after(
+    T? item,
+    C? cursor,
+    int count, {
+    bool reversed = false,
+  }) async {
     if (item == null) {
       return null;
     }
 
+    if (this.reversed && !reversed) {
+      return before(item, cursor, count, reversed: true);
+    }
+
     final key = getKey(item);
-    final index = _provider.keys.toList().indexOf(key);
-    if (index != -1 && index < _provider.keys.length - 1) {
+    final Iterable<K> providerKeys =
+        await sortingProvider?.values ?? _provider.keys;
+    final index = providerKeys.toList().indexOf(key);
+    if (index != -1 && index < providerKeys.length - 1) {
       List<T> items = [];
-      for (var k in _provider.keys.after(index, count)) {
+      for (var k in providerKeys.after(index, count)) {
         final T? item = await _provider.get(k);
         if (item != null) {
           items.add(item);
@@ -128,16 +148,27 @@ class HivePageProvider<T extends Object, C, K extends Object>
   }
 
   @override
-  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
+  FutureOr<Page<T, C>?> before(
+    T? item,
+    C? cursor,
+    int count, {
+    bool reversed = false,
+  }) async {
     if (item == null) {
       return null;
     }
 
+    if (this.reversed && !reversed) {
+      return after(item, cursor, count, reversed: true);
+    }
+
     final K key = getKey(item);
-    final int index = _provider.keys.toList().indexOf(key);
+    final Iterable<K> providerKeys =
+        await sortingProvider?.values ?? _provider.keys;
+    final int index = providerKeys.toList().indexOf(key);
     if (index > 0) {
       final List<T> items = [];
-      for (var i in _provider.keys.before(index, count)) {
+      for (var i in providerKeys.before(index, count)) {
         final T? item = await _provider.get(i);
         if (item != null) {
           items.add(item);
@@ -160,30 +191,32 @@ class HivePageProvider<T extends Object, C, K extends Object>
   Future<void> clear() => _provider.clear();
 
   /// Creates a [Page] from the provided [items].
-  Page<T, C> _page(List<T> items) {
+  Future<Page<T, C>> _page(List<T> items) async {
     bool hasNext = true;
     bool hasPrevious = true;
 
-    final T? firstItem = items.firstWhereOrNull((e) => getCursor(e) != null);
+    final T? firstItem = items.firstOrNull;
     if (firstItem != null && isFirst != null) {
       hasPrevious = !isFirst!.call(firstItem) ||
-          getKey(items.first) != _provider.keys.first;
+          getKey(items.first) !=
+              ((await sortingProvider?.values)?.first ?? _provider.keys.first);
     }
 
-    final T? lastItem = items.lastWhereOrNull((e) => getCursor(e) != null);
+    final T? lastItem = items.lastOrNull;
     if (lastItem != null && isLast != null) {
-      hasNext =
-          !isLast!.call(lastItem) || getKey(items.last) != _provider.keys.last;
+      hasNext = !isLast!.call(lastItem) ||
+          getKey(items.last) !=
+              ((await sortingProvider?.values)?.last ?? _provider.keys.last);
     }
 
     return Page(
-      RxList(items.toList()),
+      reversed ? items.reversed.toList() : items,
       PageInfo(
         startCursor:
             getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
         endCursor: getCursor(lastItem),
-        hasPrevious: hasPrevious,
-        hasNext: hasNext,
+        hasPrevious: reversed ? hasNext : hasPrevious,
+        hasNext: reversed ? hasPrevious : hasNext,
       ),
     );
   }
