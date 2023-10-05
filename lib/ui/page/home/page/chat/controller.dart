@@ -1213,8 +1213,7 @@ class ChatController extends GetxController {
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (listController.position.maxScrollExtent == 0 &&
-            (hasNext.isTrue || hasPrevious.isTrue)) {
+        if (listController.position.maxScrollExtent < 50) {
           await _loadNextPage();
           await _loadPreviousPage();
           _ensureScrollable();

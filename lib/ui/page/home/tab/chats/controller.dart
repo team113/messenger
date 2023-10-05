@@ -136,12 +136,15 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Subscription for [ChatService.chats] changes.
+  /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
+
+  /// Subscription for the [ChatService.status] changes.
+  StreamSubscription? _statusSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -161,9 +164,14 @@ class ChatsTabController extends GetxController {
   /// Returns the [RxStatus] of the [chats] fetching and initialization.
   Rx<RxStatus> get status => _chatService.status;
 
+  /// Indicates whether the [chats] have a next page.
+  RxBool get hasNext => _chatService.hasNext;
+
   @override
   void onInit() {
-    chats = RxList<RxChat>(_chatService.chats.values.toList());
+    scrollController.addListener(_scrollListener);
+
+    chats = RxList<RxChat>(_chatService.paginated.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
@@ -196,7 +204,7 @@ class ChatsTabController extends GetxController {
     }
 
     chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
-    _chatsSubscription = _chatService.chats.changes.listen((event) {
+    _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           chats.add(event.value!);
@@ -236,12 +244,24 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    if (_chatService.status.value.isSuccess) {
+      _ensureScrollable();
+    } else {
+      _statusSubscription = _chatService.status.listen((status) {
+        if (status.isSuccess) {
+          _ensureScrollable();
+        }
+      });
+    }
+
     super.onInit();
   }
 
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    scrollController.removeListener(_scrollListener);
+
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -250,6 +270,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
@@ -635,6 +656,41 @@ class ChatsTabController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Requests the next page of [Chat]s based on the [ScrollController.position]
+  /// value.
+  void _scrollListener() {
+    if (scrollController.hasClients &&
+        hasNext.isTrue &&
+        _chatService.nextLoading.isFalse &&
+        scrollController.position.pixels >
+            scrollController.position.maxScrollExtent - 500) {
+      _chatService.next();
+    }
+  }
+
+  /// Ensures the [ChatsTabView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (hasNext.isTrue) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent < 50 &&
+            _chatService.nextLoading.isFalse) {
+          await _chatService.next();
+          _ensureScrollable();
+        }
+      });
+    }
   }
 
   /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if

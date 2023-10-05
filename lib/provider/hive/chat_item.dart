@@ -35,7 +35,7 @@ part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
 class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
-    with IterableHiveProviderMixin<HiveChatItem, ChatItemKey> {
+    implements IterableHiveProvider<HiveChatItem, ChatItemKey> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
