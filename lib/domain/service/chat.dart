@@ -65,7 +65,7 @@ class ChatService extends DisposableService {
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
-  ChatId get monolog => _chatRepository.monolog;
+  Rx<({ChatId id, bool isHidden})> get monolog => _chatRepository.monolog;
 
   @override
   void onInit() {

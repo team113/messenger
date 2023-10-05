@@ -1192,18 +1192,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     if (!deletable || !isMonolog)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onHide,
-                                        child: Text(
-                                          'label_delete_for_me'.l10n,
-                                          key: const Key('HideForMe'),
-                                        ),
+                                        label: 'label_delete_for_me'.l10n,
+                                        key: const Key('HideForMe'),
                                       ),
                                     if (deletable)
                                       ConfirmDialogVariant(
                                         onProceed: widget.onDelete,
-                                        child: Text(
-                                          'label_delete_for_everyone'.l10n,
-                                          key: const Key('DeleteForAll'),
-                                        ),
+                                        label: 'label_delete_for_everyone'.l10n,
+                                        key: const Key('DeleteForAll'),
                                       )
                                   ],
                                 );

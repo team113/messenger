@@ -75,7 +75,7 @@ class SelectedDot extends StatelessWidget {
                   border: Border.all(
                     color: outlined
                         ? style.colors.primary
-                        : style.colors.secondaryHighlightDark.darken(darken),
+                        : style.colors.secondaryHighlightDarkest,
                     width: 1.5,
                   ),
                 ),

@@ -46,7 +46,7 @@ abstract class AbstractChatRepository {
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
-  ChatId get monolog;
+  Rx<({ChatId id, bool isHidden})> get monolog;
 
   /// Indicates whether the [paginated] have next page.
   RxBool get hasNext;

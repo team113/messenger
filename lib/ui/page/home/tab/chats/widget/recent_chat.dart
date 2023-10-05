@@ -21,6 +21,7 @@ import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -898,50 +899,22 @@ class RecentChatTile extends StatelessWidget {
 
     bool clear = false;
 
-    Widget dot(bool selected) {
-      return SizedBox(
-        width: 30,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: selected
-              ? CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  radius: 11,
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                )
-              : Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0xFFD7D7D7),
-                      width: 1,
-                    ),
-                  ),
-                  width: 22,
-                  height: 22,
-                ),
-        ),
-      );
-    }
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
-      ],
+      // description: [
+      //   TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+      //   TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
+      //   TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      // ],
       additional: [
-        const SizedBox(height: 21),
+        // const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
-          return FieldButton(
-            text: 'btn_clear_history'.l10n,
+          return RectangleButton(
+            label: 'btn_clear_history'.l10n,
+            selected: clear,
+            tappable: true,
+            radio: true,
             onPressed: () => setState(() => clear = !clear),
-            trailing: dot(clear),
           );
         })
       ],

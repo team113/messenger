@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/selected_dot.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -27,9 +28,11 @@ class RectangleButton extends StatelessWidget {
     super.key,
     this.selected = false,
     this.onPressed,
+    this.tappable = false,
     required this.label,
     this.trailingColor,
     this.trailing,
+    this.radio = false,
   });
 
   /// Label of this [RectangleButton].
@@ -42,6 +45,9 @@ class RectangleButton extends StatelessWidget {
   /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
 
+  final bool tappable;
+  final bool radio;
+
   /// [Color] of the trailing background, when [selected] is `true`.
   final Color? trailingColor;
 
@@ -53,10 +59,12 @@ class RectangleButton extends StatelessWidget {
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected ? style.activeColor : style.colors.onPrimary.darken(0.05),
+      color: selected && !radio
+          ? style.activeColor
+          : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: selected ? null : onPressed,
+        onTap: selected && !tappable ? null : onPressed,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -66,7 +74,7 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: selected
+                  style: selected && !radio
                       ? style.fonts.labelLargeOnPrimary
                       : style.fonts.labelLarge,
                 ),
@@ -81,16 +89,29 @@ class RectangleButton extends StatelessWidget {
                   child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: selected
-                        ? CircleAvatar(
-                            backgroundColor: style.colors.onPrimary,
-                            radius: 12,
-                            child: Icon(
-                              Icons.check,
-                              color: style.colors.primary,
-                              size: 12,
-                            ),
-                          )
-                        : const SizedBox(),
+                        ? radio
+                            ? CircleAvatar(
+                                backgroundColor: style.colors.primary,
+                                radius: 12,
+                                child: Icon(
+                                  Icons.check,
+                                  color: style.colors.onPrimary,
+                                  // color: style.colors.primary,
+                                  size: 12,
+                                ),
+                              )
+                            : CircleAvatar(
+                                backgroundColor: style.colors.onPrimary,
+                                radius: 12,
+                                child: Icon(
+                                  Icons.check,
+                                  color: style.colors.primary,
+                                  size: 12,
+                                ),
+                              )
+                        : radio
+                            ? const SelectedDot()
+                            : const SizedBox(),
                   ),
                 )
               else

@@ -171,6 +171,8 @@ class ChatsTabController extends GetxController {
   /// Indicates whether the [chats] have a next page.
   RxBool get hasNext => _chatService.hasNext;
 
+  Rx<({ChatId id, bool isHidden})> get monolog => _chatService.monolog;
+
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
@@ -318,7 +320,7 @@ class ChatsTabController extends GetxController {
 
       if (user != null) {
         if (user.id == me) {
-          router.chat(_chatService.monolog, push: true);
+          router.chat(monolog.value.id, push: true);
         } else {
           router.chat(user.user.value.dialog);
         }

@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
@@ -355,36 +356,46 @@ class ChatsTabView extends StatelessWidget {
                               !c.groupCreating.value &&
                               !c.selecting.value)
                             AnimatedButton(
-                              child: ContextMenuRegion(
-                                selector: c.moreKey,
-                                alignment: Alignment.topRight,
-                                enablePrimaryTap: true,
-                                margin:
-                                    const EdgeInsets.only(bottom: 4, right: 0),
-                                actions: [
-                                  ContextMenuButton(
-                                    label: 'btn_create_group'.l10n,
-                                    onPressed: c.startGroupCreating,
+                              child: Obx(() {
+                                return ContextMenuRegion(
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                      bottom: 4, right: 0),
+                                  actions: [
+                                    ContextMenuButton(
+                                      label: 'btn_create_group'.l10n,
+                                      onPressed: c.startGroupCreating,
+                                    ),
+                                    ContextMenuButton(
+                                      key: const Key('SelectChatButton'),
+                                      label: 'btn_select_and_delete'.l10n,
+                                      onPressed: c.toggleSelecting,
+                                    ),
+                                    if (c.monolog.value.isHidden)
+                                      ContextMenuButton(
+                                        key: const Key('MonologBUtton'),
+                                        label: 'label_chat_monolog'.l10n,
+                                        onPressed: () {
+                                          router.chat(c.monolog.value.id);
+                                        },
+                                      ),
+                                  ],
+                                  child: Container(
+                                    key: c.moreKey,
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      right: 18,
+                                    ),
+                                    height: double.infinity,
+                                    child: Icon(
+                                      Icons.more_vert,
+                                      color: style.colors.primary,
+                                    ),
                                   ),
-                                  ContextMenuButton(
-                                    key: const Key('SelectChatButton'),
-                                    label: 'btn_select_and_delete'.l10n,
-                                    onPressed: c.toggleSelecting,
-                                  ),
-                                ],
-                                child: Container(
-                                  key: c.moreKey,
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 18,
-                                  ),
-                                  height: double.infinity,
-                                  child: Icon(
-                                    Icons.more_vert,
-                                    color: style.colors.primary,
-                                  ),
-                                ),
-                              ),
+                                );
+                              }),
                             ),
                         ],
                       );
@@ -1100,20 +1111,26 @@ class ChatsTabView extends StatelessWidget {
 
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10n,
-      description: [
-        TextSpan(
-          text: 'alert_chats_will_be_deleted'
-              .l10nfmt({'count': c.selectedChats.length}),
-        ),
-      ],
+      // description: [
+      //   TextSpan(
+      //     text: 'alert_chats_will_be_deleted'
+      //         .l10nfmt({'count': c.selectedChats.length}),
+      //   ),
+      // ],
       additional: [
-        const SizedBox(height: 21),
+        // const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
-          return FieldButton(
-            text: 'btn_clear_history'.l10n,
+          return RectangleButton(
+            label: 'btn_clear_history'.l10n,
+            selected: clear,
+            tappable: true,
             onPressed: () => setState(() => clear = !clear),
-            trailing: SelectedDot(selected: clear, size: 22, inverted: false),
           );
+          // return FieldButton(
+          //   text: 'btn_clear_history'.l10n,
+          //   onPressed: () => setState(() => clear = !clear),
+          //   trailing: SelectedDot(selected: clear, size: 22, inverted: false),
+          // );
         })
       ],
     );

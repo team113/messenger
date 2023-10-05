@@ -67,7 +67,7 @@ class IntroductionView extends StatelessWidget {
                   key: const Key('NumCopyable'),
                   text: c.num.text,
                   label: 'label_num'.l10n,
-                  share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                  share: 'Gapopa ID: ${c.myUser.value?.num}',
                   style: style.fonts.headlineMedium,
                 )
               else
@@ -94,7 +94,7 @@ class IntroductionView extends StatelessWidget {
                   SharableTextField(
                     text: c.num.text,
                     label: 'label_num'.l10n,
-                    share: 'Gapopa ID: ${c.myUser.value?.num.val}',
+                    share: 'Gapopa ID: ${c.myUser.value?.num}',
                     style: style.fonts.headlineMedium,
                   )
                 else
@@ -487,7 +487,8 @@ class IntroductionView extends StatelessWidget {
               offset: const Offset(0, -1),
               child: Transform.scale(
                 scale: 1.15,
-                child: const SvgImage.asset('assets/icons/copy.svg', height: 15),
+                child:
+                    const SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
       label: 'label_your_direct_link'.l10n,

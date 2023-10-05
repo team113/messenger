@@ -279,7 +279,7 @@ class UserController extends GetxController {
   /// Opens a [Chat]-dialog with this [user].
   void openChat() {
     if (user?.id == me) {
-      router.chat(_chatService.monolog, push: true);
+      router.chat(_chatService.monolog.value.id, push: true);
     } else {
       router.chat(user!.user.value.dialog, push: true);
     }

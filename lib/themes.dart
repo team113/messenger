@@ -200,6 +200,7 @@ class Themes {
             unreadMessageColor: colors.acceptLightest,
             activeColor: colors.primary,
             selectedColor: colors.primaryOpacity70,
+            // selectedColor: colors.primaryOpacity70,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,

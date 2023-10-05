@@ -115,7 +115,7 @@ class GetPaidView extends StatelessWidget {
                             : 'label_get_paid_for_incoming_from'.l10nfmt(
                                 {
                                   'user': c.user!.user.value.name?.val ??
-                                      c.user!.user.value.num.val
+                                      c.user!.user.value.num.toString()
                                 },
                               ),
                         textAlign: TextAlign.center,

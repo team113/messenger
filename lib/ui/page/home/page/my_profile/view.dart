@@ -84,7 +84,6 @@ import 'widget/background_preview.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
 import 'widget/status.dart';
-import 'widget/switch_field.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -549,15 +548,15 @@ Widget _emails(BuildContext context, MyProfileController c) {
                             variants: [
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_all'.l10n),
+                                label: 'label_all'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_my_contacts'.l10n),
+                                label: 'label_my_contacts'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_nobody'.l10n),
+                                label: 'label_nobody'.l10n,
                               ),
                             ],
                           );
@@ -719,15 +718,15 @@ Widget _phones(BuildContext context, MyProfileController c) {
                             variants: [
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_all'.l10n),
+                                label: 'label_all'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_my_contacts'.l10n),
+                                label: 'label_my_contacts'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_nobody'.l10n),
+                                label: 'label_nobody'.l10n,
                               ),
                             ],
                           );

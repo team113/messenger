@@ -16,13 +16,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/domain/model_type_id.dart';
 
 import '/domain/model/chat.dart';
 import 'base.dart';
 
+part 'monolog.g.dart';
+
 /// [Hive] storage for [ChatId] of a [Chat]-monolog of the authenticated
 /// [MyUser].
-class MonologHiveProvider extends HiveBaseProvider<ChatId> {
+class MonologHiveProvider extends HiveBaseProvider<HiveMonolog> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -31,12 +34,24 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
 
   @override
   void registerAdapters() {
+    Hive.maybeRegisterAdapter(HiveMonologAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Returns the stored [ChatId] from [Hive].
-  ChatId? get() => getSafe(0);
+  HiveMonolog? get() => getSafe(0);
 
   /// Saves the provided [ChatId] to [Hive].
-  Future<void> set(ChatId id) => putSafe(0, id);
+  Future<void> set(HiveMonolog id) => putSafe(0, id);
+}
+
+@HiveType(typeId: ModelTypeId.hiveMonolog)
+class HiveMonolog {
+  const HiveMonolog(this.id, this.isHidden);
+
+  @HiveField(0)
+  final ChatId id;
+
+  @HiveField(1)
+  final bool isHidden;
 }

@@ -15,23 +15,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import 'rectangle_button.dart';
 
 /// Variant of a [ConfirmDialog].
 class ConfirmDialogVariant<T> {
-  const ConfirmDialogVariant({required this.child, this.onProceed});
+  const ConfirmDialogVariant({this.key, required this.label, this.onProceed});
+
+  final Key? key;
 
   /// Callback, called when this [ConfirmDialogVariant] is submitted.
   final T? Function()? onProceed;
 
   /// [Widget] representing this [ConfirmDialogVariant].
-  final Widget child;
+  final String label;
 }
 
 /// Dialog confirming a specific action from the provided [variants].
@@ -112,56 +116,13 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _variant = widget.variants[widget.initial];
+    _variant = widget.variants[min(widget.variants.length - 1, widget.initial)];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-
-    // Builds a button representing the provided [ConfirmDialogVariant].
-    Widget button(ConfirmDialogVariant variant) {
-      return Padding(
-        padding: ModalPopup.padding(context),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: _variant == variant
-              ? style.colors.primary
-              : style.cardColor.darken(0.05),
-          child: InkWell(
-            onTap: () => setState(() => _variant = variant),
-            hoverColor: _variant == variant
-                ? style.colors.primary
-                : style.cardColor.darken(0.08),
-            borderRadius: style.cardRadius,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: _variant == variant
-                          ? style.fonts.headlineMediumOnPrimary
-                          : style.fonts.headlineMedium,
-                      child: variant.child,
-                    ),
-                  ),
-                  IgnorePointer(
-                    child: Radio<ConfirmDialogVariant>(
-                      value: variant,
-                      groupValue: _variant,
-                      onChanged: null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -194,7 +155,21 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                 controller: scrollController,
                 physics: const ClampingScrollPhysics(),
                 shrinkWrap: true,
-                itemBuilder: (c, i) => button(widget.variants[i]),
+                itemBuilder: (c, i) {
+                  final ConfirmDialogVariant variant = widget.variants[i];
+
+                  return Padding(
+                    padding: ModalPopup.padding(context),
+                    child: RectangleButton(
+                      selected: _variant == variant,
+                      onPressed: _variant == variant
+                          ? null
+                          : () => setState(() => _variant = variant),
+                      label: variant.label,
+                      radio: true,
+                    ),
+                  );
+                },
                 separatorBuilder: (c, i) => const SizedBox(height: 10),
                 itemCount: widget.variants.length,
               ),
@@ -204,17 +179,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
           const SizedBox(height: 25),
         Padding(
           padding: ModalPopup.padding(context),
-          child: OutlinedRoundedButton(
+          child: PrimaryButton(
             key: const Key('Proceed'),
-            maxWidth: double.infinity,
-            title: Text(
-              widget.label ?? 'btn_proceed'.l10n,
-              style: style.fonts.bodyMediumOnPrimary,
-            ),
+            title: widget.label ?? 'btn_proceed'.l10n,
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
             },
-            color: style.colors.primary,
           ),
         ),
         const SizedBox(height: 12),

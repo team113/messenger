@@ -411,7 +411,7 @@ class MessageFieldView extends StatelessWidget {
                                   children: [
                                     DonateWidget(
                                       title: c.myUser.value?.name?.val ??
-                                          c.myUser.value?.num.val ??
+                                          c.myUser.value?.num.toString() ??
                                           'dot'.l10n * 3,
                                       donate: c.donation.value!,
                                     ),
@@ -1168,7 +1168,7 @@ class MessageFieldView extends StatelessWidget {
                     ? Obx(() {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
-                              snapshot.data!.user.value.num.val,
+                              snapshot.data!.user.value.num.toString(),
                           style: style.fonts.bodyLarge.copyWith(color: color),
                         );
                       })

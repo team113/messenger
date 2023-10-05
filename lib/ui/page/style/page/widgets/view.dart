@@ -101,6 +101,7 @@ import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/ui/widget/progress_indicator.dart';
+import 'package:messenger/ui/widget/selected_dot.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -943,6 +944,15 @@ class _WidgetsViewState extends State<WidgetsView> {
               selected: true,
             ),
           ),
+          (
+            'RecentChatTile(trailing)',
+            RecentChatTile(
+              DummyRxChat(),
+              onTap: () {},
+              selected: false,
+              trailing: const [SelectedDot(selected: false, size: 20)],
+            ),
+          ),
         ],
       ),
       _headlines(
@@ -998,6 +1008,22 @@ class _WidgetsViewState extends State<WidgetsView> {
               ),
               onTap: () {},
               selected: true,
+            ),
+          ),
+          (
+            'ContactTile(trailing)',
+            ContactTile(
+              myUser: MyUser(
+                id: const UserId('123'),
+                num: UserNum('1234123412341234'),
+                emails: MyUserEmails(confirmed: []),
+                phones: MyUserPhones(confirmed: []),
+                presenceIndex: 0,
+                online: true,
+              ),
+              onTap: () {},
+              selected: false,
+              trailing: const [SelectedDot(selected: false, size: 20)],
             ),
           ),
         ],
