@@ -17,15 +17,20 @@
 
 import 'package:flutter/material.dart';
 
-/// Extension adding an ability to pop current route if it is active.
-extension PopExtensionOnNavigator on NavigatorState {
-  /// Pops current route if it is active.
-  void popIfActive(BuildContext context) {
-    if (context.mounted && ModalRoute.of(context)?.isActive == true) {
-      if (ModalRoute.of(context)!.isCurrent == true) {
-        pop();
-      } else {
-        removeRoute(ModalRoute.of(context)!);
+/// Extension adding an ability to pop the current modal window.
+extension PopExtensionOnContext on BuildContext {
+  /// Pops the current modal window.
+  void popModal() {
+    if (mounted) {
+      final NavigatorState navigator = Navigator.of(this);
+      final ModalRoute? modal = ModalRoute.of(this);
+
+      if (modal?.isActive == true) {
+        if (modal?.isCurrent == true) {
+          navigator.pop();
+        } else {
+          navigator.removeRoute(modal!);
+        }
       }
     }
   }

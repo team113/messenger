@@ -104,7 +104,7 @@ class ChatForwardView extends StatelessWidget {
         text: text,
         attachments: attachments,
         onSubmitted: onSubmitted,
-        pop: () => Navigator.of(context).popIfActive(context),
+        pop: context.popModal,
       ),
       builder: (ChatForwardController c) {
         return Obx(() {
