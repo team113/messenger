@@ -1776,18 +1776,22 @@ class RtcVideoRenderer extends RtcRenderer {
     if (track is LocalMediaTrack) {
       autoRotate = false;
 
-      _delegate.onResize = () {
-        print(
-          '[track] resized to ${_delegate.videoWidth} ${_delegate.videoHeight} ${_delegate.quarterTurnsRotation}',
-        );
-      };
-
       if (PlatformUtils.isMobile) {
         mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
       } else {
         mirror = track.mediaSourceKind() == MediaSourceKind.device;
       }
     }
+
+    // Listen for resizes to update [width] and [height].
+    _delegate.onResize = () {
+      print(
+        '[track] resized to ${_delegate.videoWidth} ${_delegate.videoHeight} ${_delegate.quarterTurnsRotation}',
+      );
+
+      width.value = _delegate.videoWidth;
+      height.value = _delegate.videoHeight;
+    };
   }
 
   /// Indicator whether this [RtcVideoRenderer] should be mirrored.
@@ -1799,14 +1803,11 @@ class RtcVideoRenderer extends RtcRenderer {
   /// Actual [webrtc.VideoRenderer].
   final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
 
-  /// Returns actual width of the [track].
-  int get width => _delegate.videoWidth;
+  /// Reactive width of this [RtcVideoRenderer].
+  late final RxInt width = RxInt(_delegate.videoWidth);
 
-  /// Returns actual height of the [track].
-  int get height => _delegate.videoHeight;
-
-  /// Returns actual aspect ratio of the [track].
-  double get aspectRatio => width / height;
+  /// Reactive height of this [RtcVideoRenderer].
+  late final RxInt height = RxInt(_delegate.videoHeight);
 
   /// Returns inner [webrtc.VideoRenderer].
   ///

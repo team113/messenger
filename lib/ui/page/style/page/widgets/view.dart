@@ -785,7 +785,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.macos',
             const DownloadButton(
-              asset: 'apple7',
+              asset: 'apple',
               width: 21.07,
               height: 27,
               title: 'macOS',
@@ -795,7 +795,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.linux',
             const DownloadButton(
-              asset: 'linux4',
+              asset: 'linux',
               width: 20.57,
               height: 24,
               title: 'Linux',
@@ -826,7 +826,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.android',
             const DownloadButton(
-              asset: 'android3',
+              asset: 'android',
               width: 20.99,
               height: 25,
               title: 'Android',

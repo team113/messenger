@@ -15,58 +15,39 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Animated logo, displaying the provided [riveAsset], when higher than 250
-/// pixels, or otherwise the specified [svgAsset].
+/// Animated logo, displaying the [SvgImage] based on the provided [index].
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo({
-    super.key,
-    this.svgAsset,
-    this.riveAsset = 'assets/images/logo/logo.riv',
-    this.onInit,
-    this.height = 190 * 0.75 + 25,
-  });
+  const AnimatedLogo({super.key, this.index = 0});
 
-  /// Path to an asset to put into the [RiveAnimation].
-  final String riveAsset;
-
-  /// Callback, called when underlying [RiveAnimation] has been initialized.
-  final void Function(Artboard)? onInit;
-
-  /// Path to an asset to put into the [SvgImage].
-  final String? svgAsset;
-
-  final double height;
+  /// Index of logo animation.
+  ///
+  /// Should be in 0..9 range inclusive.
+  final int index;
 
   @override
   Widget build(BuildContext context) {
-    if (svgAsset != null) {
-      return SvgImage.asset(
-        svgAsset!,
-        height: height,
-        fit: BoxFit.contain,
-        placeholderBuilder: (context) {
-          return const Center(child: CustomProgressIndicator());
-        },
-      );
-    } else {
-      return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 350),
-        child: AnimatedSize(
-          curve: Curves.ease,
-          duration: const Duration(milliseconds: 200),
-          child: SizedBox(
-            height: 250,
-            child: RiveAnimation.asset(riveAsset, onInit: onInit),
-          ),
+    return Stack(
+      children: [
+        // Load the whole [SvgImage]s beforehand to reduce possible frame drops.
+        ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
+            .map((e) => Offstage(child: SvgImage.asset(e)))
+            .toList(),
+
+        // Animation itself.
+        SvgImage.asset(
+          'assets/images/logo/head000$index.svg',
+          height: 166,
+          fit: BoxFit.contain,
+          placeholderBuilder: (context) {
+            return const Center(child: CustomProgressIndicator());
+          },
         ),
-      );
-    }
+      ],
+    );
   }
 }

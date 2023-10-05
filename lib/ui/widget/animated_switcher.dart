@@ -15,24 +15,36 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
-/// Helper for managing [Get] dependencies with a scoped lifetime.
-class ScopedDependencies {
-  /// List of dependencies disposing functions.
-  final List<void Function()> _cleanup = [];
+/// [AnimatedSwitcher] with exception-safe layout builder.
+///
+/// Intended to be used instead of the [AnimatedSwitcher].
+class SafeAnimatedSwitcher extends StatelessWidget {
+  const SafeAnimatedSwitcher({
+    super.key,
+    required this.duration,
+    this.child,
+  });
 
-  /// Puts the given [dependency] in this scope.
-  T put<T>(T dependency) {
-    _cleanup.add(() => Get.delete<T>());
-    return Get.put<T>(dependency);
-  }
+  /// [Duration] of the switching animation.
+  final Duration duration;
 
-  /// Disposes all the scoped dependencies.
-  void dispose() {
-    for (var e in _cleanup) {
-      e.call();
-    }
-    _cleanup.clear();
+  /// Current [Widget] to display.
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: duration,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: Alignment.center,
+        children: [
+          if (previous.isNotEmpty) previous.first,
+          if (current != null) current,
+        ],
+      ),
+      child: child,
+    );
   }
 }

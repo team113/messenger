@@ -28,8 +28,8 @@ import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
-import '/store/model/page_info.dart';
 import 'call.dart';
 import 'file.dart';
 import 'user.dart';
@@ -72,20 +72,23 @@ extension ChatConversion on ChatMixin {
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive() => HiveChat(
+  HiveChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+      HiveChat(
         toModel(),
         ver,
         lastItem?.cursor,
         lastReadItem?.cursor,
+        recent,
+        favorite,
       );
 
   /// Constructs a new [ChatData] from this [ChatMixin].
-  ChatData toData() {
+  ChatData toData([RecentChatsCursor? recent, FavoriteChatsCursor? favorite]) {
     var lastItem = this.lastItem?.toHive();
     var lastReadItem = this.lastReadItem?.toHive();
 
     return ChatData(
-      toHive(),
+      toHive(recent, favorite),
       lastItem,
       lastReadItem,
     );
@@ -623,17 +626,6 @@ extension EventChatMuted$DurationConversion
             as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
         .until);
   }
-}
-
-/// Extension adding models construction from [PageInfoMixin].
-extension PageInfoConversion on PageInfoMixin {
-  /// Constructs a new [PageInfo] from this [PageInfoMixin].
-  PageInfo<T> toModel<T>(T Function(String cursor) cursor) => PageInfo<T>(
-        hasPrevious: hasPreviousPage,
-        hasNext: hasNextPage,
-        startCursor: startCursor == null ? null : cursor(startCursor!),
-        endCursor: endCursor == null ? null : cursor(endCursor!),
-      );
 }
 
 /// Constructs a new [Attachment] based on the [node].

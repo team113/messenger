@@ -15,24 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import '../schema.dart';
+import '/store/model/page_info.dart';
 
-/// Helper for managing [Get] dependencies with a scoped lifetime.
-class ScopedDependencies {
-  /// List of dependencies disposing functions.
-  final List<void Function()> _cleanup = [];
-
-  /// Puts the given [dependency] in this scope.
-  T put<T>(T dependency) {
-    _cleanup.add(() => Get.delete<T>());
-    return Get.put<T>(dependency);
-  }
-
-  /// Disposes all the scoped dependencies.
-  void dispose() {
-    for (var e in _cleanup) {
-      e.call();
-    }
-    _cleanup.clear();
-  }
+/// Extension adding models construction from [PageInfoMixin].
+extension PageInfoConversion on PageInfoMixin {
+  /// Constructs a new [PageInfo] from this [PageInfoMixin].
+  PageInfo<T> toModel<T>(T Function(String cursor) cursor) => PageInfo<T>(
+        hasPrevious: hasPreviousPage,
+        hasNext: hasNextPage,
+        startCursor: startCursor == null ? null : cursor(startCursor!),
+        endCursor: endCursor == null ? null : cursor(endCursor!),
+      );
 }

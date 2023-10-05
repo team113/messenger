@@ -27,18 +27,21 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, C, K extends Comparable> {
+class Pagination<T, C, K> {
   Pagination({
     this.perPage = 50,
     required this.provider,
     required this.onKey,
+    this.compare,
   });
 
   /// Items per [Page] to fetch.
   final int perPage;
 
-  /// List of the items fetched from the [provider].
-  final RxObsSplayTreeMap<K, T> items = RxObsSplayTreeMap();
+  /// Items fetched from the [provider] ordered by their [T] values.
+  ///
+  /// Use [compare] to describe the order.
+  late final SortedObsMap<K, T> items = SortedObsMap(compare);
 
   /// [PageProvider] providing the [items].
   final PageProvider<T, C, K> provider;
@@ -59,6 +62,9 @@ class Pagination<T, C, K extends Comparable> {
   /// is required.
   final K Function(T) onKey;
 
+  /// Callback, comparing the provided [T] items to order them in the [items].
+  final int Function(T, T)? compare;
+
   /// Cursor of the first item in the [items] list.
   @visibleForTesting
   C? startCursor;
@@ -69,6 +75,12 @@ class Pagination<T, C, K extends Comparable> {
 
   /// [Mutex] guarding synchronized access to the [init] and [around].
   final Mutex _guard = Mutex();
+
+  /// [Mutex] guarding synchronized access to the [next].
+  final Mutex _nextGuard = Mutex();
+
+  /// [Mutex] guarding synchronized access to the [previous].
+  final Mutex _previousGuard = Mutex();
 
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
@@ -114,7 +126,13 @@ class Pagination<T, C, K extends Comparable> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
+    final bool locked = _guard.isLocked;
+
     return _guard.protect(() async {
+      if (locked) {
+        return;
+      }
+
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
@@ -141,86 +159,110 @@ class Pagination<T, C, K extends Comparable> {
   }
 
   /// Fetches a next page of the [items].
-  FutureOr<void> next() async {
-    Log.print('next()...', 'Pagination');
+  Future<void> next() async {
+    final bool locked = _nextGuard.isLocked;
 
-    if (items.isEmpty) {
-      return around();
-    }
-
-    if (hasNext.isTrue && nextLoading.isFalse) {
-      nextLoading.value = true;
-
-      final Page<T, C>? page =
-          await provider.after(items[items.lastKey()], endCursor, perPage);
-      Log.print('next()... fetched ${page?.edges.length} items', 'Pagination');
-
-      if (page?.info.startCursor != null) {
-        for (var e in page?.edges ?? []) {
-          items[onKey(e)] = e;
-        }
+    return _nextGuard.protect(() async {
+      if (locked) {
+        return;
       }
 
-      endCursor = page?.info.endCursor ?? endCursor;
-      hasNext.value = page?.info.hasNext ?? hasNext.value;
-      Log.print('next()... done', 'Pagination');
+      Log.print('next()...', 'Pagination');
 
-      nextLoading.value = false;
-    }
+      if (hasNext.isTrue && nextLoading.isFalse) {
+        nextLoading.value = true;
+
+        if (items.isNotEmpty) {
+          final Page<T, C>? page =
+              await provider.after(items.last, endCursor, perPage);
+          Log.print(
+            'next()... fetched ${page?.edges.length} items',
+            'Pagination',
+          );
+
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
+          }
+
+          endCursor = page?.info.endCursor ?? endCursor;
+          hasNext.value = page?.info.hasNext ?? hasNext.value;
+          Log.print('next()... done', 'Pagination');
+        } else {
+          await around();
+        }
+
+        nextLoading.value = false;
+      }
+    });
   }
 
   /// Fetches a previous page of the [items].
-  FutureOr<void> previous() async {
-    Log.print('previous()...', 'Pagination');
-    if (items.isEmpty) {
-      return around();
-    }
+  Future<void> previous() async {
+    final bool locked = _previousGuard.isLocked;
 
-    if (hasPrevious.isTrue && previousLoading.isFalse) {
-      previousLoading.value = true;
-
-      final Page<T, C>? page =
-          await provider.before(items[items.firstKey()], startCursor, perPage);
-      Log.print(
-        'previous()... fetched ${page?.edges.length} items',
-        'Pagination',
-      );
-
-      if (page?.info.endCursor != null) {
-        for (var e in page?.edges ?? []) {
-          items[onKey(e)] = e;
-        }
+    return _previousGuard.protect(() async {
+      if (locked) {
+        return;
       }
 
-      startCursor = page?.info.startCursor ?? startCursor;
-      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      Log.print('previous()... done', 'Pagination');
+      Log.print('previous()...', 'Pagination');
 
-      previousLoading.value = false;
-    }
+      if (hasPrevious.isTrue && previousLoading.isFalse) {
+        previousLoading.value = true;
+
+        if (items.isNotEmpty) {
+          final Page<T, C>? page =
+              await provider.before(items.first, startCursor, perPage);
+          Log.print(
+            'previous()... fetched ${page?.edges.length} items',
+            'Pagination',
+          );
+
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
+          }
+
+          startCursor = page?.info.startCursor ?? startCursor;
+          hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+          Log.print('previous()... done', 'Pagination');
+        } else {
+          await around();
+        }
+
+        previousLoading.value = false;
+      }
+    });
   }
 
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(T item) async {
+  Future<void> put(T item, {bool ignoreBounds = false}) async {
     Log.print('put($item)', 'Pagination');
-    final K key = onKey(item);
 
     Future<void> put() async {
       items[onKey(item)] = item;
       await provider.put(item);
     }
 
+    // Bypasses the bounds check.
+    //
+    // Intended to be used to forcefully add items, e.g. when items are
+    // migrating from one source to another.
+    if (ignoreBounds) {
+      await put();
+      return;
+    }
+
     if (items.isEmpty) {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.lastKey()) == 1) {
+    } else if (compare?.call(item, items.last) == 1) {
       if (hasNext.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.firstKey()) == -1) {
+    } else if (compare?.call(item, items.first) == -1) {
       if (hasPrevious.isFalse) {
         await put();
       }
@@ -251,7 +293,7 @@ class Page<T, C> {
   final Rx<RxStatus> status = Rx(RxStatus.success());
 
   /// List of the fetched items.
-  final RxList<T> edges;
+  final List<T> edges;
 
   /// [PageInfo] of this [Page].
   PageInfo<C> info;
@@ -259,7 +301,7 @@ class Page<T, C> {
   /// Returns a new [Page] with reversed [info].
   Page<T, C> reversed() {
     return Page(
-      RxList.from(this.edges.reversed),
+      List.from(this.edges.reversed),
       PageInfo(
         hasNext: this.info.hasPrevious,
         hasPrevious: this.info.hasNext,

@@ -63,7 +63,7 @@ class _TypographyViewState extends State<TypographyView> {
       (style.fonts.displayMedium, 'onBackground'),
       (style.fonts.displayMediumSecondary, 'secondary'),
       (style.fonts.displaySmall, 'onBackground'),
-      (style.fonts.displaySmallOnPrimary, 'onPrimary'),
+      (style.fonts.displayTinyOnPrimary, 'onPrimary'),
       (style.fonts.displaySmallSecondary, 'secondary'),
       (style.fonts.headlineLarge, 'onBackground'),
       (style.fonts.headlineLargeOnPrimary, 'onPrimary'),
@@ -181,7 +181,7 @@ class _TypographyViewState extends State<TypographyView> {
                     WidgetButton(
                       onPressed: () async {
                         await PlatformUtils.saveTo(
-                          '${Config.origin}/assets/assets/${e.$3}',
+                          '${Config.origin}/assets/assets/fonts/${e.$3}',
                         );
                         MessagePopup.success('${e.$3} downloaded');
                       },

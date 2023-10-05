@@ -17,18 +17,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/login/controller.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
-import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/widget/download_button.dart';
+import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
@@ -39,63 +38,25 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style) = Theme.of(context).style;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        final TextStyle? thin = context.textTheme.bodySmall?.copyWith(
-          color: style.colors.onBackground,
-        );
-
         final Widget status = Column(
           children: [
             const SizedBox(height: 4),
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
-              // color: style.colors.secondary,
+              style: style.fonts.labelLargeSecondary,
               onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
-            Container(
-              // color: style.colors.onBackgroundOpacity7.withOpacity(0.03),
-              width: double.infinity,
-              height: 32,
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Row(
-                children: [
-                  // const SizedBox(width: 16),
-                  // Opacity(
-                  //   opacity: 0,
-                  //   child: Flag.fromString(
-                  //     L10n.chosen.value?.locale.countryCode ?? '',
-                  //     width: 24,
-                  //     height: 24,
-                  //     borderRadius: 4,
-                  //   ),
-                  // ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            StyledCupertinoButton(
-                              color: style.colors.secondary,
-                              label: 'btn_work_with_us'.l10n,
-                              dense: true,
-                              onPressed: () => router.work(null),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 16),
-                ],
-              ),
+            StyledCupertinoButton(
+              padding: const EdgeInsets.all(8),
+              label: 'btn_work_with_us'.l10n,
+              style: style.fonts.labelMediumSecondary,
+              onPressed: () => router.work(null),
             ),
             const SizedBox(height: 8),
           ],
@@ -107,15 +68,9 @@ class AuthView extends StatelessWidget {
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(e)))
-              .toList(),
           Text(
             'Messenger',
-            style: thin?.copyWith(
-              fontSize: 27,
-              color: style.colors.secondary,
-            ),
+            style: style.fonts.displayLargeSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -123,7 +78,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 21, color: style.colors.secondary),
+            style: style.fonts.displaySmallSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -131,6 +86,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
         ];
 
+        // Footer part of the page.
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
@@ -141,7 +97,7 @@ class AuthView extends StatelessWidget {
             leading: Transform.translate(
               offset: const Offset(3, 0),
               child: const SvgImage.asset(
-                'assets/icons/register3.svg',
+                'assets/icons/register.svg',
                 width: 23,
                 height: 23,
               ),
@@ -150,14 +106,14 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
-            key: const Key('SignButton'),
+            key: const Key('SignInButton'),
             title: Text('btn_sign_in'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
               child: const SvgImage.asset(
-                'assets/icons/enter1.svg',
+                'assets/icons/enter.svg',
                 width: 19.42,
                 height: 24,
               ),
@@ -168,22 +124,20 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('btn_one_time_account'.l10n),
+            subtitle: Text('btn_one_time_account_desc'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
               child: const SvgImage.asset(
-                'assets/icons/one_time19.svg',
+                'assets/icons/one_time.svg',
                 width: 19.88,
                 height: 26,
               ),
             ),
-            onPressed: () {
-              router.noIntroduction = false;
-              c.register();
-            },
+            onPressed: c.register,
           ),
+          const SizedBox(height: 15),
         ];
 
         final Widget column = Column(
@@ -193,10 +147,7 @@ class AuthView extends StatelessWidget {
             Obx(() {
               return AnimatedLogo(
                 key: const ValueKey('Logo'),
-                svgAsset: 'assets/images/logo/head000${c.logoFrame.value}.svg',
-                onInit: Config.disableInfiniteAnimations
-                    ? null
-                    : (a) => _setBlink(c, a),
+                index: c.logoFrame.value,
               );
             }),
             ...footer,
@@ -204,92 +155,54 @@ class AuthView extends StatelessWidget {
         );
 
         return Listener(
+          key: const Key('AuthView'),
           onPointerDown: (_) => c.animate(),
-          child: Container(
-            color: style.colors.transparent,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // For web, background color is displayed in `index.html` file.
+              if (!PlatformUtils.isWeb)
                 IgnorePointer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: style.colors.background,
-                  ),
+                  child: ColoredBox(color: style.colors.background),
                 ),
-                const IgnorePointer(
-                  child: SvgImage.asset(
-                    'assets/images/background_light.svg',
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+              const IgnorePointer(
+                child: SvgImage.asset(
+                  'assets/images/background_light.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
                 ),
-                CustomScrollView(
-                  slivers: [
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 8),
-                          Expanded(child: Center(child: column)),
-                          const SizedBox(height: 8),
-                          status,
-                        ],
-                      ),
+              ),
+              CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Expanded(child: Center(child: column)),
+                        const SizedBox(height: 8),
+                        status,
+                      ],
                     ),
-                  ],
-                ),
-                // Align(
-                //   alignment: Alignment.topRight,
-                //   child: Padding(
-                //     padding: const EdgeInsets.all(8.0),
-                //     child: StyledCupertinoButton(
-                //       // color: style.colors.secondary,
-                //       label: 'Styles'.l10n,
-                //       dense: true,
-                //       color: Colors.red,
-                //       onPressed: () => router.push(Routes.style),
-                //     ),
-                //   ),
-                // ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  /// Sets the [AuthController.blink] from the provided [Artboard] and invokes
-  /// a [AuthController.animate] to animate it.
-  Future<void> _setBlink(AuthController c, Artboard a) async {
-    final StateMachineController machine =
-        StateMachineController(a.stateMachines.first);
-    a.addController(machine);
-
-    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-
-    await Future.delayed(const Duration(milliseconds: 500), c.animate);
-  }
-
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
   Future<void> _download(BuildContext context) async {
-    final style = Theme.of(context).style;
-
     await ModalPopup.show(
       context: context,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'btn_download'.l10n,
-                style: style.fonts.headlineMedium.copyWith(fontSize: 18),
-              ),
-            ),
-          ),
+          ModalPopupHeader(text: 'btn_download'.l10n),
           const SizedBox(height: 12),
           Flexible(
             child: ListView(
@@ -297,7 +210,7 @@ class AuthView extends StatelessWidget {
               shrinkWrap: true,
               children: const [
                 DownloadButton(
-                  asset: 'windows5',
+                  asset: 'windows',
                   width: 23.93,
                   height: 24,
                   title: 'Windows',
@@ -305,7 +218,7 @@ class AuthView extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'apple7',
+                  asset: 'apple',
                   width: 21.07,
                   height: 27,
                   title: 'macOS',
@@ -313,7 +226,7 @@ class AuthView extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'linux4',
+                  asset: 'linux',
                   width: 20.57,
                   height: 24,
                   title: 'Linux',
@@ -333,12 +246,11 @@ class AuthView extends StatelessWidget {
                   width: 20.33,
                   height: 22.02,
                   title: 'Google Play',
-                  left: 3,
                   link: 'messenger-android.apk',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'android3',
+                  asset: 'android',
                   width: 20.99,
                   height: 25,
                   title: 'Android',

@@ -234,7 +234,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
           provider.reconnect();
 
           subscription = provider
-              .chatEvents(ChatId(message.data['chatId']), () => null)
+              .chatEvents(ChatId(message.data['chatId']), null, () => null)
               .listen((e) {
             var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
             if (events.$$typename == 'ChatEventsVersioned') {

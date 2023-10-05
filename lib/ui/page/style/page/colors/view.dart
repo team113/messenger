@@ -190,6 +190,9 @@ class _ColorsViewState extends State<ColorsView> {
         'backgroundAuxiliaryLightest',
         'Background of group members and unread messages'
       ),
+      (style.colors.acceptLightest, 'acceptLightest', 'User panel'),
+      (style.colors.acceptLighter, 'acceptLighter', 'User panel'),
+      (style.colors.acceptLight, 'acceptLight', 'User panel'),
       (style.colors.acceptAuxiliaryColor, 'acceptAuxiliaryColor', 'User panel'),
       (style.colors.acceptColor, 'acceptColor', 'Call accept button'),
       (style.colors.dangerColor, 'dangerColor', 'Warns of something'),

@@ -48,8 +48,13 @@ abstract class AbstractAuthRepository {
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
-  Future<Credentials> signIn(UserPassword password,
-      {UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone});
+  Future<Credentials> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 
   /// Deletes a [Session] of the [MyUser] identified by the [token] of this
   /// repository.
@@ -57,6 +62,21 @@ abstract class AbstractAuthRepository {
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
   /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
   Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]);
+
+  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
+  ///
+  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
+  /// [confirmSignUpEmail] in order to successfully sign up.
+  ///
+  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
+  Future<void> signUpWithEmail(UserEmail email);
+
+  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
+  Future<Credentials> confirmSignUpEmail(ConfirmationCode code);
+
+  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
+  /// [signUpWithEmail].
+  Future<void> resendSignUpEmail();
 
   /// Validates the current [AccessToken].
   Future<void> validateToken();

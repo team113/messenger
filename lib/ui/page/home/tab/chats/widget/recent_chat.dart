@@ -38,15 +38,17 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
-import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'periodic_builder.dart';
+import 'rectangular_call_button.dart';
 import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -175,10 +177,9 @@ class RecentChatTile extends StatelessWidget {
           if (!chat.id.isLocalWith(me))
             Text(
               chat.updatedAt.val.toLocal().short,
-              style: style.fonts.labelLarge.copyWith(
-                color:
-                    inverted ? style.colors.onPrimary : style.colors.secondary,
-              ),
+              style: inverted
+                  ? style.fonts.labelLargeOnPrimary
+                  : style.fonts.labelLargeSecondary,
             ),
         ],
         subtitle: [
@@ -310,7 +311,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
-          .map((User user) => user.name?.val ?? user.num.val);
+          .map((User user) => user.name?.val ?? user.num.toString());
 
       ChatMessage? draft = rxChat.draft.value;
 
@@ -322,11 +323,9 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: style.fonts.labelMedium.copyWith(
-                    color: inverted
-                        ? style.colors.onPrimary
-                        : style.colors.primary,
-                  ),
+                  style: inverted
+                      ? style.fonts.labelMediumOnPrimary
+                      : style.fonts.labelMediumPrimary,
                 ),
                 const SizedBox(width: 3),
                 Padding(
@@ -347,11 +346,9 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: style.fonts.labelMedium.copyWith(
-                        color: inverted
-                            ? style.colors.onPrimary
-                            : style.colors.primary,
-                      ),
+                      style: inverted
+                          ? style.fonts.labelMediumOnPrimary
+                          : style.fonts.labelMediumPrimary,
                     ),
                   ),
                   const SizedBox(width: 3),
@@ -364,7 +361,7 @@ class RecentChatTile extends StatelessWidget {
             )
           ];
         }
-      } else if (draft != null && !selected && rxChat.unreadCount.value == 0) {
+      } else if (draft != null && !selected) {
         final StringBuffer desc = StringBuffer();
 
         if (draft.text != null) {

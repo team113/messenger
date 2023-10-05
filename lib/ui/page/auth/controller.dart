@@ -17,10 +17,7 @@
 
 import 'dart:async';
 
-import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
-import 'package:rive/rive.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -32,46 +29,17 @@ export 'view.dart';
 class AuthController extends GetxController {
   AuthController(this._auth);
 
-  /// Authorization service used for signing up.
-  final AuthService _auth;
-
-  /// Current logo's animation frame.
+  /// Current [AnimatedLogo] animation frame.
   final RxInt logoFrame = RxInt(0);
 
-  final RxInt system = RxInt(0);
-
-  /// [SMITrigger] triggering the blinking animation.
-  SMITrigger? blink;
-
-  /// [GlobalKey] of the button opening the [Language] selection.
-  final GlobalKey languageKey = GlobalKey();
+  /// Authorization service used for signing up.
+  final AuthService _auth;
 
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
-
-  @override
-  void onInit() {
-    system.value = PlatformUtils.isIOS
-        ? 0
-        : PlatformUtils.isMacOS
-            ? 1
-            : PlatformUtils.isAndroid
-                ? 2
-                : PlatformUtils.isLinux
-                    ? 3
-                    : 4;
-    super.onInit();
-  }
-
-  void systemUp() {
-    system.value++;
-    if (system.value > 3) {
-      system.value = 0;
-    }
-  }
 
   @override
   void onClose() {
@@ -92,8 +60,6 @@ class AuthController extends GetxController {
 
   /// Resets the [logoFrame] and starts the blinking animation.
   void animate() {
-    blink?.fire();
-
     logoFrame.value = 1;
     _animationTimer?.cancel();
     _animationTimer = Timer.periodic(

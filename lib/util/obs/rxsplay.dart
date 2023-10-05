@@ -75,7 +75,8 @@ class RxObsSplayTreeMap<K, V>
   late SplayTreeMap<K, V> _value;
 
   /// [StreamController] of record of changes of this [ObsMap].
-  final _changes = StreamController<MapChangeNotification<K, V>>.broadcast();
+  final _changes =
+      StreamController<MapChangeNotification<K, V>>.broadcast(sync: true);
 
   /// Returns stream of record of changes of this [ObsMap].
   Stream<MapChangeNotification<K, V>> get changes => _changes.stream;

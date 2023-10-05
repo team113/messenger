@@ -69,27 +69,7 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).style;
-
-    final TextStyle textStyle =
-        (widget.style ?? style.fonts.labelMediumSecondary).copyWith(
-      fontSize: widget.tiny
-          ? 9
-          : widget.dense
-              ? 13
-              : widget.enlarge
-                  ? 17
-                  : widget.style?.fontSize ?? 15,
-      color: (widget.color ??
-              (widget.style ?? style.fonts.labelMediumSecondary).color)
-          ?.withOpacity(
-        _clicked
-            ? 0.5
-            : _hovered
-                ? 0.7
-                : 1,
-      ),
-    );
+    final style = Theme.of(context).style;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -109,8 +89,15 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
           child: AnimatedDefaultTextStyle(
             curve: Curves.ease,
             duration: const Duration(milliseconds: 100),
-            style: textStyle,
-            child: Text(widget.label),
+            style: (widget.style ?? style.fonts.labelMediumSecondary),
+            child: Opacity(
+              opacity: _clicked
+                  ? 0.5
+                  : _hovered
+                      ? 0.7
+                      : 1,
+              child: Text(widget.label),
+            ),
           ),
         ),
       ),

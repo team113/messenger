@@ -785,7 +785,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'Apple'.l10n,
-                  asset: 'apple7',
+                  asset: 'apple',
                   assetWidth: 21.07,
                   assetHeight: 27,
                   padding: const EdgeInsets.only(left: 1.5, bottom: 1),
@@ -1201,7 +1201,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'Apple',
-                  asset: 'apple7',
+                  asset: 'apple',
                   assetWidth: 21.07,
                   assetHeight: 27,
                   padding: const EdgeInsets.only(left: 1.5, bottom: 1),

@@ -39,13 +39,16 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
-      background: Color.fromRGBO(242, 245, 248, 1),
+      background: const Color(0xFFF2F5F8),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
+      acceptLightest: const Color(0xFFF2FDED),
+      acceptLighter: const Color.fromRGBO(227, 255, 199, 1),
+      acceptLight: const Color(0xFFBFE3B9),
       acceptColor: const Color(0x7F34B139),
       acceptAuxiliaryColor: const Color(0xFF4CAF50),
       declineColor: const Color(0x7FFF0000),
@@ -90,11 +93,15 @@ class Themes {
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
       danger: colors.dangerColor,
+      displayBold:
+          textStyle.copyWith(fontWeight: FontWeight.w700, fontSize: 27),
       displayLarge:
-          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.w700),
+          textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 27),
       displayMedium:
           textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 24),
       displaySmall:
+          textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 21),
+      displayTiny:
           textStyle.copyWith(fontWeight: FontWeight.w700, fontSize: 11),
       headlineLarge: textStyle.copyWith(fontSize: 18),
       headlineMedium:
@@ -169,22 +176,28 @@ class Themes {
             messageColor: colors.onPrimary,
             primaryBorder: Border.all(
               color: colors.secondaryHighlightDark,
+              // color: colors.background,
               width: 0.5,
             ),
-            readMessageColor: colors.primaryHighlightShiniest,
+            readMessageColor: colors.acceptLighter,
+            // readMessageColor: colors.primaryHighlightShiniest,
             secondaryBorder: Border.all(
-              color: colors.primaryHighlightLightest,
+              // color: colors.primaryHighlightLightest,
+              // color: colors.acceptColor,
+              color: colors.acceptLight,
+              // color: Color(0xFF34B139).withOpacity(0.3),
+              // color: colors.secondaryHighlightDarkest,
               width: 0.5,
             ),
             sidebarColor: colors.onPrimaryOpacity50,
             systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDarkest,
+              color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
             systemMessageStyle: fonts.bodySmallSecondary,
             systemMessagePrimary: fonts.bodySmallPrimary,
-            unreadMessageColor: colors.backgroundAuxiliaryLightest,
+            unreadMessageColor: colors.acceptLightest,
             activeColor: colors.primary,
             selectedColor: colors.primaryOpacity70,
           ),
@@ -622,13 +635,19 @@ class Fonts {
     Color? secondary,
     Color? onPrimary,
     Color? danger,
+    required this.displayBold,
+    TextStyle? displayBoldOnPrimary,
     required this.displayLarge,
     TextStyle? displayLargeOnPrimary,
+    TextStyle? displayLargeSecondary,
     required this.displayMedium,
     TextStyle? displayMediumSecondary,
     required this.displaySmall,
     TextStyle? displaySmallSecondary,
     TextStyle? displaySmallOnPrimary,
+    required this.displayTiny,
+    TextStyle? displayTinySecondary,
+    TextStyle? displayTinyOnPrimary,
     required this.headlineLarge,
     TextStyle? headlineLargeOnPrimary,
     required this.headlineMedium,
@@ -637,6 +656,7 @@ class Fonts {
     TextStyle? headlineSmallSecondary,
     TextStyle? headlineSmallOnPrimary,
     required this.titleLarge,
+    TextStyle? titleLargePrimary,
     TextStyle? titleLargeSecondary,
     TextStyle? titleLargeOnPrimary,
     required this.titleMedium,
@@ -674,14 +694,20 @@ class Fonts {
     required this.input,
     required this.error,
     required this.counter,
-  })  : displayLargeOnPrimary =
+  })  : displayBoldOnPrimary =
+            displayBoldOnPrimary ?? displayBold.copyWith(color: onPrimary),
+        displayLargeOnPrimary =
             displayLargeOnPrimary ?? displayLarge.copyWith(color: onPrimary),
+        displayLargeSecondary =
+            displayLargeSecondary ?? displayLarge.copyWith(color: secondary),
         displayMediumSecondary =
             displayMediumSecondary ?? displayMedium.copyWith(color: secondary),
         displaySmallSecondary =
             displaySmallSecondary ?? displaySmall.copyWith(color: secondary),
-        displaySmallOnPrimary =
-            displaySmallOnPrimary ?? displaySmall.copyWith(color: onPrimary),
+        displayTinyOnPrimary =
+            displayTinyOnPrimary ?? displayTiny.copyWith(color: onPrimary),
+        displayTinySecondary =
+            displayTinySecondary ?? displayTiny.copyWith(color: secondary),
         headlineLargeOnPrimary =
             headlineLargeOnPrimary ?? headlineLarge.copyWith(color: onPrimary),
         headlineMediumOnPrimary = headlineMediumOnPrimary ??
@@ -690,6 +716,8 @@ class Fonts {
             headlineSmallSecondary ?? headlineSmall.copyWith(color: secondary),
         headlineSmallOnPrimary =
             headlineSmallOnPrimary ?? headlineSmall.copyWith(color: onPrimary),
+        titleLargePrimary =
+            titleLargePrimary ?? titleLarge.copyWith(color: primary),
         titleLargeSecondary =
             titleLargeSecondary ?? titleLarge.copyWith(color: secondary),
         titleLargeOnPrimary =
@@ -741,11 +769,20 @@ class Fonts {
         bodyTinyOnPrimary =
             bodyTinyOnPrimary ?? bodyTiny.copyWith(color: onPrimary);
 
+  /// Bold version of display text of `onBackground` color.
+  final TextStyle displayBold;
+
+  /// [displayBold] of `onPrimary` color.
+  final TextStyle displayBoldOnPrimary;
+
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
 
-  /// [displayLarge] of `onPrimary` color.
+  /// [displayLarge] of `onPrimary` color with [FontWeight.bold].
   final TextStyle displayLargeOnPrimary;
+
+  /// [displayLarge] of `secondary` color.
+  final TextStyle displayLargeSecondary;
 
   /// Medium version of display text of `onBackground` color.
   final TextStyle displayMedium;
@@ -759,8 +796,14 @@ class Fonts {
   /// [displaySmall] with `secondary` color.
   final TextStyle displaySmallSecondary;
 
-  /// [displaySmall] with `onPrimary` color.
-  final TextStyle displaySmallOnPrimary;
+  /// Tiny version of display text of `onBackground` color.
+  final TextStyle displayTiny;
+
+  /// [displayTiny] with `secondary` color.
+  final TextStyle displayTinySecondary;
+
+  /// [displayTiny] with `onPrimary` color.
+  final TextStyle displayTinyOnPrimary;
 
   /// Large version of headline text of `onBackground` color.
   final TextStyle headlineLarge;
@@ -785,6 +828,9 @@ class Fonts {
 
   /// Large version of title text of `onBackground` color.
   final TextStyle titleLarge;
+
+  /// [titleLarge] of `primary` color.
+  final TextStyle titleLargePrimary;
 
   /// [titleLarge] of `secondary` color.
   final TextStyle titleLargeSecondary;
@@ -905,9 +951,14 @@ class Fonts {
     }
 
     return Fonts(
+      displayBold: TextStyle.lerp(font.displayBold, other.displayBold, t)!,
+      displayBoldOnPrimary: TextStyle.lerp(
+          font.displayBoldOnPrimary, other.displayBoldOnPrimary, t)!,
       displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
       displayLargeOnPrimary: TextStyle.lerp(
           font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
+      displayLargeSecondary: TextStyle.lerp(
+          font.displayLargeSecondary, other.displayLargeSecondary, t)!,
       displayMedium:
           TextStyle.lerp(font.displayMedium, other.displayMedium, t)!,
       displayMediumSecondary: TextStyle.lerp(
@@ -915,8 +966,11 @@ class Fonts {
       displaySmall: TextStyle.lerp(font.displaySmall, other.displaySmall, t)!,
       displaySmallSecondary: TextStyle.lerp(
           font.displaySmallSecondary, other.displaySmallSecondary, t)!,
-      displaySmallOnPrimary: TextStyle.lerp(
-          font.displaySmallOnPrimary, other.displaySmallOnPrimary, t)!,
+      displayTiny: TextStyle.lerp(font.displayTiny, other.displayTiny, t)!,
+      displayTinySecondary: TextStyle.lerp(
+          font.displayTinySecondary, other.displayTinySecondary, t)!,
+      displayTinyOnPrimary: TextStyle.lerp(
+          font.displayTinyOnPrimary, other.displayTinyOnPrimary, t)!,
       headlineLarge:
           TextStyle.lerp(font.headlineLarge, other.headlineLarge, t)!,
       headlineLargeOnPrimary: TextStyle.lerp(
@@ -932,6 +986,8 @@ class Fonts {
       headlineSmallOnPrimary: TextStyle.lerp(
           font.headlineSmallOnPrimary, other.headlineSmallOnPrimary, t)!,
       titleLarge: TextStyle.lerp(font.titleLarge, other.titleLarge, t)!,
+      titleLargePrimary:
+          TextStyle.lerp(font.titleLargePrimary, other.titleLargePrimary, t)!,
       titleLargeSecondary: TextStyle.lerp(
           font.titleLargeSecondary, other.titleLargeSecondary, t)!,
       titleLargeOnPrimary: TextStyle.lerp(
@@ -1044,6 +1100,9 @@ class Palette {
     Color? onBackgroundOpacity70,
     required this.transparent,
     required this.acceptColor,
+    required this.acceptLightest,
+    required this.acceptLighter,
+    required this.acceptLight,
     required this.acceptAuxiliaryColor,
     required this.declineColor,
     required this.dangerColor,
@@ -1306,6 +1365,10 @@ class Palette {
   /// Used in accept call button.
   final Color acceptColor;
 
+  final Color acceptLight;
+  final Color acceptLighter;
+  final Color acceptLightest;
+
   /// [Color] is used as an auxiliary color to display pleasant action
   /// confirmation messages.
   final Color acceptAuxiliaryColor;
@@ -1415,6 +1478,10 @@ class Palette {
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
+      acceptLightest:
+          Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
+      acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
+      acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
       acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t)!,
       acceptAuxiliaryColor: Color.lerp(
           color.acceptAuxiliaryColor, other.acceptAuxiliaryColor, t)!,
