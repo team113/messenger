@@ -31,9 +31,16 @@ query RecentChats(
         noFavorite: $noFavorite
         withOngoingCalls: $withOngoingCalls
     ) {
-        nodes {
+        edges {
+            node {
+                __typename
+                ...Chat
+            }
+            cursor
+        }
+        pageInfo {
             __typename
-            ...Chat
+            ...PageInfo
         }
     }
 }

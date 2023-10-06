@@ -15,26 +15,16 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-subscription FavoriteChatsEvents($ver: FavoriteChatsListVersion) {
-    favoriteChatsEvents(ver: $ver) {
-        __typename
-        ... on SubscriptionInitialized {
-            ok
-        }
-        ... on FavoriteChatsList {
-            chats {
-                edges {
-                    node {
-                        __typename
-                        ...Chat
-                    }
-                    cursor
-                }
-                ver
-            }
-        }
-        ... on FavoriteChatsEventsVersioned {
-            ...FavoriteChatsEventsVersioned
-        }
-    }
-}
+Feature: Chats pagination
+
+  Scenario: Chats pagination works correctly
+    Given user Alice
+    And Alice has 31 groups
+    And I sign in as Alice
+
+    When I tap `CloseButton` button
+    Then I wait until `Chats` is present
+
+    Given I have Internet with delay of 3 seconds
+    When I scroll `Chats` until `ChatsLoading` is present
+    Then I wait until `ChatsLoading` is absent
