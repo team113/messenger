@@ -39,7 +39,7 @@ Feature: Add participant in call tests
 
   Scenario: Add participant to group call
     Given user Charlie
-    And Bob has "Test" group with me
+    And I have "Test" group with Bob
     And I am in chat with Bob
 
     When I tap `AudioCall` button

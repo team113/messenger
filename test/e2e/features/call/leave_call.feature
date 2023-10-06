@@ -32,7 +32,7 @@ Feature: Leave call tests
     Then I wait until `Call` is absent
 
   Scenario: Leave active group call
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
 
     When Bob starts call in "Test" group
     And I tap `AcceptCallAudio` button
@@ -54,7 +54,7 @@ Feature: Leave call tests
     Then I wait until `Call` is absent
 
   Scenario: Group call doesn't ends when user leaves
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
     And I am in chat with Bob
 
     When I tap `AudioCall` button

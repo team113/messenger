@@ -31,7 +31,7 @@ Feature: Decline call tests
     Then I wait until `Call` is absent
 
   Scenario: Decline incoming group call
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
 
     When Bob starts call in "Test" group
     Then I wait until `Call` is present

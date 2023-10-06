@@ -36,7 +36,7 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
-    provider.token = customUser.session.token;
+    provider.token = customUser.token;
 
     await Future.delayed(1.seconds);
     var incomingCall = (await provider.incomingCalls()).nodes.first;
@@ -68,7 +68,7 @@ final StepDefinitionGeneric userDeclineCall = when1<TestUser, CustomWorld>(
   '{user} declines call',
   (TestUser user, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]!.session.token;
+    provider.token = context.world.sessions[user.name]!.token;
 
     var incomingCalls = await provider.incomingCalls();
     await provider.declineChatCall(incomingCalls.nodes.first.chatId);
@@ -90,7 +90,7 @@ final StepDefinitionGeneric userStartCallInDialog =
   (TestUser user, TestUser withUser, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
-    provider.token = customUser.session.token;
+    provider.token = customUser.token;
 
     customUser.call = await _startCall(
       provider,
@@ -113,7 +113,7 @@ final StepDefinitionGeneric userStartCallInGroup =
   (TestUser user, String name, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
-    provider.token = customUser.session.token;
+    provider.token = customUser.token;
 
     customUser.call = await _startCall(
       provider,
@@ -135,7 +135,7 @@ final StepDefinitionGeneric userEndCall = when1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
-    provider.token = customUser.session.token;
+    provider.token = customUser.token;
 
     await provider.leaveChatCall(
       customUser.call!.chatId,

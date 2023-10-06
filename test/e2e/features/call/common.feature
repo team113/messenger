@@ -22,7 +22,7 @@ Feature: Common call tests
     And popup windows are disabled
 
   Scenario: Join to active group call
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
 
     When Bob starts call in "Test" group
     And I tap `DeclineCall` button
@@ -33,7 +33,7 @@ Feature: Common call tests
     And I wait until Bob is present in call
 
   Scenario: More panel is opening and closing
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
     And I am in chat with Bob
 
     When I tap `AudioCall` button
@@ -44,7 +44,7 @@ Feature: Common call tests
     Then I wait until `MorePanel` is absent
 
   Scenario: Call settings is opening and closing
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
     And I am in chat with Bob
 
     When I tap `AudioCall` button

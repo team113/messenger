@@ -33,7 +33,7 @@ final StepDefinitionGeneric hasDialog = given2<TestUser, TestUser, CustomWorld>(
   '{user} has dialog with {user}',
   (TestUser user, TestUser withUser, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     ChatMixin dialog = await provider
         .createDialogChat(context.world.sessions[withUser.name]!.userId);
@@ -57,7 +57,7 @@ final StepDefinitionGeneric hasGroupNamed =
   '{user} has {string} group with {user}',
   (TestUser user, String name, TestUser withUser, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     ChatMixin group = await provider.createGroupChat(
       [context.world.sessions[withUser.name]!.userId],
@@ -84,7 +84,7 @@ final StepDefinitionGeneric haveGroupNamed =
   (String name, TestUser user, context) async {
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     var chat = await provider.createGroupChat(
       [authService.credentials.value!.userId],

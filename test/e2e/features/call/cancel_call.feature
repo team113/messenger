@@ -41,7 +41,7 @@ Feature: Cancel call tests
     Then I wait until `Call` is absent
 
   Scenario: User cancels outgoing group call
-    Given Bob has "Test" group with me
+    Given I have "Test" group with Bob
 
     When Bob starts call in "Test" group
     Then I wait until `Call` is present
