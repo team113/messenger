@@ -82,19 +82,22 @@ class CustomUser {
 
 /// Ongoing [ChatCall] in a [Chat].
 class Call {
-  Call(this.chatCall, this.chatId, this.deviceId, this.creds);
+  Call(this.chatCall, this.chatId, this.deviceId, this.creds, this.provider);
 
   /// [ChatCall] associated with this [Call].
   final ChatCall chatCall;
-
-  /// One-time secret credentials to authenticate with on a media server.
-  final ChatCallCredentials? creds;
 
   /// ID of the [Chat] this [Call] takes place in.
   final ChatId chatId;
 
   /// ID of the device this [Call] is taking place on.
   final ChatCallDeviceId deviceId;
+
+  /// One-time secret credentials to authenticate with on a media server.
+  final ChatCallCredentials? creds;
+
+  /// [GraphQlProvider] using for the call events subscription.
+  final GraphQlProvider provider;
 
   /// [Jason] instance of this [Call].
   Jason? _jason;
@@ -115,10 +118,11 @@ class Call {
     }
     _jason?.free();
     _eventsSubscription?.cancel();
+    provider.disconnect();
   }
 
   /// Starts the call events subscription.
-  Future<void> connect(GraphQlProvider provider) async {
+  Future<void> connect() async {
     _jason = Jason();
     _room = _jason!.initRoom();
 

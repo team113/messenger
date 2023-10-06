@@ -45,12 +45,16 @@ final StepDefinitionGeneric userJoinCall = when1<TestUser, CustomWorld>(
     var response = await provider.joinChatCall(incomingCall.chatId, creds);
 
     ChatCall? chatCall = _chatCall(response.event);
-    Call call = Call(chatCall!, incomingCall.chatId, response.deviceId, creds);
+    Call call = Call(
+      chatCall!,
+      incomingCall.chatId,
+      response.deviceId,
+      creds,
+      provider,
+    );
 
-    await call.connect(provider);
-
+    await call.connect();
     customUser.call = call;
-    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
@@ -93,8 +97,6 @@ final StepDefinitionGeneric userStartCallInDialog =
       customUser.userId,
       customUser.dialogs[withUser]!,
     );
-
-    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
@@ -118,8 +120,6 @@ final StepDefinitionGeneric userStartCallInGroup =
       customUser.userId,
       customUser.groups[name]!,
     );
-
-    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
@@ -158,9 +158,9 @@ Future<Call> _startCall(
   var response = await provider.startChatCall(chatId, creds, false);
 
   ChatCall? chatCall = _chatCall(response.event);
-  Call call = Call(chatCall!, chatId, response.deviceId, creds);
+  Call call = Call(chatCall!, chatId, response.deviceId, creds, provider);
 
-  await call.connect(provider);
+  await call.connect();
 
   return call;
 }

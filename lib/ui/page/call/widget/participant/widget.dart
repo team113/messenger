@@ -89,7 +89,9 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       return Stack(
-        key: userId != null ? Key('Participant_$userId') : null,
+        key: participant.member.isConnected.isTrue && userId != null
+            ? Key('Participant_$userId')
+            : null,
         children: [
           if (!hasVideo) ...background(),
           SafeAnimatedSwitcher(
@@ -120,7 +122,7 @@ class ParticipantWidget extends StatelessWidget {
           Obx(() {
             final Widget child;
 
-            if (participant.member.isConnected.value) {
+            if (participant.member.isConnected.isTrue) {
               child = Container();
             } else if (participant.member.isDialing.isTrue) {
               child = Container(

@@ -33,7 +33,7 @@ final StepDefinitionGeneric addsUserToCall =
     final provider = GraphQlProvider();
     provider.token = customUser.session.token;
 
-    provider.addChatMember(
+    await provider.addChatMember(
       customUser.call!.chatId,
       context.world.sessions[addUser.name]!.userId,
     );
