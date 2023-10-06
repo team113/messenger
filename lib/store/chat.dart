@@ -923,8 +923,8 @@ class ChatRepository extends DisposableInterface
           .toList();
 
       favorites.sort(
-        (a, b) => -a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!),
+        (a, b) => b.chat.value.favoritePosition!
+            .compareTo(a.chat.value.favoritePosition!),
       );
 
       final double? highestFavorite = favorites.isEmpty

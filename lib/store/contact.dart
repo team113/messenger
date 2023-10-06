@@ -180,16 +180,16 @@ class ContactRepository implements AbstractContactRepository {
     if (position == null) {
       final List<HiveRxChatContact> sorted = favorites.values.toList()
         ..sort(
-          (a, b) => a.contact.value.favoritePosition!
-              .compareTo(b.contact.value.favoritePosition!),
+          (a, b) => b.contact.value.favoritePosition!
+              .compareTo(a.contact.value.favoritePosition!),
         );
 
-      final double? lowestFavorite = sorted.isEmpty
+      final double? highestFavorite = sorted.isEmpty
           ? null
           : sorted.first.contact.value.favoritePosition!.val;
 
       newPosition = ChatContactFavoritePosition(
-        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+        highestFavorite == null ? 1 / 9007199254740991 : highestFavorite * 2,
       );
     } else {
       newPosition = position;
