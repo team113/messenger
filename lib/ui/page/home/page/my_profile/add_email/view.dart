@@ -26,7 +26,7 @@ import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
-import '/util/navigator.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for adding and confirming an [UserEmail].

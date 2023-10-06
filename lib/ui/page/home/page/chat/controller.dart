@@ -346,7 +346,7 @@ class ChatController extends GetxController {
               send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
-              onSubmitted: send.clear,
+              onSent: send.clear,
             );
           }
         } else {
