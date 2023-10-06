@@ -19,7 +19,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -539,21 +539,9 @@ class MessageFieldView extends StatelessWidget {
                       );
                     }),
                   ),
-                  // child: SvgImage.asset(
-                  //   'assets/icons/chat_more1.svg',
-                  //   height: 20,
-                  //   width: 20,
-                  // ),
-                  // child: SvgImage.asset(
-                  //   'assets/icons/attach${canAttach ? '' : '_disabled'}.svg',
-                  //   height: 22,
-                  //   width: 22,
-                  // ),
                 ),
               ),
             ),
-
-            // const SizedBox(width: 26 / 2 - 3),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(

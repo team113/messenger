@@ -687,6 +687,23 @@ class _WidgetsViewState extends State<WidgetsView> {
               selected: true,
             ),
           ),
+          (
+            'RectangleButton.radio',
+            RectangleButton(
+              onPressed: () {},
+              label: 'Label',
+              radio: true,
+            ),
+          ),
+          (
+            'RectangleButton.radio(selected: true)',
+            RectangleButton(
+              onPressed: () {},
+              label: 'Label',
+              selected: true,
+              radio: true,
+            ),
+          ),
         ],
       ),
       _headline(

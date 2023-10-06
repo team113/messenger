@@ -150,6 +150,14 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
       await _box.delete(key);
     }
   }
+
+  /// Exception-safe wrapper for [BoxBase.deleteAt] deleting a value by the
+  /// given [index] from the [box].
+  Future<void> deleteAtSafe(int index) async {
+    if (_isReady && _box.isOpen) {
+      await box.deleteAt(index);
+    }
+  }
 }
 
 /// Base class for data providers backed by [Hive] using [LazyBox].

@@ -163,6 +163,10 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setTimelineEnabled(enabled);
 
   @override
+  Future<void> setPinnedActions(List<String> buttons) =>
+      _settingsLocal.setPinnedActions(buttons);
+
+  @override
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsLocal.setLeaveWhenAlone(enabled);
 

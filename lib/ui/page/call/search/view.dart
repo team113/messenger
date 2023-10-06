@@ -47,6 +47,7 @@ class SearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onSelected,
+    this.darken = false,
   });
 
   /// [SearchCategory]ies to search through.
@@ -84,6 +85,8 @@ class SearchView extends StatelessWidget {
   /// If `null`, then no back button will be displayed.
   final VoidCallback? onBack;
 
+  final bool darken;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -91,6 +94,7 @@ class SearchView extends StatelessWidget {
     return GetBuilder(
       key: const Key('SearchView'),
       init: SearchController(
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),

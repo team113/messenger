@@ -110,6 +110,13 @@ class ApplicationSettingsHiveProvider
         (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
       );
 
+  /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
+  /// [Hive].
+  Future<void> setPinnedActions(List<String> buttons) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
+      );
+
   Future<void> setLeaveWhenAlone(bool enabled) => putSafe(
         0,
         (box.get(0) ?? ApplicationSettings())..leaveWhenAlone = enabled,

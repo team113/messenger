@@ -1849,6 +1849,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                               onPressed: widget.onResend,
                             ),
+                          ],
+                          if (item.status.value != SendingStatus.sent) ...[
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile

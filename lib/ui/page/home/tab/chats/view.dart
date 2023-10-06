@@ -764,62 +764,62 @@ class ChatsTabView extends StatelessWidget {
                               final bool selected =
                                   c.selectedChats.contains(e.id);
 
-                              return Obx(() {
-                                return RecentChatTile(
-                                  e,
-                                  key: e.chat.value.isMonolog
-                                      ? const Key('ChatMonolog')
-                                      : Key('RecentChat_${e.id}'),
-                                  me: c.me,
-                                  myUser: c.myUser.value,
-                                  blocked: e.blacklisted,
-                                  selected: selected,
-                                  getUser: c.getUser,
-                                  avatarBuilder: c.selecting.value
-                                      ? (c) => WidgetButton(
-                                            onPressed: () => router.chat(e.id),
-                                            child: c,
-                                          )
-                                      : avatarBuilder,
-                                  onJoin: () => c.joinCall(e.id),
-                                  onDrop: () => c.dropCall(e.id),
-                                  onLeave: e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.leaveChat(e.id),
-                                  onHide: () => c.hideChat(e.id),
-                                  inCall: () => c.containsCall(e.id),
-                                  onMute: e.chat.value.isMonolog ||
-                                          e.chat.value.id.isLocal
-                                      ? null
-                                      : () => c.muteChat(e.id),
-                                  onUnmute: e.chat.value.isMonolog ||
-                                          e.chat.value.id.isLocal
-                                      ? null
-                                      : () => c.unmuteChat(e.id),
-                                  onFavorite: e.chat.value.id.isLocal &&
-                                          !e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.favoriteChat(e.id),
-                                  onUnfavorite: e.chat.value.id.isLocal &&
-                                          !e.chat.value.isMonolog
-                                      ? null
-                                      : () => c.unfavoriteChat(e.id),
-                                  onSelect: c.toggleSelecting,
-                                  onCreateGroup: c.startGroupCreating,
-                                  onTap: c.selecting.value
-                                      ? () => c.selectChat(e)
-                                      : null,
-                                  enableContextMenu: !c.selecting.value,
-                                  trailing: c.selecting.value
-                                      ? [
-                                          SelectedDot(
-                                            selected: selected,
-                                            size: 20,
-                                          )
-                                        ]
-                                      : null,
-                                );
-                              });
+                              // return Obx(() {
+                              return RecentChatTile(
+                                e,
+                                key: e.chat.value.isMonolog
+                                    ? const Key('ChatMonolog')
+                                    : Key('RecentChat_${e.id}'),
+                                me: c.me,
+                                myUser: c.myUser.value,
+                                blocked: e.blacklisted,
+                                selected: selected,
+                                getUser: c.getUser,
+                                avatarBuilder: c.selecting.value
+                                    ? (c) => WidgetButton(
+                                          onPressed: () => router.chat(e.id),
+                                          child: c,
+                                        )
+                                    : avatarBuilder,
+                                onJoin: () => c.joinCall(e.id),
+                                onDrop: () => c.dropCall(e.id),
+                                onLeave: e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.leaveChat(e.id),
+                                onHide: () => c.hideChat(e.id),
+                                inCall: () => c.containsCall(e.id),
+                                onMute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
+                                    ? null
+                                    : () => c.muteChat(e.id),
+                                onUnmute: e.chat.value.isMonolog ||
+                                        e.chat.value.id.isLocal
+                                    ? null
+                                    : () => c.unmuteChat(e.id),
+                                onFavorite: e.chat.value.id.isLocal &&
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.favoriteChat(e.id),
+                                onUnfavorite: e.chat.value.id.isLocal &&
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.unfavoriteChat(e.id),
+                                onSelect: c.toggleSelecting,
+                                onCreateGroup: c.startGroupCreating,
+                                onTap: c.selecting.value
+                                    ? () => c.selectChat(e)
+                                    : null,
+                                enableContextMenu: !c.selecting.value,
+                                trailing: c.selecting.value
+                                    ? [
+                                        SelectedDot(
+                                          selected: selected,
+                                          size: 20,
+                                        )
+                                      ]
+                                    : null,
+                              );
+                              // });
                             }
 
                             return CustomScrollView(
@@ -1111,19 +1111,17 @@ class ChatsTabView extends StatelessWidget {
 
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10n,
-      // description: [
-      //   TextSpan(
-      //     text: 'alert_chats_will_be_deleted'
-      //         .l10nfmt({'count': c.selectedChats.length}),
-      //   ),
-      // ],
+      description: [
+        TextSpan(text: 'label_to_restore_chats_use_search'.l10n),
+      ],
       additional: [
-        // const SizedBox(height: 21),
+        const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
           return RectangleButton(
             label: 'btn_clear_history'.l10n,
             selected: clear,
             tappable: true,
+            radio: true,
             onPressed: () => setState(() => clear = !clear),
           );
           // return FieldButton(

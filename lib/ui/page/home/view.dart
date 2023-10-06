@@ -572,6 +572,8 @@ class _HomeViewState extends State<HomeView> {
           if (c.background.value != null) {
             image = Image.memory(
               c.background.value!,
+              width: double.infinity,
+              height: double.infinity,
               key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
             );

@@ -1067,9 +1067,11 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.hidden:
               event as EventChatHidden;
-              _chatRepository.remove(event.chatId);
-              putChat = false;
-              continue;
+              // _chatRepository.remove(event.chatId);
+              chatEntity.value.isHidden = true;
+              // putChat = false;
+              // continue;
+              break;
 
             case ChatEventKind.itemDeleted:
               event as EventChatItemDeleted;
@@ -1298,6 +1300,7 @@ class HiveRxChat extends RxChat {
                     final action = msg.action as ChatInfoActionMemberRemoved;
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+                    // TODO: https://github.com/team113/messenger/issues/627
                     chatEntity.value.lastReads
                         .removeWhere((e) => e.memberId == action.user.id);
                     reads.removeWhere((e) => e.memberId == action.user.id);

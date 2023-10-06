@@ -120,6 +120,7 @@ class ChatForwardView extends StatelessWidget {
                             SearchCategory.contact,
                             SearchCategory.user,
                           ],
+                          darken: true,
                           title: 'label_forward_message'.l10n,
                           onSelected: (r) => c.searchResults.value = r,
                         ),

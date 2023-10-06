@@ -906,8 +906,13 @@ class RecentChatTile extends StatelessWidget {
       //   TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
       //   TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       // ],
+      description: [
+        TextSpan(text: 'label_to_restore_chat_use_search'.l10n),
+        // TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
+        // TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      ],
       additional: [
-        // const SizedBox(height: 21),
+        const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
           return RectangleButton(
             label: 'btn_clear_history'.l10n,

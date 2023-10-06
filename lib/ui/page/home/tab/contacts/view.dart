@@ -68,6 +68,7 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       builder: (ContactsTabController c) => Obx(() {
         return Scaffold(

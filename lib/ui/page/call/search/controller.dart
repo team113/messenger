@@ -20,6 +20,8 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -55,6 +57,7 @@ class SearchController extends GetxController {
   SearchController(
     this._chatService,
     this._userService,
+    this._myUserService,
     this._contactService, {
     required this.categories,
     this.chat,
@@ -151,8 +154,12 @@ class SearchController extends GetxController {
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
 
+  final MyUserService _myUserService;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  MyUser? get _myUser => _myUserService.myUser.value;
 
   /// Indicates whether the [usersSearch] or [contactsSearch] have
   /// next page.
@@ -448,19 +455,35 @@ class SearchController extends GetxController {
 
   /// Updates the [chats] according to the [query].
   void _populateChats() {
+    print('[Search] _populateChats');
+
     if (categories.contains(SearchCategory.chat)) {
       final List<RxChat> sorted = _chatService.chats.values.toList();
 
-      sorted.sort();
+      sorted.sort((a, b) {
+        if (a.id.isLocalWith(me) || a.chat.value.isMonolog) {
+          return -1;
+        } else if (b.id.isLocalWith(me) || b.chat.value.isMonolog) {
+          return 1;
+        }
+
+        return a.compareTo(b);
+      });
 
       chats.value = {
         for (var c in sorted.where((p) {
-          if (p.id.isLocal && !p.id.isLocalWith(me) || p.chat.value.isHidden) {
+          if (p.id.isLocal &&
+              !p.id.isLocalWith(me) /* || p.chat.value.isHidden*/) {
             return false;
           }
 
           if (query.value.isNotEmpty) {
-            return p.title.toLowerCase().contains(query.value.toLowerCase());
+            final lowercase = query.value.toLowerCase();
+            return p.title.toLowerCase().contains(lowercase) ||
+                ((p.id.isLocalWith(me) || p.chat.value.isMonolog) &&
+                    (lowercase.replaceAll(' ', '') == _myUser?.num.val ||
+                        lowercase == _myUser?.name?.val.toLowerCase() ||
+                        lowercase == _myUser?.login?.val.toLowerCase()));
           }
 
           return true;
@@ -499,6 +522,8 @@ class SearchController extends GetxController {
             .take(3))
           u.id: u,
       };
+      print(
+          '[Search] _populateRecent: ${recent.values.map((e) => e.user.value.name)}');
     }
   }
 

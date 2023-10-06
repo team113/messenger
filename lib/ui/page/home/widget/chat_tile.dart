@@ -147,7 +147,8 @@ class _ChatTileState extends State<ChatTile> {
             folded: widget.folded,
             child: InkWellWithHover(
               selectedColor: chosen,
-              unselectedColor: widget.highlight ? paid : normal,
+              unselectedColor:
+                  widget.highlight ? paid : normal.darken(widget.darken),
               selectedHoverColor: chosen,
               unselectedHoverColor:
                   widget.highlight ? paid.darken(0.03) : style.cardHoveredColor,

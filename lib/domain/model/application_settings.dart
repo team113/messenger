@@ -40,6 +40,7 @@ class ApplicationSettings extends HiveObject {
     this.leaveWhenAlone = false,
     this.balanceTabEnabled = true,
     this.partnerTabEnabled = true,
+    this.pinnedActions = const [],
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -92,6 +93,10 @@ class ApplicationSettings extends HiveObject {
   /// in a [Chat].
   @HiveField(11)
   bool timelineEnabled;
+
+  /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
+  @HiveField(15)
+  List<String> pinnedActions;
 
   @HiveField(12)
   bool leaveWhenAlone;

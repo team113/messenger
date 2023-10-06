@@ -121,7 +121,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.trailing,
     this.showTrailing = false,
     this.onPressed,
-    this.enlarge = false,
+    this.enlarge,
   });
 
   /// Label of this [ContextMenuButton].
@@ -206,7 +206,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       : style.fonts.bodySmall.fontSize,
                 ),
               ),
-              if ((PlatformUtils.isMobile || widget.showTrailing) &&
+              if ((isMobile || widget.showTrailing) &&
                   widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),

@@ -22,6 +22,7 @@ import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -58,6 +59,7 @@ class ContactsTabController extends GetxController {
     this._calls,
     this._settingsRepository,
     this._userService,
+    this._myUserService,
   );
 
   /// Reactive list of sorted [ChatContact]s.
@@ -102,6 +104,8 @@ class ContactsTabController extends GetxController {
 
   /// [User]s service used in [SearchController].
   final UserService _userService;
+
+  final MyUserService _myUserService;
 
   /// Call service used to start a [ChatCall].
   final CallService _calls;
@@ -273,6 +277,7 @@ class ContactsTabController extends GetxController {
       search.value = SearchController(
         _chatService,
         _userService,
+        _myUserService,
         _contactService,
         categories: const [
           SearchCategory.contact,
