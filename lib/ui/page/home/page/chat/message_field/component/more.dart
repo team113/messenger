@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/ui/page/home/page/chat/message_field/widget/more_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -54,10 +55,11 @@ class MessageFieldMore extends StatelessWidget {
           Obx(() {
             final bool contains = c.buttons.contains(e);
 
-            return e.build(
-              hinted: true,
+            return ChatMoreWidget(
+              e,
               pinned: contains,
-              onPinned: contains || c.canPin.value
+              onPressed: c.toggleMore,
+              onPin: contains || c.canPin.value
                   ? () {
                       if (c.buttons.contains(e)) {
                         c.buttons.remove(e);
@@ -66,7 +68,6 @@ class MessageFieldMore extends StatelessWidget {
                       }
                     }
                   : null,
-              onPressed: c.toggleMore,
             );
           }),
         );
@@ -83,9 +84,7 @@ class MessageFieldMore extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Listener(
-              onPointerDown: (_) {
-                c.toggleMore();
-              },
+              onPointerDown: (_) => c.toggleMore(),
               child: Container(
                 width: rect?.left ?? constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -96,9 +95,7 @@ class MessageFieldMore extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Listener(
-              onPointerDown: (_) {
-                c.toggleMore();
-              },
+              onPointerDown: (_) => c.toggleMore(),
               child: Container(
                 margin: EdgeInsets.only(
                   left: (rect?.left ?? constraints.maxWidth) + 50,
@@ -114,9 +111,7 @@ class MessageFieldMore extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Listener(
-              onPointerDown: (_) {
-                c.toggleMore();
-              },
+              onPointerDown: (_) => c.toggleMore(),
               child: Container(
                 margin:
                     EdgeInsets.only(left: (rect?.left ?? constraints.maxWidth)),

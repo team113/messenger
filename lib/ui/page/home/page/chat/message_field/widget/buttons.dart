@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/util/platform_utils.dart';
-import 'chat_button.dart';
 
 /// Button in a [MessageFieldView].
 abstract class ChatButton {
@@ -50,29 +49,6 @@ abstract class ChatButton {
   @override
   bool operator ==(Object other) =>
       other is ChatButton && runtimeType == other.runtimeType;
-
-  /// Builds the [Widget] representation of this [ChatButton].
-  Widget build({
-    bool hinted = true,
-    bool pinned = false,
-    void Function()? onPinned,
-    void Function()? onPressed,
-  }) {
-    if (hinted) {
-      return HintedChatButtonWidget(
-        this,
-        pinned: pinned,
-        onPinned: onPinned,
-        onPressed: onPressed,
-      );
-    } else {
-      return ChatButtonWidget(
-        asset: asset,
-        offset: offset,
-        onPressed: onPressed,
-      );
-    }
-  }
 }
 
 /// [ChatButton] recording an audio massage.

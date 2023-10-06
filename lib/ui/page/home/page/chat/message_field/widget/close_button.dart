@@ -19,30 +19,36 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 
-/// A circular close button.
+/// Circular close button.
 class CloseButton extends StatelessWidget {
-  const CloseButton({super.key});
+  const CloseButton({super.key, this.onPressed});
+
+  /// Callback, called when this button is pressed.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
-      width: 16,
-      height: 16,
-      margin: const EdgeInsets.only(left: 8, bottom: 8),
+    return WidgetButton(
+      onPressed: onPressed,
       child: Container(
-        key: const Key('Close'),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: style.cardColor,
-        ),
-        alignment: Alignment.center,
-        child: const SvgImage.asset(
-          'assets/icons/close_primary.svg',
-          width: 8,
-          height: 8,
+        width: 16,
+        height: 16,
+        margin: const EdgeInsets.only(left: 8, bottom: 8),
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: style.cardColor,
+          ),
+          alignment: Alignment.center,
+          child: const SvgImage.asset(
+            'assets/icons/close_primary.svg',
+            width: 8,
+            height: 8,
+          ),
         ),
       ),
     );

@@ -501,33 +501,34 @@ class MessageFieldView extends StatelessWidget {
                   c.attachments.isNotEmpty ||
                   c.replied.isNotEmpty;
 
-              return Wrap(
-                children: sendable || c.buttons.isEmpty
-                    ? [
-                        Obx(() {
-                          return SafeAnimatedSwitcher(
-                            duration: 300.milliseconds,
-                            child: ChatButtonWidget(
-                              key: c.forwarding.value
-                                  ? const Key('Forward')
-                                  : sendKey ?? const Key('Send'),
-                              asset: c.forwarding.value ? 'forward' : 'send',
-                              assetWidth: c.forwarding.value ? 26 : 25.44,
-                              asseHeight: c.forwarding.value ? 22 : 21.91,
-                              onPressed: c.field.submit,
-                              onLongPress:
-                                  canForward ? c.forwarding.toggle : null,
-                            ),
-                          );
-                        })
-                      ]
-                    : c.buttons
-                        .take(take)
-                        .toList()
-                        .reversed
-                        .map((e) => e.build(hinted: false))
-                        .toList(),
-              );
+              final List<Widget> children;
+
+              if (sendable || c.buttons.isEmpty) {
+                children = [
+                  Obx(() {
+                    return SafeAnimatedSwitcher(
+                      duration: 300.milliseconds,
+                      child: ChatButtonWidget.send(
+                        key: c.forwarding.value
+                            ? const Key('Forward')
+                            : sendKey ?? const Key('Send'),
+                        forwarding: c.forwarding.value,
+                        onPressed: c.field.submit,
+                        onLongPress: canForward ? c.forwarding.toggle : null,
+                      ),
+                    );
+                  })
+                ];
+              } else {
+                children = c.buttons
+                    .take(take)
+                    .toList()
+                    .reversed
+                    .map((e) => ChatButtonWidget(e))
+                    .toList();
+              }
+
+              return Wrap(children: children);
             }),
             const SizedBox(width: 3),
           ],
@@ -742,11 +743,10 @@ class MessageFieldView extends StatelessWidget {
                                 PlatformUtils.isMobile
                             ? 1
                             : 0,
-                        child: InkWell(
+                        child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onTap: () =>
+                          onPressed: () =>
                               c.attachments.removeWhere((a) => a.value == e),
-                          child: const CloseButton(),
                         ),
                       );
                     }),
@@ -880,8 +880,10 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content =
-          Text('label_forwarded_message'.l10n, style: style.fonts.bodyLarge);
+      content = Text(
+        'label_forwarded_message'.l10n,
+        style: style.fonts.bodyLarge,
+      );
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
       content = Text(item.action.toString(), style: style.fonts.bodyLarge);
@@ -990,12 +992,11 @@ class MessageFieldView extends StatelessWidget {
                 opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
                     ? 1
                     : 0,
-                child: WidgetButton(
-                  key: const Key('CancelReplyButton'),
-                  onPressed: onClose,
-                  child: const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 3, 3, 0),
-                    child: CloseButton(),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                  child: CloseButton(
+                    key: const Key('CancelReplyButton'),
+                    onPressed: onClose,
                   ),
                 ),
               );

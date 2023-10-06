@@ -83,7 +83,7 @@ class ApplicationSettings extends HiveObject {
   @HiveField(9)
   bool timelineEnabled;
 
-  /// [ChatButton]s pinned to the send field.
+  /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   @HiveField(10)
   List<String> pinnedActions;
 }

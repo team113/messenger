@@ -158,7 +158,7 @@ class MessageFieldController extends GetxController {
   /// Indicator whether the more panel is opened.
   final RxBool moreOpened = RxBool(false);
 
-  /// [GlobalKey] of the text field.
+  /// [GlobalKey] of the text field itself.
   final GlobalKey fieldKey = GlobalKey();
 
   /// [ChatButton]s displayed in the more panel.
@@ -176,10 +176,10 @@ class MessageFieldController extends GetxController {
       AttachmentButton(pickFile),
   ]);
 
-  /// [ChatButton]s displayed in the text field.
+  /// [ChatButton]s displayed (pinned) in the text field.
   late final RxList<ChatButton> buttons;
 
-  /// Indicator whether a new [ChatButton] can be pinned to the [buttons].
+  /// Indicator whether any more [ChatButton] can be added to the [buttons].
   final RxBool canPin = RxBool(true);
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
@@ -207,7 +207,7 @@ class MessageFieldController extends GetxController {
   /// [ApplicationSettings.pinnedActions] value.
   Worker? _buttonsWorker;
 
-  /// [OverlayEntry] of the more button.
+  /// [OverlayEntry] of the [MessageFieldMore].
   OverlayEntry? _moreEntry;
 
   /// Returns [MyUser]'s [UserId].
@@ -222,36 +222,8 @@ class MessageFieldController extends GetxController {
     // Constructs a list of [ChatButton]s from the provided [list] of [String]s.
     List<ChatButton> toButtons(List<String>? list) {
       List<ChatButton>? persisted = list
-          ?.map((e) {
-            switch (e) {
-              case 'AudioMessageButton':
-                return panel.firstWhere((e) => e is AudioMessageButton);
-
-              case 'VideoMessageButton':
-                return panel.firstWhere((e) => e is VideoMessageButton);
-
-              case 'AttachmentButton':
-                return panel.firstWhere((e) => e is AttachmentButton);
-
-              case 'TakePhotoButton':
-                return panel.firstWhere((e) => e is TakePhotoButton);
-
-              case 'TakeVideoButton':
-                return panel.firstWhere((e) => e is TakeVideoButton);
-
-              case 'GalleryButton':
-                return panel.firstWhere((e) => e is GalleryButton);
-
-              case 'DonateButton':
-                return panel.firstWhere((e) => e is DonateButton);
-
-              case 'FileButton':
-                return panel.firstWhere((e) => e is FileButton);
-
-              case 'StickerButton':
-                return panel.firstWhere((e) => e is StickerButton);
-            }
-          })
+          ?.map((e) =>
+              panel.firstWhereOrNull((m) => m.runtimeType.toString() == e))
           .whereNotNull()
           .toList();
 
@@ -263,8 +235,9 @@ class MessageFieldController extends GetxController {
     );
 
     _buttonsWorker = ever(buttons, (List<ChatButton> list) {
-      _settingsRepository
-          .setPinnedActions(list.map((e) => e.runtimeType.toString()).toList());
+      _settingsRepository.setPinnedActions(
+        list.map((e) => e.runtimeType.toString()).toList(),
+      );
     });
 
     super.onInit();
@@ -290,7 +263,7 @@ class MessageFieldController extends GetxController {
     onChanged?.call();
   }
 
-  /// Toggles the [moreOpened].
+  /// Toggles the [moreOpened] and populates the [_moreEntry].
   void toggleMore() {
     if (moreOpened.isTrue) {
       _moreEntry?.remove();
