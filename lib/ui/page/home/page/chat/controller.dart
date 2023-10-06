@@ -340,17 +340,14 @@ class ChatController extends GetxController {
               return;
             }
 
-            bool? result = await ChatForwardView.show(
+            await ChatForwardView.show(
               router.context!,
               id,
               send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
+              onSent: send.clear,
             );
-
-            if (result == true) {
-              send.clear();
-            }
           }
         } else {
           if (send.field.text.trim().isNotEmpty ||
@@ -1216,8 +1213,7 @@ class ChatController extends GetxController {
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (listController.position.maxScrollExtent == 0 &&
-            (hasNext.isTrue || hasPrevious.isTrue)) {
+        if (listController.position.maxScrollExtent < 50) {
           await _loadNextPage();
           await _loadPreviousPage();
           _ensureScrollable();

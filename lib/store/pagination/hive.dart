@@ -28,7 +28,7 @@ import '/store/pagination.dart';
 /// [PageProvider] fetching items from the [Hive].
 ///
 /// [HiveLazyProvider] must be initialized and disposed properly manually.
-class HivePageProvider<T extends Object, C, K>
+class HivePageProvider<T extends Object, C, K extends Object>
     implements PageProvider<T, C, K> {
   HivePageProvider(
     this._provider, {
@@ -54,32 +54,30 @@ class HivePageProvider<T extends Object, C, K>
   /// [PaginationStrategy] of [around] invoke.
   PaginationStrategy strategy;
 
-  /// [HiveLazyProvider] to fetch the items from.
-  IterableHiveProviderMixin<T, K> _provider;
+  /// [IterableHiveProvider] to fetch the items from.
+  IterableHiveProvider<T, K> _provider;
 
   /// Sets the provided [HiveLazyProvider] as the used one.
-  set provider(IterableHiveProviderMixin<T, K> value) => _provider = value;
+  set provider(IterableHiveProvider<T, K> value) => _provider = value;
 
   @override
   Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
 
   @override
   Future<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    if (_provider.keysSafe.isEmpty || item == null) {
+    if (_provider.keys.isEmpty) {
       return null;
     }
 
     Iterable<dynamic>? keys;
 
-    final K key = getKey(item);
     final Iterable<K> providerKeys = _provider.keys;
-    final int initial = providerKeys.toList().indexOf(key);
+    if (item != null) {
+      final K key = getKey(item);
+      final int initial = providerKeys.toList().indexOf(key);
 
-    if (initial != -1) {
-      if (initial < (count ~/ 2)) {
-        keys = providerKeys.take(count - ((count ~/ 2) - initial));
-      } else {
-        keys = providerKeys.skip(initial - (count ~/ 2)).take(count);
+      if (initial != -1) {
+        providerKeys.around(initial, count);
       }
     }
 
@@ -116,7 +114,7 @@ class HivePageProvider<T extends Object, C, K>
     final index = _provider.keys.toList().indexOf(key);
     if (index != -1 && index < _provider.keys.length - 1) {
       List<T> items = [];
-      for (var k in _provider.keys.skip(index + 1).take(count)) {
+      for (var k in _provider.keys.after(index, count)) {
         final T? item = await _provider.get(k);
         if (item != null) {
           items.add(item);
@@ -138,12 +136,8 @@ class HivePageProvider<T extends Object, C, K>
     final K key = getKey(item);
     final int index = _provider.keys.toList().indexOf(key);
     if (index > 0) {
-      if (index < count) {
-        count = index;
-      }
-
-      List<T> items = [];
-      for (var i in _provider.keys.skip(index - count).take(count)) {
+      final List<T> items = [];
+      for (var i in _provider.keys.before(index, count)) {
         final T? item = await _provider.get(i);
         if (item != null) {
           items.add(item);
@@ -192,5 +186,31 @@ class HivePageProvider<T extends Object, C, K>
         hasNext: hasNext,
       ),
     );
+  }
+}
+
+/// Extension adding ability to take items around, after and before an index.
+extension AroundExtension<T> on Iterable<T> {
+  /// Returns the [count] items around the provided [index].
+  Iterable<T> around(int index, int count) {
+    if (index < (count ~/ 2)) {
+      return take(count - ((count ~/ 2) - index));
+    } else {
+      return skip(index - (count ~/ 2)).take(count);
+    }
+  }
+
+  /// Returns the [count] items after the provided [index].
+  Iterable<T> after(int index, int count) {
+    return skip(index + 1).take(count);
+  }
+
+  /// Returns the [count] items before the provided [index].
+  Iterable<T> before(int index, int count) {
+    if (index < count) {
+      return take(index);
+    } else {
+      return skip(index - count).take(count);
+    }
   }
 }

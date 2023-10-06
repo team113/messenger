@@ -118,4 +118,5 @@ class ModelTypeId {
   static const rect = 98;
   static const cacheInfo = 99;
   static const imageFile = 100;
+  static const favoriteChatsCursor = 101;
 }

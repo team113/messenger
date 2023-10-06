@@ -775,7 +775,7 @@ class ChatsTabView extends StatelessWidget {
                               slivers: [
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
-                                    top: CustomAppBar.height,
+                                    top: CustomAppBar.height - 4,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -918,27 +918,35 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 SliverPadding(
                                   padding: const EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height + 5,
+                                    bottom: CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),
                                   sliver: SliverList(
                                     delegate: SliverChildListDelegate.fixed(
-                                      chats.mapIndexed((i, e) {
-                                        return AnimationConfiguration
-                                            .staggeredList(
-                                          position: i,
-                                          duration: const Duration(
-                                            milliseconds: 375,
-                                          ),
-                                          child: SlideAnimation(
-                                            horizontalOffset: 50,
-                                            child: FadeInAnimation(
-                                              child: tile(e),
+                                      [
+                                        ...chats.mapIndexed((i, e) {
+                                          return AnimationConfiguration
+                                              .staggeredList(
+                                            position: i,
+                                            duration: const Duration(
+                                              milliseconds: 375,
+                                            ),
+                                            child: SlideAnimation(
+                                              horizontalOffset: 50,
+                                              child: FadeInAnimation(
+                                                child: tile(e),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                        if (c.hasNext.isTrue)
+                                          const Center(
+                                            child: CustomProgressIndicator(
+                                              key: Key('ChatsLoading'),
                                             ),
                                           ),
-                                        );
-                                      }).toList(),
+                                      ],
                                     ),
                                   ),
                                 ),
