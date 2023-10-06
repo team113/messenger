@@ -302,16 +302,16 @@ class ChatRepository extends DisposableInterface
           chat!.init();
         }
 
-        chat ??= await _createLocalDialog(id.userId);
+        if (id.isLocal) {
+          chat ??= await _createLocalDialog(id.userId);
+        } else if (chat == null) {
+          var query = (await _graphQlProvider.getChat(id)).chat;
+          if (query != null) {
+            chat = await _putEntry(_chat(query));
+          }
+        }
 
         chats[id] = chat!;
-      }
-
-      if (chat == null) {
-        var query = (await _graphQlProvider.getChat(id)).chat;
-        if (query != null) {
-          return _putEntry(_chat(query));
-        }
       }
 
       return chat;
@@ -319,12 +319,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> remove(ChatId id) {
-    chats.remove(id)?.dispose();
-    paginated.remove(id);
-    _pagination?.remove(id);
-    return _chatLocal.remove(id);
-  }
+  Future<void> remove(ChatId id) => _chatLocal.remove(id);
 
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
@@ -1341,6 +1336,7 @@ class ChatRepository extends DisposableInterface
       if (event.deleted) {
         await chats.remove(chatId)?.dispose();
         paginated.remove(chatId);
+        _pagination?.remove(chatId);
 
         final int index = _recentChatLocal.values.toList().indexOf(chatId);
         if (index != -1) {
