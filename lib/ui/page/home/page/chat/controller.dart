@@ -340,17 +340,14 @@ class ChatController extends GetxController {
               return;
             }
 
-            bool? result = await ChatForwardView.show(
+            await ChatForwardView.show(
               router.context!,
               id,
               send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
+              onSent: send.clear,
             );
-
-            if (result == true) {
-              send.clear();
-            }
           }
         } else {
           if (send.field.text.trim().isNotEmpty ||
