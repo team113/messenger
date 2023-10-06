@@ -110,7 +110,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
       }
     }
 
-    return _page(items);
+    return await _page(items);
   }
 
   @override
@@ -141,7 +141,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
         }
       }
 
-      return _page(items);
+      return await _page(items);
     }
 
     return null;
@@ -175,7 +175,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
         }
       }
 
-      return _page(items);
+      return await _page(items);
     }
 
     return null;

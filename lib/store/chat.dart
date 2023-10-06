@@ -73,7 +73,7 @@ class ChatRepository extends DisposableInterface
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
-    this._recentChatLocal,
+    this._recentLocal,
     this._callRepo,
     this._draftLocal,
     this._userRepo,
@@ -106,7 +106,7 @@ class ChatRepository extends DisposableInterface
 
   /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
   /// storage.
-  final RecentChatHiveProvider _recentChatLocal;
+  final RecentChatHiveProvider _recentLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
@@ -211,7 +211,7 @@ class ChatRepository extends DisposableInterface
         getKey: (e) => e.value.id,
         isLast: (_) => true,
         isFirst: (_) => true,
-        sortingProvider: _recentChatLocal,
+        sortingProvider: _recentLocal,
         strategy: PaginationStrategy.fromEnd,
         reversed: true,
       ),
@@ -1338,16 +1338,16 @@ class ChatRepository extends DisposableInterface
         paginated.remove(chatId);
         _pagination?.remove(chatId);
 
-        final int index = _recentChatLocal.values.toList().indexOf(chatId);
+        final int index = _recentLocal.values.toList().indexOf(chatId);
         if (index != -1) {
-          await _recentChatLocal.removeAt(index);
+          await _recentLocal.removeAt(index);
         }
       } else {
-        final int index = _recentChatLocal.values.toList().indexOf(chatId);
+        final int index = _recentLocal.values.toList().indexOf(chatId);
         if (index != -1) {
-          await _recentChatLocal.removeAt(index);
+          await _recentLocal.removeAt(index);
         }
-        await _recentChatLocal.put(chatId, event.value.value.updatedAt);
+        await _recentLocal.put(chatId, event.value.value.updatedAt);
       }
     }
   }
