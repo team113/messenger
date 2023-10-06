@@ -209,16 +209,19 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
               ((await sortingProvider?.values)?.last ?? _provider.keys.last);
     }
 
-    return Page(
-      reversed ? items.reversed.toList() : items,
+    final Page<T, C> page = Page(
+      items,
       PageInfo(
         startCursor:
             getCursor(items.firstWhereOrNull((e) => getCursor(e) != null)),
-        endCursor: getCursor(lastItem),
-        hasPrevious: reversed ? hasNext : hasPrevious,
-        hasNext: reversed ? hasPrevious : hasNext,
+        endCursor:
+            getCursor(items.lastWhereOrNull((e) => getCursor(e) != null)),
+        hasPrevious: hasPrevious,
+        hasNext: hasNext,
       ),
     );
+
+    return reversed ? page.reversed() : page;
   }
 }
 

@@ -201,7 +201,6 @@ class ChatRepository extends DisposableInterface
     _initRemoteSubscription();
     _initFavoriteSubscription();
 
-    // TODO: Should display last known list of [Chat]s, until remote responds.
     _initPagination();
 
     _localPagination = Pagination(
@@ -235,7 +234,11 @@ class ChatRepository extends DisposableInterface
 
     await _localPagination!.around();
 
-    status.value = RxStatus.success();
+    await Future.delayed(1.milliseconds);
+
+    if (paginated.isNotEmpty) {
+      status.value = RxStatus.success();
+    }
   }
 
   @override
@@ -1785,7 +1788,7 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [monolog], fetching it from remote, if none is known.
   Future<void> _initMonolog() async {
-    if (monolog.isLocal && chats[monolog] == null) {
+    if (monolog.isLocal && paginated[monolog] == null) {
       final ChatMixin? query = await _graphQlProvider.getMonolog();
       if (query == null) {
         await _createLocalDialog(me);
