@@ -65,7 +65,7 @@ class AudioMessageButton extends ChatButton {
   String get assetMini => 'audio_message_mini';
 }
 
-/// [ChatButton] recording an video massage.
+/// [ChatButton] recording a video massage.
 class VideoMessageButton extends ChatButton {
   const VideoMessageButton([super.onPressed]);
 
@@ -170,7 +170,7 @@ class FileButton extends ChatButton {
   String get assetMini => 'file_outlined_mini';
 }
 
-/// [ChatButton] opening a stickers table.
+/// [ChatButton] opening the stickers.
 class StickerButton extends ChatButton {
   const StickerButton([super.onPressed]);
 
