@@ -144,14 +144,12 @@ flutter:
     - assets/images/logo/
     - assets/l10n/
   fonts:
-    - family: SFUI
+    - family: NotoSansDisplay
       fonts:
-        - asset: assets/fonts/SFUIDisplay-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/SFUIDisplay-Light.ttf
-          weight: 300
-        - asset: assets/fonts/SFUIDisplay-Bold.ttf
+        - asset: assets/fonts/NotoSansDisplay-Bold.ttf
           weight: 700
+        - asset: assets/fonts/NotoSansDisplay-Regular.ttf
+          weight: 400
 
 sentry:
   upload_native_symbols: true

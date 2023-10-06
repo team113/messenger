@@ -66,8 +66,7 @@ class Themes {
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'SFUI',
-      fontFamilyFallback: const ['.SF UI Display'],
+      fontFamily: 'NotoSansDisplay',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
@@ -80,43 +79,43 @@ class Themes {
       onPrimary: colors.onPrimary,
       danger: colors.dangerColor,
       displayBold:
-          textStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 27),
+          textStyle.copyWith(fontWeight: FontWeight.w700, fontSize: 27),
       displayLarge:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 27),
+          textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 27),
       displayMedium:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
+          textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 24),
       displaySmall:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 21),
+          textStyle.copyWith(fontWeight: FontWeight.w400, fontSize: 21),
       displayTiny:
-          textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
+          textStyle.copyWith(fontWeight: FontWeight.w700, fontSize: 11),
       headlineLarge: textStyle.copyWith(fontSize: 18),
       headlineMedium:
-          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
+          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w400),
       headlineSmall: textStyle.copyWith(fontSize: 13),
-      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
+      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w400),
       titleMedium: textStyle.copyWith(fontSize: 15),
-      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
-      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w400),
       labelMedium:
-          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
       labelSmall: textStyle.copyWith(
         fontSize: 11,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         letterSpacing: 0.4,
       ),
       bodyLarge: textStyle,
-      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
-      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
+      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w400),
+      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
+      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w400),
       error: textStyle.copyWith(fontSize: 13, color: colors.dangerColor),
       input: textStyle.copyWith(
         fontSize: 15,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         color: colors.secondaryHighlightDarkest,
       ),
       counter: textStyle.copyWith(
         fontSize: 13,
-        fontWeight: FontWeight.w300,
+        fontWeight: FontWeight.w400,
         color: colors.secondaryHighlightDarkest,
       ),
     );
@@ -727,7 +726,7 @@ class Fonts {
   /// Large version of display text of `onBackground` color.
   final TextStyle displayLarge;
 
-  /// [displayLarge] of `onPrimary` color with [FontWeight.bold].
+  /// [displayLarge] of `onPrimary` color with [FontWeight.w700].
   final TextStyle displayLargeOnPrimary;
 
   /// [displayLarge] of `secondary` color.
