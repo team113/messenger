@@ -124,8 +124,8 @@ class CustomNavigationBar extends StatelessWidget {
                                             ),
                                           ),
                                     textStyle: style.fonts.bodyTinyOnPrimary,
-                                    backgroundColor: b.badgeColor ??
-                                        style.colors.dangerColor,
+                                    backgroundColor:
+                                        b.badgeColor ?? style.colors.danger,
                                     isLabelVisible: b.badge != null,
                                     child: b.child!,
                                   ),

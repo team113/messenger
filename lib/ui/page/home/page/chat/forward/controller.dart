@@ -29,6 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
@@ -43,7 +44,8 @@ export 'view.dart';
 class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.text,
     this.pop,
     this.attachments = const [],
@@ -86,6 +88,9 @@ class ChatForwardController extends GetxController {
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
 
+  /// [AbstractSettingsRepository], used to create a [MessageFieldController].
+  final AbstractSettingsRepository _settingsRepository;
+
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
@@ -97,6 +102,7 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _settingsRepository,
       text: text,
       quotes: quotes,
       attachments: attachments,
