@@ -225,12 +225,12 @@ class ChatItemWidget extends StatefulWidget {
       );
     } else {
       BoxFit fit = BoxFit.cover;
-
       final ImageFile file = e.original as ImageFile;
       final int fileHeight = file.height ?? 300;
-      final num fileWidth = file.width ?? double.infinity;
+      final num fileWidth = file.width ?? 300;
+      final num aspectRatio = fileWidth / fileHeight;
 
-      if (fileHeight < fileWidth / 3) {
+      if (aspectRatio > 3) {
         fit = BoxFit.contain;
       }
 

@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - `Save as` for media attachments. ([#423], [#370]) 
+        - `Save as` for media attachments. ([#423], [#370])
 
 ### Changed
 
@@ -37,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
         - Title jumping around when entering search. ([#613], [#550])
+        - Fix attachment with big aspect ratio display. ([#628](https://github.com/team113/messenger/pull/628), [#525](https://github.com/team113/messenger/issues/525))
 - Web:
     - Fix background flashing after loading. ([#604], [#549])
 
