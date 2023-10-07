@@ -49,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
 [#533]: /../../pull/533
 [#549]: /../../issues/549
 [#550]: /../../issues/550
+[#525]: /../../issues/525
 [#564]: /../../issues/564
 [#587]: /../../pull/587
 [#597]: /../../pull/597
@@ -57,6 +58,7 @@ All user visible changes to this project will be documented in this file. This p
 [#613]: /../../pull/613
 [#614]: /../../issues/614
 [#616]: /../../pull/616
+[#628]: /../../pull/628
 
 
 
