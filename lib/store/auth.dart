@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:messenger/api/backend/extension/credentials.dart';
+
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
@@ -58,17 +60,7 @@ class AuthRepository implements AbstractAuthRepository {
   @override
   Future<Credentials> signUp() async {
     var response = await _graphQlProvider.signUp();
-    return Credentials(
-      Session(
-        response.createUser.session.token,
-        response.createUser.session.expireAt,
-      ),
-      RememberedSession(
-        response.createUser.remembered!.token,
-        response.createUser.remembered!.expireAt,
-      ),
-      response.createUser.user.id,
-    );
+    return response.toModel();
   }
 
   @override
@@ -79,17 +71,7 @@ class AuthRepository implements AbstractAuthRepository {
       UserPhone? phone}) async {
     var response =
         await _graphQlProvider.signIn(password, login, num, email, phone, true);
-    return Credentials(
-      Session(
-        response.session.token,
-        response.session.expireAt,
-      ),
-      RememberedSession(
-        response.remembered!.token,
-        response.remembered!.expireAt,
-      ),
-      response.user.id,
-    );
+    return response.toModel();
   }
 
   @override
@@ -98,18 +80,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response = await _graphQlProvider.signUp();
 
-    // TODO: Add `Credentials` to backend extensions.
-    _signUpCredentials = Credentials(
-      Session(
-        response.createUser.session.token,
-        response.createUser.session.expireAt,
-      ),
-      RememberedSession(
-        response.createUser.remembered!.token,
-        response.createUser.remembered!.expireAt,
-      ),
-      response.createUser.user.id,
-    );
+    _signUpCredentials = response.toModel();
 
     await _graphQlProvider.addUserEmail(
       email,

@@ -111,7 +111,6 @@ class Credentials {
       'session': {
         'token': session.token.val,
         'expireAt': session.expireAt.toString(),
-
       },
       'remembered': {
         'token': rememberedSession.token.val,
