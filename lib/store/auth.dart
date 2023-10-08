@@ -15,8 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:messenger/api/backend/extension/credentials.dart';
-
+import '/api/backend/extension/credentials.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
