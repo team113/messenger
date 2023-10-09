@@ -160,6 +160,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
     _onActivityChanged?.cancel();
+    _cancelToken.cancel();
   }
 
   @override
