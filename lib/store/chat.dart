@@ -501,7 +501,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> editChatMessageText(
+  Future<void> editChatMessage(
     ChatMessage message, {
     model.ChatMessageTextInput? text,
   }) async {

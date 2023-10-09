@@ -131,7 +131,7 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(
+  Future<void> editChatMessage(
     ChatMessage message, {
     ChatMessageTextInput? text,
   });

@@ -1465,7 +1465,8 @@ class OngoingCall {
     }
 
     try {
-      await _room?.join('$link?token=$creds');
+      await _room?.join(
+          '${link.val.replaceFirst('localhost', '192.168.50.100')}?token=$creds');
     } on RpcClientException catch (e) {
       Log.error('Joining the room failed due to: ${e.message()}');
       rethrow;
