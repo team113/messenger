@@ -164,7 +164,7 @@ void main() async {
       return Future.delayed(const Duration(seconds: 2));
     });
 
-    while (chatProvider.isLocked) {
+    for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
 

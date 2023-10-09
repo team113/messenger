@@ -119,8 +119,8 @@ class HiveRxChat extends RxChat {
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
-  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey,
-      Object> _provider;
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
+      _provider;
 
   /// Subscription to [User]s from the [members] list forming the [title].
   final Map<UserId, Worker> _userWorkers = {};

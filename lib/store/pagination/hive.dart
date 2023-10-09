@@ -28,7 +28,7 @@ import '/store/pagination.dart';
 /// [PageProvider] fetching items from the [Hive].
 ///
 /// [HiveLazyProvider] must be initialized and disposed properly manually.
-class HivePageProvider<T extends Object, C, K extends Object, S>
+class HivePageProvider<T extends Object, C, K>
     implements PageProvider<T, C, K> {
   HivePageProvider(
     this._provider, {
