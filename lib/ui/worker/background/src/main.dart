@@ -26,10 +26,10 @@ import 'package:flutter_background_service_ios/flutter_background_service_ios.da
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 
+import '/api/backend/extension/credentials.dart';
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
