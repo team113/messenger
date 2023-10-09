@@ -126,17 +126,7 @@ class AuthRepository implements AbstractAuthRepository {
             as RenewSession$Mutation$RenewSession$RenewSessionOk;
         _graphQlProvider.token = response.session.token;
         _graphQlProvider.reconnect();
-        return Credentials(
-          Session(
-            response.session.token,
-            response.session.expireAt,
-          ),
-          RememberedSession(
-            response.remembered.token,
-            response.remembered.expireAt,
-          ),
-          response.user.id,
-        );
+        return response.toModel();
       });
 
   @override

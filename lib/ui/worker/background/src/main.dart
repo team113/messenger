@@ -26,6 +26,7 @@ import 'package:flutter_background_service_ios/flutter_background_service_ios.da
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 
@@ -296,14 +297,7 @@ class _BackgroundService {
                   .renewSession(_credentials!.rememberedSession.token);
               var ok = (result.renewSession
                   as RenewSession$Mutation$RenewSession$RenewSessionOk);
-              _credentials = Credentials(
-                Session(ok.session.token, ok.session.expireAt),
-                RememberedSession(
-                  ok.remembered.token,
-                  ok.remembered.expireAt,
-                ),
-                ok.user.id,
-              );
+              _credentials = ok.toModel();
 
               // Store the [Credentials] in the [Hive].
               Future(() async {
