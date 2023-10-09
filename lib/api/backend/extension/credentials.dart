@@ -23,10 +23,7 @@ import '/domain/model/session.dart';
 extension SignUpCredentials on SignUp$Mutation {
   Credentials toModel() {
     return Credentials(
-      Session(
-        createUser.session.token,
-        createUser.session.expireAt,
-      ),
+      Session(createUser.session.token, createUser.session.expireAt),
       RememberedSession(
         createUser.remembered!.token,
         createUser.remembered!.expireAt,
@@ -41,14 +38,8 @@ extension SignUpCredentials on SignUp$Mutation {
 extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
   Credentials toModel() {
     return Credentials(
-      Session(
-        session.token,
-        session.expireAt,
-      ),
-      RememberedSession(
-        remembered!.token,
-        remembered!.expireAt,
-      ),
+      Session(session.token, session.expireAt),
+      RememberedSession(remembered!.token, remembered!.expireAt),
       user.id,
     );
   }
