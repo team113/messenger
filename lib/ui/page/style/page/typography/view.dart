@@ -24,6 +24,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
+import 'package:messenger/ui/page/style/widget/scrollable_column.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -153,166 +154,160 @@ class _TypographyViewState extends State<TypographyView> {
       );
     }
 
-    return SafeScrollbar(
-      controller: _scrollController,
-      margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
-      child: ListView(
-        controller: _scrollController,
-        children: [
-          const SizedBox(height: 16 + 5),
-          Block(
+    return ScrollableColumn(
+      children: [
+        const SizedBox(height: CustomAppBar.height),
+        Block(
+          unconstrained: true,
+          title: 'Font families',
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...families.map((e) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'G, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.fonts.displayLarge.copyWith(
+                      color: style.colors.onBackground,
+                      fontWeight: e.$1,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  WidgetButton(
+                    onPressed: () async {
+                      await PlatformUtils.saveTo(
+                        '${Config.origin}/assets/assets/fonts/${e.$3}',
+                      );
+                      MessagePopup.success('${e.$3} downloaded');
+                    },
+                    child: Text(
+                      e.$2,
+                      style: style.fonts.labelSmallPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              );
+            }),
+            const SizedBox(height: 16),
+            Text(
+              'Font height is ${style.fonts.bodyLarge.height}, word spacing is ${style.fonts.bodyLarge.wordSpacing}, letter spacing is ${style.fonts.bodyLarge.letterSpacing}',
+              style: style.fonts.labelMedium,
+            ),
+          ],
+        ),
+        ...styles.keys.map((e) {
+          final String name = switch (e) {
+            27 => 'Largest',
+            24 => 'Larger',
+            21 => 'Large',
+            18 => 'Big',
+            17 => 'Medium',
+            15 => 'Normal',
+            13 => 'Small',
+            11 => 'Smaller',
+            9 => 'Smallest',
+            _ => '',
+          };
+
+          return Block(
+            title: '$name (${e.toInt()} pt)',
             unconstrained: true,
-            title: 'Font families',
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ...families.map((e) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'G, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: style.fonts.displayLarge.copyWith(
-                        color: style.colors.onBackground,
-                        fontWeight: e.$1,
+              ...styles[e]!.map((f) {
+                final String weight = switch (f.$1.fontWeight) {
+                  FontWeight.w900 => 'heavy',
+                  FontWeight.w800 => 'extraBold',
+                  FontWeight.w700 => 'bold',
+                  FontWeight.w600 => 'semiBold',
+                  FontWeight.w500 => 'medium',
+                  FontWeight.w400 => 'regular',
+                  FontWeight.w300 => 'light',
+                  FontWeight.w200 => 'extraLight',
+                  FontWeight.w100 => 'thin',
+                  _ => '',
+                };
+
+                final HSLColor hsl = HSLColor.fromColor(f.$1.color!);
+
+                final Color detailsColor =
+                    hsl.lightness > 0.7 || hsl.alpha < 0.4
+                        ? const Color(0xFFC4C4C4)
+                        : const Color(0xFF888888);
+
+                final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
+                    ? const Color(0xFF888888)
+                    : const Color(0xFFFFFFFF);
+
+                return Container(
+                  color: background,
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${name.toLowerCase()}.$weight.${f.$2}  ',
+                          style: f.$1,
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    WidgetButton(
-                      onPressed: () async {
-                        await PlatformUtils.saveTo(
-                          '${Config.origin}/assets/assets/fonts/${e.$3}',
-                        );
-                        MessagePopup.success('${e.$3} downloaded');
-                      },
-                      child: Text(
-                        e.$2,
-                        style: style.fonts.labelSmallPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                );
-              }),
-              const SizedBox(height: 16),
-              Text(
-                'Font height is ${style.fonts.bodyLarge.height}, word spacing is ${style.fonts.bodyLarge.wordSpacing}, letter spacing is ${style.fonts.bodyLarge.letterSpacing}',
-                style: style.fonts.labelMedium,
-              ),
-            ],
-          ),
-          ...styles.keys.map((e) {
-            final String name = switch (e) {
-              27 => 'Largest',
-              24 => 'Larger',
-              21 => 'Large',
-              18 => 'Big',
-              17 => 'Medium',
-              15 => 'Normal',
-              13 => 'Small',
-              11 => 'Smaller',
-              9 => 'Smallest',
-              _ => '',
-            };
-
-            return Block(
-              title: '$name (${e.toInt()} pt)',
-              unconstrained: true,
-              children: [
-                ...styles[e]!.map((f) {
-                  final String weight = switch (f.$1.fontWeight) {
-                    FontWeight.w900 => 'heavy',
-                    FontWeight.w800 => 'extraBold',
-                    FontWeight.w700 => 'bold',
-                    FontWeight.w600 => 'semiBold',
-                    FontWeight.w500 => 'medium',
-                    FontWeight.w400 => 'regular',
-                    FontWeight.w300 => 'light',
-                    FontWeight.w200 => 'extraLight',
-                    FontWeight.w100 => 'thin',
-                    _ => '',
-                  };
-
-                  final HSLColor hsl = HSLColor.fromColor(f.$1.color!);
-
-                  final Color detailsColor =
-                      hsl.lightness > 0.7 || hsl.alpha < 0.4
-                          ? const Color(0xFFC4C4C4)
-                          : const Color(0xFF888888);
-
-                  final Color background =
-                      hsl.lightness > 0.7 || hsl.alpha < 0.4
-                          ? const Color(0xFF888888)
-                          : const Color(0xFFFFFFFF);
-
-                  return Container(
-                    color: background,
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${name.toLowerCase()}.$weight.${f.$2}  ',
-                            style: f.$1,
-                            textAlign: TextAlign.start,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          8,
+                          0,
+                          0,
+                          max(
+                            0,
+                            ((f.$1.fontSize! - 10) / (27 - 10)) * 5,
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            8,
-                            0,
-                            0,
-                            max(
-                              0,
-                              ((f.$1.fontSize! - 10) / (27 - 10)) * 5,
+                        child: Row(
+                          children: [
+                            Text(
+                              'w${f.$1.fontWeight?.value}',
+                              style: style.fonts.labelSmall
+                                  .copyWith(color: detailsColor),
+                            ).fixedDigits(all: true),
+                            Text(
+                              ', ',
+                              style: style.fonts.labelSmall
+                                  .copyWith(color: detailsColor),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                'w${f.$1.fontWeight?.value}',
+                            WidgetButton(
+                              onPressed: () async {
+                                Clipboard.setData(
+                                  ClipboardData(
+                                    text: f.$1.color!.toHex(withAlpha: false),
+                                  ),
+                                );
+
+                                MessagePopup.success('Hash is copied');
+                              },
+                              child: Text(
+                                f.$1.color!.toHex(withAlpha: false),
                                 style: style.fonts.labelSmall
                                     .copyWith(color: detailsColor),
                               ).fixedDigits(all: true),
-                              Text(
-                                ', ',
-                                style: style.fonts.labelSmall
-                                    .copyWith(color: detailsColor),
-                              ),
-                              WidgetButton(
-                                onPressed: () async {
-                                  Clipboard.setData(
-                                    ClipboardData(
-                                      text: f.$1.color!.toHex(withAlpha: false),
-                                    ),
-                                  );
-
-                                  MessagePopup.success('Hash is copied');
-                                },
-                                child: Text(
-                                  f.$1.color!.toHex(withAlpha: false),
-                                  style: style.fonts.labelSmall
-                                      .copyWith(color: detailsColor),
-                                ).fixedDigits(all: true),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            );
-          }),
-          const SizedBox(height: 16),
-        ],
-      ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          );
+        }),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

@@ -94,6 +94,7 @@ class ColorsView extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             ColorSchemaWidget(colors, inverted: inverted),
+            const SizedBox(height: 16),
           ],
         ),
         Block(

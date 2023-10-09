@@ -15,32 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-/// Scrollable [Column] of [Widget]s.
-class ScrollableColumn extends StatelessWidget {
-  const ScrollableColumn({
-    super.key,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.children = const [],
-  });
+class IconsController extends GetxController {
+  final Rx<IconDetails?> icon = Rx(null);
+}
 
-  /// Alignment of [children] in their cross axis.
-  final CrossAxisAlignment crossAxisAlignment;
+class IconDetails {
+  const IconDetails(this.asset, {this.invert = false, this.download});
 
-  /// [Widget]s to display in this [ScrollableColumn].
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Column(crossAxisAlignment: crossAxisAlignment, children: children)
-          ]),
-        )
-      ],
-    );
-  }
+  final String asset;
+  final bool invert;
+  final String? download;
 }

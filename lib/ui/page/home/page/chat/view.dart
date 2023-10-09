@@ -276,8 +276,8 @@ class _ChatViewState extends State<ChatView>
                                 child: const Center(
                                   child: SvgImage.asset(
                                     'assets/icons/call_end.svg',
-                                    width: 32,
-                                    height: 32,
+                                    width: 20.55,
+                                    height: 8.53,
                                   ),
                                 ),
                               );
@@ -292,7 +292,7 @@ class _ChatViewState extends State<ChatView>
                                 ),
                                 child: const Center(
                                   child: SvgImage.asset(
-                                    'assets/icons/audio_call_start.svg',
+                                    'assets/icons/call_start.svg',
                                     width: 15,
                                     height: 15,
                                   ),

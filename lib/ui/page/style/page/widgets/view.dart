@@ -153,36 +153,32 @@ class _WidgetsViewState extends State<WidgetsView> {
       ('pop', true),
     ];
 
-    return SafeScrollbar(
+    return ListView(
       controller: _scrollController,
-      margin: const EdgeInsets.only(top: CustomAppBar.height - 10),
-      child: ListView(
-        controller: _scrollController,
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16 + 5),
-          ..._images(context),
-          ..._chat(context),
-          ..._animations(context),
-          ..._avatars(context),
-          ..._fields(context),
-          ..._buttons(context),
-          ..._switches(context),
-          ..._tiles(context),
-          ..._system(context),
-          ..._navigation(context),
-          Block(
-            headline: 'Sounds',
-            children: [
-              BuilderWrap(
-                sounds,
-                (e) => PlayableAsset(e.$1, once: e.$2),
-                dense: true,
-              ),
-            ],
-          ),
-        ],
-      ),
+      // crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // const SizedBox(height: CustomAppBar.height),
+        ..._images(context),
+        ..._chat(context),
+        ..._animations(context),
+        ..._avatars(context),
+        ..._fields(context),
+        ..._buttons(context),
+        ..._switches(context),
+        ..._tiles(context),
+        ..._system(context),
+        ..._navigation(context),
+        Block(
+          headline: 'Sounds',
+          children: [
+            BuilderWrap(
+              sounds,
+              (e) => PlayableAsset(e.$1, once: e.$2),
+              dense: true,
+            ),
+          ],
+        ),
+      ],
     );
   }
 

@@ -29,7 +29,11 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'page/colors/view.dart';
+import 'page/icons/view.dart';
 import 'page/typography/view.dart';
 import 'page/widgets/view.dart';
 
@@ -41,29 +45,13 @@ class StyleView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    // final bool canPop = ModalRoute.of(context)?.canPop == true;
-
     return GetBuilder(
       init: StyleController(),
       builder: (StyleController c) {
         return Scaffold(
           backgroundColor: style.colors.background,
-          // backgroundColor: const Color(0xFFFFFFFF),
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            // decoration: Container(
-            //   decoration: BoxDecoration(
-            //     gradient: LinearGradient(
-            //       begin: Alignment.topCenter,
-            //       end: Alignment.bottomCenter,
-            //       stops: const [0.2, 1],
-            //       colors: [
-            //         style.colors.background,
-            //         style.colors.background.withOpacity(0),
-            //       ],
-            //     ),
-            //   ),
-            // ),
             leading: [
               StyledBackButton(
                 onPressed: ModalRoute.of(context)?.canPop == true
@@ -75,20 +63,12 @@ class StyleView extends StatelessWidget {
               child: ListView(
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                children: [
-                  ...StyleTab.values.mapIndexed((i, e) => _button(c, i)),
-                ],
+                children: StyleTab.values.map((e) => _button(c, e)).toList(),
               ),
             ),
             actions: [
               Obx(() {
-                return
-                    // AnimatedOpacity(
-                    // duration: 300.milliseconds,
-                    // curve: Curves.ease,
-                    // opacity: c.tab.value == StyleTab.typography ? 0 : 1,
-                    // child
-                    WidgetButton(
+                return WidgetButton(
                   onPressed: c.inverted.toggle,
                   child: Container(
                     padding: const EdgeInsets.only(right: 12),
@@ -113,48 +93,24 @@ class StyleView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // ),
                 );
-
-                // return ContextMenuRegion(
-                //   enablePrimaryTap: true,
-                //   enableSecondaryTap: false,
-                //   actions: [
-                //     ContextMenuButton(
-                //       label: c.dense.value ? 'Paddings on' : 'Paddings off',
-                //       onPressed: c.dense.toggle,
-                //     ),
-                //     ContextMenuButton(
-                //       label: c.inverted.value ? 'Light theme' : 'Dark theme',
-                //       onPressed: c.inverted.toggle,
-                //     ),
-                //   ],
-                //   child: Container(
-                //     padding: const EdgeInsets.only(right: 12),
-                //     child: Icon(
-                //       Icons.more_vert,
-                //       color: style.colors.primary,
-                //       size: 27,
-                //     ),
-                //   ),
-                // );
               }),
             ],
           ),
           body: _page(c, context),
-          // extendBody: true,
         );
       },
     );
   }
 
-  /// Returns a corresponding [StyleController.tab] page switcher.
+  /// Returns the [StyleTab] pages view.
   Widget _page(StyleController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Stack(
       children: [
-        if (PlatformUtils.isWeb)
+        // For web, background color is displayed in `index.html` file.
+        if (!PlatformUtils.isWeb)
           IgnorePointer(
             child: Container(
               width: double.infinity,
@@ -178,9 +134,8 @@ class StyleView extends StatelessWidget {
             }),
           ),
         ),
-        MediaQuery.removePadding(
-          removeTop: true,
-          context: context,
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
           child: PageView(
             controller: c.pages,
             onPageChanged: (i) => c.tab.value = StyleTab.values[i],
@@ -193,6 +148,7 @@ class StyleView extends StatelessWidget {
                     }),
                   StyleTab.typography => const TypographyView(),
                   StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                  StyleTab.icons => const SelectionArea(child: IconsView()),
                 },
               );
             }).toList(),
@@ -202,32 +158,47 @@ class StyleView extends StatelessWidget {
     );
   }
 
-  Widget _button(StyleController c, int i) {
+  /// Returns a button representing the provided [StyleTab].
+  Widget _button(StyleController c, StyleTab tab) {
     return Obx(() {
-      final StyleTab tab = StyleTab.values[i];
       final bool selected = c.tab.value == tab;
 
       return switch (tab) {
         StyleTab.colors => StyleCard(
-            asset: 'palette',
-            assetWidth: 20.8,
-            assetHeight: 20.8,
             inverted: selected,
-            onPressed: () => c.pages.jumpToPage(i),
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/palette.svg',
+              width: 20.8,
+              height: 20.8,
+            ),
           ),
         StyleTab.typography => StyleCard(
-            asset: 'typography',
-            assetWidth: 24.02,
-            assetHeight: 16,
             inverted: selected,
-            onPressed: () => c.pages.jumpToPage(i),
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/typography.svg',
+              width: 24.02,
+              height: 16,
+            ),
           ),
         StyleTab.widgets => StyleCard(
-            asset: 'widgets',
-            assetWidth: 18.78,
-            assetHeight: 18.78,
             inverted: selected,
-            onPressed: () => c.pages.jumpToPage(i),
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/widgets.svg',
+              width: 18.78,
+              height: 18.78,
+            ),
+          ),
+        StyleTab.icons => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgImage.asset(
+              'assets/icons/icons.svg',
+              width: 20.95,
+              height: 18.8,
+            ),
           ),
       };
     });
