@@ -27,18 +27,21 @@ import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
 /// key identifying those items and their [C] cursor.
-class Pagination<T, C, K extends Comparable> {
+class Pagination<T, C, K> {
   Pagination({
     this.perPage = 50,
     required this.provider,
     required this.onKey,
+    this.compare,
   });
 
   /// Items per [Page] to fetch.
   final int perPage;
 
-  /// List of the items fetched from the [provider].
-  final RxObsSplayTreeMap<K, T> items = RxObsSplayTreeMap();
+  /// Items fetched from the [provider] ordered by their [T] values.
+  ///
+  /// Use [compare] to describe the order.
+  late final SortedObsMap<K, T> items = SortedObsMap(compare);
 
   /// [PageProvider] providing the [items].
   final PageProvider<T, C, K> provider;
@@ -58,6 +61,9 @@ class Pagination<T, C, K extends Comparable> {
   /// Callback, called when a key of type [K] identifying the provided [T] item
   /// is required.
   final K Function(T) onKey;
+
+  /// Callback, comparing the provided [T] items to order them in the [items].
+  final int Function(T, T)? compare;
 
   /// Cursor of the first item in the [items] list.
   @visibleForTesting
@@ -161,10 +167,6 @@ class Pagination<T, C, K extends Comparable> {
         return;
       }
 
-      if (items.isEmpty) {
-        return around();
-      }
-
       Log.print('next()...', 'Pagination');
 
       if (hasNext.isTrue && nextLoading.isFalse) {
@@ -172,7 +174,7 @@ class Pagination<T, C, K extends Comparable> {
 
         if (items.isNotEmpty) {
           final Page<T, C>? page =
-              await provider.after(items[items.lastKey()], endCursor, perPage);
+              await provider.after(items.last, endCursor, perPage);
           Log.print(
             'next()... fetched ${page?.edges.length} items',
             'Pagination',
@@ -203,32 +205,29 @@ class Pagination<T, C, K extends Comparable> {
         return;
       }
 
-      if (items.isEmpty) {
-        return around();
-      }
-
       Log.print('previous()...', 'Pagination');
 
       if (hasPrevious.isTrue && previousLoading.isFalse) {
         previousLoading.value = true;
 
-        final Page<T, C>? page = await provider.before(
-          items[items.firstKey()],
-          startCursor,
-          perPage,
-        );
-        Log.print(
-          'previous()... fetched ${page?.edges.length} items',
-          'Pagination',
-        );
+        if (items.isNotEmpty) {
+          final Page<T, C>? page =
+              await provider.before(items.first, startCursor, perPage);
+          Log.print(
+            'previous()... fetched ${page?.edges.length} items',
+            'Pagination',
+          );
 
-        for (var e in page?.edges ?? []) {
-          items[onKey(e)] = e;
+          for (var e in page?.edges ?? []) {
+            items[onKey(e)] = e;
+          }
+
+          startCursor = page?.info.startCursor ?? startCursor;
+          hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+          Log.print('previous()... done', 'Pagination');
+        } else {
+          await around();
         }
-
-        startCursor = page?.info.startCursor ?? startCursor;
-        hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.print('previous()... done', 'Pagination');
 
         previousLoading.value = false;
       }
@@ -238,24 +237,32 @@ class Pagination<T, C, K extends Comparable> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(T item) async {
+  Future<void> put(T item, {bool ignoreBounds = false}) async {
     Log.print('put($item)', 'Pagination');
-    final K key = onKey(item);
 
     Future<void> put() async {
       items[onKey(item)] = item;
       await provider.put(item);
     }
 
+    // Bypasses the bounds check.
+    //
+    // Intended to be used to forcefully add items, e.g. when items are
+    // migrating from one source to another.
+    if (ignoreBounds) {
+      await put();
+      return;
+    }
+
     if (items.isEmpty) {
       if (hasNext.isFalse && hasPrevious.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.lastKey()) == 1) {
+    } else if (compare?.call(item, items.last) == 1) {
       if (hasNext.isFalse) {
         await put();
       }
-    } else if (key.compareTo(items.firstKey()) == -1) {
+    } else if (compare?.call(item, items.first) == -1) {
       if (hasPrevious.isFalse) {
         await put();
       }

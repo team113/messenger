@@ -154,6 +154,10 @@ class SettingsRepository extends DisposableInterface
   Future<void> setTimelineEnabled(bool enabled) =>
       _settingsLocal.setTimelineEnabled(enabled);
 
+  @override
+  Future<void> setPinnedActions(List<String> buttons) =>
+      _settingsLocal.setPinnedActions(buttons);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

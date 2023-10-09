@@ -220,7 +220,7 @@ class ReactiveTextField extends StatelessWidget {
                                   child: Icon(
                                     Icons.check,
                                     size: 18,
-                                    color: style.colors.acceptAuxiliaryColor,
+                                    color: style.colors.acceptAuxiliary,
                                   ),
                                 )
                               : (state.error.value != null &&
@@ -232,7 +232,7 @@ class ReactiveTextField extends StatelessWidget {
                                       child: Icon(
                                         Icons.error,
                                         size: 18,
-                                        color: style.colors.dangerColor,
+                                        color: style.colors.danger,
                                       ),
                                     )
                                   : (state.approvable && state.changed.value)
@@ -268,7 +268,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: style.colors.dangerColor)
+                        ?.copyWith(color: style.colors.danger)
                     : state.isFocused.value
                         ? Theme.of(context)
                             .inputDecorationTheme
@@ -410,9 +410,7 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value ?? '',
-                            style: style.fonts.labelMedium.copyWith(
-                              color: style.colors.dangerColor,
-                            ),
+                            style: style.fonts.labelMediumDanger,
                           ),
                         ),
                 ),

@@ -431,7 +431,7 @@ class ContactsTabView extends StatelessWidget {
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            top: CustomAppBar.height,
+                            top: CustomAppBar.height - 4,
                             left: 10,
                             right: 10,
                           ),
@@ -554,7 +554,7 @@ class ContactsTabView extends StatelessWidget {
                         ),
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            bottom: CustomNavigationBar.height + 5,
+                            bottom: CustomNavigationBar.height,
                             left: 10,
                             right: 10,
                           ),

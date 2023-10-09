@@ -413,9 +413,8 @@ class AvatarWidget extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isAway
-                  ? style.colors.warningColor
-                  : style.colors.acceptAuxiliaryColor,
+              color:
+                  isAway ? style.colors.warning : style.colors.acceptAuxiliary,
             ),
           ),
         ),

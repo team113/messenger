@@ -27,6 +27,7 @@ class AnimatedButton extends StatefulWidget {
     required this.child,
     this.decorator = AnimatedButton._defaultDecorator,
     this.onPressed,
+    this.onLongPress,
     this.enabled = true,
   });
 
@@ -41,6 +42,9 @@ class AnimatedButton extends StatefulWidget {
 
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
+
+  /// Callback, called when the [child] is long-pressed.
+  final void Function()? onLongPress;
 
   /// Indicator whether the animation is enabled.
   final bool enabled;
@@ -100,6 +104,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
         },
         child: WidgetButton(
           onPressed: widget.onPressed,
+          onLongPress: widget.onLongPress,
           child: widget.decorator(
             AnimatedScale(
               duration: const Duration(milliseconds: 100),

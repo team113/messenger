@@ -58,9 +58,17 @@ class SafeScrollbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: child,
+      return MediaQuery(
+        data: MediaQuery.of(router.context!).copyWith(
+          padding: EdgeInsets.only(
+            top: top ? CustomAppBar.height - 5 : 0,
+            bottom: bottom ? CustomNavigationBar.height : 0,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: child,
+        ),
       );
     }
 
@@ -72,8 +80,8 @@ class SafeScrollbar extends StatelessWidget {
     return MediaQuery(
       data: MediaQuery.of(router.context!).copyWith(
         padding: padding.copyWith(
-          top: top ? CustomAppBar.height + 5 : 0,
-          bottom: bottom ? CustomNavigationBar.height + 5 + 5 : 0,
+          top: top ? CustomAppBar.height - 5 : 0,
+          bottom: bottom ? CustomNavigationBar.height : 0,
         ),
       ),
       child: Container(
