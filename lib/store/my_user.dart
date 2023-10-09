@@ -21,6 +21,7 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -41,6 +42,7 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
+import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
@@ -93,6 +95,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onActivityChanged;
 
+  /// [CancelToken] for cancelling the [_fetchBlocklist].
+  final CancelToken _cancelToken = CancelToken();
+
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
 
@@ -134,7 +139,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       blacklist.addAll(users.whereNotNull());
     }
 
-    final List<HiveUser> blacklisted = await _fetchBlocklist();
+    final List<HiveUser> blacklisted =
+        await Backoff.run(_fetchBlocklist, _cancelToken);
 
     for (UserId c in _blocklistLocal.blocked) {
       if (blacklisted.none((e) => e.value.id == c)) {

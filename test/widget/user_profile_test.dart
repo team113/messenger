@@ -45,6 +45,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
+import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -191,6 +192,8 @@ void main() async {
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var recentChatProvider = RecentChatHiveProvider();
+  await recentChatProvider.init();
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
@@ -419,6 +422,7 @@ void main() async {
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatProvider,
+      recentChatProvider,
       callRepository,
       draftProvider,
       userRepository,

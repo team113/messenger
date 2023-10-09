@@ -62,6 +62,7 @@ import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
+import 'steps/local_chat.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
@@ -139,6 +140,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         goToUserPage,
         hasDialogWithMe,
         hasGroups,
+        hasLocalChat,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,

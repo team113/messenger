@@ -34,7 +34,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
     this._provider, {
     required this.getCursor,
     required this.getKey,
-    this.sortingProvider,
+    this.sortedKeys,
     this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
@@ -48,7 +48,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
   final C? Function(T? item) getCursor;
 
   /// [IterableHiveProvider] to fetch the items keys from.
-  IterableHiveProvider<K, S>? sortingProvider;
+  Iterable<K> Function()? sortedKeys;
 
   /// Callback, called to indicate whether the provided [T] is the first.
   final bool Function(T item)? isFirst;
@@ -73,14 +73,13 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
 
   @override
   Future<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    if (_provider.keys.isEmpty) {
+    final Iterable<K> providerKeys = sortedKeys?.call() ?? _provider.keys;
+
+    if (providerKeys.isEmpty) {
       return null;
     }
 
     Iterable<dynamic>? keys;
-
-    final Iterable<K> providerKeys =
-        await sortingProvider?.values ?? _provider.keys;
     if (item != null) {
       final K key = getKey(item);
       final int initial = providerKeys.toList().indexOf(key);
@@ -129,8 +128,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
     }
 
     final key = getKey(item);
-    final Iterable<K> providerKeys =
-        await sortingProvider?.values ?? _provider.keys;
+    final Iterable<K> providerKeys = sortedKeys?.call() ?? _provider.keys;
     final index = providerKeys.toList().indexOf(key);
     if (index != -1 && index < providerKeys.length - 1) {
       List<T> items = [];
@@ -163,8 +161,7 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
     }
 
     final K key = getKey(item);
-    final Iterable<K> providerKeys =
-        await sortingProvider?.values ?? _provider.keys;
+    final Iterable<K> providerKeys = sortedKeys?.call() ?? _provider.keys;
     final int index = providerKeys.toList().indexOf(key);
     if (index > 0) {
       final List<T> items = [];
@@ -195,18 +192,18 @@ class HivePageProvider<T extends Object, C, K extends Object, S>
     bool hasNext = true;
     bool hasPrevious = true;
 
+    final Iterable<K> providerKeys = sortedKeys?.call() ?? _provider.keys;
+
     final T? firstItem = items.firstOrNull;
     if (firstItem != null && isFirst != null) {
       hasPrevious = !isFirst!.call(firstItem) ||
-          getKey(items.first) !=
-              ((await sortingProvider?.values)?.first ?? _provider.keys.first);
+          getKey(items.first) != providerKeys.first;
     }
 
     final T? lastItem = items.lastOrNull;
     if (lastItem != null && isLast != null) {
-      hasNext = !isLast!.call(lastItem) ||
-          getKey(items.last) !=
-              ((await sortingProvider?.values)?.last ?? _provider.keys.last);
+      hasNext =
+          !isLast!.call(lastItem) || getKey(items.last) != providerKeys.last;
     }
 
     final Page<T, C> page = Page(

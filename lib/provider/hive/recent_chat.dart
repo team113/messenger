@@ -22,8 +22,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s.
-class RecentChatHiveProvider extends HiveBaseProvider<ChatId>
-    implements IterableHiveProvider<ChatId, PreciseDateTime> {
+class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -35,24 +34,12 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId>
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
-  @override
-  Iterable<PreciseDateTime> get keys =>
-      keysSafe.map((e) => PreciseDateTime.parse(e));
-
-  @override
+  /// Returns a list of [ChatId]s from [Hive].
   Iterable<ChatId> get values => valuesSafe;
 
-  @override
-  Future<void> put(ChatId item, [PreciseDateTime? key]) => putSafe(
-        (key?.toString() ?? PreciseDateTime(DateTime.now())).toString(),
-        item,
-      );
-
-  @override
-  ChatId? get(PreciseDateTime key) => getSafe(key.toString());
-
-  @override
-  Future<void> remove(PreciseDateTime key) => deleteSafe(key.toString());
+  /// Puts the provided [ChatId] by the provided [key] to [Hive].
+  Future<void> put(ChatId item, PreciseDateTime key) =>
+      putSafe(key.toString(), item);
 
   /// Removes a [ChatId] item from [Hive] by the provided [index].
   Future<void> removeAt(int index) => deleteAtSafe(index);

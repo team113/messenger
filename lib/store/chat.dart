@@ -58,6 +58,7 @@ import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/pagination/hive.dart';
 import '/store/user.dart';
+import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -160,8 +161,8 @@ class ChatRepository extends DisposableInterface
   /// [Mutex]es guarding synchronized access to the [_putEntry].
   final Map<ChatId, Mutex> _putEntryGuards = {};
 
-  /// [dio.CancelToken] for cancelling the [_recentChats] query.
-  final dio.CancelToken _cancelToken = dio.CancelToken();
+  /// [dio.CancelToken] for cancelling the [CombinedPagination.around].
+  dio.CancelToken _cancelToken = dio.CancelToken();
 
   /// Indicator whether a local [Chat]-monolog has been hidden.
   ///
@@ -211,11 +212,11 @@ class ChatRepository extends DisposableInterface
         getKey: (e) => e.value.id,
         isLast: (_) => true,
         isFirst: (_) => true,
-        sortingProvider: _recentLocal,
+        sortedKeys: () => _recentLocal.values,
         strategy: PaginationStrategy.fromEnd,
         reversed: true,
       ),
-      compare: (a, b) => -a.value.updatedAt.compareTo(b.value.updatedAt),
+      compare: (a, b) => b.value.updatedAt.compareTo(a.value.updatedAt),
     );
 
     _paginationSubscription = _localPagination!.changes.listen((event) async {
@@ -248,6 +249,7 @@ class ChatRepository extends DisposableInterface
     }
 
     _cancelToken.cancel();
+    _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.cancel();
@@ -1334,7 +1336,7 @@ class ChatRepository extends DisposableInterface
       final ChatId chatId = ChatId(event.key);
 
       if (event.deleted) {
-        await chats.remove(chatId)?.dispose();
+        chats.remove(chatId)?.dispose();
         paginated.remove(chatId);
         _pagination?.remove(chatId);
 
@@ -1474,7 +1476,9 @@ class ChatRepository extends DisposableInterface
       ),
     ]);
 
-    await _pagination!.around();
+    _cancelToken.cancel();
+    _cancelToken = dio.CancelToken();
+    await Backoff.run(_pagination!.around, _cancelToken);
 
     _paginationSubscription?.cancel();
     _paginationSubscription = _pagination!.changes.listen((event) async {
