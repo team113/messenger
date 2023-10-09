@@ -1,55 +1,75 @@
-class _Fonts {
-  const _Fonts({
-    required this.largest,
-    required this.larger,
-    required this.large,
-    required this.medium,
-    required this.normal,
-    required this.small,
-    required this.smaller,
-    required this.smallest,
-  });
+import 'package:flutter/rendering.dart';
+import 'package:messenger/themes.dart';
+
+class Fonts {
+  Fonts({
+    double largest = 27,
+    double larger = 24,
+    double large = 21,
+    double big = 18,
+    double medium = 17,
+    double normal = 15,
+    double small = 13,
+    double smaller = 11,
+    double smallest = 9,
+    FontWeight bold = FontWeight.bold,
+    FontWeight regular = FontWeight.normal,
+    required TextStyle style,
+    required Palette palette,
+  }) : largest = _LargestFonts(
+          style.copyWith(fontSize: largest),
+          palette,
+          bold: bold,
+          regular: regular,
+        );
 
   final _LargestFonts largest;
-  final _LargerFonts larger;
-  final _LargeFonts large; // 21
-  final _BigFonts big; // 18
-  final _MediumFonts medium;
-  final _NormalFonts normal;
-  final _SmallFonts small;
-  final _SmallerFonts smaller;
-  final _SmallestFonts smallest;
+  final _Sizes larger;
+  final _Sizes large; // 21
+  final _Sizes big; // 18
+  final _Sizes medium;
+  final _Sizes normal;
+  final _Sizes small;
+  final _Sizes smaller;
+  final _Sizes smallest;
 }
 
 class _LargestFonts {
-  const _LargestFonts({
-    required this.bold,
-    required this.regular,
-  });
+  _LargestFonts(
+    TextStyle style,
+    Palette palette, {
+    FontWeight bold = FontWeight.bold,
+    FontWeight regular = FontWeight.normal,
+  })  : bold = _LargestFontsBold(
+          style.copyWith(fontWeight: bold),
+          palette,
+        ),
+        regular = _LargestFontsRegular(
+          style.copyWith(fontWeight: regular),
+          palette,
+        );
 
   final _LargestFontsBold bold;
   final _LargestFontsRegular regular;
 }
 
-class FontsAnnotation {
-  const FontsAnnotation({
-    required this.style,
-    {
-      'bold': {
-        'weight': 18,
-        '',
-      },
-    }
-  });
+class _LargestFontsBold {
+  _LargestFontsBold(
+    TextStyle style,
+    Palette palette,
+  )   : onBackground = style.copyWith(color: palette.onBackground),
+        onPrimary = style.copyWith(color: palette.onPrimary);
 
-  final TextStyle style;
+  final TextStyle onBackground;
+  final TextStyle onPrimary;
 }
 
-class _LargestFontsBold {
-  const _LargestFontsBold({
-    required this.onBackground,
-    required this.onPrimary,
-  });
+class _LargestFontsRegular {
+  _LargestFontsRegular(
+    TextStyle style,
+    Palette palette,
+  )   : onBackground = style.copyWith(color: palette.onBackground),
+        onPrimary = style.copyWith(color: palette.onPrimary);
 
   final TextStyle onBackground;
   final TextStyle onPrimary;
