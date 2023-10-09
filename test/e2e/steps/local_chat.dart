@@ -47,7 +47,9 @@ final StepDefinitionGeneric hasLocalChat = given1<TestUser, CustomWorld>(
     await chatProvider.close();
 
     RecentChatHiveProvider recentChatProvider = RecentChatHiveProvider();
-    await recentChatProvider.init(userId: context.world.sessions[user.name]!.userId);
+    await recentChatProvider.init(
+      userId: context.world.sessions[user.name]!.userId,
+    );
     await recentChatProvider.put(
       const ChatId('localChat'),
       PreciseDateTime.now(),
