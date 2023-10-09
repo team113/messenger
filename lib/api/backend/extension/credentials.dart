@@ -50,7 +50,7 @@ extension RenewSessionCredentials
   Credentials toModel() {
     return Credentials(
       Session(session.token, session.expireAt),
-      RememberedSession(remembered!.token, remembered!.expireAt),
+      RememberedSession(remembered.token, remembered.expireAt),
       user.id,
     );
   }
