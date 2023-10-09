@@ -67,6 +67,7 @@ btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Add to favorites
 btn_allow = Allow
 btn_audio_call = Audio call
+btn_audio_message = Audio message
 btn_back = Back
 btn_block = Block
 btn_call_answer_with_audio =
@@ -147,6 +148,7 @@ btn_call_video_off_desc =
     Turn
     video off
 btn_call_video_on = Turn video on
+btn_camera = Camera
 btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
@@ -174,12 +176,15 @@ btn_download = Download
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
+btn_file = File
 btn_forgot_password = Forgot password?
 btn_forward = Forward
 btn_forward_message = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
+btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
+btn_gift = Gift
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -227,7 +232,10 @@ btn_share = Share
 btn_sign_in = Sign in
 btn_sign_up = Sign up
 btn_start = Start
+btn_sticker = Sticker
 btn_submit = Submit
+btn_take_photo = Take photo
+btn_take_video = Take video
 btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_unmute = Unmute
@@ -235,6 +243,7 @@ btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
 btn_upload = Upload
 btn_video_call = Video call
+btn_video_message = Video message
 btn_work_with_us = Work with us
 btn_write_message = Write a message
 btn_your_profile = Your profile
@@ -529,14 +538,12 @@ label_enter_confirmation_code_hint = Enter confirmation code
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
-label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
    *[other] Пересланные сообщения
 }
-label_gallery = Gallery
 label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group

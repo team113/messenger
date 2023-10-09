@@ -459,7 +459,7 @@ remote = false
 
 [server.http]
 url = "https://messenger.soc.stg.t11913.org"
-ort = 443
+port = 443
 
 [server.ws]
 url = "wss://messenger.soc.stg.t11913.org"
