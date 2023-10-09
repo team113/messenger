@@ -241,7 +241,7 @@ void main() async {
           '__typename': 'EventChatItemTextEdited',
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'itemId': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
-          'text': 'new text',
+          'text': {'changed': 'new text'},
         }
       ],
       'ver': '1'
@@ -254,8 +254,9 @@ void main() async {
     ));
 
     return Future.value(
-        EditChatMessageText$Mutation.fromJson({'editChatMessageText': event})
-            .editChatMessageText as ChatEventsVersionedMixin?);
+      EditChatMessage$Mutation.fromJson({'editChatMessage': event})
+          .editChatMessage as ChatEventsVersionedMixin?,
+    );
   });
 
   when(graphQlProvider.favoriteChatsEvents(any))
