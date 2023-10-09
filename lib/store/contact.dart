@@ -189,7 +189,7 @@ class ContactRepository implements AbstractContactRepository {
           : sorted.first.contact.value.favoritePosition!.val;
 
       newPosition = ChatContactFavoritePosition(
-        highestFavorite == null ? 1 / 9007199254740991 : highestFavorite * 2,
+        highestFavorite == null ? 1 : highestFavorite * 2,
       );
     } else {
       newPosition = position;
