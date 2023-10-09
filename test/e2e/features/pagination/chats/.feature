@@ -30,10 +30,10 @@ Feature: Chats pagination
     Then I wait until `ChatsLoading` is absent
 
   Scenario: Chats pagination switches between local and remote chats
-    Given users Alice
+    Given user Alice
     And Alice has local chat
     And I sign in as Alice
-    And I have Internet with delay of 5 seconds
+    And I have Internet with delay of 3 seconds
 
     Then I wait until "local" chat is present
     And I wait until "local" chat is absent
