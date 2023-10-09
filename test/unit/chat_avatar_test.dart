@@ -306,7 +306,8 @@ void main() async {
     }
 
     if (exception !=
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize)) {
+        const UpdateChatAvatarException(
+            UpdateChatAvatarErrorCode.invalidSize)) {
       fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
     }
 
