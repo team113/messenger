@@ -35,15 +35,24 @@ import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
 abstract class AbstractChatRepository {
-  /// Returns reactive map of [RxChat]s.
+  /// Returns reactive map of [RxChat]s in the current pagination view.
+  RxObsMap<ChatId, RxChat> get paginated;
+
+  /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Returns the initialization [RxStatus] of this repository and its [chats].
+  /// Returns the initialization [RxStatus] of this repository.
   Rx<RxStatus> get status;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
   ChatId get monolog;
+
+  /// Indicates whether the [paginated] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [paginated] is loading.
+  RxBool get nextLoading;
 
   /// Initializes this repository.
   ///
@@ -54,13 +63,16 @@ abstract class AbstractChatRepository {
   });
 
   /// Clears the stored [chats].
-  Future<void> clearCache();
+  Future<void> clear();
 
   /// Returns an [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id);
 
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
+
+  /// Fetches the next [paginated] page.
+  Future<void> next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///

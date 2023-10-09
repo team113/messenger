@@ -71,11 +71,11 @@ class ColorsView extends StatelessWidget {
       (style.colors.primaryHighlightLightest, 'primaryHighlightLightest'),
       (style.colors.backgroundAuxiliaryLighter, 'backgroundAuxiliaryLighter'),
       (style.colors.backgroundAuxiliaryLightest, 'backgroundAuxiliaryLightest'),
-      (style.colors.acceptAuxiliaryColor, 'acceptAuxiliaryColor'),
-      (style.colors.acceptColor, 'acceptColor'),
-      (style.colors.dangerColor, 'dangerColor'),
-      (style.colors.declineColor, 'declineColor'),
-      (style.colors.warningColor, 'warningColor'),
+      (style.colors.acceptAuxiliary, 'acceptAuxiliary'),
+      (style.colors.accept, 'accept'),
+      (style.colors.danger, 'danger'),
+      (style.colors.decline, 'decline'),
+      (style.colors.warning, 'warning'),
     ];
 
     final Iterable<(Color, String?)> avatars = style.colors.userColors

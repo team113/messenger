@@ -30,6 +30,7 @@ import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the call overlay settings.
@@ -59,7 +60,7 @@ class CallSettingsView extends StatelessWidget {
       init: CallSettingsController(
         _call,
         Get.find(),
-        onPop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (CallSettingsController c) {
         return Stack(

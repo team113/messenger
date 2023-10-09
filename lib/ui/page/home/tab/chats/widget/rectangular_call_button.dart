@@ -56,7 +56,7 @@ class RectangularCallButton extends StatelessWidget {
         elevation: 0,
         type: MaterialType.button,
         borderRadius: BorderRadius.circular(20),
-        color: isActive ? style.colors.dangerColor : style.colors.primary,
+        color: isActive ? style.colors.danger : style.colors.primary,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: onPressed,

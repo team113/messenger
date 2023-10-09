@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -161,6 +163,11 @@ void main() async {
     await tester.runAsync(() {
       return Future.delayed(const Duration(seconds: 2));
     });
+
+    while (chatProvider.isLocked) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+
     await tester.pumpAndSettle(const Duration(seconds: 5));
     await tester.pump(const Duration(seconds: 5));
     final homeView = find.byType(HomeView);
@@ -240,7 +247,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     bool noFavorite = false,
     bool? withOngoingCalls,
   }) {
-    return const Stream.empty();
+    return Stream.value(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'recentChatsTopEvents': {
+            '__typename': 'SubscriptionInitialized',
+            'ok': true
+          }
+        },
+        parserFn: (_) => null,
+      ),
+    );
   }
 
   @override
@@ -269,7 +287,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
+  Stream<QueryResult> chatEvents(
+    ChatId id,
+    ChatVersion? ver,
+    FutureOr<ChatVersion?> Function() onVer,
+  ) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(QueryResult.internal(

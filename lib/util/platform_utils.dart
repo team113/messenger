@@ -547,6 +547,25 @@ extension MobileExtensionOnContext on BuildContext {
       : MediaQuery.sizeOf(this).shortestSide < 600;
 }
 
+/// Extension adding an ability to pop the current [ModalRoute].
+extension PopExtensionOnContext on BuildContext {
+  /// Pops the [ModalRoute] from this [BuildContext], if any is active.
+  void popModal() {
+    if (mounted) {
+      final NavigatorState navigator = Navigator.of(this);
+      final ModalRoute? modal = ModalRoute.of(this);
+
+      if (modal?.isActive == true) {
+        if (modal?.isCurrent == true) {
+          navigator.pop();
+        } else {
+          navigator.removeRoute(modal!);
+        }
+      }
+    }
+  }
+}
+
 /// Listener interface for receiving window events.
 class _WindowListener extends WindowListener {
   _WindowListener({

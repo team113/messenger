@@ -18,7 +18,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show mustCallSuper, protected;
+import 'package:flutter/foundation.dart'
+    show mustCallSuper, protected, visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -197,6 +198,10 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
     return [];
   }
 
+  /// Indicates whether the [_mutex] is locked.
+  @visibleForTesting
+  bool get isLocked => _mutex.isLocked;
+
   @protected
   void registerAdapters();
 
@@ -227,7 +232,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   @mustCallSuper
   Future<void> clear() {
     return _mutex.protect(() async {
-      if (_isReady) {
+      if (_isReady && keysSafe.isNotEmpty) {
         await _box.clear();
       }
     });
@@ -287,15 +292,15 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   }
 }
 
-/// [HiveLazyProvider] with [Iterable] functionality support.
+/// [Hive] provider with [Iterable] functionality support.
 ///
 /// Intended to be used as a source for [Pagination] items persisted.
-mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
+abstract class IterableHiveProvider<T extends Object, K> {
   /// Returns a list of [K] keys stored in the [Hive].
   Iterable<K> get keys;
 
   /// Returns a list of [T] items from [Hive].
-  Future<Iterable<T>> get values => valuesSafe;
+  FutureOr<Iterable<T>> get values;
 
   /// Puts the provided [item] to [Hive].
   Future<void> put(T item);
@@ -305,6 +310,9 @@ mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
 
   /// Removes a [T] item from [Hive] by the provided [key].
   Future<void> remove(K key);
+
+  /// Removes all entries from [Hive].
+  Future<void> clear();
 }
 
 extension HiveRegisterAdapter on HiveInterface {
