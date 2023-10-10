@@ -1094,10 +1094,12 @@ class HiveRxChat extends RxChat {
               await remove(event.itemId);
               break;
 
-            case ChatEventKind.itemTextEdited:
-              event as EventChatItemTextEdited;
+            case ChatEventKind.itemEdited:
+              event as EventChatItemEdited;
               final message = await get(event.itemId);
               if (message != null) {
+                // TODO: Properly account editing, as this will change the text
+                //       always, which is inappropriate.
                 (message.value as ChatMessage).text = event.text;
                 put(message);
               }
@@ -1371,7 +1373,7 @@ class HiveRxChat extends RxChat {
         }
 
         if (putChat) {
-          _chatRepository.put(chatEntity);
+          await _chatRepository.put(chatEntity);
         }
         break;
     }
