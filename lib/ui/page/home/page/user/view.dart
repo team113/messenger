@@ -269,16 +269,17 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
-          return c.inContacts.isTrue
-              ? ActionButton(
-                  text: c.inFavorites.value
-                      ? 'btn_delete_from_favorites'.l10n
-                      : 'btn_add_to_favorites'.l10n,
-                  onPressed: c.inFavorites.value
-                      ? c.unfavoriteContact
-                      : c.favoriteContact,
-                )
-              : const SizedBox();
+          if (!c.inContacts.value) {
+            return const SizedBox();
+          }
+
+          return ActionButton(
+            text: c.inFavorites.value
+                ? 'btn_delete_from_favorites'.l10n
+                : 'btn_add_to_favorites'.l10n,
+            onPressed:
+                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+          );
         }),
         if (c.user?.user.value.dialog.isLocal == false &&
             c.user?.dialog.value != null) ...[
