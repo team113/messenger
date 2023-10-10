@@ -22,7 +22,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
+import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -230,9 +231,9 @@ void main() async {
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.editChatMessageText(
+  when(graphQlProvider.editChatMessage(
     const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
-    const ChatMessageText('new text'),
+    text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
   )).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',
@@ -241,7 +242,7 @@ void main() async {
           '__typename': 'EventChatItemTextEdited',
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'itemId': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
-          'text': 'new text',
+          'text': {'changed': 'new text'},
         }
       ],
       'ver': '1'
@@ -254,8 +255,9 @@ void main() async {
     ));
 
     return Future.value(
-        EditChatMessageText$Mutation.fromJson({'editChatMessageText': event})
-            .editChatMessageText as ChatEventsVersionedMixin?);
+      EditChatMessage$Mutation.fromJson({'editChatMessage': event})
+          .editChatMessage as ChatEventsVersionedMixin?,
+    );
   });
 
   when(graphQlProvider.favoriteChatsEvents(any))
