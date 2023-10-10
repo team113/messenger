@@ -804,7 +804,7 @@ mixin ChatGraphQlMixin {
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UploadAttachmentException(
-          UploadAttachmentErrorCode.tooBigSize,
+          UploadAttachmentErrorCode.invalidSize,
         );
       }
 
@@ -966,10 +966,13 @@ mixin ChatGraphQlMixin {
     );
   }
 
-  /// Edits [ChatMessage]'s text by the authenticated [MyUser].
+
+  /// Edits a [ChatMessage] by the authenticated [MyUser] with the provided
+  /// [text]/[attachments]/[repliesTo] (at least one of three must be
+  /// specified).
   ///
-  /// [ChatMessage]'s text is allowed to be edited within 5 minutes since its
-  /// creation or if it hasn't been read by any other [Chat] member yet.
+  /// [ChatMessage] is allowed to be edited within 5 minutes since its creation
+  /// or if it hasn't been read by any other [Chat] member yet.
   ///
   /// ### Authentication
   ///
@@ -978,35 +981,40 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemTextEdited].
+  /// - [EventChatItemEdited].
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op (and returns no [ChatEvent]) if the given
-  /// [ChatMessage]'s text is already set to the given value.
-  Future<ChatEventsVersionedMixin?> editChatMessageText(
-    ChatItemId id,
-    ChatMessageText? text,
-  ) async {
-    EditChatMessageTextArguments variables = EditChatMessageTextArguments(
+  /// Succeeds as no-op (and returns no [ChatEvent]s) if the specified
+  /// [ChatMessage] already has the specified [text], [attachments] and
+  /// [repliesTo] in the same order.
+  Future<ChatEventsVersionedMixin?> editChatMessage(
+    ChatItemId id, {
+    ChatMessageTextInput? text,
+    ChatMessageAttachmentsInput? attachments,
+    ChatMessageRepliesInput? repliesTo,
+  }) async {
+    final variables = EditChatMessageArguments(
       id: id,
       text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
     );
 
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'EditChatMessageText',
-        document: EditChatMessageTextMutation(variables: variables).document,
+        operationName: 'EditChatMessage',
+        document: EditChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => EditChatMessageException((EditChatMessageText$Mutation
-                      .fromJson(data)
-                  .editChatMessageText
-              as EditChatMessageText$Mutation$EditChatMessageText$EditChatMessageTextError)
-          .code),
+      onException: (data) => EditChatMessageException(
+        (EditChatMessage$Mutation.fromJson(data).editChatMessage
+                as EditChatMessage$Mutation$EditChatMessage$EditChatMessageError)
+            .code,
+      ),
     );
-    return (EditChatMessageText$Mutation.fromJson(result.data!)
-        .editChatMessageText as ChatEventsVersionedMixin?);
+    return (EditChatMessage$Mutation.fromJson(result.data!).editChatMessage
+        as ChatEventsVersionedMixin?);
   }
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
@@ -1201,7 +1209,7 @@ mixin ChatGraphQlMixin {
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateChatAvatarException(
-          UpdateChatAvatarErrorCode.tooBigSize,
+          UpdateChatAvatarErrorCode.invalidSize,
         );
       }
 

@@ -613,48 +613,9 @@ class CallController extends GetxController {
         ? RxDouble(prefs?.top ?? 50)
         : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
-    void onChat(RxChat? v) {
-      chat.value = v;
-      if (!isGroup) {
-        secondaryAlignment.value = null;
-        secondaryLeft.value = null;
-        secondaryTop.value = null;
-        secondaryRight.value = 10;
-        secondaryBottom.value = 10;
-      }
-
-      // Update the [WebUtils.title] if this call is in a popup.
-      if (WebUtils.isPopup) {
-        _titleSubscription?.cancel();
-        _durationSubscription?.cancel();
-
-        if (v != null) {
-          void updateTitle() {
-            WebUtils.title(
-              '\u205f​​​ \u205f​​​${(income ? 'label_call_title_paid' : 'label_call_title').l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
-            );
-          }
-
-          updateTitle();
-
-          _titleSubscription =
-              _currentCall.value.members.listen((_) => updateTitle());
-          _durationSubscription = duration.listen((_) => updateTitle());
-        }
-      }
-    }
-
-    _chatService
-        .get(_currentCall.value.chatId.value)
-        .then(onChat)
-        .whenComplete(() {
-      members.forEach((_, value) => _putMember(value));
-      _insureCorrectGrouping();
-    });
-
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(onChat),
+      (ChatId id) => _chatService.get(id).then(_updateChat),
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -826,72 +787,6 @@ class CallController extends GetxController {
       }
     });
 
-    void onTracksChanged(
-      CallMember member,
-      ListChangeNotification<Track> track,
-    ) {
-      switch (track.op) {
-        case OperationKind.added:
-          _putParticipant(member, track.element);
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.removed:
-          _removeParticipant(member, track.element);
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    }
-
-    _membersTracksSubscriptions = _currentCall.value.members.map(
-      (k, v) =>
-          MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
-    );
-
-    _membersSubscription = _currentCall.value.members.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putMember(e.value!);
-          _membersTracksSubscriptions[e.key!] = e.value!.tracks.changes.listen(
-            (c) => onTracksChanged(e.value!, c),
-          );
-
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.removed:
-          bool wasNotEmpty = primary.isNotEmpty;
-          paneled.removeWhere((m) => m.member.id == e.key);
-          locals.removeWhere((m) => m.member.id == e.key);
-          focused.removeWhere((m) => m.member.id == e.key);
-          remotes.removeWhere((m) => m.member.id == e.key);
-          _membersTracksSubscriptions.remove(e.key)?.cancel();
-          _insureCorrectGrouping();
-          if (wasNotEmpty && primary.isEmpty) {
-            focusAll();
-          }
-
-          if (_settingsRepository.applicationSettings.value?.leaveWhenAlone ==
-                  true &&
-              e.value?.isConnected.value == true &&
-              e.key?.userId != me.id.userId &&
-              _currentCall.value.members.keys
-                  .where((e) => e != me.id)
-                  .isEmpty) {
-            drop();
-          }
-          break;
-
-        case OperationKind.updated:
-          _insureCorrectGrouping();
-          break;
-      }
-    });
-
     _notificationsSubscription = _currentCall.value.notifications.listen((e) {
       notifications.add(e);
       _notificationTimers
@@ -906,6 +801,8 @@ class CallController extends GetxController {
         _reconnectAudio?.cancel();
       }
     });
+
+    _initChat();
   }
 
   @override
@@ -2150,6 +2047,105 @@ class CallController extends GetxController {
         if (ear) {
           await toggleSpeaker();
         }
+      }
+    }
+  }
+
+  /// Initializes the [chat] and adds the [CallMember] afterwards.
+  Future<void> _initChat() async {
+    try {
+      _updateChat(await _chatService.get(_currentCall.value.chatId.value));
+    } finally {
+      void onTracksChanged(
+        CallMember member,
+        ListChangeNotification<Track> track,
+      ) {
+        switch (track.op) {
+          case OperationKind.added:
+            _putParticipant(member, track.element);
+            _insureCorrectGrouping();
+            break;
+
+          case OperationKind.removed:
+            _removeParticipant(member, track.element);
+            _insureCorrectGrouping();
+            break;
+
+          case OperationKind.updated:
+            // No-op.
+            break;
+        }
+      }
+
+      _membersTracksSubscriptions = _currentCall.value.members.map(
+        (k, v) =>
+            MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
+      );
+
+      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _putMember(e.value!);
+            _membersTracksSubscriptions[e.key!] =
+                e.value!.tracks.changes.listen(
+              (c) => onTracksChanged(e.value!, c),
+            );
+
+            _insureCorrectGrouping();
+            break;
+
+          case OperationKind.removed:
+            bool wasNotEmpty = primary.isNotEmpty;
+            paneled.removeWhere((m) => m.member.id == e.key);
+            locals.removeWhere((m) => m.member.id == e.key);
+            focused.removeWhere((m) => m.member.id == e.key);
+            remotes.removeWhere((m) => m.member.id == e.key);
+            _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _insureCorrectGrouping();
+            if (wasNotEmpty && primary.isEmpty) {
+              focusAll();
+            }
+            break;
+
+          case OperationKind.updated:
+            _insureCorrectGrouping();
+            break;
+        }
+      });
+
+      members.forEach((_, value) => _putMember(value));
+      _insureCorrectGrouping();
+    }
+  }
+
+  /// Sets the [chat] to the provided value, updating the title.
+  void _updateChat(RxChat? v) {
+    chat.value = v;
+    if (!isGroup) {
+      secondaryAlignment.value = null;
+      secondaryLeft.value = null;
+      secondaryTop.value = null;
+      secondaryRight.value = 10;
+      secondaryBottom.value = 10;
+    }
+
+    // Update the [WebUtils.title] if this call is in a popup.
+    if (WebUtils.isPopup) {
+      _titleSubscription?.cancel();
+      _durationSubscription?.cancel();
+
+      if (v != null) {
+        void updateTitle() {
+          WebUtils.title(
+            '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
+          );
+        }
+
+        updateTitle();
+
+        _titleSubscription =
+            _currentCall.value.members.listen((_) => updateTitle());
+        _durationSubscription = duration.listen((_) => updateTitle());
       }
     }
   }

@@ -1783,6 +1783,10 @@ class RtcVideoRenderer extends RtcRenderer {
       }
     }
 
+    print(
+      '[track] resized to ${_delegate.videoWidth} ${_delegate.videoHeight} ${_delegate.quarterTurnsRotation}',
+    );
+
     // Listen for resizes to update [width] and [height].
     _delegate.onResize = () {
       print(

@@ -193,18 +193,40 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       autoRotate: widget.renderer.autoRotate,
     );
 
+    return video;
+
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
-      if (widget.renderer.height.value == 0) {
-        _waitTilSizeDetermined();
-        return Stack(
-          children: [
-            Offstage(child: video),
-            if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CustomProgressIndicator.big())
-          ],
+      return Obx(() {
+        if (widget.renderer.height.value == 0) {
+          _waitTilSizeDetermined();
+          return Stack(
+            children: [
+              video,
+              // Offstage(child: video),
+              if (widget.framelessBuilder != null) widget.framelessBuilder!(),
+              Center(
+                child: Container(
+                  color: Colors.yellow,
+                  padding: const EdgeInsets.all(16),
+                  child: const CustomProgressIndicator.big(),
+                ),
+              )
+            ],
+          );
+        }
+
+        return RtcVideoView(
+          widget.renderer,
+          source: widget.source,
+          borderRadius: widget.borderRadius,
+          enableContextMenu: widget.enableContextMenu,
+          fit: widget.fit,
+          label: widget.label,
+          muted: widget.muted,
+          border: widget.border,
         );
-      }
+      });
     }
 
     // Returns [AspectRatio] of [video] if [respectAspectRatio] or [video]
@@ -220,8 +242,15 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
             return Stack(
               children: [
-                Offstage(child: video),
-                const Center(child: CustomProgressIndicator.big())
+                video,
+                // Offstage(child: video),
+                Center(
+                  child: Container(
+                    color: Colors.red,
+                    padding: const EdgeInsets.all(16),
+                    child: const CustomProgressIndicator.big(),
+                  ),
+                )
               ],
             );
           }

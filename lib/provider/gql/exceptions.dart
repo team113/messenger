@@ -465,9 +465,9 @@ class UploadAttachmentException
         return 'err_uploaded_file_malformed'.l10n;
       case UploadAttachmentErrorCode.noFilename:
         return 'err_no_filename'.l10n;
-      case UploadAttachmentErrorCode.tooBigSize:
+      case UploadAttachmentErrorCode.invalidSize:
         return 'err_size_too_big'.l10n;
-      case UploadAttachmentErrorCode.tooBigDimensions:
+      case UploadAttachmentErrorCode.invalidDimensions:
         return 'err_dimensions_too_big'.l10n;
       case UploadAttachmentErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
@@ -643,16 +643,18 @@ class PostChatMessageException
         return 'err_blacklisted'.l10n;
       case PostChatMessageErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
+      case PostChatMessageErrorCode.wrongAttachmentsCount:
+        return 'err_wrong_attachments_items_count'.l10n;
+      case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
+        return 'err_wrong_replying_item_count'.l10n;
       case PostChatMessageErrorCode.unknownAttachment:
         return 'err_unknown_attachment'.l10n;
-      case PostChatMessageErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case PostChatMessageErrorCode.unknownReplyingChatItem:
         return 'err_unknown_replying_chat_item'.l10n;
+      case PostChatMessageErrorCode.unknownChat:
+        return 'err_unknown_chat'.l10n;
       case PostChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case PostChatMessageErrorCode.wrongItemsCount:
-        return 'err_wrong_items_count'.l10n;
     }
   }
 }
@@ -1084,30 +1086,40 @@ class UseChatDirectLinkException
   }
 }
 
-/// Exception of `Mutation.editChatMessageText` described in the [code].
+/// Exception of `Mutation.editChatMessage` described in the [code].
 class EditChatMessageException
     with LocalizedExceptionMixin
     implements Exception {
   const EditChatMessageException(this.code);
 
   /// Reason of why the mutation has failed.
-  final EditChatMessageTextErrorCode code;
+  final EditChatMessageErrorCode code;
 
   @override
-  String toString() => 'EditChatMessageTextException($code)';
+  String toString() => 'EditChatMessageException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case EditChatMessageTextErrorCode.uneditable:
+      case EditChatMessageErrorCode.uneditable:
         return 'err_uneditable_message'.l10n;
-      case EditChatMessageTextErrorCode.notAuthor:
+      case EditChatMessageErrorCode.blocked:
+        return 'err_unknown'.l10n;
+      case EditChatMessageErrorCode.notAuthor:
         return 'err_not_author'.l10n;
-      case EditChatMessageTextErrorCode.unknownChatItem:
+      case EditChatMessageErrorCode.wrongAttachmentsCount:
+        return 'err_wrong_attachments_items_count'.l10n;
+      case EditChatMessageErrorCode.wrongReplyingChatItemsCount:
+        return 'err_wrong_replying_item_count'.l10n;
+      case EditChatMessageErrorCode.unknownAttachment:
+        return 'err_unknown_attachment'.l10n;
+      case EditChatMessageErrorCode.unknownReplyingChatItem:
+        return 'err_unknown_replying_chat_item'.l10n;
+      case EditChatMessageErrorCode.unknownChatItem:
         return 'err_unknown_chat_item'.l10n;
-      case EditChatMessageTextErrorCode.noTextAndNoAttachment:
+      case EditChatMessageErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
-      case EditChatMessageTextErrorCode.artemisUnknown:
+      case EditChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
@@ -1136,9 +1148,9 @@ class UpdateUserAvatarException
         return 'err_uploaded_file_malformed'.l10n;
       case UpdateUserAvatarErrorCode.unsupportedFormat:
         return 'err_unsupported_format'.l10n;
-      case UpdateUserAvatarErrorCode.tooBigSize:
+      case UpdateUserAvatarErrorCode.invalidSize:
         return 'err_size_too_big'.l10n;
-      case UpdateUserAvatarErrorCode.tooBigDimensions:
+      case UpdateUserAvatarErrorCode.invalidDimensions:
         return 'err_dimensions_too_big'.l10n;
       case UpdateUserAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
@@ -1169,9 +1181,9 @@ class UpdateUserCallCoverException
         return 'err_uploaded_file_malformed'.l10n;
       case UpdateUserCallCoverErrorCode.unsupportedFormat:
         return 'err_unsupported_format'.l10n;
-      case UpdateUserCallCoverErrorCode.tooBigSize:
+      case UpdateUserCallCoverErrorCode.invalidSize:
         return 'err_size_too_big'.l10n;
-      case UpdateUserCallCoverErrorCode.tooBigDimensions:
+      case UpdateUserCallCoverErrorCode.invalidDimensions:
         return 'err_dimensions_too_big'.l10n;
       case UpdateUserCallCoverErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
@@ -1298,9 +1310,9 @@ class UpdateChatAvatarException
         return 'err_uploaded_file_malformed'.l10n;
       case UpdateChatAvatarErrorCode.unsupportedFormat:
         return 'err_unsupported_format'.l10n;
-      case UpdateChatAvatarErrorCode.tooBigSize:
+      case UpdateChatAvatarErrorCode.invalidSize:
         return 'err_size_too_big'.l10n;
-      case UpdateChatAvatarErrorCode.tooBigDimensions:
+      case UpdateChatAvatarErrorCode.invalidDimensions:
         return 'err_dimensions_too_big'.l10n;
       case UpdateChatAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;

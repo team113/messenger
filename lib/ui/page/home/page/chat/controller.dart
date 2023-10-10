@@ -32,7 +32,7 @@ import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/my_user.dart';
 
-import '/api/backend/schema.dart' hide ChatItemQuoteInput;
+import '/api/backend/schema.dart' hide ChatItemQuoteInput, ChatMessageTextInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -41,6 +41,7 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -674,7 +675,10 @@ class ChatController extends GetxController {
             }
 
             try {
-              await _chatService.editChatMessage(item, text);
+              await _chatService.editChatMessage(
+                item,
+                text: text == null ? null : ChatMessageTextInput(text),
+              );
 
               edit.value?.onClose();
               edit.value = null;

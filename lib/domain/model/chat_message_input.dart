@@ -15,22 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'chat_item.dart';
 
-class IconsController extends GetxController {
-  final Rx<IconDetails?> icon = Rx(
-    const IconDetails(
-      'application/iOS.png',
-      invert: true,
-      download: 'application/iOS.zip',
-    ),
-  );
-}
+/// New text to assign to the [ChatMessage].
+class ChatMessageTextInput {
+  const ChatMessageTextInput(this.changed);
 
-class IconDetails {
-  const IconDetails(this.asset, {this.invert = false, this.download});
-
-  final String asset;
-  final bool invert;
-  final String? download;
+  /// New [ChatMessageText].
+  ///
+  /// `null` means that the previous [ChatMessageText] should be deleted.
+  final ChatMessageText? changed;
 }

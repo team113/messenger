@@ -373,6 +373,7 @@ class DropButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       asset: 'call_end',
+      assetWidth: 21,
       color: style.colors.declineColor,
       hinted: hinted,
       onPressed: c.drop,

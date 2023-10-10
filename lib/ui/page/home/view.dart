@@ -336,16 +336,12 @@ class _HomeViewState extends State<HomeView> {
                                     if (c.publicsToggle.value)
                                       ContextMenuButton(
                                         label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () {
-                                          c.publicsToggle.toggle();
-                                        },
+                                        onPressed: c.publicsToggle.toggle,
                                       )
                                     else
                                       ContextMenuButton(
                                         label: 'btn_mute_chats'.l10n,
-                                        onPressed: () {
-                                          c.publicsToggle.toggle();
-                                        },
+                                        onPressed: c.publicsToggle.toggle,
                                       ),
                                   ],
                                   child: Transform.translate(
