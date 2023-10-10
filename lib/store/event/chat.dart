@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -45,7 +47,7 @@ enum ChatEventKind {
   itemDeleted,
   itemHidden,
   itemPosted,
-  itemTextEdited,
+  itemEdited,
   lastItemUpdated,
   muted,
   read,
@@ -246,7 +248,7 @@ class EventChatTypingStarted extends ChatEvent {
 
 /// Event of a [Chat] being unmuted by the authenticated [MyUser].
 class EventChatUnmuted extends ChatEvent {
-  const EventChatUnmuted(ChatId chatId) : super(chatId);
+  const EventChatUnmuted(super.chatId);
 
   @override
   ChatEventKind get kind => ChatEventKind.unmuted;
@@ -285,10 +287,15 @@ class EventChatItemDeleted extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.itemDeleted;
 }
 
-/// Event of a [ChatItem]'s text being edited by its author.
-class EventChatItemTextEdited extends ChatEvent {
-  const EventChatItemTextEdited(ChatId chatId, this.itemId, this.text)
-      : super(chatId);
+/// Event of a [ChatItem] being edited by its author.
+class EventChatItemEdited extends ChatEvent {
+  const EventChatItemEdited(
+    super.chatId,
+    this.itemId,
+    this.text,
+    this.attachments,
+    this.quotes,
+  );
 
   /// ID of the edited [ChatItem].
   final ChatItemId itemId;
@@ -296,13 +303,19 @@ class EventChatItemTextEdited extends ChatEvent {
   /// Edited [ChatItem]'s text.
   final ChatMessageText? text;
 
+  /// Edited [Attachment]s of the [ChatItem].
+  final List<Attachment>? attachments;
+
+  /// [ChatItemQuote]s the edited [ChatItem] replies to.
+  final List<ChatItemQuote>? quotes;
+
   @override
-  ChatEventKind get kind => ChatEventKind.itemTextEdited;
+  ChatEventKind get kind => ChatEventKind.itemEdited;
 }
 
 /// Event of a [ChatCall] being started.
 class EventChatCallStarted extends ChatEvent {
-  const EventChatCallStarted(ChatId chatId, this.call) : super(chatId);
+  const EventChatCallStarted(super.chatId, this.call);
 
   /// Started [ChatCall].
   final ChatCall call;
@@ -460,7 +473,7 @@ class EventChatTotalItemsCountUpdated extends ChatEvent {
 
 /// Event of a [Chat]'s [ChatDirectLink] being deleted.
 class EventChatDirectLinkDeleted extends ChatEvent {
-  const EventChatDirectLinkDeleted(ChatId chatId) : super(chatId);
+  const EventChatDirectLinkDeleted(super.chatId);
 
   @override
   ChatEventKind get kind => ChatEventKind.directLinkDeleted;
