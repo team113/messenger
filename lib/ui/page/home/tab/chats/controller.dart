@@ -207,7 +207,7 @@ class ChatsTabController extends GetxController {
     _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          chats.add(event.value!);
+          chats.add(event.value!..listenUpdates());
           chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, chats.sort);
@@ -219,7 +219,14 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
-          chats.removeWhere((e) => e.chat.value.id == event.key);
+          chats.removeWhere((e) {
+            if(e.chat.value.id == event.key) {
+              e.stopUpdates();
+              return true;
+            }
+
+            return false;
+          });
 
           if (event.value!.chat.value.isDialog) {
             final UserId? userId = event.value!.chat.value.members

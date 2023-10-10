@@ -161,6 +161,11 @@ class HiveRxChat extends RxChat {
   /// [CancelToken] for cancelling the [Pagination.around] query.
   final CancelToken _aroundToken = CancelToken();
 
+  /// Reference counter for [_remoteSubscription]'s actuality.
+  ///
+  /// [_remoteSubscription] is up only if this counter is greater than zero.
+  int _listeners = 0;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -375,13 +380,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Subscribes to the remote updates of the [chat] if not subscribed already.
-  void subscribe() {
-    if (!_remoteSubscriptionInitialized && !id.isLocal) {
-      _initRemoteSubscription();
-    }
-  }
-
   @override
   void setDraft({
     ChatMessageText? text,
@@ -484,6 +482,21 @@ class HiveRxChat extends RxChat {
       await _updateAttachments(item);
       _attachmentGuards.remove(item.id);
     });
+  }
+
+  @override
+  void listenUpdates() {
+    if (_listeners++ == 0) {
+      _initRemoteSubscription();
+    }
+  }
+
+  @override
+  void stopUpdates() {
+    if (--_listeners == 0) {
+      _remoteSubscription?.close(immediate: true);
+      _remoteSubscription = null;
+    }
   }
 
   /// Marks this [RxChat] as read until the provided [ChatItem] for the
@@ -714,7 +727,9 @@ class HiveRxChat extends RxChat {
     if (chat.value.id != newChat.id) {
       chat.value = newChat;
 
-      subscribe();
+      if(_listeners > 0) {
+        _initRemoteSubscription();
+      }
 
       // Retrieve all the [HiveChatItem]s to put them in the [newChat].
       final Iterable<HiveChatItem> saved = await _local.values;
@@ -965,29 +980,31 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscriptionInitialized = true;
+    if (!_remoteSubscriptionInitialized && !id.isLocal) {
+      _remoteSubscriptionInitialized = true;
 
-    _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(
-      _chatRepository.chatEvents(
-        id,
-        (await _chatLocal.get(id))?.ver,
-        () async => (await _chatLocal.get(id))?.ver,
-      ),
-    );
+      _remoteSubscription?.close(immediate: true);
+      _remoteSubscription = StreamQueue(
+        _chatRepository.chatEvents(
+          id,
+          (await _chatLocal.get(id))?.ver,
+          () async => (await _chatLocal.get(id))?.ver,
+        ),
+      );
 
-    await _remoteSubscription!.execute(
-      _chatEvent,
-      onError: (e) async {
-        if (e is StaleVersionException) {
-          await _pagination.clear();
+      await _remoteSubscription!.execute(
+        _chatEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            await _pagination.clear();
 
-          await _pagination.around(cursor: _lastReadItemCursor);
-        }
-      },
-    );
+            await _pagination.around(cursor: _lastReadItemCursor);
+          }
+        },
+      );
 
-    _remoteSubscriptionInitialized = false;
+      _remoteSubscriptionInitialized = false;
+    }
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.

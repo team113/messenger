@@ -1245,7 +1245,6 @@ class ChatRepository extends DisposableInterface
         paginated[chatId] = entry;
       }
       entry.init();
-      entry.subscribe();
     } else {
       if (entry.chat.value.isMonolog) {
         if (_localMonologFavoritePosition != null) {

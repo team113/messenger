@@ -313,4 +313,10 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
+
+  /// States that this [chat] should get its updates.
+  void listenUpdates();
+
+  /// States that updates of this [chat] are no longer required.
+  void stopUpdates();
 }

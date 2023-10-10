@@ -431,6 +431,7 @@ class ChatController extends GetxController {
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
     }
+    chat?.stopUpdates();
 
     super.onClose();
   }
@@ -575,6 +576,8 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      chat!.listenUpdates();
+
       unreadMessages = chat!.chat.value.unreadCount;
 
       final ChatMessage? draft = chat!.draft.value;
