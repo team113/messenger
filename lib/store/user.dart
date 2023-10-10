@@ -44,7 +44,8 @@ import 'event/my_user.dart'
 import 'search.dart';
 
 /// Implementation of an [AbstractUserRepository].
-class UserRepository implements AbstractUserRepository {
+class UserRepository extends DisposableInterface
+    implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
     this._userLocal,
@@ -78,7 +79,7 @@ class UserRepository implements AbstractUserRepository {
   RxBool get isReady => _isReady;
 
   @override
-  Future<void> init() async {
+  Future<void> onInit() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
         users[c.value.id] = HiveRxUser(this, _userLocal, c);
@@ -87,15 +88,20 @@ class UserRepository implements AbstractUserRepository {
     }
 
     _initLocalSubscription();
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    users.forEach((_, v) => v.dispose());
+    _localSubscription?.cancel();
+
+    super.onClose();
   }
 
   @override
   Future<void> clearCache() => _userLocal.clear();
-
-  @override
-  void dispose() {
-    _localSubscription?.cancel();
-  }
 
   @override
   SearchResult<UserId, RxUser> search({

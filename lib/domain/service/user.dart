@@ -38,18 +38,6 @@ class UserService extends DisposableService {
   /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
-  @override
-  void onInit() {
-    _userRepository.init();
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _userRepository.dispose();
-    super.onClose();
-  }
-
   /// Searches [User]s by the given criteria.
   SearchResult<UserId, RxUser> search({
     UserNum? num,

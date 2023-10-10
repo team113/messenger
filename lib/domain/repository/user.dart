@@ -33,12 +33,6 @@ abstract class AbstractUserRepository {
   /// used.
   RxBool get isReady;
 
-  /// Initializes this repository.
-  Future<void> init();
-
-  /// Disposes this repository.
-  void dispose();
-
   /// Clears the stored [users].
   Future<void> clearCache();
 
