@@ -857,7 +857,7 @@ mixin UserGraphQlMixin {
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateUserAvatarException(
-          UpdateUserAvatarErrorCode.tooBigSize,
+          UpdateUserAvatarErrorCode.invalidSize,
         );
       }
 
@@ -934,7 +934,7 @@ mixin UserGraphQlMixin {
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateUserCallCoverException(
-          UpdateUserCallCoverErrorCode.tooBigSize,
+          UpdateUserCallCoverErrorCode.invalidSize,
         );
       }
 
