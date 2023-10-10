@@ -225,6 +225,9 @@ void main() async {
     callService.onReady();
 
     await Future.delayed(Duration.zero);
+    for (var e in chatService.chats.values) {
+      e.listenUpdates();
+    }
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'first');
 

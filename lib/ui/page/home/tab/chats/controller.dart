@@ -220,7 +220,7 @@ class ChatsTabController extends GetxController {
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
           chats.removeWhere((e) {
-            if(e.chat.value.id == event.key) {
+            if (e.chat.value.id == event.key) {
               e.stopUpdates();
               return true;
             }

@@ -727,7 +727,7 @@ class HiveRxChat extends RxChat {
     if (chat.value.id != newChat.id) {
       chat.value = newChat;
 
-      if(_listeners > 0) {
+      if (_listeners > 0) {
         _initRemoteSubscription();
       }
 
