@@ -29,6 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
@@ -43,10 +44,12 @@ export 'view.dart';
 class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.text,
     this.pop,
     this.attachments = const [],
+    this.onSent,
     required this.from,
     required this.quotes,
   });
@@ -73,6 +76,9 @@ class ChatForwardController extends GetxController {
   /// [Attachment]s to attach to the [quotes].
   final List<Attachment> attachments;
 
+  /// Callback, called when the [quotes] are sent.
+  final void Function()? onSent;
+
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
@@ -81,6 +87,9 @@ class ChatForwardController extends GetxController {
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
+
+  /// [AbstractSettingsRepository], used to create a [MessageFieldController].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
@@ -93,6 +102,7 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _settingsRepository,
       text: text,
       quotes: quotes,
       attachments: attachments,
@@ -169,6 +179,7 @@ class ChatForwardController extends GetxController {
 
           await Future.wait(futures);
           pop?.call();
+          onSent?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {

@@ -86,7 +86,7 @@ class MessageTimestamp extends StatelessWidget {
             color: isRead
                 ? style.colors.primary
                 : isError
-                    ? style.colors.dangerColor
+                    ? style.colors.danger
                     : style.colors.secondary,
             size: 12,
             key: Key(

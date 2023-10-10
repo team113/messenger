@@ -53,7 +53,7 @@ class UnreadCounter extends StatelessWidget {
             ? inverted
                 ? style.colors.onPrimary
                 : style.colors.secondaryHighlightDarkest
-            : style.colors.dangerColor,
+            : style.colors.danger,
       ),
       alignment: Alignment.center,
       child: Text(

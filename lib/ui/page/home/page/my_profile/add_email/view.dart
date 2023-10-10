@@ -26,6 +26,7 @@ import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for adding and confirming an [UserEmail].
@@ -50,7 +51,7 @@ class AddEmailView extends StatelessWidget {
       init: AddEmailController(
         Get.find(),
         initial: email,
-        pop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (AddEmailController c) {
         return Obx(() {

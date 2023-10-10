@@ -113,6 +113,7 @@ class TypographyView extends StatelessWidget {
       (style.fonts.labelMediumOnPrimary, 'labelMediumOnPrimary'),
       (style.fonts.labelMediumPrimary, 'labelMediumPrimary'),
       (style.fonts.labelMediumSecondary, 'labelMediumSecondary'),
+      (style.fonts.labelMediumDanger, 'labelMediumDanger'),
       (style.fonts.labelSmall, 'labelSmall'),
       (style.fonts.labelSmallOnPrimary, 'labelSmallOnPrimary'),
       (style.fonts.labelSmallPrimary, 'labelSmallPrimary'),

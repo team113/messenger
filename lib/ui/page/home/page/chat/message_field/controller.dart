@@ -17,27 +17,35 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'component/more.dart';
+import 'widget/buttons.dart';
 
 export 'view.dart';
 
@@ -45,7 +53,8 @@ export 'view.dart';
 class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.onSubmit,
     this.onChanged,
     String? text,
@@ -146,6 +155,33 @@ class MessageFieldController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// Indicator whether the more panel is opened.
+  final RxBool moreOpened = RxBool(false);
+
+  /// [GlobalKey] of the text field itself.
+  final GlobalKey fieldKey = GlobalKey();
+
+  /// [ChatButton]s displayed in the more panel.
+  late final RxList<ChatButton> panel = RxList([
+    const AudioMessageButton(),
+    const VideoMessageButton(),
+    const DonateButton(),
+    const StickerButton(),
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
+      TakePhotoButton(pickImageFromCamera),
+      if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),
+      GalleryButton(pickMedia),
+      FileButton(pickFile),
+    ] else
+      AttachmentButton(pickFile),
+  ]);
+
+  /// [ChatButton]s displayed (pinned) in the text field.
+  late final RxList<ChatButton> buttons;
+
+  /// Indicator whether any more [ChatButton] can be added to the [buttons].
+  final RxBool canPin = RxBool(true);
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
@@ -154,6 +190,9 @@ class MessageFieldController extends GetxController {
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
+
+  /// [AbstractSettingsRepository], used to get the [buttons] value.
+  final AbstractSettingsRepository _settingsRepository;
 
   /// Worker reacting on the [replied] changes.
   Worker? _repliesWorker;
@@ -164,14 +203,53 @@ class MessageFieldController extends GetxController {
   /// Worker reacting on the [edited] changes.
   Worker? _editedWorker;
 
+  /// Worker capturing any [buttons] changes to update the
+  /// [ApplicationSettings.pinnedActions] value.
+  Worker? _buttonsWorker;
+
+  /// [OverlayEntry] of the [MessageFieldMore].
+  OverlayEntry? _moreEntry;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
   @override
+  void onInit() {
+    if (PlatformUtils.isMobile) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
+    // Constructs a list of [ChatButton]s from the provided [list] of [String]s.
+    List<ChatButton> toButtons(List<String>? list) {
+      List<ChatButton>? persisted = list
+          ?.map((e) =>
+              panel.firstWhereOrNull((m) => m.runtimeType.toString() == e))
+          .whereNotNull()
+          .toList();
+
+      return persisted ?? [];
+    }
+
+    buttons = RxList(
+      toButtons(_settingsRepository.applicationSettings.value?.pinnedActions),
+    );
+
+    _buttonsWorker = ever(buttons, (List<ChatButton> list) {
+      _settingsRepository.setPinnedActions(
+        list.map((e) => e.runtimeType.toString()).toList(),
+      );
+    });
+
+    super.onInit();
+  }
+
+  @override
   void onClose() {
+    _moreEntry?.remove();
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
+    _buttonsWorker?.dispose();
     super.onClose();
   }
 
@@ -185,16 +263,35 @@ class MessageFieldController extends GetxController {
     onChanged?.call();
   }
 
+  /// Toggles the [moreOpened] and populates the [_moreEntry].
+  void toggleMore() {
+    if (moreOpened.isTrue) {
+      _moreEntry?.remove();
+      _moreEntry = null;
+    } else {
+      _moreEntry = (OverlayEntry(builder: (_) => MessageFieldMore(this)));
+      router.overlay!.insert(_moreEntry!);
+    }
+
+    moreOpened.toggle();
+  }
+
   /// Returns an [User] from [UserService] by the provided [id].
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
+  Future<void> pickMedia() {
+    field.focus.unfocus();
+    return _pickAttachment(
+      PlatformUtils.isIOS ? FileType.media : FileType.image,
+    );
+  }
 
   /// Opens the camera app and adds the captured image to the [attachments].
   Future<void> pickImageFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? photo = await ImagePicker().pickImage(
       source: ImageSource.camera,
@@ -210,6 +307,8 @@ class MessageFieldController extends GetxController {
 
   /// Opens the camera app and adds the captured video to the [attachments].
   Future<void> pickVideoFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? video = await ImagePicker().pickVideo(
       source: ImageSource.camera,
@@ -223,7 +322,10 @@ class MessageFieldController extends GetxController {
 
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
+  Future<void> pickFile() {
+    field.focus.unfocus();
+    return _pickAttachment(FileType.any);
+  }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
@@ -281,5 +383,19 @@ class MessageFieldController extends GetxController {
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
+  }
+
+  /// Invokes [toggleMore], if [moreOpened].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (moreOpened.isTrue) {
+      toggleMore();
+      return true;
+    }
+
+    return false;
   }
 }

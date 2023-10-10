@@ -231,7 +231,7 @@ class _HomeViewState extends State<HomeView> {
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.colors.secondaryHighlightDarkest
-                                    : style.colors.dangerColor,
+                                    : style.colors.danger,
                                 child: ContextMenuRegion(
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
@@ -292,9 +292,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.green,
+                                          color: style.colors.acceptAuxiliary,
                                         ),
                                       ),
                                     ),
@@ -306,9 +306,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.orange,
+                                          color: style.colors.warning,
                                         ),
                                       ),
                                     ),

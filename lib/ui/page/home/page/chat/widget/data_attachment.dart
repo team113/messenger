@@ -166,7 +166,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.check_circle,
               key: const Key('Sent'),
               size: 29,
-              color: style.colors.acceptAuxiliaryColor,
+              color: style.colors.acceptAuxiliary,
             );
             break;
 
@@ -175,7 +175,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 29,
-              color: style.colors.dangerColor,
+              color: style.colors.danger,
             );
             break;
         }
