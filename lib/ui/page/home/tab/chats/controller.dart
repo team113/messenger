@@ -173,6 +173,8 @@ class ChatsTabController extends GetxController {
 
     chats = RxList<RxChat>(_chatService.paginated.values.toList());
 
+    _chatService.paginated.forEach((_, e) => e.listenUpdates());
+
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
