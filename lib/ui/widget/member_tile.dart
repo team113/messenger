@@ -78,7 +78,7 @@ class MemberTile extends StatelessWidget {
               color: inCall == true
                   ? onCall == null
                       ? style.colors.primaryHighlightLightest
-                      : style.colors.dangerColor
+                      : style.colors.danger
                   : style.colors.primary,
               type: MaterialType.circle,
               child: InkWell(

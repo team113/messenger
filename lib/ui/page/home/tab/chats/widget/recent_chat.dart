@@ -764,7 +764,7 @@ class RecentChatTile extends StatelessWidget {
                     ? style.colors.onPrimary
                     : style.colors.primary
                 : isError
-                    ? style.colors.dangerColor
+                    ? style.colors.danger
                     : inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,

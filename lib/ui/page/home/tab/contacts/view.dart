@@ -705,7 +705,13 @@ class ContactsTabView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Obx(() {
-              final subtitle = contact.user.value?.user.value.getStatus();
+              if (contact.user.value == null) {
+                return const SizedBox();
+              }
+
+              final subtitle = contact.user.value?.user.value
+                  .getStatus(contact.user.value?.lastSeen.value);
+
               if (subtitle != null) {
                 return Text(
                   subtitle,
@@ -715,7 +721,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               }
 
-              return Container();
+              return const SizedBox();
             }),
           ),
         ],
