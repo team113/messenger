@@ -24,8 +24,7 @@ import '/util/obs/obs.dart';
 import 'pagination.dart';
 
 /// Implementation of a [SearchResult].
-class SearchResultImpl<K extends Comparable, T>
-    implements SearchResult<K, T> {
+class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
   SearchResultImpl({
     this.pagination,
     List<FutureOr<Map<K, T>>> initial = const [],
@@ -57,7 +56,7 @@ class SearchResultImpl<K extends Comparable, T>
         }
       });
 
-      if(pagination!.items.isEmpty) {
+      if (pagination!.items.isEmpty) {
         futures.add(pagination!.around());
       }
     }

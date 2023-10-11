@@ -355,7 +355,6 @@ class SearchController extends GetxController {
           !categories.any(
             (e) => e == SearchCategory.user || e == SearchCategory.contact,
           )) {
-        print(s.isLoading);
         searchStatus.value = s;
       }
 

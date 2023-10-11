@@ -71,7 +71,10 @@ class CombinedPagination<T, K> {
 
   /// Fetches the next page.
   Future<Page<T, Object>?> next() async {
-    return await paginations.firstWhereOrNull((e) => e.p.hasNext.isTrue)?.p.next();
+    return await paginations
+        .firstWhereOrNull((e) => e.p.hasNext.isTrue)
+        ?.p
+        .next();
   }
 
   /// Adds the provided [item] to the [paginations].

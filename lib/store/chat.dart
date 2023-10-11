@@ -500,7 +500,7 @@ class ChatRepository extends DisposableInterface
   @override
   SearchResult<ChatId, RxChat> search({ChatName? name}) {
     Pagination<RxChat, Object, ChatId>? pagination;
-    if (_pagination == null || _pagination!.hasNext.isTrue) {
+    if (_pagination?.hasNext.value != false) {
       pagination = Pagination(
         provider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
@@ -1276,14 +1276,14 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    // final HiveChat? saved = await _chatLocal.get(chat.value.id);
-    //
-    // // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-    // chat.value.firstItem ??= saved?.value.firstItem;
-    //
-    // if (saved == null || saved.ver < chat.ver) {
-    //   _chatLocal.put(chat);
-    // }
+    _chatLocal.get(chat.value.id).then((saved) {
+      // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+      chat.value.firstItem ??= saved?.value.firstItem;
+
+      if (saved == null || saved.ver < chat.ver) {
+        _chatLocal.put(chat);
+      }
+    });
 
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
