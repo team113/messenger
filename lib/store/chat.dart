@@ -60,6 +60,7 @@ import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
@@ -1250,9 +1251,6 @@ class ChatRepository extends DisposableInterface
       entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
       chats[chatId] = entry;
 
-      if (pagination) {
-        paginated[chatId] = entry;
-      }
       entry.init();
     } else {
       if (entry.chat.value.isMonolog) {
@@ -1275,9 +1273,12 @@ class ChatRepository extends DisposableInterface
 
       entry.chat.value = chat.value;
       entry.chat.refresh();
+    }
 
-      if (pagination) {
-        paginated[chatId] ??= entry;
+    if (pagination) {
+      paginated[chatId] = entry;
+      if (!WebUtils.isPopup) {
+        entry.listenUpdates();
       }
     }
 
@@ -1335,9 +1336,9 @@ class ChatRepository extends DisposableInterface
 
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
-        // Update the chat only if it's new since, otherwise its state is
-        // maintained by itself via [chatEvents].
-        if (chats[event.chat.chat.value.id] == null) {
+        // Update the chat only if its state is not maintained by itself via
+        // [chatEvents].
+        if (chats[event.chat.chat.value.id]?.subscribed != true) {
           _putEntry(event.chat);
         }
         break;

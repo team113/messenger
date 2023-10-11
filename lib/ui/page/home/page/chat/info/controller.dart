@@ -180,6 +180,7 @@ class ChatInfoController extends GetxController {
     _worker?.dispose();
     _nameTimer?.cancel();
     _avatarTimer?.cancel();
+    chat?.stopUpdates();
     super.onClose();
   }
 
@@ -377,6 +378,7 @@ class ChatInfoController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      chat!.listenUpdates();
       name.unchecked = chat!.chat.value.name?.val;
 
       _worker = ever(

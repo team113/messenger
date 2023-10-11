@@ -818,6 +818,8 @@ class CallController extends GetxController {
       e.cancel();
     }
     _notificationTimers.clear();
+
+    chat.value?.stopUpdates();
   }
 
   /// Drops the call.
@@ -2081,7 +2083,9 @@ class CallController extends GetxController {
 
   /// Sets the [chat] to the provided value, updating the title.
   void _updateChat(RxChat? v) {
+    chat.value?.stopUpdates();
     chat.value = v;
+    chat.value?.listenUpdates();
     if (!isGroup) {
       secondaryAlignment.value = null;
       secondaryLeft.value = null;

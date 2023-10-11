@@ -103,6 +103,10 @@ class HiveRxChat extends RxChat {
   @override
   final RxInt unreadCount;
 
+  /// Indicator whether [_remoteSubscription] is initialized or is being
+  /// initialized.
+  bool subscribed = false;
+
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
@@ -141,10 +145,6 @@ class HiveRxChat extends RxChat {
 
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
-
-  /// Indicator whether [_remoteSubscription] is initialized or is being
-  /// initialized used in [subscribe].
-  bool _remoteSubscriptionInitialized = false;
 
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
@@ -370,7 +370,7 @@ class HiveRxChat extends RxChat {
     _remoteSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
     _messagesSubscription?.cancel();
-    _remoteSubscriptionInitialized = false;
+    subscribed = false;
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
@@ -980,8 +980,8 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    if (!_remoteSubscriptionInitialized && !id.isLocal) {
-      _remoteSubscriptionInitialized = true;
+    if (!subscribed && !id.isLocal) {
+      subscribed = true;
 
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = StreamQueue(
@@ -1003,7 +1003,7 @@ class HiveRxChat extends RxChat {
         },
       );
 
-      _remoteSubscriptionInitialized = false;
+      subscribed = false;
     }
   }
 
@@ -1033,12 +1033,12 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = _remoteSubscriptionInitialized;
+        bool putChat = subscribed;
         for (var event in versioned.events) {
-          putChat = _remoteSubscriptionInitialized;
+          putChat = subscribed;
 
           // Subscription was already disposed while processing the events.
-          if (!_remoteSubscriptionInitialized) {
+          if (!subscribed) {
             return;
           }
 

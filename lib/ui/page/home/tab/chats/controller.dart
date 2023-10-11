@@ -173,8 +173,6 @@ class ChatsTabController extends GetxController {
 
     chats = RxList<RxChat>(_chatService.paginated.values.toList());
 
-    _chatService.paginated.forEach((_, e) => e.listenUpdates());
-
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
@@ -209,7 +207,7 @@ class ChatsTabController extends GetxController {
     _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          chats.add(event.value!..listenUpdates());
+          chats.add(event.value!);
           chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
               _ChatSortingData(event.value!.chat, chats.sort);
