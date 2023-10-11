@@ -267,10 +267,11 @@ class SvgIcons {
     height: 25,
   );
 
+  // TODO
   static const SvgData github = SvgData(
     'assets/icons/github.svg',
-    width: 32.2,
-    height: 32,
+    width: 26,
+    height: 26,
   );
 
   static const SvgData share = SvgData(
