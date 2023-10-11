@@ -213,7 +213,7 @@ class ChatRepository extends DisposableInterface
         getKey: (e) => e.value.id,
         isLast: (_) => true,
         isFirst: (_) => true,
-        sortedKeys: () => _recentLocal.values,
+        orderBy: (_) => _recentLocal.values,
         strategy: PaginationStrategy.fromEnd,
         reversed: true,
       ),
@@ -224,8 +224,7 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
+          _putEntry(ChatData(event.value!, null, null), pagination: true);
           break;
 
         case OperationKind.removed:
@@ -314,7 +313,9 @@ class ChatRepository extends DisposableInterface
           }
         }
 
-        chats[id] = chat!;
+        if (chat != null) {
+          chats[id] = chat!;
+        }
       }
 
       return chat;
@@ -1504,9 +1505,12 @@ class ChatRepository extends DisposableInterface
       }
     });
 
+    // Clear the [paginated] and the [_localPagination] populating it, as
+    // [CombinedPagination.around] has fetched its results.
     paginated.clear();
     _localPagination = null;
 
+    // Add the received in [CombinedPagination.around] items to the [paginated].
     _pagination?.items
         .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
 

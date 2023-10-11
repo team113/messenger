@@ -29,7 +29,7 @@ Feature: Chats pagination
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
 
-  Scenario: Chats pagination switches between local and remote chats
+  Scenario: Chats pagination migrates from local to remote
     Given user Alice
     And Alice has local chat
     And I sign in as Alice
