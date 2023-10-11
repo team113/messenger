@@ -337,7 +337,7 @@ extension ChatLastReadItemConversion on ChatMixin$LastReadItem {
 
 /// Extension adding models construction from [ChatForwardMixin$Quote].
 extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
-  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin$Quote].
+  /// Constructs the new [HiveChatItemQuote]s from this [ChatForwardMixin$Quote].
   HiveChatItemQuote toHive() => _chatItemQuote(this);
 }
 
@@ -345,6 +345,15 @@ extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
 extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
   /// Constructs the new [HiveChatItemQuote] from this
   /// [ChatMessageMixin$RepliesTo].
+  HiveChatItemQuote toHive() => _chatItemQuote(this);
+}
+
+/// Extension adding models construction from
+/// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
+extension EventChatItemEditedRepliesToConversion
+    on ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed {
+  /// Constructs the new [HiveChatItemQuote]s from this
+  /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
   HiveChatItemQuote toHive() => _chatItemQuote(this);
 }
 
@@ -596,6 +605,15 @@ extension ChatMessageQuoteMixinAttachmentsConversion
     on ChatMessageQuoteMixin$Attachments {
   /// Constructs a new [Attachment] from this
   /// [ChatMessageQuoteMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed].
+extension EventChatItemEditedAttachmentsConversion
+    on ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 

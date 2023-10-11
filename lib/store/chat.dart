@@ -35,6 +35,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
+import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -554,10 +555,10 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> editChatMessageText(
-    ChatMessage message,
-    ChatMessageText? text,
-  ) async {
+  Future<void> editChatMessage(
+    ChatMessage message, {
+    model.ChatMessageTextInput? text,
+  }) async {
     final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
@@ -565,11 +566,17 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? previous;
     if (item?.value is ChatMessage) {
       previous = (item?.value as ChatMessage).text;
-      item?.update((c) => (c as ChatMessage?)?.text = text);
+
+      if (text != null) {
+        item?.update((c) => (c as ChatMessage?)?.text = text.changed);
+      }
     }
 
     try {
-      await _graphQlProvider.editChatMessageText(message.id, text);
+      await _graphQlProvider.editChatMessage(
+        message.id,
+        text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
+      );
     } catch (_) {
       if (item?.value is ChatMessage) {
         item?.update((c) => (c as ChatMessage?)?.text = previous);
@@ -1134,12 +1141,14 @@ class ChatRepository extends DisposableInterface
         e.chatId,
         node.itemId,
       );
-    } else if (e.$$typename == 'EventChatItemTextEdited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemTextEdited;
-      return EventChatItemTextEdited(
+    } else if (e.$$typename == 'EventChatItemEdited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
+      return EventChatItemEdited(
         e.chatId,
         node.itemId,
-        node.text,
+        node.text?.changed,
+        node.attachments?.changed.map((e) => e.toModel()).toList(),
+        node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
