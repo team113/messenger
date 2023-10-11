@@ -159,22 +159,23 @@ class Pagination<T, C, K> {
   }
 
   /// Fetches a next page of the [items].
-  Future<void> next() async {
+
+  Future<Page<T, C>?> next() async {
     final bool locked = _nextGuard.isLocked;
 
     return _nextGuard.protect(() async {
       if (locked) {
-        return;
+        return null;
       }
 
       Log.print('next()...', 'Pagination');
 
+      Page<T, C>? page;
       if (hasNext.isTrue && nextLoading.isFalse) {
         nextLoading.value = true;
 
         if (items.isNotEmpty) {
-          final Page<T, C>? page =
-              await provider.after(items.last, endCursor, perPage);
+          page = await provider.after(items.last, endCursor, perPage);
           Log.print(
             'next()... fetched ${page?.edges.length} items',
             'Pagination',
@@ -193,6 +194,7 @@ class Pagination<T, C, K> {
 
         nextLoading.value = false;
       }
+      return page;
     });
   }
 
