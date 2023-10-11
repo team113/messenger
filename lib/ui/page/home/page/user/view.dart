@@ -94,7 +94,9 @@ class UserView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
+                          final String? status = c.user?.user.value
+                              .getStatus(c.user?.lastSeen.value);
+
                           final UserTextStatus? text =
                               c.user?.user.value.status;
                           final StringBuffer buffer = StringBuffer();
@@ -200,10 +202,13 @@ class UserView extends StatelessWidget {
                           if (c.user!.user.value.status != null)
                             UserStatusCopyable(c.user!.user.value.status!),
                           if (c.user!.user.value.presence != null)
-                            UserPresenceField(
-                              c.user!.user.value.presence!,
-                              c.user!.user.value.getStatus(),
-                            ),
+                            Obx(() {
+                              return UserPresenceField(
+                                c.user!.user.value.presence!,
+                                c.user!.user.value
+                                    .getStatus(c.user?.lastSeen.value),
+                              );
+                            }),
                         ],
                       ),
                       Block(
@@ -264,6 +269,10 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
+          if (!c.inContacts.value) {
+            return const SizedBox();
+          }
+
           return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n

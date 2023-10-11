@@ -48,7 +48,8 @@ import 'search.dart';
 import 'user.dart';
 
 /// Implementation of an [AbstractContactRepository].
-class ContactRepository implements AbstractContactRepository {
+class ContactRepository extends DisposableInterface
+    implements AbstractContactRepository {
   ContactRepository(
     this._graphQlProvider,
     this._contactLocal,
@@ -86,7 +87,7 @@ class ContactRepository implements AbstractContactRepository {
   StreamQueue<ChatContactsEvents>? _remoteSubscription;
 
   @override
-  Future<void> init() async {
+  Future<void> onInit() async {
     if (!_contactLocal.isEmpty) {
       for (HiveChatContact c in _contactLocal.contacts) {
         HiveRxChatContact entry = HiveRxChatContact(_userRepo, c)..init();
@@ -106,14 +107,18 @@ class ContactRepository implements AbstractContactRepository {
 
     _initLocalSubscription();
     _initRemoteSubscription();
+
+    super.onInit();
   }
 
   @override
-  void dispose() {
-    contacts.forEach((k, v) => v.dispose());
-    favorites.forEach((k, v) => v.dispose());
+  void onClose() {
+    contacts.forEach((_, v) => v.dispose());
+    favorites.forEach((_, v) => v.dispose());
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
+
+    super.onClose();
   }
 
   @override
@@ -180,16 +185,16 @@ class ContactRepository implements AbstractContactRepository {
     if (position == null) {
       final List<HiveRxChatContact> sorted = favorites.values.toList()
         ..sort(
-          (a, b) => a.contact.value.favoritePosition!
-              .compareTo(b.contact.value.favoritePosition!),
+          (a, b) => b.contact.value.favoritePosition!
+              .compareTo(a.contact.value.favoritePosition!),
         );
 
-      final double? lowestFavorite = sorted.isEmpty
+      final double? highestFavorite = sorted.isEmpty
           ? null
           : sorted.first.contact.value.favoritePosition!.val;
 
       newPosition = ChatContactFavoritePosition(
-        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+        highestFavorite == null ? 1 : highestFavorite * 2,
       );
     } else {
       newPosition = position;
