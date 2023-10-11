@@ -18,9 +18,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
+import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/chat_message_input.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -223,9 +225,9 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    when(graphQlProvider.editChatMessageText(
+    when(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
+      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
     )).thenAnswer((_) => Future.value());
 
     await chatService.editChatMessage(
@@ -238,12 +240,12 @@ void main() async {
         ),
         PreciseDateTime.now(),
       ),
-      const ChatMessageText('new text'),
+      text: const ChatMessageTextInput(ChatMessageText('new text')),
     );
 
-    verify(graphQlProvider.editChatMessageText(
+    verify(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
+      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
     ));
   });
 
@@ -294,11 +296,14 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    when(graphQlProvider.editChatMessageText(
+    when(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
-    )).thenThrow(const EditChatMessageException(
-        EditChatMessageTextErrorCode.unknownChatItem));
+      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
+    )).thenThrow(
+      const EditChatMessageException(
+        EditChatMessageErrorCode.unknownReplyingChatItem,
+      ),
+    );
 
     Get.put(chatProvider);
 
@@ -313,14 +318,14 @@ void main() async {
           ),
           PreciseDateTime.now(),
         ),
-        const ChatMessageText('new text'),
+        text: const ChatMessageTextInput(ChatMessageText('new text')),
       ),
       throwsA(isA<EditChatMessageException>()),
     );
 
-    verify(graphQlProvider.editChatMessageText(
+    verify(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const ChatMessageText('new text'),
+      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
     ));
   });
 }

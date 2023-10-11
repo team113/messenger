@@ -54,6 +54,7 @@ final StepDefinitionGeneric seeMonologAsFavorite =
             );
         }
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );

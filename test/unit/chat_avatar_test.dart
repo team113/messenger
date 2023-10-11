@@ -241,7 +241,7 @@ void main() async {
       file: captureThat(isNotNull, named: 'file'),
       onSendProgress: null,
     )).thenThrow(
-      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.tooBigSize),
+      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
     );
 
     when(graphQlProvider.updateChatAvatar(
@@ -311,7 +311,8 @@ void main() async {
     }
 
     if (exception !=
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.tooBigSize)) {
+        const UpdateChatAvatarException(
+            UpdateChatAvatarErrorCode.invalidSize)) {
       fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
     }
 

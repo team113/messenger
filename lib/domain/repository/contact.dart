@@ -37,12 +37,6 @@ abstract class AbstractContactRepository {
   /// [contacts] and [favorites].
   Rx<RxStatus> get status;
 
-  /// Initializes this repository.
-  Future<void> init();
-
-  /// Disposes this repository.
-  void dispose();
-
   /// Returns a [ChatContact] by the provided [id].
   RxChatContact? get(ChatContactId id);
 

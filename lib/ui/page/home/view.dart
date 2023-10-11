@@ -414,6 +414,8 @@ class _HomeViewState extends State<HomeView> {
           final Widget image;
           if (c.background.value != null) {
             image = Image.memory(
+              width: double.infinity,
+              height: double.infinity,
               c.background.value!,
               key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
