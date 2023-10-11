@@ -269,6 +269,10 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
+          if (!c.inContacts.value) {
+            return const SizedBox();
+          }
+
           return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
