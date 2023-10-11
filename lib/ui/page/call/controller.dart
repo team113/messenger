@@ -1918,13 +1918,14 @@ class CallController extends GetxController {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
-    if (track?.source == MediaSourceKind.display ||
-        participants.isEmpty ||
-        (track != null &&
-            participants.none((e) => track.kind == MediaKind.video
-                ? e.video.value == null
-                : e.audio.value == null &&
-                    e.video.value?.source != MediaSourceKind.display))) {
+    // if (track?.source == MediaSourceKind.display ||
+    //     participants.isEmpty ||
+    //     (track != null &&
+    //         participants.none((e) => track.kind == MediaKind.video
+    //             ? e.video.value == null
+    //             : e.audio.value == null &&
+    //                 e.video.value?.source != MediaSourceKind.display))) {
+    if (participants.isEmpty) {
       final Participant participant = Participant(
         member,
         video: track?.kind == MediaKind.video ? track : null,
@@ -1971,11 +1972,12 @@ class CallController extends GetxController {
       }
     } else {
       if (track != null) {
-        final Participant participant = participants.firstWhere((e) =>
-            track.kind == MediaKind.video
-                ? e.video.value == null
-                : e.audio.value == null &&
-                    e.video.value?.source != MediaSourceKind.display);
+        final Participant participant = participants.first;
+        // final Participant participant = participants.firstWhere((e) =>
+        //     track.kind == MediaKind.video
+        //         ? e.video.value == null
+        //         : e.audio.value == null &&
+        //             e.video.value?.source != MediaSourceKind.display);
         participant.member = member;
         if (track.kind == MediaKind.video) {
           participant.video.value = track;

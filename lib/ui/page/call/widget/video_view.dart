@@ -193,8 +193,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       autoRotate: widget.renderer.autoRotate,
     );
 
-    return video;
-
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
       return Obx(() {
