@@ -159,6 +159,8 @@ class OngoingCall {
       audioState = Rx(LocalTrackState.disabled);
     }
 
+    print('withVideo: $withVideo, stackTrace: ${StackTrace.current}');
+
     if (withVideo) {
       videoState = Rx(LocalTrackState.enabling);
     } else {

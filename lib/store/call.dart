@@ -148,6 +148,7 @@ class CallRepository extends DisposableInterface
     bool withScreen = false,
   }) {
     Rx<OngoingCall>? ongoing = calls[stored.chatId];
+    print('addStored ($withVideo, $withAudio), $ongoing');
 
     if (ongoing == null) {
       ongoing = Rx(
