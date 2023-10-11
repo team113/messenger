@@ -57,7 +57,9 @@ class SearchResultImpl<K extends Comparable, T>
         }
       });
 
-      futures.add(pagination!.around());
+      if(pagination!.items.isEmpty) {
+        futures.add(pagination!.around());
+      }
     }
 
     if (futures.isEmpty) {

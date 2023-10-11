@@ -30,6 +30,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/search.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -340,6 +341,9 @@ class ChatService extends DisposableService {
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
       _chatRepository.clearChat(id, untilId);
 
+  /// Searches [Chat]s by the given [name].
+  ///
+  /// Returns all [Chat]s if [name] is `null`.
   SearchResult<ChatId, RxChat> search({ChatName? name}) =>
       _chatRepository.search(name: name);
 }

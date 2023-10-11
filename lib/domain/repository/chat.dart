@@ -205,6 +205,9 @@ abstract class AbstractChatRepository {
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
 
+  /// Searches [Chat]s by the given [name].
+  ///
+  /// Returns all [Chat]s if [name] is `null`.
   SearchResult<ChatId, RxChat> search({ChatName? name});
 }
 

@@ -86,6 +86,9 @@ class SearchController extends GetxController {
   final Rx<SearchResult<ChatContactId, RxChatContact>?> contactsSearch =
       Rx(null);
 
+  /// [ChatContact]s search results.
+  final Rx<SearchResult<ChatId, RxChat>?> chatsSearch = Rx(null);
+
   /// Status of a [_search] completion.
   ///
   /// May be:
@@ -133,6 +136,9 @@ class SearchController extends GetxController {
   /// Worker to react on the [contactsSearch] status changes.
   Worker? _contactsSearchWorker;
 
+  /// Worker to react on the [chatsSearch] status changes.
+  Worker? _chatsSearchWorker;
+
   /// Worker to react on [query] changes.
   Worker? _searchWorker;
 
@@ -159,6 +165,7 @@ class SearchController extends GetxController {
   RxBool get hasNext =>
       usersSearch.value?.hasNext ??
       contactsSearch.value?.hasNext ??
+      chatsSearch.value?.hasNext ??
       RxBool(false);
 
   @override
@@ -173,17 +180,17 @@ class SearchController extends GetxController {
         usersSearch.value = null;
         contactsSearch.value?.dispose();
         contactsSearch.value = null;
-        searchStatus.value = RxStatus.empty();
         users.clear();
         contacts.clear();
-        chats.clear();
         recent.clear();
-      } else {
-        searchStatus.value = RxStatus.loading();
       }
+
+      searchStatus.value = RxStatus.loading();
 
       populate();
     });
+
+    _searchChats(query.value);
 
     populate();
 
@@ -195,6 +202,7 @@ class SearchController extends GetxController {
     scrollController.removeListener(_scrollListener);
     usersSearch.value?.dispose();
     contactsSearch.value?.dispose();
+    chatsSearch.value?.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _usersSearchWorker?.dispose();
@@ -202,6 +210,8 @@ class SearchController extends GetxController {
     _ensureScrollableTimer?.cancel();
     _contactsSearchWorker?.dispose();
     _contactsSearchWorker = null;
+    _chatsSearchWorker?.dispose();
+    _chatsSearchWorker = null;
     super.onClose();
   }
 
@@ -289,6 +299,12 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
+    if (chatsSearch.value != null) {
+      chatsSearch.value?.dispose();
+      chatsSearch.value = null;
+      _populateChats();
+    }
+
     if (contactsSearch.value != null) {
       contactsSearch.value?.dispose();
       contactsSearch.value = null;
@@ -301,12 +317,59 @@ class SearchController extends GetxController {
       _populateUsers();
     }
 
-    // TODO: Add `Chat`s and `ChatItem`s searching.
-    if (categories.contains(SearchCategory.contact)) {
+    // TODO: Add `ChatItem`s searching.
+    if (categories.contains(SearchCategory.chat)) {
+      _searchChats(query);
+    } else if (categories.contains(SearchCategory.contact)) {
       _searchContacts(query);
     } else if (categories.contains(SearchCategory.user)) {
       _searchUsers(query);
     }
+  }
+
+  /// Searches the [Chat]s based on the provided [query].
+  void _searchChats(String query) {
+    _chatsSearchWorker?.dispose();
+    _chatsSearchWorker = null;
+
+    ChatName? name;
+
+    try {
+      name = ChatName(query);
+    } catch (e) {
+      // No-op.
+    }
+
+    searchStatus.value = searchStatus.value.isSuccess
+        ? RxStatus.loadingMore()
+        : RxStatus.loading();
+
+    final SearchResult<ChatId, RxChat> result = _chatService.search(name: name);
+
+    chatsSearch.value?.dispose();
+    chatsSearch.value = result;
+    searchStatus.value = result.status.value;
+
+    _chatsSearchWorker = ever(result.status, (RxStatus s) {
+      if (chatsSearch.value?.items.isNotEmpty == true ||
+          !categories.any(
+            (e) => e == SearchCategory.user || e == SearchCategory.contact,
+          )) {
+        print(s.isLoading);
+        searchStatus.value = s;
+      }
+
+      if (s.isSuccess && !s.isLoadingMore) {
+        _populateChats();
+        _ensureScrollable();
+      }
+
+      if (chatsSearch.value?.hasNext.value == false) {
+        populate();
+      }
+    });
+
+    _populateChats();
   }
 
   /// Searches the [ChatContact]s based on the provided [query].
@@ -448,25 +511,40 @@ class SearchController extends GetxController {
 
   /// Updates the [chats] according to the [query].
   void _populateChats() {
-    if (categories.contains(SearchCategory.chat)) {
-      final List<RxChat> sorted = _chatService.chats.values.toList();
-
-      sorted.sort();
+    if (categories.contains(SearchCategory.chat) &&
+        chatsSearch.value?.items.isNotEmpty == true) {
+      Map<ChatId, RxChat> allChats = {
+        for (var c in chatsSearch.value!.items.values.where(
+          (e) =>
+              !e.id.isLocal &&
+              e.title.value.toLowerCase().contains(query.value.toLowerCase()) ==
+                  true,
+        ))
+          c.id: c,
+      };
 
       chats.value = {
-        for (var c in sorted.where((p) {
-          if (p.id.isLocal && !p.id.isLocalWith(me) || p.chat.value.isHidden) {
-            return false;
+        for (var c in selectedChats.where((e) {
+          if (!recent.containsKey(e.id) && !allChats.containsKey(e.id)) {
+            if (query.value.isNotEmpty) {
+              if (e.title.value
+                      .toLowerCase()
+                      .contains(query.value.toLowerCase()) ==
+                  true) {
+                return true;
+              }
+            } else {
+              return true;
+            }
           }
 
-          if (query.value.isNotEmpty) {
-            return p.title.toLowerCase().contains(query.value.toLowerCase());
-          }
-
-          return true;
+          return false;
         }))
-          c.chat.value.id: c,
+          c.id: c,
+        ...allChats,
       };
+    } else {
+      chats.value = {};
     }
   }
 
@@ -605,30 +683,40 @@ class SearchController extends GetxController {
 
   /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
   Future<void> _next() async {
-    await _nextContacts();
-    await _nextUsers();
+    if (categories.contains(SearchCategory.chat) &&
+        chatsSearch.value?.hasNext.value == true) {
+      await _nextChats();
+    } else if (categories.contains(SearchCategory.contact) &&
+        contactsSearch.value?.hasNext.value == true) {
+      await _nextContacts();
+    } else if (categories.contains(SearchCategory.user)) {
+      await _nextUsers();
+    }
   }
 
-  /// Fetches the next [contactsSearch] page, if needed.
+  /// Fetches the next [chats] page.
+  Future<void> _nextChats() async {
+    if (chatsSearch.value?.nextLoading.value == false) {
+      await chatsSearch.value!.next();
+    }
+  }
+
+  /// Fetches the next [contactsSearch] page.
   Future<void> _nextContacts() async {
-    if (categories.contains(SearchCategory.contact) &&
-        contactsSearch.value?.hasNext.value == true &&
-        contactsSearch.value?.nextLoading.value == false) {
+    if (contactsSearch.value == null) {
+      _searchContacts(query.value);
+    } else if (contactsSearch.value?.nextLoading.value == false) {
       await contactsSearch.value!.next();
     }
   }
 
-  /// Fetches the next [contactsSearch] page, if needed.
+  /// Fetches the next [contactsSearch] page.
   Future<void> _nextUsers() async {
-    if ((contactsSearch.value == null ||
-            contactsSearch.value!.hasNext.isFalse) &&
-        categories.contains(SearchCategory.user)) {
-      if (usersSearch.value == null) {
-        _searchUsers(query.value);
-      } else if (usersSearch.value!.hasNext.isTrue &&
-          usersSearch.value!.nextLoading.isFalse) {
-        await usersSearch.value!.next();
-      }
+    if (usersSearch.value == null) {
+      _searchUsers(query.value);
+    } else if (usersSearch.value!.hasNext.isTrue &&
+        usersSearch.value!.nextLoading.isFalse) {
+      await usersSearch.value!.next();
     }
   }
 
