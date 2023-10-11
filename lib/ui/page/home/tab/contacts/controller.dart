@@ -239,9 +239,9 @@ class ContactsTabController extends GetxController {
     double position;
 
     if (to <= 0) {
-      position = favorites.first.contact.value.favoritePosition!.val / 2;
+      position = favorites.first.contact.value.favoritePosition!.val * 2;
     } else if (to >= favorites.length) {
-      position = favorites.last.contact.value.favoritePosition!.val * 2;
+      position = favorites.last.contact.value.favoritePosition!.val / 2;
     } else {
       position = (favorites[to].contact.value.favoritePosition!.val +
               favorites[to - 1].contact.value.favoritePosition!.val) /
@@ -460,8 +460,8 @@ class ContactsTabController extends GetxController {
   /// Sorts the [favorites] by the [ChatContact.favoritePosition].
   void _sortFavorites() {
     favorites.sort(
-      (a, b) => a.contact.value.favoritePosition!
-          .compareTo(b.contact.value.favoritePosition!),
+      (a, b) => b.contact.value.favoritePosition!
+          .compareTo(a.contact.value.favoritePosition!),
     );
   }
 
