@@ -14,7 +14,7 @@ files_url = "http://localhost/files"
 [l10n.fluent]
 locales = ["en-US", "ru-RU"]
 [l10n.fluent.refresh]
-url = "https://raw.githubusercontent.com/team113/messenger/201-push-notifications/assets/l10n"
+url = "https://raw.githubusercontent.com/team113/messenger/push-notifications-improvements/assets/l10n"
 
 [media_server.medea.server.client.http]
 bind_port = 8090
@@ -26,26 +26,26 @@ max_relay_port = 49200
 name = "backend"
 
 [background.event_handler.create_call_heartbeat]
-period = "150ms"
+period = "300ms"
 [background.event_handler.create_call_room]
-period = "150ms"
+period = "300ms"
 [background.event_handler.ensure_call_member_joined_room]
-period = "150ms"
+period = "300ms"
 [background.event_handler.invalidate_chat_counts]
-period = "250ms"
+period = "500ms"
 [background.event_handler.synchronize_call_room]
-period = "150ms"
+period = "300ms"
 [background.event_handler.transcode_image_set]
 timeout = "5m"
 batch_size = 8
 [background.event_handler.update_chat_last_item]
-period = "250ms"
+period = "500ms"
 [background.event_handler.update_chat_ongoing_call]
-period = "150ms"
+period = "300ms"
 [background.event_handler.update_online_session_heartbeat]
-period = "150ms"
+period = "300ms"
 [background.event_handler.update_typing_heartbeat]
-period = "250ms"
+period = "500ms"
 
 [background.poll.chat_events]
 period = "500ms"
@@ -54,9 +54,11 @@ timeout = "500ms"
 period = "300ms"
 timeout = "300ms"
 [background.poll.incoming_calls_events]
-period = "500ms"
-timeout = "500ms"
+period = "300ms"
+timeout = "300ms"
 
+[background.watchdog.calls]
+stale_timeout = "10s"
 [background.watchdog.chat_typings]
 period = "500ms"
 stale_timeout = "3s"
