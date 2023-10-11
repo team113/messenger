@@ -21,6 +21,7 @@ import '/domain/model/session.dart';
 /// Extension adding [Credentials] models construction from a
 /// [SignUp$Mutation] response.
 extension SignUpCredentials on SignUp$Mutation {
+  /// Constructs the new [Credentials] from this [SignUp$Mutation].
   Credentials toModel() {
     return Credentials(
       Session(createUser.session.token, createUser.session.expireAt),
@@ -34,6 +35,8 @@ extension SignUpCredentials on SignUp$Mutation {
 /// Extension adding [Credentials] models construction from a
 /// [SignIn$Mutation$CreateSession$CreateSessionOk] response.
 extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
+  /// Constructs the new [Credentials] from this
+  /// [SignIn$Mutation$CreateSession$CreateSessionOk].
   Credentials toModel() {
     return Credentials(
       Session(session.token, session.expireAt),
@@ -47,6 +50,8 @@ extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
 /// [RenewSession$Mutation$RenewSession$RenewSessionOk] response.
 extension RenewSessionCredentials
     on RenewSession$Mutation$RenewSession$RenewSessionOk {
+  /// Constructs the new [Credentials] from this
+  /// [RenewSession$Mutation$RenewSession$RenewSessionOk].
   Credentials toModel() {
     return Credentials(
       Session(session.token, session.expireAt),
