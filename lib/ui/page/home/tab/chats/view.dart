@@ -895,7 +895,7 @@ class ChatsTabView extends StatelessWidget {
 
                                           return AnimationConfiguration
                                               .staggeredList(
-                                            position: i,
+                                            position: calls.length + i,
                                             duration: const Duration(
                                               milliseconds: 375,
                                             ),
@@ -928,7 +928,9 @@ class ChatsTabView extends StatelessWidget {
                                         ...chats.mapIndexed((i, e) {
                                           return AnimationConfiguration
                                               .staggeredList(
-                                            position: i,
+                                            position: calls.length +
+                                                favorites.length +
+                                                i,
                                             duration: const Duration(
                                               milliseconds: 375,
                                             ),

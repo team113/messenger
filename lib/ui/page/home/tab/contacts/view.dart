@@ -562,7 +562,7 @@ class ContactsTabView extends StatelessWidget {
                             delegate: SliverChildListDelegate.fixed(
                               c.contacts.mapIndexed((i, e) {
                                 return AnimationConfiguration.staggeredList(
-                                  position: i,
+                                  position: c.favorites.length + i,
                                   duration: const Duration(milliseconds: 375),
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
