@@ -197,7 +197,7 @@ class ChatRepository extends DisposableInterface
     _cancelToken.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
-    _favoriteChatsSubscription?.cancel();
+    _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
 
     super.onClose();

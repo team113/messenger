@@ -23,8 +23,11 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_size_getter/file_input.dart';
+import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
+import 'package:universal_io/io.dart';
 
 import '../model_type_id.dart';
 import '/util/mime.dart';
@@ -54,6 +57,17 @@ class NativeFile {
           mime = MediaType.parse(type);
         }
       }
+    }
+
+    // TODO: Decode image before uploading to backend.
+    if (isImage) {
+      if (path != null) {
+        dimensions = ImageSizeGetter.getSize(FileInput(File(path!)));
+      } else if (bytes != null) {
+        dimensions = ImageSizeGetter.getSize(MemoryInput(bytes));
+      }
+
+      print('DIMENSIONS: $dimensions');
     }
   }
 
@@ -91,6 +105,8 @@ class NativeFile {
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
   MediaType? mime;
+
+  Size? dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
