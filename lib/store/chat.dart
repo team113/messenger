@@ -42,6 +42,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, UploadAttachmentException;
@@ -53,8 +54,10 @@ import '/provider/hive/monolog.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/page_info.dart';
 import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
+import '/store/search.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
