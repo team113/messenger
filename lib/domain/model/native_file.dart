@@ -59,7 +59,16 @@ class NativeFile {
       }
     }
 
-    // TODO: Decode image before uploading to backend.
+    // TODO: Decode image before uploading to backend:
+    //
+    // ```dart
+    // import 'dart:io';
+    //
+    // File image = new File('image.png'); // Or any other way to get a File instance.
+    // var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+    // print(decodedImage.width);
+    // print(decodedImage.height);
+    // ```
     if (isImage) {
       if (path != null) {
         dimensions = ImageSizeGetter.getSize(FileInput(File(path!)));
