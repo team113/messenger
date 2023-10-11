@@ -82,13 +82,6 @@ class DownloadButton extends StatelessWidget {
                 height: height,
               ),
             ),
-      // trailing: Transform.translate(
-      //   offset: const Offset(-3, 0),
-      //   child: Transform.scale(
-      //     scale: 1.15,
-      //     child: SvgImage.asset('assets/icons/copy.svg', height: 15),
-      //   ),
-      // ),
       style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
     );
   }

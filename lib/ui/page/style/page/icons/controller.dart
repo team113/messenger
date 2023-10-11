@@ -19,7 +19,7 @@ import 'package:get/get.dart';
 
 class IconsController extends GetxController {
   final Rx<IconDetails?> icon = Rx(
-    const IconDetails(
+    IconDetails(
       'application/iOS.png',
       invert: true,
       download: 'application/iOS.zip',
@@ -28,9 +28,10 @@ class IconsController extends GetxController {
 }
 
 class IconDetails {
-  const IconDetails(this.asset, {this.invert = false, this.download});
+  IconDetails(String asset, {this.invert = false, this.download})
+      : asset = asset.replaceFirst('assets/icons/', '');
 
-  final String asset;
+  late final String asset;
   final bool invert;
   final String? download;
 }

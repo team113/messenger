@@ -311,11 +311,9 @@ class _HomeViewState extends State<HomeView> {
                                           },
                                         ),
                                     ],
-                                    child: SvgImage.asset(
-                                      'assets/icons/partner16.svg',
+                                    child: SvgIcon(
+                                      SvgIcons.partner,
                                       key: c.partnerKey,
-                                      width: 36,
-                                      height: 28,
                                     ),
                                   ),
                                 ),
@@ -348,12 +346,10 @@ class _HomeViewState extends State<HomeView> {
                                     key: c.publicsKey,
                                     offset: const Offset(0, 1),
                                     child: Obx(() {
-                                      return SvgImage.asset(
+                                      return SvgIcon(
                                         c.publicsToggle.value
-                                            ? 'assets/icons/publics_muted6.svg'
-                                            : 'assets/icons/publics13.svg',
-                                        width: 32,
-                                        height: 31,
+                                            ? SvgIcons.publicsMuted
+                                            : SvgIcons.publics,
                                       );
                                     }),
                                   ),
@@ -397,20 +393,16 @@ class _HomeViewState extends State<HomeView> {
                                     final Widget child;
 
                                     if (c.myUser.value?.muted != null) {
-                                      child = const SvgImage.asset(
-                                        'assets/icons/chats_muted5.svg',
+                                      child = const SvgIcon(
+                                        SvgIcons.chatsMuted,
                                         key: Key('Muted'),
-                                        width: 39.26,
-                                        height: 33.5,
                                       );
                                     } else {
                                       child = Transform.translate(
                                         offset: const Offset(0, 0.5),
-                                        child: const SvgImage.asset(
-                                          'assets/icons/chats6.svg',
+                                        child: const SvgIcon(
+                                          SvgIcons.chats,
                                           key: Key('Unmuted'),
-                                          width: 39.26,
-                                          height: 33.5,
                                         ),
                                       );
                                     }

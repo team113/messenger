@@ -108,9 +108,10 @@ class ChangePasswordView extends StatelessWidget {
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: c.obscurePassword.toggle,
                           treatErrorAsStatus: false,
-                          trailing: SvgImage.asset(
-                            'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                            width: 17.07,
+                          trailing: SvgIcon(
+                            c.obscurePassword.value
+                                ? SvgIcons.visibleOff
+                                : SvgIcons.visibleOn,
                           ),
                         ),
                       ),
@@ -121,9 +122,10 @@ class ChangePasswordView extends StatelessWidget {
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: c.obscureNewPassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgImage.asset(
-                        'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                        width: 17.07,
+                      trailing: SvgIcon(
+                        c.obscureNewPassword.value
+                            ? SvgIcons.visibleOff
+                            : SvgIcons.visibleOn,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -134,9 +136,10 @@ class ChangePasswordView extends StatelessWidget {
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: c.obscureRepeatPassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgImage.asset(
-                        'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                        width: 17.07,
+                      trailing: SvgIcon(
+                        c.obscureRepeatPassword.value
+                            ? SvgIcons.visibleOff
+                            : SvgIcons.visibleOn,
                       ),
                     ),
                     const SizedBox(height: 25),

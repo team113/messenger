@@ -88,12 +88,8 @@ class MemberTile extends StatelessWidget {
                   height: 22,
                   child: Center(
                     child: inCall == true
-                        ? const SvgImage.asset('assets/icons/call_end.svg')
-                        : const SvgImage.asset(
-                            'assets/icons/audio_call_start.svg',
-                            width: 11,
-                            height: 11,
-                          ),
+                        ? const SvgIcon(SvgIcons.callEndSmall)
+                        : const SvgIcon(SvgIcons.callStartSmall),
                   ),
                 ),
               ),

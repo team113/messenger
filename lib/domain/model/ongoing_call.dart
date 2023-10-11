@@ -1783,14 +1783,16 @@ class RtcVideoRenderer extends RtcRenderer {
       }
     }
 
-    print(
-      '[track] resized to ${_delegate.videoWidth} ${_delegate.videoHeight} ${_delegate.quarterTurnsRotation}',
+    Log.print(
+      '[${track.kind()} ${track.mediaSourceKind()}] initial size is ${_delegate.videoWidth}x${_delegate.videoHeight}, ${_delegate.quarterTurnsRotation}',
+      'CALL',
     );
 
     // Listen for resizes to update [width] and [height].
     _delegate.onResize = () {
-      print(
-        '[track] resized to ${_delegate.videoWidth} ${_delegate.videoHeight} ${_delegate.quarterTurnsRotation}',
+      Log.print(
+        '[${track.kind()} ${track.mediaSourceKind()}] resized to ${_delegate.videoWidth}x${_delegate.videoHeight}, ${_delegate.quarterTurnsRotation}',
+        'CALL',
       );
 
       width.value = _delegate.videoWidth;
@@ -1999,6 +2001,11 @@ class Track {
 
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer() async {
+    Log.print(
+      'Creating renderer for ${track.kind()} ${track.mediaSourceKind()}',
+      'CALL',
+    );
+
     await _rendererGuard.protect(() async {
       if (renderer.value != null) {
         await renderer.value?.dispose();
@@ -2020,6 +2027,11 @@ class Track {
 
   /// Disposes the [renderer] of this [Track].
   Future<void> removeRenderer() async {
+    Log.print(
+      'Removing renderer for ${track.kind()} ${track.mediaSourceKind()}',
+      'CALL',
+    );
+
     await _rendererGuard.protect(() async {
       renderer.value?.dispose();
       renderer.value = null;

@@ -1233,11 +1233,7 @@ class MessageFieldView extends StatelessWidget {
           color: style.cardColor,
         ),
         alignment: Alignment.center,
-        child: const SvgImage.asset(
-          'assets/icons/close_primary.svg',
-          width: 8 * 1.3,
-          height: 8 * 1.3,
-        ),
+        child: const SvgIcon(SvgIcons.closeSmallPrimary),
       ),
     );
   }

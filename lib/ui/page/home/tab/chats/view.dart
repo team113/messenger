@@ -258,10 +258,7 @@ class ChatsTabView extends StatelessWidget {
                                       size: 20,
                                       color: style.colors.primary,
                                     )
-                                  : const SvgImage.asset(
-                                      'assets/icons/search.svg',
-                                      width: 17.77,
-                                    ),
+                                  : const SvgIcon(SvgIcons.search),
                             ),
                           ),
                         ),
@@ -274,31 +271,29 @@ class ChatsTabView extends StatelessWidget {
 
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
-                          child = const SvgImage.asset(
-                            'assets/icons/search_exit.svg',
+                          child = const SvgIcon(
+                            SvgIcons.searchExit,
                             key: Key('CloseSearch'),
-                            height: 11,
                           );
                         } else {
                           child = null;
                         }
                       } else {
                         child = c.groupCreating.value || c.selecting.value
-                            ? SvgImage.asset(
-                                c.searching.value
-                                    ? 'assets/icons/search_exit.svg'
-                                    : 'assets/icons/close_primary.svg',
-                                key: const Key('CloseGroupSearching'),
-                                height: c.searching.value ? 11 : 15,
-                              )
+                            ? c.searching.value
+                                ? const SvgIcon(
+                                    SvgIcons.searchExit,
+                                    key: Key('CloseGroupSearching'),
+                                  )
+                                : const SvgIcon(
+                                    SvgIcons.closePrimary,
+                                    key: Key('CloseGroupSearching'),
+                                  )
                             : Transform.translate(
                                 offset: const Offset(-1, 0),
-                                child: const SvgImage.asset(
-                                  'assets/icons/contacts_switch.svg',
+                                child: const SvgIcon(
+                                  SvgIcons.contactsSwitch,
                                   key: Key('Contacts'),
-                                  alignment: Alignment.center,
-                                  width: 22.4,
-                                  height: 20.8,
                                 ),
                               );
                       }

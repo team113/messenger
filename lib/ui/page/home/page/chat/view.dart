@@ -246,19 +246,13 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
-                                child: const SvgImage.asset(
-                                  'assets/icons/chat_video_call.svg',
-                                  height: 17,
-                                ),
+                                child: const SvgIcon(SvgIcons.chatVideoCall),
                               ),
                               const SizedBox(width: 28),
                               AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: const SvgImage.asset(
-                                  'assets/icons/chat_audio_call.svg',
-                                  height: 19,
-                                ),
+                                child: const SvgIcon(SvgIcons.chatAudioCall),
                               ),
                             ];
                           } else {
@@ -274,11 +268,7 @@ class _ChatViewState extends State<ChatView>
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/call_end.svg',
-                                    width: 20.55,
-                                    height: 8.53,
-                                  ),
+                                  child: SvgIcon(SvgIcons.callEnd),
                                 ),
                               );
                             } else {
@@ -291,11 +281,7 @@ class _ChatViewState extends State<ChatView>
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/call_start.svg',
-                                    width: 15,
-                                    height: 15,
-                                  ),
+                                  child: SvgIcon(SvgIcons.callStart),
                                 ),
                               );
                             }
@@ -1471,11 +1457,6 @@ class _ChatViewState extends State<ChatView>
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const SizedBox(height: 4),
-              // SvgImage.asset(
-              //   'assets/icons/close_primary.svg',
-              //   width: 10,
-              //   height: 10,
-              // ),
               Obx(() {
                 final bool visible =
                     c.visible[c.pinned[c.displayPinned.value].id] != null;
@@ -1509,11 +1490,7 @@ class _ChatViewState extends State<ChatView>
                       // color: Colors.red,
                       margin: const EdgeInsets.only(left: 4),
                       alignment: Alignment.center,
-                      child: const SvgImage.asset(
-                        'assets/icons/close_primary.svg',
-                        width: 8,
-                        height: 8,
-                      ),
+                      child: const SvgIcon(SvgIcons.closeSmallPrimary),
                     ),
                   ),
                 );

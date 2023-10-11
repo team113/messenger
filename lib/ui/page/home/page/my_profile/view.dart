@@ -106,10 +106,7 @@ class MyProfileView extends StatelessWidget {
               actions: [
                 AnimatedButton(
                   onPressed: () {},
-                  child: const SvgImage.asset(
-                    'assets/icons/search.svg',
-                    width: 17.77,
-                  ),
+                  child: const SvgIcon(SvgIcons.search),
                 ),
               ],
             ),
@@ -1768,41 +1765,31 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     const Column(
       children: [
         DownloadButton(
-          asset: 'windows',
-          width: 21.93,
-          height: 22,
+          icon: SvgIcon(SvgIcons.windows),
           title: 'Windows',
           link: 'messenger-windows.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'apple',
-          width: 23,
-          height: 29,
+          icon: SvgIcon(SvgIcons.apple),
           title: 'macOS',
           link: 'messenger-macos.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'linux',
-          width: 18.85,
-          height: 22,
+          icon: SvgIcon(SvgIcons.linux),
           title: 'Linux',
           link: 'messenger-linux.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'apple',
-          width: 23,
-          height: 29,
+          icon: SvgIcon(SvgIcons.apple),
           title: 'iOS',
           link: 'messenger-ios.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
+          icon: SvgIcon(SvgIcons.googlePlay),
           title: 'Android',
           link: 'messenger-android.apk',
         ),

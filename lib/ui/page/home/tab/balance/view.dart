@@ -55,11 +55,7 @@ class BalanceTabView extends StatelessWidget {
                     height: 20,
                   );
                 } else {
-                  child = const SvgImage.asset(
-                    key: Key('Search'),
-                    'assets/icons/search.svg',
-                    width: 17.77,
-                  );
+                  child = const SvgIcon(key: Key('Search'), SvgIcons.search);
                 }
 
                 return WidgetButton(

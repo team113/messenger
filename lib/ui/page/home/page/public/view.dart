@@ -768,11 +768,8 @@ class _PublicViewState extends State<PublicView>
                                       color: style.cardColor,
                                     ),
                                     child: const Center(
-                                      child: SvgImage.asset(
-                                        'assets/icons/close_primary.svg',
-                                        width: 7,
-                                        height: 7,
-                                      ),
+                                      child:
+                                          SvgIcon(SvgIcons.closeSmallPrimary),
                                     ),
                                   ),
                                 ),

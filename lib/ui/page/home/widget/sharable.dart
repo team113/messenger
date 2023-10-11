@@ -95,13 +95,7 @@ class SharableTextField extends StatelessWidget {
                   trailing: trailing ??
                       Transform.translate(
                         offset: const Offset(0, -1),
-                        child: Transform.scale(
-                          scale: 1.15,
-                          child: const SvgImage.asset(
-                            'assets/icons/share.svg',
-                            height: 15,
-                          ),
-                        ),
+                        child: const SvgIcon(SvgIcons.share),
                       ),
                   label: label,
                   style: this.style,

@@ -223,9 +223,10 @@ class IntroductionView extends StatelessWidget {
                   style: style.fonts.headlineMedium,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -237,9 +238,10 @@ class IntroductionView extends StatelessWidget {
                   style: style.fonts.bodyMedium,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscureRepeat.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -485,11 +487,7 @@ class IntroductionView extends StatelessWidget {
             )
           : Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/copy.svg', height: 15),
-              ),
+              child: const SvgIcon(SvgIcons.copy),
             ),
       label: 'label_your_direct_link'.l10n,
     );

@@ -94,9 +94,10 @@ class AccountsView extends StatelessWidget {
                   style: thin,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 50),
@@ -162,9 +163,10 @@ class AccountsView extends StatelessWidget {
                     style: thin,
                     onSuffixPressed: c.obscurePassword.toggle,
                     treatErrorAsStatus: false,
-                    trailing: SvgImage.asset(
-                      'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                      width: 17.07,
+                    trailing: SvgIcon(
+                      c.obscurePassword.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
                     ),
                   ),
                 ),

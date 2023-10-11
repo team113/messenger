@@ -298,10 +298,7 @@ class _RetryImageState extends State<RetryImage> {
                               height: 40,
                             ),
                           )
-                        : const SvgImage.asset(
-                            'assets/icons/close_primary.svg',
-                            height: 13,
-                          ),
+                        : const SvgIcon(SvgIcons.closeSmallPrimary),
                   ),
               ],
             ),

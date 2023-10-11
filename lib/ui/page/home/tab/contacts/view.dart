@@ -146,27 +146,26 @@ class ContactsTabView extends StatelessWidget {
 
                 if (c.search.value != null) {
                   if (c.search.value?.search.isEmpty.value == false) {
-                    child = const SvgImage.asset(
-                      'assets/icons/search_exit.svg',
+                    child = const SvgIcon(
+                      SvgIcons.searchExit,
                       key: Key('CloseSearch'),
-                      height: 11,
                     );
                   } else {
                     child = null;
                   }
                 } else {
                   child = c.selecting.value
-                      ? SvgImage.asset(
-                          c.search.value != null
-                              ? 'assets/icons/search_exit.svg'
-                              : 'assets/icons/close_primary.svg',
-                          key: const Key('CloseGroupSearching'),
-                          height: c.search.value != null ? 11 : 15,
-                        )
-                      : const SvgImage.asset(
-                          'assets/icons/chats_switch.svg',
-                          width: 27.04,
-                          height: 23.36,
+                      ? c.search.value != null
+                          ? const SvgIcon(
+                              SvgIcons.searchExit,
+                              key: Key('CloseGroupSearching'),
+                            )
+                          : const SvgIcon(
+                              SvgIcons.closePrimary,
+                              key: Key('CloseGroupSearching'),
+                            )
+                      : const SvgIcon(
+                          SvgIcons.chatsSwitch,
                           key: Key('Chats'),
                         );
                 }
@@ -305,10 +304,7 @@ class ContactsTabView extends StatelessWidget {
                                 size: 20,
                                 color: Theme.of(context).colorScheme.primary,
                               )
-                            : const SvgImage.asset(
-                                'assets/icons/search.svg',
-                                width: 17.77,
-                              ),
+                            : const SvgIcon(SvgIcons.search),
                       ),
                     ),
                   ),

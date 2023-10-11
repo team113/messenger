@@ -111,9 +111,7 @@ class LoginView extends StatelessWidget {
               children = [
                 SignButton(
                   text: 'btn_sign_up'.l10n,
-                  asset: 'register3',
-                  assetWidth: 23,
-                  assetHeight: 23,
+                  icon: const SvgIcon(SvgIcons.register),
                   onPressed: () {
                     c.stage.value = LoginViewStage.signUp;
                     c.backStage = LoginViewStage.signUpOrSignIn;
@@ -122,9 +120,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'btn_sign_in'.l10n,
-                  asset: 'enter1',
-                  assetWidth: 19.42,
-                  assetHeight: 24,
+                  icon: const SvgIcon(SvgIcons.enter),
                   onPressed: () {
                     c.stage.value = LoginViewStage.signIn;
                     c.backStage = LoginViewStage.signUpOrSignIn;
@@ -134,9 +130,7 @@ class LoginView extends StatelessWidget {
                 SignButton(
                   text: 'btn_one_time_account'.l10n,
                   dense: true,
-                  asset: 'one_time19',
-                  assetWidth: 19.88,
-                  assetHeight: 26,
+                  icon: const SvgIcon(SvgIcons.oneTime),
                   onPressed: () {
                     router.noIntroduction = false;
                     c.oneTime();
@@ -238,16 +232,16 @@ class LoginView extends StatelessWidget {
                 onBack: () => c.stage.value = c.fallbackStage,
               );
 
-              final (String, String) provider = switch (c.oAuthProvider) {
-                OAuthProvider.apple => ('Apple', 'apple'),
-                OAuthProvider.google => ('Google', 'google_logo'),
-                OAuthProvider.github => ('GitHub', 'github'),
-                _ => ('', ''),
+              final (String, SvgData?) provider = switch (c.oAuthProvider) {
+                OAuthProvider.apple => ('Apple', SvgIcons.appleBig),
+                OAuthProvider.google => ('Google', SvgIcons.googleBig),
+                OAuthProvider.github => ('GitHub', SvgIcons.githubBig),
+                _ => ('', null),
               };
 
               children = [
                 const SizedBox(height: 12),
-                SvgImage.asset('assets/icons/${provider.$2}.svg', height: 100),
+                if (provider.$2 != null) SvgIcon(provider.$2!),
                 const SizedBox(height: 25 + 5),
                 Center(
                   child: Text(
@@ -425,9 +419,10 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscureNewPassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -438,9 +433,10 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscureRepeatPassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -769,18 +765,14 @@ class LoginView extends StatelessWidget {
               children = [
                 SignButton(
                   text: 'btn_email'.l10n,
-                  asset: 'email',
-                  assetWidth: 21.93,
-                  assetHeight: 22.5,
+                  icon: const SvgIcon(SvgIcons.email),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'btn_phone_number'.l10n,
-                  asset: 'phone6',
-                  assetWidth: 17.61,
-                  assetHeight: 25,
+                  icon: const SvgIcon(SvgIcons.phone),
                   padding: const EdgeInsets.only(left: 2),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithPhone,
@@ -788,27 +780,21 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'Google'.l10n,
-                  asset: 'google_logo1',
-                  assetWidth: 21.56,
-                  assetHeight: 22,
+                  icon: const SvgIcon(SvgIcons.google),
                   padding: const EdgeInsets.only(left: 1),
                   onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'Apple'.l10n,
-                  asset: 'apple',
-                  assetWidth: 21.07,
-                  assetHeight: 27,
+                  icon: const SvgIcon(SvgIcons.apple),
                   padding: const EdgeInsets.only(left: 1.5, bottom: 1),
                   onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'GitHub'.l10n,
-                  asset: 'github1',
-                  assetHeight: 26,
-                  assetWidth: 26,
+                  icon: const SvgIcon(SvgIcons.github),
                   onPressed: c.continueWithGitHub,
                 ),
                 const SizedBox(height: 25 / 2),
@@ -1134,9 +1120,10 @@ class LoginView extends StatelessWidget {
                       obscure: c.obscurePassword.value,
                       onSuffixPressed: c.obscurePassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgImage.asset(
-                        'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                        width: 17.07,
+                      trailing: SvgIcon(
+                        c.obscurePassword.value
+                            ? SvgIcons.visibleOff
+                            : SvgIcons.visibleOn,
                       ),
                     ),
                   ],
@@ -1172,17 +1159,13 @@ class LoginView extends StatelessWidget {
                   text: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
-                  asset: 'password2',
-                  assetWidth: 19,
-                  assetHeight: 21,
+                  icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'btn_email'.l10n,
-                  asset: 'email',
-                  assetWidth: 21.93,
-                  assetHeight: 22.5,
+                  icon: const SvgIcon(SvgIcons.email),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithEmail,
                 ),
@@ -1191,9 +1174,7 @@ class LoginView extends StatelessWidget {
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPhone,
                   text: 'btn_phone_number'.l10n,
-                  asset: 'phone6',
-                  assetWidth: 17.61,
-                  assetHeight: 25,
+                  icon: const SvgIcon(SvgIcons.phone),
                   padding: const EdgeInsets.only(left: 2),
                 ),
                 const SizedBox(height: 25 / 2),
@@ -1202,35 +1183,27 @@ class LoginView extends StatelessWidget {
                   onPressed: () => c.stage.value = PlatformUtils.isMobile
                       ? LoginViewStage.signInWithQrShow
                       : LoginViewStage.signInWithQrScan,
-                  asset: 'qr_code2',
-                  assetWidth: 20,
-                  assetHeight: 20,
+                  icon: const SvgIcon(SvgIcons.qrCode),
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'Google',
-                  asset: 'google_logo1',
-                  assetWidth: 21.56,
-                  assetHeight: 22,
+                  icon: const SvgIcon(SvgIcons.google),
                   padding: const EdgeInsets.only(left: 1),
                   onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'Apple',
-                  asset: 'apple',
-                  assetWidth: 21.07,
-                  assetHeight: 27,
+                  icon: const SvgIcon(SvgIcons.apple),
                   padding: const EdgeInsets.only(left: 1.5, bottom: 1),
                   onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
                   text: 'GitHub',
-                  asset: 'github1',
-                  assetHeight: 26,
-                  assetWidth: 26,
+                  icon: const SvgIcon(SvgIcons.github),
                   onPressed: c.continueWithGitHub,
                 ),
                 const SizedBox(height: 25 / 2),

@@ -28,6 +28,7 @@ import '/util/web/web_utils.dart';
 class DownloadButton extends StatelessWidget {
   const DownloadButton({
     super.key,
+    this.icon,
     this.asset,
     this.width,
     this.height,
@@ -50,6 +51,8 @@ class DownloadButton extends StatelessWidget {
   /// Relative link to the downloadable asset.
   final String? link;
 
+  final Widget? icon;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -60,7 +63,7 @@ class DownloadButton extends StatelessWidget {
           ? null
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
       prefix: asset == null
-          ? null
+          ? icon
           : Padding(
               padding: const EdgeInsets.only(left: 20),
               child: SvgImage.asset(

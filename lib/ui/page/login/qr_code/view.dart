@@ -5,6 +5,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -142,9 +143,7 @@ class QrCodeView extends StatelessWidget {
               text: c.scanning.value
                   ? 'btn_scan_qr_code'.l10n
                   : 'btn_show_qr_code'.l10n,
-              asset: 'qr_code2',
-              assetWidth: 20,
-              assetHeight: 20,
+              icon: const SvgIcon(SvgIcons.qrCode),
               onPressed: c.scanning.toggle,
             ),
             // const SizedBox(height: 16),

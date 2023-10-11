@@ -264,7 +264,6 @@ class _SearchFieldState extends State<SearchField> {
 
     //       if (search.isEmpty.value == false) {
     //         child = SvgImage.asset(
-    //           'assets/icons/search_exit.svg',
     //           key: const Key('CloseSearch'),
     //           height: 11,
     //         );
@@ -303,13 +302,5 @@ class _SearchFieldState extends State<SearchField> {
     //       );
     //     }),
     //   ],
-    //   leading: [
-    //     Container(
-    //       padding: const EdgeInsets.only(left: 20, right: 6),
-    //       height: double.infinity,
-    //       child: SvgImage.asset('assets/icons/search.svg', width: 17.77),
-    //     ),
-    //   ],
-    // );
   }
 }

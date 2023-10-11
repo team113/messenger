@@ -191,9 +191,9 @@ class ContactTile extends StatelessWidget {
                               title ??
                                   contact?.contact.value.name.val ??
                                   user?.user.value.name?.val ??
-                                  user?.user.value.num.val ??
+                                  user?.user.value.num.toString() ??
                                   myUser?.name?.val ??
-                                  myUser?.num.val ??
+                                  myUser?.num.toString() ??
                                   (myUser == null
                                       ? '...'
                                       : 'btn_your_profile'.l10n),

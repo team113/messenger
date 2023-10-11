@@ -106,30 +106,20 @@ class ContactView extends StatelessWidget {
                   onPressed: c.openChat,
                   child: Transform.translate(
                     offset: const Offset(0, 1),
-                    child: const SvgImage.asset(
-                      'assets/icons/chat.svg',
-                      width: 20.12,
-                      height: 21.62,
-                    ),
+                    child: const SvgIcon(SvgIcons.chat),
                   ),
                 ),
                 if (!context.isMobile) ...[
                   const SizedBox(width: 28),
                   WidgetButton(
                     onPressed: () => c.call(true),
-                    child: const SvgImage.asset(
-                      'assets/icons/chat_video_call.svg',
-                      height: 17,
-                    ),
+                    child: const SvgIcon(SvgIcons.chatVideoCall),
                   ),
                 ],
                 const SizedBox(width: 28),
                 WidgetButton(
                   onPressed: () => c.call(false),
-                  child: const SvgImage.asset(
-                    'assets/icons/chat_audio_call.svg',
-                    height: 19,
-                  ),
+                  child: const SvgIcon(SvgIcons.chatAudioCall),
                 ),
               ],
             ),

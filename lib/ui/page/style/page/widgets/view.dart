@@ -65,7 +65,6 @@ import 'package:messenger/ui/page/home/page/chat/widget/time_label.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/unread_label.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/background_preview.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/download_button.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/login.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/name.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/status.dart';
@@ -85,7 +84,6 @@ import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/direct_link.dart';
 import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
-import 'package:messenger/ui/page/home/widget/safe_scrollbar.dart';
 import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
 import 'package:messenger/ui/page/home/widget/sharable.dart';
 import 'package:messenger/ui/page/home/widget/unblock_button.dart';
@@ -97,6 +95,7 @@ import 'package:messenger/ui/page/work/widget/interactive_logo.dart';
 import 'package:messenger/ui/page/work/widget/vacancy_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/download_button.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
@@ -444,9 +443,8 @@ class _WidgetsViewState extends State<WidgetsView> {
                   obscure: b.value,
                   onSuffixPressed: b.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${b.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    b.value ? SvgIcons.visibleOff : SvgIcons.visibleOn,
                   ),
                 );
               },
@@ -645,9 +643,7 @@ class _WidgetsViewState extends State<WidgetsView> {
             'SignButton(asset)',
             SignButton(
               text: 'E-mail',
-              asset: 'email',
-              assetWidth: 21.93,
-              assetHeight: 22.5,
+              icon: const SvgIcon(SvgIcons.email),
               onPressed: () {},
             ),
           ),
@@ -709,19 +705,12 @@ class _WidgetsViewState extends State<WidgetsView> {
           children: [
             AnimatedButton(
               onPressed: () {},
-              child: const SvgImage.asset(
-                'assets/icons/chats6.svg',
-                width: 39.26,
-                height: 33.5,
-              ),
+              child: const SvgIcon(SvgIcons.chats),
             ),
             const SizedBox(width: 32),
             AnimatedButton(
               onPressed: () {},
-              child: const SvgImage.asset(
-                'assets/icons/chat_video_call.svg',
-                height: 17,
-              ),
+              child: const SvgIcon(SvgIcons.chatVideoCall),
             ),
             const SizedBox(width: 32),
             AnimatedButton(
@@ -785,20 +774,15 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.windows',
             const DownloadButton(
-              asset: 'google',
-              width: 20.33,
-              height: 22.02,
-              title: 'Google Play',
-              left: 3,
+              icon: SvgIcon(SvgIcons.windows),
+              title: 'Windows',
               link: '',
             ),
           ),
           (
             'DownloadButton.macos',
             const DownloadButton(
-              asset: 'apple',
-              width: 21.07,
-              height: 27,
+              icon: SvgIcon(SvgIcons.apple),
               title: 'macOS',
               link: '',
             ),
@@ -806,9 +790,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.linux',
             const DownloadButton(
-              asset: 'linux',
-              width: 20.57,
-              height: 24,
+              icon: SvgIcon(SvgIcons.linux),
               title: 'Linux',
               link: '',
             ),
@@ -816,9 +798,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.appStore',
             const DownloadButton(
-              asset: 'app_store',
-              width: 23,
-              height: 23,
+              icon: SvgIcon(SvgIcons.appStore),
               title: 'App Store',
               link: '',
             ),
@@ -826,20 +806,15 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.googlePlay',
             const DownloadButton(
-              asset: 'google',
-              width: 20.33,
-              height: 22.02,
+              icon: SvgIcon(SvgIcons.googlePlay),
               title: 'Google Play',
-              left: 3,
               link: '',
             ),
           ),
           (
             'DownloadButton.android',
             const DownloadButton(
-              asset: 'android',
-              width: 20.99,
-              height: 25,
+              icon: SvgIcon(SvgIcons.android),
               title: 'Android',
               link: '',
             ),
@@ -1566,19 +1541,13 @@ class _WidgetsViewState extends State<WidgetsView> {
                 actions: [
                   AnimatedButton(
                     onPressed: () {},
-                    child: const SvgImage.asset(
-                      'assets/icons/chat_video_call.svg',
-                      height: 17,
-                    ),
+                    child: const SvgIcon(SvgIcons.chatVideoCall),
                   ),
                   const SizedBox(width: 28),
                   AnimatedButton(
                     key: const Key('AudioCall'),
                     onPressed: () {},
-                    child: const SvgImage.asset(
-                      'assets/icons/chat_audio_call.svg',
-                      height: 19,
-                    ),
+                    child: const SvgIcon(SvgIcons.chatAudioCall),
                   ),
                 ],
               ),
@@ -1632,29 +1601,12 @@ class _WidgetsViewState extends State<WidgetsView> {
               onTap: (i) => p.value = i,
               items: [
                 const CustomNavigationBarItem(child: WalletWidget()),
-                const CustomNavigationBarItem(
-                  child: SvgImage.asset(
-                    'assets/icons/partner16.svg',
-                    width: 36,
-                    height: 28,
-                  ),
-                ),
-                const CustomNavigationBarItem(
-                  child: SvgImage.asset(
-                    'assets/icons/publics13.svg',
-                    width: 32,
-                    height: 31,
-                  ),
-                ),
+                const CustomNavigationBarItem(child: SvgIcon(SvgIcons.partner)),
+                const CustomNavigationBarItem(child: SvgIcon(SvgIcons.publics)),
                 CustomNavigationBarItem(
                   child: Transform.translate(
                     offset: const Offset(0, 0.5),
-                    child: const SvgImage.asset(
-                      'assets/icons/chats6.svg',
-                      key: Key('Unmuted'),
-                      width: 39.26,
-                      height: 33.5,
-                    ),
+                    child: SvgIcon(SvgIcons.chats),
                   ),
                 ),
                 const CustomNavigationBarItem(child: AvatarWidget(radius: 16)),

@@ -8,6 +8,7 @@ class SignButton extends StatelessWidget {
     super.key,
     required this.text,
     this.leading,
+    this.icon,
     this.asset = '',
     this.assetWidth = 20,
     this.assetHeight = 20,
@@ -19,6 +20,9 @@ class SignButton extends StatelessWidget {
   final String text;
   final bool dense;
   final Widget? leading;
+
+  final Widget? icon;
+
   final String asset;
   final double assetWidth;
   final double assetHeight;
@@ -36,7 +40,8 @@ class SignButton extends StatelessWidget {
         onPressed: onPressed ?? () {},
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16, bottom: 0).add(padding),
-          child: leading ??
+          child: icon ??
+              leading ??
               SvgImage.asset(
                 'assets/icons/$asset.svg',
                 width: assetWidth,
