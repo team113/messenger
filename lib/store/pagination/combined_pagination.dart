@@ -58,7 +58,7 @@ class CombinedPagination<T, K> {
   }
 
   /// Fetches the initial page.
-  FutureOr<void> around() async {
+  Future<void> around() async {
     for (final p in paginations.map((e) => e.p)) {
       await p.around();
       if (items.isNotEmpty) {
@@ -70,8 +70,9 @@ class CombinedPagination<T, K> {
   }
 
   /// Fetches the next page.
-  FutureOr<void> next() =>
-      paginations.firstWhereOrNull((e) => e.p.hasNext.isTrue)?.p.next();
+  Future<Page<T, Object>?> next() async {
+    return await paginations.firstWhereOrNull((e) => e.p.hasNext.isTrue)?.p.next();
+  }
 
   /// Adds the provided [item] to the [paginations].
   Future<void> put(T item, {bool ignoreBounds = false}) async {

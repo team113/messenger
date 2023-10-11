@@ -142,7 +142,7 @@ class UserRepository implements AbstractUserRepository {
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
-    final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
+    final SearchResultImpl<UserId, RxUser> searchResult =
         SearchResultImpl(
       pagination: pagination,
       initial: [

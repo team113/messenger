@@ -27,6 +27,7 @@ import '../model/mute_duration.dart';
 import '../model/native_file.dart';
 import '../model/user.dart';
 import '../repository/chat.dart';
+import '../repository/search.dart';
 import '/api/backend/schema.dart'
     show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
 import '/provider/gql/exceptions.dart';
@@ -335,6 +336,9 @@ class ChatService extends DisposableService {
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) =>
       _chatRepository.clearChat(id, untilId);
+
+  SearchResult<ChatId, RxChat> search({ChatName? name}) =>
+      _chatRepository.search(name: name);
 }
 
 /// Extension adding a route from the [router] comparison with a [Chat].

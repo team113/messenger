@@ -290,7 +290,7 @@ class ContactRepository implements AbstractContactRepository {
       return {};
     }
 
-    final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
+    final SearchResultImpl<ChatContactId, RxChatContact>
         searchResult = SearchResultImpl(
       pagination: pagination,
       initial: [

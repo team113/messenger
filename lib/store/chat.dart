@@ -493,6 +493,57 @@ class ChatRepository extends DisposableInterface
     await chats[chatId]?.read(untilId);
   }
 
+  @override
+  SearchResult<ChatId, RxChat> search({ChatName? name}) {
+    Pagination<RxChat, Object, ChatId>? pagination;
+    if (_pagination == null || _pagination!.hasNext.isTrue) {
+      pagination = Pagination(
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) async {
+            Page<HiveChat, Object>? page = await _pagination?.next();
+            if (page != null) {
+              await Future.delayed(1.milliseconds);
+              return Page(
+                page.edges
+                    .map((e) => this.chats[e.value.id])
+                    .whereNotNull()
+                    .where((e) =>
+                        name == null ||
+                        e.title.value
+                                .toLowerCase()
+                                .contains(name.val.toLowerCase()) ==
+                            true)
+                    .toList(),
+                PageInfo(hasNext: _pagination!.hasNext.value),
+              );
+            }
+
+            return Page([], PageInfo(hasNext: true));
+          },
+        ),
+        onKey: (RxChat e) => e.id,
+      );
+    }
+
+    final List<RxChat> chats = this
+        .chats
+        .values
+        .where((u) =>
+            name == null ||
+            u.title.value.toLowerCase().contains(name.val.toLowerCase()) ==
+                true)
+        .toList();
+
+    final SearchResultImpl<ChatId, RxChat> searchResult = SearchResultImpl(
+      pagination: pagination,
+      initial: [
+        {for (var u in chats) u.id: u},
+      ],
+    );
+
+    return searchResult;
+  }
+
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
@@ -1213,14 +1264,14 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    final HiveChat? saved = await _chatLocal.get(chat.value.id);
-
-    // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-    chat.value.firstItem ??= saved?.value.firstItem;
-
-    if (saved == null || saved.ver < chat.ver) {
-      _chatLocal.put(chat);
-    }
+    // final HiveChat? saved = await _chatLocal.get(chat.value.id);
+    //
+    // // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+    // chat.value.firstItem ??= saved?.value.firstItem;
+    //
+    // if (saved == null || saved.ver < chat.ver) {
+    //   _chatLocal.put(chat);
+    // }
 
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
