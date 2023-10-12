@@ -1276,7 +1276,7 @@ class ChatRepository extends DisposableInterface
     }
 
     if (pagination) {
-      paginated[chatId] = entry;
+      paginated[chatId] ??= entry;
       if (!WebUtils.isPopup) {
         entry.listenUpdates();
       }
