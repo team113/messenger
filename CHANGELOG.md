@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.11] · 2023-??-??
+[0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
+
+[Diff](/../../compare/v0.1.0-alpha.10...v0.1.0-alpha.11) | [Milestone](/../../milestone/11)
+
+### Added
+
+- Push notifications. ([#202], [#201])
+
+[#201]: /../../issues/201
+[#202]: /../../pull/202
+
+
+
+
 ## [0.1.0-alpha.10] · 2023-10-10
 [0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
 
@@ -90,7 +105,6 @@ All user visible changes to this project will be documented in this file. This p
 
 - Windows:
     - Notifications. ([#492], [#439])
-- Push notifications. ([#202], [#201])
 
 ### Changed
 
@@ -102,14 +116,10 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned navigation buttons' badges. ([#529], [#500])
     - Display online status only when application is active. ([#522])
 
-
-[#201]: /../../issues/201
-[#202]: /../../pull/202
 [#385]: /../../issues/385
 [#439]: /../../issues/439
 [#492]: /../../pull/492
 [#500]: /../../issues/500
->>>>>>> origin/main
 [#506]: /../../pull/506
 [#513]: /../../pull/513
 [#522]: /../../pull/522

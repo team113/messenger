@@ -68,7 +68,7 @@ class ChatForwardController extends GetxController {
 
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].
-  final void Function(bool?)? pop;
+  final void Function()? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -178,7 +178,7 @@ class ChatForwardController extends GetxController {
           ];
 
           await Future.wait(futures);
-          pop?.call(true);
+          pop?.call();
           onSent?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
