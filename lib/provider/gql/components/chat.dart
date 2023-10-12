@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
@@ -109,6 +110,54 @@ mixin ChatGraphQlMixin {
       ),
     );
     return RecentChats$Query.fromJson(result.data!);
+  }
+
+  /// Returns favorite [Chat]s of the authenticated [MyUser] ordered by the
+  /// custom order of [MyUser]'s favorites list (using [Chat.favoritePosition]
+  /// field).
+  ///
+  /// Use [favoriteChat] to update the position of a [Chat] in [MyUser]'s
+  /// favorites list.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [Chat]s are sorted in the order specified by the authenticated
+  /// [MyUser] in [favoriteChat] descending (starting from the highest
+  /// [ChatFavoritePosition] and finishing at the lowest).
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [Chat] pointed by the cursor and the
+  /// requested count of [Chat]s preceding and following it.
+  ///
+  /// If it's desired to receive the [Chat], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
+  Future<FavoriteChats$Query> favoriteChats({
+    int? first,
+    FavoriteChatsCursor? after,
+    int? last,
+    FavoriteChatsCursor? before,
+  }) async {
+    final variables = FavoriteChatsArguments(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'FavoriteChats',
+        document: FavoriteChatsQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return FavoriteChats$Query.fromJson(result.data!);
   }
 
   /// Creates a [Chat]-dialog with the provided [responderId] for the
@@ -562,15 +611,19 @@ mixin ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function() ver) {
-    final variables = ChatEventsArguments(id: id, ver: ver());
+  Stream<QueryResult> chatEvents(
+    ChatId id,
+    ChatVersion? ver,
+    FutureOr<ChatVersion?> Function() onVer,
+  ) {
+    final variables = ChatEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'ChatEvents',
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      ver: ver,
+      ver: onVer,
     );
   }
 
@@ -751,7 +804,7 @@ mixin ChatGraphQlMixin {
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UploadAttachmentException(
-          UploadAttachmentErrorCode.tooBigSize,
+          UploadAttachmentErrorCode.invalidSize,
         );
       }
 
@@ -913,10 +966,12 @@ mixin ChatGraphQlMixin {
     );
   }
 
-  /// Edits [ChatMessage]'s text by the authenticated [MyUser].
+  /// Edits a [ChatMessage] by the authenticated [MyUser] with the provided
+  /// [text]/[attachments]/[repliesTo] (at least one of three must be
+  /// specified).
   ///
-  /// [ChatMessage]'s text is allowed to be edited within 5 minutes since its
-  /// creation or if it hasn't been read by any other [Chat] member yet.
+  /// [ChatMessage] is allowed to be edited within 5 minutes since its creation
+  /// or if it hasn't been read by any other [Chat] member yet.
   ///
   /// ### Authentication
   ///
@@ -925,35 +980,40 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemTextEdited].
+  /// - [EventChatItemEdited].
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op (and returns no [ChatEvent]) if the given
-  /// [ChatMessage]'s text is already set to the given value.
-  Future<ChatEventsVersionedMixin?> editChatMessageText(
-    ChatItemId id,
-    ChatMessageText? text,
-  ) async {
-    EditChatMessageTextArguments variables = EditChatMessageTextArguments(
+  /// Succeeds as no-op (and returns no [ChatEvent]s) if the specified
+  /// [ChatMessage] already has the specified [text], [attachments] and
+  /// [repliesTo] in the same order.
+  Future<ChatEventsVersionedMixin?> editChatMessage(
+    ChatItemId id, {
+    ChatMessageTextInput? text,
+    ChatMessageAttachmentsInput? attachments,
+    ChatMessageRepliesInput? repliesTo,
+  }) async {
+    final variables = EditChatMessageArguments(
       id: id,
       text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
     );
 
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'EditChatMessageText',
-        document: EditChatMessageTextMutation(variables: variables).document,
+        operationName: 'EditChatMessage',
+        document: EditChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => EditChatMessageException((EditChatMessageText$Mutation
-                      .fromJson(data)
-                  .editChatMessageText
-              as EditChatMessageText$Mutation$EditChatMessageText$EditChatMessageTextError)
-          .code),
+      onException: (data) => EditChatMessageException(
+        (EditChatMessage$Mutation.fromJson(data).editChatMessage
+                as EditChatMessage$Mutation$EditChatMessage$EditChatMessageError)
+            .code,
+      ),
     );
-    return (EditChatMessageText$Mutation.fromJson(result.data!)
-        .editChatMessageText as ChatEventsVersionedMixin?);
+    return (EditChatMessage$Mutation.fromJson(result.data!).editChatMessage
+        as ChatEventsVersionedMixin?);
   }
 
   /// Forwards [ChatItem]s to the specified [Chat] by the authenticated
@@ -1148,7 +1208,7 @@ mixin ChatGraphQlMixin {
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateChatAvatarException(
-          UpdateChatAvatarErrorCode.tooBigSize,
+          UpdateChatAvatarErrorCode.invalidSize,
         );
       }
 

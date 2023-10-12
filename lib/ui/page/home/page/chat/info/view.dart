@@ -33,6 +33,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -164,12 +165,12 @@ class ChatInfoView extends StatelessWidget {
                       width: 22,
                       decoration: BoxDecoration(
                         color: c.inCall
-                            ? style.colors.dangerColor
+                            ? style.colors.danger
                             : style.colors.primary,
                         shape: BoxShape.circle,
                       ),
                       child: Center(
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 300.milliseconds,
                           child: c.inCall
                               ? const SvgImage.asset(

@@ -25,6 +25,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
 import '/domain/repository/contact.dart';
@@ -138,7 +139,9 @@ class UserController extends GetxController {
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
+        case OperationKind.updated:
+          if (e.value!.contact.value.users.isNotEmpty &&
+              e.value!.contact.value.users.every((e) => e.id == id)) {
             inContacts.value = true;
           }
           break;
@@ -147,10 +150,6 @@ class UserController extends GetxController {
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inContacts.value = false;
           }
-          break;
-
-        case OperationKind.updated:
-          // No-op.
           break;
       }
     });
@@ -387,13 +386,13 @@ class UserController extends GetxController {
 extension UserViewExt on User {
   /// Returns a text represented status of this [User] based on its
   /// [User.presence] and [User.online] fields.
-  String? getStatus() {
+  String? getStatus([PreciseDateTime? lastSeen]) {
     switch (presence) {
       case Presence.present:
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${(lastSeen ?? lastSeenAt)!.val.toDifferenceAgo()}';
         } else {
           return 'label_offline'.l10n;
         }
@@ -402,7 +401,7 @@ extension UserViewExt on User {
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.l10n} ${lastSeenAt!.val.toDifferenceAgo()}';
+          return '${'label_last_seen'.l10n} ${(lastSeen ?? lastSeenAt)!.val.toDifferenceAgo()}';
         } else {
           return 'label_offline'.l10n;
         }

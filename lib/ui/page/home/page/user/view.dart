@@ -32,6 +32,7 @@ import '/ui/page/home/widget/num.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -93,7 +94,9 @@ class UserView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
+                          final String? status = c.user?.user.value
+                              .getStatus(c.user?.lastSeen.value);
+
                           final UserTextStatus? text =
                               c.user?.user.value.status;
                           final StringBuffer buffer = StringBuffer();
@@ -115,7 +118,7 @@ class UserView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num.val}'),
+                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
@@ -199,10 +202,13 @@ class UserView extends StatelessWidget {
                           if (c.user!.user.value.status != null)
                             UserStatusCopyable(c.user!.user.value.status!),
                           if (c.user!.user.value.presence != null)
-                            UserPresenceField(
-                              c.user!.user.value.presence!,
-                              c.user!.user.value.getStatus(),
-                            ),
+                            Obx(() {
+                              return UserPresenceField(
+                                c.user!.user.value.presence!,
+                                c.user!.user.value
+                                    .getStatus(c.user?.lastSeen.value),
+                              );
+                            }),
                         ],
                       ),
                       Block(
@@ -263,6 +269,10 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
+          if (!c.inContacts.value) {
+            return const SizedBox();
+          }
+
           return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
@@ -326,7 +336,7 @@ class UserView extends StatelessWidget {
                 child = const CustomProgressIndicator();
               }
 
-              return AnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: child,
               );
@@ -350,7 +360,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
@@ -371,7 +382,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
@@ -392,7 +404,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
@@ -413,7 +426,8 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.user?.user.value.name?.val ?? c.user?.user.value.num.val,
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.labelLarge,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),

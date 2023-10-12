@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
+import 'package:messenger/api/backend/extension/page_info.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -43,6 +44,7 @@ void main() async {
       perPage: 4,
       provider: _ListPageProvider(),
       onKey: (i) => i,
+      compare: (a, b) => a.compareTo(b),
     );
 
     await pagination.around(cursor: 20);
@@ -228,6 +230,7 @@ void main() async {
           );
         },
       ),
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
 
     await pagination.around();

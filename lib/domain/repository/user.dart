@@ -19,8 +19,10 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import 'chat.dart';
+import 'search.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -31,34 +33,16 @@ abstract class AbstractUserRepository {
   /// used.
   RxBool get isReady;
 
-  /// Initializes this repository.
-  Future<void> init();
-
-  /// Disposes this repository.
-  void dispose();
-
   /// Clears the stored [users].
   Future<void> clearCache();
 
-  /// Searches [User]s by the provided [UserNum].
-  ///
-  /// This is an exact match search.
-  Future<List<RxUser>> searchByNum(UserNum num);
-
-  /// Searches [User]s by the provided [UserLogin].
-  ///
-  /// This is an exact match search.
-  Future<List<RxUser>> searchByLogin(UserLogin login);
-
-  /// Searches [User]s by the provided [UserName].
-  ///
-  /// This is a fuzzy search.
-  Future<List<RxUser>> searchByName(UserName name);
-
-  /// Searches [User]s by the provided [ChatDirectLinkSlug].
-  ///
-  /// This is an exact match search.
-  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link);
+  /// Searches [User]s by the given criteria.
+  SearchResult<UserId, RxUser> search({
+    UserNum? num,
+    UserName? name,
+    UserLogin? login,
+    ChatDirectLinkSlug? link,
+  });
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id);
@@ -78,6 +62,9 @@ abstract class RxUser {
 
   /// Returns reactive value of the [RxChat]-dialog with this [RxUser].
   Rx<RxChat?> get dialog;
+
+  /// Returns reactive [User.lastSeenAt] value.
+  Rx<PreciseDateTime?> get lastSeen;
 
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;

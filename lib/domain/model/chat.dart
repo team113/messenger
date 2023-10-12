@@ -35,7 +35,7 @@ part 'chat.g.dart';
 
 /// [Chat] is a conversation between [User]s.
 @HiveType(typeId: ModelTypeId.chat)
-class Chat extends HiveObject {
+class Chat extends HiveObject implements Comparable<Chat> {
   Chat(
     this.id, {
     this.avatar,
@@ -124,11 +124,18 @@ class Chat extends HiveObject {
   @HiveField(11)
   PreciseDateTime lastDelivery;
 
-  /// Last [ChatItem] posted in this [Chat].
+  /// First [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
   @HiveField(12)
+  ChatItem? firstItem;
+
+  /// Last [ChatItem] posted in this [Chat].
+  ///
+  /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
+  /// it's `null`.
+  @HiveField(13)
   ChatItem? lastItem;
 
   /// ID of the last [ChatItem] read by the authenticated [MyUser] in this
@@ -136,24 +143,24 @@ class Chat extends HiveObject {
   ///
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
-  @HiveField(13)
+  @HiveField(14)
   ChatItemId? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
-  @HiveField(14)
+  @HiveField(15)
   int unreadCount;
 
   /// Count of [ChatItem]s visible to the authenticated [MyUser] in this [Chat].
-  @HiveField(15)
+  @HiveField(16)
   int totalCount;
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
-  @HiveField(16)
+  @HiveField(17)
   ChatCall? ongoingCall;
 
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
-  @HiveField(17)
+  @HiveField(18)
   ChatFavoritePosition? favoritePosition;
 
   /// Indicates whether this [Chat] is a monolog.
@@ -239,6 +246,33 @@ class Chat extends HiveObject {
             .isBefore(item.at) ==
         false;
   }
+
+  @override
+  int compareTo(Chat other, [UserId? me]) {
+    if (ongoingCall != null && other.ongoingCall == null) {
+      return -1;
+    } else if (ongoingCall == null && other.ongoingCall != null) {
+      return 1;
+    } else if (ongoingCall != null && other.ongoingCall != null) {
+      return ongoingCall!.at.compareTo(other.ongoingCall!.at);
+    }
+
+    if (favoritePosition != null && other.favoritePosition == null) {
+      return -1;
+    } else if (favoritePosition == null && other.favoritePosition != null) {
+      return 1;
+    } else if (favoritePosition != null && other.favoritePosition != null) {
+      return other.favoritePosition!.compareTo(favoritePosition!);
+    }
+
+    if (id.isLocalWith(me) && !other.id.isLocalWith(me)) {
+      return 1;
+    } else if (!id.isLocalWith(me) && other.id.isLocalWith(me)) {
+      return -1;
+    }
+
+    return other.updatedAt.compareTo(updatedAt);
+  }
 }
 
 /// Member of a [Chat].
@@ -271,7 +305,7 @@ class LastChatRead {
 
 /// Unique ID of a [Chat].
 @HiveType(typeId: ModelTypeId.chatId)
-class ChatId extends NewType<String> {
+class ChatId extends NewType<String> implements Comparable<ChatId> {
   const ChatId(super.val);
 
   /// Constructs a local [ChatId] from the [id] of the [User] with whom the
@@ -289,6 +323,9 @@ class ChatId extends NewType<String> {
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
   /// equals the provided [id].
   bool isLocalWith(UserId? id) => isLocal && userId == id;
+
+  @override
+  int compareTo(ChatId other) => val.compareTo(other.val);
 }
 
 /// Name of a [Chat].

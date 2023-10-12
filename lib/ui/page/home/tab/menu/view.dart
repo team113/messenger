@@ -52,6 +52,7 @@ class MenuTabView extends StatelessWidget {
               alignment: Alignment.topLeft,
               margin: const EdgeInsets.only(top: 7, right: 32),
               enablePrimaryTap: true,
+              enableLongTap: false,
               actions: [
                 ContextMenuButton(
                   label: 'label_presence_present'.l10n,
@@ -62,7 +63,7 @@ class MenuTabView extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: style.colors.acceptAuxiliaryColor,
+                      color: style.colors.acceptAuxiliary,
                     ),
                   ),
                 ),
@@ -75,7 +76,7 @@ class MenuTabView extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: style.colors.warningColor,
+                      color: style.colors.warning,
                     ),
                   ),
                 ),
@@ -109,7 +110,7 @@ class MenuTabView extends StatelessWidget {
                           children: [
                             Text(
                               c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.val ??
+                                  c.myUser.value?.num.toString() ??
                                   'dot'.l10n * 3,
                               style: style.fonts.headlineMedium,
                             ),

@@ -23,8 +23,10 @@ import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -55,7 +57,7 @@ class _DataAttachmentState extends State<DataAttachment> {
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus.value) {
+        switch (e.downloadStatus) {
           case DownloadStatus.inProgress:
             leading = InkWell(
               key: const Key('CancelDownloading'),
@@ -80,8 +82,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                     stops: [
                       0,
-                      e.progress.value,
-                      e.progress.value,
+                      e.downloading?.progress.value ?? 0,
+                      e.downloading?.progress.value ?? 0,
                     ],
                   ),
                 ),
@@ -164,7 +166,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.check_circle,
               key: const Key('Sent'),
               size: 29,
-              color: style.colors.acceptAuxiliaryColor,
+              color: style.colors.acceptAuxiliary,
             );
             break;
 
@@ -173,7 +175,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 29,
-              color: style.colors.dangerColor,
+              color: style.colors.danger,
             );
             break;
         }
@@ -192,7 +194,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 const SizedBox(width: 6),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
                     child: leading,

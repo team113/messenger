@@ -18,7 +18,8 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show mustCallSuper, protected;
+import 'package:flutter/foundation.dart'
+    show mustCallSuper, protected, visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -98,25 +99,27 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Removes all entries from the [Box].
   @mustCallSuper
-  Future<void> clear() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
-          await box.clear();
-        }
-      });
+  Future<void> clear() async {
+    if (_isReady && _box.isOpen) {
+      await box.clear();
+    }
+  }
 
   /// Closes the [Box].
   @mustCallSuper
-  Future<void> close() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
-          _isReady = false;
+  Future<void> close() {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        _isReady = false;
 
-          try {
-            await _box.close();
-          } on FileSystemException {
-            // No-op.
-          }
+        try {
+          await _box.close();
+        } on FileSystemException {
+          // No-op.
         }
-      });
+      }
+    });
+  }
 
   @override
   void onClose() async {
@@ -125,11 +128,10 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   }
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
-  Future<void> putSafe(dynamic key, T value) {
+  Future<void> putSafe(dynamic key, T value) async {
     if (_isReady && _box.isOpen) {
-      return box.put(key, value);
+      await _box.put(key, value);
     }
-    return Future.value();
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
@@ -143,11 +145,10 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
-  Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
+  Future<void> deleteSafe(dynamic key, {T? defaultValue}) async {
     if (_isReady && _box.isOpen) {
-      return box.delete(key);
+      await _box.delete(key);
     }
-    return Future.value();
   }
 }
 
@@ -197,6 +198,10 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
     return [];
   }
 
+  /// Indicates whether the [_mutex] is locked.
+  @visibleForTesting
+  bool get isLocked => _mutex.isLocked;
+
   @protected
   void registerAdapters();
 
@@ -225,25 +230,29 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   /// Removes all entries from the [Box].
   @mustCallSuper
-  Future<void> clear() => _mutex.protect(() async {
-        if (_isReady) {
-          await _box.clear();
-        }
-      });
+  Future<void> clear() {
+    return _mutex.protect(() async {
+      if (_isReady && keysSafe.isNotEmpty) {
+        await _box.clear();
+      }
+    });
+  }
 
   /// Closes the [Box].
   @mustCallSuper
-  Future<void> close() => _mutex.protect(() async {
-        if (_isReady && _box.isOpen) {
-          _isReady = false;
+  Future<void> close() {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        _isReady = false;
 
-          try {
-            await _box.close();
-          } on FileSystemException {
-            // No-op.
-          }
+        try {
+          await _box.close();
+        } on FileSystemException {
+          // No-op.
         }
-      });
+      }
+    });
+  }
 
   @override
   void onClose() async {
@@ -283,15 +292,15 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   }
 }
 
-/// [HiveLazyProvider] with [Iterable] functionality support.
+/// [Hive] provider with [Iterable] functionality support.
 ///
 /// Intended to be used as a source for [Pagination] items persisted.
-mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
+abstract class IterableHiveProvider<T extends Object, K> {
   /// Returns a list of [K] keys stored in the [Hive].
   Iterable<K> get keys;
 
   /// Returns a list of [T] items from [Hive].
-  Future<Iterable<T>> get values => valuesSafe;
+  FutureOr<Iterable<T>> get values;
 
   /// Puts the provided [item] to [Hive].
   Future<void> put(T item);
@@ -301,6 +310,9 @@ mixin IterableHiveProviderMixin<T extends Object, K> on HiveLazyProvider<T> {
 
   /// Removes a [T] item from [Hive] by the provided [key].
   Future<void> remove(K key);
+
+  /// Removes all entries from [Hive].
+  Future<void> clear();
 }
 
 extension HiveRegisterAdapter on HiveInterface {

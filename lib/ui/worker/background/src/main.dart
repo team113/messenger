@@ -29,6 +29,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 
+import '/api/backend/extension/credentials.dart';
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -277,14 +278,7 @@ class _BackgroundService {
                   .renewSession(_credentials!.rememberedSession.token);
               var ok = (result.renewSession
                   as RenewSession$Mutation$RenewSession$RenewSessionOk);
-              _credentials = Credentials(
-                Session(ok.session.token, ok.session.expireAt),
-                RememberedSession(
-                  ok.remembered.token,
-                  ok.remembered.expireAt,
-                ),
-                ok.user.id,
-              );
+              _credentials = ok.toModel();
 
               // Store the [Credentials] in the [Hive].
               Future(() async {
@@ -390,7 +384,7 @@ class _BackgroundService {
                 // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
-                  call.author.name?.val ?? call.author.num.val,
+                  call.author.name?.val ?? call.author.num.toString(),
                 );
               }
 
@@ -416,7 +410,7 @@ class _BackgroundService {
               // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
-                call.author.name?.val ?? call.author.num.val,
+                call.author.name?.val ?? call.author.num.toString(),
               );
             }
             break;

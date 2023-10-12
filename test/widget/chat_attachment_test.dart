@@ -66,6 +66,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -106,7 +107,30 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'edges': [
+        {
+          'node': chatData,
+          'cursor': 'cursor',
+        }
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
     }
   };
 
@@ -131,6 +155,7 @@ void main() async {
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    any,
     any,
   )).thenAnswer((_) => const Stream.empty());
 
@@ -234,13 +259,6 @@ void main() async {
             as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned);
   });
 
-  when(graphQlProvider.recentChats(
-    first: 120,
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
   when(
     graphQlProvider.uploadAttachment(
       any,
@@ -282,6 +300,23 @@ void main() async {
   )).thenAnswer(
     (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
+
+  when(graphQlProvider.recentChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+    noFavorite: anyNamed('noFavorite'),
+    withOngoingCalls: anyNamed('withOngoingCalls'),
+  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+  when(graphQlProvider.favoriteChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
@@ -351,6 +386,8 @@ void main() async {
 
   testWidgets('ChatView successfully sends a message with an attachment',
       (WidgetTester tester) async {
+    CacheWorker.instance = CacheWorker(null, null);
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
@@ -407,6 +444,11 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
+
+    while (chatProvider.isLocked) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);

@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/util/fixed_digits.dart';
 
 /// Rounded rectangular button representing an [OngoingCall] happening.
 class RectangularCallButton extends StatelessWidget {
@@ -56,7 +56,7 @@ class RectangularCallButton extends StatelessWidget {
         elevation: 0,
         type: MaterialType.button,
         borderRadius: BorderRadius.circular(20),
-        color: isActive ? style.colors.dangerColor : style.colors.primary,
+        color: isActive ? style.colors.danger : style.colors.primary,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: onPressed,

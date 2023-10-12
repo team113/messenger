@@ -42,6 +42,7 @@ import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -250,7 +251,7 @@ class _ChatViewState extends State<ChatView>
                                 height: 32,
                                 width: 32,
                                 decoration: BoxDecoration(
-                                  color: style.colors.dangerColor,
+                                  color: style.colors.danger,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Center(
@@ -284,15 +285,8 @@ class _ChatViewState extends State<ChatView>
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
                                 onPressed: c.inCall ? c.dropCall : c.joinCall,
-                                child: AnimatedSwitcher(
+                                child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
-                                  layoutBuilder: (current, previous) => Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      if (previous.isNotEmpty) previous.first,
-                                      if (current != null) current,
-                                    ],
-                                  ),
                                   child: child,
                                 ),
                               ),
@@ -495,7 +489,7 @@ class _ChatViewState extends State<ChatView>
                       return SizedBox(
                         width: 50,
                         height: 50,
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 200.milliseconds,
                           child: c.canGoBack.isTrue
                               ? FloatingActionButton.small(
@@ -518,7 +512,7 @@ class _ChatViewState extends State<ChatView>
                   ),
                   IgnorePointer(
                     child: Obx(() {
-                      return AnimatedSwitcher(
+                      return SafeAnimatedSwitcher(
                         duration: 200.milliseconds,
                         child: c.isDraggingFiles.value
                             ? Container(
@@ -571,13 +565,13 @@ class _ChatViewState extends State<ChatView>
     ListElement element = c.elements.values.elementAt(i);
     bool isLast = i == 0;
 
+    ListElement? previous;
     bool previousSame = false;
 
     if (element is ChatMessageElement ||
         element is ChatCallElement ||
         element is ChatInfoElement ||
         element is ChatForwardElement) {
-      ListElement? previous;
       if (i < c.elements.length - 1) {
         previous = c.elements.values.elementAt(i + 1);
         if (previous is LoaderElement && i < c.elements.length - 2) {
@@ -615,8 +609,7 @@ class _ChatViewState extends State<ChatView>
             (previous is ChatForwardElement &&
                 previous.authorId == author &&
                 element.id.at.val.difference(previous.id.at.val).abs() <=
-                    const Duration(minutes: 5)) ||
-            previous is UnreadMessagesElement;
+                    const Duration(minutes: 5));
       }
     }
 
@@ -637,7 +630,7 @@ class _ChatViewState extends State<ChatView>
 
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 9,
+          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
@@ -701,7 +694,7 @@ class _ChatViewState extends State<ChatView>
     } else if (element is ChatForwardElement) {
       return Padding(
         padding: EdgeInsets.only(
-          top: previousSame ? 0 : 9,
+          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(

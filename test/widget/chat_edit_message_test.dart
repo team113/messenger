@@ -22,7 +22,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
+import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -101,7 +102,30 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'edges': [
+        {
+          'node': chatData,
+          'cursor': 'cursor',
+        }
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
     }
   };
 
@@ -126,6 +150,7 @@ void main() async {
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    any,
     any,
   )).thenAnswer((_) => chatEvents.stream);
 
@@ -185,20 +210,30 @@ void main() async {
       })));
 
   when(graphQlProvider.recentChats(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
+    noFavorite: anyNamed('noFavorite'),
+    withOngoingCalls: anyNamed('withOngoingCalls'),
   )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+  when(graphQlProvider.favoriteChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
   when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.editChatMessageText(
+  when(graphQlProvider.editChatMessage(
     const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
-    const ChatMessageText('new text'),
+    text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
   )).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',
@@ -207,7 +242,7 @@ void main() async {
           '__typename': 'EventChatItemTextEdited',
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'itemId': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
-          'text': 'new text',
+          'text': {'changed': 'new text'},
         }
       ],
       'ver': '1'
@@ -220,8 +255,9 @@ void main() async {
     ));
 
     return Future.value(
-        EditChatMessageText$Mutation.fromJson({'editChatMessageText': event})
-            .editChatMessageText as ChatEventsVersionedMixin?);
+      EditChatMessage$Mutation.fromJson({'editChatMessage': event})
+          .editChatMessage as ChatEventsVersionedMixin?,
+    );
   });
 
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -369,7 +405,10 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    while (chatProvider.isLocked) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 

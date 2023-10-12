@@ -117,7 +117,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: style.fonts.bodyMediumOnPrimary,
+                      style: style.fonts.titleLargeOnPrimary,
                     ),
                     onPressed: Navigator.of(context).pop,
                     color: style.colors.primary,
@@ -141,7 +141,7 @@ class ConfirmLogoutView extends StatelessWidget {
                         TextSpan(
                           style: style.fonts.titleLarge,
                           text: c.myUser.value?.name?.val ??
-                              c.myUser.value?.num.val ??
+                              c.myUser.value?.num.toString() ??
                               '',
                         ),
                         TextSpan(
@@ -181,7 +181,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: style.fonts.titleLargeOnPrimary,
+                            style: style.fonts.bodyMediumOnPrimary,
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,

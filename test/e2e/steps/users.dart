@@ -41,10 +41,8 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
     context.world.me = me.userId;
 
-    await Get.find<AuthService>().signIn(
-      password,
-      num: context.world.sessions[user.name]?.userNum,
-    );
+    await Get.find<AuthService>()
+        .signIn(password, num: context.world.sessions[user.name]?.userNum);
 
     router.home();
   },
@@ -59,10 +57,15 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
 final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
   'I sign in as {user}',
   (TestUser user, context) async {
-    var password = UserPassword('123');
+    try {
+      await Get.find<AuthService>()
+          .signInWith(context.world.sessions[user.name]!.credentials);
+    } catch (_) {
+      var password = UserPassword('123');
 
-    await Get.find<AuthService>()
-        .signIn(password, num: context.world.sessions[user.name]!.userNum);
+      await Get.find<AuthService>()
+          .signIn(password, num: context.world.sessions[user.name]!.userNum);
+    }
 
     router.home();
   },
@@ -90,6 +93,22 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   (TestUser user1, TestUser user2, context) async {
     await createUser(user1, context.world);
     await createUser(user2, context.world);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates the provided count of new [User]s with the provided name.
+///
+/// Examples:
+/// - `Given 10 users Bob`
+/// - `Given 20 users Charlie`
+final countUsers = given2<int, TestUser, CustomWorld>(
+  '{int} users {user}',
+  (int count, TestUser user, context) async {
+    for (int i = 0; i < count; i++) {
+      await createUser(user, context.world);
+    }
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

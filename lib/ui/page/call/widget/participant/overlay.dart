@@ -24,6 +24,7 @@ import '../conditional_backdrop.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// [Participant] overlay displaying its `muted` and `video status` icons.
@@ -158,7 +159,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         padding: const EdgeInsets.only(left: 3, right: 3),
         child: Text(
           participant.user.value?.user.value.name?.val ??
-              participant.user.value?.user.value.num.val ??
+              participant.user.value?.user.value.num.toString() ??
               'dot'.l10n * 3,
           style: style.fonts.bodyMediumOnPrimary,
           maxLines: 1,
@@ -230,15 +231,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
-                child: AnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
-                  layoutBuilder: (current, previous) => Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (previous.isNotEmpty) previous.first,
-                      if (current != null) current,
-                    ],
-                  ),
                   child: child,
                 ),
               ),

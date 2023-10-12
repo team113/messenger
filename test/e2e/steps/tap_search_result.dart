@@ -27,6 +27,7 @@ import 'package:messenger/ui/page/call/search/controller.dart';
 import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
+import 'scroll_until.dart';
 
 /// Taps on the provided [User] or [ChatContact] found in an ongoing search.
 ///
@@ -51,20 +52,26 @@ final StepDefinitionGeneric tapUserInSearchResults =
             final finder = context.world.appDriver
                 .findByKeySkipOffstage('SearchContact_$id');
 
-            await context.world.appDriver.scrollUntilVisible(
+            final scrollable = find.descendant(
+              of: find.byKey(const Key('SearchScrollable')),
+              matching: find.byWidgetPredicate((widget) {
+                // TODO: Find a proper way to differentiate [Scrollable]s from
+                //       [TextField]s:
+                //       https://github.com/flutter/flutter/issues/76981
+                if (widget is Scrollable) {
+                  return widget.restorationId == null;
+                }
+                return false;
+              }),
+            );
+
+            if (!await context.world.appDriver.isPresent(scrollable)) {
+              return false;
+            }
+
+            await context.world.appDriver.scrollIntoVisible(
               finder,
-              scrollable: find.descendant(
-                of: find.byKey(const Key('SearchScrollable')),
-                matching: find.byWidgetPredicate((widget) {
-                  // TODO: Find a proper way to differentiate [Scrollable]s from
-                  //       [TextField]s:
-                  //       https://github.com/flutter/flutter/issues/76981
-                  if (widget is Scrollable) {
-                    return widget.restorationId == null;
-                  }
-                  return false;
-                }),
-              ),
+              scrollable,
               dy: 100,
             );
 
@@ -86,20 +93,26 @@ final StepDefinitionGeneric tapUserInSearchResults =
             final finder = context.world.appDriver
                 .findByKeySkipOffstage('SearchUser_$userId');
 
-            await context.world.appDriver.scrollUntilVisible(
+            final scrollable = find.descendant(
+              of: find.byKey(const Key('SearchScrollable')),
+              matching: find.byWidgetPredicate((widget) {
+                // TODO: Find a proper way to differentiate [Scrollable]s from
+                //       [TextField]s:
+                //       https://github.com/flutter/flutter/issues/76981
+                if (widget is Scrollable) {
+                  return widget.restorationId == null;
+                }
+                return false;
+              }),
+            );
+
+            if (!await context.world.appDriver.isPresent(scrollable)) {
+              return false;
+            }
+
+            await context.world.appDriver.scrollIntoVisible(
               finder,
-              scrollable: find.descendant(
-                of: find.byKey(const Key('SearchScrollable')),
-                matching: find.byWidgetPredicate((widget) {
-                  // TODO: Find a proper way to differentiate [Scrollable]s from
-                  //       [TextField]s:
-                  //       https://github.com/flutter/flutter/issues/76981
-                  if (widget is Scrollable) {
-                    return widget.restorationId == null;
-                  }
-                  return false;
-                }),
-              ),
+              scrollable,
               dy: 100,
             );
 

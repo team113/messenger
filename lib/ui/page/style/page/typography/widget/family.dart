@@ -44,7 +44,7 @@ class FontFamily extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: style.fonts.displayLarge.copyWith(
+      style: style.fonts.displayBold.copyWith(
         color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
         fontWeight: family.$1,
       ),

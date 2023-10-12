@@ -128,27 +128,34 @@ class ChatWorker extends DisposableService {
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
     // Display a new group chat notification.
     if (viaSubscription && c.chat.value.isGroup && _displayNotification) {
+      bool newChat = false;
+
       if (c.chat.value.lastItem is ChatInfo) {
         final msg = c.chat.value.lastItem as ChatInfo;
         if (msg.action.kind == ChatInfoActionKind.memberAdded) {
           final action = msg.action as ChatInfoActionMemberAdded;
-          if (msg.action.kind == ChatInfoActionKind.memberAdded &&
+          newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
               action.user.id == _chatService.me &&
               DateTime.now()
                       .difference(msg.at.val)
                       .compareTo(newMessageThreshold) <=
-                  -1) {
+                  -1;
+        } else if (c.chat.value.lastItem == null) {
+          // The chat was created just now.
+          newChat = DateTime.now()
+                  .difference(c.chat.value.updatedAt.val)
+                  .compareTo(newMessageThreshold) <=
+              -1;
+        }
+
+        if (newChat) {
+          if (_myUser.value?.muted == null) {
             _notificationService.show(
               c.title.value,
-              body: 'fcm_user_added_you_to_group'.l10nfmt({
-                'authorName': msg.author.name?.val ?? 'x',
-                'authorNum': msg.author.num.val,
-              }),
+              body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
-              icon: c.avatar.value?.original.url,
-              tag: c.chat.value.lastItem != null
-                  ? '${c.chat.value.id}_${c.chat.value.lastItem?.id}'
-                  : null,
+              icon: c.avatar.value?.original,
+              tag: c.chat.value.id.val,
             );
 
             _flashTaskbarIcon();
@@ -165,7 +172,7 @@ class ChatWorker extends DisposableService {
             c.title.value,
             body: body,
             payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original.url,
+            icon: c.avatar.value?.original,
             tag: tag,
             image: image,
           );
@@ -203,32 +210,49 @@ class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
     void Function(String, String?, String?)? onNotification,
-    this.me,
+    UserId? Function()? me,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
-    worker = ever(
-      c,
-      (Chat chat) async {
-        if (chat.lastItem != null) {
-          if (chat.lastItem!.at.isAfter(updatedAt) &&
-              DateTime.now()
-                      .difference(chat.lastItem!.at.val)
-                      .compareTo(ChatWorker.newMessageThreshold) <=
-                  -1 &&
-              chat.lastItem!.author.id != me?.call() &&
-              chat.muted == null) {
-            final StringBuffer body = StringBuffer();
-            final ChatItem msg = chat.lastItem!;
-            String? image;
+    void showNotification(Chat chat) {
+      if (chat.lastItem != null) {
+        if (chat.lastItem!.at.isAfter(updatedAt) &&
+            DateTime.now()
+                    .difference(chat.lastItem!.at.val)
+                    .compareTo(ChatWorker.newMessageThreshold) <=
+                -1 &&
+            chat.lastItem!.author.id != me?.call() &&
+            chat.muted == null) {
+          final StringBuffer body = StringBuffer();
+          final ChatItem msg = chat.lastItem!;
+          String? image;
 
-            if (msg is ChatMessage) {
+          if (msg is ChatMessage) {
+            final String? text = _message(
+              isGroup: chat.isGroup,
+              author: msg.author,
+              text: msg.text,
+              attachments: msg.attachments,
+            );
+
+            image = msg.attachments
+                .whereType<ImageAttachment>()
+                .firstOrNull
+                ?.big
+                .url;
+
+            if (text != null) {
+              body.write(text);
+            }
+          } else if (msg is ChatForward) {
+            final ChatItemQuote quote = msg.quote;
+            if (quote is ChatMessageQuote) {
               final String? text = _message(
                 isGroup: chat.isGroup,
                 author: msg.author,
-                text: msg.text,
-                attachments: msg.attachments,
+                text: quote.text,
+                attachments: quote.attachments,
               );
 
-              image = msg.attachments
+              image = quote.attachments
                   .whereType<ImageAttachment>()
                   .firstOrNull
                   ?.big
@@ -237,60 +261,42 @@ class _ChatWatchData {
               if (text != null) {
                 body.write(text);
               }
-            } else if (msg is ChatForward) {
-              final ChatItemQuote quote = msg.quote;
-              if (quote is ChatMessageQuote) {
-                final String? text = _message(
-                  isGroup: chat.isGroup,
+            } else if (quote is ChatInfoQuote) {
+              if (quote.action != null) {
+                final String? text = _info(
                   author: msg.author,
-                  text: quote.text,
-                  attachments: quote.attachments,
+                  info: quote.action!,
                 );
-
-                image = quote.attachments
-                    .whereType<ImageAttachment>()
-                    .firstOrNull
-                    ?.big
-                    .url;
 
                 if (text != null) {
                   body.write(text);
                 }
-              } else if (quote is ChatInfoQuote) {
-                if (quote.action != null) {
-                  final String? text = _info(
-                    author: msg.author,
-                    info: quote.action!,
-                  );
-
-                  if (text != null) {
-                    body.write(text);
-                  }
-                }
-              }
-            } else if (msg is ChatInfo) {
-              final String? text = _info(author: msg.author, info: msg.action);
-
-              if (text != null) {
-                body.write(text);
               }
             }
+          } else if (msg is ChatInfo) {
+            final String? text = _info(author: msg.author, info: msg.action);
 
-            if (body.isNotEmpty) {
-              onNotification?.call(
-                body.toString(),
-                chat.lastItem != null
-                    ? '${chat.id}_${chat.lastItem?.id}'
-                    : null,
-                image,
-              );
+            if (text != null) {
+              body.write(text);
             }
           }
 
-          updatedAt = chat.lastItem!.at;
+          if (body.isNotEmpty) {
+            onNotification?.call(
+              body.toString(),
+              chat.lastItem != null ? '${chat.id}_${chat.lastItem?.id}' : null,
+              image,
+            );
+          }
         }
-      },
-    );
+
+        updatedAt = chat.lastItem!.at;
+      }
+    }
+
+    showNotification(c.value);
+
+    worker = ever(c, showNotification);
   }
 
   /// [Worker] to react on the [Chat] updates.

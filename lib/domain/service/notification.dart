@@ -29,11 +29,13 @@ import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
 import '/domain/model/fcm_registration_token.dart';
+import '/domain/model/file.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
 import '/util/android_utils.dart';
-import '/util/log.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -166,7 +168,7 @@ class NotificationService extends DisposableService {
     String title, {
     String? body,
     String? payload,
-    String? icon,
+    ImageFile? icon,
     String? tag,
     String? image,
   }) async {
@@ -200,19 +202,18 @@ class NotificationService extends DisposableService {
         title,
         body: body,
         lang: payload,
-        icon: icon ?? image,
+        icon: icon?.url ?? image,
         tag: tag,
       ).onError((_, __) => false);
     } else if (PlatformUtils.isWindows) {
-      // TODO: Images should be downloaded to cache.
       File? file;
       if (icon != null) {
-        file = await PlatformUtils.download(
-          icon,
-          'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg',
-          null,
-          temporary: true,
-        );
+        file = (await CacheWorker.instance.get(
+          url: icon.url,
+          checksum: icon.checksum,
+          responseType: CacheResponseType.file,
+        ))
+            .file;
       }
 
       await WinToast.instance().showCustomToast(

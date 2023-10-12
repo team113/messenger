@@ -28,7 +28,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' hide ChatItemQuoteInput;
+import '/api/backend/schema.dart' hide ChatItemQuoteInput, ChatMessageTextInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -37,6 +37,7 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -331,6 +332,7 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _settingsRepository,
       onChanged: updateDraft,
       onSubmit: () async {
         if (send.forwarding.value) {
@@ -340,17 +342,14 @@ class ChatController extends GetxController {
               return;
             }
 
-            bool? result = await ChatForwardView.show(
+            await ChatForwardView.show(
               router.context!,
               id,
               send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
+              onSent: send.clear,
             );
-
-            if (result == true) {
-              send.clear();
-            }
           }
         } else {
           if (send.field.text.trim().isNotEmpty ||
@@ -498,6 +497,7 @@ class ChatController extends GetxController {
       edit.value ??= MessageFieldController(
         _chatService,
         _userService,
+        _settingsRepository,
         text: item.text?.val,
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
@@ -513,7 +513,10 @@ class ChatController extends GetxController {
             }
 
             try {
-              await _chatService.editChatMessage(item, text);
+              await _chatService.editChatMessage(
+                item,
+                text: text == null ? null : ChatMessageTextInput(text),
+              );
 
               edit.value?.onClose();
               edit.value = null;
@@ -764,9 +767,8 @@ class ChatController extends GetxController {
               }
 
               if (forward != null) {
-                forward.forwards.removeWhere((e) => e.value.id == item.id);
-
-                if (forward.forwards.isEmpty) {
+                if (forward.forwards.length == 1 &&
+                    forward.forwards.first.value.id == item.id) {
                   elements.remove(forward.id);
 
                   if (forward.note.value != null) {
@@ -774,6 +776,8 @@ class ChatController extends GetxController {
                         ChatMessageElement(forward.note.value!);
                     elements[message.id] = message;
                   }
+                } else {
+                  forward.forwards.removeWhere((e) => e.value.id == item.id);
                 }
               }
             }
@@ -1215,8 +1219,7 @@ class ChatController extends GetxController {
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (listController.position.maxScrollExtent == 0 &&
-            (hasNext.isTrue || hasPrevious.isTrue)) {
+        if (listController.position.maxScrollExtent < 50) {
           await _loadNextPage();
           await _loadPreviousPage();
           _ensureScrollable();
@@ -1528,7 +1531,7 @@ extension ChatViewExt on Chat {
 
       case ChatKind.dialog:
         User? partner = users.firstWhereOrNull((u) => u.id != me);
-        final partnerName = partner?.name?.val ?? partner?.num.val;
+        final partnerName = partner?.name?.val ?? partner?.num.toString();
         if (partnerName != null) {
           title = partnerName;
         }
@@ -1538,7 +1541,7 @@ extension ChatViewExt on Chat {
         if (name == null) {
           title = users
               .take(3)
-              .map((u) => u.name?.val ?? u.num.val)
+              .map((u) => u.name?.val ?? u.num.toString())
               .join('comma_space'.l10n);
           if (members.length > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);
@@ -1560,10 +1563,10 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({User? partner}) {
+  String? getSubtitle({RxUser? partner}) {
     switch (kind) {
       case ChatKind.dialog:
-        return partner?.getStatus();
+        return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
         return '${members.length} ${'label_subtitle_participants'.l10n}';

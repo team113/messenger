@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -176,7 +177,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     // We're expecting a checksum to properly fetch the image from the cache.
-    if (widget.checksum == null || widget.fallbackChecksum == null) {
+    if (widget.checksum == null && widget.fallbackChecksum == null) {
       widget.onForbidden?.call();
     }
 
@@ -318,7 +319,7 @@ class _RetryImageState extends State<RetryImage> {
       return Stack(
         alignment: Alignment.center,
         children: [
-          AnimatedSwitcher(
+          SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 150),
             child: _fallback == null
                 ? SizedBox(width: 200, height: widget.height)
@@ -344,7 +345,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
           Positioned.fill(
             child: Center(
-              child: AnimatedSwitcher(
+              child: SafeAnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
                 child:
                     KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
@@ -357,7 +358,7 @@ class _RetryImageState extends State<RetryImage> {
 
     return KeyedSubtree(
       key: Key('Image_${widget.url}'),
-      child: AnimatedSwitcher(
+      child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 150),
         child: child,
       ),
@@ -370,7 +371,7 @@ class _RetryImageState extends State<RetryImage> {
       return;
     }
 
-    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
+    final FutureOr<CacheEntry> result = CacheWorker.instance.get(
       url: widget.fallbackUrl!,
       checksum: widget.fallbackChecksum,
       cancelToken: _fallbackToken,
@@ -379,10 +380,10 @@ class _RetryImageState extends State<RetryImage> {
       },
     );
 
-    if (result is Uint8List?) {
-      _fallback = result ?? _fallback;
+    if (result is CacheEntry) {
+      _fallback = result.bytes ?? _fallback;
     } else {
-      _fallback = await result ?? _fallback;
+      _fallback = (await result).bytes ?? _fallback;
     }
 
     if (mounted) {
@@ -392,7 +393,7 @@ class _RetryImageState extends State<RetryImage> {
 
   /// Loads the [_image] from the provided URL.
   FutureOr<void> _loadImage() async {
-    final FutureOr<Uint8List?> result = CacheWorker.instance.get(
+    final FutureOr<CacheEntry> result = CacheWorker.instance.get(
       url: widget.url,
       checksum: widget.checksum,
       onReceiveProgress: (received, total) {
@@ -409,10 +410,10 @@ class _RetryImageState extends State<RetryImage> {
       },
     );
 
-    if (result is Uint8List?) {
-      _image = result ?? _image;
+    if (result is CacheEntry) {
+      _image = result.bytes ?? _image;
     } else {
-      _image = await result ?? _image;
+      _image = (await result).bytes ?? _image;
     }
 
     _isSvg = false;

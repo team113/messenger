@@ -22,6 +22,7 @@ import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
@@ -99,6 +100,7 @@ import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
+import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
@@ -129,6 +131,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contact,
         contactIsFavorite,
         copyFromField,
+        countUsers,
         downloadFile,
         dragChatDown,
         dragContactDown,
@@ -136,6 +139,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldN,
         goToUserPage,
         hasDialogWithMe,
+        hasGroups,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -197,6 +201,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
+        updateAppVersion,
         updateAvatar,
         updateName,
         user,
@@ -259,11 +264,7 @@ Future<CustomUser> createUser(
   final result = await provider.signUp();
 
   final CustomUser customUser = CustomUser(
-    Session(
-      result.createUser.session.token,
-      result.createUser.session.expireAt,
-    ),
-    result.createUser.user.id,
+    result.toModel(),
     result.createUser.user.num,
   );
 

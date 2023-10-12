@@ -18,15 +18,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
+import '/ui/worker/cache.dart';
 import '/util/new_type.dart';
-import '/util/platform_utils.dart';
 import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -52,6 +50,17 @@ abstract class Attachment extends HiveObject {
   /// Uploaded file's name.
   @HiveField(2)
   String filename;
+
+  /// Returns the [Downloading] of this [Attachment], if any.
+  Downloading? get downloading =>
+      CacheWorker.instance.downloads[original.checksum];
+
+  /// Indicates whether downloading of this [Attachment] is in progress.
+  bool get isDownloading => downloadStatus == DownloadStatus.inProgress;
+
+  /// Returns [DownloadStatus] of this [Attachment].
+  DownloadStatus get downloadStatus =>
+      downloading?.status.value ?? DownloadStatus.notStarted;
 }
 
 /// Image [Attachment].
@@ -91,38 +100,10 @@ class FileAttachment extends Attachment {
     required super.filename,
   });
 
-  /// Path to the downloaded [FileAttachment] in the local filesystem.
-  @HiveField(3)
-  String? path;
-
-  /// [DownloadStatus] of this [FileAttachment].
-  Rx<DownloadStatus> downloadStatus = Rx(DownloadStatus.notStarted);
-
-  /// Download progress of this [FileAttachment].
-  RxDouble progress = RxDouble(0);
-
-  /// [CancelToken] canceling the download of this [FileAttachment], if any.
-  CancelToken? _token;
-
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
-  /// Indicates whether this [FileAttachment] is downloading.
-  bool get isDownloading => downloadStatus.value == DownloadStatus.inProgress;
-
-  /// Indicates whether this [FileAttachment] represents a video.
-  bool get isVideo {
-    final String file = filename.toLowerCase();
-    return file.endsWith('.mp4') ||
-        file.endsWith('.mov') ||
-        file.endsWith('.webm') ||
-        file.endsWith('.mkv') ||
-        file.endsWith('.flv') ||
-        file.endsWith('.3gp');
-  }
-
-  // TODO: Compare hashes.
-  /// Initializes the [downloadStatus].
+  /// Initializes this [FileAttachment].
   Future<void> init() async {
     if (_initialized) {
       return;
@@ -130,86 +111,30 @@ class FileAttachment extends Attachment {
 
     _initialized = true;
 
-    if (path != null) {
-      File file = File(path!);
-      if (await file.exists() && await file.length() == original.size) {
-        downloadStatus.value = DownloadStatus.isFinished;
-        return;
-      }
-    }
-
-    File? file = await PlatformUtils.fileExists(
-      filename,
+    await CacheWorker.instance.checkDownloaded(
+      filename: filename,
+      checksum: original.checksum,
       size: original.size,
       url: original.url,
     );
-
-    if (file != null) {
-      downloadStatus.value = DownloadStatus.isFinished;
-      path = file.path;
-    } else {
-      downloadStatus.value = DownloadStatus.notStarted;
-      path = null;
-    }
   }
 
   /// Downloads this [FileAttachment].
-  Future<void> download() async {
-    try {
-      downloadStatus.value = DownloadStatus.inProgress;
-      progress.value = 0;
-
-      _token = CancelToken();
-
-      File? file = await PlatformUtils.download(
+  Future<File?>? download() => CacheWorker.instance
+      .download(
         original.url,
         filename,
         original.size,
-        onReceiveProgress: (count, total) => progress.value = count / total,
-        cancelToken: _token,
-      );
-
-      if (_token?.isCancelled == true || file == null) {
-        downloadStatus.value = DownloadStatus.notStarted;
-        path = null;
-      } else {
-        downloadStatus.value = DownloadStatus.isFinished;
-        path = file.path;
-      }
-    } catch (_) {
-      downloadStatus.value = DownloadStatus.notStarted;
-      path = null;
-
-      rethrow;
-    }
-  }
+        checksum: original.checksum,
+      )
+      .future;
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
-  Future<bool> open() async {
-    if (path != null) {
-      File file = File(path!);
+  Future<bool> open() =>
+      CacheWorker.instance.open(original.checksum, original.size);
 
-      if (await file.exists() && await file.length() == original.size) {
-        await OpenFile.open(path!);
-        return true;
-      } else {
-        path = null;
-      }
-    }
-
-    return false;
-  }
-
-  /// Cancels the downloading of this [FileAttachment].
-  void cancelDownload() {
-    try {
-      _token?.cancel();
-    } on DioException catch (e) {
-      if (e.type != DioExceptionType.cancel) {
-        rethrow;
-      }
-    }
-  }
+  /// Cancels the [downloading] of this [FileAttachment].
+  void cancelDownload() => downloading?.cancel();
 }
 
 /// Unique ID of an [Attachment].
@@ -247,16 +172,4 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
-}
-
-/// Download status of a [FileAttachment].
-enum DownloadStatus {
-  /// Download has not yet started.
-  notStarted,
-
-  /// Download is in progress.
-  inProgress,
-
-  /// Downloaded successfully.
-  isFinished,
 }

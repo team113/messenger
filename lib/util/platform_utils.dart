@@ -54,9 +54,6 @@ class PlatformUtilsImpl {
   /// Cache directory.
   Directory? _cacheDirectory;
 
-  /// Path to the temporary directory.
-  Directory? _temporaryDirectory;
-
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
 
@@ -297,16 +294,6 @@ class PlatformUtilsImpl {
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
-  /// Returns a path to the temporary directory.
-  Future<Directory> get temporaryDirectory async {
-    if (_temporaryDirectory != null) {
-      return _temporaryDirectory!;
-    }
-
-    _temporaryDirectory = await getTemporaryDirectory();
-    return _temporaryDirectory!;
-  }
-
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {
@@ -356,8 +343,7 @@ class PlatformUtilsImpl {
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      final Directory directory =
-          temporary ? await temporaryDirectory : await downloadsDirectory;
+      final Directory directory = await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('${directory.path}/$filename');
@@ -380,10 +366,10 @@ class PlatformUtilsImpl {
     String url,
     String filename,
     int? size, {
+    String? path,
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
-    bool temporary = false,
   }) async {
     dynamic completeWith;
 
@@ -413,40 +399,44 @@ class PlatformUtilsImpl {
         } else {
           File? file;
 
-          // Retry fetching the size unless any other that `404` error is
-          // thrown.
-          file = await Backoff.run(
-            () async {
-              try {
-                return await fileExists(
-                  filename,
-                  size: size,
-                  url: url,
-                  temporary: temporary,
-                );
-              } catch (e) {
-                onError(e);
-              }
+          if (path == null) {
+            // Retry fetching the size unless any other that `404` error is
+            // thrown.
+            file = await Backoff.run(
+              () async {
+                try {
+                  return await fileExists(
+                    filename,
+                    size: size,
+                    url: url,
+                  );
+                } catch (e) {
+                  onError(e);
+                }
 
-              return null;
-            },
-            cancelToken,
-          );
+                return null;
+              },
+              cancelToken,
+            );
+          }
 
           if (file == null) {
             Uint8List? data;
             if (checksum != null && CacheWorker.instance.exists(checksum)) {
-              data = await CacheWorker.instance.get(checksum: checksum);
+              data = (await CacheWorker.instance.get(checksum: checksum)).bytes;
             }
 
-            final String name = p.basenameWithoutExtension(filename);
-            final String extension = p.extension(filename);
-            final Directory directory =
-                temporary ? await temporaryDirectory : await downloadsDirectory;
+            if (path == null) {
+              final String name = p.basenameWithoutExtension(filename);
+              final String extension = p.extension(filename);
+              final Directory directory = await downloadsDirectory;
 
-            file = File('${directory.path}/$filename');
-            for (int i = 1; await file!.exists(); ++i) {
-              file = File('${directory.path}/$name ($i)$extension');
+              file = File('${directory.path}/$filename');
+              for (int i = 1; await file!.exists(); ++i) {
+                file = File('${directory.path}/$name ($i)$extension');
+              }
+            } else {
+              file = File(path);
             }
 
             if (data == null) {
@@ -498,7 +488,7 @@ class PlatformUtilsImpl {
   }) async {
     if (isMobile && !isWeb) {
       Uint8List? data =
-          await CacheWorker.instance.get(checksum: checksum, url: url);
+          (await CacheWorker.instance.get(checksum: checksum, url: url)).bytes;
       if (data != null) {
         ImageGallerySaver.saveImage(data, name: name);
       }
@@ -510,7 +500,7 @@ class PlatformUtilsImpl {
     // Provided file might already be cached.
     Uint8List? data;
     if (checksum != null && CacheWorker.instance.exists(checksum)) {
-      data = await CacheWorker.instance.get(checksum: checksum);
+      data = (await CacheWorker.instance.get(checksum: checksum)).bytes;
     }
 
     if (data == null) {
@@ -559,6 +549,25 @@ extension MobileExtensionOnContext on BuildContext {
   bool get isNarrow => PlatformUtils.isDesktop
       ? MediaQuery.sizeOf(this).width < 600
       : MediaQuery.sizeOf(this).shortestSide < 600;
+}
+
+/// Extension adding an ability to pop the current [ModalRoute].
+extension PopExtensionOnContext on BuildContext {
+  /// Pops the [ModalRoute] from this [BuildContext], if any is active.
+  void popModal() {
+    if (mounted) {
+      final NavigatorState navigator = Navigator.of(this);
+      final ModalRoute? modal = ModalRoute.of(this);
+
+      if (modal?.isActive == true) {
+        if (modal?.isCurrent == true) {
+          navigator.pop();
+        } else {
+          navigator.removeRoute(modal!);
+        }
+      }
+    }
+  }
 }
 
 /// Listener interface for receiving window events.

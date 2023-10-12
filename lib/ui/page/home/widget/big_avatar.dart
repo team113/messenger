@@ -25,6 +25,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 import 'avatar.dart';
@@ -106,7 +107,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           children: [
             _avatar(context),
             Positioned.fill(
-              child: AnimatedSwitcher(
+              child: SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: widget.loading
                     ? Container(
@@ -215,6 +216,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                       GalleryItem.image(
                         avatar!.original.url,
                         avatar.original.checksum ?? DateTime.now().toString(),
+                        checksum: avatar.original.checksum,
                       ),
                     ],
                   ),

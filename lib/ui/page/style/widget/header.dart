@@ -37,7 +37,7 @@ class Header extends StatelessWidget {
         child: Text(
           label,
           style:
-              style.fonts.displayLarge.copyWith(color: const Color(0xFF1F3C5D)),
+              style.fonts.displayBold.copyWith(color: const Color(0xFF1F3C5D)),
         ),
       ),
     );

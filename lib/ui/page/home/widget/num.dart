@@ -33,12 +33,7 @@ class UserNumCopyable extends StatelessWidget {
   Widget build(BuildContext context) {
     return CopyableTextField(
       state: TextFieldState(
-        text: num?.val
-            .replaceAllMapped(
-              RegExp(r'.{4}'),
-              (match) => '${match.group(0)}${'space'.l10n}',
-            )
-            .trim(),
+        text: num?.toString(),
         editable: false,
       ),
       label: 'label_num'.l10n,

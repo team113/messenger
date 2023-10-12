@@ -26,7 +26,6 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
-import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
@@ -67,8 +66,29 @@ import 'user_profile_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
+
   var recentChats = {
-    'recentChats': {'nodes': []}
+    'recentChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
   };
 
   var userData = {
@@ -217,13 +237,21 @@ void main() async {
     );
 
     when(graphQlProvider.recentChats(
-      first: 120,
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
+    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+    when(graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
-    );
+        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
     when(graphQlProvider.getBlocklist(
       first: 120,
@@ -351,7 +379,7 @@ void main() async {
         .thenAnswer(
             (_) => Future.value(GetUser$Query.fromJson({'user': newUserData})));
 
-    AuthService authService = Get.put(
+    final authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         sessionProvider,
@@ -359,45 +387,59 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider);
+    final userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     Get.put(UserService(userRepository));
-    AbstractMyUserRepository myUserRepository = MyUserRepository(
-      graphQlProvider,
-      myUserProvider,
-      blacklistedUsersProvider,
-      userRepository,
+    final myUserRepository = Get.put(
+      MyUserRepository(
+        graphQlProvider,
+        myUserProvider,
+        blacklistedUsersProvider,
+        userRepository,
+      ),
     );
     Get.put(MyUserService(authService, myUserRepository));
 
-    SettingsRepository settingsRepository = SettingsRepository(
-      mediaSettingsProvider,
-      applicationSettingsProvider,
-      backgroundProvider,
-      callRectProvider,
+    final settingsRepository = Get.put(
+      SettingsRepository(
+        mediaSettingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+        callRectProvider,
+      ),
     );
-    ContactRepository contactRepository = ContactRepository(
-        graphQlProvider, contactProvider, userRepository, sessionProvider);
+    final contactRepository = Get.put(
+      ContactRepository(
+        graphQlProvider,
+        contactProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
     Get.put(ContactService(contactRepository));
 
-    CallRepository callRepository = CallRepository(
-      graphQlProvider,
-      userRepository,
-      credentialsProvider,
-      settingsRepository,
-      me: const UserId('me'),
+    final callRepository = Get.put(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        credentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
+      ),
     );
-    ChatRepository chatRepository = ChatRepository(
-      graphQlProvider,
-      chatProvider,
-      callRepository,
-      draftProvider,
-      userRepository,
-      sessionProvider,
-      monologProvider,
-      me: const UserId('me'),
+    final chatRepository = Get.put(
+      ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+        sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
+      ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final chatService = Get.put(ChatService(chatRepository, authService));
 
     Get.put(CallService(authService, chatService, callRepository));
 
@@ -411,7 +453,7 @@ void main() async {
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserScrollable')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.text('5769space2360space9862space1822space'), findsOneWidget);
+    expect(find.text('5769space2360space9862space1822'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));

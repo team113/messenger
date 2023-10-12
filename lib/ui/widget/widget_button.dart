@@ -26,6 +26,7 @@ class WidgetButton extends StatelessWidget {
     required this.child,
     this.behavior,
     this.onPressed,
+    this.onLongPress,
   });
 
   /// [Widget] to press.
@@ -37,6 +38,9 @@ class WidgetButton extends StatelessWidget {
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
+  /// Callback, called when the [child] is long-pressed.
+  final void Function()? onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -45,6 +49,7 @@ class WidgetButton extends StatelessWidget {
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        onLongPress: onLongPress,
         behavior: behavior,
         child: Container(
           color: style.colors.transparent,

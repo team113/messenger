@@ -49,7 +49,7 @@ class ChatSubtitle extends StatefulWidget {
   final UserId? me;
 
   /// Indicator whether ongoing activities of the provided [chat] should be
-  /// displayed withing this [ChatSubtitle].
+  /// displayed within this [ChatSubtitle].
   final bool withActivities;
 
   @override
@@ -144,7 +144,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         final Iterable<String> typings = widget.chat.typingUsers
             .where((e) => e.id != widget.me)
-            .map((e) => e.name?.val ?? e.num.val);
+            .map((e) => e.name?.val ?? e.num.toString());
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -176,7 +176,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
       if (member != null) {
         return Obx(() {
-          final String? subtitle = chat.getSubtitle(partner: member.user.value);
+          final String? subtitle = chat.getSubtitle(partner: member);
           final UserTextStatus? status = member.user.value.status;
           final Widget child;
 

@@ -96,7 +96,30 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'edges': [
+        {
+          'node': chatData,
+          'cursor': 'cursor',
+        }
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
     }
   };
 
@@ -194,6 +217,7 @@ void main() async {
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       any,
+      any,
     )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
@@ -202,11 +226,21 @@ void main() async {
             (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.recentChats(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
     )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+    when(graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));

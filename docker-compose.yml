@@ -21,7 +21,13 @@ services:
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     image: ${COMPOSE_BACKEND}
-    depends_on: ["baza-storage", "cockroachdb", "mailhog"]
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+      baza-storage:
+        condition: service_started
+      mailhog:
+        condition: service_started
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb

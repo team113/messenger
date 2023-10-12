@@ -94,7 +94,7 @@ class Routes {
   static const restart = '/restart';
 
   // TODO: Styles page related, should be removed at some point.
-  static const style = '/style';
+  static const style = '/dev/style';
 }
 
 /// List of [Routes.home] page tabs.
@@ -793,13 +793,13 @@ extension RouteLinks on RouterState {
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void contact(UserId id, {bool push = false}) =>
-      push ? this.push('${Routes.contacts}/$id') : go('${Routes.contacts}/$id');
+      (push ? this.push : go)('${Routes.contacts}/$id');
 
   /// Changes router location to the [Routes.user] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void user(UserId id, {bool push = false}) =>
-      push ? this.push('${Routes.user}/$id') : go('${Routes.user}/$id');
+      (push ? this.push : go)('${Routes.user}/$id');
 
   /// Changes router location to the [Routes.chats] page.
   ///
@@ -808,31 +808,28 @@ extension RouteLinks on RouterState {
     ChatId id, {
     bool push = false,
     ChatItemId? itemId,
+
     // TODO: Remove when backend supports welcome messages.
     ChatMessageText? welcome,
   }) {
-    if (push) {
-      this.push('${Routes.chats}/$id');
-    } else {
-      go('${Routes.chats}/$id');
-    }
+    (push ? this.push : go)('${Routes.chats}/$id');
 
     arguments = {'itemId': itemId, 'welcome': welcome};
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(ChatId id, {bool push = false}) {
-    if (push) {
-      this.push('${Routes.chats}/$id${Routes.chatInfo}');
-    } else {
-      go('${Routes.chats}/$id${Routes.chatInfo}');
-    }
-  }
+  void chatInfo(ChatId id, {bool push = false}) =>
+      (push ? this.push : go)('${Routes.chats}/$id${Routes.chatInfo}');
 
   /// Changes router location to the [Routes.work] page.
   void work(WorkTab? tab, {bool push = false}) => (push
       ? this.push
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
+
+  /// Changes router location to the [Routes.style] page.
+  ///
+  /// If [push] is `true`, then location is pushed to the router location stack.
+  void style({bool push = false}) => (push ? this.push : go)(Routes.style);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

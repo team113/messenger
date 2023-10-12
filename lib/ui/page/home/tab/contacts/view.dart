@@ -39,6 +39,7 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
@@ -131,7 +132,10 @@ class ContactsTabView extends StatelessWidget {
                 );
               }
 
-              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 250.milliseconds,
+                child: child,
+              );
             }),
             actions: [
               Obx(() {
@@ -178,7 +182,7 @@ class ContactsTabView extends StatelessWidget {
                           width: 29.69 + 12 + 18,
                           height: double.infinity,
                           child: Center(
-                            child: AnimatedSwitcher(
+                            child: SafeAnimatedSwitcher(
                               duration: 250.milliseconds,
                               child: child,
                             ),
@@ -190,6 +194,7 @@ class ContactsTabView extends StatelessWidget {
                         key: const Key('ContactsMenu'),
                         alignment: Alignment.topRight,
                         enablePrimaryTap: true,
+                        enableLongTap: false,
                         enableSecondaryTap: false,
                         selector: c.moreKey,
                         margin: const EdgeInsets.only(bottom: 4, right: 0),
@@ -274,7 +279,7 @@ class ContactsTabView extends StatelessWidget {
                       child: child,
                     );
                   },
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 250.milliseconds,
                     child: c.search.value != null
                         ? Icon(
@@ -313,12 +318,12 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
-                  controller: c.scrollController,
+                  controller: c.search.value!.scrollController,
                   child: AnimationLimiter(
                     key: const Key('Search'),
                     child: ListView.builder(
                       key: const Key('SearchScrollable'),
-                      controller: c.scrollController,
+                      controller: c.search.value!.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
                         ListElement? element;
@@ -326,7 +331,7 @@ class ContactsTabView extends StatelessWidget {
                           element = c.elements[i];
                         }
 
-                        final Widget child;
+                        Widget child;
 
                         if (element is ContactElement) {
                           child = SearchUserTile(
@@ -363,6 +368,24 @@ class ContactsTabView extends StatelessWidget {
                           );
                         } else {
                           child = const SizedBox();
+                        }
+
+                        if (i == c.elements.length - 1) {
+                          if (c.search.value?.hasNext.value == true) {
+                            child = Column(
+                              children: [
+                                child,
+                                const CustomProgressIndicator(),
+                              ],
+                            );
+                          }
+
+                          child = Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: CustomNavigationBar.height + 5,
+                            ),
+                            child: child,
+                          );
                         }
 
                         return AnimationConfiguration.staggeredList(
@@ -408,7 +431,7 @@ class ContactsTabView extends StatelessWidget {
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            top: CustomAppBar.height,
+                            top: CustomAppBar.height - 4,
                             left: 10,
                             right: 10,
                           ),
@@ -531,7 +554,7 @@ class ContactsTabView extends StatelessWidget {
                         ),
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            bottom: CustomNavigationBar.height + 5,
+                            bottom: CustomNavigationBar.height,
                             left: 10,
                             right: 10,
                           ),
@@ -539,7 +562,7 @@ class ContactsTabView extends StatelessWidget {
                             delegate: SliverChildListDelegate.fixed(
                               c.contacts.mapIndexed((i, e) {
                                 return AnimationConfiguration.staggeredList(
-                                  position: i,
+                                  position: c.favorites.length + i,
                                   duration: const Duration(milliseconds: 375),
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
@@ -570,15 +593,8 @@ class ContactsTabView extends StatelessWidget {
                   );
                 }),
                 ContextMenuInterceptor(
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
-                    layoutBuilder: (current, previous) => Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (previous.isNotEmpty) previous.first,
-                        if (current != null) current,
-                      ],
-                    ),
                     child: child,
                   ),
                 ),
@@ -689,7 +705,13 @@ class ContactsTabView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Obx(() {
-              final subtitle = contact.user.value?.user.value.getStatus();
+              if (contact.user.value == null) {
+                return const SizedBox();
+              }
+
+              final subtitle = contact.user.value?.user.value
+                  .getStatus(contact.user.value?.lastSeen.value);
+
               if (subtitle != null) {
                 return Text(
                   subtitle,
@@ -699,7 +721,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               }
 
-              return Container();
+              return const SizedBox();
             }),
           ),
         ],

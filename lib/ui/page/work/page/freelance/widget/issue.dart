@@ -123,7 +123,7 @@ class IssueWidget extends StatelessWidget {
                       h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
 
                       // TODO: Exception.
-                      h2: style.fonts.displayLarge.copyWith(fontSize: 20),
+                      h2: style.fonts.displayBold.copyWith(fontSize: 20),
 
                       p: style.fonts.titleMedium,
                       code: style.fonts.bodySmall.copyWith(

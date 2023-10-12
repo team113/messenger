@@ -20,30 +20,40 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
-import '../model/attachment.dart';
-import '../model/avatar.dart';
-import '../model/chat.dart';
-import '../model/chat_item.dart';
-import '../model/chat_item_quote_input.dart';
-import '../model/mute_duration.dart';
-import '../model/my_user.dart';
-import '../model/native_file.dart';
-import '../model/user.dart';
-import '../model/user_call_cover.dart';
-import '../repository/user.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
+import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
 abstract class AbstractChatRepository {
-  /// Returns reactive map of [RxChat]s.
+  /// Returns reactive map of [RxChat]s in the current pagination view.
+  RxObsMap<ChatId, RxChat> get paginated;
+
+  /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Returns the initialization [RxStatus] of this repository and its [chats].
+  /// Returns the initialization [RxStatus] of this repository.
   Rx<RxStatus> get status;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
   ChatId get monolog;
+
+  /// Indicates whether the [paginated] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [paginated] is loading.
+  RxBool get nextLoading;
 
   /// Initializes this repository.
   ///
@@ -54,13 +64,16 @@ abstract class AbstractChatRepository {
   });
 
   /// Clears the stored [chats].
-  Future<void> clearCache();
+  Future<void> clear();
 
   /// Returns an [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id);
 
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
+
+  /// Fetches the next [paginated] page.
+  Future<void> next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///
@@ -118,7 +131,10 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
+  Future<void> editChatMessage(
+    ChatMessage message, {
+    ChatMessageTextInput? text,
+  });
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> deleteChatMessage(ChatMessage message);

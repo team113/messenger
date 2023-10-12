@@ -45,6 +45,7 @@ import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
+import 'provider/hive/download.dart';
 import 'provider/hive/session.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -99,7 +100,7 @@ Future<void> main() async {
     await authService.init();
     await L10n.init();
 
-    Get.put(CacheWorker(Get.findOrNull()));
+    Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
 
     WebUtils.deleteLoader();
 
@@ -122,7 +123,7 @@ Future<void> main() async {
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
-      options.release = '${Pubspec.name}@${Pubspec.version}',
+      options.release = '${Pubspec.name}@${Config.version ?? Pubspec.version}',
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
@@ -289,8 +290,8 @@ Future<void> _initHive() async {
 
   // Load and compare application version.
   Box box = await Hive.openBox('version');
-  String version = Pubspec.version;
-  String? stored = box.get(0);
+  final String version = Config.version ?? Pubspec.version;
+  final String? stored = box.get(0);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
   if (stored != version) {
@@ -308,6 +309,7 @@ Future<void> _initHive() async {
 
   if (!PlatformUtils.isWeb) {
     await Get.put(CacheInfoHiveProvider()).init();
+    await Get.put(DownloadHiveProvider()).init();
   }
 }
 
