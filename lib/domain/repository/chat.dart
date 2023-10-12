@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/search.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
@@ -204,11 +203,6 @@ abstract class AbstractChatRepository {
   /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
-
-  /// Searches [Chat]s by the given [name].
-  ///
-  /// Returns all [Chat]s if [name] is `null`.
-  SearchResult<ChatId, RxChat> search({ChatName? name});
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

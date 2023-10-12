@@ -43,7 +43,6 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, UploadAttachmentException;
@@ -55,10 +54,8 @@ import '/provider/hive/monolog.dart';
 import '/provider/hive/session.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
-import '/store/model/page_info.dart';
 import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
-import '/store/search.dart';
 import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -495,57 +492,6 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     await chats[chatId]?.read(untilId);
-  }
-
-  @override
-  SearchResult<ChatId, RxChat> search({ChatName? name}) {
-    Pagination<RxChat, Object, ChatId>? pagination;
-    if (_pagination?.hasNext.value != false) {
-      pagination = Pagination(
-        provider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) async {
-            Page<HiveChat, Object>? page = await _pagination?.next();
-            if (page != null) {
-              await Future.delayed(1.milliseconds);
-              return Page(
-                page.edges
-                    .map((e) => this.chats[e.value.id])
-                    .whereNotNull()
-                    .where((e) =>
-                        name == null ||
-                        e.title.value
-                                .toLowerCase()
-                                .contains(name.val.toLowerCase()) ==
-                            true)
-                    .toList(),
-                PageInfo(hasNext: _pagination!.hasNext.value),
-              );
-            }
-
-            return Page([], PageInfo(hasNext: true));
-          },
-        ),
-        onKey: (RxChat e) => e.id,
-      );
-    }
-
-    final List<RxChat> chats = this
-        .chats
-        .values
-        .where((u) =>
-            name == null ||
-            u.title.value.toLowerCase().contains(name.val.toLowerCase()) ==
-                true)
-        .toList();
-
-    final SearchResultImpl<ChatId, RxChat> searchResult = SearchResultImpl(
-      pagination: pagination,
-      initial: [
-        {for (var u in chats) u.id: u},
-      ],
-    );
-
-    return searchResult;
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
