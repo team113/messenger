@@ -215,7 +215,7 @@ class SearchView extends StatelessWidget {
                           if (i == childCount - 1) {
                             Widget widget = child;
                             child = Obx(() {
-                              if (c.hasNext.isTrue) {
+                              if (c.searchStatus.value.isLoadingMore) {
                                 return Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [

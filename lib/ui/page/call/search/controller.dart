@@ -606,16 +606,16 @@ class SearchController extends GetxController {
 
   /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
   Future<void> _next() async {
-    if (query.value.length < 2 &&
-        _chatService.hasNext.isTrue &&
-        _chatService.nextLoading.isFalse) {
-      searchStatus.value = RxStatus.loadingMore();
+    if (query.value.length < 2) {
+      if (_chatService.hasNext.isTrue && _chatService.nextLoading.isFalse) {
+        searchStatus.value = RxStatus.loadingMore();
 
-      await _chatService.next();
-      await Future.delayed(1.milliseconds);
-      _populateChats();
+        await _chatService.next();
+        await Future.delayed(1.milliseconds);
+        _populateChats();
 
-      searchStatus.value = RxStatus.success();
+        searchStatus.value = RxStatus.success();
+      }
     } else {
       await _nextContacts();
       await _nextUsers();
