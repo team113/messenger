@@ -159,7 +159,6 @@ class Pagination<T, C, K> {
   }
 
   /// Fetches a next page of the [items].
-
   Future<void> next() async {
     final bool locked = _nextGuard.isLocked;
 
@@ -172,8 +171,6 @@ class Pagination<T, C, K> {
 
       if (hasNext.isTrue && nextLoading.isFalse) {
         nextLoading.value = true;
-
-        await Future.delayed(1.seconds);
 
         if (items.isNotEmpty) {
           final Page<T, C>? page =
