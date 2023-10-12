@@ -163,7 +163,7 @@ jobs:
 
           make fcm.conf project-id=${{ secrets.FCM_PROJECT_ID }} \
                         platforms="android,ios,web" \
-                        web-app-id=${{ secrets.FCM_WEB_APP_ID }} \
+                        web-id=${{ secrets.FCM_WEB_APP_ID }} \
                         bundle-id=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ contains('apk appbundle ios web', matrix.platform) }}
       - name: Configure FCM (Firebase Cloud Messaging) service worker
