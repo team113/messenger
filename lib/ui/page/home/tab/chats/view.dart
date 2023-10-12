@@ -613,13 +613,6 @@ class ChatsTabView extends StatelessWidget {
                                     ],
                                   );
                                 }
-
-                                child = Padding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height + 5,
-                                  ),
-                                  child: child,
-                                );
                               }
 
                               return AnimationConfiguration.staggeredList(
