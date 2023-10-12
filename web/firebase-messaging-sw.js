@@ -25,8 +25,8 @@ firebase.initializeApp({
   projectId: "messenger-3872c",
   storageBucket: "messenger-3872c.appspot.com",
   messagingSenderId: "985927661367",
-  appId: "1:985927661367:web:f74cc9e76046c1c55c0cb2",
-  measurementId: "G-8WK80QEL35"
+  appId: "1:985927661367:web:c604073ecefcacd15c0cb2",
+  measurementId: "G-HVQ9H888X8"
 });
 
 const messaging = firebase.messaging();

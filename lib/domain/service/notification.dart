@@ -236,11 +236,10 @@ class NotificationService extends DisposableService {
       // first to a [File] and then pass the path to it to the plugin.
       if (image != null) {
         try {
-          final File? file = (await CacheWorker.instance.get(
-            url: image,
-            responseType: CacheResponseType.file,
-          ))
-              .file;
+          final String name =
+              'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg';
+          final File? file =
+              await PlatformUtils.download(image, name, null, temporary: true);
 
           imagePath = file?.path;
         } catch (_) {

@@ -62,12 +62,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc',
-    appId: '1:985927661367:web:f74cc9e76046c1c55c0cb2',
+    appId: '1:985927661367:web:c604073ecefcacd15c0cb2',
     messagingSenderId: '985927661367',
     projectId: 'messenger-3872c',
     authDomain: 'messenger-3872c.firebaseapp.com',
     storageBucket: 'messenger-3872c.appspot.com',
-    measurementId: 'G-8WK80QEL35',
+    measurementId: 'G-HVQ9H888X8',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
