@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 
 /// Rounded button with an [icon], [title] and [subtitle] intended to be used in
 /// a menu list.
@@ -92,7 +94,7 @@ class _MenuButtonState extends State<MenuButton> {
                     ? style.activeColor
                     : style.cardHoveredColor,
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(7.5, 12, 12, 12),
                   child: Row(
                     children: [
                       if (widget.icon != null)
@@ -107,14 +109,6 @@ class _MenuButtonState extends State<MenuButton> {
                             ),
                           ),
                         ),
-                      // const SizedBox(width: 12),
-                      // AnimatedScale(
-                      //   key: _key,
-                      //   duration: const Duration(milliseconds: 100),
-                      //   scale: _hovered ? 1.05 : 1,
-                      //   child: widget.icon,
-                      // ),
-                      // const SizedBox(width: 18),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

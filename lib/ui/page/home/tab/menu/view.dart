@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/api/backend/schema.dart' show Presence;
 
@@ -34,7 +35,6 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'accounts/view.dart';
 import 'controller.dart';
-import 'widget/menu_button.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
@@ -65,7 +65,7 @@ class MenuTabView extends StatelessWidget {
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(8),
                       color: style.colors.acceptAuxiliaryColor,
                     ),
                   ),
@@ -78,7 +78,7 @@ class MenuTabView extends StatelessWidget {
                     width: 10,
                     height: 10,
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(8),
                       color: style.colors.warningColor,
                     ),
                   ),
@@ -178,7 +178,7 @@ class MenuTabView extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: style.colors.onPrimary,
-                                  shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.all(1),
                                 child: AvatarWidget(
@@ -213,32 +213,22 @@ class MenuTabView extends StatelessWidget {
                   required String title,
                   required String subtitle,
                   IconData? icon,
+                  Widget? child,
+                  SvgData? primary,
+                  SvgData? inverted,
+                  Widget? leading,
                   String? asset,
                   double? assetWidth,
                   double? assetHeight,
                   void Function()? onPressed,
                 }) {
                   return Obx(() {
-                    final bool inverted = tab == router.profileSection.value &&
+                    final bool invert = tab == router.profileSection.value &&
                         router.route == Routes.me;
 
-                    return MenuButton(
-                      key: key,
-                      icon: asset == null
-                          ? Icon(
-                              icon,
-                              color: inverted
-                                  ? style.colors.onPrimary
-                                  : style.colors.primary,
-                            )
-                          : SvgImage.asset(
-                              'assets/icons/$asset${inverted ? '_white' : ''}.svg',
-                              width: assetWidth,
-                              height: assetHeight,
-                            ),
-                      title: title,
-                      subtitle: subtitle,
-                      inverted: inverted,
+                    return MenuButton.tab(
+                      tab,
+                      inverted: invert,
                       onPressed: onPressed ??
                           () {
                             if (router.profileSection.value == tab) {
@@ -257,9 +247,8 @@ class MenuTabView extends StatelessWidget {
                     child = card(
                       key: const Key('PublicInformation'),
                       icon: Icons.person,
-                      asset: 'public_information6',
-                      assetWidth: 35,
-                      assetHeight: 35,
+                      primary: SvgIcons.publicInformation,
+                      inverted: SvgIcons.publicInformationWhite,
                       title: 'label_profile'.l10n,
                       subtitle: 'label_public_section_hint'.l10n,
                     );
@@ -271,6 +260,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.lock,
                       title: 'label_login_options'.l10n,
                       subtitle: 'label_login_section_hint'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[0],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -279,6 +276,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.link,
                       title: 'label_link_to_chat'.l10n,
                       subtitle: 'label_your_direct_link'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[1],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -287,6 +292,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.image,
                       title: 'label_background'.l10n,
                       subtitle: 'label_app_background'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[2],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -295,6 +308,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.chat_bubble,
                       title: 'label_chats'.l10n,
                       subtitle: 'label_timeline_style'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[3],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -303,6 +324,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.call,
                       title: 'label_calls'.l10n,
                       subtitle: 'label_calls_displaying'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[4],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -314,6 +343,14 @@ class MenuTabView extends StatelessWidget {
                         icon: Icons.video_call,
                         title: 'label_media'.l10n,
                         subtitle: 'label_media_section_hint'.l10n,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Colors.primaries[5],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       );
                     }
                     break;
@@ -323,6 +360,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.message,
                       title: 'label_welcome_message'.l10n,
                       subtitle: 'label_public_description'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[6],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -331,6 +376,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.paid,
                       title: 'label_get_paid_for_incoming'.l10n,
                       subtitle: 'label_message_and_call_cost'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[7],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -339,6 +392,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.donut_small,
                       title: 'label_donates'.l10n,
                       subtitle: 'label_donates_preferences'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[8],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -347,6 +408,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.notifications,
                       title: 'label_notifications'.l10n,
                       subtitle: 'label_sound_and_vibrations'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[9],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -355,6 +424,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.storage,
                       title: 'label_storage'.l10n,
                       subtitle: 'label_cache_and_downloads'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[10],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -365,6 +442,14 @@ class MenuTabView extends StatelessWidget {
                       title: 'label_language'.l10n,
                       subtitle: L10n.chosen.value?.name ??
                           'label_current_language'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[11],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -374,6 +459,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.block,
                       title: 'label_blocked_users'.l10n,
                       subtitle: 'label_your_blacklist'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[12],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -382,6 +475,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.devices,
                       title: 'label_linked_devices'.l10n,
                       subtitle: 'label_scan_qr_code'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[13],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -391,6 +492,14 @@ class MenuTabView extends StatelessWidget {
                         icon: Icons.download,
                         title: 'label_download'.l10n,
                         subtitle: 'label_application'.l10n,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Colors.primaries[13],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       );
                     } else {
                       return const SizedBox();
@@ -403,6 +512,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.dangerous,
                       title: 'label_danger_zone'.l10n,
                       subtitle: 'label_delete_account'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[15],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -412,6 +529,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.work,
                       title: 'label_work_with_us'.l10n,
                       subtitle: 'label_vacancies_and_partnership'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[16],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                       // onPressed: () => router.vacancy(null),
                     );
                     break;
@@ -423,6 +548,14 @@ class MenuTabView extends StatelessWidget {
                       title: 'Styles'.l10n,
                       subtitle: 'Colors, typography, elements'.l10n,
                       onPressed: () => router.go(Routes.style),
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[17],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     );
                     break;
 
@@ -432,6 +565,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.logout,
                       title: 'btn_logout'.l10n,
                       subtitle: 'label_end_session'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[0],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                       onPressed: () async {
                         if (await c.confirmLogout()) {
                           router.go(await c.logout());

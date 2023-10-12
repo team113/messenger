@@ -69,10 +69,11 @@ class SvgIcons {
     height: 10,
   );
 
+  // TODO
   static const SvgData home = SvgData(
     'assets/icons/home.svg',
-    width: 27,
-    height: 26.55,
+    width: 21.8,
+    height: 21.04,
   );
 
   static const SvgData shareThick = SvgData(
@@ -103,7 +104,7 @@ class SvgIcons {
   // TODO
   // Think about colors naming.
   static const SvgData closeSmallPrimary = SvgData(
-    'assets/icons/close_primary.svg',
+    'assets/icons/close_small_primary.svg',
     width: 10.4,
     height: 10.4,
   );
@@ -165,14 +166,14 @@ class SvgIcons {
 
   // TODO
   static const SvgData appleBig = SvgData(
-    'assets/icons/google.svg',
+    'assets/icons/apple.svg',
     width: 100,
     height: 100,
   );
 
   // TODO
   static const SvgData githubBig = SvgData(
-    'assets/icons/google.svg',
+    'assets/icons/github.svg',
     width: 100,
     height: 100,
   );
@@ -350,5 +351,29 @@ class SvgIcons {
     'assets/icons/chats_muted.svg',
     width: 39.26,
     height: 33.5,
+  );
+
+  static const SvgData backSmall = SvgData(
+    'assets/icons/back_small.svg',
+    width: 6.5,
+    height: 11,
+  );
+
+  static const SvgData back = SvgData(
+    'assets/icons/back.svg',
+    width: 9,
+    height: 16,
+  );
+
+  static const SvgData publicInformation = SvgData(
+    'assets/icons/public_information6.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData publicInformationWhite = SvgData(
+    'assets/icons/public_information6_white.svg',
+    width: 34,
+    height: 34,
   );
 }

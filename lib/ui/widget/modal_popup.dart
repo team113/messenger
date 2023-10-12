@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/svg/svgs.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -165,13 +166,9 @@ class ModalPopupHeader extends StatelessWidget {
           if (onBack != null)
             WidgetButton(
               onPressed: onBack,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: style.colors.primary,
-                ),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                child: SvgIcon(SvgIcons.backSmall),
               ),
             )
           else
@@ -190,9 +187,10 @@ class ModalPopupHeader extends StatelessWidget {
             WidgetButton(
               key: const Key('CloseButton'),
               onPressed: onClose ?? Navigator.of(context).pop,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(Icons.close, size: 18, color: style.colors.primary),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                // child: Icon(Icons.close, size: 18, color: style.colors.primary),
+                child: SvgIcon(SvgIcons.closeSmallPrimary),
               ),
             )
           else

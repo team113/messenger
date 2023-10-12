@@ -454,12 +454,9 @@ class _WidgetsViewState extends State<IconsView> {
               const SizedBox(height: 8),
               MenuButton(
                 leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails('frontend.svg'),
-                  child: const SvgImage.asset(
-                    'assets/icons/frontend.svg',
-                    width: 25.87,
-                    height: 32,
-                  ),
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.frontend.asset),
+                  child: const SvgIcon(SvgIcons.frontend),
                 ),
               ),
               const SizedBox(height: 8),
@@ -467,25 +464,18 @@ class _WidgetsViewState extends State<IconsView> {
                 inverted: true,
                 leading: AnimatedButton(
                   onPressed: () => c.icon.value = IconDetails(
-                    'frontend_white.svg',
+                    SvgIcons.frontendWhite.asset,
                     invert: true,
                   ),
-                  child: const SvgImage.asset(
-                    'assets/icons/frontend_white.svg',
-                    width: 25.87,
-                    height: 32,
-                  ),
+                  child: const SvgIcon(SvgIcons.frontendWhite),
                 ),
               ),
               const SizedBox(height: 8),
               MenuButton(
                 leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails('freelance.svg'),
-                  child: const SvgImage.asset(
-                    'assets/icons/freelance.svg',
-                    width: 32,
-                    height: 32,
-                  ),
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.freelance.asset),
+                  child: const SvgIcon(SvgIcons.freelance),
                 ),
               ),
               const SizedBox(height: 8),
@@ -493,16 +483,72 @@ class _WidgetsViewState extends State<IconsView> {
                 inverted: true,
                 leading: AnimatedButton(
                   onPressed: () => c.icon.value = IconDetails(
-                    'freelance_white.svg',
+                    SvgIcons.freelanceWhite.asset,
                     invert: true,
                   ),
-                  child: const SvgImage.asset(
-                    'assets/icons/freelance_white.svg',
-                    width: 32,
-                    height: 32,
-                  ),
+                  child: const SvgIcon(SvgIcons.freelanceWhite),
                 ),
               ),
+            ],
+          ),
+          Block(
+            children: [
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () => c.icon.value =
+                      IconDetails(SvgIcons.publicInformation.asset),
+                  child: const SvgIcon(SvgIcons.publicInformation),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                inverted: true,
+                leading: AnimatedButton(
+                  onPressed: () => c.icon.value = IconDetails(
+                    SvgIcons.publicInformationWhite.asset,
+                    invert: true,
+                  ),
+                  child: const SvgIcon(SvgIcons.publicInformationWhite),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.signing)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.link)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.background)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.chats)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.calls)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.media)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.welcome)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.getPaid)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.donates)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.notifications)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.storage)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.language)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.blocklist)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.devices)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.vacancies)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.download)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.danger)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.styles)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.logout)),
             ],
           ),
           Block(
@@ -623,18 +669,18 @@ class _WidgetsViewState extends State<IconsView> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: 16,
-                            height: 16,
+                            width: 22,
+                            height: 22,
                             child: asset?.endsWith('.svg') == true
                                 ? SvgImage.asset(
                                     'assets/icons/$asset',
-                                    width: 16,
-                                    height: 16,
+                                    width: 24,
+                                    height: 24,
                                   )
                                 : Image.asset(
                                     'assets/icons/$asset',
-                                    width: 16,
-                                    height: 16,
+                                    width: 24,
+                                    height: 24,
                                   ),
                           ),
                           const SizedBox(width: 16),

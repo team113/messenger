@@ -16,9 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import 'svg/svg.dart';
 
 /// Rounded button with an [icon], [title] and [subtitle] intended to be used in
 /// a menu list.
@@ -32,6 +35,91 @@ class MenuButton extends StatelessWidget {
     this.onPressed,
     this.inverted = false,
   });
+
+  MenuButton.tab(
+    ProfileTab tab, {
+    Key? key,
+    this.inverted = false,
+    this.onPressed,
+  })  : icon = null,
+        title = switch (tab) {
+          ProfileTab.public => 'label_profile'.l10n,
+          ProfileTab.signing => 'label_login_options'.l10n,
+          ProfileTab.link => 'label_link_to_chat'.l10n,
+          ProfileTab.background => 'label_background'.l10n,
+          ProfileTab.chats => 'label_chats'.l10n,
+          ProfileTab.calls => 'label_calls'.l10n,
+          ProfileTab.media => 'label_media'.l10n,
+          ProfileTab.welcome => 'label_welcome_message'.l10n,
+          ProfileTab.getPaid => 'label_get_paid_for_incoming'.l10n,
+          ProfileTab.donates => 'label_donates'.l10n,
+          ProfileTab.notifications => 'label_notifications'.l10n,
+          ProfileTab.storage => 'label_storage'.l10n,
+          ProfileTab.language => 'label_language'.l10n,
+          ProfileTab.blocklist => 'label_blocked_users'.l10n,
+          ProfileTab.devices => 'label_linked_devices'.l10n,
+          ProfileTab.vacancies => 'label_work_with_us'.l10n,
+          ProfileTab.download => 'label_download'.l10n,
+          ProfileTab.danger => 'label_danger_zone'.l10n,
+          ProfileTab.styles => 'Styles'.l10n,
+          ProfileTab.logout => 'btn_logout'.l10n,
+        },
+        subtitle = switch (tab) {
+          ProfileTab.public => 'label_public_section_hint'.l10n,
+          ProfileTab.signing => 'label_login_section_hint'.l10n,
+          ProfileTab.link => 'label_your_direct_link'.l10n,
+          ProfileTab.background => 'label_app_background'.l10n,
+          ProfileTab.chats => 'label_timeline_style'.l10n,
+          ProfileTab.calls => 'label_calls_displaying'.l10n,
+          ProfileTab.media => 'label_media_section_hint'.l10n,
+          ProfileTab.welcome => 'label_public_description'.l10n,
+          ProfileTab.getPaid => 'label_message_and_call_cost'.l10n,
+          ProfileTab.donates => 'label_donates_preferences'.l10n,
+          ProfileTab.notifications => 'label_sound_and_vibrations'.l10n,
+          ProfileTab.storage => 'label_cache_and_downloads'.l10n,
+          ProfileTab.language =>
+            L10n.chosen.value?.name ?? 'label_current_language'.l10n,
+          ProfileTab.blocklist => 'label_your_blacklist'.l10n,
+          ProfileTab.devices => 'label_scan_qr_code'.l10n,
+          ProfileTab.vacancies => 'label_vacancies_and_partnership'.l10n,
+          ProfileTab.download => 'label_application'.l10n,
+          ProfileTab.danger => 'label_delete_account'.l10n,
+          ProfileTab.styles => 'Colors, typography, elements'.l10n,
+          ProfileTab.logout => 'label_end_session'.l10n,
+        },
+        leading = switch (tab) {
+          ProfileTab.public => SvgIcon(
+              inverted
+                  ? SvgIcons.publicInformationWhite
+                  : SvgIcons.publicInformation,
+            ),
+          (_) => RectangleIcon.tab(tab),
+        },
+        super(
+          key: key ??
+              switch (tab) {
+                ProfileTab.public => const Key('PublicInformation'),
+                ProfileTab.signing => const Key('Signing'),
+                ProfileTab.link => const Key('Link'),
+                ProfileTab.background => const Key('Background'),
+                ProfileTab.chats => const Key('Chats'),
+                ProfileTab.calls => const Key('Calls'),
+                ProfileTab.media => const Key('Media'),
+                ProfileTab.welcome => const Key('Welcome'),
+                ProfileTab.getPaid => const Key('GetPaid'),
+                ProfileTab.donates => const Key('Donates'),
+                ProfileTab.notifications => const Key('Notifications'),
+                ProfileTab.storage => const Key('Storage'),
+                ProfileTab.language => const Key('Language'),
+                ProfileTab.blocklist => const Key('Blocklist'),
+                ProfileTab.devices => const Key('Devices'),
+                ProfileTab.vacancies => const Key('Vacancies'),
+                ProfileTab.download => const Key('Download'),
+                ProfileTab.danger => const Key('Danger'),
+                ProfileTab.styles => const Key('Styles'),
+                ProfileTab.logout => const Key('Logout'),
+              },
+        );
 
   /// Optional title of this [MenuButton].
   final String? title;
@@ -123,6 +211,64 @@ class MenuButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  static Widget _icon(ProfileTab tab, IconData icon) {
+    return RectangleIcon(
+      icon,
+      color: Colors.primaries[tab.index % Colors.primaries.length],
+    );
+  }
+}
+
+class RectangleIcon extends StatelessWidget {
+  const RectangleIcon(this.icon, {super.key, this.color});
+  RectangleIcon.tab(ProfileTab tab, {super.key})
+      : color = Colors.primaries[tab.index % Colors.primaries.length],
+        icon = switch (tab) {
+          ProfileTab.public => Icons.person,
+          ProfileTab.signing => Icons.lock,
+          ProfileTab.link => Icons.link,
+          ProfileTab.background => Icons.image,
+          ProfileTab.chats => Icons.chat_bubble,
+          ProfileTab.calls => Icons.call,
+          ProfileTab.media => Icons.video_call,
+          ProfileTab.welcome => Icons.message,
+          ProfileTab.getPaid => Icons.paid,
+          ProfileTab.donates => Icons.donut_small,
+          ProfileTab.notifications => Icons.notifications,
+          ProfileTab.storage => Icons.storage,
+          ProfileTab.language => Icons.language,
+          ProfileTab.blocklist => Icons.block,
+          ProfileTab.devices => Icons.devices,
+          ProfileTab.vacancies => Icons.work,
+          ProfileTab.download => Icons.download,
+          ProfileTab.danger => Icons.dangerous,
+          ProfileTab.styles => Icons.style,
+          ProfileTab.logout => Icons.logout,
+        };
+
+  final Color? color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        Icon(icon, color: style.colors.onPrimary, size: 20),
+      ],
     );
   }
 }
