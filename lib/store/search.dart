@@ -56,9 +56,7 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
         }
       });
 
-      if (pagination!.items.isEmpty) {
-        futures.add(pagination!.around());
-      }
+      futures.add(pagination!.around());
     }
 
     if (futures.isEmpty) {
