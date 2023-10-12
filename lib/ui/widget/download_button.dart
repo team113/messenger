@@ -62,16 +62,16 @@ class DownloadButton extends StatelessWidget {
       onPressed: link == null
           ? null
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
-      prefix: asset == null
-          ? icon
-          : Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: SvgImage.asset(
+      prefix: Padding(
+        padding: const EdgeInsets.only(left: 20),
+        child: asset == null
+            ? icon
+            : SvgImage.asset(
                 'assets/icons/$asset.svg',
                 width: width,
                 height: height,
               ),
-            ),
+      ),
       style: link == null
           ? style.fonts.titleMedium
           : style.fonts.titleMediumPrimary,
