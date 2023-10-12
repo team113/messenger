@@ -219,14 +219,7 @@ class ChatsTabController extends GetxController {
 
         case OperationKind.removed:
           _sortingData.remove(event.key)?.dispose();
-          chats.removeWhere((e) {
-            if (e.chat.value.id == event.key) {
-              e.stopUpdates();
-              return true;
-            }
-
-            return false;
-          });
+          chats.removeWhere((e) => e.chat.value.id == event.key);
 
           if (event.value!.chat.value.isDialog) {
             final UserId? userId = event.value!.chat.value.members
