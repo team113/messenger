@@ -140,26 +140,26 @@ class ChatWorker extends DisposableService {
                       .difference(msg.at.val)
                       .compareTo(newMessageThreshold) <=
                   -1;
-        } else if (c.chat.value.lastItem == null) {
-          // The chat was created just now.
-          newChat = DateTime.now()
-                  .difference(c.chat.value.updatedAt.val)
-                  .compareTo(newMessageThreshold) <=
-              -1;
         }
+      } else if (c.chat.value.lastItem == null) {
+        // The chat was created just now.
+        newChat = DateTime.now()
+                .difference(c.chat.value.updatedAt.val)
+                .compareTo(newMessageThreshold) <=
+            -1;
+      }
 
-        if (newChat) {
-          if (_myUser.value?.muted == null) {
-            _notificationService.show(
-              c.title.value,
-              body: 'label_you_were_added_to_group'.l10n,
-              payload: '${Routes.chats}/${c.chat.value.id}',
-              icon: c.avatar.value?.original,
-              tag: c.chat.value.id.val,
-            );
+      if (newChat) {
+        if (_myUser.value?.muted == null) {
+          _notificationService.show(
+            c.title.value,
+            body: 'label_you_were_added_to_group'.l10n,
+            payload: '${Routes.chats}/${c.chat.value.id}',
+            icon: c.avatar.value?.original,
+            tag: c.chat.value.id.val,
+          );
 
-            _flashTaskbarIcon();
-          }
+          _flashTaskbarIcon();
         }
       }
     }
