@@ -198,12 +198,12 @@ class HivePageProvider<T extends Object, C, K>
     final T? firstItem = items.firstOrNull;
     if (firstItem != null && isFirst != null) {
       hasPrevious =
-          !isFirst!.call(firstItem) || getKey(items.first) != ordered.first;
+          !isFirst!.call(firstItem) || getKey(firstItem) != ordered.first;
     }
 
     final T? lastItem = items.lastOrNull;
     if (lastItem != null && isLast != null) {
-      hasNext = !isLast!.call(lastItem) || getKey(items.last) != ordered.last;
+      hasNext = !isLast!.call(lastItem) || getKey(lastItem) != ordered.last;
     }
 
     final Page<T, C> page = Page(

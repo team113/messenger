@@ -1355,6 +1355,8 @@ class ChatRepository extends DisposableInterface
           await _recentLocal.removeAt(index);
         }
       } else {
+        _add(event.value);
+
         final int index = _recentLocal.values.toList().indexOf(chatId);
         if (index != -1) {
           await _recentLocal.removeAt(index);
