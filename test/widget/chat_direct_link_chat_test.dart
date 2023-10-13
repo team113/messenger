@@ -364,6 +364,7 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
+    await tester.runAsync(() async => await Future.delayed(1.milliseconds));
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
     final link = find.byKey(const Key('LinkField'), skipOffstage: false);

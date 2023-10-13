@@ -160,10 +160,6 @@ void main() async {
     await tester.tap(loginTile);
     await tester.pump(const Duration(seconds: 5));
 
-    await tester.runAsync(() {
-      return Future.delayed(const Duration(seconds: 2));
-    });
-
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
@@ -173,7 +169,7 @@ void main() async {
     final homeView = find.byType(HomeView);
     expect(homeView, findsOneWidget);
 
-    await tester.runAsync(() => Future.delayed(const Duration(seconds: 15)));
+    await tester.runAsync(() => Future.delayed(const Duration(seconds: 5)));
     await Get.deleteAll(force: true);
   });
 }
