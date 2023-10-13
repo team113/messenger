@@ -53,6 +53,7 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'pagination/graphql.dart';
@@ -1355,7 +1356,7 @@ class HiveRxChat extends RxChat {
           }
         }
 
-        if (putChat) {
+        if (putChat && !WebUtils.isPopup) {
           await _chatRepository.put(chatEntity);
         }
         break;

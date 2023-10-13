@@ -60,6 +60,7 @@ import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
@@ -180,12 +181,14 @@ class ChatRepository extends DisposableInterface
 
     status.value = RxStatus.loading();
 
-    _initDraftSubscription();
-    _initRemoteSubscription();
-    _initFavoriteSubscription();
+    if (!WebUtils.isPopup) {
+      _initDraftSubscription();
+      _initRemoteSubscription();
+      _initFavoriteSubscription();
 
-    // TODO: Should display last known list of [Chat]s, until remote responds.
-    _initPagination();
+      // TODO: Should display last known list of [Chat]s, until remote responds.
+      _initPagination();
+    }
   }
 
   @override
