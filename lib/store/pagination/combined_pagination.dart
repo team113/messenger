@@ -58,7 +58,7 @@ class CombinedPagination<T, K> {
   }
 
   /// Fetches the initial page.
-  FutureOr<void> around() async {
+  Future<void> around() async {
     for (final p in paginations.map((e) => e.p)) {
       await p.around();
       if (p.hasNext.isTrue) {

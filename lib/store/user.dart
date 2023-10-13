@@ -145,8 +145,7 @@ class UserRepository extends DisposableInterface
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
-    final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
-        SearchResultImpl(
+    final SearchResultImpl<UserId, RxUser> searchResult = SearchResultImpl(
       pagination: pagination,
       initial: [
         {for (var u in users) u.id: u},

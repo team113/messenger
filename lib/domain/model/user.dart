@@ -351,7 +351,7 @@ class ChatDirectLinkSlug extends NewType<String> {
   }
 
   /// Regular expression for basic [ChatDirectLinkSlug] validation.
-  static final RegExp _regExp = RegExp(r'^[A-z0-9_-]{1,100}$');
+  static final RegExp _regExp = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
 }
 
 /// Status of an [User].
