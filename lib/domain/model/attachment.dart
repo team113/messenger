@@ -156,8 +156,8 @@ class LocalAttachment extends Attachment {
           original: ImageFile(
             relativeRef: '',
             size: file.size,
-            width: file.dimensions?.width,
-            height: file.dimensions?.height,
+            width: file.dimensions.value?.width.round(),
+            height: file.dimensions.value?.height.round(),
           ),
           filename: file.name,
         );

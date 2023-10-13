@@ -37,7 +37,6 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -224,15 +223,11 @@ class ChatItemWidget extends StatefulWidget {
         ],
       );
     } else {
-      final ImageFile file = e.original as ImageFile;
-      final double ratio = (file.width ?? 300) / (file.height ?? 300);
-
       attachment = MediaAttachment(
         key: key,
         attachment: e,
         height: 300,
         width: filled ? double.infinity : null,
-        fit: ratio > 3 ? BoxFit.contain : BoxFit.cover,
         autoLoad: autoLoad,
         onError: onError,
       );

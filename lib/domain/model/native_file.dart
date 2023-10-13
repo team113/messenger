@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
@@ -23,11 +24,8 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_size_getter/file_input.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
-import 'package:universal_io/io.dart';
 
 import '../model_type_id.dart';
 import '/util/mime.dart';
@@ -57,26 +55,6 @@ class NativeFile {
           mime = MediaType.parse(type);
         }
       }
-    }
-
-    // TODO: Decode image before uploading to backend:
-    //
-    // ```dart
-    // import 'dart:io';
-    //
-    // File image = new File('image.png'); // Or any other way to get a File instance.
-    // var decodedImage = await decodeImageFromList(image.readAsBytesSync());
-    // print(decodedImage.width);
-    // print(decodedImage.height);
-    // ```
-    if (isImage) {
-      if (path != null) {
-        dimensions = ImageSizeGetter.getSize(FileInput(File(path!)));
-      } else if (bytes != null) {
-        dimensions = ImageSizeGetter.getSize(MemoryInput(bytes));
-      }
-
-      print('DIMENSIONS: $dimensions');
     }
   }
 
@@ -115,7 +93,7 @@ class NativeFile {
   ///           [ensureCorrectMediaType] before accessing this field.
   MediaType? mime;
 
-  Size? dimensions;
+  final Rx<Size?> dimensions = Rx(null);
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
@@ -224,6 +202,18 @@ class NativeFile {
 
         bytes.value = Uint8List.fromList(data);
         _readStream = null;
+      }
+
+      // Decode the file, if [isImage].
+      //
+      // Throws an error, if decoding fails.
+      if (isImage && bytes.value != null) {
+        final decoded = await instantiateImageCodec(bytes.value!);
+        final frame = await decoded.getNextFrame();
+        dimensions.value = Size(
+          frame.image.width.toDouble(),
+          frame.image.height.toDouble(),
+        );
       }
 
       return bytes.value;
