@@ -1287,7 +1287,7 @@ class ChatRepository extends DisposableInterface
     chat.value.firstItem ??= saved?.value.firstItem;
 
     if (saved == null || saved.ver < chat.ver) {
-      _chatLocal.put(chat);
+      await _chatLocal.put(chat);
     }
 
     return hiveChat;
