@@ -23,8 +23,10 @@ import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -50,44 +52,46 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
+      final style = Theme.of(context).style;
+
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus.value) {
+        switch (e.downloadStatus) {
           case DownloadStatus.inProgress:
             leading = InkWell(
               key: const Key('CancelDownloading'),
               onTap: e.cancelDownload,
               child: Container(
                 key: const Key('Downloading'),
-                width: 34,
-                height: 34,
+                width: 29,
+                height: 29,
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Theme.of(context).colorScheme.secondary,
-                      Theme.of(context).colorScheme.secondary,
-                      const Color(0xFFD1E1F0),
+                      style.colors.primary,
+                      style.colors.primary,
+                      style.colors.backgroundAuxiliaryLighter,
                     ],
                     stops: [
                       0,
-                      e.progress.value,
-                      e.progress.value,
+                      e.downloading?.progress.value ?? 0,
+                      e.downloading?.progress.value ?? 0,
                     ],
                   ),
                 ),
-                child: Center(
-                  child: SvgLoader.asset(
+                child: const Center(
+                  child: SvgImage.asset(
                     'assets/icons/cancel.svg',
-                    width: 11,
-                    height: 11,
+                    width: 9,
+                    height: 9,
                   ),
                 ),
               ),
@@ -97,17 +101,19 @@ class _DataAttachmentState extends State<DataAttachment> {
           case DownloadStatus.isFinished:
             leading = Container(
               key: const Key('Downloaded'),
-              height: 34,
-              width: 34,
+              height: 29,
+              width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.secondary,
+                color: style.colors.primary,
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.insert_drive_file,
-                  color: Colors.white,
-                  size: 16,
+              child: Center(
+                child: Transform.translate(
+                  offset: const Offset(0.3, -0.5),
+                  child: const SvgImage.asset(
+                    'assets/icons/file.svg',
+                    height: 12.5,
+                  ),
                 ),
               ),
             );
@@ -117,23 +123,25 @@ class _DataAttachmentState extends State<DataAttachment> {
             leading = AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               key: const Key('Download'),
-              height: 34,
-              width: 34,
+              height: 29,
+              width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: _hovered
-                    ? const Color(0xFFD1E1F0)
-                    : const Color(0x00D1E1F0),
+                color:
+                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
                 border: Border.all(
                   width: 2,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
-              child: Center(
-                child: SvgLoader.asset(
-                  'assets/icons/arrow_down.svg',
-                  width: 10.55,
-                  height: 14,
+              child: const KeyedSubtree(
+                key: Key('Sent'),
+                child: Center(
+                  child: SvgImage.asset(
+                    'assets/icons/arrow_down.svg',
+                    width: 9.12,
+                    height: 10.39,
+                  ),
                 ),
               ),
             );
@@ -144,106 +152,98 @@ class _DataAttachmentState extends State<DataAttachment> {
           case SendingStatus.sending:
             leading = SizedBox.square(
               key: const Key('Sending'),
-              dimension: 18,
+              dimension: 29,
               child: CircularProgressIndicator(
                 value: e.progress.value,
-                backgroundColor: Colors.white,
+                backgroundColor: style.colors.onPrimary,
                 strokeWidth: 5,
               ),
             );
             break;
 
           case SendingStatus.sent:
-            leading = const Icon(
+            leading = Icon(
               Icons.check_circle,
-              key: Key('Sent'),
-              size: 18,
-              color: Colors.green,
+              key: const Key('Sent'),
+              size: 29,
+              color: style.colors.acceptAuxiliary,
             );
             break;
 
           case SendingStatus.error:
-            leading = const Icon(
+            leading = Icon(
               Icons.error_outline,
-              key: Key('Error'),
-              size: 18,
-              color: Colors.red,
+              key: const Key('Error'),
+              size: 29,
+              color: style.colors.danger,
             );
             break;
         }
       }
-
-      final Style style = Theme.of(context).extension<Style>()!;
 
       return MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: Padding(
           key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
             onPressed: widget.onPressed,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.black.withOpacity(0.03),
-              ),
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                p.basenameWithoutExtension(e.filename),
-                                style: style.boldBody,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            Text(
-                              p.extension(e.filename),
-                              style: style.boldBody,
+            child: Row(
+              children: [
+                const SizedBox(width: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: SafeAnimatedSwitcher(
+                    key: Key('AttachmentStatus_${e.id}'),
+                    duration: 250.milliseconds,
+                    child: leading,
+                  ),
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              p.basenameWithoutExtension(e.filename),
+                              style: style.fonts.bodyLarge,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          'label_kb'.l10nfmt({
-                            'amount': e.original.size == null
-                                ? 'dot'.l10n * 3
-                                : e.original.size! ~/ 1024
-                          }),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: style.boldBody.copyWith(
-                            fontSize: 13,
-                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            p.extension(e.filename),
+                            style: style.fonts.bodyLarge,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'label_kb'.l10nfmt({
+                              'amount': e.original.size == null
+                                  ? 'dot'.l10n * 3
+                                  : e.original.size! ~/ 1024
+                            }),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.fonts.headlineSmallSecondary,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: AnimatedSwitcher(
-                      key: Key('AttachmentStatus_${e.id}'),
-                      duration: 250.milliseconds,
-                      child: leading,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
@@ -60,22 +58,30 @@ class SafeScrollbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: child,
+      return MediaQuery(
+        data: MediaQuery.of(router.context!).copyWith(
+          padding: EdgeInsets.only(
+            top: top ? CustomAppBar.height - 5 : 0,
+            bottom: bottom ? CustomNavigationBar.height : 0,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: child,
+        ),
       );
     }
 
-    final EdgeInsets padding = EdgeInsets.fromWindowPadding(
-      window.viewPadding,
-      window.devicePixelRatio,
+    final EdgeInsets padding = EdgeInsets.fromViewPadding(
+      View.of(context).viewPadding,
+      View.of(context).devicePixelRatio,
     );
 
     return MediaQuery(
       data: MediaQuery.of(router.context!).copyWith(
         padding: padding.copyWith(
-          top: top ? CustomAppBar.height : 0,
-          bottom: bottom ? CustomNavigationBar.height + 5 : 0,
+          top: top ? CustomAppBar.height - 5 : 0,
+          bottom: bottom ? CustomNavigationBar.height : 0,
         ),
       ),
       child: Container(
@@ -83,8 +89,8 @@ class SafeScrollbar extends StatelessWidget {
           borderRadius: borderRadius ?? BorderRadius.circular(40),
         ),
         margin: EdgeInsets.only(
-          top: top ? padding.top + 5 : 0,
-          bottom: bottom ? padding.bottom + 5 : 0,
+          top: top ? padding.top + 5 + 5 : 0,
+          bottom: bottom ? padding.bottom + 5 + 5 : 0,
         ),
         clipBehavior: Clip.hardEdge,
         child: controller == null

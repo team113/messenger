@@ -17,18 +17,18 @@
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
-import 'dart:ui' as ui;
+import 'dart:ui_web' as ui;
 
 import 'package:flutter/widgets.dart';
 
 /// Wrapper to prevent a default web context menu over its [child].
 class ContextMenuInterceptor extends StatelessWidget {
   ContextMenuInterceptor({
-    Key? key,
+    super.key,
     required this.child,
     this.enabled = true,
     this.debug = false,
-  }) : super(key: key) {
+  }) {
     if (!_registered) {
       _register();
     }

@@ -26,8 +26,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -42,7 +40,8 @@ import 'chat_item.dart';
 part 'chat.g.dart';
 
 /// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
+class ChatHiveProvider extends HiveLazyProvider<HiveChat>
+    implements IterableHiveProvider<HiveChat, ChatId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -81,38 +80,42 @@ class ChatHiveProvider extends HiveBaseProvider<HiveChat> {
     Hive.maybeRegisterAdapter(ChatNameAdapter());
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatsCursorAdapter());
     Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveChatAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
     Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(RecentChatsCursorAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 
-  /// Returns a list of [Chat]s from [Hive].
-  Iterable<HiveChat> get chats => valuesSafe;
+  @override
+  Iterable<ChatId> get keys => keysSafe.map((e) => ChatId(e));
 
-  /// Puts the provided [Chat] to [Hive].
-  Future<void> put(HiveChat chat) => putSafe(chat.value.id.val, chat);
+  @override
+  Future<Iterable<HiveChat>> get values => valuesSafe;
 
-  /// Returns a [Chat] from [Hive] by its [id].
-  HiveChat? get(ChatId id) => getSafe(id.val);
+  @override
+  Future<void> put(HiveChat item) => putSafe(item.value.id.val, item);
 
-  /// Removes a [Chat] from [Hive] by the provided [id].
-  Future<void> remove(ChatId id) => deleteSafe(id.val);
+  @override
+  Future<HiveChat?> get(ChatId key) => getSafe(key.val);
+
+  @override
+  Future<void> remove(ChatId key) => deleteSafe(key.val);
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].
@@ -123,6 +126,8 @@ class HiveChat extends HiveObject {
     this.ver,
     this.lastItemCursor,
     this.lastReadItemCursor,
+    this.recentCursor,
+    this.favoriteCursor,
   );
 
   /// Persisted [Chat] model.
@@ -143,4 +148,12 @@ class HiveChat extends HiveObject {
   /// Cursor of a [Chat.lastReadItem].
   @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
+
+  /// Cursor of the [value] when paginating through recent [Chat]s.
+  @HiveField(4)
+  RecentChatsCursor? recentCursor;
+
+  /// Cursor of the [value] when paginating through favorite [Chat]s.
+  @HiveField(5)
+  FavoriteChatsCursor? favoriteCursor;
 }

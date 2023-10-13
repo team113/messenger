@@ -42,17 +42,20 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
 /// [Session] with some additional info about the [User] it represents.
 class CustomUser {
-  CustomUser(this.session, this.userId, this.userNum);
+  CustomUser(this.credentials, this.userNum);
 
-  /// [Session] of this [CustomUser].
-  final Session session;
-
-  /// [UserId] of this [CustomUser].
-  final UserId userId;
+  /// [Credentials] of this [CustomUser].
+  final Credentials credentials;
 
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
   /// ID of the [Chat]-dialog with the authenticated [MyUser].
   ChatId? dialog;
+
+  /// [UserId] of this [CustomUser].
+  UserId get userId => credentials.userId;
+
+  /// Returns the [AccessToken] of this [CustomUser].
+  AccessToken get token => credentials.session.token;
 }

@@ -27,7 +27,7 @@ final StepDefinitionGeneric updateName = then2<TestUser, String, CustomWorld>(
   RegExp(r'{user} updates (?:his|her) name with {string}$'),
   (TestUser user, String newName, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
     await provider.updateUserName(UserName(newName));
     provider.disconnect();
   },

@@ -26,7 +26,7 @@ import '/ui/page/home/widget/avatar.dart';
 /// [InkResponse.hoverColor].
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
-    Key? key,
+    super.key,
     this.selected = false,
     this.selectedColor,
     this.selectedHoverColor,
@@ -38,7 +38,7 @@ class InkWellWithHover extends StatefulWidget {
     this.onTap,
     this.folded = false,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Indicator whether this [InkWellWithHover] is selected.
   final bool selected;
@@ -84,6 +84,8 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return ClipPath(
       clipper:
           widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
@@ -105,9 +107,9 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                   : widget.unselectedColor,
           child: InkWell(
             borderRadius: widget.borderRadius,
-            onTap: widget.onTap?.call,
+            onTap: widget.onTap,
             onHover: (v) => setState(() => hovered = v),
-            hoverColor: Colors.transparent,
+            hoverColor: style.colors.transparent,
             child: Stack(
               children: [
                 Center(child: widget.child),
@@ -116,15 +118,13 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                     width: widget.borderRadius?.topLeft.y ?? 10,
                     height: widget.borderRadius?.topLeft.y ?? 10,
                     decoration: BoxDecoration(
-                      color: widget.selected
-                          ? widget.selectedHoverColor?.darken(0.1)
-                          : widget.hoveredBorder!.top.color.darken(0.1),
+                      color: style.colors.primaryHighlightShiniest.darken(0.1),
                       borderRadius: const BorderRadius.only(
                         bottomRight: Radius.circular(4),
                       ),
-                      boxShadow: const [
+                      boxShadow: [
                         CustomBoxShadow(
-                          color: Color(0xFFC0C0C0),
+                          color: style.colors.secondaryHighlightDarkest,
                           blurStyle: BlurStyle.outer,
                           blurRadius: 4,
                         ),

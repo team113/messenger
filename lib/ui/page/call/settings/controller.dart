@@ -28,7 +28,7 @@ export 'view.dart';
 
 /// Controller of the call overlay settings.
 class CallSettingsController extends GetxController {
-  CallSettingsController(this._call, this._settingsRepo, {required this.onPop});
+  CallSettingsController(this._call, this._settingsRepo, {required this.pop});
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -42,8 +42,8 @@ class CallSettingsController extends GetxController {
   /// Returns the local [Track]s.
   ObsList<Track>? get localTracks => _call.value.localTracks;
 
-  /// Returns a list of [MediaDeviceInfo] of all the available devices.
-  InputDevices get devices => _call.value.devices;
+  /// Returns a list of [MediaDeviceDetails] of all the available devices.
+  RxList<MediaDeviceDetails> get devices => _call.value.devices;
 
   /// Returns ID of the currently used video device.
   RxnString get camera => _call.value.videoDevice;
@@ -58,7 +58,7 @@ class CallSettingsController extends GetxController {
   Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
 
   /// Callback to pop the [CallSettingsView].
-  void Function() onPop;
+  void Function() pop;
 
   /// Worker for catching the [OngoingCallState.ended] state of the call to pop
   /// the settings.
@@ -70,7 +70,7 @@ class CallSettingsController extends GetxController {
     _call.value.enumerateDevices();
     _stateWorker = ever(_call.value.state, (state) {
       if (state == OngoingCallState.ended) {
-        onPop();
+        pop();
       }
     });
   }

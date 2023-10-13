@@ -6,7 +6,166 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.9] · 2023-??-??
+## [0.1.0-alpha.11] · 2023-??-??
+[0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
+
+[Diff](/../../compare/v0.1.0-alpha.10...v0.1.0-alpha.11) | [Milestone](/../../milestone/11)
+
+### Added
+
+- Push notifications. ([#202], [#201])
+
+[#201]: /../../issues/201
+[#202]: /../../pull/202
+
+
+
+
+## [0.1.0-alpha.10] · 2023-10-10
+[0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
+
+[Diff](/../../compare/v0.1.0-alpha.9.4...v0.1.0-alpha.10) | [Milestone](/../../milestone/9)
+
+### Added
+
+- UI:
+    - Chat page:
+        - `Save as` for media attachments. ([#423], [#370])
+        - Pinning/unpinning actions in send field. ([#609], [#559])
+
+### Changed
+
+- UI:
+    - Display Gapopa ID in quartets. ([#587])
+    - Work page:
+        - Redesigned icons and texts. ([#597])
+    - Redesigned auth page. ([#564], [#533])
+    - Redesigned login modal. ([#564], [#533])
+    - Redesigned language selection modal. ([#533])
+    - Style page:
+        - Redesigned colors tab. ([#616], [#614])
+
+### Fixed
+
+- Mobile:
+    - Back camera being mirrored. ([#301], [#70])
+- UI:
+    - Chats tab:
+        - Context menu appearing twice when long pressing dots. ([#599], [#508])
+        - Title jumping around when entering search. ([#613], [#550])
+    - User's last seen status not updating periodically. ([#610], [#551])
+- Web:
+    - Fix background flashing after loading. ([#604], [#549])
+
+[#70]: /../../issues/70
+[#301]: /../../pull/301
+[#370]: /../../issues/370
+[#423]: /../../pull/423
+[#508]: /../../issues/508
+[#533]: /../../pull/533
+[#549]: /../../issues/549
+[#550]: /../../issues/550
+[#551]: /../../issues/551
+[#559]: /../../issue/559
+[#564]: /../../issues/564
+[#587]: /../../pull/587
+[#597]: /../../pull/597
+[#599]: /../../pull/599
+[#604]: /../../pull/604
+[#609]: /../../pull/609
+[#610]: /../../pull/610
+[#613]: /../../pull/613
+[#614]: /../../issues/614
+[#616]: /../../pull/616
+
+
+
+
+## [0.1.0-alpha.9.4] · 2023-09-04
+[0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
+
+[Diff](/../../compare/v0.1.0-alpha.9.3...v0.1.0-alpha.9.4) | [Milestone](/../../milestone/10)
+
+### Added
+
+- UI:
+    - Work page and tab. ([#541])
+
+[#541]: /../../pull/541
+
+
+
+
+## [0.1.0-alpha.9.3] · 2023-09-01
+[0.1.0-alpha.9.3]: /../../tree/v0.1.0-alpha.9.3
+
+[Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.9.3) | [Milestone](/../../milestone/8)
+
+### Added
+
+- Windows:
+    - Notifications. ([#492], [#439])
+
+### Changed
+
+- UI:
+    - Context menu with fading effect on desktop. ([#506])
+    - Profile page:
+        - Sections highlighting. ([#513], [#385])
+    - Home page:
+        - Redesigned navigation buttons' badges. ([#529], [#500])
+    - Display online status only when application is active. ([#522])
+
+[#385]: /../../issues/385
+[#439]: /../../issues/439
+[#492]: /../../pull/492
+[#500]: /../../issues/500
+[#506]: /../../pull/506
+[#513]: /../../pull/513
+[#522]: /../../pull/522
+[#529]: /../../pull/529
+
+
+
+
+## [0.1.0-alpha.9.2] · 2023-07-28
+[0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
+
+[Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.9.2) | [Milestone](/../../milestone/6)
+
+### Fixed
+
+- Linux:
+    - Application crashing when playing sounds. ([#496])
+- Web:
+    - Default locale not detecting in Safari. ([#491])
+
+[#491]: /../../pull/491
+[#496]: /../../pull/496
+
+
+
+
+## [0.1.0-alpha.9.1] · 2023-07-20
+[0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
+
+[Diff](/../../compare/v0.1.0-alpha.9...v0.1.0-alpha.9.1) | [Milestone](/../../milestone/7)
+
+### Fixed
+
+- Performance:
+    - Spamming backend API when reading a chat. ([#487])
+- iOS:
+    - Unreadable status bar text color. ([#487])
+- Web:
+    - Avatar not uploading due to simultaneous file read. ([#487])
+
+[#487]: /../../pull/487
+
+
+
+
+## [0.1.0-alpha.9] · 2023-07-17
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
@@ -17,54 +176,104 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - History clearing. ([#361])
         - Text selection in messages. ([#118], [#17])
-        - Clickable links and emails. ([#388])
+        - Clickable links and emails. ([#436], [#388])
+        - Replied and forwarded messages highlighting. ([#467])
     - Chats tab:
         - Multiple chats selection. ([#361], [#348])
-        - Chat-monolog. ([#333], [#326])    
+        - Chat-monolog. ([#456], [#412], [#333], [#326])
     - Contacts tab:
         - Multiple contacts selection. ([#361], [#348])
+    - Media panel:
+        - Low signal icons. ([#454])
+        - Device changed notifications. ([#472])
+    - Clickable icons animating on hovers and clicks. ([#470])
 - Web:
     - Unread chats badge on favicon. ([#403])
+- Desktop:
+    - Video playback. ([#468], [#445], [#438])
+- Mobile:
+    - Video rewinding indication. ([#468], [#452])
 
 ### Changed
 
 - UI:
     - Chat page:
-        - Redesigned info and call messages. ([#357])
-        - Redesigned file attachments. ([#362])
+        - Redesigned info and call messages. ([#453], [#357])
+        - Redesigned file attachments. ([#453], [#362])
+        - Message timestamps. ([#399])
+        - Redesigned chat messages and forwards. ([#416])
+        - Read messages only when application is active. ([#462], [#418])
     - Media panel:
         - Position and size persistence. ([#270], [#264])
         - Proportionally resizing secondary panel. ([#393], [#356], [#258])
         - Incoming ringtone fading in. ([#375], [#367])
         - Participants dialing indication. ([#286], [#281])
+    - Chats tab:
+        - Inverted selected chat colors. ([#405])
+        - Chats with ongoing calls sorting above favorites. ([#392], [#371])
+        - Redesigned chats selecting. ([#463])
+    - Contacts tab:
+        - Redesigned contacts selecting. ([#463])
+    - Home page:
+        - Redesigned navigation buttons animation. ([#440])
+        - Redesigned quick mute and status changing menus. ([#443])
 
 ### Fixed
 
 - UI:
     - Profile page:
         - Change password modal flickering. ([#380], [#377])
+    - Media panel:
+        - Media buttons controlling ringtone. ([#437], [#401])
+- Web:
+    - Images sometimes not loading. ([#408], [#344])
 
 [#17]: /../../issues/17
 [#118]: /../../pull/118
 [#258]: /../../issues/258
 [#264]: /../../issues/264
-[#367]: /../../issues/367
 [#270]: /../../pull/270
 [#281]: /../../issues/281
 [#286]: /../../pull/286
 [#326]: /../../issues/326
 [#333]: /../../pull/333
+[#344]: /../../issues/344
 [#348]: /../../issues/348
+[#356]: /../../pull/356
 [#357]: /../../pull/357
 [#361]: /../../pull/361
 [#362]: /../../pull/362
-[#356]: /../../pull/356
+[#367]: /../../issues/367
+[#371]: /../../issues/371
 [#375]: /../../pull/375
 [#377]: /../../issues/377
 [#380]: /../../pull/380
 [#388]: /../../pull/388
+[#392]: /../../pull/392
 [#393]: /../../pull/393
+[#399]: /../../pull/399
+[#401]: /../../issues/401
 [#403]: /../../pull/403
+[#405]: /../../pull/405
+[#408]: /../../pull/408
+[#412]: /../../pull/412
+[#418]: /../../issues/418
+[#436]: /../../pull/436
+[#437]: /../../pull/437
+[#438]: /../../issues/438
+[#440]: /../../pull/440
+[#443]: /../../pull/443
+[#445]: /../../pull/445
+[#452]: /../../issues/452
+[#453]: /../../pull/453
+[#454]: /../../pull/454
+[#456]: /../../pull/456
+[#462]: /../../pull/462
+[#463]: /../../pull/463
+[#467]: /../../pull/467
+[#468]: /../../pull/468
+[#470]: /../../pull/470
+[#472]: /../../pull/472
 
 
 

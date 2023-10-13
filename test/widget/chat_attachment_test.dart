@@ -45,14 +45,13 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -67,6 +66,7 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -99,7 +99,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -108,7 +107,30 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'edges': [
+        {
+          'node': chatData,
+          'cursor': 'cursor',
+        }
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
     }
   };
 
@@ -134,6 +156,7 @@ void main() async {
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     any,
+    any,
   )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider
@@ -157,13 +180,21 @@ void main() async {
       .thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          first: 120))
-      .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-            'chat': {
-              'items': {'edges': []}
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    last: 50,
+  )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+        'chat': {
+          'items': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
             }
-          })));
+          }
+        }
+      })));
 
   when(
     graphQlProvider.postChatMessage(
@@ -186,7 +217,15 @@ void main() async {
               '__typename': 'ChatMessage',
               'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
               'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'authorId': 'me',
+              'author': {
+                'id': 'me',
+                'num': '1234567890123456',
+                'mutualContactsCount': 0,
+                'isDeleted': false,
+                'isBlocked': {'blacklisted': false, 'ver': '0'},
+                'presence': 'AWAY',
+                'ver': '0',
+              },
               'at': '2022-02-01T09:32:52.246988+00:00',
               'ver': '10',
               'repliesTo': [],
@@ -219,13 +258,6 @@ void main() async {
                 .postChatMessage
             as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned);
   });
-
-  when(graphQlProvider.recentChats(
-    first: 120,
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
   when(
     graphQlProvider.uploadAttachment(
@@ -260,14 +292,31 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  when(graphQlProvider.getBlacklist(
+  when(graphQlProvider.getBlocklist(
     first: 120,
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
+
+  when(graphQlProvider.recentChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+    noFavorite: anyNamed('noFavorite'),
+    withOngoingCalls: anyNamed('withOngoingCalls'),
+  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+  when(graphQlProvider.favoriteChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
   var sessionProvider = Get.put(SessionDataHiveProvider());
   await sessionProvider.init();
@@ -279,16 +328,13 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
     ),
   );
 
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -313,7 +359,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
+  var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
@@ -340,6 +386,8 @@ void main() async {
 
   testWidgets('ChatView successfully sends a message with an attachment',
       (WidgetTester tester) async {
+    CacheWorker.instance = CacheWorker(null, null);
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
@@ -351,8 +399,8 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -385,7 +433,6 @@ void main() async {
       graphQlProvider,
       myUserProvider,
       blacklistedUsersProvider,
-      galleryItemProvider,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));
@@ -397,6 +444,11 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
+
+    while (chatProvider.isLocked) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
@@ -440,6 +492,8 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.tap(find.byKey(const Key('Send')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)

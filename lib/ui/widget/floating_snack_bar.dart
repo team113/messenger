@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/avatar.dart';
 
 /// Animated message briefly displayed at the bottom of the screen.
 ///
@@ -46,6 +47,8 @@ class FloatingSnackBar extends StatefulWidget {
 
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(String title, {double bottom = 16}) {
+    final style = Theme.of(router.context!).style;
+
     OverlayEntry? entry;
 
     entry = OverlayEntry(
@@ -57,10 +60,7 @@ class FloatingSnackBar extends StatefulWidget {
           entry = null;
         },
         bottom: bottom,
-        child: Text(
-          title,
-          style: const TextStyle(color: Colors.black, fontSize: 15),
-        ),
+        child: Text(title, style: style.fonts.titleMedium),
       ),
     );
 
@@ -95,7 +95,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(router.context!).extension<Style>()!;
+    final style = Theme.of(router.context!).style;
 
     return Stack(
       children: [
@@ -113,11 +113,11 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: style.cardHoveredColor,
+                    color: style.cardColor.darken(0.03),
                     border: style.cardHoveredBorder,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
                       ),

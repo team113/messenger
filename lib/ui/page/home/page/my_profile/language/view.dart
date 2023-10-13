@@ -21,10 +21,8 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
 
 /// View for changing the [L10n.chosen].
@@ -49,10 +47,6 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
-
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {
@@ -63,14 +57,7 @@ class LanguageSelectionView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_language'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_language'.l10n),
               const SizedBox(height: 4),
               Flexible(
                 child: Scrollbar(
@@ -83,57 +70,20 @@ class LanguageSelectionView extends StatelessWidget {
                       final Language e = L10n.languages[i];
 
                       return Obx(() {
-                        final bool selected = c.selected.value == e;
-                        return SizedBox(
-                          key: Key('Language_${e.locale.languageCode}'),
-                          child: Material(
-                            borderRadius: BorderRadius.circular(10),
-                            color: selected
-                                ? style.cardSelectedColor.withOpacity(0.8)
-                                : Colors.white.darken(0.05),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: () => c.selected.value = e,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'label_language_entry'.l10nfmt({
-                                        'code':
-                                            e.locale.languageCode.toUpperCase(),
-                                        'name': e.name,
-                                      }),
-                                      style: const TextStyle(fontSize: 17),
-                                    ),
-                                    const Spacer(),
-                                    SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: AnimatedSwitcher(
-                                        duration: 200.milliseconds,
-                                        child: selected
-                                            ? CircleAvatar(
-                                                backgroundColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .secondary,
-                                                radius: 12,
-                                                child: const Icon(
-                                                  Icons.check,
-                                                  color: Colors.white,
-                                                  size: 12,
-                                                ),
-                                              )
-                                            : const SizedBox(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
+                        return RectangleButton(
+                            key: Key('Language_${e.locale.languageCode}'),
+                            label: 'label_language_entry'.l10nfmt({
+                              'code': e.locale.languageCode.toUpperCase(),
+                              'name': e.name,
+                            }),
+                            selected: c.selected.value == e,
+                            onPressed: () async {
+                              c.selected.value = e;
+
+                              if (c.selected.value != null) {
+                                await c.setLocalization(c.selected.value!);
+                              }
+                            });
                       });
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -142,26 +92,6 @@ class LanguageSelectionView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    if (c.selected.value != null) {
-                      c.setLocalization(c.selected.value!);
-                    }
-
-                    Navigator.of(context).pop();
-                  },
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(height: 16),
             ],
           ),
         );

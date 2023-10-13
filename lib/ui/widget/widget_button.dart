@@ -17,14 +17,17 @@
 
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
+
 /// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
-    Key? key,
+    super.key,
     required this.child,
     this.behavior,
     this.onPressed,
-  }) : super(key: key);
+    this.onLongPress,
+  });
 
   /// [Widget] to press.
   final Widget child;
@@ -35,15 +38,21 @@ class WidgetButton extends StatelessWidget {
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
+  /// Callback, called when the [child] is long-pressed.
+  final void Function()? onLongPress;
+
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return MouseRegion(
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        onLongPress: onLongPress,
         behavior: behavior,
         child: Container(
-          color: Colors.transparent,
+          color: style.colors.transparent,
           child: child,
         ),
       ),

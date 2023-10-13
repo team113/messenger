@@ -17,7 +17,7 @@
 
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
@@ -84,4 +84,10 @@ abstract class AbstractSettingsRepository {
   /// Returns the [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
   Rect? getCallRect(ChatId id);
+
+  /// Sets the [ApplicationSettings.timelineEnabled] value.
+  Future<void> setTimelineEnabled(bool enabled);
+
+  /// Sets the [ApplicationSettings.pinnedActions] value.
+  Future<void> setPinnedActions(List<String> buttons);
 }

@@ -15,28 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../world/custom_world.dart';
 
 /// Scrolls the provided [Scrollable] until the specified [WidgetKey] is present
 /// within that list.
 ///
 /// Examples:
 /// - Then I scroll `Menu` until `LogoutButton` is present
-final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
-    then2<WidgetKey, WidgetKey, FlutterWorld>(
+final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
+    then2<WidgetKey, WidgetKey, CustomWorld>(
   RegExp(r'I scroll {key} until {key} is present'),
-  (WidgetKey list, WidgetKey key, StepContext<FlutterWorld> context) async {
+  (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.scrollUntilVisible(
+    await context.world.appDriver.scrollIntoVisible(
       context.world.appDriver.findByKeySkipOffstage(key.name),
-      scrollable: find.descendant(
+      find.descendant(
         of: find.byKey(Key(list.name)),
         matching: find.byWidgetPredicate((widget) {
           // TODO: Find a proper way to differentiate [Scrollable]s from
@@ -48,9 +52,40 @@ final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
           return false;
         }),
       ),
-      dy: 100,
+      dy: 200,
     );
 
     await context.world.appDriver.waitForAppToSettle();
   },
 );
+
+/// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
+/// replacement.
+extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
+    on AppDriverAdapter {
+  /// Scrolls the [scrollable] by [dy] until the [finder] is visible.
+  Future<void> scrollIntoVisible(
+    Finder finder,
+    Finder scrollable, {
+    double dy = 100,
+  }) async {
+    final double height = nativeDriver.view.display.size.height;
+
+    for (int i = 0; i < 100; ++i) {
+      // If [finder] is present and it's within our view, then break the loop.
+      if (await isPresent(finder) &&
+          nativeDriver.getCenter(finder).dy <= height - dy) {
+        break;
+      }
+
+      // Or otherwise keep on scrolling the [scrollable].
+      final ScrollableState state =
+          nativeDriver.state(scrollable) as ScrollableState;
+      final ScrollPosition position = state.position;
+
+      position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
+
+      await nativeDriver.pump();
+    }
+  }
+}

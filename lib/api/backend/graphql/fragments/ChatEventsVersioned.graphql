@@ -79,9 +79,36 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         ... on EventChatItemDeleted {
             itemId
         }
-        ... on EventChatItemTextEdited {
+        ... on EventChatItemEdited {
             itemId
-            text
+            text {
+                changed
+            }
+            attachments {
+                changed {
+                    __typename
+                    ... on ImageAttachment {
+                        ...ImageAttachment
+                    }
+                    ... on FileAttachment {
+                        ...FileAttachment
+                    }
+                }
+            }
+            repliesTo {
+                changed {
+                    __typename
+                    ... on ChatMessageQuote {
+                        ...ChatMessageQuote
+                    }
+                    ... on ChatCallQuote {
+                        ...ChatCallQuote
+                    }
+                    ... on ChatInfoQuote {
+                        ...ChatInfoQuote
+                    }
+                }
+            }
         }
         ... on EventChatCallStarted {
             callId
@@ -215,6 +242,14 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             at
         }
         ... on EventChatUnfavorited {
+            at
+        }
+        ... on EventChatCallConversationStarted {
+            callId
+            call {
+                __typename
+                ...ChatCall
+            }
             at
         }
     }

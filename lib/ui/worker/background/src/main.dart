@@ -29,6 +29,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 
+import '/api/backend/extension/credentials.dart';
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -172,26 +173,7 @@ class _BackgroundService {
 
   /// Initializes the [FlutterCallkeep].
   Future<void> _initCallKeep() async {
-    await _callKeep.setup(
-      null,
-      {
-        'ios': {'appName': 'Gapopa'},
-        'android': {
-          'alertTitle': 'label_call_permissions_title'.l10n,
-          'alertDescription': 'label_call_permissions_description'.l10n,
-          'cancelButton': 'btn_dismiss'.l10n,
-          'okButton': 'btn_allow'.l10n,
-          'foregroundService': {
-            'channelId': 'com.team113.messenger',
-            'channelName': 'Foreground calls service',
-            'notificationTitle': 'My app is running on background',
-            'notificationIcon': 'mipmap/ic_notification_launcher',
-          },
-          'additionalPermissions': <String>[],
-        },
-      },
-      backgroundMode: true,
-    );
+    await _callKeep.setup(null, Config.callKeep, backgroundMode: true);
 
     _callKeep.on(CallKeepPerformAnswerCallAction(),
         (CallKeepPerformAnswerCallAction event) async {
@@ -264,7 +246,7 @@ class _BackgroundService {
 
     _service.on('l10n').listen((event) {
       _resetConnectionTimer();
-      L10n.set(Language.from(event!['locale']));
+      L10n.set(Language.fromTag(event!['locale']));
     });
 
     _service.on('ka').listen((_) {
@@ -296,14 +278,7 @@ class _BackgroundService {
                   .renewSession(_credentials!.rememberedSession.token);
               var ok = (result.renewSession
                   as RenewSession$Mutation$RenewSession$RenewSessionOk);
-              _credentials = Credentials(
-                Session(ok.session.token, ok.session.expireAt),
-                RememberedSession(
-                  ok.remembered.token,
-                  ok.remembered.expireAt,
-                ),
-                ok.user.id,
-              );
+              _credentials = ok.toModel();
 
               // Store the [Credentials] in the [Hive].
               Future(() async {
@@ -374,10 +349,7 @@ class _BackgroundService {
             'label_incoming_call'.l10n,
             name,
             const NotificationDetails(
-              android: AndroidNotificationDetails(
-                'com.team113.messenger',
-                'Gapopa',
-              ),
+              android: AndroidNotificationDetails('default', 'Default'),
             ),
             payload: '${Routes.chats}/$chatId',
           );
@@ -409,12 +381,10 @@ class _BackgroundService {
               for (var call in calls) {
                 _incomingCalls.add(call.chatId.val);
 
-                // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+                // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
-                  call.caller?.name?.val ??
-                      call.caller?.num.val ??
-                      ('dot'.l10n * 3),
+                  call.author.name?.val ?? call.author.num.toString(),
                 );
               }
 
@@ -437,12 +407,10 @@ class _BackgroundService {
                 content: '${DateTime.now()}',
               );
 
-              // TODO: Display `Chat` name instead of the `ChatCall.caller`.
+              // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
-                call.caller?.name?.val ??
-                    call.caller?.num.val ??
-                    ('dot'.l10n * 3),
+                call.author.name?.val ?? call.author.num.toString(),
               );
             }
             break;

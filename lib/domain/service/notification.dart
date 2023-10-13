@@ -16,72 +16,136 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:win_toast/win_toast.dart';
+import 'package:window_manager/window_manager.dart';
 
+import '/config.dart';
+import '/domain/model/fcm_registration_token.dart';
+import '/domain/model/file.dart';
+import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/ui/worker/cache.dart';
+import '/util/android_utils.dart';
+import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
 class NotificationService extends DisposableService {
+  NotificationService(this._graphQlProvider);
+
+  /// GraphQL API provider for registering and un-registering current device for
+  /// receiving Firebase Cloud Messaging notifications.
+  final GraphQlProvider _graphQlProvider;
+
+  /// Language to receive Firebase Cloud Messaging notifications on.
+  String? _language;
+
+  /// Firebase Cloud Messaging token used to subscribe to push notifications.
+  String? _token;
+
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
-
-  /// [AudioPlayer] playing a notification sound.
-  AudioPlayer? _audioPlayer;
 
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
 
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
+  /// Subscription to the [FirebaseMessaging.onTokenRefresh] refreshing the
+  /// [_token].
+  StreamSubscription? _onTokenRefresh;
+
+  /// [StreamSubscription] to the [FirebaseMessaging.onMessage] handling the
+  /// push notifications in foreground.
+  StreamSubscription? _foregroundSubscription;
+
+  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// [_active].
+  StreamSubscription? _onActivityChanged;
+
+  /// Subscription to the [WebUtils.onBroadcastMessage] playing the notification
+  /// sound on web platforms.
+  StreamSubscription? _onBroadcastMessage;
+
+  /// Indicator whether the application is active.
+  bool _active = true;
+
+  /// Tags of the local notifications that were displayed.
+  ///
+  /// Used to discard displaying a local notification second time when it is
+  /// received via the [_foregroundSubscription].
+  final List<String> _tags = [];
+
+  /// Indicator whether the Firebase Cloud Messaging notifications are
+  /// successfully configured.
+  bool _pushNotifications = false;
+
+  /// Indicates whether the Firebase Cloud Messaging notifications are
+  /// successfully configured.
+  bool get pushNotifications => _pushNotifications;
 
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
   ///
-  /// Optional [onNotificationResponse] callback is called when user taps on a
-  /// notification.
+  /// Optional [onResponse] callback is called when user taps on a notification.
   ///
-  /// Optional [onDidReceiveLocalNotification] callback is called
-  /// when a notification is triggered while the app is in the foreground and is
-  /// only applicable to iOS versions older than 10.
+  /// Optional [onBackground] callback is called when a notification is received
+  /// when the application is in the background or terminated. Note that this
+  /// callback must be a top-level entry function, as it is launched in a
+  /// background isolate.
   Future<void> init({
-    void Function(NotificationResponse)? onNotificationResponse,
-    void Function(int, String?, String?, String?)?
-        onDidReceiveLocalNotification,
+    String? language,
+    FirebaseOptions? firebaseOptions,
+    void Function(String)? onResponse,
+    Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
-    PlatformUtils.isFocused.then((value) => _focused = value);
-    _onFocusChanged = PlatformUtils.onFocusChanged.listen((v) => _focused = v);
+    if (WebUtils.isPopup) {
+      return;
+    }
 
-    _initAudio();
-    if (PlatformUtils.isWeb) {
-      // Permission request is happening in `index.html` via a script tag due to
-      // a browser's policy to ask for notifications permission only after
-      // user's interaction.
-      WebUtils.onSelectNotification = onNotificationResponse;
-    } else {
-      if (_plugin == null) {
-        _plugin = FlutterLocalNotificationsPlugin();
-        await _plugin!.initialize(
-          InitializationSettings(
-            android: const AndroidInitializationSettings('@mipmap/ic_launcher'),
-            iOS: DarwinInitializationSettings(
-              onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-            ),
-            macOS: const DarwinInitializationSettings(),
-            linux:
-                const LinuxInitializationSettings(defaultActionName: 'click'),
-          ),
-          onDidReceiveNotificationResponse: onNotificationResponse,
-          onDidReceiveBackgroundNotificationResponse: onNotificationResponse,
+    _language = language ?? _language;
+
+    PlatformUtils.isActive.then((value) => _active = value);
+    _onActivityChanged =
+        PlatformUtils.onActivityChanged.listen((v) => _active = v);
+
+    AudioUtils.ensureInitialized();
+
+    _initLocalNotifications(
+      onResponse: (NotificationResponse response) {
+        if (response.payload != null) {
+          onResponse?.call(response.payload!);
+        }
+      },
+    );
+
+    if (PlatformUtils.pushNotifications) {
+      try {
+        await _initPushNotifications(
+          options: firebaseOptions,
+          onResponse: (RemoteMessage message) {
+            if (message.data['chatId'] != null) {
+              onResponse?.call('${Routes.chats}/${message.data['chatId']}');
+            }
+          },
+          onBackground: onBackground,
+        );
+      } catch (e) {
+        Log.print(
+          'Failed to initialize push notifications: $e',
+          'NotificationService',
         );
       }
     }
@@ -90,8 +154,10 @@ class NotificationService extends DisposableService {
   @override
   void onClose() {
     _onFocusChanged?.cancel();
-    _audioPlayer?.dispose();
-    AudioCache.instance.clear('audio/notification.mp3');
+    _onTokenRefresh?.cancel();
+    _foregroundSubscription?.cancel();
+    _onActivityChanged?.cancel();
+    _onBroadcastMessage?.cancel();
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -102,26 +168,33 @@ class NotificationService extends DisposableService {
     String title, {
     String? body,
     String? payload,
-    String? icon,
+    ImageFile? icon,
     String? tag,
-    bool playSound = true,
+    String? image,
   }) async {
+    // Don't display a notification with the provided [tag], if it's in the
+    // [_tags] list already, or otherwise add it to that list.
+    if (_foregroundSubscription != null && tag != null) {
+      if (_tags.contains(tag)) {
+        _tags.remove(tag);
+        return;
+      } else {
+        _tags.add(tag);
+      }
+    }
+
     // If application is in focus and the payload is the current route, then
     // don't show a local notification.
-    if (_focused && payload == router.route) return;
+    if (_active && payload == router.route) {
+      return;
+    }
 
-    if (playSound) {
-      runZonedGuarded(() async {
-        await _audioPlayer?.play(
-          AssetSource('audio/notification.mp3'),
-          position: Duration.zero,
-          mode: PlayerMode.lowLatency,
-        );
-      }, (e, _) {
-        if (!e.toString().contains('NotAllowedError')) {
-          throw e;
-        }
-      });
+    // Play a notification sound on Web and on Windows.
+    //
+    // Other platforms don't require playing a sound explicitly, as the local or
+    // push notification displayed plays it instead.
+    if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
+      AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
     }
 
     if (PlatformUtils.isWeb) {
@@ -129,22 +202,84 @@ class NotificationService extends DisposableService {
         title,
         body: body,
         lang: payload,
-        icon: icon,
+        icon: icon?.url ?? image,
         tag: tag,
       ).onError((_, __) => false);
-    } else if (!PlatformUtils.isWindows) {
+    } else if (PlatformUtils.isWindows) {
+      File? file;
+      if (icon != null) {
+        file = (await CacheWorker.instance.get(
+          url: icon.url,
+          checksum: icon.checksum,
+          responseType: CacheResponseType.file,
+        ))
+            .file;
+      }
+
+      await WinToast.instance().showCustomToast(
+        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+            '<toast activationType="Foreground" launch="${payload ?? ''}">'
+            '  <visual addImageQuery="true">'
+            '      <binding template="ToastGeneric">'
+            '          <text>$title</text>'
+            '          <text>${body ?? ''}</text>'
+            '          <image placement="appLogoOverride" hint-crop="circle" id="1" src="${file?.path ?? ''}"/>'
+            '      </binding>'
+            '  </visual>'
+            '</toast>',
+        tag: 'Gapopa',
+      );
+    } else {
+      String? imagePath;
+
+      // In order to show an image in local notification, we need to download it
+      // first to a [File] and then pass the path to it to the plugin.
+      if (image != null) {
+        try {
+          final String name =
+              'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg';
+          final File? file =
+              await PlatformUtils.download(image, name, null, temporary: true);
+
+          imagePath = file?.path;
+        } catch (_) {
+          // No-op.
+        }
+      }
+
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin!.show(
-        Random().nextInt(1 << 31),
+        // On Android notifications are replaced when ID and tag are the same,
+        // and FCM notifications always have ID of zero, so in order for push
+        // notifications to replace local, we set its ID as zero as well.
+        PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
         title,
         body,
         NotificationDetails(
           android: AndroidNotificationDetails(
-            'com.team113.messenger',
-            'Gapopa',
-            playSound: playSound,
+            'default',
+            'Default',
             sound: const RawResourceAndroidNotificationSound('notification'),
+            styleInformation: imagePath == null
+                ? null
+                : BigPictureStyleInformation(FilePathAndroidBitmap(imagePath)),
+            tag: tag,
+          ),
+          linux: LinuxNotificationDetails(
+            sound: AssetsLinuxSound('audio/notification.mp3'),
+          ),
+          iOS: DarwinNotificationDetails(
+            sound: 'notification.caf',
+            attachments: [
+              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+            ],
+          ),
+          macOS: DarwinNotificationDetails(
+            sound: 'notification.caf',
+            attachments: [
+              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+            ],
           ),
         ),
         payload: payload,
@@ -152,13 +287,192 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    try {
-      _audioPlayer = AudioPlayer(playerId: 'notificationPlayer');
-      await AudioCache.instance.loadAll(['audio/notification.mp3']);
-    } on MissingPluginException {
-      _audioPlayer = null;
+  /// Sets the provided [language] as a preferred localization of the push
+  /// notifications.
+  void setLanguage(String? language) async {
+    if (_language != language) {
+      _language = language;
+
+      if (_token != null) {
+        await _unregisterFcmDevice();
+        await _registerFcmDevice();
+      }
+    }
+  }
+
+  /// Initializes the [FlutterLocalNotificationsPlugin] for displaying the local
+  /// notifications.
+  Future<void> _initLocalNotifications({
+    void Function(NotificationResponse)? onResponse,
+  }) async {
+    if (PlatformUtils.isWeb) {
+      // Permission request is happening in `index.html` via a script tag due to
+      // a browser's policy to ask for notifications permission only after
+      // user's interaction.
+      WebUtils.onSelectNotification = onResponse;
+    } else if (PlatformUtils.isWindows) {
+      await WinToast.instance().initialize(
+        aumId: 'team113.messenger',
+        displayName: 'Gapopa',
+        iconPath: kDebugMode
+            ? File(r'assets\icons\app_icon.ico').absolute.path
+            : File(r'data\flutter_assets\assets\icons\app_icon.ico')
+                .absolute
+                .path,
+        clsid: Config.clsid,
+      );
+
+      WinToast.instance().setActivatedCallback((event) async {
+        await WindowManager.instance.focus();
+
+        onResponse?.call(
+          NotificationResponse(
+            notificationResponseType:
+                NotificationResponseType.selectedNotification,
+            payload: event.argument.isEmpty ? null : event.argument,
+          ),
+        );
+      });
+    } else {
+      if (_plugin == null) {
+        _plugin = FlutterLocalNotificationsPlugin();
+
+        try {
+          await _plugin!.initialize(
+            const InitializationSettings(
+              android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+              iOS: DarwinInitializationSettings(),
+              macOS: DarwinInitializationSettings(),
+              linux: LinuxInitializationSettings(defaultActionName: 'click'),
+            ),
+            onDidReceiveNotificationResponse: onResponse,
+          );
+
+          if (!PlatformUtils.isWindows) {
+            final NotificationAppLaunchDetails? details =
+                await _plugin!.getNotificationAppLaunchDetails();
+
+            if (details?.notificationResponse != null) {
+              onResponse?.call(details!.notificationResponse!);
+            }
+          }
+        } on MissingPluginException {
+          _plugin = null;
+        }
+      }
+    }
+  }
+
+  /// Initializes the [FirebaseMessaging] for receiving push notifications.
+  Future<void> _initPushNotifications({
+    FirebaseOptions? options,
+    void Function(RemoteMessage message)? onResponse,
+    Future<void> Function(RemoteMessage message)? onBackground,
+  }) async {
+    FirebaseMessaging.onMessageOpenedApp.listen(onResponse);
+
+    if (onBackground != null) {
+      FirebaseMessaging.onBackgroundMessage(onBackground);
+    }
+
+    await Firebase.initializeApp(options: options);
+
+    final RemoteMessage? initial =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initial != null) {
+      onResponse?.call(initial);
+    }
+
+    // Display a local notification, if there's any push notifications received
+    // while application is in foreground.
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
+      if (message.notification?.title != null) {
+        show(
+          message.notification!.title!,
+          body: message.notification?.body,
+          payload: message.data['chatId'] != null
+              ? '${Routes.chats}/${message.data['chatId']}'
+              : null,
+          image: message.notification?.android?.imageUrl ??
+              message.notification?.apple?.imageUrl ??
+              message.notification?.web?.image,
+          tag: message.data['chatId'] != null &&
+                  message.data['chatItemId'] != null
+              ? '${message.data['chatId']}_${message.data['chatItemId']}'
+              : null,
+        );
+      }
+    });
+
+    // Create a notification channel on Android to play custom notification
+    // sound.
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+      try {
+        await AndroidUtils.createNotificationChannel(
+          id: 'default',
+          name: 'Default',
+          sound: 'notification',
+        );
+      } catch (e) {
+        Log.error(e);
+      }
+    }
+
+    NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission();
+
+    // On Android first attempt is always [AuthorizationStatus.denied] due to
+    // notifications request popping while invoking a
+    // [AndroidUtils.createNotificationChannel], so try again on failure.
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      settings = await FirebaseMessaging.instance.requestPermission();
+    }
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // On Web push notifications don't support playing any sounds, it's up to
+      // operating system to decide, whether to play sound at all. Thus this
+      // listens to `BroadcastChannel` fired from FCM Service Worker to play a
+      // sound by ourselves.
+      _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
+        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+      });
+
+      _token =
+          await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
+
+      _onTokenRefresh =
+          FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+        await _unregisterFcmDevice();
+        _token = token;
+        await _registerFcmDevice();
+      });
+
+      await _registerFcmDevice();
+    }
+  }
+
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
+  Future<void> _registerFcmDevice() async {
+    _pushNotifications = false;
+
+    if (_token != null) {
+      await _graphQlProvider.registerFcmDevice(
+        FcmRegistrationToken(_token!),
+        _language,
+      );
+
+      _pushNotifications = true;
+    }
+  }
+
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
+  Future<void> _unregisterFcmDevice() async {
+    if (_token != null) {
+      await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
+      _pushNotifications = false;
     }
   }
 }

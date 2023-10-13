@@ -44,7 +44,6 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -58,14 +57,17 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/info/controller.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/overflow_error.dart';
+import '../mock/platform_utils.dart';
 import 'chat_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
+  PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_rename_widget');
 
@@ -84,7 +86,6 @@ void main() async {
     'lastDelivery': '1970-01-01T00:00:00+00:00',
     'lastItem': null,
     'lastReadItem': null,
-    'gallery': {'nodes': []},
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
@@ -93,7 +94,30 @@ void main() async {
 
   var recentChats = {
     'recentChats': {
-      'nodes': [chatData]
+      'edges': [
+        {
+          'node': chatData,
+          'cursor': 'cursor',
+        }
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
     }
   };
 
@@ -107,7 +131,7 @@ void main() async {
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       RememberedSession(
-        const RememberToken('token'),
+        const RefreshToken('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
@@ -141,9 +165,6 @@ void main() async {
   var myUserProvider = Get.put(MyUserHiveProvider());
   await myUserProvider.init();
   await myUserProvider.clear();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -192,6 +213,7 @@ void main() async {
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       any,
+      any,
     )).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider
@@ -200,20 +222,30 @@ void main() async {
             (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
     when(graphQlProvider.chatItems(
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            first: 120))
-        .thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-              'chat': {
-                'items': {'edges': []}
-              }
-            })));
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      last: 50,
+    )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+          'chat': {
+            'items': {'edges': []}
+          }
+        })));
 
     when(graphQlProvider.recentChats(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
     )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+    when(graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    )).thenAnswer(
+        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
@@ -239,10 +271,8 @@ void main() async {
               'num': '1234567890123456',
               'login': null,
               'name': null,
-              'bio': null,
               'emails': {'confirmed': []},
               'phones': {'confirmed': []},
-              'gallery': {'nodes': []},
               'chatDirectLink': null,
               'hasPassword': false,
               'unreadChatsCount': 0,
@@ -251,7 +281,7 @@ void main() async {
               'online': {'__typename': 'UserOnline'},
               'mutualContactsCount': 0,
               'isDeleted': false,
-              'isBlacklisted': {
+              'isBlocked': {
                 'blacklisted': false,
                 'ver': '0',
               },
@@ -280,8 +310,8 @@ void main() async {
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -345,7 +375,6 @@ void main() async {
   });
 
   await myUserProvider.clear();
-  await galleryItemProvider.clear();
   await contactProvider.clear();
   await userProvider.clear();
   await chatProvider.clear();

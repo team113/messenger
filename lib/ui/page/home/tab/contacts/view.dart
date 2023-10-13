@@ -17,6 +17,7 @@
 
 import 'dart:ui';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -31,12 +32,17 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
@@ -46,13 +52,13 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the `HomeTab.contacts` tab.
+/// View of the [HomeTab.contacts] tab.
 class ContactsTabView extends StatelessWidget {
-  const ContactsTabView({Key? key}) : super(key: key);
+  const ContactsTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('ContactsTab'),
@@ -67,10 +73,7 @@ class ContactsTabView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar(
             border: c.search.value != null || c.selecting.value
-                ? Border.all(
-                    color: Theme.of(context).colorScheme.secondary,
-                    width: 2,
-                  )
+                ? Border.all(color: style.colors.primary, width: 2)
                 : null,
             title: Obx(() {
               final Widget child;
@@ -90,7 +93,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: style.boldBody.copyWith(fontSize: 17),
+                        style: style.fonts.bodyLarge,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -100,71 +103,195 @@ class ContactsTabView extends StatelessWidget {
               } else if (c.selecting.value) {
                 child = Text('label_select_contacts'.l10n);
               } else {
-                child = Text('label_contacts'.l10n);
+                final Widget synchronization;
+
+                if (c.fetching.value == null && c.status.value.isLoadingMore) {
+                  synchronization = Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Center(
+                      child: Text(
+                        'label_synchronization'.l10n,
+                        style: style.fonts.labelMediumSecondary,
+                      ),
+                    ),
+                  );
+                } else {
+                  synchronization = const SizedBox.shrink();
+                }
+
+                child = Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('label_contacts'.l10n),
+                    AnimatedSizeAndFade(
+                      sizeDuration: const Duration(milliseconds: 300),
+                      fadeDuration: const Duration(milliseconds: 300),
+                      child: synchronization,
+                    ),
+                  ],
+                );
               }
 
-              return AnimatedSwitcher(duration: 250.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 250.milliseconds,
+                child: child,
+              );
             }),
             actions: [
               Obx(() {
-                final Widget child;
+                Widget? child;
 
-                if (c.search.value != null || c.selecting.value) {
-                  child = SvgLoader.asset(
-                    key: const Key('CloseSearch'),
-                    'assets/icons/close_primary.svg',
-                    height: 15,
-                    width: 15,
-                  );
+                if (c.search.value != null) {
+                  if (c.search.value?.search.isEmpty.value == false) {
+                    child = const SvgImage.asset(
+                      'assets/icons/search_exit.svg',
+                      key: Key('CloseSearch'),
+                      height: 11,
+                    );
+                  }
                 } else {
-                  child = SvgLoader.asset(
-                    'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
-                    key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-                    width: 29.69,
-                    height: 21,
-                  );
+                  if (c.selecting.value) {
+                    child = SvgImage.asset(
+                      c.search.value != null
+                          ? 'assets/icons/search_exit.svg'
+                          : 'assets/icons/close_primary.svg',
+                      key: const Key('CloseGroupSearching'),
+                      height: c.search.value != null ? 11 : 15,
+                    );
+                  }
                 }
 
-                return WidgetButton(
-                  onPressed: () {
-                    if (c.selecting.value) {
-                      c.toggleSelecting();
-                    } else if (c.search.value != null) {
-                      c.toggleSearch(false);
-                    } else {
-                      c.toggleSorting();
-                    }
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    width: 29.69 + 12 + 18,
-                    height: double.infinity,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: 250.milliseconds,
-                        child: child,
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (child != null)
+                      AnimatedButton(
+                        onPressed: () {
+                          if (c.search.value != null) {
+                            if (c.search.value?.search.isEmpty.value == false) {
+                              c.search.value?.search.clear();
+                              c.search.value?.query.value = '';
+                              c.search.value?.search.focus.requestFocus();
+                            }
+                          } else if (c.selecting.value) {
+                            c.toggleSelecting();
+                          }
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: 29.69 + 12 + 18,
+                          height: double.infinity,
+                          child: Center(
+                            child: SafeAnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    if (c.search.value == null && !c.selecting.value)
+                      ContextMenuRegion(
+                        key: const Key('ContactsMenu'),
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        enableLongTap: false,
+                        enableSecondaryTap: false,
+                        selector: c.moreKey,
+                        margin: const EdgeInsets.only(bottom: 4, right: 0),
+                        actions: [
+                          ContextMenuButton(
+                            label: c.sortByName
+                                ? 'label_sort_by_visit'.l10n
+                                : 'label_sort_by_name'.l10n,
+                            onPressed: c.toggleSorting,
+                          ),
+                          ContextMenuButton(
+                            key: const Key('SelectContactsButton'),
+                            label: 'btn_select_and_delete'.l10n,
+                            onPressed: c.toggleSelecting,
+                          ),
+                        ],
+                        child: AnimatedButton(
+                          decorator: (child) => Container(
+                            key: c.moreKey,
+                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            height: double.infinity,
+                            child: child,
+                          ),
+                          child: Icon(
+                            Icons.more_vert,
+                            color: style.colors.primary,
+                          ),
+                        ),
+                      ),
+                  ],
                 );
               }),
             ],
             leading: [
               Obx(() {
                 if (c.selecting.value) {
-                  return const SizedBox(width: 49.77);
+                  final bool selected = c.contacts.isNotEmpty &&
+                      c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
+                  return WidgetButton(
+                    onPressed: () {
+                      bool selected = c.contacts.every(
+                        (e) => c.selectedContacts.any((m) => m == e.id),
+                      );
+
+                      if (selected) {
+                        c.selectedContacts.clear();
+                      } else {
+                        for (var e in c.contacts) {
+                          if (!c.selectedContacts.contains(e.id)) {
+                            c.selectContact(e);
+                          }
+                        }
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: SelectedDot(
+                        selected: selected,
+                        inverted: false,
+                        outlined: !selected,
+                        size: 21,
+                      ),
+                    ),
+                  );
                 }
 
-                return WidgetButton(
-                  key: const Key('SearchButton'),
-                  onPressed: c.search.value != null ? null : c.toggleSearch,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
-                    height: double.infinity,
-                    child: SvgLoader.asset(
-                      'assets/icons/search.svg',
-                      width: 17.77,
-                    ),
+                return AnimatedButton(
+                  key: c.search.value == null
+                      ? const Key('SearchButton')
+                      : const Key('CloseSearchButton'),
+                  onPressed: c.search.value == null
+                      ? () => c.toggleSearch(true)
+                      : () => c.toggleSearch(false),
+                  decorator: (child) {
+                    return Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: child,
+                    );
+                  },
+                  child: SafeAnimatedSwitcher(
+                    duration: 250.milliseconds,
+                    child: c.search.value != null
+                        ? Icon(
+                            key: const Key('ArrowBack'),
+                            Icons.arrow_back_ios_new,
+                            size: 20,
+                            color: style.colors.primary,
+                          )
+                        : const SvgImage.asset(
+                            'assets/icons/search.svg',
+                            width: 17.77,
+                          ),
                   ),
                 );
               }),
@@ -172,7 +299,7 @@ class ContactsTabView extends StatelessWidget {
           ),
           extendBodyBehindAppBar: true,
           body: Obx(() {
-            if (!c.contactsReady.value) {
+            if (c.status.value.isLoading) {
               return const Center(child: CustomProgressIndicator());
             }
 
@@ -183,37 +310,47 @@ class ContactsTabView extends StatelessWidget {
                   c.elements.isEmpty) {
                 child = Center(
                   key: UniqueKey(),
-                  child: const ColoredBox(
-                    key: Key('Loading'),
-                    color: Colors.transparent,
-                    child: CustomProgressIndicator(),
+                  child: ColoredBox(
+                    key: const Key('Loading'),
+                    color: style.colors.transparent,
+                    child: const CustomProgressIndicator(),
                   ),
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
-                  controller: c.scrollController,
+                  controller: c.search.value!.scrollController,
                   child: AnimationLimiter(
                     key: const Key('Search'),
                     child: ListView.builder(
                       key: const Key('SearchScrollable'),
-                      controller: c.scrollController,
+                      controller: c.search.value!.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
-                        final ListElement element = c.elements[i];
-                        final Widget child;
+                        ListElement? element;
+                        if (i < c.elements.length) {
+                          element = c.elements[i];
+                        }
+
+                        Widget child;
 
                         if (element is ContactElement) {
                           child = SearchUserTile(
                             key: Key('SearchContact_${element.contact.id}'),
                             contact: element.contact,
-                            onTap: () =>
-                                router.user(element.contact.user.value!.id),
+                            onTap: () => router.user(
+                              (element as ContactElement)
+                                  .contact
+                                  .user
+                                  .value!
+                                  .id,
+                            ),
                           );
                         } else if (element is UserElement) {
                           child = SearchUserTile(
                             key: Key('SearchUser_${element.user.id}'),
                             user: element.user,
-                            onTap: () => router.user(element.user.id),
+                            onTap: () =>
+                                router.user((element as UserElement).user.id),
                           );
                         } else if (element is DividerElement) {
                           child = Center(
@@ -224,16 +361,24 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.systemMessageStyle.copyWith(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                  ),
+                                  style: style.fonts.labelLarge,
                                 ),
                               ),
                             ),
                           );
                         } else {
                           child = const SizedBox();
+                        }
+
+                        if (i == c.elements.length - 1) {
+                          if (c.search.value?.hasNext.value == true) {
+                            child = Column(
+                              children: [
+                                child,
+                                const CustomProgressIndicator(),
+                              ],
+                            );
+                          }
                         }
 
                         return AnimationConfiguration.staggeredList(
@@ -249,11 +394,15 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                child = KeyedSubtree(
+                child = AnimatedDelayedSwitcher(
                   key: UniqueKey(),
+                  delay: const Duration(milliseconds: 300),
                   child: Center(
                     key: const Key('NothingFound'),
-                    child: Text('label_nothing_found'.l10n),
+                    child: Text(
+                      'label_nothing_found'.l10n,
+                      style: style.fonts.labelMedium,
+                    ),
                   ),
                 );
               }
@@ -275,7 +424,7 @@ class ContactsTabView extends StatelessWidget {
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            top: CustomAppBar.height,
+                            top: CustomAppBar.height - 4,
                             left: 10,
                             right: 10,
                           ),
@@ -289,8 +438,8 @@ class ContactsTabView extends StatelessWidget {
                                       .transform(animation.value);
                                   final double elevation = lerpDouble(0, 6, t)!;
                                   final Color color = Color.lerp(
-                                    const Color(0x00000000),
-                                    const Color(0x33000000),
+                                    style.colors.transparent,
+                                    style.colors.onBackgroundOpacity20,
                                     t,
                                   )!;
 
@@ -358,7 +507,15 @@ class ContactsTabView extends StatelessWidget {
                                           ),
                                           index: i,
                                           enabled: !c.selecting.value,
-                                          child: child,
+
+                                          // Use a dummy
+                                          // [GestureDetector.onLongPress]
+                                          // callback for discarding long
+                                          // presses on the [child].
+                                          child: GestureDetector(
+                                            onLongPress: () {},
+                                            child: child,
+                                          ),
                                         ),
                                       );
                                     },
@@ -390,7 +547,7 @@ class ContactsTabView extends StatelessWidget {
                         ),
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            bottom: CustomNavigationBar.height + 5,
+                            bottom: CustomNavigationBar.height,
                             left: 10,
                             right: 10,
                           ),
@@ -398,7 +555,7 @@ class ContactsTabView extends StatelessWidget {
                             delegate: SliverChildListDelegate.fixed(
                               c.contacts.mapIndexed((i, e) {
                                 return AnimationConfiguration.staggeredList(
-                                  position: i,
+                                  position: c.favorites.length + i,
                                   duration: const Duration(milliseconds: 375),
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
@@ -424,24 +581,55 @@ class ContactsTabView extends StatelessWidget {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     color: c.search.value != null
-                        ? const Color(0xFFEBEBEB)
-                        : const Color(0x00EBEBEB),
+                        ? style.colors.secondaryHighlight
+                        : style.colors.secondaryHighlight.withOpacity(0),
                   );
                 }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: ContextMenuInterceptor(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
-                    ),
+                ContextMenuInterceptor(
+                  child: SafeAnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
                   ),
                 ),
               ],
             );
           }),
-          bottomNavigationBar:
-              c.selecting.value ? _selectButtons(context, c) : null,
+          bottomNavigationBar: Obx(() {
+            if (c.selecting.value) {
+              return BottomPaddedRow(
+                children: [
+                  ShadowedRoundedButton(
+                    onPressed: c.toggleSelecting,
+                    child: Text(
+                      'btn_cancel'.l10n,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: style.fonts.titleLarge,
+                    ),
+                  ),
+                  ShadowedRoundedButton(
+                    key: const Key('DeleteContacts'),
+                    onPressed: c.selectedContacts.isEmpty
+                        ? null
+                        : () => _removeContacts(context, c),
+                    color: style.colors.primary,
+                    child: Text(
+                      'btn_delete_count'.l10nfmt({
+                        'count': c.selectedContacts.length,
+                      }),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: c.selectedContacts.isEmpty
+                          ? style.fonts.titleLarge
+                          : style.fonts.titleLargeOnPrimary,
+                    ),
+                  )
+                ],
+              );
+            }
+
+            return const SizedBox();
+          }),
         );
       }),
     );
@@ -455,6 +643,8 @@ class ContactsTabView extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
   }) {
     return Obx(() {
+      final style = Theme.of(context).style;
+
       bool favorite = c.favorites.contains(contact);
 
       final bool selected = router.routes
@@ -462,11 +652,13 @@ class ContactsTabView extends StatelessWidget {
               ?.startsWith('${Routes.user}/${contact.user.value?.id}') ==
           true;
 
+      final bool inverted = selected || c.selectedContacts.contains(contact.id);
+
       return ContactTile(
         key: Key('Contact_${contact.id}'),
         contact: contact,
         folded: favorite,
-        selected: selected || c.selectedContacts.contains(contact.id),
+        selected: inverted,
         enableContextMenu: !c.selecting.value,
         avatarBuilder: c.selecting.value
             ? (child) => WidgetButton(
@@ -501,28 +693,28 @@ class ContactsTabView extends StatelessWidget {
             onPressed: () => _removeFromContacts(c, context, contact),
             trailing: const Icon(Icons.delete),
           ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectContactButton'),
-            label: 'btn_select'.l10n,
-            onPressed: c.toggleSelecting,
-            trailing: const Icon(Icons.select_all),
-          ),
         ],
         subtitle: [
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Obx(() {
-              final subtitle = contact.user.value?.user.value.getStatus();
+              if (contact.user.value == null) {
+                return const SizedBox();
+              }
+
+              final subtitle = contact.user.value?.user.value
+                  .getStatus(contact.user.value?.lastSeen.value);
+
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                  style: inverted
+                      ? style.fonts.labelMediumOnPrimary
+                      : style.fonts.labelMediumSecondary,
                 );
               }
 
-              return Container();
+              return const SizedBox();
             }),
           ),
         ],
@@ -530,14 +722,17 @@ class ContactsTabView extends StatelessWidget {
           Obx(() {
             final dialog = contact.user.value?.dialog.value;
 
-            if (dialog?.chat.value.muted == null) {
+            if (dialog?.chat.value.muted == null ||
+                contact.user.value?.user.value.isBlocked != null) {
               return const SizedBox();
             }
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgLoader.asset(
-                'assets/icons/muted.svg',
+              child: SvgImage.asset(
+                inverted
+                    ? 'assets/icons/muted_light.svg'
+                    : 'assets/icons/muted.svg',
                 key: Key('MuteIndicator_${contact.id}'),
                 width: 19.99,
                 height: 15,
@@ -545,13 +740,19 @@ class ContactsTabView extends StatelessWidget {
             );
           }),
           Obx(() {
-            if (contact.user.value?.user.value.isBlacklisted == null) {
+            if (contact.user.value?.user.value.isBlocked == null) {
               return const SizedBox();
             }
 
-            return const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(Icons.block, color: Color(0xFFC0C0C0), size: 20),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(
+                Icons.block,
+                color: inverted
+                    ? style.colors.onPrimary
+                    : style.colors.secondaryHighlightDarkest,
+                size: 20,
+              ),
             );
           }),
           Obx(() {
@@ -572,70 +773,6 @@ class ContactsTabView extends StatelessWidget {
     });
   }
 
-  /// Returns the animated [OutlinedRoundedButton]s for multiple selected
-  /// [ChatContacts]s manipulation.
-  Widget _selectButtons(BuildContext context, ContactsTabController c) {
-    const List<CustomBoxShadow> shadows = [
-      CustomBoxShadow(
-        blurRadius: 8,
-        color: Color(0x22000000),
-        blurStyle: BlurStyle.outer,
-      ),
-    ];
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        8,
-        7,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: OutlinedRoundedButton(
-              title: Text(
-                'btn_close'.l10n,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onPressed: c.toggleSelecting,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Obx(() {
-            return Expanded(
-              child: OutlinedRoundedButton(
-                key: const Key('DeleteContacts'),
-                title: Text(
-                  'btn_delete_count'
-                      .l10nfmt({'count': c.selectedContacts.length}),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: c.selectedContacts.isEmpty
-                        ? Colors.black
-                        : Colors.white,
-                  ),
-                ),
-                onPressed: c.selectedContacts.isEmpty
-                    ? null
-                    : () => _removeContacts(context, c),
-                color: Theme.of(context).colorScheme.secondary,
-                shadows: shadows,
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   /// Opens a confirmation popup deleting the provided [contact] from address
   /// book.
   Future<void> _removeFromContacts(
@@ -643,13 +780,15 @@ class ContactsTabView extends StatelessWidget {
     BuildContext context,
     RxChatContact contact,
   ) async {
+    final style = Theme.of(context).style;
+
     final bool? result = await MessagePopup.alert(
       'label_delete_contact'.l10n,
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: const TextStyle(color: Colors.black),
+          style: style.fonts.bodySmall,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

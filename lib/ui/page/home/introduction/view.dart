@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/page/home/widget/sharable.dart';
 import '/ui/widget/modal_popup.dart';
@@ -34,7 +35,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class IntroductionView extends StatelessWidget {
-  const IntroductionView({Key? key}) : super(key: key);
+  const IntroductionView({super.key});
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
@@ -43,8 +44,7 @@ class IntroductionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('IntroductionView'),
@@ -60,7 +60,7 @@ class IntroductionView extends StatelessWidget {
                 Center(
                   child: Text(
                     'btn_set_password'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
+                    style: style.fonts.headlineMedium,
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -69,10 +69,10 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: thin,
+                  style: style.fonts.bodyMedium,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -83,10 +83,10 @@ class IntroductionView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: thin,
+                  style: style.fonts.bodyMedium,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgLoader.asset(
+                  trailing: SvgImage.asset(
                     'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
                     width: 17.07,
                   ),
@@ -96,16 +96,14 @@ class IntroductionView extends StatelessWidget {
                   key: const Key('ChangePasswordButton'),
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(
-                      color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? Colors.black
-                          : Colors.white,
-                    ),
+                    style: c.password.isEmpty.value || c.repeat.isEmpty.value
+                        ? style.fonts.bodyMedium
+                        : style.fonts.bodyMediumOnPrimary,
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
                       : c.setPassword,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -114,10 +112,7 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_password_set'.l10n,
-                  style: thin?.copyWith(
-                    fontSize: 15,
-                    color: const Color(0xFF888888),
-                  ),
+                  style: style.fonts.bodyMediumSecondary,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -126,10 +121,10 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
+                      style: style.fonts.bodyMediumOnPrimary,
                     ),
                     onPressed: Navigator.of(context).pop,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: style.colors.primary,
                   ),
                 ),
               ];
@@ -137,18 +132,21 @@ class IntroductionView extends StatelessWidget {
 
             default:
               children = [
-                Text('label_introduction_description'.l10n, style: thin),
+                Text(
+                  'label_introduction_description'.l10n,
+                  style: style.fonts.bodyMedium,
+                ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: style.fonts.bodyMediumOnPrimary,
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -158,10 +156,10 @@ class IntroductionView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
+              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [
@@ -169,12 +167,7 @@ class IntroductionView extends StatelessWidget {
                     onBack: c.stage.value == IntroductionViewStage.password
                         ? () => c.stage.value = null
                         : null,
-                    header: Center(
-                      child: Text(
-                        'label_account_created'.l10n,
-                        style: thin?.copyWith(fontSize: 18),
-                      ),
-                    ),
+                    text: 'label_account_created'.l10n,
                   ),
                   const SizedBox(height: 25),
                   Padding(
@@ -184,19 +177,18 @@ class IntroductionView extends StatelessWidget {
                             key: const Key('NumCopyable'),
                             text: c.num.text,
                             label: 'label_num'.l10n,
-                            share: 'Gapopa ID: ${c.myUser.value?.num.val}',
-                            trailing: SvgLoader.asset(
+                            share: 'Gapopa ID: ${c.myUser.value?.num}',
+                            trailing: const SvgImage.asset(
                               'assets/icons/share.svg',
                               width: 18,
                             ),
-                            style: thin,
+                            style: style.fonts.bodyMedium,
                           )
                         : CopyableTextField(
                             key: const Key('NumCopyable'),
                             state: c.num,
                             label: 'label_num'.l10n,
-                            copy: c.myUser.value?.num.val,
-                            style: thin?.copyWith(fontSize: 18),
+                            style: style.fonts.headlineMedium,
                           ),
                   ),
                   const SizedBox(height: 25),

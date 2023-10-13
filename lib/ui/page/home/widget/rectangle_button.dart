@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_switcher.dart';
 
 /// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
@@ -45,13 +46,12 @@ class RectangleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).extension<Style>()!;
+    final style = Theme.of(context).style;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected
-          ? style.cardSelectedColor.withOpacity(0.8)
-          : Colors.white.darken(0.05),
+      color:
+          selected ? style.colors.primary : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -64,7 +64,9 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 15),
+                  style: selected
+                      ? style.fonts.labelLargeOnPrimary
+                      : style.fonts.labelLarge,
                 ),
               ),
               const SizedBox(width: 12),
@@ -72,16 +74,15 @@ class RectangleButton extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   height: 20,
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
+                            backgroundColor: style.colors.onPrimary,
                             radius: 12,
-                            child: const Icon(
+                            child: Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: style.colors.primary,
                               size: 12,
                             ),
                           )
@@ -95,12 +96,12 @@ class RectangleButton extends StatelessWidget {
                   child: CircleAvatar(
                     backgroundColor: trailingColor,
                     radius: 12,
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
-                          ? const Icon(
+                          ? Icon(
                               Icons.check,
-                              color: Colors.white,
+                              color: style.colors.onPrimary,
                               size: 12,
                             )
                           : const SizedBox(key: Key('None')),

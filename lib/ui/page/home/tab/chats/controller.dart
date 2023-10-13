@@ -20,15 +20,15 @@ import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -110,6 +110,14 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
+  /// [Timer] displaying the [chats] being fetched when it becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
+
+  /// [GlobalKey] of the more button.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -128,12 +136,15 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Subscription for [ChatService.chats] changes.
+  /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
+
+  /// Subscription for the [ChatService.status] changes.
+  StreamSubscription? _statusSubscription;
 
   /// Map of [_ChatSortingData]s used to sort the [chats].
   final HashMap<ChatId, _ChatSortingData> _sortingData =
@@ -150,23 +161,28 @@ class ChatsTabController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get chatsReady => _chatService.isReady;
+  /// Returns the [RxStatus] of the [chats] fetching and initialization.
+  Rx<RxStatus> get status => _chatService.status;
+
+  /// Indicates whether the [chats] have a next page.
+  RxBool get hasNext => _chatService.hasNext;
 
   @override
   void onInit() {
-    chats = RxList<RxChat>(_chatService.chats.values.toList());
+    scrollController.addListener(_scrollListener);
+
+    chats = RxList<RxChat>(_chatService.paginated.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    _sortChats();
+    chats.sort();
 
     for (RxChat chat in chats) {
       _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat.chat, _sortChats);
+          _ChatSortingData(chat.chat, () => chats.sort());
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
@@ -188,13 +204,13 @@ class ChatsTabController extends GetxController {
     }
 
     chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
-    _chatsSubscription = _chatService.chats.changes.listen((event) {
+    _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           chats.add(event.value!);
-          _sortChats();
+          chats.sort();
           _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!.chat, _sortChats);
+              _ChatSortingData(event.value!.chat, chats.sort);
 
           if (event.value!.chat.value.isDialog) {
             listenUpdates(event.value!);
@@ -223,10 +239,20 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _sortChats();
+          chats.sort();
           break;
       }
     });
+
+    if (_chatService.status.value.isSuccess) {
+      _ensureScrollable();
+    } else {
+      _statusSubscription = _chatService.status.listen((status) {
+        if (status.isSuccess) {
+          _ensureScrollable();
+        }
+      });
+    }
 
     super.onInit();
   }
@@ -234,6 +260,8 @@ class ChatsTabController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
+    scrollController.removeListener(_scrollListener);
+
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -242,6 +270,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
@@ -250,6 +279,8 @@ class ChatsTabController extends GetxController {
     for (RxUser v in _recipients) {
       v.stopUpdates();
     }
+
+    fetching.value?.cancel();
 
     router.navigation.value = true;
 
@@ -400,20 +431,14 @@ class ChatsTabController extends GetxController {
   Future<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in an [OngoingCall] in a [Chat] identified by the provided
-  /// [id].
-  bool inCall(ChatId id) {
+  /// contains an [OngoingCall] happening in a [Chat] identified by the
+  /// provided [ChatId].
+  bool containsCall(ChatId id) {
     if (WebUtils.containsCall(id)) {
       return true;
     }
 
-    final Rx<OngoingCall>? call = _callService.calls[id];
-    if (call != null) {
-      return call.value.state.value == OngoingCallState.active ||
-          call.value.state.value == OngoingCallState.joining;
-    }
-
-    return false;
+    return _callService.calls[id] != null;
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
@@ -503,19 +528,21 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    // [chats] are guaranteed to have favorite [Chat]s on the top.
-    final int length =
-        chats.where((e) => e.chat.value.favoritePosition != null).length;
+    final List<RxChat> favorites = chats
+        .where((e) =>
+            e.chat.value.ongoingCall == null &&
+            e.chat.value.favoritePosition != null)
+        .toList();
 
     double position;
 
     if (to <= 0) {
-      position = chats.first.chat.value.favoritePosition!.val / 2;
-    } else if (to >= length) {
-      position = chats[length - 1].chat.value.favoritePosition!.val * 2;
+      position = favorites.first.chat.value.favoritePosition!.val * 2;
+    } else if (to >= favorites.length) {
+      position = favorites.last.chat.value.favoritePosition!.val / 2;
     } else {
-      position = (chats[to].chat.value.favoritePosition!.val +
-              chats[to - 1].chat.value.favoritePosition!.val) /
+      position = (favorites[to].chat.value.favoritePosition!.val +
+              favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
 
@@ -523,8 +550,11 @@ class ChatsTabController extends GetxController {
       to--;
     }
 
-    final ChatId chatId = chats[from].id;
-    chats.insert(to, chats.removeAt(from));
+    final int start = chats.indexOf(favorites[from]);
+    final int end = chats.indexOf(favorites[to]);
+
+    final ChatId chatId = chats[start].id;
+    chats.insert(end, chats.removeAt(start));
 
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
@@ -603,39 +633,6 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Sorts the [chats] by the [Chat.updatedAt] and [Chat.ongoingCall] values.
-  void _sortChats() {
-    chats.sort((a, b) {
-      if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition == null) {
-        return -1;
-      } else if (a.chat.value.favoritePosition == null &&
-          b.chat.value.favoritePosition != null) {
-        return 1;
-      } else if (a.chat.value.favoritePosition != null &&
-          b.chat.value.favoritePosition != null) {
-        return a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!);
-      }
-
-      if (a.chat.value.ongoingCall != null &&
-          b.chat.value.ongoingCall == null) {
-        return -1;
-      } else if (a.chat.value.ongoingCall == null &&
-          b.chat.value.ongoingCall != null) {
-        return 1;
-      }
-
-      if (a.chat.value.id.isLocal && !b.chat.value.id.isLocal) {
-        return -1;
-      } else if (!a.chat.value.id.isLocal && b.chat.value.id.isLocal) {
-        return 1;
-      }
-
-      return b.chat.value.updatedAt.compareTo(a.chat.value.updatedAt);
-    });
-  }
-
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
     if (search.value?.search.focus.hasFocus == false &&
@@ -659,6 +656,41 @@ class ChatsTabController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Requests the next page of [Chat]s based on the [ScrollController.position]
+  /// value.
+  void _scrollListener() {
+    if (scrollController.hasClients &&
+        hasNext.isTrue &&
+        _chatService.nextLoading.isFalse &&
+        scrollController.position.pixels >
+            scrollController.position.maxScrollExtent - 500) {
+      _chatService.next();
+    }
+  }
+
+  /// Ensures the [ChatsTabView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (hasNext.isTrue) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent < 50 &&
+            _chatService.nextLoading.isFalse) {
+          await _chatService.next();
+          _ensureScrollable();
+        }
+      });
+    }
   }
 
   /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
@@ -692,10 +724,10 @@ class _ChatSortingData {
       chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != updatedAt || hasCall != hasCall) {
+        if (chat.updatedAt != updatedAt || hasCall != this.hasCall) {
           sort?.call();
           updatedAt = chat.updatedAt;
-          hasCall = hasCall;
+          this.hasCall = hasCall;
         }
       },
     );

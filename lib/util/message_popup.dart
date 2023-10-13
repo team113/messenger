@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -29,6 +30,7 @@ class MessagePopup {
   /// Shows an error popup with the provided argument.
   static Future<void> error(dynamic e) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
+
     await showDialog(
       context: router.context!,
       builder: (context) => AlertDialog(
@@ -51,27 +53,17 @@ class MessagePopup {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
   }) {
+    final style = Theme.of(router.context!).style;
+
     return ModalPopup.show(
       context: router.context!,
       child: Builder(
         builder: (context) {
-          final TextStyle? thin = Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.black);
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    title,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: title),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView(
@@ -84,10 +76,7 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: thin?.copyWith(
-                                fontSize: 15,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                              style: style.fonts.labelLargeSecondary,
                             ),
                           ),
                         ),
@@ -109,10 +98,10 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: style.fonts.bodyMediumOnPrimary,
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),

@@ -18,21 +18,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/widget/widget_button.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/menu_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the `HomeTab.menu` tab.
+/// View of the [HomeTab.menu] tab.
 class MenuTabView extends StatelessWidget {
-  const MenuTabView({Key? key}) : super(key: key);
+  const MenuTabView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,24 +42,57 @@ class MenuTabView extends StatelessWidget {
       key: const Key('MenuTab'),
       init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
-        final Style style = Theme.of(context).extension<Style>()!;
+        final style = Theme.of(context).style;
 
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: WidgetButton(
-              onPressed: () => StatusView.show(context),
+            title: ContextMenuRegion(
+              selector: c.profileKey,
+              alignment: Alignment.topLeft,
+              margin: const EdgeInsets.only(top: 7, right: 32),
+              enablePrimaryTap: true,
+              enableLongTap: false,
+              actions: [
+                ContextMenuButton(
+                  label: 'label_presence_present'.l10n,
+                  onPressed: () => c.setPresence(Presence.present),
+                  showTrailing: true,
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.acceptAuxiliary,
+                    ),
+                  ),
+                ),
+                ContextMenuButton(
+                  label: 'label_presence_away'.l10n,
+                  onPressed: () => c.setPresence(Presence.away),
+                  showTrailing: true,
+                  trailing: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.warning,
+                    ),
+                  ),
+                ),
+              ],
               child: Row(
                 children: [
                   Material(
                     elevation: 6,
                     type: MaterialType.circle,
-                    shadowColor: const Color(0x55000000),
-                    color: Colors.white,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
                     child: Center(
                       child: Obx(() {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
+                          key: c.profileKey,
                           radius: 17,
                         );
                       }),
@@ -75,21 +110,15 @@ class MenuTabView extends StatelessWidget {
                           children: [
                             Text(
                               c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.val ??
+                                  c.myUser.value?.num.toString() ??
                                   'dot'.l10n * 3,
-                              style: const TextStyle(color: Colors.black),
+                              style: style.fonts.headlineMedium,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
+                                style: style.fonts.labelMediumSecondary,
                               );
                             }),
                           ],
@@ -103,7 +132,7 @@ class MenuTabView extends StatelessWidget {
             ),
             leading: context.isNarrow
                 ? const [StyledBackButton()]
-                : const [SizedBox(width: 30)],
+                : const [SizedBox(width: 20)],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
@@ -120,82 +149,27 @@ class MenuTabView extends StatelessWidget {
                   required String title,
                   required String subtitle,
                   required IconData icon,
-                  VoidCallback? onTap,
+                  void Function()? onPressed,
                 }) {
                   return Obx(() {
-                    return Padding(
+                    final bool inverted = tab == router.profileSection.value &&
+                        router.route == Routes.me;
+
+                    return MenuButton(
                       key: key,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: SizedBox(
-                        height: 73,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            border: style.cardBorder,
-                            color: Colors.transparent,
-                          ),
-                          child: Material(
-                            type: MaterialType.card,
-                            borderRadius: style.cardRadius,
-                            color: tab == router.profileSection.value &&
-                                    router.route == Routes.me
-                                ? style.cardSelectedColor
-                                : style.cardColor,
-                            child: InkWell(
-                              borderRadius: style.cardRadius,
-                              onTap: onTap ??
-                                  () {
-                                    if (router.profileSection.value == tab) {
-                                      router.profileSection.refresh();
-                                    } else {
-                                      router.profileSection.value = tab;
-                                    }
-                                    router.me();
-                                  },
-                              hoverColor: style.cardHoveredColor,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 12),
-                                    Icon(
-                                      icon,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                    ),
-                                    const SizedBox(width: 18),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          DefaultTextStyle(
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!,
-                                            child: Text(title),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          DefaultTextStyle.merge(
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            child: Text(subtitle),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      icon: icon,
+                      title: title,
+                      subtitle: subtitle,
+                      inverted: inverted,
+                      onPressed: onPressed ??
+                          () {
+                            if (router.profileSection.value == tab) {
+                              router.profileSection.refresh();
+                            } else {
+                              router.profileSection.value = tab;
+                            }
+                            router.me();
+                          },
                     );
                   });
                 }
@@ -232,6 +206,14 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.image,
                       title: 'label_background'.l10n,
                       subtitle: 'label_app_background'.l10n,
+                    );
+                    break;
+
+                  case ProfileTab.chats:
+                    child = card(
+                      icon: Icons.chat_bubble,
+                      title: 'label_chats'.l10n,
+                      subtitle: 'label_timeline_style'.l10n,
                     );
                     break;
 
@@ -285,7 +267,7 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
-                  case ProfileTab.blacklist:
+                  case ProfileTab.blocklist:
                     child = card(
                       key: const Key('Blocked'),
                       icon: Icons.block,
@@ -321,7 +303,7 @@ class MenuTabView extends StatelessWidget {
                       icon: Icons.logout,
                       title: 'btn_logout'.l10n,
                       subtitle: 'label_end_session'.l10n,
-                      onTap: () async {
+                      onPressed: () async {
                         if (await c.confirmLogout()) {
                           router.go(await c.logout());
                           router.tab = HomeTab.chats;

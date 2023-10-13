@@ -25,6 +25,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 
 /// [ContactTile] intended to be used as a search result representing the
@@ -48,6 +49,8 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       final ChatId? chatId =
           user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
@@ -70,21 +73,22 @@ class SearchUserTile extends StatelessWidget {
           subtitle: [
             const SizedBox(height: 5),
             Text(
-              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
-                RegExp(r'.{4}'),
-                (match) => '${match.group(0)} ',
-              )}',
-              style: const TextStyle(color: Color(0xFF888888)),
+              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value ?? user?.user.value.num)}',
+              style: selected
+                  ? style.fonts.labelMediumOnPrimary
+                  : style.fonts.labelMediumSecondary,
             ),
           ],
           trailing: [
-            if (user?.user.value.isBlacklisted != null ||
-                contact?.user.value?.user.value.isBlacklisted != null)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 5),
+            if (user?.user.value.isBlocked != null ||
+                contact?.user.value?.user.value.isBlocked != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color: Color(0xFFC0C0C0),
+                  color: selected
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
               )

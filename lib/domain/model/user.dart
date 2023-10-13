@@ -23,10 +23,10 @@ import 'package:hive/hive.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model_type_id.dart';
+import '/l10n/l10n.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat.dart';
-import 'image_gallery_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
 
@@ -39,17 +39,15 @@ class User extends HiveObject {
     this.id,
     this.num, {
     this.name,
-    this.bio,
     this.avatar,
     this.callCover,
-    this.gallery,
     this.mutualContactsCount = 0,
     this.online = false,
     this.presenceIndex,
     this.status,
     this.isDeleted = false,
     ChatId? dialog,
-    this.isBlacklisted,
+    this.isBlocked,
     this.lastSeenAt,
   }) : _dialog = dialog;
 
@@ -79,39 +77,31 @@ class User extends HiveObject {
   /// It can be either first name, or last name of an [User], both of them, or
   /// even some nickname. [User] is free to choose how exactly he should be
   /// displayed for other [User]s.
-  @HiveField(3)
+  @HiveField(2)
   UserName? name;
 
-  /// Arbitrary descriptive information about this [User].
-  @HiveField(4)
-  UserBio? bio;
-
   /// Avatar of this [User].
-  @HiveField(5)
+  @HiveField(3)
   UserAvatar? avatar;
 
   /// Call cover of this [User].
   ///
   /// [callCover] is an image helping to identify an [User] visually in
   /// [UserCallCover]s.
-  @HiveField(6)
+  @HiveField(4)
   UserCallCover? callCover;
-
-  /// [ImageGalleryItem]s of this [User] ordered by their adding time.
-  @HiveField(7)
-  List<ImageGalleryItem>? gallery;
 
   /// Number of mutual [ChatContact]s that this [User] has with the
   /// authenticated [MyUser].
-  @HiveField(8)
+  @HiveField(5)
   int mutualContactsCount;
 
   /// Online state of this [User].
-  @HiveField(9)
+  @HiveField(6)
   bool online;
 
   /// Presence of this [User].
-  @HiveField(10)
+  @HiveField(7)
   int? presenceIndex;
 
   Presence? get presence =>
@@ -121,24 +111,23 @@ class User extends HiveObject {
   }
 
   /// Custom text status of this [User].
-  @HiveField(11)
+  @HiveField(8)
   UserTextStatus? status;
 
   /// Indicator whether this [User] is deleted.
-  @HiveField(12)
+  @HiveField(9)
   bool isDeleted;
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
-  @HiveField(13)
+  @HiveField(10)
   ChatId? _dialog;
 
-  /// Indicator whether this [User] is blacklisted by the authenticated
-  /// [MyUser].
-  @HiveField(14)
-  BlacklistRecord? isBlacklisted;
+  /// Indicator whether this [User] is blocked by the authenticated [MyUser].
+  @HiveField(11)
+  BlocklistRecord? isBlocked;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
-  @HiveField(17)
+  @HiveField(12)
   PreciseDateTime? lastSeenAt;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
@@ -152,8 +141,11 @@ class User extends HiveObject {
 ///
 /// See more details in [User.id].
 @HiveType(typeId: ModelTypeId.userId)
-class UserId extends NewType<String> {
+class UserId extends NewType<String> implements Comparable<UserId> {
   const UserId(String val) : super(val);
+
+  @override
+  int compareTo(UserId other) => val.compareTo(other.val);
 }
 
 /// Unique number of an [User].
@@ -163,12 +155,30 @@ class UserId extends NewType<String> {
 class UserNum extends NewType<String> {
   const UserNum._(String val) : super(val);
 
-  UserNum(String val) : super(val) {
+  factory UserNum(String val) {
+    val = val.replaceAll(' ', '');
+
     if (val.length != 16) {
       throw const FormatException('Must be 16 characters long');
     } else if (!val.isNumericOnly) {
       throw const FormatException('Must be numeric only');
     }
+
+    return UserNum._(val);
+  }
+
+  /// Returns [UserNum] as [String] formatted in quartets.
+  @override
+  String toString() {
+    String formattedUserNum = '';
+
+    for (int i = 0; i < val.length; i++) {
+      if (i % 4 == 0 && i > 0) {
+        formattedUserNum += 'space'.l10n;
+      }
+      formattedUserNum += val[i];
+    }
+    return formattedUserNum.trim();
   }
 
   /// Creates an object without any validation.
@@ -216,23 +226,6 @@ class UserName extends NewType<String> {
 
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
-}
-
-/// Arbitrary descriptive information about an [User].
-@HiveType(typeId: ModelTypeId.userBio)
-class UserBio extends NewType<String> {
-  const UserBio._(String val) : super(val);
-
-  UserBio(String val) : super(val) {
-    if (val.isEmpty) {
-      throw const FormatException('Must not be empty');
-    } else if (val.length > 300) {
-      throw const FormatException('Must contain no more than 300 characters');
-    }
-  }
-
-  /// Creates an object without any validation.
-  const factory UserBio.unchecked(String val) = UserBio._;
 }
 
 /// Password of an [User].
@@ -342,13 +335,23 @@ class ChatDirectLinkSlug extends NewType<String> {
     final Random r = Random();
     const String chars =
         'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
+
     return ChatDirectLinkSlug(
-      List.generate(length, (_) => chars[r.nextInt(chars.length)]).join(),
+      List.generate(length, (i) {
+        // `-` and `_` being the last might not be parsed as a link by some
+        // applications.
+        if (i == length - 1) {
+          final str = chars.replaceFirst('-', '').replaceFirst('_', '');
+          return str[r.nextInt(str.length)];
+        }
+
+        return chars[r.nextInt(chars.length)];
+      }).join(),
     );
   }
 
   /// Regular expression for basic [ChatDirectLinkSlug] validation.
-  static final RegExp _regExp = RegExp(r'^[A-z0-9_-]{1,100}$');
+  static final RegExp _regExp = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
 }
 
 /// Status of an [User].
@@ -368,32 +371,37 @@ class UserTextStatus extends NewType<String> {
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
 }
 
-/// [User]'s record in the blacklist of the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.blacklistRecord)
-class BlacklistRecord {
-  BlacklistRecord({
+/// [User]'s record in a blocklist of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blocklistRecord)
+class BlocklistRecord {
+  BlocklistRecord({
+    required this.userId,
     this.reason,
     required this.at,
   });
 
-  /// Reason of why the [User] was blacklisted.
+  /// Blocked [User].
   @HiveField(0)
-  final BlacklistReason? reason;
+  final UserId userId;
 
-  /// [PreciseDateTime] when the [User] was blacklisted.
+  /// Reason of why the [User] was blocked.
   @HiveField(1)
+  final BlocklistReason? reason;
+
+  /// [PreciseDateTime] when the [User] was blocked.
+  @HiveField(2)
   final PreciseDateTime at;
 
   @override
   bool operator ==(Object other) =>
-      other is BlacklistRecord && at == other.at && reason == other.reason;
+      other is BlocklistRecord && at == other.at && reason == other.reason;
 
   @override
   int get hashCode => Object.hash(at, reason);
 }
 
-/// Reason of blacklisting a [User] by the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.blacklistReason)
-class BlacklistReason extends NewType<String> {
-  const BlacklistReason(super.val);
+/// Reason of blocking a [User] by the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.blocklistReason)
+class BlocklistReason extends NewType<String> {
+  const BlocklistReason(super.val);
 }

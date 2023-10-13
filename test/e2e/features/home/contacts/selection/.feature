@@ -23,9 +23,11 @@ Feature: Contacts selection
     And contacts Bob and Charlie
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
+    And I wait until "Bob" contact is present
+    And I wait until "Charlie" contact is present
 
-    When I long press "Bob" contact
-    And I tap `SelectContactButton` button
+    When I tap `ContactsMenu` button
+    And I tap `SelectContactsButton` button
     Then I see "Bob" contact as unselected
     And I see "Charlie" contact as unselected
 

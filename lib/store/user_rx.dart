@@ -21,6 +21,7 @@ import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
@@ -36,10 +37,26 @@ class HiveRxUser extends RxUser {
     this._userRepository,
     this._userLocal,
     HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+  )   : user = Rx<User>(hiveUser.value),
+        lastSeen = Rx(hiveUser.value.lastSeenAt) {
+    // Start the [_lastSeenTimer] right away.
+    _runLastSeenTimer();
+
+    // Re-run [_runLastSeenTimer], if [User.lastSeenAt] has been changed.
+    PreciseDateTime? at = user.value.lastSeenAt;
+    _worker = ever(user, (User user) {
+      if (at != user.lastSeenAt) {
+        _runLastSeenTimer();
+        at = user.lastSeenAt;
+      }
+    });
+  }
 
   @override
   final Rx<User> user;
+
+  @override
+  final Rx<PreciseDateTime?> lastSeen;
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
@@ -60,6 +77,12 @@ class HiveRxUser extends RxUser {
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
 
+  /// [Timer] refreshing the [lastSeen] to synchronize its updates.
+  Timer? _lastSeenTimer;
+
+  /// [Worker] reacting on [User] changes.
+  Worker? _worker;
+
   @override
   Rx<RxChat?> get dialog {
     final ChatId id = user.value.dialog;
@@ -69,6 +92,12 @@ class HiveRxUser extends RxUser {
     }
 
     return _dialog;
+  }
+
+  /// Disposes this [HiveRxUser].
+  void dispose() {
+    _lastSeenTimer?.cancel();
+    _worker?.dispose();
   }
 
   @override
@@ -129,15 +158,6 @@ class HiveRxUser extends RxUser {
               userEntity.value.avatar = event.avatar;
               break;
 
-            case UserEventKind.bioDeleted:
-              userEntity.value.bio = null;
-              break;
-
-            case UserEventKind.bioUpdated:
-              event as EventUserBioUpdated;
-              userEntity.value.bio = event.bio;
-              break;
-
             case UserEventKind.cameOffline:
               event as EventUserCameOffline;
               userEntity.value.online = false;
@@ -155,18 +175,6 @@ class HiveRxUser extends RxUser {
             case UserEventKind.callCoverUpdated:
               event as EventUserCallCoverUpdated;
               userEntity.value.callCover = event.callCover;
-              break;
-
-            case UserEventKind.galleryItemAdded:
-              event as EventUserGalleryItemAdded;
-              userEntity.value.gallery ??= [];
-              userEntity.value.gallery?.insert(0, event.galleryItem);
-              break;
-
-            case UserEventKind.galleryItemDeleted:
-              event as EventUserGalleryItemDeleted;
-              userEntity.value.gallery
-                  ?.removeWhere((item) => item.id == event.galleryItemId);
               break;
 
             case UserEventKind.nameDeleted:
@@ -201,9 +209,9 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.blacklistEvent:
+      case UserEventsKind.blocklistEvent:
         var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsBlacklistEventsEvent).event;
+        var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
         if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
@@ -215,8 +223,8 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.isBlacklisted:
-        var versioned = events as UserEventsIsBlacklisted;
+      case UserEventsKind.isBlocked:
+        var versioned = events as UserEventsIsBlocked;
         var userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
@@ -225,11 +233,67 @@ class HiveRxUser extends RxUser {
             break;
           }
 
-          userEntity.value.isBlacklisted = versioned.record;
+          userEntity.value.isBlocked = versioned.record;
           userEntity.blacklistedVer = versioned.ver;
           _userLocal.put(userEntity);
         }
         break;
     }
+  }
+
+  // TODO: Cover with unit tests.
+  /// Starts the [_lastSeenTimer] refreshing the [lastSeen].
+  void _runLastSeenTimer() {
+    _lastSeenTimer?.cancel();
+    if (user.value.lastSeenAt == null) {
+      return;
+    }
+
+    final DateTime now = DateTime.now();
+    final Duration difference =
+        now.difference(user.value.lastSeenAt!.val).abs();
+
+    final Duration delay;
+    final Duration period;
+
+    if (difference.inHours < 1) {
+      period = const Duration(minutes: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerMinute -
+            difference.inMicroseconds % Duration.microsecondsPerMinute,
+      );
+    } else if (difference.inDays < 1) {
+      period = const Duration(hours: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerHour -
+            difference.inMicroseconds % Duration.microsecondsPerHour,
+      );
+    } else {
+      period = const Duration(days: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerDay -
+            difference.inMicroseconds % Duration.microsecondsPerDay,
+      );
+    }
+
+    lastSeen.value = user.value.lastSeenAt;
+    lastSeen.refresh();
+
+    _lastSeenTimer = Timer(
+      delay,
+      () {
+        lastSeen.value = user.value.lastSeenAt;
+        lastSeen.refresh();
+
+        _lastSeenTimer?.cancel();
+        _lastSeenTimer = Timer.periodic(
+          period,
+          (timer) {
+            lastSeen.value = user.value.lastSeenAt;
+            lastSeen.refresh();
+          },
+        );
+      },
+    );
   }
 }

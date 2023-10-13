@@ -6,6 +6,7 @@ Contribution Guide
 3. [Operations](#operations)
 4. [Structure overview](#structure-overview)
 5. [Code style](#code-style)
+6. [Backend connectivity](#backend-connectivity)
 
 
 
@@ -193,6 +194,139 @@ All [Dart] source code must follow [Effective Dart] official recommendations, an
 Any rules described here are in priority if they have conflicts with [Effective Dart] recommendations.
 
 
+### Documentation
+
+__DO__ document your code. Documentation must follow [Effective Dart] official recommendations with the following exception:
+- prefer omitting leading `A`, `An` or `The` article.
+
+
+### Imports inside `/lib` directory
+
+__DO__ use absolute or relative imports within `/lib` directory.
+
+#### 🚫 Wrong
+```dart
+import '../../../../ui/widget/animated_button.dart'; // Too deep.
+import 'package:messenger/ui/widget/modal_popup.dart'; // `package:` import.
+```
+
+#### 👍 Correct
+```dart
+import '../animated_button.dart';
+import '/ui/widget/modal_popup.dart';
+import 'home/page/widget/animated_button.dart';
+import 'widget/animated_button.dart';
+```
+
+
+### Classes, constructors, fields and methods ordering
+
+__DO__ place constructors first in class, as stated in [Flutter style guidelines][3]:
+
+> This helps readers determine whether the class has a default implied constructor or not at a glance. If it was possible for a constructor to be anywhere in the class, then the reader would have to examine every line of the class to determine whether or not there was an implicit constructor or not.
+
+The methods, fields, getters, etc should sustain a consistent ordering to help read and understand code fluently. First rule is public first: when reading code someone else wrote, you usually interested in API you're working with: public classes, fields, methods, etc. Private counterparts are consider implementation-specific and should be moved lower in a file. Second rule is a recommendation towards ordering of constructors, methods, fields, etc, inside a class. The following order is suggested (notice the public/private rule being applied as well):
+1. Default constructor
+2. Named/other constructors
+3. Public fields
+4. Private fields
+5. Public getters/setters
+6. Private getters/setters
+7. Public methods
+8. Private methods
+
+#### 🚫 Wrong
+```dart
+class _ChatWatcher {
+    // ...
+}
+
+class Chat {
+    final ChatId id;
+    final ChatKind kind;
+
+    final Map<UserId, _ChatWatcher> _reads = {};
+
+    Chat.monolog(this.id) : kind = ChatKind.monolog;
+    Chat.dialog(this.id) : kind = ChatKind.dialog;
+    Chat.group(this.id) : kind = ChatKind.group;
+    Chat(this.id, this.kind);
+
+    void _ensureWatcher(UserId userId) {
+        // ...
+    }
+    
+    void dispose() {
+        // ...
+    }
+
+    bool isReadBy(UserId userId) {
+        // ...
+    }
+
+    bool get isMonolog => kind == ChatKind.monolog;
+    bool get isDialog => kind == ChatKind.dialog;
+    bool get isGroup => kind == ChatKind.group;
+}
+
+class ChatId {
+    // ...
+}
+
+enum ChatKind {
+    monolog,
+    dialog,
+    group,
+}
+```
+
+#### 👍 Correct
+```dart
+enum ChatKind {
+    monolog,
+    dialog,
+    group,
+}
+
+class Chat {
+    Chat(this.id, this.kind);
+
+    Chat.monolog(this.id) : kind = ChatKind.monolog;
+    Chat.dialog(this.id) : kind = ChatKind.dialog;
+    Chat.group(this.id) : kind = ChatKind.group;
+
+    final ChatId id;
+    final ChatKind kind;
+
+    final Map<UserId, _ChatWatcher> _reads = {};
+
+    bool get isMonolog => kind == ChatKind.monolog;
+    bool get isDialog => kind == ChatKind.dialog;
+    bool get isGroup => kind == ChatKind.group;
+
+    void dispose() {
+        // ...
+    }
+
+    bool isReadBy(UserId userId) {
+        // ...
+    }
+
+    void _ensureWatcher(UserId userId) {
+        // ...
+    }
+}
+
+class ChatId {
+    // ...
+}
+
+class _ChatWatcher {
+    // ...
+}
+```
+
+
 ### Explicit dependencies injection
 
 __DO__ pass all the dependencies of your class/service/etc needs via its constructor.
@@ -301,12 +435,49 @@ class UserBio {
 
 
 
+## Backend connectivity
+
+### Local development
+
+Development [GraphQL] API playground is available [here][4].
+
+In order to connect to the development backend [GraphQL] endpoint, you should either use the following `--dart-define`s:
+
+```bash
+--dart-define=SOCAPP_HTTP_URL=https://messenger.soc.stg.t11913.org
+--dart-define=SOCAPP_WS_URL=wss://messenger.soc.stg.t11913.org
+--dart-define=SOCAPP_HTTP_PORT=443
+--dart-define=SOCAPP_WS_PORT=443
+--dart-define=SOCAPP_CONF_REMOTE=false
+```
+
+__Or__ pass the following configuration to `assets/conf.toml`:
+
+```toml
+[conf]
+remote = false
+
+[server.http]
+url = "https://messenger.soc.stg.t11913.org"
+port = 443
+
+[server.ws]
+url = "wss://messenger.soc.stg.t11913.org"
+port = 443
+```
+
+__Note__, that passing `--dart-define`s to `make e2e` or `flutter drive` commands is __not__ possible. Use the `assets/conf.toml` in order to run E2E tests on the development backend. Be sure not to commit the modified `assets/conf.toml` file.
+
+
+
+
 [Dart]: https://dart.dev
 [dartfmt]: https://dart.dev/tools/dart-format
 [Docker]: https://www.docker.com
 [Effective Dart]: https://dart.dev/guides/language/effective-dart
 [Fluent]: https://projectfluent.org
 [Flutter]: https://flutter.dev
+[GraphQL]: https://graphql.org
 
 [`GetMaterialApp`]:https://pub.dev/documentation/get_navigation/latest/get_navigation/GetMaterialApp-class.html
 [`GetX`]: https://pub.dev/packages/get
@@ -317,3 +488,5 @@ class UserBio {
 
 [1]: https://flutter.dev/docs/get-started/install
 [2]: https://api.flutter.dev/flutter/dart-ui/Locale/toLanguageTag.html
+[3]: https://github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo#constructors-come-first-in-a-class
+[4]: https://messenger.soc.stg.t11913.org/api/graphql/playground

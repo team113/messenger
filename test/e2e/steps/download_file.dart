@@ -69,23 +69,30 @@ final StepDefinitionGeneric downloadFile = then1<String, CustomWorld>(
 final StepDefinitionGeneric cancelFileDownload = then1<String, CustomWorld>(
   'I cancel {string} file download',
   (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    Attachment attachment = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .expand((e) => e.attachments)
-        .firstWhere((a) => a.filename == name);
+      try {
+        RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        Attachment attachment = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .expand((e) => e.attachments)
+            .firstWhere((a) => a.filename == name);
 
-    Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('File_${attachment.id}');
-    Finder cancelButton = context.world.appDriver.findByDescendant(
-      finder,
-      context.world.appDriver.findByKeySkipOffstage('CancelDownloading'),
-    );
+        Finder finder = context.world.appDriver
+            .findByKeySkipOffstage('File_${attachment.id}');
+        Finder cancelButton = context.world.appDriver.findByDescendant(
+          finder,
+          context.world.appDriver.findByKeySkipOffstage('CancelDownloading'),
+        );
 
-    await context.world.appDriver.nativeDriver.tap(cancelButton);
+        await context.world.appDriver.nativeDriver.tap(cancelButton);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 20));
   },
 );

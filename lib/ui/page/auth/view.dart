@@ -15,43 +15,52 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
-import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/ui/page/home/page/my_profile/language/controller.dart';
-import '/ui/page/home/page/my_profile/widget/download_button.dart';
+import '/themes.dart';
+import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
-import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/animated_logo.dart';
+import 'widget/cupertino_button.dart';
 
 /// View of the [Routes.auth] page.
 class AuthView extends StatelessWidget {
-  const AuthView({Key? key}) : super(key: key);
+  const AuthView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb;
-        bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
-        bool isIosWeb = isWeb && PlatformUtils.isIOS;
-        bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
-
-        final TextStyle? thin =
-            context.textTheme.bodySmall?.copyWith(color: Colors.black);
-        final Color primary = Theme.of(context).colorScheme.primary;
+        final Widget status = Column(
+          children: [
+            const SizedBox(height: 4),
+            StyledCupertinoButton(
+              label: 'btn_download_application'.l10n,
+              style: style.fonts.labelLargeSecondary,
+              onPressed: () => _download(context),
+            ),
+            const SizedBox(height: 4),
+            StyledCupertinoButton(
+              padding: const EdgeInsets.all(8),
+              label: 'btn_work_with_us'.l10n,
+              style: style.fonts.labelMediumSecondary,
+              onPressed: () => router.work(null),
+            ),
+            const SizedBox(height: 8),
+          ],
+        );
 
         // Header part of the page.
         //
@@ -59,16 +68,9 @@ class AuthView extends StatelessWidget {
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/logo000$i.svg')
-              .map((e) => Offstage(child: SvgLoader.asset(e)))
-              .toList(),
-          ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: SvgLoader.asset(e)))
-              .toList(),
-          const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: thin?.copyWith(fontSize: 24, color: primary),
+            style: style.fonts.displayLargeSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -76,7 +78,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: thin?.copyWith(fontSize: 15.4, color: primary),
+            style: style.fonts.displaySmallSecondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -84,198 +86,110 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
         ];
 
-        const double height = 250;
-
-        // Animated logo widget.
-        Widget logo = LayoutBuilder(builder: (context, constraints) {
-          Widget placeholder = SizedBox(
-            height: constraints.maxHeight > 250
-                ? height
-                : constraints.maxHeight <= 140
-                    ? 140
-                    : height,
-            child: const Center(child: CustomProgressIndicator()),
-          );
-
-          return ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 350),
-              child: AnimatedSize(
-                curve: Curves.ease,
-                duration: const Duration(milliseconds: 200),
-                child: SizedBox(
-                  height: constraints.maxHeight >= height ? height : 140,
-                  child: constraints.maxHeight >= height
-                      ? Container(
-                          key: const ValueKey('logo'),
-                          child: RiveAnimation.asset(
-                            'assets/images/logo/logo.riv',
-                            onInit: (a) {
-                              if (!Config.disableInfiniteAnimations) {
-                                final StateMachineController? machine =
-                                    StateMachineController.fromArtboard(
-                                        a, 'Machine');
-                                a.addController(machine!);
-                                c.blink = machine.findInput<bool>('blink')
-                                    as SMITrigger?;
-
-                                Future.delayed(
-                                  const Duration(milliseconds: 500),
-                                  c.animate,
-                                );
-                              }
-                            },
-                          ),
-                        )
-                      : Obx(() {
-                          return SvgLoader.asset(
-                            'assets/images/logo/head000${c.logoFrame.value}.svg',
-                            placeholderBuilder: (context) => placeholder,
-                            height: 140,
-                          );
-                        }),
-                ),
-              ));
-        });
-
-        // Language selection popup.
-        Widget language = CupertinoButton(
-          key: c.languageKey,
-          child: Text(
-            'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            style: thin?.copyWith(fontSize: 13, color: primary),
-          ),
-          onPressed: () => LanguageSelectionView.show(context, null),
-        );
-
         // Footer part of the page.
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
-            key: const Key('StartButton'),
-            title: Text(
-              'btn_start'.l10n,
-              style: const TextStyle(color: Colors.white),
-            ),
-            leading: Container(
-              child: SvgLoader.asset(
-                'assets/icons/start.svg',
-                width: 25 * 0.7,
+            key: const Key('RegisterButton'),
+            title: Text('btn_sign_up'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(3, 0),
+              child: const SvgImage.asset(
+                'assets/icons/register.svg',
+                width: 23,
+                height: 23,
               ),
-            ),
-            onPressed: c.register,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n),
-            leading: SvgLoader.asset(
-              'assets/icons/sign_in.svg',
-              width: 20 * 0.7,
             ),
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
-          if (isIosWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: Padding(
-                padding: const EdgeInsets.only(bottom: 3 * 0.7),
-                child: SvgLoader.asset(
-                  'assets/icons/apple.svg',
-                  width: 22 * 0.7,
-                ),
+          OutlinedRoundedButton(
+            key: const Key('SignInButton'),
+            title: Text('btn_sign_in'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgImage.asset(
+                'assets/icons/enter.svg',
+                width: 19.42,
+                height: 24,
               ),
-              onPressed: () => _download(context),
             ),
-          if (isAndroidWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 2 * 0.7),
-                child: SvgLoader.asset(
-                  'assets/icons/google.svg',
-                  width: 22 * 0.7,
-                ),
+            onPressed: () =>
+                LoginView.show(context, initial: LoginViewStage.signIn),
+          ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            key: const Key('StartButton'),
+            subtitle: Text('btn_one_time_account_desc'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgImage.asset(
+                'assets/icons/one_time.svg',
+                width: 19.88,
+                height: 26,
               ),
-              onPressed: () => _download(context),
             ),
-          if (isDesktopWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n),
-              leading: PlatformUtils.isMacOS
-                  ? SvgLoader.asset(
-                      'assets/icons/apple.svg',
-                      width: 22 * 0.7,
-                    )
-                  : (PlatformUtils.isWindows)
-                      ? SvgLoader.asset(
-                          'assets/icons/windows.svg',
-                          width: 22 * 0.7,
-                        )
-                      : (PlatformUtils.isLinux)
-                          ? SvgLoader.asset(
-                              'assets/icons/linux.svg',
-                              width: 22 * 0.7,
-                            )
-                          : null,
-              onPressed: () => _download(context),
-            ),
-          const SizedBox(height: 20),
-          language,
+            onPressed: c.register,
+          ),
+          const SizedBox(height: 15),
         ];
 
-        return Stack(
-          key: const Key('AuthView'),
+        final Widget column = Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            IgnorePointer(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: const Color(0xFFF6F8F9),
-              ),
-            ),
-            IgnorePointer(
-              child: SvgLoader.asset(
-                'assets/images/background_light.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            GestureDetector(
-              onTap: c.animate,
-              child: Scaffold(
-                backgroundColor: Colors.transparent,
-                body: Center(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              max(550, MediaQuery.of(context).size.height),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ...header,
-                            Flexible(child: logo),
-                            ...footer,
-                            SizedBox(
-                              height: MediaQuery.of(context).viewPadding.bottom,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+            ...header,
+            Obx(() {
+              return AnimatedLogo(
+                key: const ValueKey('Logo'),
+                index: c.logoFrame.value,
+              );
+            }),
+            ...footer,
+          ],
+        );
+
+        return Listener(
+          key: const Key('AuthView'),
+          onPointerDown: (_) => c.animate(),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // For web, background color is displayed in `index.html` file.
+              if (!PlatformUtils.isWeb)
+                IgnorePointer(
+                  child: ColoredBox(color: style.colors.background),
+                ),
+              const IgnorePointer(
+                child: SvgImage.asset(
+                  'assets/images/background_light.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-          ],
+              CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Expanded(child: Center(child: column)),
+                        const SizedBox(height: 8),
+                        status,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
@@ -288,17 +202,7 @@ class AuthView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ModalPopupHeader(
-            header: Center(
-              child: Text(
-                'btn_download'.l10n,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(color: Colors.black, fontSize: 18),
-              ),
-            ),
-          ),
+          ModalPopupHeader(text: 'btn_download'.l10n),
           const SizedBox(height: 12),
           Flexible(
             child: ListView(
@@ -307,33 +211,33 @@ class AuthView extends StatelessWidget {
               children: const [
                 DownloadButton(
                   asset: 'windows',
-                  width: 21.93,
-                  height: 22,
+                  width: 23.93,
+                  height: 24,
                   title: 'Windows',
                   link: 'messenger-windows.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
                   asset: 'apple',
-                  width: 23,
-                  height: 29,
+                  width: 21.07,
+                  height: 27,
                   title: 'macOS',
                   link: 'messenger-macos.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
                   asset: 'linux',
-                  width: 18.85,
-                  height: 22,
+                  width: 20.57,
+                  height: 24,
                   title: 'Linux',
                   link: 'messenger-linux.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  asset: 'apple',
+                  asset: 'app_store',
                   width: 23,
-                  height: 29,
-                  title: 'iOS',
+                  height: 23,
+                  title: 'App Store',
                   link: 'messenger-ios.zip',
                 ),
                 SizedBox(height: 8),
@@ -341,6 +245,14 @@ class AuthView extends StatelessWidget {
                   asset: 'google',
                   width: 20.33,
                   height: 22.02,
+                  title: 'Google Play',
+                  link: 'messenger-android.apk',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: 'android',
+                  width: 20.99,
+                  height: 25,
                   title: 'Android',
                   link: 'messenger-android.apk',
                 ),

@@ -15,11 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/search.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
@@ -30,9 +33,8 @@ class ContactService extends DisposableService {
   /// Repository to fetch [ChatContact]s from.
   final AbstractContactRepository _contactRepository;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [contacts] value is fetched.
-  RxBool get isReady => _contactRepository.isReady;
+  /// Returns the [RxStatus] of the [contacts] and [favorites] initialization.
+  Rx<RxStatus> get status => _contactRepository.status;
 
   /// Returns the current reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
@@ -42,21 +44,9 @@ class ContactService extends DisposableService {
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
-  @override
-  void onInit() {
-    _contactRepository.init();
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _contactRepository.dispose();
-    super.onClose();
-  }
-
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) => _contactRepository
-      .createChatContact(user.name ?? UserName(user.num.val), user.id);
+      .createChatContact(user.name ?? UserName(user.num.toString()), user.id);
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
   /// address book.
@@ -80,4 +70,16 @@ class ContactService extends DisposableService {
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id) =>
       _contactRepository.unfavoriteChatContact(id);
+
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  }) =>
+      _contactRepository.search(
+        name: name,
+        email: email,
+        phone: phone,
+      );
 }

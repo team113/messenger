@@ -33,9 +33,8 @@ class ChatCall extends ChatItem {
   ChatCall(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
-    required this.caller,
     required this.members,
     required this.withVideo,
     this.conversationStartedAt,
@@ -45,33 +44,29 @@ class ChatCall extends ChatItem {
     this.dialed,
   });
 
-  /// [User] who started this [ChatCall].
-  @HiveField(5)
-  final User? caller;
-
   /// Indicator whether this [ChatCall] is intended to start with video.
-  @HiveField(6)
+  @HiveField(5)
   final bool withVideo;
 
   /// [ChatCallMember]s of this [ChatCall].
-  @HiveField(7)
+  @HiveField(6)
   List<ChatCallMember> members;
 
   /// Link for joining this [ChatCall]'s room on a media server.
-  @HiveField(8)
+  @HiveField(7)
   ChatCallRoomJoinLink? joinLink;
 
   /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
   /// started (after ringing had been finished).
-  @HiveField(9)
+  @HiveField(8)
   PreciseDateTime? conversationStartedAt;
 
   /// [PreciseDateTime] when this [ChatCall] was finished.
-  @HiveField(10)
+  @HiveField(9)
   PreciseDateTime? finishedAt;
 
   /// Reason of why this [ChatCall] was finished.
-  @HiveField(11)
+  @HiveField(10)
   int? finishReasonIndex;
 
   ChatCallFinishReason? get finishReason => finishReasonIndex == null
@@ -88,7 +83,7 @@ class ChatCall extends ChatItem {
   /// [ChatMembersDialedConcrete.members] contain him or the
   /// [ChatMembersDialedAll.answeredMembers] do not while the [dialed] is not
   /// `null`.
-  @HiveField(12)
+  @HiveField(11)
   final ChatMembersDialed? dialed;
 }
 

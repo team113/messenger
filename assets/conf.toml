@@ -60,3 +60,34 @@
 #
 # Default:
 #   directory = ""
+
+[user.agent]
+# Product identifier of `User-Agent` header to put in network queries.
+#
+# Unused for Web, as browser picks the `User-Agent` itself.
+#
+# Default:
+#   product = "Gapopa"
+
+# Product version of `User-Agent` header to put in network queries.
+#
+# If an empty string is passed, then the default value is used.
+#
+# Unused for Web, as browser picks the `User-Agent` itself.
+#
+# Default:
+#   version = "$(git describe --tags --dirty)"
+
+[windows]
+# Unique identifier of Windows application.
+#
+# Default:
+#   clsid = "00000000-0000-0000-0000-000000000000"
+
+[fcm]
+# Voluntary Application Server Identification key for Web Push.
+#
+# Used for Web only.
+#
+# Default:
+#   vapidKey = "BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0"

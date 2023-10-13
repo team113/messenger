@@ -17,22 +17,30 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/widget/widget_button.dart';
+import '/themes.dart';
+import '/ui/widget/animated_button.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({super.key});
+  const StyledBackButton({super.key, this.onPressed});
+
+  /// Callback, called when this button is pressed.
+  ///
+  /// Invokes [Navigator.maybePop], if not specified.
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    if (ModalRoute.of(context)?.canPop == true) {
-      return WidgetButton(
-        onPressed: () => Navigator.maybePop(context),
+    final style = Theme.of(context).style;
+
+    if (onPressed != null || ModalRoute.of(context)?.canPop == true) {
+      return AnimatedButton(
+        onPressed: onPressed ?? () => Navigator.maybePop(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Icon(
             Icons.arrow_back_ios_rounded,
-            color: Theme.of(context).colorScheme.secondary,
+            color: style.colors.primary,
             size: 22,
           ),
         ),

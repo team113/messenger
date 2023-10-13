@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -50,7 +50,7 @@ import '/util/platform_utils.dart';
 
 export 'view.dart';
 
-/// Controller of the `HomeTab.contacts` tab.
+/// Controller of the [HomeTab.contacts] tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatService,
@@ -86,6 +86,15 @@ class ContactsTabController extends GetxController {
   /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
+  /// [Timer] displaying the [contacts] and [favorites] being fetched when it
+  /// becomes `null`.
+  late final Rx<Timer?> fetching = Rx(
+    Timer(2.seconds, () => fetching.value = null),
+  );
+
+  /// [GlobalKey] of the more button.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
 
@@ -117,8 +126,8 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Indicates whether [ContactService] is ready to be used.
-  RxBool get contactsReady => _contactService.isReady;
+  /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
+  Rx<RxStatus> get status => _contactService.status;
 
   /// Indicates whether [contacts] should be sorted by their names or otherwise
   /// by their [User.lastSeenAt] dates.
@@ -157,6 +166,8 @@ class ContactsTabController extends GetxController {
     if (PlatformUtils.isMobile) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    fetching.value?.cancel();
 
     super.onClose();
   }
@@ -228,9 +239,9 @@ class ContactsTabController extends GetxController {
     double position;
 
     if (to <= 0) {
-      position = favorites.first.contact.value.favoritePosition!.val / 2;
+      position = favorites.first.contact.value.favoritePosition!.val * 2;
     } else if (to >= favorites.length) {
-      position = favorites.last.contact.value.favoritePosition!.val * 2;
+      position = favorites.last.contact.value.favoritePosition!.val / 2;
     } else {
       position = (favorites[to].contact.value.favoritePosition!.val +
               favorites[to - 1].contact.value.favoritePosition!.val) /
@@ -449,8 +460,8 @@ class ContactsTabController extends GetxController {
   /// Sorts the [favorites] by the [ChatContact.favoritePosition].
   void _sortFavorites() {
     favorites.sort(
-      (a, b) => a.contact.value.favoritePosition!
-          .compareTo(b.contact.value.favoritePosition!),
+      (a, b) => b.contact.value.favoritePosition!
+          .compareTo(a.contact.value.favoritePosition!),
     );
   }
 

@@ -41,6 +41,10 @@ FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d '"'))
 
+FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
+FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
+FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
+
 
 
 
@@ -64,6 +68,9 @@ down: docker.down
 
 
 e2e: test.e2e
+
+
+fcm: fcm.conf
 
 
 fmt: flutter.fmt
@@ -202,7 +209,8 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.gen overwrite=$(overwrite) dockerized=no
 else
-	flutter pub run build_runner build \
+	rm -f lib/pubspec.g.dart
+	dart run build_runner build \
 		$(if $(call eq,$(overwrite),no),,--delete-conflicting-outputs)
 endif
 
@@ -328,7 +336,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make docs.dart open=no dockerized=no clean=no
 else
-	flutter pub run dartdoc
+	dart run dartdoc
 ifeq ($(open),yes)
 	flutter pub global run dhttpd --path doc/api
 endif
@@ -774,6 +782,31 @@ endif
 
 
 
+#####################
+# Firebase commands #
+#####################
+
+# Configure FCM (Firebase Cloud Messaging).
+#
+# Usage:
+#	make fcm.conf [project-id=($(FCM_PROJECT_ID)|<project-id>)]
+#	              [platforms=android,ios,macos,web|<platforms>]
+#	              [web-id=($(FCM_WEB_ID)|<web-id>)]
+#	              [bundle-id=($(FCM_BUNDLE_ID)|<bundle-id>)]
+
+fcm.conf:
+	flutterfire configure -y \
+		--project=$(or $(project-id),$(FCM_PROJECT)) \
+		--platforms=$(strip $(or $(platforms),\
+		                    android$(comma)ios$(comma)macos$(comma)web)) \
+		--ios-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--macos-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--android-package-name=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--web-app-id=$(or $(web-id),$(FCM_WEB))
+
+
+
+
 ################
 # Git commands #
 ################
@@ -799,12 +832,13 @@ endif
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs down e2e fmt gen lint release run test up \
+.PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
+        fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \

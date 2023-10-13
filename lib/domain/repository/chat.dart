@@ -20,31 +20,40 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
-import '../model/attachment.dart';
-import '../model/avatar.dart';
-import '../model/chat.dart';
-import '../model/chat_item.dart';
-import '../model/chat_item_quote_input.dart';
-import '../model/mute_duration.dart';
-import '../model/my_user.dart';
-import '../model/native_file.dart';
-import '../model/user.dart';
-import '../model/user_call_cover.dart';
-import '../repository/user.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
+import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
 abstract class AbstractChatRepository {
-  /// Returns reactive map of [RxChat]s.
+  /// Returns reactive map of [RxChat]s in the current pagination view.
+  RxObsMap<ChatId, RxChat> get paginated;
+
+  /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Indicates whether this repository was initialized and [chats] can be
-  /// used.
-  RxBool get isReady;
+  /// Returns the initialization [RxStatus] of this repository.
+  Rx<RxStatus> get status;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
   ChatId get monolog;
+
+  /// Indicates whether the [paginated] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [paginated] is loading.
+  RxBool get nextLoading;
 
   /// Initializes this repository.
   ///
@@ -55,13 +64,16 @@ abstract class AbstractChatRepository {
   });
 
   /// Clears the stored [chats].
-  Future<void> clearCache();
+  Future<void> clear();
 
   /// Returns an [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id);
 
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
+
+  /// Fetches the next [paginated] page.
+  Future<void> next();
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
   ///
@@ -119,7 +131,10 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
+  Future<void> editChatMessage(
+    ChatMessage message, {
+    ChatMessageTextInput? text,
+  });
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> deleteChatMessage(ChatMessage message);
@@ -191,7 +206,7 @@ abstract class AbstractChatRepository {
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.
-abstract class RxChat {
+abstract class RxChat implements Comparable<RxChat> {
   /// Reactive value of a [Chat] this [RxChat] represents.
   Rx<Chat> get chat;
 
@@ -236,6 +251,18 @@ abstract class RxChat {
   /// [ChatMessage] being a draft in this [chat].
   Rx<ChatMessage?> get draft;
 
+  /// Indicates whether the [messages] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [messages] is loading.
+  RxBool get nextLoading;
+
+  /// Indicates whether the [messages] have previous page.
+  RxBool get hasPrevious;
+
+  /// Indicator whether a previous page of the [messages] is loading.
+  RxBool get previousLoading;
+
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
 
@@ -250,11 +277,24 @@ abstract class RxChat {
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
-              .isBlacklisted !=
+              .isBlocked !=
           null;
 
-  /// Fetches the [messages] from the service.
-  Future<void> fetchMessages();
+  /// Returns the first [ChatItem] unread by the currently authenticated
+  /// [MyUser] in this [chat].
+  Rx<ChatItem>? get firstUnread;
+
+  /// Returns the last [ChatItem] of this [RxChat].
+  ChatItem? get lastItem;
+
+  /// Fetches the initial [messages] page around the [firstUnread].
+  Future<void> around();
+
+  /// Fetches the next [messages] page.
+  Future<void> next();
+
+  /// Fetches the previous [messages] page.
+  Future<void> previous();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///
@@ -273,4 +313,8 @@ abstract class RxChat {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
+
+  // TODO: Remove when backend supports welcome messages.
+  /// Posts a new [ChatMessage] with the provided [text] by the recipient.
+  Future<void> addMessage(ChatMessageText text);
 }

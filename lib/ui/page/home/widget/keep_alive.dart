@@ -22,10 +22,7 @@ import 'package:flutter/material.dart';
 /// Required in [PageView]s since switching the page resets the state of the
 /// widget.
 class KeepAlivePage extends StatefulWidget {
-  const KeepAlivePage({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
+  const KeepAlivePage({super.key, required this.child});
 
   /// [Widget] to keep state of.
   final Widget child;

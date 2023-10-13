@@ -21,17 +21,19 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for selecting display for screen sharing.
 ///
 /// Intended to be displayed with the [show] method.
 class ScreenShareView extends StatelessWidget {
-  const ScreenShareView(this.call, {Key? key}) : super(key: key);
+  const ScreenShareView(this.call, {super.key});
 
   /// [OngoingCall] this [ScreenShareView] is bound to.
   final Rx<OngoingCall> call;
@@ -40,11 +42,11 @@ class ScreenShareView extends StatelessWidget {
   static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<MediaDisplayInfo?> show<T>(
+  static Future<MediaDisplayDetails?> show<T>(
     BuildContext context,
     Rx<OngoingCall> call,
   ) {
-    return ModalPopup.show<MediaDisplayInfo?>(
+    return ModalPopup.show<MediaDisplayDetails?>(
       context: context,
       child: ScreenShareView(call),
     );
@@ -52,8 +54,7 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
@@ -64,21 +65,14 @@ class ScreenShareView extends StatelessWidget {
       init: ScreenShareController(
         Get.find(),
         call: call,
-        pop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_screen_sharing'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
-                ),
-              ),
+              ModalPopupHeader(text: 'label_screen_sharing'.l10n),
               const SizedBox(height: 12),
               Flexible(
                 child: Scrollbar(
@@ -90,7 +84,7 @@ class ScreenShareView extends StatelessWidget {
                     shrinkWrap: true,
                     itemBuilder: (_, i) {
                       return Obx(() {
-                        final MediaDisplayInfo e = c.call.value.displays[i];
+                        final MediaDisplayDetails e = c.call.value.displays[i];
                         return GestureDetector(
                           onTap: () => c.selected.value = e,
                           child: SizedBox(
@@ -101,14 +95,11 @@ class ScreenShareView extends StatelessWidget {
                                       c.renderers[e]!,
                                       border: c.selected.value == e
                                           ? Border.all(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
+                                              color: style.colors.primary,
                                               width: 4,
                                             )
                                           : null,
-                                      source: MediaSourceKind.Display,
-                                      mirror: false,
+                                      source: MediaSourceKind.display,
                                       fit: BoxFit.contain,
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
@@ -134,13 +125,13 @@ class ScreenShareView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_share'.l10n,
-                    style: thin?.copyWith(color: Colors.white),
+                    style: style.fonts.bodyMediumOnPrimary,
                   ),
                   onPressed: () {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 12),

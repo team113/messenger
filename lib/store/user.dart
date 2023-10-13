@@ -22,31 +22,37 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
+import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/gallery_item.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
+import '/store/pagination.dart';
+import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
-    show BlacklistEvent, EventBlacklistRecordAdded, EventBlacklistRecordRemoved;
+    show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
+import 'search.dart';
 
 /// Implementation of an [AbstractUserRepository].
-class UserRepository implements AbstractUserRepository {
+class UserRepository extends DisposableInterface
+    implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
     this._userLocal,
-    this._galleryItemLocal,
   );
+
+  @override
+  final RxMap<UserId, HiveRxUser> users = RxMap();
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
@@ -60,14 +66,8 @@ class UserRepository implements AbstractUserRepository {
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
-  /// [ImageGalleryItem] local [Hive] storage.
-  final GalleryItemHiveProvider _galleryItemLocal;
-
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
-
-  /// [users] value.
-  final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
@@ -79,43 +79,94 @@ class UserRepository implements AbstractUserRepository {
   RxBool get isReady => _isReady;
 
   @override
-  RxMap<UserId, RxUser> get users => _users;
-
-  @override
-  Future<void> init() async {
+  Future<void> onInit() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
+        users[c.value.id] = HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
 
     _initLocalSubscription();
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    users.forEach((_, v) => v.dispose());
+    _localSubscription?.cancel();
+
+    super.onClose();
   }
 
   @override
   Future<void> clearCache() => _userLocal.clear();
 
   @override
-  void dispose() {
-    _localSubscription?.cancel();
+  SearchResult<UserId, RxUser> search({
+    UserNum? num,
+    UserName? name,
+    UserLogin? login,
+    ChatDirectLinkSlug? link,
+  }) {
+    if (num == null && name == null && login == null && link == null) {
+      return SearchResultImpl();
+    }
+
+    Pagination<RxUser, UsersCursor, UserId>? pagination;
+    if (name != null) {
+      pagination = Pagination(
+        perPage: 30,
+        provider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) {
+            return searchByName(
+              name,
+              after: after,
+              first: first,
+            );
+          },
+        ),
+        onKey: (RxUser u) => u.id,
+      );
+    }
+
+    final List<RxUser> users = this
+        .users
+        .values
+        .where((u) =>
+            (num != null && u.user.value.num == num) ||
+            (name != null &&
+                u.user.value.name?.val
+                        .toLowerCase()
+                        .contains(name.val.toLowerCase()) ==
+                    true))
+        .toList();
+
+    Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
+
+    final SearchResultImpl<UserId, RxUser> searchResult = SearchResultImpl(
+      pagination: pagination,
+      initial: [
+        {for (var u in users) u.id: u},
+        if (num != null) searchByNum(num).then(toMap),
+        if (login != null) searchByLogin(login).then(toMap),
+        if (link != null) searchByLink(link).then(toMap),
+      ],
+    );
+
+    return searchResult;
   }
 
   @override
-  Future<List<RxUser>> searchByNum(UserNum num) => _search(num: num);
-
-  @override
-  Future<List<RxUser>> searchByLogin(UserLogin login) => _search(login: login);
-
-  @override
-  Future<List<RxUser>> searchByName(UserName name) => _search(name: name);
-
-  @override
-  Future<List<RxUser>> searchByLink(ChatDirectLinkSlug link) =>
-      _search(link: link);
-
-  @override
   Future<RxUser?> get(UserId id) {
+    RxUser? user = users[id];
+    if (user != null) {
+      return Future.value(user);
+    }
+
+    // If [user] doesn't exists, we should lock the [mutex] to avoid remote
+    // double invoking.
     Mutex? mutex = _locks[id];
     if (mutex == null) {
       mutex = Mutex();
@@ -123,7 +174,8 @@ class UserRepository implements AbstractUserRepository {
     }
 
     return mutex.protect(() async {
-      RxUser? user = _users[id];
+      user = users[id];
+
       if (user == null) {
         var query = (await _graphQlProvider.getUser(id)).user;
         if (query != null) {
@@ -140,12 +192,13 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> blacklistUser(UserId id, BlacklistReason? reason) async {
-    final RxUser? user = _users[id];
-    final BlacklistRecord? record = user?.user.value.isBlacklisted;
+  Future<void> blockUser(UserId id, BlocklistReason? reason) async {
+    final RxUser? user = users[id];
+    final BlocklistRecord? record = user?.user.value.isBlocked;
 
-    if (user?.user.value.isBlacklisted == null) {
-      user?.user.value.isBlacklisted = BlacklistRecord(
+    if (user?.user.value.isBlocked == null) {
+      user?.user.value.isBlocked = BlocklistRecord(
+        userId: id,
         reason: reason,
         at: PreciseDateTime.now(),
       );
@@ -153,10 +206,10 @@ class UserRepository implements AbstractUserRepository {
     }
 
     try {
-      await _graphQlProvider.blacklistUser(id, reason);
+      await _graphQlProvider.blockUser(id, reason);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != record) {
-        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlocked != record) {
+        user.user.value.isBlocked = record ?? user.user.value.isBlocked;
         user.user.refresh();
       }
       rethrow;
@@ -164,20 +217,20 @@ class UserRepository implements AbstractUserRepository {
   }
 
   @override
-  Future<void> unblacklistUser(UserId id) async {
-    final RxUser? user = _users[id];
-    final BlacklistRecord? record = user?.user.value.isBlacklisted;
+  Future<void> unblockUser(UserId id) async {
+    final RxUser? user = users[id];
+    final BlocklistRecord? record = user?.user.value.isBlocked;
 
-    if (user?.user.value.isBlacklisted != null) {
-      user?.user.value.isBlacklisted = null;
+    if (user?.user.value.isBlocked != null) {
+      user?.user.value.isBlocked = null;
       user?.user.refresh();
     }
 
     try {
-      await _graphQlProvider.unblacklistUser(id);
+      await _graphQlProvider.unblockUser(id);
     } catch (_) {
-      if (user != null && user.user.value.isBlacklisted != record) {
-        user.user.value.isBlacklisted = record ?? user.user.value.isBlacklisted;
+      if (user != null && user.user.value.isBlocked != record) {
+        user.user.value.isBlocked = record ?? user.user.value.isBlocked;
         user.user.refresh();
       }
       rethrow;
@@ -194,13 +247,51 @@ class UserRepository implements AbstractUserRepository {
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user, {bool ignoreVersion = false}) {
-    List<ImageGalleryItem> gallery = user.value.gallery ?? [];
-    for (ImageGalleryItem item in gallery) {
-      _galleryItemLocal.put(item);
+  void put(HiveUser user, {bool ignoreVersion = false}) async {
+    // If the provided [user] doesn't exist in the [users] yet, then we should
+    // lock the [mutex] to ensure [get] doesn't invoke remote while [put]ting.
+    if (users.containsKey(user.value.id)) {
+      await _putUser(user, ignoreVersion: ignoreVersion);
+    } else {
+      Mutex? mutex = _locks[user.value.id];
+      if (mutex == null) {
+        mutex = Mutex();
+        _locks[user.value.id] = mutex;
+      }
+
+      await mutex.protect(() async {
+        await _putUser(user, ignoreVersion: ignoreVersion);
+      });
     }
-    _putUser(user, ignoreVersion: ignoreVersion);
   }
+
+  /// Searches [User]s by the provided [UserNum].
+  ///
+  /// This is an exact match search.
+  Future<RxUser?> searchByNum(UserNum num) async =>
+      (await _search(num: num)).edges.firstOrNull;
+
+  /// Searches [User]s by the provided [UserLogin].
+  ///
+  /// This is an exact match search.
+  Future<RxUser?> searchByLogin(UserLogin login) async =>
+      (await _search(login: login)).edges.firstOrNull;
+
+  /// Searches [User]s by the provided [ChatDirectLinkSlug].
+  ///
+  /// This is an exact match search.
+  Future<RxUser?> searchByLink(ChatDirectLinkSlug link) async =>
+      (await _search(link: link)).edges.firstOrNull;
+
+  /// Searches [User]s by the provided [UserName].
+  ///
+  /// This is a fuzzy search.
+  Future<Page<RxUser, UsersCursor>> searchByName(
+    UserName name, {
+    UsersCursor? after,
+    int? first,
+  }) =>
+      _search(name: name, after: after, first: first);
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
@@ -218,18 +309,19 @@ class UserRepository implements AbstractUserRepository {
           mixin.events.map((e) => _userEvent(e)).toList(),
           mixin.ver,
         ));
-      } else if (events.$$typename == 'BlacklistEventsVersioned') {
-        var mixin = events as BlacklistEventsVersionedMixin;
-        yield UserEventsBlacklistEventsEvent(BlacklistEventsVersioned(
-          mixin.events.map((e) => _blacklistEvent(e)).toList(),
+      } else if (events.$$typename == 'BlocklistEventsVersioned') {
+        var mixin = events as BlocklistEventsVersionedMixin;
+        yield UserEventsBlocklistEventsEvent(BlocklistEventsVersioned(
+          mixin.events.map((e) => _blocklistEvent(e)).toList(),
           mixin.myVer,
         ));
-      } else if (events.$$typename == 'IsBlacklisted') {
-        var node = events as UserEvents$Subscription$UserEvents$IsBlacklisted;
-        yield UserEventsIsBlacklisted(
+      } else if (events.$$typename == 'isBlocked') {
+        var node = events as UserEvents$Subscription$UserEvents$IsBlocked;
+        yield UserEventsIsBlocked(
           node.record == null
               ? null
-              : BlacklistRecord(
+              : BlocklistRecord(
+                  userId: id,
                   reason: node.record!.reason,
                   at: node.record!.at,
                 ),
@@ -257,11 +349,11 @@ class UserRepository implements AbstractUserRepository {
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
       if (event.deleted) {
-        _users.remove(UserId(event.key));
+        users.remove(UserId(event.key))?.dispose();
       } else {
-        RxUser? user = _users[UserId(event.key)];
+        RxUser? user = users[UserId(event.key)];
         if (user == null) {
-          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
+          users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
           user.user.value = event.value.value;
           user.user.refresh();
@@ -274,24 +366,26 @@ class UserRepository implements AbstractUserRepository {
   ///
   /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
   /// (be non-`null`).
-  Future<List<RxUser>> _search({
+  Future<Page<RxUser, UsersCursor>> _search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
+    UsersCursor? after,
+    int? first,
   }) async {
     const maxInt = 120;
-    List<HiveUser> result = (await _graphQlProvider.searchUsers(
-      first: maxInt,
+    var query = await _graphQlProvider.searchUsers(
       num: num,
       name: name,
       login: login,
       link: link,
-    ))
-        .searchUsers
-        .nodes
-        .map((c) => c.toHive())
-        .toList();
+      after: after,
+      first: first ?? maxInt,
+    );
+
+    final List<HiveUser> result =
+        query.searchUsers.edges.map((c) => c.node.toHive()).toList();
 
     for (HiveUser user in result) {
       put(user);
@@ -301,7 +395,10 @@ class UserRepository implements AbstractUserRepository {
     Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
     List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
 
-    return users;
+    return Page(
+      RxList(users),
+      query.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
+    );
   }
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
@@ -316,12 +413,6 @@ class UserRepository implements AbstractUserRepository {
         node.avatar.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventUserBioDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
-      return EventUserBioDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserBioUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
-      return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId, node.at);
@@ -344,21 +435,6 @@ class UserRepository implements AbstractUserRepository {
     } else if (e.$$typename == 'EventUserNameDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserGalleryItemAdded') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserGalleryItemAdded;
-      return EventUserGalleryItemAdded(
-        node.userId,
-        node.galleryItem.toModel(),
-        node.at,
-      );
-    } else if (e.$$typename == 'EventUserGalleryItemDeleted') {
-      var node =
-          e as UserEventsVersionedMixin$Events$EventUserGalleryItemDeleted;
-      return EventUserGalleryItemDeleted(
-        node.userId,
-        node.galleryItemId,
-        node.at,
-      );
     } else if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);
@@ -376,23 +452,21 @@ class UserRepository implements AbstractUserRepository {
     }
   }
 
-  /// Constructs a [BlacklistEvent] from the
-  /// [BlacklistEventsVersionedMixin$Events].
-  BlacklistEvent _blacklistEvent(BlacklistEventsVersionedMixin$Events e) {
-    if (e.$$typename == 'EventBlacklistRecordAdded') {
-      return EventBlacklistRecordAdded(
-        e.userId,
+  /// Constructs a [BlocklistEvent] from the
+  /// [BlocklistEventsVersionedMixin$Events].
+  BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
+    if (e.$$typename == 'EventBlocklistRecordAdded') {
+      var node =
+          e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
+      return EventBlocklistRecordAdded(
         e.user.toHive(),
         e.at,
+        node.reason,
       );
-    } else if (e.$$typename == 'EventBlacklistRecordRemoved') {
-      return EventBlacklistRecordRemoved(
-        e.userId,
-        e.user.toHive(),
-        e.at,
-      );
+    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
+      return EventBlocklistRecordRemoved(e.user.toHive(), e.at);
     } else {
-      throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
+      throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }
   }
 }

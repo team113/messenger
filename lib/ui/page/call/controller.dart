@@ -28,6 +28,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -43,8 +44,8 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -171,12 +172,6 @@ class CallController extends GetxController {
   /// Timeout of a [hoveredRenderer] used to hide it.
   int hoveredRendererTimeout = 0;
 
-  /// Error happened in a call.
-  final RxString error = RxString('');
-
-  /// Timeout of a [error] being shown.
-  final RxInt errorTimeout = RxInt(0);
-
   /// Minimized view current width.
   late final RxDouble width;
 
@@ -215,12 +210,6 @@ class CallController extends GetxController {
 
   /// Maximum size a single [CallButton] is allowed to occupy in the [Dock].
   static const double buttonSize = 48.0;
-
-  /// Color of a call buttons that accept the call.
-  static const Color acceptColor = Color(0x7F34B139);
-
-  /// Color of a call buttons that end the call.
-  static const Color endColor = Color(0x7FFF0000);
 
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
@@ -261,15 +250,21 @@ class CallController extends GetxController {
   /// [relocateSecondary] method.
   double? secondaryBottomShifted;
 
-  /// Indicator whether the [relocateSecondary] is already invoked during the
-  /// current frame.
-  bool _secondaryRelocated = false;
+  /// [List] of the currently active [CallNotification]s.
+  final RxList<CallNotification> notifications = RxList<CallNotification>();
 
   /// Height of the title bar.
   static const double titleHeight = 30;
 
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
+
+  /// Indicator whether the [relocateSecondary] is already invoked during the
+  /// current frame.
+  bool _secondaryRelocated = false;
+
+  /// [StreamSubscription] for canceling a reconnection sound.
+  StreamSubscription? _reconnectAudio;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -298,8 +293,8 @@ class CallController extends GetxController {
   /// Duration of UI being opened in seconds.
   static const int _uiDuration = 4;
 
-  /// Duration of an error being shown in seconds.
-  static const int _errorDuration = 6;
+  /// [Duration] to display a single [CallNotification].
+  static const Duration _notificationDuration = Duration(seconds: 6);
 
   /// [BoxConstraints] representing the previous [size] used in [scaleSecondary]
   /// to calculate the difference.
@@ -336,6 +331,10 @@ class CallController extends GetxController {
   /// the [buttons] value.
   Worker? _settingsWorker;
 
+  /// Worker capturing any [OngoingCall.connectionLost] changes to play
+  /// reconnect sound.
+  Worker? _reconnectWorker;
+
   /// Subscription for [PlatformUtils.onFullscreenChange], used to correct the
   /// [fullscreen] value.
   StreamSubscription? _onFullscreenChange;
@@ -368,8 +367,15 @@ class CallController extends GetxController {
   /// Subscription for [duration] changes updating the title.
   StreamSubscription? _durationSubscription;
 
+  /// Subscription for [OngoingCall.notifications] updating the [notifications].
+  StreamSubscription? _notificationsSubscription;
+
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
+
+  /// [Timer]s removing items from the [notifications] after the
+  /// [_notificationDuration].
+  final List<Timer> _notificationTimers = [];
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -407,7 +413,7 @@ class CallController extends GetxController {
   /// Returns a name of the current [OngoingCall]'s caller.
   String? get callerName =>
       _currentCall.value.caller?.name?.val ??
-      _currentCall.value.caller?.num.val;
+      _currentCall.value.caller?.num.toString();
 
   /// Indicates whether a drag and drop videos hint should be displayed.
   bool get showDragAndDropVideosHint =>
@@ -430,6 +436,10 @@ class CallController extends GetxController {
   set showDragAndDropButtonsHint(bool value) {
     _settingsRepository.setShowDragAndDropButtonsHint(value);
   }
+
+  /// Indicates whether the connection to the [OngoingCall] updates was lost and
+  /// an ongoing reconnection is happening.
+  RxBool get connectionLost => _currentCall.value.connectionLost;
 
   /// Returns actual size of the call view.
   Size get size {
@@ -498,7 +508,12 @@ class CallController extends GetxController {
             .toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] = '${chat.value?.members.length ?? 1}';
-        args['duration'] = duration.value.hhMmSs();
+
+        if (Config.disableInfiniteAnimations) {
+          args['duration'] = Duration.zero.hhMmSs();
+        } else {
+          args['duration'] = duration.value.hhMmSs();
+        }
         break;
 
       case OngoingCallState.joining:
@@ -569,48 +584,9 @@ class CallController extends GetxController {
         ? RxDouble(prefs?.top ?? 50)
         : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
-    void onChat(RxChat? v) {
-      chat.value = v;
-      if (!isGroup) {
-        secondaryAlignment.value = null;
-        secondaryLeft.value = null;
-        secondaryTop.value = null;
-        secondaryRight.value = 10;
-        secondaryBottom.value = 10;
-      }
-
-      // Update the [WebUtils.title] if this call is in a popup.
-      if (WebUtils.isPopup) {
-        _titleSubscription?.cancel();
-        _durationSubscription?.cancel();
-
-        if (v != null) {
-          void updateTitle() {
-            WebUtils.title(
-              '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
-            );
-          }
-
-          updateTitle();
-
-          _titleSubscription =
-              _currentCall.value.members.listen((_) => updateTitle());
-          _durationSubscription = duration.listen((_) => updateTitle());
-        }
-      }
-    }
-
-    _chatService
-        .get(_currentCall.value.chatId.value)
-        .then(onChat)
-        .whenComplete(() {
-      members.forEach((_, value) => _putMember(value));
-      _insureCorrectGrouping();
-    });
-
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(onChat),
+      (ChatId id) => _chatService.get(id).then(_updateChat),
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -634,10 +610,6 @@ class CallController extends GetxController {
                     hoveredRenderer.value = null;
                     isCursorHidden.value = true;
                   }
-                }
-
-                if (errorTimeout.value > 0) {
-                  --errorTimeout.value;
                 }
               },
             );
@@ -681,11 +653,6 @@ class CallController extends GetxController {
           }
         }
       }
-    });
-
-    _errorsSubscription = _currentCall.value.errors.listen((e) {
-      error.value = e;
-      errorTimeout.value = _errorDuration;
     });
 
     // Constructs a list of [CallButton]s from the provided [list] of [String]s.
@@ -791,61 +758,22 @@ class CallController extends GetxController {
       }
     });
 
-    void onTracksChanged(
-      CallMember member,
-      ListChangeNotification<Track> track,
-    ) {
-      switch (track.op) {
-        case OperationKind.added:
-          _putParticipant(member, track.element);
-          _insureCorrectGrouping();
-          break;
+    _notificationsSubscription = _currentCall.value.notifications.listen((e) {
+      notifications.add(e);
+      _notificationTimers
+          .add(Timer(_notificationDuration, () => notifications.remove(e)));
+    });
 
-        case OperationKind.removed:
-          _removeParticipant(member, track.element);
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    }
-
-    _membersTracksSubscriptions = _currentCall.value.members.map(
-      (k, v) =>
-          MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
-    );
-
-    _membersSubscription = _currentCall.value.members.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          _putMember(e.value!);
-          _membersTracksSubscriptions[e.key!] = e.value!.tracks.changes.listen(
-            (c) => onTracksChanged(e.value!, c),
-          );
-
-          _insureCorrectGrouping();
-          break;
-
-        case OperationKind.removed:
-          bool wasNotEmpty = primary.isNotEmpty;
-          paneled.removeWhere((m) => m.member.id == e.key);
-          locals.removeWhere((m) => m.member.id == e.key);
-          focused.removeWhere((m) => m.member.id == e.key);
-          remotes.removeWhere((m) => m.member.id == e.key);
-          _membersTracksSubscriptions.remove(e.key)?.cancel();
-          _insureCorrectGrouping();
-          if (wasNotEmpty && primary.isEmpty) {
-            focusAll();
-          }
-          break;
-
-        case OperationKind.updated:
-          _insureCorrectGrouping();
-          break;
+    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
+      if (b) {
+        _reconnectAudio =
+            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
+      } else {
+        _reconnectAudio?.cancel();
       }
     });
+
+    _initChat();
   }
 
   @override
@@ -861,8 +789,11 @@ class CallController extends GetxController {
     _onWindowFocus?.cancel();
     _titleSubscription?.cancel();
     _durationSubscription?.cancel();
+    _notificationsSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
+    _reconnectAudio?.cancel();
+    _reconnectWorker?.dispose();
 
     secondaryEntry?.remove();
 
@@ -882,6 +813,11 @@ class CallController extends GetxController {
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
+
+    for (var e in _notificationTimers) {
+      e.cancel();
+    }
+    _notificationTimers.clear();
   }
 
   /// Drops the call.
@@ -914,9 +850,12 @@ class CallController extends GetxController {
     if (state == LocalTrackState.enabled || state == LocalTrackState.enabling) {
       await _currentCall.value.setScreenShareEnabled(false);
     } else {
+      // TODO: `medea_jason` should have `onScreenChange` callback.
+      await _currentCall.value.enumerateDevices(media: false);
+
       if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayInfo? display =
-            await ScreenShareView.show(context, _currentCall);
+        final MediaDisplayDetails? display =
+            await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
           await _currentCall.value.setScreenShareEnabled(
@@ -956,7 +895,8 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<MediaDeviceInfo> cameras = _currentCall.value.devices.video().toList();
+    List<MediaDeviceDetails> cameras =
+        _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
       int selected = _currentCall.value.videoDevice.value == null
           ? 0
@@ -970,17 +910,19 @@ class CallController extends GetxController {
     }
   }
 
-  /// Toggles speaker on and off.
+  /// Toggles between the speakerphone and earpiece output.
+  ///
+  /// Does nothing, if output device is a bluetooth headset.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();
     }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      final List<MediaDeviceInfo> outputs =
+      final List<MediaDeviceDetails> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        MediaDeviceInfo? device;
+        MediaDeviceDetails? device;
 
         if (PlatformUtils.isIOS) {
           device = _currentCall.value.devices.output().firstWhereOrNull(
@@ -1098,8 +1040,8 @@ class CallController extends GetxController {
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1121,8 +1063,8 @@ class CallController extends GetxController {
   /// it's not empty, or to its `default` group otherwise.
   void focus(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1145,8 +1087,8 @@ class CallController extends GetxController {
   /// Unfocuses [participant], which means putting it in its `default` group.
   void unfocus(Participant participant) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1856,8 +1798,8 @@ class CallController extends GetxController {
   /// Puts [participant] from its `default` group to [list].
   void _putVideoTo(Participant participant, RxList<Participant> list) {
     if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.Display) {
-      // Movement of a local [MediaSourceKind.Display] is prohibited.
+        participant.video.value?.source == MediaSourceKind.display) {
+      // Movement of a local [MediaSourceKind.display] is prohibited.
       return;
     }
 
@@ -1872,8 +1814,8 @@ class CallController extends GetxController {
   void _putVideoFrom(Participant participant, RxList<Participant> list) {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
-        // Movement of [MediaSourceKind.Display] to [locals] is prohibited.
-        if (participant.video.value?.source == MediaSourceKind.Display) {
+        // Movement of [MediaSourceKind.display] to [locals] is prohibited.
+        if (participant.video.value?.source == MediaSourceKind.display) {
           break;
         }
 
@@ -1919,7 +1861,7 @@ class CallController extends GetxController {
     CallMemberId id, [
     MediaSourceKind? source,
   ]) {
-    source ??= MediaSourceKind.Device;
+    source ??= MediaSourceKind.device;
     return [
       ...locals.where((e) => e.member.id == id && e.source == source),
       ...remotes.where((e) => e.member.id == id && e.source == source),
@@ -1930,7 +1872,7 @@ class CallController extends GetxController {
 
   /// Puts the [CallMember.tracks] to the according [Participant].
   void _putMember(CallMember member) {
-    if (member.tracks.none((t) => t.source == MediaSourceKind.Device)) {
+    if (member.tracks.none((t) => t.source == MediaSourceKind.device)) {
       _putParticipant(member, null);
     }
 
@@ -1947,17 +1889,11 @@ class CallController extends GetxController {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
-    if (track?.source == MediaSourceKind.Display ||
-        participants.isEmpty ||
-        (track != null &&
-            participants.none((e) => track.kind == MediaKind.Video
-                ? e.video.value == null
-                : e.audio.value == null &&
-                    e.video.value?.source != MediaSourceKind.Display))) {
+    if (participants.isEmpty) {
       final Participant participant = Participant(
         member,
-        video: track?.kind == MediaKind.Video ? track : null,
-        audio: track?.kind == MediaKind.Audio ? track : null,
+        video: track?.kind == MediaKind.video ? track : null,
+        audio: track?.kind == MediaKind.audio ? track : null,
       );
 
       _userService
@@ -1968,11 +1904,11 @@ class CallController extends GetxController {
         case MediaOwnerKind.local:
           if (isGroup || isMonolog) {
             switch (participant.source) {
-              case MediaSourceKind.Device:
+              case MediaSourceKind.device:
                 locals.add(participant);
                 break;
 
-              case MediaSourceKind.Display:
+              case MediaSourceKind.display:
                 paneled.add(participant);
                 break;
             }
@@ -1988,11 +1924,11 @@ class CallController extends GetxController {
 
         case MediaOwnerKind.remote:
           switch (participant.source) {
-            case MediaSourceKind.Device:
+            case MediaSourceKind.device:
               remotes.add(participant);
               break;
 
-            case MediaSourceKind.Display:
+            case MediaSourceKind.display:
               focused.add(participant);
               break;
           }
@@ -2000,12 +1936,9 @@ class CallController extends GetxController {
       }
     } else {
       if (track != null) {
-        final Participant participant = participants.firstWhere((e) =>
-            track.kind == MediaKind.Video
-                ? e.video.value == null
-                : e.audio.value == null &&
-                    e.video.value?.source != MediaSourceKind.Display);
-        if (track.kind == MediaKind.Video) {
+        final Participant participant = participants.first;
+        participant.member = member;
+        if (track.kind == MediaKind.video) {
           participant.video.value = track;
         } else {
           participant.audio.value = track;
@@ -2019,8 +1952,8 @@ class CallController extends GetxController {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track.source);
 
-    if (track.kind == MediaKind.Video) {
-      if (participants.length == 1 && track.source == MediaSourceKind.Device) {
+    if (track.kind == MediaKind.video) {
+      if (participants.length == 1 && track.source == MediaSourceKind.device) {
         participants.first.video.value = null;
       } else {
         final Participant? participant =
@@ -2078,6 +2011,105 @@ class CallController extends GetxController {
       }
     }
   }
+
+  /// Initializes the [chat] and adds the [CallMember] afterwards.
+  Future<void> _initChat() async {
+    try {
+      _updateChat(await _chatService.get(_currentCall.value.chatId.value));
+    } finally {
+      void onTracksChanged(
+        CallMember member,
+        ListChangeNotification<Track> track,
+      ) {
+        switch (track.op) {
+          case OperationKind.added:
+            _putParticipant(member, track.element);
+            _insureCorrectGrouping();
+            break;
+
+          case OperationKind.removed:
+            _removeParticipant(member, track.element);
+            _insureCorrectGrouping();
+            break;
+
+          case OperationKind.updated:
+            // No-op.
+            break;
+        }
+      }
+
+      _membersTracksSubscriptions = _currentCall.value.members.map(
+        (k, v) =>
+            MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
+      );
+
+      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _putMember(e.value!);
+            _membersTracksSubscriptions[e.key!] =
+                e.value!.tracks.changes.listen(
+              (c) => onTracksChanged(e.value!, c),
+            );
+
+            _insureCorrectGrouping();
+            break;
+
+          case OperationKind.removed:
+            bool wasNotEmpty = primary.isNotEmpty;
+            paneled.removeWhere((m) => m.member.id == e.key);
+            locals.removeWhere((m) => m.member.id == e.key);
+            focused.removeWhere((m) => m.member.id == e.key);
+            remotes.removeWhere((m) => m.member.id == e.key);
+            _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _insureCorrectGrouping();
+            if (wasNotEmpty && primary.isEmpty) {
+              focusAll();
+            }
+            break;
+
+          case OperationKind.updated:
+            _insureCorrectGrouping();
+            break;
+        }
+      });
+
+      members.forEach((_, value) => _putMember(value));
+      _insureCorrectGrouping();
+    }
+  }
+
+  /// Sets the [chat] to the provided value, updating the title.
+  void _updateChat(RxChat? v) {
+    chat.value = v;
+    if (!isGroup) {
+      secondaryAlignment.value = null;
+      secondaryLeft.value = null;
+      secondaryTop.value = null;
+      secondaryRight.value = 10;
+      secondaryBottom.value = 10;
+    }
+
+    // Update the [WebUtils.title] if this call is in a popup.
+    if (WebUtils.isPopup) {
+      _titleSubscription?.cancel();
+      _durationSubscription?.cancel();
+
+      if (v != null) {
+        void updateTitle() {
+          WebUtils.title(
+            '\u205f​​​ \u205f​​​${'label_call_title'.l10nfmt(titleArguments)}\u205f​​​ \u205f​​​',
+          );
+        }
+
+        updateTitle();
+
+        _titleSubscription =
+            _currentCall.value.members.listen((_) => updateTitle());
+        _durationSubscription = duration.listen((_) => updateTitle());
+      }
+    }
+  }
 }
 
 /// X-axis scale mode.
@@ -2098,7 +2130,7 @@ class Participant {
         audio = Rx(audio);
 
   /// [CallMember] this [Participant] represents.
-  final CallMember member;
+  CallMember member;
 
   /// [User] this [Participant] represents.
   final Rx<RxUser?> user;
@@ -2114,5 +2146,5 @@ class Participant {
 
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>
-      video.value?.source ?? audio.value?.source ?? MediaSourceKind.Device;
+      video.value?.source ?? audio.value?.source ?? MediaSourceKind.device;
 }

@@ -28,6 +28,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -38,6 +39,7 @@ import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';
@@ -111,9 +113,8 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
-/// Helper providing direct access to browser-only features.
-///
-/// Does nothing on desktop or mobile.
+/// Helper providing access to features having different implementations in
+/// browser and on native platforms.
 class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
@@ -235,6 +236,23 @@ class WebUtils {
         html.document.removeEventListener('mouseenter', enterListener);
         html.document.removeEventListener('mouseleave', leaveListener);
       },
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the browser's broadcast channel changes.
+  static Stream<dynamic> get onBroadcastMessage {
+    StreamController<dynamic>? controller;
+    StreamSubscription? subscription;
+
+    final channel = html.BroadcastChannel('fcm');
+
+    controller = StreamController(
+      onListen: () {
+        subscription = channel.onMessage.listen((e) => controller?.add(e.data));
+      },
+      onCancel: () => subscription?.cancel(),
     );
 
     return controller.stream;
@@ -500,7 +518,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    final Response response = await PlatformUtils.dio.head(url);
+    final Response response = await (await PlatformUtils.dio).head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }
@@ -567,6 +585,23 @@ class WebUtils {
     for (html.LinkElement e in html.querySelectorAll("link[rel*='icon']")) {
       e.href = e.href.replaceFirst('icons/alert/', 'icons/');
     }
+  }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) {
+    // No-op.
+  }
+
+  /// Deletes the loader element.
+  static void deleteLoader() {
+    html.document.getElementById('loader')?.remove();
+  }
+
+  /// Returns the `User-Agent` header to put in the network queries.
+  static Future<String> get userAgent async {
+    final info = await DeviceInfoPlugin().webBrowserInfo;
+    return info.userAgent ??
+        '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
 }
 

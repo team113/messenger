@@ -67,6 +67,7 @@ btn_add_to_contacts = Добавить в контакты
 btn_add_to_favorites = Добавить в избранные
 btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
+btn_audio_message = Аудиосообщение
 btn_back = Назад
 btn_block = Заблокировать
 btn_call_answer_with_audio =
@@ -147,6 +148,7 @@ btn_call_video_off_desc =
     Выключить
     камеру
 btn_call_video_on = Включить камеру
+btn_camera = Камера
 btn_cancel = Отмена
 btn_call_video_on_desc =
     Включить
@@ -154,6 +156,7 @@ btn_call_video_on_desc =
 btn_change = Сменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
+btn_clear_cache = Очистить кеш
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -170,13 +173,18 @@ btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
 btn_download = Скачать
+btn_download_application = Скачать приложение
 btn_edit = Редактировать
+btn_email = E-mail
+btn_file = Файл
 btn_forgot_password = Забыли пароль?
 btn_forward = Переслать
 btn_forward_message = Переслать сообщение
 btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
+btn_gallery = Галерея
 btn_generate_direct_chat_link = Сгенерировать
+btn_gift = Подарок
 btn_hide = Скрыть
 btn_hide_chat = Скрыть чат
 btn_info = Информация
@@ -184,18 +192,24 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
-btn_login = Войти
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
 btn_mute = Отключить звук
 btn_mute_chat = Отключить звук
+btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
+btn_one_time_account = Одноразовый аккаунт
+btn_one_time_account_desc =
+    Одноразовый
+    аккаунт
 btn_participants = Участники
 btn_participants_desc =
     Список
     участников
+btn_password = Пароль
+btn_paste = Вставить
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_remove = Удалить
@@ -207,32 +221,46 @@ btn_resend = Повторить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
 btn_save = Сохранить
+btn_save_as = Сохранить как
 btn_save_to_gallery = Сохранить в галерею
 btn_select = Выбрать
+btn_select_and_delete = Выбрать и удалить
+btn_send = Отправить
 btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_share = Поделиться
+btn_sign_in = Вход
+btn_sign_up = Регистрация
 btn_start = Начать
+btn_sticker = Стикер
 btn_submit = Применить
+btn_take_photo = Фото
+btn_take_video = Видео
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
+btn_unmute_chats = Включить звук
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
+btn_video_message = Видеосообщение
+btn_work_with_us = Работайте с нами
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
 colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
-email_confirmation =
+email_password_recovery =
+    Код восстановления {$domain}: {$token}
+    Действителен до {$expiresAt}.
+    {$domain}
+email_password_recovery_subject = Код восстановления {$domain}
+email_verification_code =
     Код подтверждения {$domain}: {$token}
     Действителен до {$expiresAt}.
-
-    С наилучшими пожеланиями,
-    Администрация {$domain}
-email_confirmation_subject = Код подтверждения {$domain}
+    {$domain}
+email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_blacklisted = Пользователь в чёрном списке
 err_call_already_exists = Звонок уже активен
@@ -263,11 +291,13 @@ err_incorrect_chat_name = Некорректное имя
 err_incorrect_email = Некорректный E-mail.
 err_incorrect_input = Некорректный формат.
 err_incorrect_login_input = Уникальный логин должен содержать только буквы латинского алфавита, цифры и символы "-", "." и "_". Он должен начинаться с буквы или цифры и содержать не менее 3 и не более 20 символов.
-err_incorrect_password = Неверный пароль.
+err_incorrect_login_or_password = Неверный логин или пароль
 err_incorrect_phone = Некорректный номер телефона.
 err_input_empty = Поле не должно быть пустым.
 err_invalid_crop_coordinates = Неверные координаты обрезки
 err_invalid_crop_points = Неверные точки обрезки
+err_invalid_registration_token = Некорректный регистрационный токен
+err_unknown_registration_token = Неизвестный регистрационный токен
 err_login_occupied = Данный логин уже занят.
 err_message_was_read = Сообщение было прочитано
 err_monolog = Невозможно выполнить данное действие в монологе
@@ -312,35 +342,61 @@ err_unsupported_format = Неподдерживаемый формат
 err_unsupported_forwarded_item = Неподдерживаемое пересылаемое сообщение
 err_uploaded_file_malformed = Файл повреждён
 err_use_monolog = Невозможно создать диалог с собой
+err_wrong_attachments_items_count = Некорректное количество прикреплений
 err_wrong_items_count = Неправильное количество сообщений
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный пароль.
 err_wrong_recovery_code = Неверный код.
+err_wrong_replying_item_count = Некорректное количество ответов
 err_you_already_add_this_email = Вы уже добавили указанный E-mail.
 err_you_already_add_this_phone = Вы уже добавили указанный номер телефона.
 err_you_already_has_unconfirmed_email = Вы имеете неподтвержденный E-mail.
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
 err_you_are_blacklisted = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
+fcm_dialog_title =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
 fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
-          [update] изменил изображение групы
-         *[delete] удалил изображение групы
+          [update] обновил аватар
+         *[delete] удалил аватар
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
-          [update] изменил название групы на {$groupName}
-         *[delete] удалил название групы
+          [update] переименовал чат на {$groupName}
+         *[delete] удалил имя
       }
-fcm_user_removed_you =
-    {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    } удалил Вас из групы
+fcm_group_title =
+    {$user1Name ->
+        [x] {$user1Num ->
+                [x] {""}
+               *[other] {$user1Num}
+            }
+       *[other] {$user1Name}
+    }{$user2Name ->
+        [x] {$user2Num ->
+                [x] {""}
+               *[other] {$user2Num}
+            }
+       *[other] , {$user2Name}
+    }{$user3Name ->
+        [x] {$user3Num ->
+                [x] {""}
+               *[other] {$user3Num}
+            }
+       *[other] , {$user3Name}
+    } {$moreMembers ->
+        [yes] ...
+       *[no] {""}
+    }
+fcm_incoming_call = Входящий звонок
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -381,35 +437,6 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_dialog_title =
-    {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    }
-fcm_group_title =
-    {$user1Name ->
-        [x] {$user1Num ->
-                [x] {""}
-               *[other] {$user1Num}
-            }
-       *[other] {$user1Name}
-    }{$user2Name ->
-        [x] {$user2Num ->
-                [x] {""}
-               *[other] {$user2Num}
-            }
-       *[other] , {$user2Name}
-    }{$user3Name ->
-        [x] {$user3Num ->
-                [x] {""}
-               *[other] {$user3Num}
-            }
-       *[other] , {$user3Name}
-    } {$moreMembers ->
-        [yes] ...
-       *[no] {""}
-    }
-fcm_incoming_call = Входящий звонок
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
@@ -437,11 +464,18 @@ fcm_user_removed_user =
     {$authorName ->
         [x] {$authorNum}
        *[other] {$authorName}
-    } удалил {$userName ->
+    } исключил {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     }
+fcm_user_removed_you =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } исключил Вас из группы
 label_a_of_b = {$a} из {$b}
+label_a_slash_b = {$a} / {$b}
+label_account = Аккаунт
 label_account_created = Аккаунт создан
 label_actions = Действия
 label_add_additional_email = Добавить дополнительный E-mail
@@ -459,12 +493,12 @@ label_add_phone = Добавить номер телефона
 label_add_phone_confirmation_sent = На указанный Вами номер телефона был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_phone_confirmation_sent_again = На указанный Вами номер телефона повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_phone_description = На указанный Вами номер телефона будет отправлен код подтверждения.
-label_ago = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] { $hours ->
-                                    [0] { $minutes ->
+label_ago = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
+                            [0] {$hours ->
+                                    [0] {$minutes ->
                                             [0] только что
                                             [1] 1 минуту назад
                                             [few] {$minutes} минуты назад
@@ -491,10 +525,10 @@ label_ago = { $years ->
     [few] {$years} года назад
     *[other] {$years} лет назад
 }
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
+label_ago_date = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
                             [0] Сегодня
                             [1] Вчера
                             [2] Позавчера
@@ -518,12 +552,16 @@ label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
 label_are_you_sure_yes = Да
-label_attachments = [{$count} { $count ->
+label_as_timeline = Как таймлайн
+label_attachments = [{$count} {$count ->
     [1] прикрепление
     [few] прикрепления
     *[other] прикреплений
     }]
-label_audio_call = Аудиозвонок
+label_audio_call = Аудиозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
@@ -533,11 +571,9 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
 label_background = Бэкграунд
-label_biography = Биография
-label_biography_hint = Несколько слов о Вас
 label_block = Заблокировать
-label_blocked_count = Заблокировано: {$count}
 label_blocked_users = Заблокированные пользователи
+label_cache = Кэш
 label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
 label_call_calling = Звоним
@@ -569,16 +605,26 @@ label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_members = Участники
-label_chat_monolog = Себе
+label_chat_monolog = Заметки
+label_chat_monolog_description = Пишите заметки, идеи или пересылайте другие сообщения, чтобы сохранить их здесь. Только Вы видите этот чат.
+label_chat_name_hint = Название чата
 label_chats = Чаты
 label_clear_history = Очистить историю
+label_code_sent_again = Код отправлен повторно.
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
+label_connection_lost = Связь с сервером потеряна
+label_connection_restored = Связь восстановлена
 label_contact = Контакт
 label_contact_information = Контактная информация
 label_contacts = Контакты
 label_copied = Скопировано
 label_copy = Копировать
+label_count_seconds = {$count} { $count ->
+       [one] секунда
+       [few] секунды
+       *[other] секунд
+   }
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
@@ -598,6 +644,8 @@ label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
 label_details = Подробнее.
 label_dialog_created = Диалог создан
+label_dialog_created_by_link = Диалог создан по прямой ссылке
+label_did_not_receive_code = Не получили код?
 label_direct_chat_link = Прямая ссылка на чат
 label_direct_chat_link_description =
     Пользователи, пришедшие по прямой
@@ -618,6 +666,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_disabled = Отключены
+label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
 label_draft = Черновик
@@ -639,10 +688,13 @@ label_enter_confirmation_code_hint = Введите проверочный ко�
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
-label_file = Файл
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
-label_gallery = Галерея
+label_forwarded_messages = {$count ->
+    [1] Forwarded message
+   *[other] Forwarded messages
+}
+label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
@@ -664,9 +716,10 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
+label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течении одного года с момента создания аккаунта или пока:
+    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
 
         • Вы не удалите пользовательские данные из приложения (браузера);
 
@@ -696,10 +749,11 @@ label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_microphone_changed = Микрофон был изменён на {$microphone}
 label_monolog_created = Чат создан
-label_mute_for = { $days ->
-    [0] { $hours ->
-            [0] { $minutes ->
+label_mute_for = {$days ->
+    [0] {$hours ->
+            [0] {$minutes ->
                     [0] Навсегда
                     [1] 1 минуту
                     [few] {$minutes} минуты
@@ -761,13 +815,13 @@ label_presence = Присутствие
 label_presence_away = Отошёл
 label_presence_hidden = Не показывать
 label_presence_present = Онлайн
-label_profile = Профиль
 label_public_information = Публичная информация
 label_public_section_hint = Аватар и имя
-label_read_at = Прочитано: {$day}.{$month}.{$year} {$hour}:{$minute}
+label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
 label_reason = Причина
 label_recent = Недавние
+label_reconnecting_ellipsis = Переподключение...
 label_recover_account = Восстановление доступа
 label_recover_account_description = Укажите Ваш Gapopa ID, логин, E-mail или номер телефона.
 label_recovery_code = Код восстановления
@@ -775,7 +829,7 @@ label_recovery_code_sent = Проверочный код отправлен на
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
 label_remove_member = Удалить участника
 label_repeat_password = Повторите пароль
-label_replies = [{$count} { $count ->
+label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа
     *[other] ответов
@@ -799,30 +853,29 @@ label_service_reconnecting = Сервис переподключается...
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_set_password = Задать пароль
 label_settings = Настройки
-label_short_weekday =
-    {$weekday ->
-        [1] пн
-        [2] вт
-        [3] ср
-        [4] чт
-        [5] пт
-        [6] сб
-        *[other] вс
-    }
 label_sign_in = Войти
 label_sign_in_input = Gapopa ID, логин, E-mail или номер телефона
+label_sign_in_with_password = Войти с паролем
+label_sign_up = Регистрация
+label_sign_up_code_email_sent =
+    Проверочный код был отправлен на e-mail {$text}
+label_sort_by_name = Cортировать по имени
+label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
+label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = участников
+label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
+label_timeline_style = Стиль метки времени
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
-label_unread_messages = { $quantity ->
+label_unread_messages = {$quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
@@ -838,19 +891,25 @@ label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = удалил(а)
 label_user_removed_user3 = {" "}{$user}
 label_users = Пользователи
+label_users_count = Пользователей: {$count}
 label_verify_email = Верифицировать E-mail
 label_verify_number = Верифицировать номер телефона
 label_video = Видео
-label_video_call = Видеозвонок
+label_video_call = Видеозвонок{$by ->
+        [x]{""}
+        *[other] {" "}от {$by}
+    }
 label_video_downloaded = Видео загружено.
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
+label_wait_seconds = Подождите {$for} с
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке
 label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
+label_work_with_us = Работайте с нами
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blacklist = Ваш чёрный список

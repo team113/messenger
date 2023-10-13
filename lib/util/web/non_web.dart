@@ -16,19 +16,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ffi' hide Size;
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:stdlibc/stdlibc.dart';
+import 'package:win32/win32.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/util/ios_utils.dart';
+import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
-/// Helper providing direct access to browser-only features.
-///
-/// Does nothing on desktop or mobile.
+/// Helper providing access to features having different implementations in
+/// browser and on native platforms.
 class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
@@ -56,6 +65,9 @@ class WebUtils {
 
   /// Returns a stream broadcasting the browser's window focus changes.
   static Stream<bool> get onWindowFocus => const Stream.empty();
+
+  /// Returns a stream broadcasting the browser's broadcast channel changes.
+  static Stream<dynamic> get onBroadcastMessage => const Stream.empty();
 
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
@@ -224,5 +236,157 @@ class WebUtils {
   /// Sets the favicon being used to the default style.
   static void setDefaultFavicon() {
     // No-op.
+  }
+
+  /// Sets callback to be fired whenever Rust code panics.
+  static void onPanic(void Function(String)? cb) => jason.onPanic(cb);
+
+  /// Deletes the loader element.
+  static void deleteLoader() {
+    // No-op.
+  }
+
+  /// Returns the `User-Agent` header to put in the network queries.
+  static Future<String> get userAgent async {
+    final DeviceInfoPlugin device = DeviceInfoPlugin();
+
+    String? system;
+
+    if (PlatformUtils.isMacOS) {
+      final info = await device.macOsInfo;
+      final StringBuffer buffer = StringBuffer(
+        'macOS ${info.osRelease} ${info.kernelVersion}',
+      );
+
+      buffer.write('; ${info.arch}');
+
+      final res = await Process.run('sysctl', ['machdep.cpu.brand_string']);
+      if (res.exitCode == 0) {
+        buffer.write(
+          ' ${res.stdout.toString().substring('machdep.cpu.brand_string: '.length, res.stdout.toString().length - 1)}',
+        );
+      }
+
+      buffer.write('; ${info.model}');
+
+      if (info.systemGUID != null) {
+        buffer.write('; ${info.systemGUID}');
+      }
+
+      system = buffer.toString();
+    } else if (PlatformUtils.isWindows) {
+      final info = await device.windowsInfo;
+
+      final StringBuffer buffer = StringBuffer(
+        '${info.productName} (build ${info.buildLabEx}); ${info.displayVersion}',
+      );
+
+      Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
+      try {
+        GetNativeSystemInfo(lpSystemInfo);
+
+        String? architecture;
+
+        switch (lpSystemInfo.ref.Anonymous.Anonymous.wProcessorArchitecture) {
+          case PROCESSOR_ARCHITECTURE_AMD64:
+            architecture = 'x64';
+            break;
+
+          case PROCESSOR_ARCHITECTURE_ARM:
+            architecture = 'ARM';
+            break;
+
+          case PROCESSOR_ARCHITECTURE_ARM64:
+            architecture = 'ARM64';
+            break;
+
+          case PROCESSOR_ARCHITECTURE_IA64:
+            architecture = 'IA64';
+            break;
+
+          case PROCESSOR_ARCHITECTURE_INTEL:
+            architecture = 'x86';
+            break;
+        }
+
+        if (architecture != null) {
+          buffer.write('; $architecture');
+        }
+      } finally {
+        free(lpSystemInfo);
+      }
+
+      buffer.write('; ${info.deviceId}');
+
+      system = buffer.toString();
+    } else if (PlatformUtils.isLinux) {
+      final info = await device.linuxInfo;
+      final utsname = uname();
+
+      final StringBuffer buffer = StringBuffer(info.prettyName);
+
+      if (utsname != null) {
+        buffer.write(' ${utsname.release}');
+      }
+
+      if (info.variant != null) {
+        buffer.write(' ${info.variant}');
+      }
+
+      if (info.buildId != null) {
+        buffer.write(' (build ${info.buildId})');
+      }
+
+      if (utsname != null) {
+        buffer.write('; ${utsname.machine}');
+      }
+
+      if (info.machineId != null) {
+        buffer.write('; ${info.machineId}');
+      }
+
+      system = buffer.toString();
+    } else if (PlatformUtils.isAndroid) {
+      final info = await device.androidInfo;
+      final utsname = uname();
+
+      final StringBuffer buffer = StringBuffer(
+        'Android ${info.version.release} ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+      );
+
+      if (utsname != null) {
+        buffer.write('; ${utsname.machine} ${info.hardware}');
+      }
+
+      buffer.write('; ${info.manufacturer} ${info.model}; ${info.id}');
+
+      system = buffer.toString();
+    } else if (PlatformUtils.isIOS) {
+      final info = await device.iosInfo;
+      final StringBuffer buffer = StringBuffer(
+        '${info.systemName} ${info.systemVersion} ${info.utsname.version}',
+      );
+
+      try {
+        buffer.write('; ${await IosUtils.getArchitecture()}');
+      } catch (_) {
+        // No-op.
+      }
+
+      buffer.write('; ${info.utsname.machine}');
+
+      if (info.identifierForVendor != null) {
+        buffer.write('; ${info.identifierForVendor}');
+      }
+
+      system = buffer.toString();
+    }
+
+    String agent = '${Config.userAgentProduct}/${Config.userAgentVersion}';
+    if (system != null) {
+      agent = '$agent ($system)';
+    }
+
+    return agent;
   }
 }

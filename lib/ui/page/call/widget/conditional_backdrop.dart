@@ -23,12 +23,12 @@ import 'package:flutter/material.dart';
 /// [condition].
 class ConditionalBackdropFilter extends StatelessWidget {
   ConditionalBackdropFilter({
-    Key? key,
+    super.key,
     required this.child,
     this.condition = true,
     ImageFilter? filter,
     this.borderRadius,
-  }) : super(key: key) {
+  }) {
     this.filter = filter ??
         ImageFilter.blur(
           sigmaX: 10,
@@ -60,7 +60,7 @@ class ConditionalBackdropFilter extends StatelessWidget {
     if (condition) {
       if (borderRadius != null) {
         return ClipRRect(
-          borderRadius: borderRadius,
+          borderRadius: borderRadius ?? BorderRadius.zero,
           child: BackdropFilter(
             filter: filter,
             blendMode: BlendMode.src,

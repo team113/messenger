@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -30,19 +31,21 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
-import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'periodic_builder.dart';
+import 'rectangular_call_button.dart';
+import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
 class RecentChatTile extends StatelessWidget {
@@ -139,17 +142,23 @@ class RecentChatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
+      final style = Theme.of(context).style;
+
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
+      final bool inverted = isRoute || selected;
 
       return ChatTile(
         chat: rxChat,
         status: [
-          _status(context),
-          Text(
-            chat.updatedAt.val.toLocal().toShort(),
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
+          _status(context, inverted),
+          if (!chat.id.isLocalWith(me))
+            Text(
+              chat.updatedAt.val.toLocal().short,
+              style: inverted
+                  ? style.fonts.labelLargeOnPrimary
+                  : style.fonts.labelLargeSecondary,
+            ),
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -158,28 +167,41 @@ class RecentChatTile extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(height: 3),
-                Expanded(child: _subtitle(context, selected)),
+                Expanded(child: _subtitle(context, selected, inverted)),
                 if (trailing == null) ...[
+                  _ongoingCall(context),
                   if (blocked) ...[
                     const SizedBox(width: 5),
-                    const Icon(
+                    Icon(
                       Icons.block,
-                      color: Color(0xFFC0C0C0),
+                      color: inverted
+                          ? style.colors.onPrimary
+                          : style.colors.secondaryHighlightDarkest,
                       size: 20,
                     ),
-                    if (chat.muted == null) const SizedBox(width: 5),
-                  ],
-                  if (chat.muted != null) ...[
                     const SizedBox(width: 5),
-                    SvgLoader.asset(
-                      'assets/icons/muted.svg',
+                  ] else if (chat.muted != null) ...[
+                    const SizedBox(width: 5),
+                    SvgImage.asset(
+                      inverted
+                          ? 'assets/icons/muted_light.svg'
+                          : 'assets/icons/muted.svg',
                       key: Key('MuteIndicator_${chat.id}'),
                       width: 19.99,
                       height: 15,
                     ),
                     const SizedBox(width: 5),
                   ],
-                  _counter(),
+                  if (rxChat.unreadCount.value > 0) ...[
+                    const SizedBox(width: 4),
+                    UnreadCounter(
+                      key: const Key('UnreadMessages'),
+                      rxChat.unreadCount.value,
+                      inverted: inverted,
+                      dimmed: chat.muted != null,
+                    ),
+                  ] else
+                    const SizedBox(key: Key('NoUnreadMessages')),
                 ] else
                   ...trailing!,
               ],
@@ -228,117 +250,78 @@ class RecentChatTile extends StatelessWidget {
               onPressed: onUnmute,
               trailing: const Icon(Icons.notifications),
             ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectChatButton'),
-            label: 'btn_select'.l10n,
-            onPressed: onSelect,
-            trailing: const Icon(Icons.select_all),
-          ),
         ],
-        selected: isRoute || selected,
+        selected: inverted,
         avatarBuilder: avatarBuilder,
         enableContextMenu: enableContextMenu,
-        onTap: onTap ??
-            () {
-              if (!isRoute) {
-                router.chat(chat.id);
-              }
-            },
+        onTap: onTap ?? () => router.chat(chat.id),
       );
     });
   }
 
   /// Builds a subtitle for the provided [RxChat] containing either its
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
-  Widget _subtitle(BuildContext context, bool selected) {
+  Widget _subtitle(BuildContext context, bool selected, bool inverted) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
+      final List<Widget> subtitle;
+
       final Chat chat = rxChat.chat.value;
-
-      if (chat.ongoingCall != null) {
-        final Widget trailing = WidgetButton(
-          key: inCall?.call() == true
-              ? const Key('DropCallButton')
-              : const Key('JoinCallButton'),
-          onPressed: inCall?.call() == true ? onDrop : onJoin,
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: inCall?.call() == true
-                  ? Colors.red
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-            child: LayoutBuilder(builder: (context, constraints) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 8),
-                  Icon(
-                    inCall?.call() == true ? Icons.call_end : Icons.call,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  if (constraints.maxWidth > 110)
-                    Expanded(
-                      child: Text(
-                        inCall?.call() == true
-                            ? 'btn_call_end'.l10n
-                            : 'btn_join_call'.l10n,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.white),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  const SizedBox(width: 8),
-                  PeriodicBuilder(
-                    period: const Duration(seconds: 1),
-                    builder: (_) {
-                      return Text(
-                        DateTime.now()
-                            .difference(chat.ongoingCall!.at.val)
-                            .hhMmSs(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.white),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              );
-            }),
-          ),
-        );
-
-        return DefaultTextStyle(
-          style: Theme.of(context).textTheme.titleSmall!,
-          overflow: TextOverflow.ellipsis,
-          child: AnimatedSwitcher(duration: 300.milliseconds, child: trailing),
-        );
-      }
-
-      final ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      } else {
-        item = chat.lastItem;
-      }
-
-      List<Widget> subtitle = [];
+      final ChatItem? item = rxChat.lastItem;
+      final ChatMessage? draft = rxChat.draft.value;
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
-          .map((User user) => user.name?.val ?? user.num.val);
+          .map((User user) => user.name?.val ?? user.num.toString());
 
-      ChatMessage? draft = rxChat.draft.value;
-
-      if (draft != null && !selected) {
+      if (typings.isNotEmpty) {
+        if (!rxChat.chat.value.isGroup) {
+          subtitle = [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'label_typing'.l10n,
+                  style: inverted
+                      ? style.fonts.labelMediumOnPrimary
+                      : style.fonts.labelMediumPrimary,
+                ),
+                const SizedBox(width: 3),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(inverted: inverted),
+                ),
+              ],
+            ),
+          ];
+        } else {
+          subtitle = [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      typings.join('comma_space'.l10n),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: inverted
+                          ? style.fonts.labelMediumOnPrimary
+                          : style.fonts.labelMediumPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: AnimatedTyping(inverted: inverted),
+                  ),
+                ],
+              ),
+            )
+          ];
+        }
+      } else if (draft != null && !selected) {
         final StringBuffer desc = StringBuffer();
 
         if (draft.text != null) {
@@ -355,19 +338,21 @@ class RecentChatTile extends StatelessWidget {
 
         if (draft.attachments.isNotEmpty) {
           if (draft.text == null) {
+            // TODO: Backend should support single attachment updating.
             images.addAll(
               draft.attachments.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _attachment(e),
+                  child: _attachment(e, inverted: inverted),
                 );
               }),
             );
           } else {
+            // TODO: Backend should support single attachment updating.
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: _attachment(draft.attachments.first),
+                child: _attachment(draft.attachments.first, inverted: inverted),
               ),
             );
           }
@@ -395,57 +380,17 @@ class RecentChatTile extends StatelessWidget {
               ),
             ),
         ];
-      } else if (typings.isNotEmpty) {
-        if (!rxChat.chat.value.isGroup) {
-          subtitle = [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'label_typing'.l10n,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-                const SizedBox(width: 3),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: AnimatedTyping(),
-                ),
-              ],
-            ),
-          ];
-        } else {
-          subtitle = [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    child: Text(
-                      typings.join('comma_space'.l10n),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 4),
-                    child: AnimatedTyping(),
-                  ),
-                ],
-              ),
-            )
-          ];
-        }
       } else if (item != null) {
         if (item is ChatCall) {
-          const Widget widget = Padding(
-            padding: EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(Icons.call, size: 16, color: Color(0xFF666666)),
+          Widget widget = Padding(
+            padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
+            child: Icon(
+              Icons.call,
+              size: 16,
+              color: inverted
+                  ? style.colors.onPrimary
+                  : style.colors.secondaryBackgroundLightest,
+            ),
           );
 
           if (item.finishedAt == null && item.finishReason == null) {
@@ -455,7 +400,7 @@ class RecentChatTile extends StatelessWidget {
             ];
           } else {
             final String description =
-                item.finishReason?.localizedString(item.authorId == me) ??
+                item.finishReason?.localizedString(item.author.id == me) ??
                     'label_chat_call_ended'.l10n;
             subtitle = [widget, Flexible(child: Text(description))];
           }
@@ -476,7 +421,8 @@ class RecentChatTile extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 2),
                     child: _attachment(
                       e,
-                      onError: () => rxChat.updateAttachments(item!),
+                      inverted: inverted,
+                      onError: () => rxChat.updateAttachments(item),
                     ),
                   );
                 }),
@@ -487,7 +433,8 @@ class RecentChatTile extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 4),
                   child: _attachment(
                     item.attachments.first,
-                    onError: () => rxChat.updateAttachments(item!),
+                    inverted: inverted,
+                    onError: () => rxChat.updateAttachments(item),
                   ),
                 ),
               );
@@ -495,17 +442,17 @@ class RecentChatTile extends StatelessWidget {
           }
 
           subtitle = [
-            if (item.authorId == me)
+            if (item.author.id == me)
               Text('${'label_you'.l10n}${'colon_space'.l10n}')
             else if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.authorId),
+                  future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
+                          chat.getUser(item.author.id),
                           radius: 10,
                         ),
                 ),
@@ -530,11 +477,11 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.authorId),
+                  future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
                       : AvatarWidget.fromUser(
-                          chat.getUser(item!.authorId),
+                          chat.getUser(item.author.id),
                           radius: 10,
                         ),
                 ),
@@ -565,10 +512,10 @@ class RecentChatTile extends StatelessWidget {
           switch (item.action.kind) {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
-                content = userBuilder(item.authorId, (context, user) {
-                  user ??= (item as ChatInfo).author;
+                content = userBuilder(item.author.id, (context, user) {
+                  user ??= item.author;
                   final Map<String, dynamic> args = {
-                    'author': user.name?.val ?? user.num.val,
+                    'author': user.name?.val ?? user.num.toString(),
                   };
 
                   return Text('label_group_created_by'.l10nfmt(args));
@@ -583,38 +530,38 @@ class RecentChatTile extends StatelessWidget {
             case ChatInfoActionKind.memberAdded:
               final action = item.action as ChatInfoActionMemberAdded;
 
-              if (item.authorId != action.user.id) {
-                content = userBuilder(action.user.id, (context, user) {
-                  final User author = (item as ChatInfo).author;
-                  user ??= action.user;
+              content = userBuilder(action.user.id, (context, user) {
+                final User author = item.author;
+                user ??= action.user;
 
+                if (item.author.id != action.user.id) {
                   final Map<String, dynamic> args = {
-                    'author': author.name?.val ?? author.num.val,
-                    'user': user.name?.val ?? user.num.val,
+                    'author': author.name?.val ?? author.num.toString(),
+                    'user': user.name?.val ?? user.num.toString(),
                   };
 
                   return Text('label_user_added_user'.l10nfmt(args));
-                });
-              } else {
-                content = Text(
-                  'label_was_added'.l10nfmt(
-                    {'author': '${action.user.name ?? action.user.num}'},
-                  ),
-                );
-              }
+                } else {
+                  return Text(
+                    'label_was_added'.l10nfmt(
+                      {'author': user.name?.val ?? user.num.toString()},
+                    ),
+                  );
+                }
+              });
               break;
 
             case ChatInfoActionKind.memberRemoved:
               final action = item.action as ChatInfoActionMemberRemoved;
 
-              if (item.authorId != action.user.id) {
+              if (item.author.id != action.user.id) {
                 content = userBuilder(action.user.id, (context, user) {
-                  final User author = (item as ChatInfo).author;
+                  final User author = item.author;
                   user ??= action.user;
 
                   final Map<String, dynamic> args = {
-                    'author': author.name?.val ?? author.num.val,
-                    'user': user.name?.val ?? user.num.val,
+                    'author': author.name?.val ?? author.num.toString(),
+                    'user': user.name?.val ?? user.num.toString(),
                   };
 
                   return Text('label_user_removed_user'.l10nfmt(args));
@@ -632,7 +579,7 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionAvatarUpdated;
 
               final Map<String, dynamic> args = {
-                'author': item.author.name?.val ?? item.author.num.val,
+                'author': item.author.name?.val ?? item.author.num.toString(),
               };
 
               if (action.avatar == null) {
@@ -646,7 +593,7 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionNameUpdated;
 
               final Map<String, dynamic> args = {
-                'author': item.author.name?.val ?? item.author.num.val,
+                'author': item.author.name?.val ?? item.author.num.toString(),
                 if (action.name != null) 'name': action.name?.val
               };
 
@@ -667,7 +614,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: Theme.of(context).textTheme.titleSmall!,
+        style: inverted
+            ? style.fonts.bodyMediumOnPrimary
+            : style.fonts.bodyMediumSecondary,
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -675,41 +624,58 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Builds an [Attachment] visual representation.
-  Widget _attachment(Attachment e, {Future<void> Function()? onError}) {
+  Widget _attachment(
+    Attachment e, {
+    bool inverted = false,
+    Future<void> Function()? onError,
+  }) {
     Widget? content;
+
+    final style = Theme.of(router.context!).style;
 
     if (e is LocalAttachment) {
       if (e.file.isImage && e.file.bytes.value != null) {
         content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
       } else if (e.file.isVideo) {
-        // TODO: `video_player` being used doesn't support desktop platforms.
-        if ((PlatformUtils.isMobile || PlatformUtils.isWeb) &&
-            e.file.bytes.value != null) {
+        if (e.file.path == null) {
+          if (e.file.bytes.value == null) {
+            content = Container(
+              color: inverted ? style.colors.onPrimary : style.colors.secondary,
+              child: Icon(
+                Icons.video_file,
+                size: 18,
+                color:
+                    inverted ? style.colors.secondary : style.colors.onPrimary,
+              ),
+            );
+          } else {
+            content = FittedBox(
+              fit: BoxFit.cover,
+              child: VideoThumbnail.bytes(
+                e.file.bytes.value!,
+                key: key,
+                height: 300,
+              ),
+            );
+          }
+        } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.bytes(
-              bytes: e.file.bytes.value!,
+            child: VideoThumbnail.file(
+              e.file.path!,
               key: key,
               height: 300,
-            ),
-          );
-        } else {
-          content = Container(
-            color: Colors.grey,
-            child: const Icon(
-              Icons.video_file,
-              size: 18,
-              color: Colors.white,
             ),
           );
         }
       } else {
         content = Container(
-          color: Colors.grey,
-          child: SvgLoader.asset(
-            'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -729,34 +695,24 @@ class RecentChatTile extends StatelessWidget {
 
     if (e is FileAttachment) {
       if (e.isVideo) {
-        if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
-          content = FittedBox(
-            fit: BoxFit.cover,
-            child: VideoThumbnail.url(
-              url: e.original.url,
-              checksum: e.original.checksum,
-              key: key,
-              height: 300,
-              onError: onError,
-            ),
-          );
-        } else {
-          content = Container(
-            color: Colors.grey,
-            child: const Icon(
-              Icons.video_file,
-              size: 18,
-              color: Colors.white,
-            ),
-          );
-        }
+        content = FittedBox(
+          fit: BoxFit.cover,
+          child: VideoThumbnail.url(
+            e.original.url,
+            checksum: e.original.checksum,
+            key: key,
+            height: 300,
+            onError: onError,
+          ),
+        );
       } else {
         content = Container(
-          color: Colors.grey,
-          child: SvgLoader.asset(
-            'assets/icons/file.svg',
-            width: 30,
-            height: 30,
+          color: inverted ? style.colors.onPrimary : style.colors.secondary,
+          child: Center(
+            child: SvgImage.asset(
+              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
+              height: 14.3,
+            ),
           ),
         );
       }
@@ -777,18 +733,15 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Builds a [ChatItem.status] visual representation.
-  Widget _status(BuildContext context) {
+  Widget _status(BuildContext context, bool inverted) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final ChatItem? item;
-      if (rxChat.messages.isNotEmpty) {
-        item = rxChat.messages.last.value;
-      } else {
-        item = chat.lastItem;
-      }
+      final ChatItem? item = rxChat.lastItem;
 
-      if (item != null && item.authorId == me && !chat.isMonolog) {
+      if (item != null && item.author.id == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;
         final bool isRead =
             chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
@@ -807,10 +760,14 @@ class RecentChatTile extends StatelessWidget {
                         ? Icons.error_outline
                         : Icons.done,
             color: isRead
-                ? Theme.of(context).colorScheme.secondary
+                ? inverted
+                    ? style.colors.onPrimary
+                    : style.colors.primary
                 : isError
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.primary,
+                    ? style.colors.danger
+                    : inverted
+                        ? style.colors.onPrimary
+                        : style.colors.secondary,
             size: 16,
           ),
         );
@@ -820,53 +777,50 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  /// Returns a visual representation of the [Chat.unreadCount] counter.
-  Widget _counter() {
+  /// Returns a visual representation of the [Chat.ongoingCall], if any.
+  Widget _ongoingCall(BuildContext context) {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      if (rxChat.unreadCount.value > 0) {
-        return Container(
-          key: const Key('UnreadMessages'),
-          margin: const EdgeInsets.only(left: 4),
-          width: 23,
-          height: 23,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: chat.muted == null ? Colors.red : const Color(0xFFC0C0C0),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            // TODO: Implement and test notations like `4k`, `54m`, etc.
-            rxChat.unreadCount.value > 99
-                ? '99${'plus'.l10n}'
-                : '${rxChat.unreadCount.value}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            textAlign: TextAlign.center,
-          ),
-        );
+      if (chat.ongoingCall == null) {
+        return const SizedBox();
       }
 
-      return const SizedBox(key: Key('NoUnreadMessages'));
+      final bool isActive = inCall?.call() == true;
+
+      return Padding(
+        padding: const EdgeInsets.only(left: 5),
+        child: SafeAnimatedSwitcher(
+          duration: 300.milliseconds,
+          child: PeriodicBuilder(
+            period: Config.disableInfiniteAnimations
+                ? const Duration(minutes: 1)
+                : const Duration(seconds: 1),
+            builder: (_) {
+              return RectangularCallButton(
+                key: isActive
+                    ? const Key('JoinCallButton')
+                    : const Key('DropCallButton'),
+                isActive: isActive,
+                onPressed: isActive ? onDrop : onJoin,
+                at: chat.ongoingCall!.at.val,
+              );
+            },
+          ),
+        ),
+      );
     });
   }
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
+    final style = Theme.of(context).style;
+
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: const TextStyle(color: Colors.black),
-        ),
+        TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -877,37 +831,11 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
-}
-
-/// Extension adding conversion from [DateTime] to its short text relative to
-/// the [DateTime.now].
-extension DateTimeToShort on DateTime {
-  /// Returns short text representing this [DateTime].
   ///
-  /// Returns string in format `HH:MM`, if [DateTime] is within today. Returns a
-  /// short weekday name, if [difference] between this [DateTime] and
-  /// [DateTime.now] is less than 7 days. Otherwise returns a string in format
-  /// of `YYYY-MM-DD`.
-  String toShort() {
-    final DateTime now = DateTime.now();
-    final DateTime from = DateTime(now.year, now.month, now.day);
-    final DateTime to = DateTime(year, month, day);
-
-    final int differenceInDays = from.difference(to).inDays;
-
-    if (differenceInDays > 6) {
-      final String day = this.day.toString().padLeft(2, '0');
-      final String month = this.month.toString().padLeft(2, '0');
-
-      return '$year-$month-$day';
-    } else if (differenceInDays < 1) {
-      final String hour = this.hour.toString().padLeft(2, '0');
-      final String minute = this.minute.toString().padLeft(2, '0');
-
-      return '$hour:$minute';
-    } else {
-      return 'label_short_weekday'.l10nfmt({'weekday': weekday});
-    }
-  }
+  /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
+  /// for discarding long presses on its [child].
+  static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
+        onLongPress: () {},
+        child: child,
+      );
 }
