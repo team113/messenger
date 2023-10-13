@@ -295,8 +295,8 @@ class ContactRepository extends DisposableInterface
       return {};
     }
 
-    final SearchResultImpl<ChatContactId, RxChatContact, ChatContactsCursor>
-        searchResult = SearchResultImpl(
+    final SearchResultImpl<ChatContactId, RxChatContact> searchResult =
+        SearchResultImpl(
       pagination: pagination,
       initial: [
         {for (var u in contacts) u.id: u},
