@@ -197,7 +197,7 @@ class ChatRepository extends DisposableInterface
     _cancelToken.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
-    _favoriteChatsSubscription?.cancel();
+    _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
 
     super.onClose();
@@ -643,22 +643,19 @@ class ChatRepository extends DisposableInterface
     try {
       dio.MultipartFile upload;
 
-      if (attachment.file.path != null) {
-        attachment.file
-            .readFile()
-            .then((_) => attachment.read.value?.complete(null));
-        upload = await dio.MultipartFile.fromFile(
-          attachment.file.path!,
+      await attachment.file.readFile();
+      attachment.read.value?.complete(null);
+      attachment.status.refresh();
+
+      if (attachment.file.bytes.value != null) {
+        upload = dio.MultipartFile.fromBytes(
+          attachment.file.bytes.value!,
           filename: attachment.file.name,
           contentType: attachment.file.mime,
         );
-      } else if (attachment.file.stream != null ||
-          attachment.file.bytes.value != null) {
-        await attachment.file.readFile();
-        attachment.read.value?.complete(null);
-        attachment.status.refresh();
-        upload = dio.MultipartFile.fromBytes(
-          attachment.file.bytes.value!,
+      } else if (attachment.file.path != null) {
+        upload = await dio.MultipartFile.fromFile(
+          attachment.file.path!,
           filename: attachment.file.name,
           contentType: attachment.file.mime,
         );
