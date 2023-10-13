@@ -139,17 +139,23 @@ class MyUserRepository implements AbstractMyUserRepository {
       blacklist.addAll(users.whereNotNull());
     }
 
-    final List<HiveUser> blacklisted =
-        await Backoff.run(_fetchBlocklist, _cancelToken);
+    try {
+      final List<HiveUser> blacklisted =
+          await Backoff.run(_fetchBlocklist, _cancelToken);
 
-    for (UserId c in _blocklistLocal.blocked) {
-      if (blacklisted.none((e) => e.value.id == c)) {
-        _blocklistLocal.remove(c);
+      for (UserId c in _blocklistLocal.blocked) {
+        if (blacklisted.none((e) => e.value.id == c)) {
+          _blocklistLocal.remove(c);
+        }
       }
-    }
 
-    for (HiveUser c in blacklisted) {
-      _blocklistLocal.put(c.value.id);
+      for (HiveUser c in blacklisted) {
+        _blocklistLocal.put(c.value.id);
+      }
+    } catch (e) {
+      if (e is! OperationCanceledException) {
+        rethrow;
+      }
     }
   }
 

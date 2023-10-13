@@ -145,16 +145,13 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<RecentChatsEvent>? _remoteSubscription;
 
+  /// [DateTime] when the [_remoteSubscription] initializing has been started.
+  DateTime? _subscribingStarted;
+
   /// [_favoriteChatsEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
-
-  /// Indicator whether [_remoteSubscription] is initialized.
-  ///
-  /// Used to skip the [_initPagination] invoke in the first
-  /// [RecentChatsEventKind.initialized] event, as [init] already does it.
-  bool _remoteSubscriptionInitialized = false;
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _getGuards = {};
@@ -1390,9 +1387,14 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    _subscribingStarted = DateTime.now();
+
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
-    await _remoteSubscription!.execute(_recentChatsRemoteEvent);
+    await _remoteSubscription!.execute(
+      _recentChatsRemoteEvent,
+      onError: (_) => _subscribingStarted = DateTime.now(),
+    );
   }
 
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
@@ -1402,11 +1404,11 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.initialized:
         // TODO: This re-creates the whole [_pagination], even when an auth
         //       token is refreshed.
-        if (_remoteSubscriptionInitialized) {
+        if (_subscribingStarted?.isBefore(
+                DateTime.now().subtract(const Duration(minutes: 1))) ==
+            true) {
           await _initPagination();
         }
-
-        _remoteSubscriptionInitialized = true;
         break;
 
       case RecentChatsEventKind.list:
@@ -1493,39 +1495,46 @@ class ChatRepository extends DisposableInterface
 
     _cancelToken.cancel();
     _cancelToken = dio.CancelToken();
-    await Backoff.run(_pagination!.around, _cancelToken);
 
-    _paginationSubscription?.cancel();
-    _paginationSubscription = _pagination!.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
-          break;
+    try {
+      await Backoff.run(_pagination!.around, _cancelToken);
 
-        case OperationKind.removed:
-          remove(event.value!.value.id);
-          break;
+      _paginationSubscription?.cancel();
+      _paginationSubscription = _pagination!.changes.listen((event) async {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            final ChatData chatData = ChatData(event.value!, null, null);
+            _putEntry(chatData, pagination: true);
+            break;
+
+          case OperationKind.removed:
+            remove(event.value!.value.id);
+            break;
+        }
+      });
+
+      // Clear the [paginated] and the [_localPagination] populating it, as
+      // [CombinedPagination.around] has fetched its results.
+      paginated.clear();
+      _localPagination = null;
+
+      // Add the received in [CombinedPagination.around] items to the [paginated].
+      _pagination?.items
+          .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
+
+      if (_pagination?.hasNext.value == false) {
+        await _initMonolog();
       }
-    });
 
-    // Clear the [paginated] and the [_localPagination] populating it, as
-    // [CombinedPagination.around] has fetched its results.
-    paginated.clear();
-    _localPagination = null;
+      await Future.delayed(1.milliseconds);
 
-    // Add the received in [CombinedPagination.around] items to the [paginated].
-    _pagination?.items
-        .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
-
-    if (_pagination?.hasNext.value == false) {
-      await _initMonolog();
+      status.value = RxStatus.success();
+    } catch (e) {
+      if (e is! OperationCanceledException) {
+        rethrow;
+      }
     }
-
-    await Future.delayed(1.milliseconds);
-
-    status.value = RxStatus.success();
   }
 
   /// Subscribes to the remote updates of the [chats].
