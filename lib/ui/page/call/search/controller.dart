@@ -156,10 +156,11 @@ class SearchController extends GetxController {
 
   /// Indicates whether the [usersSearch] or [contactsSearch] have
   /// next page.
-  RxBool get hasNext =>
-      usersSearch.value?.hasNext ??
-      contactsSearch.value?.hasNext ??
-      RxBool(false);
+  RxBool get hasNext => query.value.length < 2
+      ? _chatService.hasNext
+      : usersSearch.value?.hasNext ??
+          contactsSearch.value?.hasNext ??
+          RxBool(false);
 
   @override
   void onInit() {
@@ -449,7 +450,7 @@ class SearchController extends GetxController {
   /// Updates the [chats] according to the [query].
   void _populateChats() {
     if (categories.contains(SearchCategory.chat)) {
-      final List<RxChat> sorted = _chatService.chats.values.toList();
+      final List<RxChat> sorted = _chatService.paginated.values.toList();
 
       sorted.sort();
 
@@ -605,11 +606,23 @@ class SearchController extends GetxController {
 
   /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
   Future<void> _next() async {
-    await _nextContacts();
-    await _nextUsers();
+    if (query.value.length < 2) {
+      if (_chatService.hasNext.isTrue && _chatService.nextLoading.isFalse) {
+        searchStatus.value = RxStatus.loadingMore();
+
+        await _chatService.next();
+        await Future.delayed(1.milliseconds);
+        _populateChats();
+
+        searchStatus.value = RxStatus.success();
+      }
+    } else {
+      await _nextContacts();
+      await _nextUsers();
+    }
   }
 
-  /// Fetches the next [contactsSearch] page, if needed.
+  /// Fetches the next [contactsSearch] page.
   Future<void> _nextContacts() async {
     if (categories.contains(SearchCategory.contact) &&
         contactsSearch.value?.hasNext.value == true &&
@@ -618,7 +631,7 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Fetches the next [contactsSearch] page, if needed.
+  /// Fetches the next [contactsSearch] page.
   Future<void> _nextUsers() async {
     if ((contactsSearch.value == null ||
             contactsSearch.value!.hasNext.isFalse) &&

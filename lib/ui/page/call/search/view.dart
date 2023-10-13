@@ -212,14 +212,21 @@ class SearchView extends StatelessWidget {
                             child = const SizedBox();
                           }
 
-                          if (i == childCount - 1 && c.hasNext.value == true) {
-                            child = Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                child,
-                                const CustomProgressIndicator(),
-                              ],
-                            );
+                          if (i == childCount - 1) {
+                            Widget widget = child;
+                            child = Obx(() {
+                              if (c.searchStatus.value.isLoadingMore) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    widget,
+                                    const CustomProgressIndicator(),
+                                  ],
+                                );
+                              } else {
+                                return widget;
+                              }
+                            });
                           }
 
                           return child;
