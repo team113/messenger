@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:toml/toml.dart';
 
+import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
@@ -54,6 +55,9 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
+  /// VAPID (Voluntary Application Server Identification) key for Web Push.
+  static String vapidKey = '';
+
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
@@ -75,11 +79,32 @@ class Config {
   /// Intended to be used in E2E testing.
   static String? version;
 
+  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
+  /// instance to initialize it.
+  static Map<String, dynamic> get callKeep {
+    return {
+      'ios': {'appName': 'Gapopa'},
+      'android': {
+        'alertTitle': 'label_call_permissions_title'.l10n,
+        'alertDescription': 'label_call_permissions_description'.l10n,
+        'cancelButton': 'btn_dismiss'.l10n,
+        'okButton': 'btn_allow'.l10n,
+        'foregroundService': {
+          'channelId': 'default',
+          'channelName': 'Default',
+          'notificationTitle': 'My app is running on background',
+          'notificationIcon': 'mipmap/ic_notification_launcher',
+        },
+        'additionalPermissions': <String>[],
+      },
+    };
+  }
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
-  /// - default values;
   /// - compile-time environment variables;
-  /// - bundled configuration file (`conf.toml`).
+  /// - bundled configuration file (`conf.toml`);
+  /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     Map<String, dynamic> document =
@@ -133,6 +158,11 @@ class Config {
     clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
         ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
         : (document['windows']?['clsid'] ?? '');
+
+    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
+        : (document['fcm']?['vapidKey'] ??
+            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
     origin = url;
 
@@ -193,6 +223,7 @@ class Config {
                 remote['user']?['agent']?['product'] ?? userAgentProduct;
             userAgentVersion =
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
+            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             origin = url;
           }
         }
