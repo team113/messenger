@@ -203,6 +203,7 @@ class CacheWorker extends DisposableService {
 
   /// Adds the provided [data] to the cache.
   FutureOr<File?> add(Uint8List data, [String? checksum]) {
+    // Calculating SHA-256 hash from [data] on Web may freeze the application.
     if (!PlatformUtils.isWeb) {
       checksum ??= sha256.convert(data).toString();
     }

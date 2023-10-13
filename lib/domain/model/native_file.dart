@@ -93,6 +93,7 @@ class NativeFile {
   ///           [ensureCorrectMediaType] before accessing this field.
   MediaType? mime;
 
+  /// [Size] of the image this [NativeFile] represents, if [isImage].
   final Rx<Size?> dimensions = Rx(null);
 
   /// [Mutex] for synchronized access to the [readFile].
@@ -204,7 +205,7 @@ class NativeFile {
         _readStream = null;
       }
 
-      // Decode the file, if [isImage].
+      // Decode the file, if it [isImage].
       //
       // Throws an error, if decoding fails.
       if (isImage && bytes.value != null) {

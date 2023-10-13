@@ -52,7 +52,6 @@ dependencies:
   image_picker:
     git:
       url: https://github.com/krida2000/image_picker.git
-  image_size_getter: ^2.1.2
   intl: ^0.17.0
   js: ^0.6.5
   material_floating_search_bar: ^0.3.7

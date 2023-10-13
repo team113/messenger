@@ -15,8 +15,16 @@ All user visible changes to this project will be documented in this file. This p
 
 - Push notifications. ([#202], [#201])
 
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Wide image attachments having blurry previews. ([#628], [#525])
+
 [#201]: /../../issues/201
 [#202]: /../../pull/202
+[#525]: /../../issues/525
+[#628]: /../../pull/628
 
 
 
@@ -53,7 +61,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
         - Title jumping around when entering search. ([#613], [#550])
-        - Wide image attachments having blurry previews. ([#628], [#525])
     - User's last seen status not updating periodically. ([#610], [#551])
 - Web:
     - Fix background flashing after loading. ([#604], [#549])
@@ -63,7 +70,6 @@ All user visible changes to this project will be documented in this file. This p
 [#370]: /../../issues/370
 [#423]: /../../pull/423
 [#508]: /../../issues/508
-[#525]: /../../issues/525
 [#533]: /../../pull/533
 [#549]: /../../issues/549
 [#550]: /../../issues/550
@@ -79,7 +85,6 @@ All user visible changes to this project will be documented in this file. This p
 [#613]: /../../pull/613
 [#614]: /../../issues/614
 [#616]: /../../pull/616
-[#628]: /../../pull/628
 
 
 
