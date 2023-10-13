@@ -1081,10 +1081,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_copy'.l10n
                                     : 'btn_copy_text'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/copy_small.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.copy),
                                 onPressed: () => widget.onCopy
                                     ?.call(_selection?.plainText ?? copyable!),
                               ),

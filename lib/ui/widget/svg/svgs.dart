@@ -62,18 +62,16 @@ class SvgIcons {
     height: 16.02,
   );
 
-  // TODO
   static const SvgData callStartSmall = SvgData(
-    'assets/icons/call_start.svg',
-    width: 10,
+    'assets/icons/call_start_small.svg',
+    width: 9.99,
     height: 10,
   );
 
-  // TODO
   static const SvgData home = SvgData(
     'assets/icons/home.svg',
-    width: 21.8,
-    height: 21.04,
+    width: 21.43,
+    height: 21,
   );
 
   static const SvgData shareThick = SvgData(
@@ -101,7 +99,6 @@ class SvgIcons {
     height: 15,
   );
 
-  // TODO
   // Think about colors naming.
   static const SvgData closeSmallPrimary = SvgData(
     'assets/icons/close_small_primary.svg',
@@ -157,24 +154,21 @@ class SvgIcons {
     height: 22.01,
   );
 
-// TODO
   static const SvgData googleBig = SvgData(
-    'assets/icons/google.svg',
-    width: 100,
+    'assets/icons/google_big.svg',
+    width: 97.99,
     height: 100,
   );
 
-  // TODO
   static const SvgData appleBig = SvgData(
-    'assets/icons/apple.svg',
-    width: 100,
+    'assets/icons/apple_big.svg',
+    width: 78.04,
     height: 100,
   );
 
-  // TODO
   static const SvgData githubBig = SvgData(
-    'assets/icons/github.svg',
-    width: 100,
+    'assets/icons/github_big.svg',
+    width: 100.65,
     height: 100,
   );
 
@@ -268,10 +262,9 @@ class SvgIcons {
     height: 25,
   );
 
-  // TODO
   static const SvgData github = SvgData(
     'assets/icons/github.svg',
-    width: 26,
+    width: 26.17,
     height: 26,
   );
 
@@ -299,9 +292,9 @@ class SvgIcons {
     height: 17,
   );
 
-  // TODO
   static const SvgData copySmall = SvgData(
-    'assets/icons/copy.svg',
+    'assets/icons/copy_small.svg',
+    width: 10.24,
     height: 12,
   );
 

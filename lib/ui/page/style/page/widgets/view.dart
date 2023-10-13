@@ -406,13 +406,7 @@ class _WidgetsViewState extends State<WidgetsView> {
               onSuffixPressed: () {},
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: const SvgImage.asset(
-                    'assets/icons/copy.svg',
-                    height: 15,
-                  ),
-                ),
+                child: const SvgIcon(SvgIcons.copy),
               ),
               label: 'Label',
               hint: 'Hint',
