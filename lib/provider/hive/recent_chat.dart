@@ -39,7 +39,7 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(ChatId item, PreciseDateTime key) =>
-      putSafe(key.toString(), item);
+      putSafe(key.toUtc().toString(), item);
 
   /// Removes a [ChatId] item from [Hive] by the provided [index].
   Future<void> removeAt(int index) => deleteAtSafe(index);
