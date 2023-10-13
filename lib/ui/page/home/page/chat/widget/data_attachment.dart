@@ -110,10 +110,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               child: Center(
                 child: Transform.translate(
                   offset: const Offset(0.3, -0.5),
-                  child: const SvgImage.asset(
-                    'assets/icons/file.svg',
-                    height: 12.5,
-                  ),
+                  child: const SvgIcon(SvgIcons.fileSmallWhite),
                 ),
               ),
             );

@@ -205,7 +205,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
               if (widget.framelessBuilder != null) widget.framelessBuilder!(),
               Center(
                 child: Container(
-                  color: Colors.yellow,
                   padding: const EdgeInsets.all(16),
                   child: const CustomProgressIndicator.big(),
                 ),

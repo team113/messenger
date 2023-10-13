@@ -102,14 +102,14 @@ class ChatInfoView extends StatelessWidget {
                                   maxLines: 1,
                                 ),
                               ),
-                              if (c.chat?.chat.value.muted != null) ...[
-                                const SizedBox(width: 5),
-                                const SvgImage.asset(
-                                  'assets/icons/muted.svg',
-                                  width: 19.99 * 0.6,
-                                  height: 15 * 0.6,
-                                ),
-                              ]
+                              // if (c.chat?.chat.value.muted != null) ...[
+                              //   const SizedBox(width: 5),
+                              //   const SvgImage.asset(
+                              //     'assets/icons/muted.svg',
+                              //     width: 19.99 * 0.6,
+                              //     height: 15 * 0.6,
+                              //   ),
+                              // ]
                             ],
                           ),
                           ChatSubtitle(c.chat!, c.me, withActivities: false),
@@ -278,7 +278,8 @@ class ChatInfoView extends StatelessWidget {
         children: [
           BigButton(
             key: const Key('AddMemberButton'),
-            leading: Icon(Icons.people, color: style.colors.primary),
+            // leading: Icon(Icons.people, color: style.colors.primary),
+            leading: const SvgIcon(SvgIcons.addUser),
             title: Text('btn_add_member'.l10n),
             onPressed: () => AddChatMemberView.show(context, chatId: id),
           ),
@@ -317,11 +318,7 @@ class ChatInfoView extends StatelessWidget {
             text: 'btn_add_to_contacts'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+              child: const SvgIcon(SvgIcons.delete),
             ),
           ),
         Obx(() {
@@ -336,11 +333,7 @@ class ChatInfoView extends StatelessWidget {
                 : 'btn_add_to_favorites'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+              child: const SvgIcon(SvgIcons.delete),
             ),
           );
         }),
@@ -352,20 +345,9 @@ class ChatInfoView extends StatelessWidget {
               text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: muted
-                      ? const SvgImage.asset(
-                          'assets/icons/btn_mute.svg',
-                          width: 18.68,
-                          height: 15,
-                        )
-                      : const SvgImage.asset(
-                          'assets/icons/btn_unmute.svg',
-                          width: 17.86,
-                          height: 15,
-                        ),
-                ),
+                child: muted
+                    ? const SvgIcon(SvgIcons.mute)
+                    : const SvgIcon(SvgIcons.unmute),
               ),
             );
           }),
@@ -375,11 +357,7 @@ class ChatInfoView extends StatelessWidget {
           text: 'btn_hide_chat'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child:
-                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+            child: const SvgIcon(SvgIcons.delete),
           ),
         ),
         ActionButton(
@@ -388,11 +366,7 @@ class ChatInfoView extends StatelessWidget {
           text: 'btn_clear_history'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child:
-                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+            child: const SvgIcon(SvgIcons.delete),
           ),
         ),
         if (!c.isMonolog) ...[
@@ -401,11 +375,7 @@ class ChatInfoView extends StatelessWidget {
             text: 'btn_leave_group'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+              child: const SvgIcon(SvgIcons.delete),
             ),
           ),
           ActionButton(
@@ -413,11 +383,7 @@ class ChatInfoView extends StatelessWidget {
             text: 'btn_block'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+              child: const SvgIcon(SvgIcons.delete),
             ),
           ),
           ActionButton(
@@ -425,11 +391,7 @@ class ChatInfoView extends StatelessWidget {
             text: 'btn_report'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/delete.svg', height: 14),
-              ),
+              child: const SvgIcon(SvgIcons.delete),
             ),
           ),
         ],

@@ -15,13 +15,14 @@ class SvgData {
 }
 
 class SvgIcon extends StatelessWidget {
-  const SvgIcon(this.data, {super.key});
+  const SvgIcon(this.data, {super.key, this.height});
 
   final SvgData data;
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.icon(data);
+    return SvgImage.icon(data, height: height);
   }
 }
 
@@ -368,5 +369,83 @@ class SvgIcons {
     'assets/icons/public_information6_white.svg',
     width: 34,
     height: 34,
+  );
+
+  static const SvgData addAccount = SvgData(
+    'assets/icons/add_account.svg',
+    width: 21.47,
+    height: 20,
+  );
+
+  static const SvgData delete = SvgData(
+    'assets/icons/delete.svg',
+    width: 16.75,
+    height: 15.99,
+  );
+
+  // TODO
+  static const SvgData notes = SvgData(
+    'assets/icons/notes.svg',
+    width: 31.43,
+    height: 31.67,
+  );
+
+  // TODO
+  static const SvgData mute = SvgData(
+    'assets/icons/mute.svg',
+    width: 17.85,
+    height: 16,
+  );
+
+  // TODO
+  static const SvgData unmute = SvgData(
+    'assets/icons/unmute.svg',
+    width: 17.85,
+    height: 16,
+  );
+
+  // TODO
+  static const SvgData muted = SvgData(
+    'assets/icons/muted.svg',
+    width: 19.99,
+    height: 15,
+  );
+
+  // TODO
+  static const SvgData mutedWhite = SvgData(
+    'assets/icons/muted_light.svg',
+    width: 19.99,
+    height: 15,
+  );
+
+  // TODO
+  static const SvgData fileSmall = SvgData(
+    'assets/icons/file_dark.svg',
+    height: 14.3,
+  );
+
+  // TODO
+  static const SvgData fileSmallWhite = SvgData(
+    'assets/icons/file.svg',
+    height: 14.3,
+  );
+
+  // TODO
+  static const SvgData fileWhite = SvgData(
+    'assets/icons/file.svg',
+    height: 29,
+  );
+
+  static const SvgData addUser = SvgData(
+    'assets/icons/add_user.svg',
+    width: 19.35,
+    height: 18.32,
+  );
+
+// TODO:
+  static const SvgData chatMore = SvgData(
+    'assets/icons/chat_more1.svg',
+    height: 22,
+    width: 22,
   );
 }

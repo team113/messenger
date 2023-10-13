@@ -113,7 +113,7 @@ class MenuTabView extends StatelessWidget {
                           children: [
                             Text(
                               c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.val ??
+                                  c.myUser.value?.num.toString() ??
                                   'dot'.l10n * 3,
                               style: style.fonts.headlineMedium,
                             ),
@@ -146,11 +146,10 @@ class MenuTabView extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
                     if (router.accounts.value == 0) {
-                      return const AnimatedButton(
-                        child: SvgImage.asset(
-                          'assets/icons/add_account.svg',
-                          width: 22.37,
-                          height: 20,
+                      return AnimatedButton(
+                        child: Transform.translate(
+                          offset: const Offset(0, 1),
+                          child: const SvgIcon(SvgIcons.addAccount),
                         ),
                       );
                     } else if (router.accounts.value == 1) {
@@ -158,7 +157,7 @@ class MenuTabView extends StatelessWidget {
                         child: AvatarWidget(
                           radius: 13,
                           title: c.myUser.value!.name?.val ??
-                              c.myUser.value!.num.val,
+                              c.myUser.value!.num.toString(),
                           color: c.myUser.value!.num.val.sum() - 1,
                         ),
                       );
@@ -170,7 +169,7 @@ class MenuTabView extends StatelessWidget {
                             AvatarWidget(
                               radius: 13,
                               title: c.myUser.value!.name?.val ??
-                                  c.myUser.value!.num.val,
+                                  c.myUser.value!.num.toString(),
                               color: c.myUser.value!.num.val.sum() - 2,
                             ),
                             Padding(
@@ -184,7 +183,7 @@ class MenuTabView extends StatelessWidget {
                                 child: AvatarWidget(
                                   radius: 13,
                                   title: c.myUser.value!.name?.val ??
-                                      c.myUser.value!.num.val,
+                                      c.myUser.value!.num.toString(),
                                   color: c.myUser.value!.num.val.sum() - 1,
                                 ),
                               ),

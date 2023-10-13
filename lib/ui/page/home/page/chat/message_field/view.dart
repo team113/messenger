@@ -531,11 +531,7 @@ class MessageFieldView extends StatelessWidget {
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.bounceInOut,
                         scale: c.moreOpened.value ? 1.1 : 1,
-                        child: const SvgImage.asset(
-                          'assets/icons/chat_more1.svg',
-                          height: 22,
-                          width: 22,
-                        ),
+                        child: SvgIcon(SvgIcons.chatMore),
                       );
                     }),
                   ),

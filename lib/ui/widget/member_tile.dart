@@ -120,16 +120,9 @@ class MemberTile extends StatelessWidget {
               await onKick?.call();
             }
           },
-          child: canLeave
-              ? Text(
-                  'btn_leave'.l10n,
-                  style: style.fonts.labelLargePrimary,
-                )
-              : const SvgImage.asset(
-                  'assets/icons/delete.svg',
-                  height: 14 * 1.5,
-                  key: Key('DeleteMemberButton'),
-                ),
+          child: canLeave && false
+              ? Text('btn_leave'.l10n, style: style.fonts.labelLargePrimary)
+              : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
         ),
         const SizedBox(width: 6),
       ],

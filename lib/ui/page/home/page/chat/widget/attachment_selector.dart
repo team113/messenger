@@ -108,9 +108,7 @@ class AttachmentSourceSelector extends StatelessWidget {
       _AttachmentButton(
         text: 'label_file'.l10n,
         onPressed: onPickFile,
-        child: const Center(
-          child: SvgImage.asset('assets/icons/file.svg', height: 29),
-        ),
+        child: const Center(child: SvgIcon(SvgIcons.fileWhite)),
       ),
     ];
 

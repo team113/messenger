@@ -373,15 +373,13 @@ class UserView extends StatelessWidget {
           }),
           ActionButton(
             text: 'btn_hide_chat'.l10n,
-            trailing:
-                const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing: const SvgIcon(SvgIcons.delete),
             onPressed: () => _hideChat(c, context),
           ),
           ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing:
-                const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing: const SvgIcon(SvgIcons.delete),
             onPressed: () => _clearChat(c, context),
           ),
         ],

@@ -24,8 +24,12 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
+import 'package:messenger/ui/page/home/widget/chat_tile.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/page/home/widget/wallet.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
@@ -283,6 +287,17 @@ class _WidgetsViewState extends State<IconsView> {
                     onPressed: () =>
                         c.icon.value = IconDetails(SvgIcons.searchExit.asset),
                     child: const SvgIcon(SvgIcons.searchExit),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _appBar(
+                context,
+                trailing: [
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.addAccount.asset),
+                    child: const SvgIcon(SvgIcons.addAccount),
                   ),
                 ],
               ),
@@ -611,6 +626,56 @@ class _WidgetsViewState extends State<IconsView> {
                     child: const SvgIcon(SvgIcons.chats),
                   ),
                 ],
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              ActionButton(
+                trailing: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.delete.asset),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ActionButton(
+                trailing: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.mute.asset),
+                  child: const SvgIcon(SvgIcons.mute),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ActionButton(
+                trailing: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.unmute.asset),
+                  child: const SvgIcon(SvgIcons.unmute),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ActionButton(
+                trailing: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.addUser.asset),
+                  child: const SvgIcon(SvgIcons.addUser),
+                ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              ChatTile(
+                avatarBuilder: (_) => AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.notes.asset),
+                  child: AvatarWidget.fromMonolog(
+                    null,
+                    null,
+                    radius: 30,
+                  ),
+                ),
               ),
             ],
           ),

@@ -205,13 +205,9 @@ class RecentChatTile extends StatelessWidget {
                     const SizedBox(width: 5),
                   ] else if (chat.muted != null) ...[
                     const SizedBox(width: 5),
-                    SvgImage.asset(
-                      inverted
-                          ? 'assets/icons/muted_light.svg'
-                          : 'assets/icons/muted.svg',
+                    SvgIcon(
+                      inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
                       key: Key('MuteIndicator_${chat.id}'),
-                      width: 19.99,
-                      height: 15,
                     ),
                     const SizedBox(width: 5),
                   ],
@@ -710,9 +706,8 @@ class RecentChatTile extends StatelessWidget {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
           child: Center(
-            child: SvgImage.asset(
-              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-              height: 14.3,
+            child: SvgIcon(
+              inverted ? SvgIcons.fileSmall : SvgIcons.fileSmallWhite,
             ),
           ),
         );
@@ -747,9 +742,8 @@ class RecentChatTile extends StatelessWidget {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
           child: Center(
-            child: SvgImage.asset(
-              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-              height: 14.3,
+            child: SvgIcon(
+              inverted ? SvgIcons.fileSmall : SvgIcons.fileSmallWhite,
             ),
           ),
         );

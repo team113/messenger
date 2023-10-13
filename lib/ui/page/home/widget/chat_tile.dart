@@ -171,18 +171,18 @@ class _ChatTileState extends State<ChatTile> {
                 padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
                 child: Row(
                   children: [
-                    AvatarWidget.fromRxChat(
-                      widget.chat,
-                      key: _avatarKey,
-                      radius: 30,
-                    ),
-                    // widget.avatarBuilder(
-                    //   AvatarWidget.fromRxChat(
-                    //     widget.chat,
-                    //     key: _avatarKey,
-                    //     radius: 30,
-                    //   ),
+                    // AvatarWidget.fromRxChat(
+                    //   widget.chat,
+                    //   key: _avatarKey,
+                    //   radius: 30,
                     // ),
+                    widget.avatarBuilder(
+                      AvatarWidget.fromRxChat(
+                        widget.chat,
+                        key: _avatarKey,
+                        radius: 30,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     ...widget.leading,
                     Expanded(
