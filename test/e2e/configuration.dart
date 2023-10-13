@@ -63,7 +63,6 @@ import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
-import 'steps/local_chat.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
@@ -79,6 +78,7 @@ import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
+import 'steps/see_chats.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
@@ -141,7 +141,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         goToUserPage,
         hasDialogWithMe,
         hasGroups,
-        hasLocalChat,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -164,6 +163,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         returnToPreviousPage,
         rightClickWidget,
         scrollAndSee,
+        scrollToEnd,
         scrollUntilPresent,
         seeChatAsFavorite,
         seeChatAsMuted,
@@ -175,6 +175,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeContactSelection,
+        seeCountChats,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
@@ -276,6 +277,16 @@ Future<CustomUser> createUser(
   await provider.updateUserName(UserName(user.name));
   if (password != null) {
     await provider.updateUserPassword(null, password);
+
+    final result = await provider.signIn(
+      password,
+      null,
+      customUser.userNum,
+      null,
+      null,
+      true,
+    );
+    world.sessions[user.name]?.credentials = result.toModel();
   }
   provider.disconnect();
 

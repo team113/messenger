@@ -207,6 +207,7 @@ class ChatRepository extends DisposableInterface
 
     _localPagination = Pagination(
       onKey: (e) => e.value.id,
+      perPage: 15,
       provider: HivePageProvider(
         _chatLocal,
         getCursor: (e) => e?.recentCursor,

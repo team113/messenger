@@ -926,7 +926,10 @@ class ChatController extends GetxController {
       }
     }
 
-    _ensureScrollable();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _ensureScrollable();
+    });
+
     _ignorePositionChanges = false;
   }
 
