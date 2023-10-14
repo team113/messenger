@@ -39,6 +39,7 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onCrop,
     this.loading = false,
   })  : _mode = _BigAvatarMode.myUser,
         user = null,
@@ -50,6 +51,7 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onCrop,
     this.loading = false,
   })  : _mode = _BigAvatarMode.chat,
         myUser = null,
@@ -61,6 +63,7 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onCrop,
     this.loading = false,
   })  : _mode = _BigAvatarMode.user,
         myUser = null,
@@ -86,6 +89,8 @@ class BigAvatarWidget extends StatefulWidget {
 
   /// Callback, called when delete of [Avatar] is required.
   final void Function()? onDelete;
+
+  final void Function()? onCrop;
 
   @override
   State<BigAvatarWidget> createState() => _BigAvatarWidgetState();
@@ -149,6 +154,20 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onDelete,
                   child: Text(
                     'btn_delete'.l10n.toLowerCase(),
+                    style: style.fonts.labelSmallPrimary,
+                  ),
+                ),
+              if (widget.onUpload != null && widget.onDelete != null)
+                Text(
+                  'space_or_space'.l10n,
+                  style: style.fonts.labelSmall,
+                ),
+              if (widget.onDelete != null)
+                WidgetButton(
+                  key: const Key('CropAvatar'),
+                  onPressed: widget.onCrop,
+                  child: Text(
+                    'Crop',
                     style: style.fonts.labelSmallPrimary,
                   ),
                 ),

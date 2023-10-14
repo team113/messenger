@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../crop_avatar/view.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
@@ -225,11 +226,30 @@ class MyProfileController extends GetxController {
         allowMultiple: false,
         withData: true,
       );
+      Uint8List? fileData = result!.files.first.bytes;
+      Image avatar = Image.memory(fileData!);
+
+      if (await CropAvatarView.show(router.context!, avatar) != true) {}
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
         await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
       }
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
+  }
+
+  /// Crop.
+  Future<bool> cropAvatar() async {
+    print('Crop');
+    try {
+      // Image avatar = Image.file(myUser.value.avatar?);
+      // if (await CropAvatarView.show(router.context!, ) != true) {
+      //   return false;
+      // }
+
+      return true;
     } finally {
       avatarUpload.value = RxStatus.empty();
     }

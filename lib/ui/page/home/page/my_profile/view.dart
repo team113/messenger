@@ -122,6 +122,7 @@ class MyProfileView extends StatelessWidget {
                               onDelete: c.myUser.value?.avatar != null
                                   ? c.deleteAvatar
                                   : null,
+                              onCrop: () => {c.cropAvatar()},
                             );
                           }),
                           const SizedBox(height: 12),
