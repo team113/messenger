@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
+import '/domain/model/file.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -110,9 +111,13 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 height: widget.height,
               );
             } else {
+              final Size? dimensions = attachment.file.dimensions.value;
+              final double ratio =
+                  (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
+
               return Image.memory(
                 attachment.file.bytes.value!,
-                fit: widget.fit,
+                fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
                 height: widget.height,
               );
@@ -120,9 +125,12 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           }
         });
       } else {
+        final ImageFile file = attachment.original as ImageFile;
+        final double ratio = (file.width ?? 300) / (file.height ?? 300);
+
         child = RetryImage.attachment(
           attachment as ImageAttachment,
-          fit: widget.fit,
+          fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
           height: widget.height,
           onForbidden: widget.onError,

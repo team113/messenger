@@ -125,10 +125,9 @@ jobs:
           - macos
           - web
           - windows
-    runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
-                                               && 'macos-latest')
-              || (matrix.platform == 'windows' && 'windows-latest')
-              ||                                  'ubuntu-latest' }}
+    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
+              || (matrix.platform == 'windows'           && 'windows-latest')
+              ||                                            'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -152,10 +151,28 @@ jobs:
                           mpv
         if: ${{ matrix.platform == 'linux' }}
 
+      - name: Configure FCM (Firebase Cloud Messaging)
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
+        run: |
+          set -ex
+          npm install -g firebase-tools
+          dart pub global activate flutterfire_cli
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' \
+          > ${{ runner.temp }}/service_account.json
+
+          make fcm.conf project-id=${{ secrets.FCM_PROJECT_ID }} \
+                        platforms="android,ios,web" \
+                        web-id=${{ secrets.FCM_WEB_APP_ID }} \
+                        bundle-id=${{ secrets.FCM_BUNDLE_ID }}
+        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
+      - name: Configure FCM (Firebase Cloud Messaging) service worker
+        run: echo '${{ secrets.GOOGLE_SERVICES_JS }}'
+             > web/firebase-messaging-sw.js
+        if: ${{ matrix.platform == 'web' }}
+
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'windows' }}
+        if: ${{ contains('linux macos windows', matrix.platform) }}
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -168,6 +185,7 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
+                  dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}'
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
@@ -209,11 +227,7 @@ jobs:
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
-        if: ${{ matrix.platform == 'ios'
-             || matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'web'
-             || matrix.platform == 'windows' }}
+        if: ${{ contains('ios linux macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'

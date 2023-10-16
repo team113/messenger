@@ -108,7 +108,7 @@ void main() async {
     Get.put(draftProvider);
     Get.put(settingsProvider);
     Get.put(credentialsProvider);
-    Get.put(NotificationService());
+    Get.put(NotificationService(graphQlProvider));
     Get.put(BackgroundWorker(sessionProvider));
     Get.put(monologProvider);
 

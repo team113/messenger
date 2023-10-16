@@ -35,6 +35,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -221,7 +222,8 @@ class ChatInfoController extends GetxController {
   Future<void> pickAvatar() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      withReadStream: true,
+      withReadStream: !PlatformUtils.isWeb,
+      withData: PlatformUtils.isWeb,
     );
 
     if (result != null) {
