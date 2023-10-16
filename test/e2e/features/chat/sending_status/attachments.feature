@@ -43,7 +43,8 @@ Feature: Chat attachments have correct sending status
     And I wait until status of "test.jpg" attachment is sent
 
   Scenario: User resends file attachment
-    Given I do not have Internet
+    Given I pause for 1 second
+    And I do not have Internet
     When I attach "test.txt" file
     And I tap `Send` button
     Then I wait until status of "test.txt" attachment is error
@@ -55,7 +56,8 @@ Feature: Chat attachments have correct sending status
     And I wait until status of "test.txt" attachment is sent
 
   Scenario: User resends image attachment
-    Given I do not have Internet
+    Given I pause for 1 second
+    And I do not have Internet
     When I attach "test.jpg" image
     And I tap `Send` button
     Then I wait until status of "test.jpg" attachment is error
