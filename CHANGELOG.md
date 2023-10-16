@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Updated avatars colors. ([#656])
     - Chat page:
         - Updated messages color. ([#656])
 
