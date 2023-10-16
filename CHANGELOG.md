@@ -15,6 +15,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - Push notifications. ([#202], [#201])
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Updated messages color. ([#656])
+
 ### Fixed
 
 - UI:

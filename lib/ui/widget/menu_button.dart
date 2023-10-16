@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 
 /// Rounded button with an [icon], [title] and [subtitle] intended to be used in
 /// a menu list.
@@ -72,7 +71,7 @@ class MenuButton extends StatelessWidget {
             borderRadius: style.cardRadius,
             onTap: onPressed,
             hoverColor:
-                inverted ? style.colors.primary : style.cardColor.darken(0.03),
+                inverted ? style.colors.primary : style.cardHoveredColor,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
