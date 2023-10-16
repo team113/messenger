@@ -43,6 +43,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
     bool temporary = false,
+    int retries = 5,
   }) async {
     int total = 100;
     for (int count = 0; count <= total; count++) {
