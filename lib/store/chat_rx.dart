@@ -141,8 +141,8 @@ class HiveRxChat extends RxChat {
 
   /// [StreamController] for [updates] of this [RxChat].
   ///
-  /// Behaves like a reference counter: when updates are listened to, this
-  /// invokes [_initRemoteSubscription], and when updates aren't listened,
+  /// Behaves like a reference counter: when [updates] are listened to, this
+  /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
   /// cancels it.
   late final StreamController<void> _controller = StreamController.broadcast(
     onListen: _initRemoteSubscription,
