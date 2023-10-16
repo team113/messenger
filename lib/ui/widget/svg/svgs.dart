@@ -254,7 +254,7 @@ class SvgIcons {
   static const SvgData email = SvgData(
     'assets/icons/email.svg',
     width: 21.93,
-    height: 22.51,
+    height: 22.5,
   );
 
   static const SvgData phone = SvgData(
@@ -442,10 +442,34 @@ class SvgIcons {
     height: 18.32,
   );
 
-// TODO:
+  // TODO:
   static const SvgData chatMore = SvgData(
     'assets/icons/chat_more1.svg',
-    height: 22,
     width: 22,
+    height: 22,
+  );
+
+  static const SvgData menuSigning = SvgData(
+    'assets/icons/menu_signing.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData menuBackground = SvgData(
+    'assets/icons/menu_background.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData menuChats = SvgData(
+    'assets/icons/menu_chats.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData menuLink = SvgData(
+    'assets/icons/menu_link.svg',
+    width: 32,
+    height: 32,
   );
 }

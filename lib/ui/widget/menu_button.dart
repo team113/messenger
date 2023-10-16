@@ -93,6 +93,10 @@ class MenuButton extends StatelessWidget {
                   ? SvgIcons.publicInformationWhite
                   : SvgIcons.publicInformation,
             ),
+          ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
+          ProfileTab.link => const SvgIcon(SvgIcons.menuLink),
+          ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
+          ProfileTab.background => const SvgIcon(SvgIcons.menuBackground),
           (_) => RectangleIcon.tab(tab),
         },
         super(
