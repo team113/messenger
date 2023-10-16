@@ -1402,7 +1402,8 @@ class ChatRepository extends DisposableInterface
         // TODO: This re-creates the whole [_pagination], even when an auth
         //       token is refreshed.
         if (_subscribingStarted?.isBefore(
-                DateTime.now().subtract(const Duration(minutes: 1))) ==
+              DateTime.now().subtract(const Duration(minutes: 1)),
+            ) ==
             true) {
           await _initPagination();
         }
@@ -1523,8 +1524,6 @@ class ChatRepository extends DisposableInterface
       if (_pagination?.hasNext.value == false) {
         await _initMonolog();
       }
-
-      await Future.delayed(1.milliseconds);
 
       status.value = RxStatus.success();
     } catch (e) {

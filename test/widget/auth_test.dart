@@ -61,6 +61,7 @@ import '../mock/route_information_provider.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
+  Config.clsid = '';
   await L10n.init();
 
   Hive.init('./test/.temp_hive/auth_widget');
@@ -160,7 +161,7 @@ void main() async {
     await tester.tap(loginTile);
     await tester.pump(const Duration(seconds: 5));
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 25; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
 
