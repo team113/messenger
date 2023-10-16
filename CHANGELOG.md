@@ -13,6 +13,9 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- UI:
+    - Chat page:
+        - More panel appearance animation. ([#657], [#641])
 - Push notifications. ([#202], [#201])
 
 ### Fixed
@@ -25,6 +28,8 @@ All user visible changes to this project will be documented in this file. This p
 [#202]: /../../pull/202
 [#525]: /../../issues/525
 [#628]: /../../pull/628
+[#628]: /../../pull/657
+[#628]: /../../pull/641
 
 
 

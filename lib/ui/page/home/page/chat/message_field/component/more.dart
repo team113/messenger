@@ -201,7 +201,7 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
     _worker = null;
     await _controller.reverse();
     widget.onDismissed?.call();
-    if(widget.c.moreOpened.isTrue) {
+    if (widget.c.moreOpened.isTrue) {
       widget.c.toggleMore();
     }
   }
