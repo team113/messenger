@@ -215,7 +215,7 @@ class MessageFieldController extends GetxController {
 
   @override
   void onInit() {
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -250,6 +250,11 @@ class MessageFieldController extends GetxController {
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
+
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -265,11 +270,13 @@ class MessageFieldController extends GetxController {
 
   /// Toggles the [moreOpened] and populates the [_moreEntry].
   void toggleMore() {
-    if (moreOpened.isTrue) {
-      _moreEntry?.remove();
-      _moreEntry = null;
-    } else {
-      _moreEntry = (OverlayEntry(builder: (_) => MessageFieldMore(this)));
+    if (moreOpened.isFalse) {
+      _moreEntry = OverlayEntry(
+        builder: (_) => MessageFieldMore(this, onDismissed: () {
+          _moreEntry?.remove();
+          _moreEntry = null;
+        }),
+      );
       router.overlay!.insert(_moreEntry!);
     }
 
