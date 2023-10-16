@@ -39,7 +39,8 @@ Feature: Chat messages have correct sending status
     And I wait until status of "123" message is sent
 
   Scenario: User deletes non-sent message
-    Given I do not have Internet
+    Given I pause for 1 second
+    And I do not have Internet
     When I fill `MessageField` field with "123"
     And I tap `Send` button
     Then I wait until status of "123" message is error
@@ -50,7 +51,8 @@ Feature: Chat messages have correct sending status
     Then I wait until "123" message is absent
 
   Scenario: User resends message
-    Given I do not have Internet
+    Given I pause for 1 second
+    And I do not have Internet
     When I fill `MessageField` field with "123"
     And I tap `Send` button
     Then I wait until status of "123" message is error
@@ -62,7 +64,8 @@ Feature: Chat messages have correct sending status
     And I wait until status of "123" message is sent
 
   Scenario: Non-sent messages are persisted
-    Given I do not have Internet
+    Given I pause for 1 second
+    And I do not have Internet
     When I fill `MessageField` field with "123"
     And I tap `Send` button
     Then I wait until status of "123" message is error
