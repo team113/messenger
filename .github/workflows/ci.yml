@@ -125,8 +125,7 @@ jobs:
           - macos
           - web
           - windows
-    # TODO: Use `macos-latest`, when `macos-13` is out of beta.
-    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-13')
+    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
