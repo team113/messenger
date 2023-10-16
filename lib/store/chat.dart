@@ -1795,6 +1795,7 @@ class ChatRepository extends DisposableInterface
               .toList(),
           kindIndex: ChatKind.values
               .indexOf(responderId == me ? ChatKind.monolog : ChatKind.dialog),
+          updatedAt: PreciseDateTime.fromMicrosecondsSinceEpoch(0),
         ),
         ChatVersion('0'),
         null,
