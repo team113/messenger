@@ -407,12 +407,6 @@ class AvatarWidget extends StatelessWidget {
 
       final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
 
-      if (title == 'nikita') {
-        print(
-          '=== CHECKSUM: ${maxWidth > 250 ? avatar!.full.checksum : maxWidth > 100 ? avatar!.big.checksum : maxWidth > 46 ? avatar!.medium.checksum : avatar!.small.checksum}',
-        );
-      }
-
       return Badge(
         largeSize: badgeSize * 1.16,
         isLabelVisible: isOnline,

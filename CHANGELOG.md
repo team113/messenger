@@ -20,11 +20,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Wide image attachments having blurry previews. ([#628], [#525])
+- macOS:
+    - Application crashing when encountering video attachments in chat. ([#656])
 
 [#201]: /../../issues/201
 [#202]: /../../pull/202
 [#525]: /../../issues/525
 [#628]: /../../pull/628
+[#656]: /../../pull/656
 
 
 
