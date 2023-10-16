@@ -137,6 +137,9 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
+  /// Subscriptions for the [paginated] chats changes.
+  final Map<ChatId, StreamSubscription> _chatSubscriptions = {};
+
   /// Indicator whether [_remoteSubscription] is initialized.
   ///
   /// Used to skip the [_initPagination] invoke in the first
@@ -193,6 +196,10 @@ class ChatRepository extends DisposableInterface
   void onClose() {
     for (var c in chats.entries) {
       c.value.dispose();
+    }
+
+    for (var c in _chatSubscriptions.entries) {
+      c.value.cancel();
     }
 
     _cancelToken.cancel();
@@ -270,6 +277,7 @@ class ChatRepository extends DisposableInterface
     chats.remove(id)?.dispose();
     paginated.remove(id);
     _pagination?.remove(id);
+    _chatSubscriptions.remove(id)?.cancel();
     return _chatLocal.remove(id);
   }
 
@@ -1277,10 +1285,10 @@ class ChatRepository extends DisposableInterface
       entry.chat.refresh();
     }
 
-    if (pagination) {
-      paginated[chatId] ??= entry;
+    if (paginated[chatId] == null) {
+      paginated[chatId] = entry;
       if (!WebUtils.isPopup) {
-        entry.listenUpdates();
+        _chatSubscriptions[chatId] = entry.updates.listen((_) {});
       }
     }
 
@@ -1543,6 +1551,13 @@ class ChatRepository extends DisposableInterface
             if (localChat != null) {
               chats.move(localId, data.chat.value.id);
               paginated.move(localId, data.chat.value.id);
+
+              if (_chatSubscriptions[localId] != null) {
+                _chatSubscriptions[data.chat.value.id] =
+                    _chatSubscriptions[localId]!;
+                _chatSubscriptions.remove(localId);
+              }
+
               await localChat.updateChat(data.chat.value);
               entry = localChat;
             }

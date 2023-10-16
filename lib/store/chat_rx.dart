@@ -103,10 +103,6 @@ class HiveRxChat extends RxChat {
   @override
   final RxInt unreadCount;
 
-  /// Indicator whether [_remoteSubscription] is initialized or is being
-  /// initialized.
-  bool subscribed = false;
-
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
 
@@ -143,6 +139,19 @@ class HiveRxChat extends RxChat {
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatEvents>? _remoteSubscription;
 
+  /// [StreamController] for [updates] of this [RxChat].
+  ///
+  /// Behaves like a reference counter: when updates are listened to, this
+  /// invokes [_initRemoteSubscription], and when updates aren't listened,
+  /// cancels it.
+  late final StreamController<void> _controller = StreamController.broadcast(
+    onListen: _initRemoteSubscription,
+    onCancel: () {
+      _remoteSubscription?.cancel();
+      _remoteSubscription = null;
+    },
+  );
+
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
 
@@ -160,11 +169,6 @@ class HiveRxChat extends RxChat {
 
   /// [CancelToken] for cancelling the [Pagination.around] query.
   final CancelToken _aroundToken = CancelToken();
-
-  /// Reference counter for [_remoteSubscription]'s actuality.
-  ///
-  /// [_remoteSubscription] is up only if this counter is greater than zero.
-  int _listeners = 0;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -237,6 +241,12 @@ class HiveRxChat extends RxChat {
 
     return item;
   }
+
+  @override
+  Stream<void> get updates => _controller.stream;
+
+  /// Returns indicator this [RxChat] listens to the updates.
+  bool get subscribed => _remoteSubscription != null;
 
   /// Initializes this [HiveRxChat].
   Future<void> init() async {
@@ -368,9 +378,9 @@ class HiveRxChat extends RxChat {
     _muteTimer?.cancel();
     _readTimer?.cancel();
     _remoteSubscription?.close(immediate: true);
+    _remoteSubscription = null;
     _paginationSubscription?.cancel();
     _messagesSubscription?.cancel();
-    subscribed = false;
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
@@ -482,21 +492,6 @@ class HiveRxChat extends RxChat {
       await _updateAttachments(item);
       _attachmentGuards.remove(item.id);
     });
-  }
-
-  @override
-  void listenUpdates() {
-    if (_listeners++ == 0) {
-      _initRemoteSubscription();
-    }
-  }
-
-  @override
-  void stopUpdates() {
-    if (--_listeners == 0) {
-      _remoteSubscription?.close(immediate: true);
-      _remoteSubscription = null;
-    }
   }
 
   /// Marks this [RxChat] as read until the provided [ChatItem] for the
@@ -727,7 +722,7 @@ class HiveRxChat extends RxChat {
     if (chat.value.id != newChat.id) {
       chat.value = newChat;
 
-      if (_listeners > 0) {
+      if (!_controller.isPaused && !_controller.isClosed) {
         _initRemoteSubscription();
       }
 
@@ -980,9 +975,7 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    if (!subscribed && !id.isLocal) {
-      subscribed = true;
-
+    if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = StreamQueue(
         _chatRepository.chatEvents(
@@ -1003,7 +996,7 @@ class HiveRxChat extends RxChat {
         },
       );
 
-      subscribed = false;
+      _remoteSubscription = null;
     }
   }
 
