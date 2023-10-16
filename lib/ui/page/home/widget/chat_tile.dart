@@ -32,6 +32,7 @@ class ChatTile extends StatefulWidget {
   const ChatTile({
     super.key,
     this.chat,
+    Widget Function(Widget)? titleBuilder,
     this.title = const [],
     this.status = const [],
     this.subtitle = const [],
@@ -49,7 +50,8 @@ class ChatTile extends StatefulWidget {
     this.folded = false,
     this.special = false,
     this.highlight = false,
-  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
+  })  : titleBuilder = titleBuilder ?? _defaultBuilder,
+        avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -98,6 +100,8 @@ class ChatTile extends StatefulWidget {
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
 
+  final Widget Function(Widget child) titleBuilder;
+
   final bool folded;
   final bool special;
   final bool highlight;
@@ -106,7 +110,7 @@ class ChatTile extends StatefulWidget {
   State<ChatTile> createState() => _ChatTileState();
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
+  static Widget _defaultBuilder(Widget child) => child;
 }
 
 /// State of a [ChatTile] keeping the [_avatarKey] to prevent redraws.
@@ -196,23 +200,10 @@ class _ChatTileState extends State<ChatTile> {
                                 child: Row(
                                   children: [
                                     Flexible(
-                                      child: widget.chat == null
-                                          ? Text(
-                                              ('dot'.l10n * 3),
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                              style: style.fonts.headlineLarge
-                                                  .copyWith(
-                                                color: widget.selected ||
-                                                        widget.active
-                                                    ? style.colors.onPrimary
-                                                    : style.colors.onBackground,
-                                              ),
-                                            )
-                                          : Obx(() {
-                                              return Text(
-                                                widget.chat?.title.value ??
-                                                    ('dot'.l10n * 3),
+                                      child: widget.titleBuilder(
+                                        widget.chat == null
+                                            ? Text(
+                                                ('dot'.l10n * 3),
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
                                                 style: style.fonts.headlineLarge
@@ -223,8 +214,26 @@ class _ChatTileState extends State<ChatTile> {
                                                       : style
                                                           .colors.onBackground,
                                                 ),
-                                              );
-                                            }),
+                                              )
+                                            : Obx(() {
+                                                return Text(
+                                                  widget.chat?.title.value ??
+                                                      ('dot'.l10n * 3),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: style
+                                                      .fonts.headlineLarge
+                                                      .copyWith(
+                                                    color: widget.selected ||
+                                                            widget.active
+                                                        ? style.colors.onPrimary
+                                                        : style.colors
+                                                            .onBackground,
+                                                  ),
+                                                );
+                                              }),
+                                      ),
                                     ),
                                     ...widget.title,
                                   ],

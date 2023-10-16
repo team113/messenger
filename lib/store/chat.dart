@@ -1179,7 +1179,7 @@ class ChatRepository extends DisposableInterface
         e.chatId,
         node.itemId,
       );
-     } else if (e.$$typename == 'EventChatItemEdited') {
+    } else if (e.$$typename == 'EventChatItemEdited') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
       return EventChatItemEdited(
         e.chatId,
@@ -1190,6 +1190,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+      print('[EventChatCallStarted] $node');
       return EventChatCallStarted(
         e.chatId,
         node.call.toModel(),

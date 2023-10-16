@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -123,28 +124,39 @@ class MessageTimestamp extends StatelessWidget {
         ],
         if (status != null &&
             (isSent || isDelivered || isRead || isSending || isError)) ...[
-          Icon(
-            (isRead || isDelivered)
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? style.colors.primary
-                : isError
-                    ? style.colors.dangerColor
-                    : style.colors.secondary,
-            size: 12,
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                      ? 'Sending'
-                      : 'Sent',
-            ),
+          SvgIcon(
+            isRead
+                ? SvgIcons.readSmall
+                : isDelivered
+                    ? SvgIcons.deliveredSmall
+                    : isSending
+                        ? isError
+                            ? SvgIcons.errorSmall
+                            : SvgIcons.sendingSmall
+                        : SvgIcons.sentSmall,
           ),
+          // Icon(
+          //   (isRead || isDelivered)
+          //       ? Icons.done_all
+          //       : isSending
+          //           ? Icons.access_alarm
+          //           : isError
+          //               ? Icons.error_outline
+          //               : Icons.done,
+          //   color: isRead
+          //       ? style.colors.primary
+          //       : isError
+          //           ? style.colors.dangerColor
+          //           : style.colors.secondary,
+          //   size: 12,
+          //   key: Key(
+          //     isError
+          //         ? 'Error'
+          //         : isSending
+          //             ? 'Sending'
+          //             : 'Sent',
+          //   ),
+          // ),
           if (at != null) const SizedBox(width: 3),
         ],
         if (at != null)

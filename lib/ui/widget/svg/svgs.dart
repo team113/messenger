@@ -383,56 +383,51 @@ class SvgIcons {
     height: 15.99,
   );
 
-  // TODO
   static const SvgData notes = SvgData(
     'assets/icons/notes.svg',
-    width: 31.43,
+    width: 31.44,
     height: 31.67,
   );
 
-  // TODO
   static const SvgData mute = SvgData(
     'assets/icons/mute.svg',
     width: 17.85,
     height: 16,
   );
 
-  // TODO
   static const SvgData unmute = SvgData(
     'assets/icons/unmute.svg',
     width: 17.85,
     height: 16,
   );
 
-  // TODO
   static const SvgData muted = SvgData(
     'assets/icons/muted.svg',
     width: 19.99,
     height: 15,
   );
 
-  // TODO
   static const SvgData mutedWhite = SvgData(
-    'assets/icons/muted_light.svg',
+    'assets/icons/muted_white.svg',
     width: 19.99,
     height: 15,
   );
 
-  // TODO
   static const SvgData fileSmall = SvgData(
-    'assets/icons/file_dark.svg',
+    'assets/icons/file_small.svg',
+    width: 11.44,
     height: 14.3,
   );
 
-  // TODO
   static const SvgData fileSmallWhite = SvgData(
-    'assets/icons/file.svg',
+    'assets/icons/file_white_small.svg',
+    width: 11.44,
     height: 14.3,
   );
 
-  // TODO
   static const SvgData fileWhite = SvgData(
-    'assets/icons/file.svg',
+    'assets/icons/file_white.svg',
+    width: 23.2,
     height: 29,
   );
 
@@ -471,5 +466,112 @@ class SvgIcons {
     'assets/icons/menu_link.svg',
     width: 32,
     height: 32,
+  );
+
+  static const SvgData menuMedia = SvgData(
+    'assets/icons/menu_media.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData menuCalls = SvgData(
+    'assets/icons/menu_calls.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData blocked = SvgData(
+    'assets/icons/blocked.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData blockedWhite = SvgData(
+    'assets/icons/blocked_white.svg',
+    width: 20,
+    height: 20,
+  );
+
+  // TODO
+  static const SvgData sent = SvgData(
+    'assets/icons/sent.svg',
+    width: 12.42,
+    height: 9,
+  );
+
+  // TODO
+  static const SvgData sentWhite = SvgData(
+    'assets/icons/sent_white.svg',
+    width: 12.42,
+    height: 9,
+  );
+
+  // TODO
+  static const SvgData sentSmall = SvgData(
+    'assets/icons/sent_small.svg',
+    height: 7,
+  );
+
+  static const SvgData delivered = SvgData(
+    'assets/icons/delivered.svg',
+    height: 9,
+  );
+
+  // TODO
+  static const SvgData deliveredSmall = SvgData(
+    'assets/icons/delivered_small.svg',
+    height: 7,
+  );
+
+  // TODO
+  static const SvgData deliveredWhite = SvgData(
+    'assets/icons/delivered_white.svg',
+    height: 9,
+  );
+
+  static const SvgData read = SvgData(
+    'assets/icons/read.svg',
+    height: 9,
+  );
+
+  // TODO
+  static const SvgData readSmall = SvgData(
+    'assets/icons/read_small.svg',
+    height: 7,
+  );
+
+  static const SvgData readWhite = SvgData(
+    'assets/icons/read_white.svg',
+    height: 9,
+  );
+
+  // TODO
+  static const SvgData sending = SvgData(
+    'assets/icons/sending.svg',
+    height: 13,
+  );
+
+  // TODO
+  static const SvgData sendingWhite = SvgData(
+    'assets/icons/sending_white.svg',
+    height: 13,
+  );
+
+  // TODO
+  static const SvgData sendingSmall = SvgData(
+    'assets/icons/sending_small.svg',
+    height: 10,
+  );
+
+  // TODO
+  static const SvgData error = SvgData(
+    'assets/icons/error.svg',
+    height: 13,
+  );
+
+  // TODO
+  static const SvgData errorSmall = SvgData(
+    'assets/icons/error_small.svg',
+    height: 10,
   );
 }

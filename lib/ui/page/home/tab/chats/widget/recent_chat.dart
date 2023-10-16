@@ -195,12 +195,8 @@ class RecentChatTile extends StatelessWidget {
                   _ongoingCall(context),
                   if (blocked) ...[
                     const SizedBox(width: 5),
-                    Icon(
-                      Icons.block,
-                      color: inverted
-                          ? style.colors.onPrimary
-                          : style.colors.secondaryHighlightDarkest,
-                      size: 20,
+                    SvgIcon(
+                      inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
                     ),
                     const SizedBox(width: 5),
                   ] else if (chat.muted != null) ...[
@@ -780,6 +776,29 @@ class RecentChatTile extends StatelessWidget {
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: SvgIcon(
+            isRead
+                ? inverted
+                    ? SvgIcons.readWhite
+                    : SvgIcons.read
+                : isDelivered
+                    ? inverted
+                        ? SvgIcons.deliveredWhite
+                        : SvgIcons.delivered
+                    : isSending
+                        ? isError
+                            ? SvgIcons.error
+                            : inverted
+                                ? SvgIcons.sendingWhite
+                                : SvgIcons.sending
+                        : inverted
+                            ? SvgIcons.sentWhite
+                            : SvgIcons.sent,
+          ),
+        );
 
         return Padding(
           padding: const EdgeInsets.only(right: 4),

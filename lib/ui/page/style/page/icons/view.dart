@@ -20,16 +20,18 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
 import 'package:messenger/ui/page/home/widget/wallet.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
@@ -527,17 +529,52 @@ class _WidgetsViewState extends State<IconsView> {
                 ),
               ),
               const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.signing)),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuSigning.asset),
+                  child: const SvgIcon(SvgIcons.menuSigning),
+                ),
+              ),
               const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.link)),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuLink.asset),
+                  child: const SvgIcon(SvgIcons.menuLink),
+                ),
+              ),
               const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.background)),
+              MenuButton(
+                  leading: AnimatedButton(
+                onPressed: () =>
+                    c.icon.value = IconDetails(SvgIcons.menuBackground.asset),
+                child: const SvgIcon(SvgIcons.menuBackground),
+              )),
               const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.chats)),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuChats.asset),
+                  child: const SvgIcon(SvgIcons.menuChats),
+                ),
+              ),
               const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.calls)),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuCalls.asset),
+                  child: const SvgIcon(SvgIcons.menuCalls),
+                ),
+              ),
               const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.media)),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuMedia.asset),
+                  child: const SvgIcon(SvgIcons.menuMedia),
+                ),
+              ),
               const SizedBox(height: 8),
               MenuButton(leading: RectangleIcon.tab(ProfileTab.welcome)),
               const SizedBox(height: 8),
@@ -670,13 +707,286 @@ class _WidgetsViewState extends State<IconsView> {
                 avatarBuilder: (_) => AnimatedButton(
                   onPressed: () =>
                       c.icon.value = IconDetails(SvgIcons.notes.asset),
-                  child: AvatarWidget.fromMonolog(
-                    null,
-                    null,
-                    radius: 30,
-                  ),
+                  child: AvatarWidget.fromMonolog(null, null, radius: 30),
                 ),
+                titleBuilder: (_) => const SizedBox(),
               ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                subtitle: [
+                  const SizedBox(height: 5),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 38),
+                    child: Row(
+                      children: [
+                        const SizedBox(height: 3),
+                        const Spacer(),
+                        const SizedBox(width: 5),
+                        AnimatedButton(
+                          onPressed: () =>
+                              c.icon.value = IconDetails(SvgIcons.muted.asset),
+                          child: const SvgIcon(SvgIcons.muted),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                subtitle: [
+                  const SizedBox(height: 5),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 38),
+                    child: Row(
+                      children: [
+                        const SizedBox(height: 3),
+                        const Spacer(),
+                        const SizedBox(width: 5),
+                        AnimatedButton(
+                          onPressed: () => c.icon.value =
+                              IconDetails(SvgIcons.mutedWhite.asset),
+                          child: const SvgIcon(SvgIcons.mutedWhite),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                subtitle: [
+                  const SizedBox(height: 5),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 38),
+                    child: Row(
+                      children: [
+                        const SizedBox(height: 3),
+                        const Spacer(),
+                        const SizedBox(width: 5),
+                        AnimatedButton(
+                          onPressed: () => c.icon.value =
+                              IconDetails(SvgIcons.blocked.asset),
+                          child: const SvgIcon(SvgIcons.blocked),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                subtitle: [
+                  const SizedBox(height: 5),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 38),
+                    child: Row(
+                      children: [
+                        const SizedBox(height: 3),
+                        const Spacer(),
+                        const SizedBox(width: 5),
+                        AnimatedButton(
+                          onPressed: () => c.icon.value =
+                              IconDetails(SvgIcons.blockedWhite.asset),
+                          child: const SvgIcon(SvgIcons.blockedWhite),
+                        ),
+                        const SizedBox(width: 5),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.read.asset),
+                      child: const SvgIcon(SvgIcons.read),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.readWhite.asset),
+                      child: const SvgIcon(SvgIcons.readWhite),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.delivered.asset),
+                      child: const SvgIcon(SvgIcons.delivered),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () => c.icon.value =
+                          IconDetails(SvgIcons.deliveredWhite.asset),
+                      child: const SvgIcon(SvgIcons.deliveredWhite),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.sent.asset),
+                      child: const SvgIcon(SvgIcons.sent),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.sentWhite.asset),
+                      child: const SvgIcon(SvgIcons.sentWhite),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.sending.asset),
+                      child: const SvgIcon(SvgIcons.sending),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () => c.icon.value =
+                          IconDetails(SvgIcons.sendingWhite.asset),
+                      child: const SvgIcon(SvgIcons.sendingWhite),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.error.asset),
+                      child: const SvgIcon(SvgIcons.error),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+              const SizedBox(height: 8),
+              ChatTile(
+                avatarBuilder: (_) => const SizedBox(width: 60, height: 60),
+                titleBuilder: (_) => const SizedBox(),
+                selected: true,
+                status: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: AnimatedButton(
+                      onPressed: () =>
+                          c.icon.value = IconDetails(SvgIcons.error.asset),
+                      child: const SvgIcon(SvgIcons.error),
+                    ),
+                  ),
+                ],
+                subtitle: const [SizedBox(height: 21)],
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              _messageStatus(context, c, SvgIcons.readSmall),
+              const SizedBox(height: 8),
+              _messageStatus(context, c, SvgIcons.deliveredSmall),
+              const SizedBox(height: 8),
+              _messageStatus(context, c, SvgIcons.sentSmall),
+              const SizedBox(height: 8),
+              _messageStatus(context, c, SvgIcons.sendingSmall),
+              const SizedBox(height: 8),
+              _messageStatus(context, c, SvgIcons.errorSmall),
             ],
           ),
           const SizedBox(height: 120),
@@ -855,6 +1165,35 @@ Widget _navBar(BuildContext context, List<Widget> children) {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: children,
       ),
+    ),
+  );
+}
+
+Widget _messageStatus(
+  BuildContext context,
+  IconsController c,
+  SvgData icon,
+) {
+  final style = Theme.of(context).style;
+
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      color: style.colors.background,
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        const SizedBox(width: 100, height: 40),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 6, 8),
+          child: AnimatedButton(
+            onPressed: () => c.icon.value = IconDetails(icon.asset),
+            child: SvgIcon(icon),
+          ),
+        ),
+      ],
     ),
   );
 }

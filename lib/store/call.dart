@@ -452,6 +452,7 @@ class CallRepository extends DisposableInterface
             'EventIncomingChatCallsTopChatCallAdded') {
           var data = events
               as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
+          print('[EventIncomingChatCallsTopChatCallAdded] $data');
           yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
         } else if (events.$$typename ==
             'EventIncomingChatCallsTopChatCallRemoved') {
