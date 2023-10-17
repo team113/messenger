@@ -384,6 +384,7 @@ class ChatInfoController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       _chatSubscription = chat!.updates.listen((_) {});
+
       name.unchecked = chat!.chat.value.name?.val;
 
       _worker = ever(

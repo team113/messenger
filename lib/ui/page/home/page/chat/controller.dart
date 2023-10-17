@@ -419,6 +419,7 @@ class ChatController extends GetxController {
     _chatWorker?.dispose();
     _statusWorker?.dispose();
     _typingSubscription?.cancel();
+    _chatSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -435,7 +436,6 @@ class ChatController extends GetxController {
     if (chat?.chat.value.isDialog == true) {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
     }
-    _chatSubscription?.cancel();
 
     super.onClose();
   }

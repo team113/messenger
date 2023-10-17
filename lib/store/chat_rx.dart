@@ -245,7 +245,7 @@ class HiveRxChat extends RxChat {
   @override
   Stream<void> get updates => _controller.stream;
 
-  /// Returns indicator this [RxChat] listens to the updates.
+  /// Indicates whether this [RxChat] is listening to the remote updates.
   bool get subscribed => _remoteSubscription != null;
 
   /// Initializes this [HiveRxChat].

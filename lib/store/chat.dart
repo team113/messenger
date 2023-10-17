@@ -138,7 +138,7 @@ class ChatRepository extends DisposableInterface
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
   /// Subscriptions for the [paginated] chats changes.
-  final Map<ChatId, StreamSubscription> _chatSubscriptions = {};
+  final Map<ChatId, StreamSubscription> _subscriptions = {};
 
   /// Indicator whether [_remoteSubscription] is initialized.
   ///
@@ -194,14 +194,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   void onClose() {
-    for (var c in chats.entries) {
-      c.value.dispose();
-    }
-
-    for (var c in _chatSubscriptions.entries) {
-      c.value.cancel();
-    }
-
+    chats.forEach((_, v) => v.dispose());
+    _subscriptions.forEach((_, v) => v.cancel());
     _cancelToken.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
@@ -277,7 +271,7 @@ class ChatRepository extends DisposableInterface
     chats.remove(id)?.dispose();
     paginated.remove(id);
     _pagination?.remove(id);
-    _chatSubscriptions.remove(id)?.cancel();
+    _subscriptions.remove(id)?.cancel();
     return _chatLocal.remove(id);
   }
 
@@ -1282,10 +1276,11 @@ class ChatRepository extends DisposableInterface
       entry.chat.refresh();
     }
 
-    if (paginated[chatId] == null) {
+    if (!paginated.containsKey(chatId)) {
       paginated[chatId] = entry;
+
       if (!WebUtils.isPopup) {
-        _chatSubscriptions[chatId] = entry.updates.listen((_) {});
+        _subscriptions[chatId] = entry.updates.listen((_) {});
       }
     }
 
@@ -1549,10 +1544,10 @@ class ChatRepository extends DisposableInterface
               chats.move(localId, data.chat.value.id);
               paginated.move(localId, data.chat.value.id);
 
-              if (_chatSubscriptions[localId] != null) {
-                _chatSubscriptions[data.chat.value.id] =
-                    _chatSubscriptions[localId]!;
-                _chatSubscriptions.remove(localId);
+              final StreamSubscription? subscription = _subscriptions[localId];
+              if (subscription != null) {
+                _subscriptions[data.chat.value.id] = subscription;
+                _subscriptions.remove(localId);
               }
 
               await localChat.updateChat(data.chat.value);
