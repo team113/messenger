@@ -199,8 +199,10 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
   Future<void> dismiss() async {
     _worker?.dispose();
     _worker = null;
+
     await _controller.reverse();
     widget.onDismissed?.call();
+
     if (widget.c.moreOpened.isTrue) {
       widget.c.toggleMore();
     }

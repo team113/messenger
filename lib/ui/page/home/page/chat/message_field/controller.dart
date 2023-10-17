@@ -194,18 +194,22 @@ class MessageFieldController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [buttons] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Worker reacting on the [replied] changes.
+  /// [Worker] reacting on the [replied] changes.
   Worker? _repliesWorker;
 
-  /// Worker reacting on the [attachments] changes.
+  /// [Worker] reacting on the [attachments] changes.
   Worker? _attachmentsWorker;
 
-  /// Worker reacting on the [edited] changes.
+  /// [Worker] reacting on the [edited] changes.
   Worker? _editedWorker;
 
-  /// Worker capturing any [buttons] changes to update the
+  /// [Worker] capturing any [buttons] changes to update the
   /// [ApplicationSettings.pinnedActions] value.
   Worker? _buttonsWorker;
+
+  /// [Worker] reacting on the [RouterState.routes] changes hiding the
+  /// [_moreEntry].
+  Worker? _routesWorker;
 
   /// [OverlayEntry] of the [MessageFieldMore].
   OverlayEntry? _moreEntry;
@@ -240,6 +244,14 @@ class MessageFieldController extends GetxController {
       );
     });
 
+    String route = router.route;
+    _routesWorker = ever(router.routes, (routes) {
+      if (router.route != route) {
+        _moreEntry?.remove();
+        _moreEntry = null;
+      }
+    });
+
     super.onInit();
   }
 
@@ -250,6 +262,7 @@ class MessageFieldController extends GetxController {
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
+    _routesWorker?.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
