@@ -16,8 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:messenger/domain/model/native_file.dart';
 
 import '/domain/model/user.dart';
@@ -30,29 +32,141 @@ import '/ui/widget/outlined_rounded_button.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class CropAvatarView extends StatelessWidget {
-  const CropAvatarView({super.key, required this.avatar});
+  const CropAvatarView(
+      {super.key, required this.fileData, required this.imageBytes});
 
   /// .
-  final Image avatar;
+  final fileData;
+  final imageBytes;
 
   /// .
-  static Future<T?> show<T>(BuildContext context, Image avatar) {
+  static Future<T?> show<T>(
+      BuildContext context, var fileData, var imageBytes) async {
     return ModalPopup.show(
         context: context,
         child: CropAvatarView(
-          avatar: avatar,
+          fileData: fileData,
+          imageBytes: imageBytes,
         ));
   }
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final double height = size.height;
+    final double width = size.width;
+
     final style = Theme.of(context).style;
-    print(avatar);
-    return Stack(
-      children: [
-        avatar,
-        Text('congrats'),
-      ],
+
+    final aspectRatio = fileData.width / fileData.height;
+
+    final imageWidget = Image.memory(
+      imageBytes,
+      width: aspectRatio < 1 ? 380 / aspectRatio : 380,
+      height: aspectRatio > 1 ? 380 / aspectRatio : 380,
+      fit: BoxFit.fill,
+    );
+
+    imageWidget.image.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) {
+        //print("Фактическая height изображения: $realHeight");
+        //print("Фактическая width изображения: $realWidth");
+        print("Высота экрана: $height");
+        print("Ширина экрана: $width");
+      }),
+    );
+
+    final Widget header = ModalPopupHeader(
+      text: 'Crop',
+    );
+// Text(
+//               widget.label ?? 'btn_proceed'.l10n,
+//               style: style.fonts.bodyMediumOnPrimary,
+//             ),
+    return Container(
+      width: 300,
+      height: 600,
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              children: [
+                header,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      child: imageWidget,
+                    ),
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: Container(
+                        color: Colors.red,
+                        width: 100,
+                        height: 100,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: _CropMenu(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CropMenu extends StatelessWidget {
+  const _CropMenu({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(Icons.rotate_90_degrees_ccw),
+            onPressed: () {
+              // setState(() {
+              //   rotateAngle -= pi/2;
+              //   final double tempHeight = newMaxHeight;
+              //   newMaxHeight = newMaxWidth;
+              //   newMaxWidth = tempHeight;
+              // });
+            },
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(Icons.rotate_90_degrees_cw_outlined),
+            onPressed: () {
+              // setState(() {
+              //   rotateAngle += pi/2;
+
+              // });
+            },
+          ),
+          const SizedBox(width: 20),
+          OutlinedRoundedButton(
+            onPressed: () {},
+            title: Text(
+              'btn_proceed'.l10n,
+            ),
+          )
+        ],
+      ),
     );
   }
 }

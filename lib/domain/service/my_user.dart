@@ -23,7 +23,7 @@ import 'package:mutex/mutex.dart';
 import '../model/my_user.dart';
 import '../model/user.dart';
 import '../repository/my_user.dart';
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show Presence, CropAreaInput;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/repository/user.dart';
@@ -170,10 +170,11 @@ class MyUserService extends DisposableService {
   /// Updates or resets the [MyUser.avatar] field with the provided image
   /// [file].
   Future<void> updateAvatar(
-    NativeFile? file, {
+    NativeFile? file,
+    CropAreaInput? crop, {
     void Function(int count, int total)? onSendProgress,
   }) =>
-      _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
+      _userRepo.updateAvatar(file, crop, onSendProgress: onSendProgress);
 
   /// Updates or resets the [MyUser.callCover] field with the provided image
   /// [file].

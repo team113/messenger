@@ -387,7 +387,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> updateAvatar(
-    NativeFile? file, {
+    NativeFile? file,
+    CropAreaInput? crop, {
     void Function(int count, int total)? onSendProgress,
   }) async {
     dio.MultipartFile? upload;
@@ -429,7 +430,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     try {
       await _graphQlProvider.updateUserAvatar(
         upload,
-        null,
+        crop,
         onSendProgress: onSendProgress,
       );
     } catch (_) {
