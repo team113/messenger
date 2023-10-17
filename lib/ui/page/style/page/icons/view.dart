@@ -17,16 +17,14 @@
 
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
-import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -510,101 +508,6 @@ class _WidgetsViewState extends State<IconsView> {
           ),
           Block(
             children: [
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () => c.icon.value =
-                      IconDetails(SvgIcons.publicInformation.asset),
-                  child: const SvgIcon(SvgIcons.publicInformation),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                inverted: true,
-                leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails(
-                    SvgIcons.publicInformationWhite.asset,
-                    invert: true,
-                  ),
-                  child: const SvgIcon(SvgIcons.publicInformationWhite),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuSigning.asset),
-                  child: const SvgIcon(SvgIcons.menuSigning),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuLink.asset),
-                  child: const SvgIcon(SvgIcons.menuLink),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                  leading: AnimatedButton(
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.menuBackground.asset),
-                child: const SvgIcon(SvgIcons.menuBackground),
-              )),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuChats.asset),
-                  child: const SvgIcon(SvgIcons.menuChats),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuCalls.asset),
-                  child: const SvgIcon(SvgIcons.menuCalls),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuMedia.asset),
-                  child: const SvgIcon(SvgIcons.menuMedia),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.welcome)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.getPaid)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.donates)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.notifications)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.storage)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.language)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.blocklist)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.devices)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.vacancies)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.download)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.danger)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.styles)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.logout)),
-            ],
-          ),
-          Block(
-            children: [
               _navBar(
                 context,
                 [
@@ -987,6 +890,302 @@ class _WidgetsViewState extends State<IconsView> {
               _messageStatus(context, c, SvgIcons.sendingSmall),
               const SizedBox(height: 8),
               _messageStatus(context, c, SvgIcons.errorSmall),
+            ],
+          ),
+          Block(
+            children: [
+              Container(
+                constraints: const BoxConstraints(minHeight: 56),
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  color: style.cardColor,
+                  boxShadow: [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 50,
+                      height: 56,
+                      child: Center(
+                        child: AnimatedButton(
+                          onPressed: () => c.icon.value =
+                              IconDetails(SvgIcons.chatMore.asset),
+                          child: const SvgIcon(SvgIcons.chatMore),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    SizedBox(
+                      width: 50,
+                      height: 56,
+                      child: Center(
+                        child: AnimatedButton(
+                          onPressed: () => c.icon.value =
+                              IconDetails(SvgIcons.forward.asset),
+                          child: const SvgIcon(SvgIcons.forward),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 50,
+                      height: 56,
+                      child: Center(
+                        child: AnimatedButton(
+                          onPressed: () =>
+                              c.icon.value = IconDetails(SvgIcons.send.asset),
+                          child: const SvgIcon(SvgIcons.send),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                constraints: const BoxConstraints(minHeight: 56),
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  color: style.cardColor,
+                  boxShadow: [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    ...[
+                      SvgIcons.videoMessageSmall,
+                      SvgIcons.gallerySmall,
+                      SvgIcons.giftSmall,
+                      SvgIcons.smileSmall,
+                    ].map((e) {
+                      return SizedBox(
+                        width: 50,
+                        height: 56,
+                        child: Center(
+                          child: AnimatedButton(
+                            onPressed: () =>
+                                c.icon.value = IconDetails(e.asset),
+                            child: SvgIcon(e),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                constraints: const BoxConstraints(minHeight: 56),
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  color: style.cardColor,
+                  boxShadow: [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    ...[
+                      SvgIcons.audioMessageSmall,
+                      SvgIcons.fileOutlinedSmall,
+                      SvgIcons.takePhotoSmall,
+                      SvgIcons.takeVideoSmall,
+                    ].map((e) {
+                      return SizedBox(
+                        width: 50,
+                        height: 56,
+                        child: Center(
+                          child: AnimatedButton(
+                            onPressed: () =>
+                                c.icon.value = IconDetails(e.asset),
+                            child: SvgIcon(e),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: style.cardRadius,
+                  boxShadow: [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                  ],
+                ),
+                child: IntrinsicWidth(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgIcons.videoMessage,
+                      SvgIcons.gallery,
+                      SvgIcons.gift,
+                      SvgIcons.smile,
+                      SvgIcons.audioMessage,
+                      SvgIcons.fileOutlined,
+                      SvgIcons.takePhoto,
+                      SvgIcons.takeVideo,
+                    ].mapIndexed((i, e) {
+                      SvgData? trailing;
+
+                      if (i == 0) {
+                        trailing = SvgIcons.pin;
+                      } else if (i == 1) {
+                        trailing = SvgIcons.pinDisabled;
+                      } else if (i == 2) {
+                        trailing = SvgIcons.unpin;
+                      }
+
+                      return Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(minHeight: 48),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 16),
+                            SizedBox(
+                              width: 26,
+                              child: AnimatedButton(
+                                onPressed: () =>
+                                    c.icon.value = IconDetails(e.asset),
+                                child: SvgIcon(e),
+                              ),
+                            ),
+                            const SizedBox(width: 120),
+                            if (trailing != null)
+                              SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: Center(
+                                    child: AnimatedButton(
+                                  onPressed: () => c.icon.value =
+                                      IconDetails(trailing!.asset),
+                                  child: SvgIcon(trailing),
+                                )),
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              )
+            ],
+          ),
+          Block(
+            children: [
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () => c.icon.value =
+                      IconDetails(SvgIcons.publicInformation.asset),
+                  child: const SvgIcon(SvgIcons.publicInformation),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                inverted: true,
+                leading: AnimatedButton(
+                  onPressed: () => c.icon.value = IconDetails(
+                    SvgIcons.publicInformationWhite.asset,
+                    invert: true,
+                  ),
+                  child: const SvgIcon(SvgIcons.publicInformationWhite),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuSigning.asset),
+                  child: const SvgIcon(SvgIcons.menuSigning),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuLink.asset),
+                  child: const SvgIcon(SvgIcons.menuLink),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                  leading: AnimatedButton(
+                onPressed: () =>
+                    c.icon.value = IconDetails(SvgIcons.menuBackground.asset),
+                child: const SvgIcon(SvgIcons.menuBackground),
+              )),
+              const SizedBox(height: 8),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuChats.asset),
+                  child: const SvgIcon(SvgIcons.menuChats),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuCalls.asset),
+                  child: const SvgIcon(SvgIcons.menuCalls),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(
+                leading: AnimatedButton(
+                  onPressed: () =>
+                      c.icon.value = IconDetails(SvgIcons.menuMedia.asset),
+                  child: const SvgIcon(SvgIcons.menuMedia),
+                ),
+              ),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.welcome)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.getPaid)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.donates)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.notifications)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.storage)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.language)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.blocklist)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.devices)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.vacancies)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.download)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.danger)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.styles)),
+              const SizedBox(height: 8),
+              MenuButton(leading: RectangleIcon.tab(ProfileTab.logout)),
             ],
           ),
           const SizedBox(height: 120),

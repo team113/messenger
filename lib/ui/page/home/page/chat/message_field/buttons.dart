@@ -3,6 +3,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/attachment_selector.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'donate.dart';
@@ -18,14 +19,10 @@ abstract class ChatButton {
   /// Returns a text-represented hint for this [CallButton].
   String get hint;
 
-  String get asset;
-  double get assetWidth => 26;
-  double get assetHeight => 22;
+  SvgData get asset;
   Offset get offset => Offset.zero;
 
-  String? get assetMini => null;
-  double? get assetMiniWidth => 26;
-  double? get assetMiniHeight => 22;
+  SvgData? get assetMini;
   Offset get offsetMini => Offset.zero;
 
   void Function(bool)? get onPressed => null;
@@ -48,22 +45,10 @@ class AudioMessageButton extends ChatButton {
   String get hint => 'Аудио сообщение';
 
   @override
-  String get asset => 'audio_message2';
+  SvgData get asset => SvgIcons.audioMessage;
 
   @override
-  double get assetWidth => 18.87;
-
-  @override
-  double get assetHeight => 23.8;
-
-  @override
-  String get assetMini => 'audio_message_mini';
-
-  @override
-  double get assetMiniWidth => 17.41;
-
-  @override
-  double get assetMiniHeight => 21.9;
+  SvgData get assetMini => SvgIcons.audioMessageSmall;
 }
 
 class VideoMessageButton extends ChatButton {
@@ -73,22 +58,10 @@ class VideoMessageButton extends ChatButton {
   String get hint => 'Видео сообщение';
 
   @override
-  String get asset => 'video_message2';
+  SvgData get asset => SvgIcons.videoMessage;
 
   @override
-  double get assetWidth => 23.11;
-
-  @override
-  double get assetHeight => 21;
-
-  @override
-  String get assetMini => 'video_message_mini';
-
-  @override
-  double get assetMiniWidth => 20.89;
-
-  @override
-  double get assetMiniHeight => 19;
+  SvgData get assetMini => SvgIcons.videoMessageSmall;
 }
 
 class AttachmentButton extends ChatButton {
@@ -114,22 +87,10 @@ class AttachmentButton extends ChatButton {
   String get hint => 'Файл';
 
   @override
-  String get asset => 'file_outlined';
+  SvgData get asset => SvgIcons.fileOutlined;
 
   @override
-  double get assetWidth => 18.8;
-
-  @override
-  double get assetHeight => 23;
-
-  @override
-  String get assetMini => 'file_outlined_mini';
-
-  @override
-  double get assetMiniWidth => 17.2;
-
-  @override
-  double get assetMiniHeight => 21;
+  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
 }
 
 class TakePhotoButton extends ChatButton {
@@ -145,22 +106,11 @@ class TakePhotoButton extends ChatButton {
   String get hint =>
       PlatformUtils.isAndroid ? 'label_take_photo'.l10n : 'label_camera'.l10n;
 
-  // @override
-  // String get asset => 'make_photo';
+  @override
+  SvgData get asset => SvgIcons.takePhoto;
 
   @override
-  String get asset => 'take_photo1';
-  @override
-  double get assetWidth => 22;
-  @override
-  double get assetHeight => 22;
-
-  @override
-  String get assetMini => 'take_photo1_mini1';
-  @override
-  double get assetMiniWidth => 20;
-  @override
-  double get assetMiniHeight => 20;
+  SvgData get assetMini => SvgIcons.takePhotoSmall;
 }
 
 class TakeVideoButton extends ChatButton {
@@ -175,22 +125,11 @@ class TakeVideoButton extends ChatButton {
   @override
   String get hint => 'label_take_video'.l10n;
 
-  // @override
-  // String get asset => 'video_message1';
+  @override
+  SvgData get asset => SvgIcons.takeVideo;
 
   @override
-  String get asset => 'take_video2';
-  @override
-  double get assetWidth => 27.99;
-  @override
-  double get assetHeight => 22;
-
-  @override
-  String get assetMini => 'take_video2_mini';
-  @override
-  double get assetMiniWidth => 25.71;
-  @override
-  double get assetMiniHeight => 20;
+  SvgData get assetMini => SvgIcons.takeVideoSmall;
 
   @override
   Offset get offsetMini => const Offset(3, 0);
@@ -209,22 +148,10 @@ class GalleryButton extends ChatButton {
   String get hint => 'label_gallery'.l10n;
 
   @override
-  String get asset => 'gallery_outlined';
+  SvgData get asset => SvgIcons.gallery;
 
   @override
-  double get assetWidth => 22;
-
-  @override
-  double get assetHeight => 22;
-
-  @override
-  String get assetMini => 'gallery_outlined_mini';
-
-  @override
-  double get assetMiniWidth => 20;
-
-  @override
-  double get assetMiniHeight => 20;
+  SvgData get assetMini => SvgIcons.gallerySmall;
 }
 
 class FileButton extends ChatButton {
@@ -240,22 +167,10 @@ class FileButton extends ChatButton {
   String get hint => 'label_file'.l10n;
 
   @override
-  String get asset => 'file_outlined';
+  SvgData get asset => SvgIcons.fileOutlined;
 
   @override
-  double get assetWidth => 18.8;
-
-  @override
-  double get assetHeight => 23;
-
-  @override
-  String get assetMini => 'file_outlined_mini';
-
-  @override
-  double get assetMiniWidth => 17.2;
-
-  @override
-  double get assetMiniHeight => 21;
+  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
 }
 
 class DonateButton extends ChatButton {
@@ -291,51 +206,13 @@ class DonateButton extends ChatButton {
       };
 
   @override
-  String get asset => 'donate1';
-
-  @override
-  double get assetWidth => 24.93;
-
-  @override
-  double get assetHeight => 24;
+  SvgData get asset => SvgIcons.gift;
 
   @override
   Offset get offset => const Offset(0, -1);
 
   @override
-  String get assetMini => 'donate_mini';
-
-  @override
-  double get assetMiniWidth => 22.84;
-
-  @override
-  double get assetMiniHeight => 22;
-}
-
-class ContactButton extends ChatButton {
-  ContactButton(super.c);
-
-  @override
-  IconData? get icon => Icons.person;
-
-  @override
-  String get hint => 'Контакт';
-
-  @override
-  String get asset => 'video_on';
-}
-
-class LocationButton extends ChatButton {
-  LocationButton(super.c);
-
-  @override
-  IconData? get icon => Icons.pin_drop;
-
-  @override
-  String get hint => 'Геопозиция';
-
-  @override
-  String get asset => 'video_on';
+  SvgData get assetMini => SvgIcons.giftSmall;
 }
 
 class StickerButton extends ChatButton {
@@ -345,25 +222,13 @@ class StickerButton extends ChatButton {
   String get hint => 'Стикер';
 
   @override
-  String get asset => 'smile';
-
-  @override
-  double get assetWidth => 23;
-
-  @override
-  double get assetHeight => 23;
+  SvgData get asset => SvgIcons.smile;
 
   @override
   Offset get offset => const Offset(0, -1);
 
   @override
-  String get assetMini => 'smile_mini';
-
-  @override
-  double get assetMiniWidth => 21;
-
-  @override
-  double get assetMiniHeight => 21;
+  SvgData get assetMini => SvgIcons.smileSmall;
 }
 
 class SendButton extends ChatButton {
@@ -373,23 +238,8 @@ class SendButton extends ChatButton {
   String get hint => 'Стикер';
 
   @override
-  String get asset => 'smile';
+  SvgData get asset => SvgIcons.smile;
 
   @override
-  double get assetWidth => 23;
-
-  @override
-  double get assetHeight => 23;
-
-  @override
-  Offset get offset => const Offset(0, -1);
-
-  @override
-  String get assetMini => 'smile_mini';
-
-  @override
-  double get assetMiniWidth => 21;
-
-  @override
-  double get assetMiniHeight => 21;
+  SvgData get assetMini => SvgIcons.smileSmall;
 }

@@ -1733,10 +1733,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_reply'.l10n
                                     : 'btn_reply_message'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/reply.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.reply),
                                 onPressed: widget.onReply,
                               ),
                             if (item is ChatMessage)
@@ -1745,10 +1742,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/forward.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.forwardSmall),
                                 onPressed: () async {
                                   await ChatForwardView.show(
                                     context,
@@ -1767,10 +1761,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/edit.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.edit),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
@@ -1784,11 +1775,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : PlatformUtils.isMobile
                                       ? 'btn_pin'.l10n
                                       : 'btn_pin_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/send_small.svg',
-                                width: 18.37,
-                                height: 16,
-                              ),
+
+                              // trailing: const SvgImage.asset(
+                              //   'assets/icons/send_small.svg',
+                              //   width: 18.37,
+                              //   height: 16,
+                              // ),
                               onPressed: widget.onPin,
                             ),
                             ContextMenuButton(

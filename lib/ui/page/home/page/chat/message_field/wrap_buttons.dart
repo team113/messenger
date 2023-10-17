@@ -64,11 +64,7 @@ class WrapButtons extends StatelessWidget {
                     child: e.icon == null
                         ? Transform.translate(
                             offset: e.offset,
-                            child: SvgImage.asset(
-                              'assets/icons/${e.asset}.svg',
-                              width: e.assetWidth,
-                              height: e.assetHeight,
-                            ),
+                            child: SvgIcon(e.asset),
                           )
                         : Icon(
                             e.icon,

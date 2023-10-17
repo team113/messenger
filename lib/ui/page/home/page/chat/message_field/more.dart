@@ -221,15 +221,11 @@ class _MenuButtonState extends State<_MenuButton> {
                   key: _globalKey,
                   duration: const Duration(milliseconds: 100),
                   scale: _hovered ? 1.05 : 1,
-                  child: (widget.button.icon == null)
+                  child: widget.button.icon == null
                       ? Transform.translate(
                           offset: widget.button.offsetMini,
-                          child: SvgImage.asset(
-                            'assets/icons/${widget.button.assetMini ?? widget.button.asset}.svg',
-                            width: widget.button.assetMiniWidth ??
-                                widget.button.assetWidth,
-                            height: widget.button.assetMiniHeight ??
-                                widget.button.assetHeight,
+                          child: SvgIcon(
+                            widget.button.assetMini ?? widget.button.asset,
                           ),
                         )
                       : Icon(
@@ -239,11 +235,6 @@ class _MenuButtonState extends State<_MenuButton> {
                         ),
                 ),
               ),
-              // SvgImage.asset(
-              //   'assets/icons/${e.asset}.svg',
-              //   width: 60,
-              //   height: 60,
-              // ),
               const SizedBox(width: 12),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -268,19 +259,14 @@ class _MenuButtonState extends State<_MenuButton> {
                       child: AnimatedSwitcher(
                         duration: 100.milliseconds,
                         child: widget.pinned
-                            ? const SvgImage.asset(
-                                'assets/icons/unpin4.svg',
-                                key: Key('Unpin'),
-                                width: 15.5,
-                                height: 17,
-                              )
+                            ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
                             : Transform.translate(
                                 offset: const Offset(0.5, 0),
-                                child: SvgImage.asset(
-                                  'assets/icons/pin2${widget.onPinned != null ? '' : '_disabled'}.svg',
+                                child: SvgIcon(
+                                  widget.onPinned != null
+                                      ? SvgIcons.pin
+                                      : SvgIcons.pinDisabled,
                                   key: const Key('Pin'),
-                                  width: 9.65,
-                                  height: 17,
                                 ),
                               ),
                       ),

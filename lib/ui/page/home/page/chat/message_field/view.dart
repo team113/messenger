@@ -531,7 +531,7 @@ class MessageFieldView extends StatelessWidget {
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.bounceInOut,
                         scale: c.moreOpened.value ? 1.1 : 1,
-                        child: SvgIcon(SvgIcons.chatMore),
+                        child: const SvgIcon(SvgIcons.chatMore),
                       );
                     }),
                   ),
@@ -616,19 +616,17 @@ class MessageFieldView extends StatelessWidget {
                                   duration: 300.milliseconds,
                                   child: c.forwarding.value
                                       ? const AnimatedButton(
-                                          child: SvgImage.asset(
-                                            'assets/icons/forward.svg',
-                                            width: 26,
-                                            height: 22,
-                                          ),
+                                          child: SvgIcon(SvgIcons.forward),
                                         )
                                       : AnimatedButton(
-                                          child: SvgImage.asset(
-                                            'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
-                                            key: sendKey ?? const Key('Send'),
-                                            width: 25.44,
-                                            height: 21.91,
-                                          ),
+                                          key: sendKey ?? const Key('Send'),
+                                          child: const SvgIcon(SvgIcons.send),
+                                          // child: SvgImage.asset(
+                                          //   'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
+                                          //   key: sendKey ?? const Key('Send'),
+                                          //   width: 25.44,
+                                          //   height: 21.91,
+                                          // ),
                                         ),
                                 ),
                               ),
@@ -656,11 +654,7 @@ class MessageFieldView extends StatelessWidget {
                             child: e.icon == null
                                 ? Transform.translate(
                                     offset: e.offset,
-                                    child: SvgImage.asset(
-                                      'assets/icons/${e.asset}.svg',
-                                      width: e.assetWidth,
-                                      height: e.assetHeight,
-                                    ),
+                                    child: SvgIcon(e.asset),
                                   )
                                 : Icon(
                                     e.icon,

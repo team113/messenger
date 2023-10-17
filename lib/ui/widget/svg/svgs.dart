@@ -437,9 +437,8 @@ class SvgIcons {
     height: 18.32,
   );
 
-  // TODO:
   static const SvgData chatMore = SvgData(
-    'assets/icons/chat_more1.svg',
+    'assets/icons/chat_more.svg',
     width: 22,
     height: 22,
   );
@@ -492,21 +491,18 @@ class SvgIcons {
     height: 20,
   );
 
-  // TODO
   static const SvgData sent = SvgData(
     'assets/icons/sent.svg',
     width: 12.42,
     height: 9,
   );
 
-  // TODO
   static const SvgData sentWhite = SvgData(
     'assets/icons/sent_white.svg',
     width: 12.42,
     height: 9,
   );
 
-  // TODO
   static const SvgData sentSmall = SvgData(
     'assets/icons/sent_small.svg',
     height: 7,
@@ -517,13 +513,11 @@ class SvgIcons {
     height: 9,
   );
 
-  // TODO
   static const SvgData deliveredSmall = SvgData(
     'assets/icons/delivered_small.svg',
     height: 7,
   );
 
-  // TODO
   static const SvgData deliveredWhite = SvgData(
     'assets/icons/delivered_white.svg',
     height: 9,
@@ -534,7 +528,6 @@ class SvgIcons {
     height: 9,
   );
 
-  // TODO
   static const SvgData readSmall = SvgData(
     'assets/icons/read_small.svg',
     height: 7,
@@ -545,33 +538,170 @@ class SvgIcons {
     height: 9,
   );
 
-  // TODO
   static const SvgData sending = SvgData(
     'assets/icons/sending.svg',
     height: 13,
   );
 
-  // TODO
   static const SvgData sendingWhite = SvgData(
     'assets/icons/sending_white.svg',
     height: 13,
   );
 
-  // TODO
   static const SvgData sendingSmall = SvgData(
     'assets/icons/sending_small.svg',
     height: 10,
   );
 
-  // TODO
   static const SvgData error = SvgData(
     'assets/icons/error.svg',
     height: 13,
   );
 
-  // TODO
   static const SvgData errorSmall = SvgData(
     'assets/icons/error_small.svg',
     height: 10,
+  );
+
+  // TODO
+  static const SvgData forward = SvgData(
+    'assets/icons/forward.svg',
+    width: 26,
+    height: 22,
+  );
+
+  static const SvgData send = SvgData(
+    'assets/icons/send.svg',
+    width: 25.44,
+    height: 21.91,
+  );
+
+  static const SvgData audioMessage = SvgData(
+    'assets/icons/audio_message.svg',
+    width: 18.87,
+    height: 23.8,
+  );
+
+  static const SvgData audioMessageSmall = SvgData(
+    'assets/icons/audio_message_small.svg',
+    width: 17.41,
+    height: 21.9,
+  );
+
+  static const SvgData videoMessage = SvgData(
+    'assets/icons/video_message.svg',
+    width: 23.11,
+    height: 21,
+  );
+
+  static const SvgData videoMessageSmall = SvgData(
+    'assets/icons/video_message_small.svg',
+    width: 20.89,
+    height: 19,
+  );
+
+  static const SvgData fileOutlined = SvgData(
+    'assets/icons/file_outlined.svg',
+    width: 18.8,
+    height: 23,
+  );
+
+  static const SvgData fileOutlinedSmall = SvgData(
+    'assets/icons/file_outlined_mini.svg',
+    width: 17.2,
+    height: 21,
+  );
+
+  static const SvgData takePhoto = SvgData(
+    'assets/icons/take_photo.svg',
+    width: 22,
+    height: 22,
+  );
+
+  static const SvgData takePhotoSmall = SvgData(
+    'assets/icons/take_photo_small.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData takeVideo = SvgData(
+    'assets/icons/take_video.svg',
+    width: 28.01,
+    height: 22,
+  );
+
+  static const SvgData takeVideoSmall = SvgData(
+    'assets/icons/take_video_small.svg',
+    width: 25.72,
+    height: 20,
+  );
+
+  static const SvgData gallery = SvgData(
+    'assets/icons/gallery.svg',
+    width: 22,
+    height: 22,
+  );
+
+  static const SvgData gallerySmall = SvgData(
+    'assets/icons/gallery_small.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData gift = SvgData(
+    'assets/icons/gift.svg',
+    width: 24.93,
+    height: 24,
+  );
+
+  static const SvgData giftSmall = SvgData(
+    'assets/icons/gift_small.svg',
+    width: 22.84,
+    height: 21.99,
+  );
+
+  static const SvgData smile = SvgData(
+    'assets/icons/smile.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData smileSmall = SvgData(
+    'assets/icons/smile_mini.svg',
+    width: 21,
+    height: 21,
+  );
+
+  static const SvgData pin = SvgData(
+    'assets/icons/pin.svg',
+    width: 9.65,
+    height: 17,
+  );
+
+  static const SvgData pinDisabled = SvgData(
+    'assets/icons/pin_disabled.svg',
+    width: 9.65,
+    height: 17,
+  );
+
+  static const SvgData unpin = SvgData(
+    'assets/icons/unpin.svg',
+    width: 15.5,
+    height: 16.98,
+  );
+
+  static const SvgData reply = SvgData(
+    'assets/icons/reply.svg',
+    height: 18,
+  );
+
+  static const SvgData forwardSmall = SvgData(
+    'assets/icons/forward.svg',
+    height: 18,
+  );
+
+  static const SvgData edit = SvgData(
+    'assets/icons/edit.svg',
+    height: 18,
   );
 }
