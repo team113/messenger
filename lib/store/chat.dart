@@ -184,6 +184,8 @@ class ChatRepository extends DisposableInterface
 
     status.value = RxStatus.loading();
 
+    // Popup shouldn't listen to recent chats remote updates, as it's happening
+    // inside single [Chat].
     if (!WebUtils.isPopup) {
       _initDraftSubscription();
       _initRemoteSubscription();
@@ -1232,6 +1234,10 @@ class ChatRepository extends DisposableInterface
 
     HiveRxChat hiveChat = _add(chat, pagination: pagination);
 
+    // TODO: https://github.com/team113/messenger/issues/27
+    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+    // synchronization, thus writes from multiple applications may lead to
+    // missing events.
     if (!WebUtils.isPopup) {
       final HiveChat? saved = await _chatLocal.get(chat.value.id);
 
