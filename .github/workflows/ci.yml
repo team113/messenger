@@ -327,6 +327,7 @@ jobs:
         if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.6.2
         with:
+          custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
