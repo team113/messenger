@@ -105,7 +105,7 @@ class ParticipantController extends GetxController {
 
   @override
   void onInit() {
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -149,7 +149,7 @@ class ParticipantController extends GetxController {
     _stateWorker?.dispose();
     _chatWorker?.dispose();
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 

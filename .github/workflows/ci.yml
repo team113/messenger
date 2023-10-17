@@ -217,7 +217,7 @@ jobs:
         if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.7.1
         with:
-          custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # Preserve the symlinks, instead of copying files
+          custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'ios'
                           && 'build/ios/iphoneos/dist')
@@ -699,7 +699,7 @@ jobs:
           path: .cache/dartdoc/
       - uses: thedoctor0/zip-release@0.7.1
         with:
-          custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # Preserve the symlinks, instead of copying files
+          custom: --symlinks  # preserve symlinks, instead of copying files
           filename: artifacts/docs.zip
           path: .cache/dartdoc/
       - name: Generate dartdoc SHA256 checksum

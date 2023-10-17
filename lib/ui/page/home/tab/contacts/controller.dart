@@ -144,7 +144,7 @@ class ContactsTabController extends GetxController {
     _initUsersUpdates();
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -163,7 +163,7 @@ class ContactsTabController extends GetxController {
     _userWorkers.forEach((_, v) => v.dispose());
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
