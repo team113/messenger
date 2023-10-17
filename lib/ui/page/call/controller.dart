@@ -370,6 +370,9 @@ class CallController extends GetxController {
   /// Subscription for [OngoingCall.notifications] updating the [notifications].
   StreamSubscription? _notificationsSubscription;
 
+  /// Subscription for the [chat] changes.
+  StreamSubscription? _chatSubscription;
+
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
@@ -818,6 +821,7 @@ class CallController extends GetxController {
       e.cancel();
     }
     _notificationTimers.clear();
+    _chatSubscription?.cancel();
   }
 
   /// Drops the call.
@@ -2081,7 +2085,9 @@ class CallController extends GetxController {
 
   /// Sets the [chat] to the provided value, updating the title.
   void _updateChat(RxChat? v) {
+    _chatSubscription?.cancel();
     chat.value = v;
+    _chatSubscription = chat.value?.updates.listen((_) {});
     if (!isGroup) {
       secondaryAlignment.value = null;
       secondaryLeft.value = null;
