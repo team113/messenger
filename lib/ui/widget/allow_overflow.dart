@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-
 import 'package:flutter/rendering.dart';
 
 /// [Widget] allowing its [child] to overflow as it pleases.

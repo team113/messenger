@@ -25,7 +25,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../crop_avatar/view.dart';
 import '/api/backend/schema.dart' show Presence, CropAreaInput, PointInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
@@ -44,6 +43,7 @@ import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '../crop_avatar/view.dart';
 
 export 'view.dart';
 
