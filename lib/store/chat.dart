@@ -137,6 +137,9 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
+  /// Subscriptions for the [paginated] chats changes.
+  final Map<ChatId, StreamSubscription> _subscriptions = {};
+
   /// Indicator whether [_remoteSubscription] is initialized.
   ///
   /// Used to skip the [_initPagination] invoke in the first
@@ -193,10 +196,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   void onClose() {
-    for (var c in chats.entries) {
-      c.value.dispose();
-    }
-
+    chats.forEach((_, v) => v.dispose());
+    _subscriptions.forEach((_, v) => v.cancel());
     _cancelToken.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
@@ -272,6 +273,7 @@ class ChatRepository extends DisposableInterface
     chats.remove(id)?.dispose();
     paginated.remove(id);
     _pagination?.remove(id);
+    _subscriptions.remove(id)?.cancel();
     return _chatLocal.remove(id);
   }
 
@@ -1252,11 +1254,7 @@ class ChatRepository extends DisposableInterface
       entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
       chats[chatId] = entry;
 
-      if (pagination) {
-        paginated[chatId] = entry;
-      }
       entry.init();
-      entry.subscribe();
     } else {
       if (entry.chat.value.isMonolog) {
         if (_localMonologFavoritePosition != null) {
@@ -1278,9 +1276,13 @@ class ChatRepository extends DisposableInterface
 
       entry.chat.value = chat.value;
       entry.chat.refresh();
+    }
 
-      if (pagination) {
-        paginated[chatId] ??= entry;
+    if (!paginated.containsKey(chatId)) {
+      paginated[chatId] = entry;
+
+      if (!WebUtils.isPopup) {
+        _subscriptions[chatId] = entry.updates.listen((_) {});
       }
     }
 
@@ -1338,9 +1340,9 @@ class ChatRepository extends DisposableInterface
 
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
-        // Update the chat only if it's new since, otherwise its state is
-        // maintained by itself via [chatEvents].
-        if (chats[event.chat.chat.value.id] == null) {
+        // Update the chat only if its state is not maintained by itself via
+        // [chatEvents].
+        if (chats[event.chat.chat.value.id]?.subscribed != true) {
           _putEntry(event.chat);
         }
         break;
@@ -1543,6 +1545,13 @@ class ChatRepository extends DisposableInterface
             if (localChat != null) {
               chats.move(localId, data.chat.value.id);
               paginated.move(localId, data.chat.value.id);
+
+              final StreamSubscription? subscription = _subscriptions[localId];
+              if (subscription != null) {
+                _subscriptions[data.chat.value.id] = subscription;
+                _subscriptions.remove(localId);
+              }
+
               await localChat.updateChat(data.chat.value);
               entry = localChat;
             }

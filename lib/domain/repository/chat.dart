@@ -287,6 +287,10 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Returns the last [ChatItem] of this [RxChat].
   ChatItem? get lastItem;
 
+  /// Listens to the updates of this [RxChat] while the returned [Stream] is
+  /// listened to.
+  Stream<void> get updates;
+
   /// Fetches the initial [messages] page around the [firstUnread].
   Future<void> around();
 
