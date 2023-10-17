@@ -13,20 +13,26 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- Push notifications. ([#202], [#201])
+
+### Changed
+
 - UI:
     - Chat page:
-        - More panel appearance animation. ([#657], [#641])
-- Push notifications. ([#202], [#201])
+        - Attachments panel smoothly appearing and disappearing. ([#657], [#641])
 
 ### Fixed
 
 - UI:
     - Chats tab:
         - Wide image attachments having blurry previews. ([#628], [#525])
+- Web:
+    - Back button not working on Android. ([#548])
 
 [#201]: /../../issues/201
 [#202]: /../../pull/202
 [#525]: /../../issues/525
+[#548]: /../../issues/548
 [#628]: /../../pull/628
 [#641]: /../../pull/641
 [#657]: /../../pull/657

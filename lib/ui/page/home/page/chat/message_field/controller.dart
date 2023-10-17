@@ -285,10 +285,13 @@ class MessageFieldController extends GetxController {
   void toggleMore() {
     if (moreOpened.isFalse) {
       _moreEntry = OverlayEntry(
-        builder: (_) => MessageFieldMore(this, onDismissed: () {
-          _moreEntry?.remove();
-          _moreEntry = null;
-        }),
+        builder: (_) => MessageFieldMore(
+          this,
+          onDismissed: () {
+            _moreEntry?.remove();
+            _moreEntry = null;
+          },
+        ),
       );
       router.overlay!.insert(_moreEntry!);
     }

@@ -47,7 +47,7 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
   /// Controller animating [FadeTransition].
   late AnimationController _controller;
 
-  /// Animation of [FadeTransition].
+  /// Animation of [FadeTransition] and [SlideTransition].
   late Animation<double> _animation;
 
   /// [Worker] reacting on the [MessageFieldController.moreOpened] changes
@@ -57,11 +57,11 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
   @override
   void initState() {
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     )..forward();
 
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.ease);
 
     _worker = ever(widget.c.moreOpened, (opened) {
       if (!opened) {
@@ -125,72 +125,83 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
         children: widgets,
       );
 
-      return FadeTransition(
-        opacity: _animation,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Listener(
-                onPointerDown: (_) => dismiss(),
-                child: Container(
-                  width: rect?.left ?? constraints.maxWidth,
-                  height: constraints.maxHeight,
-                  color: style.colors.transparent,
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Listener(
-                onPointerDown: (_) => dismiss(),
-                child: Container(
-                  margin: EdgeInsets.only(
-                    left: (rect?.left ?? constraints.maxWidth) + 50,
-                  ),
-                  width: constraints.maxWidth -
-                      (rect?.left ?? constraints.maxWidth) -
-                      50,
-                  height: constraints.maxHeight,
-                  color: style.colors.transparent,
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Listener(
-                onPointerDown: (_) => dismiss(),
-                child: Container(
-                  margin: EdgeInsets.only(
-                      left: (rect?.left ?? constraints.maxWidth)),
-                  width: 50,
-                  height: rect?.top ?? 0,
-                  color: style.colors.transparent,
-                ),
-              ),
-            ),
-            Positioned(
-              left: left,
-              right: context.isNarrow ? right : null,
-              bottom: bottom + 10,
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Listener(
+              onPointerDown: (_) => dismiss(),
               child: Container(
-                decoration: BoxDecoration(
-                  color: style.colors.onPrimary,
-                  borderRadius: style.cardRadius,
-                  boxShadow: [
-                    CustomBoxShadow(
-                      blurRadius: 8,
-                      color: style.colors.onBackgroundOpacity13,
-                    ),
-                  ],
-                ),
-                child:
-                    context.isNarrow ? actions : IntrinsicWidth(child: actions),
+                width: rect?.left ?? constraints.maxWidth,
+                height: constraints.maxHeight,
+                color: style.colors.transparent,
               ),
             ),
-          ],
-        ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Listener(
+              onPointerDown: (_) => dismiss(),
+              child: Container(
+                margin: EdgeInsets.only(
+                  left: (rect?.left ?? constraints.maxWidth) + 50,
+                ),
+                width: constraints.maxWidth -
+                    (rect?.left ?? constraints.maxWidth) -
+                    50,
+                height: constraints.maxHeight,
+                color: style.colors.transparent,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Listener(
+              onPointerDown: (_) => dismiss(),
+              child: Container(
+                margin:
+                    EdgeInsets.only(left: (rect?.left ?? constraints.maxWidth)),
+                width: 50,
+                height: rect?.top ?? 0,
+                color: style.colors.transparent,
+              ),
+            ),
+          ),
+          Positioned(
+            left: left,
+            right: context.isNarrow ? right : null,
+            bottom: 0,
+            child: SlideTransition(
+              position: Tween(
+                begin: context.isMobile ? const Offset(0, 1) : Offset.zero,
+                end: Offset.zero,
+              ).animate(_animation),
+              child: FadeTransition(
+                opacity: Tween(
+                  begin: context.isMobile ? 1.0 : 0.0,
+                  end: 1.0,
+                ).animate(_animation),
+                child: Container(
+                  margin: EdgeInsets.only(bottom: bottom + 10),
+                  decoration: BoxDecoration(
+                    color: style.colors.onPrimary,
+                    borderRadius: style.cardRadius,
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: style.colors.onBackgroundOpacity13,
+                      ),
+                    ],
+                  ),
+                  child: context.isNarrow
+                      ? actions
+                      : IntrinsicWidth(child: actions),
+                ),
+              ),
+            ),
+          ),
+        ],
       );
     });
   }
