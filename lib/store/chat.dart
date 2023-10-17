@@ -1232,13 +1232,15 @@ class ChatRepository extends DisposableInterface
 
     HiveRxChat hiveChat = _add(chat, pagination: pagination);
 
-    final HiveChat? saved = await _chatLocal.get(chat.value.id);
+    if (!WebUtils.isPopup) {
+      final HiveChat? saved = await _chatLocal.get(chat.value.id);
 
-    // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-    chat.value.firstItem ??= saved?.value.firstItem;
+      // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+      chat.value.firstItem ??= saved?.value.firstItem;
 
-    if (saved == null || saved.ver < chat.ver) {
-      await _chatLocal.put(chat);
+      if (saved == null || saved.ver < chat.ver) {
+        await _chatLocal.put(chat);
+      }
     }
 
     return hiveChat;
