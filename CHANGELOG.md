@@ -18,8 +18,10 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Updated avatars colors. ([#656])
     - Chat page:
         - Attachments panel smoothly appearing and disappearing. ([#657], [#641])
+        - Updated messages color. ([#656])
 
 ### Fixed
 
@@ -28,6 +30,8 @@ All user visible changes to this project will be documented in this file. This p
         - Wide image attachments having blurry previews. ([#628], [#525])
 - Web:
     - Back button not working on Android. ([#548])
+- macOS:
+    - Application crashing when encountering video attachments in chat. ([#656])
 
 [#201]: /../../issues/201
 [#202]: /../../pull/202
@@ -35,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
 [#548]: /../../issues/548
 [#628]: /../../pull/628
 [#641]: /../../pull/641
+[#656]: /../../pull/656
 [#657]: /../../pull/657
 
 
