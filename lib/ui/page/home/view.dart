@@ -319,6 +319,7 @@ class _HomeViewState extends State<HomeView> {
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
                                       radius: 15,
+                                      onForbidden: c.updateAvatar,
                                     ),
                                   ),
                                 ),

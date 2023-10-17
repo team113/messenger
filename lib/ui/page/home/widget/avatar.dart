@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -52,6 +53,7 @@ class AvatarWidget extends StatelessWidget {
     this.isOnline = false,
     this.isAway = false,
     this.label,
+    this.onForbidden,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -129,6 +131,7 @@ class AvatarWidget extends StatelessWidget {
     double? minRadius,
     double opacity = 1,
     bool badge = true,
+    FutureOr<void> Function()? onForbidden,
   }) =>
       AvatarWidget(
         key: key,
@@ -141,6 +144,7 @@ class AvatarWidget extends StatelessWidget {
         maxRadius: maxRadius,
         minRadius: minRadius,
         opacity: opacity,
+        onForbidden: onForbidden,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -350,6 +354,9 @@ class AvatarWidget extends StatelessWidget {
   /// Optional label to show inside this [AvatarWidget].
   final Widget? label;
 
+  /// Callback, called when [avatar] fetching fails with `Forbidden` error.
+  final FutureOr<void> Function()? onForbidden;
+
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
     if (radius == null && minRadius == null && maxRadius == null) {
@@ -474,6 +481,7 @@ class AvatarWidget extends StatelessWidget {
                     height: double.infinity,
                     width: double.infinity,
                     displayProgress: false,
+                    onForbidden: onForbidden,
                   ),
                 ),
               ),

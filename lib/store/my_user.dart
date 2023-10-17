@@ -513,6 +513,15 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
+  @override
+  Future<void> refresh() async {
+    final response = await _graphQlProvider.getMyUser();
+
+    if (response.myUser != null) {
+      _setMyUser(response.myUser!.toHive(), ignoreVersion: true);
+    }
+  }
+
   // TODO: Blocklist can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ blacklisted [User]s from the remote.
@@ -584,8 +593,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Saves the provided [user] in [Hive].
-  void _setMyUser(HiveMyUser user) {
-    if (user.ver > _myUserLocal.myUser?.ver) {
+  void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
+    if (user.ver > _myUserLocal.myUser?.ver || ignoreVersion) {
       _myUserLocal.set(user);
     }
   }

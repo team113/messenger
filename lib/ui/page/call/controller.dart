@@ -541,7 +541,7 @@ class CallController extends GetxController {
     Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -810,7 +810,7 @@ class CallController extends GetxController {
     }
 
     HardwareKeyboard.instance.removeHandler(_onKey);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
