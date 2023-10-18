@@ -34,8 +34,11 @@ import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
+import 'domain/service/notification.dart';
 import 'domain/service/user.dart';
+import 'firebase_options.dart';
 import 'l10n/l10n.dart';
+import 'main.dart' show handlePushNotification;
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
@@ -372,13 +375,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   late final Worker _prefixWorker;
 
   @override
-  Future<void> setInitialRoutePath(RouteConfiguration configuration) {
+  Future<void> setInitialRoutePath(RouteConfiguration configuration) async {
     Future.delayed(Duration.zero, () {
       _state.context = navigatorKey.currentContext;
       _state.overlay = navigatorKey.currentState?.overlay;
     });
 
-    return setNewRoutePath(configuration);
+    if (_state.routes.isEmpty) {
+      await setNewRoutePath(configuration);
+    }
   }
 
   @override
@@ -570,6 +575,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
 
+            GraphQlProvider graphQlProvider = Get.find();
+
+            NotificationService notificationService =
+                deps.put(NotificationService(graphQlProvider));
+
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(
@@ -582,9 +592,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
-            await deps.put(SettingsWorker(settingsRepository)).init();
+            await deps
+                .put(
+                  SettingsWorker(
+                    settingsRepository,
+                    onChanged: notificationService.setLanguage,
+                  ),
+                )
+                .init();
 
-            GraphQlProvider graphQlProvider = Get.find();
+            notificationService.init(
+              language: L10n.chosen.value?.locale.toString(),
+              firebaseOptions: PlatformUtils.pushNotifications
+                  ? DefaultFirebaseOptions.currentPlatform
+                  : null,
+              onResponse: (payload) {
+                if (payload.startsWith(Routes.chats)) {
+                  router.push(payload);
+                }
+              },
+              onBackground: handlePushNotification,
+            );
+
             UserRepository userRepository =
                 UserRepository(graphQlProvider, Get.find());
             deps.put<AbstractUserRepository>(userRepository);
@@ -644,7 +673,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ));
 
             deps.put(CallWorker(
-              Get.find(),
               callService,
               chatService,
               myUserService,

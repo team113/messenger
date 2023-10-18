@@ -35,6 +35,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -91,6 +92,9 @@ class ChatInfoController extends GetxController {
 
   /// Worker to react on [chat] changes.
   Worker? _worker;
+
+  /// Subscription for the [chat] changes.
+  StreamSubscription? _chatSubscription;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -180,6 +184,7 @@ class ChatInfoController extends GetxController {
     _worker?.dispose();
     _nameTimer?.cancel();
     _avatarTimer?.cancel();
+    _chatSubscription?.cancel();
     super.onClose();
   }
 
@@ -217,7 +222,8 @@ class ChatInfoController extends GetxController {
   Future<void> pickAvatar() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      withReadStream: true,
+      withReadStream: !PlatformUtils.isWeb,
+      withData: PlatformUtils.isWeb,
     );
 
     if (result != null) {
@@ -377,6 +383,8 @@ class ChatInfoController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      _chatSubscription = chat!.updates.listen((_) {});
+
       name.unchecked = chat!.chat.value.name?.val;
 
       _worker = ever(

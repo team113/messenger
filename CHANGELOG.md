@@ -6,7 +6,46 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.10] · 2023-??-??
+## [0.1.0-alpha.11] · 2023-??-??
+[0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
+
+[Diff](/../../compare/v0.1.0-alpha.10...v0.1.0-alpha.11) | [Milestone](/../../milestone/11)
+
+### Added
+
+- Push notifications. ([#202], [#201])
+
+### Changed
+
+- UI:
+    - Updated avatars colors. ([#656])
+    - Chat page:
+        - Attachments panel smoothly appearing and disappearing. ([#657], [#641])
+        - Updated messages color. ([#656])
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Wide image attachments having blurry previews. ([#628], [#525])
+- Web:
+    - Back button not working on Android. ([#548])
+- macOS:
+    - Application crashing when encountering video attachments in chat. ([#656])
+
+[#201]: /../../issues/201
+[#202]: /../../pull/202
+[#525]: /../../issues/525
+[#548]: /../../issues/548
+[#628]: /../../pull/628
+[#641]: /../../pull/641
+[#656]: /../../pull/656
+[#657]: /../../pull/657
+
+
+
+
+## [0.1.0-alpha.10] · 2023-10-10
 [0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
 
 [Diff](/../../compare/v0.1.0-alpha.9.4...v0.1.0-alpha.10) | [Milestone](/../../milestone/9)
@@ -15,7 +54,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - `Save as` for media attachments. ([#423], [#370]) 
+        - `Save as` for media attachments. ([#423], [#370])
+        - Pinning/unpinning actions in send field. ([#609], [#559])
 
 ### Changed
 
@@ -37,6 +77,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Context menu appearing twice when long pressing dots. ([#599], [#508])
         - Title jumping around when entering search. ([#613], [#550])
+    - User's last seen status not updating periodically. ([#610], [#551])
 - Web:
     - Fix background flashing after loading. ([#604], [#549])
 
@@ -48,11 +89,15 @@ All user visible changes to this project will be documented in this file. This p
 [#533]: /../../pull/533
 [#549]: /../../issues/549
 [#550]: /../../issues/550
+[#551]: /../../issues/551
+[#559]: /../../issue/559
 [#564]: /../../issues/564
 [#587]: /../../pull/587
 [#597]: /../../pull/597
 [#599]: /../../pull/599
 [#604]: /../../pull/604
+[#609]: /../../pull/609
+[#610]: /../../pull/610
 [#613]: /../../pull/613
 [#614]: /../../issues/614
 [#616]: /../../pull/616

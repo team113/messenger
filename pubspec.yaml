@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.9.4
+version: 0.1.0-alpha.10
 publish_to: none
 
 environment:
@@ -23,6 +23,8 @@ dependencies:
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^5.3.0
+  firebase_core: ^2.15.0
+  firebase_messaging: ^14.6.5
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
@@ -78,6 +80,7 @@ dependencies:
       path: packages/scrollable_positioned_list/
   sentry_flutter: ^7.9.0
   share_plus: ^7.0.0
+  shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
   stdlibc: ^0.1.4
   toml: ^0.14.0

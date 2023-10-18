@@ -103,6 +103,17 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
+  /// Indicates whether this [FileAttachment] represents a video.
+  bool get isVideo {
+    final String file = filename.toLowerCase();
+    return file.endsWith('.mp4') ||
+        file.endsWith('.mov') ||
+        file.endsWith('.webm') ||
+        file.endsWith('.mkv') ||
+        file.endsWith('.flv') ||
+        file.endsWith('.3gp');
+  }
+
   /// Initializes this [FileAttachment].
   Future<void> init() async {
     if (_initialized) {
@@ -153,7 +164,12 @@ class LocalAttachment extends Attachment {
       : status = Rx(status),
         super(
           id: AttachmentId.local(),
-          original: ImageFile(relativeRef: '', size: file.size),
+          original: ImageFile(
+            relativeRef: '',
+            size: file.size,
+            width: file.dimensions.value?.width.round(),
+            height: file.dimensions.value?.height.round(),
+          ),
           filename: file.name,
         );
 

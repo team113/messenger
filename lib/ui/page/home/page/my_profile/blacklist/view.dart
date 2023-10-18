@@ -25,6 +25,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View displaying the blacklisted [User]s.
@@ -46,7 +47,7 @@ class BlacklistView extends StatelessWidget {
       init: BlacklistController(
         Get.find(),
         Get.find(),
-        pop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (BlacklistController c) {
         return Obx(() {

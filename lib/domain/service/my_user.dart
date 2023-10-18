@@ -189,6 +189,9 @@ class MyUserService extends DisposableService {
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async => await _userRepo.clearCache();
 
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> refresh() async => await _userRepo.refresh();
+
   /// Callback to be called when [MyUser]'s password is updated.
   ///
   /// Performs log out if the current [AccessToken] is not valid.

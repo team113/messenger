@@ -54,6 +54,9 @@ class PlatformUtilsImpl {
   /// Cache directory.
   Directory? _cacheDirectory;
 
+  /// Temporary directory.
+  Directory? _temporaryDirectory;
+
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
 
@@ -108,6 +111,10 @@ class PlatformUtilsImpl {
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
       PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+
+  /// Indicates whether device is running on a Firebase Cloud Messaging
+  /// supported OS, meaning it supports receiving push notifications.
+  bool get pushNotifications => isWeb || isMobile;
 
   /// Returns a `User-Agent` header to put in the network requests.
   Future<String> get userAgent async {
@@ -287,6 +294,17 @@ class PlatformUtilsImpl {
     }
   }
 
+  /// Returns a path to the temporary directory.
+  Future<Directory> get temporaryDirectory async {
+    if (_temporaryDirectory != null) {
+      return _temporaryDirectory!;
+    }
+
+    _temporaryDirectory =
+        Directory('${(await getTemporaryDirectory()).path}${Config.downloads}');
+    return _temporaryDirectory!;
+  }
+
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
@@ -339,7 +357,8 @@ class PlatformUtilsImpl {
           int.parse(((await (await dio).head(url!)).headers['content-length']
               as List<String>)[0]);
 
-      final Directory directory = await downloadsDirectory;
+      final Directory directory =
+          temporary ? await temporaryDirectory : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('${directory.path}/$filename');
@@ -366,8 +385,11 @@ class PlatformUtilsImpl {
     String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
+    int retries = 5,
   }) async {
     dynamic completeWith;
+    int tries = 0;
 
     CancelableOperation<File?>? operation;
     operation = CancelableOperation.fromFuture(
@@ -378,6 +400,13 @@ class PlatformUtilsImpl {
               exception.response?.statusCode != 404) {
             completeWith = exception;
             operation?.cancel();
+          } else {
+            ++tries;
+
+            if (tries <= retries) {
+              // Continue the [Backoff.run] re-trying.
+              throw exception;
+            }
           }
         }
 
@@ -405,6 +434,7 @@ class PlatformUtilsImpl {
                     filename,
                     size: size,
                     url: url,
+                    temporary: temporary,
                   );
                 } catch (e) {
                   onError(e);
@@ -425,7 +455,9 @@ class PlatformUtilsImpl {
             if (path == null) {
               final String name = p.basenameWithoutExtension(filename);
               final String extension = p.extension(filename);
-              final Directory directory = await downloadsDirectory;
+              final Directory directory = temporary
+                  ? await temporaryDirectory
+                  : await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
               for (int i = 1; await file!.exists(); ++i) {
@@ -545,6 +577,25 @@ extension MobileExtensionOnContext on BuildContext {
   bool get isNarrow => PlatformUtils.isDesktop
       ? MediaQuery.sizeOf(this).width < 600
       : MediaQuery.sizeOf(this).shortestSide < 600;
+}
+
+/// Extension adding an ability to pop the current [ModalRoute].
+extension PopExtensionOnContext on BuildContext {
+  /// Pops the [ModalRoute] from this [BuildContext], if any is active.
+  void popModal() {
+    if (mounted) {
+      final NavigatorState navigator = Navigator.of(this);
+      final ModalRoute? modal = ModalRoute.of(this);
+
+      if (modal?.isActive == true) {
+        if (modal?.isCurrent == true) {
+          navigator.pop();
+        } else {
+          navigator.removeRoute(modal!);
+        }
+      }
+    }
+  }
 }
 
 /// Listener interface for receiving window events.

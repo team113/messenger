@@ -134,7 +134,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             onTap: () => setState(() => _variant = variant),
             hoverColor: _variant == variant
                 ? style.colors.primary
-                : style.cardColor.darken(0.08),
+                : style.cardHoveredColor,
             borderRadius: style.cardRadius,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),

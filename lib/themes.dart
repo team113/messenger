@@ -39,29 +39,41 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
-      background: const Color(0xFFF5F8FA),
+      background: const Color(0xFFF2F5F8),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
-      acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: const Color(0xFF4CAF50),
-      declineColor: const Color(0x7FFF0000),
-      dangerColor: const Color(0xFFF44336),
-      warningColor: const Color(0xFFFF9800),
-      userColors: [
-        const Color(0xFF9C27B0),
-        const Color(0xFF673AB7),
-        const Color(0xFF3F51B5),
-        const Color(0xFF2196F3),
-        const Color(0xFF00BCD4),
-        const Color(0xFF8BC34A),
-        const Color(0xFFCDDC39),
-        const Color(0xFFFFC107),
-        const Color(0xFFFF9800),
-        const Color(0xFFFF5722),
+      accept: const Color(0x7F34B139),
+      acceptAuxiliary: const Color(0xFF4CAF50),
+      acceptLight: const Color(0xFFBFE3B9),
+      acceptLighter: const Color(0xFFD9FDD3),
+      acceptLightest: const Color(0xFFF2FDED),
+      decline: const Color(0x7FFF0000),
+      danger: const Color(0xFFF44336),
+      warning: const Color(0xFFFF9800),
+      userColors: const [
+        Color(0xFFD2B334),
+        Color(0xFF2192FF),
+        Color(0xFF9C27B0),
+        Color(0xFFFF9800),
+        Color(0xFF0094A7),
+        Color(0xFF7F81FF),
+        Color(0xFFFF5722),
+        Color(0xFFC70100),
+        Color(0xFF8BC34A),
+        Color(0xFF16712D),
+        Color(0xFFFF5B89),
+        Color(0xFF332FD0),
+        Color(0xFFB96215),
+        Color(0xFF00BF79),
+        Color(0xFF00ACCF),
+        Color(0xFFED36FF),
+        Color(0xFF00CC25),
+        Color(0xFFFF1008),
+        Color(0xFFCB9F7A),
       ],
     );
 
@@ -75,9 +87,10 @@ class Themes {
 
     final Fonts fonts = Fonts(
       primary: colors.primary,
+      primaryHighlightLightest: colors.primaryHighlightLightest,
       secondary: colors.secondary,
       onPrimary: colors.onPrimary,
-      danger: colors.dangerColor,
+      danger: colors.danger,
       displayBold:
           textStyle.copyWith(fontWeight: FontWeight.w700, fontSize: 27),
       displayLarge:
@@ -104,10 +117,10 @@ class Themes {
         letterSpacing: 0.4,
       ),
       bodyLarge: textStyle,
-      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w400),
-      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w400),
-      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w400),
-      error: textStyle.copyWith(fontSize: 13, color: colors.dangerColor),
+      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
+      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
+      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
+      error: textStyle.copyWith(fontSize: 13, color: colors.danger),
       input: textStyle.copyWith(
         fontSize: 15,
         fontWeight: FontWeight.w400,
@@ -141,6 +154,7 @@ class Themes {
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
             cardColor: colors.onPrimaryOpacity95,
+            cardHoveredColor: colors.backgroundAuxiliaryLightest,
             cardHoveredBorder: Border.all(
               color: colors.primaryHighlightShiniest,
               width: 0.5,
@@ -157,20 +171,17 @@ class Themes {
               color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
-            readMessageColor: colors.primaryHighlightShiniest,
-            secondaryBorder: Border.all(
-              color: colors.primaryHighlightLightest,
-              width: 0.5,
-            ),
+            readMessageColor: colors.acceptLighter,
+            secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
             sidebarColor: colors.onPrimaryOpacity50,
             systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDarkest,
+              color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
             systemMessageStyle: fonts.bodySmallSecondary,
             systemMessagePrimary: fonts.bodySmallPrimary,
-            unreadMessageColor: colors.backgroundAuxiliaryLightest,
+            unreadMessageColor: colors.acceptLightest,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -194,6 +205,7 @@ class Themes {
         primaryIconTheme: const IconThemeData.fallback().copyWith(
           color: colors.secondary,
         ),
+        splashColor: colors.transparent,
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
         textTheme: Typography.blackCupertino.copyWith(
           displayLarge: fonts.displayLarge,
@@ -243,11 +255,11 @@ class Themes {
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.dangerColor),
+            borderSide: BorderSide(color: colors.danger),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.dangerColor),
+            borderSide: BorderSide(color: colors.danger),
           ),
         ),
         textSelectionTheme: theme.textSelectionTheme.copyWith(
@@ -375,6 +387,7 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredColor,
     required this.cardHoveredBorder,
     required this.cardRadius,
     required this.cardSelectedBorder,
@@ -411,6 +424,9 @@ class Style extends ThemeExtension<Style> {
 
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
+
+  /// Background [Color] of card-like [Widget]s when hovered.
+  final Color cardHoveredColor;
 
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
@@ -473,6 +489,7 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Color? cardHoveredColor,
     Border? cardHoveredBorder,
     BorderRadius? cardRadius,
     Border? cardSelectedBorder,
@@ -498,6 +515,7 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
       cardRadius: cardRadius ?? this.cardRadius,
       cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
@@ -533,6 +551,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
@@ -581,6 +601,7 @@ class Style extends ThemeExtension<Style> {
 class Fonts {
   Fonts({
     Color? primary,
+    Color? primaryHighlightLightest,
     Color? secondary,
     Color? onPrimary,
     Color? danger,
@@ -622,12 +643,14 @@ class Fonts {
     TextStyle? labelMediumPrimary,
     TextStyle? labelMediumSecondary,
     TextStyle? labelMediumOnPrimary,
+    TextStyle? labelMediumDanger,
     required this.labelSmall,
     TextStyle? labelSmallPrimary,
     TextStyle? labelSmallSecondary,
     TextStyle? labelSmallOnPrimary,
     required this.bodyLarge,
     TextStyle? bodyLargePrimary,
+    TextStyle? bodyLargePrimaryHighlightLightest,
     TextStyle? bodyLargeSecondary,
     required this.bodyMedium,
     TextStyle? bodyMediumPrimary,
@@ -692,6 +715,8 @@ class Fonts {
             labelMediumSecondary ?? labelMedium.copyWith(color: secondary),
         labelMediumOnPrimary =
             labelMediumOnPrimary ?? labelMedium.copyWith(color: onPrimary),
+        labelMediumDanger =
+            labelMediumDanger ?? labelMedium.copyWith(color: danger),
         labelSmallPrimary =
             labelSmallPrimary ?? labelSmall.copyWith(color: primary),
         labelSmallSecondary =
@@ -700,6 +725,8 @@ class Fonts {
             labelSmallOnPrimary ?? labelSmall.copyWith(color: onPrimary),
         bodyLargePrimary =
             bodyLargePrimary ?? bodyLarge.copyWith(color: primary),
+        bodyLargePrimaryHighlightLightest = bodyLargePrimaryHighlightLightest ??
+            bodyLarge.copyWith(color: primaryHighlightLightest),
         bodyLargeSecondary =
             bodyLargeSecondary ?? bodyLarge.copyWith(color: secondary),
         bodyMediumPrimary =
@@ -831,6 +858,9 @@ class Fonts {
   /// [labelMedium] of `onPrimary` color.
   final TextStyle labelMediumOnPrimary;
 
+  /// [labelMedium] of `danger` color.
+  final TextStyle labelMediumDanger;
+
   /// Small version of label text of `onBackground` color.
   final TextStyle labelSmall;
 
@@ -848,6 +878,9 @@ class Fonts {
 
   /// [bodyLarge] of `primary` color.
   final TextStyle bodyLargePrimary;
+
+  /// [bodyLarge] of `primaryHighlightLightest` color.
+  final TextStyle bodyLargePrimaryHighlightLightest;
 
   /// [bodyLarge] of `secondary` color.
   final TextStyle bodyLargeSecondary;
@@ -962,6 +995,8 @@ class Fonts {
           font.labelMediumSecondary, other.labelMediumSecondary, t)!,
       labelMediumOnPrimary: TextStyle.lerp(
           font.labelMediumOnPrimary, other.labelMediumOnPrimary, t)!,
+      labelMediumDanger:
+          TextStyle.lerp(font.labelMediumDanger, other.labelMediumDanger, t)!,
       labelSmall: TextStyle.lerp(font.labelSmall, other.labelSmall, t)!,
       labelSmallPrimary:
           TextStyle.lerp(font.labelSmallPrimary, other.labelSmallPrimary, t)!,
@@ -1046,11 +1081,14 @@ class Palette {
     Color? onBackgroundOpacity50,
     Color? onBackgroundOpacity70,
     required this.transparent,
-    required this.acceptColor,
-    required this.acceptAuxiliaryColor,
-    required this.declineColor,
-    required this.dangerColor,
-    required this.warningColor,
+    required this.accept,
+    required this.acceptAuxiliary,
+    required this.acceptLight,
+    required this.acceptLighter,
+    required this.acceptLightest,
+    required this.decline,
+    required this.danger,
+    required this.warning,
     required this.userColors,
   })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
         primaryDarkOpacity70 =
@@ -1297,28 +1335,33 @@ class Palette {
   /// brightness.
   final Color transparent;
 
-  /// Indicator of an affirmative color to visually confirm elements of the user
-  /// interface.
-  ///
-  /// Used in accept call button.
-  final Color acceptColor;
+  /// Indicator of an affirmative color of confirmable elements.
+  final Color accept;
 
-  /// [Color] is used as an auxiliary color to display pleasant action
-  /// confirmation messages.
-  final Color acceptAuxiliaryColor;
+  /// [Color] displaying pleasant action confirmation messages.
+  final Color acceptAuxiliary;
+
+  /// Light variant of the [accept] color.
+  final Color acceptLight;
+
+  /// Lighter variant of the [accept] color.
+  final Color acceptLighter;
+
+  /// Lightest variant of the [accept] color.
+  final Color acceptLightest;
 
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
   ///
   /// Used in decline call button.
-  final Color declineColor;
+  final Color decline;
 
   /// [Color] used to indicate dangerous or critical elements in the user
   /// interface.
-  final Color dangerColor;
+  final Color danger;
 
   /// [Color] used to indicate caution, risk, or a potential threat.
-  final Color warningColor;
+  final Color warning;
 
   /// [Color]s associated with the [User].
   ///
@@ -1412,12 +1455,16 @@ class Palette {
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
-      acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t)!,
-      acceptAuxiliaryColor: Color.lerp(
-          color.acceptAuxiliaryColor, other.acceptAuxiliaryColor, t)!,
-      declineColor: Color.lerp(color.declineColor, other.declineColor, t)!,
-      dangerColor: Color.lerp(color.dangerColor, other.dangerColor, t)!,
-      warningColor: Color.lerp(color.warningColor, other.warningColor, t)!,
+      accept: Color.lerp(color.accept, other.accept, t)!,
+      acceptAuxiliary:
+          Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+      acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
+      acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
+      acceptLightest:
+          Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
+      decline: Color.lerp(color.decline, other.decline, t)!,
+      danger: Color.lerp(color.danger, other.danger, t)!,
+      warning: Color.lerp(color.warning, other.warning, t)!,
       userColors:
           other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );

@@ -18,19 +18,23 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model/chat.dart';
-import '../model/my_user.dart';
-import '../model/precise_date_time/precise_date_time.dart';
-import '../model/session.dart';
-import '../model/user.dart';
-import '../repository/auth.dart';
+import '/config.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/fcm_registration_token.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/session.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 /// Authentication service exposing [credentials] of the authenticated session.
@@ -333,7 +337,24 @@ class AuthService extends GetxService {
     status.value = RxStatus.loading();
 
     try {
-      await _authRepository.logout();
+      FcmRegistrationToken? fcmToken;
+
+      if (PlatformUtils.pushNotifications) {
+        final NotificationSettings settings =
+            await FirebaseMessaging.instance.getNotificationSettings();
+
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          final String? token = await FirebaseMessaging.instance.getToken(
+            vapidKey: Config.vapidKey,
+          );
+
+          if (token != null) {
+            fcmToken = FcmRegistrationToken(token);
+          }
+        }
+      }
+
+      await _authRepository.logout(fcmToken);
     } catch (e) {
       printError(info: e.toString());
     }

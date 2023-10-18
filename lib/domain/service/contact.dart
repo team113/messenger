@@ -44,18 +44,6 @@ class ContactService extends DisposableService {
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
 
-  @override
-  void onInit() {
-    _contactRepository.init();
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    _contactRepository.dispose();
-    super.onClose();
-  }
-
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) => _contactRepository
       .createChatContact(user.name ?? UserName(user.num.toString()), user.id);

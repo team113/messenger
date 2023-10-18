@@ -32,6 +32,7 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
 import '/ui/widget/modal_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
@@ -44,6 +45,7 @@ class ChatForwardView extends StatelessWidget {
     required this.quotes,
     this.text,
     this.attachments = const [],
+    this.onSent,
   });
 
   /// ID of the [Chat] the [quotes] are forwarded from.
@@ -58,6 +60,9 @@ class ChatForwardView extends StatelessWidget {
   /// Initial [Attachment]s to attach to the provided [quotes].
   final List<Attachment> attachments;
 
+  /// Callback, called when the [quotes] are sent.
+  final void Function()? onSent;
+
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
@@ -65,6 +70,7 @@ class ChatForwardView extends StatelessWidget {
     List<ChatItemQuoteInput> quotes, {
     String? text,
     List<Attachment> attachments = const [],
+    void Function()? onSent,
   }) {
     return ModalPopup.show(
       context: context,
@@ -78,8 +84,9 @@ class ChatForwardView extends StatelessWidget {
         key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        attachments: attachments,
         text: text,
+        attachments: attachments,
+        onSent: onSent,
       ),
     );
   }
@@ -92,11 +99,13 @@ class ChatForwardView extends StatelessWidget {
       init: ChatForwardController(
         Get.find(),
         Get.find(),
+        Get.find(),
         from: from,
         quotes: quotes,
         text: text,
         attachments: attachments,
-        pop: () => Navigator.of(context).pop(true),
+        onSent: onSent,
+        pop: context.popModal,
       ),
       builder: (ChatForwardController c) {
         return Obx(() {

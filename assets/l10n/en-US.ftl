@@ -67,6 +67,7 @@ btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Add to favorites
 btn_allow = Allow
 btn_audio_call = Audio call
+btn_audio_message = Audio message
 btn_back = Back
 btn_block = Block
 btn_call_answer_with_audio =
@@ -147,6 +148,7 @@ btn_call_video_off_desc =
     Turn
     video off
 btn_call_video_on = Turn video on
+btn_camera = Camera
 btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
@@ -174,12 +176,15 @@ btn_download = Download
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
+btn_file = File
 btn_forgot_password = Forgot password?
 btn_forward = Forward
 btn_forward_message = Forward message
 btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
+btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
+btn_gift = Gift
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -227,7 +232,10 @@ btn_share = Share
 btn_sign_in = Sign in
 btn_sign_up = Sign up
 btn_start = Start
+btn_sticker = Sticker
 btn_submit = Submit
+btn_take_photo = Take photo
+btn_take_video = Take video
 btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_unmute = Unmute
@@ -235,6 +243,7 @@ btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
 btn_upload = Upload
 btn_video_call = Video call
+btn_video_message = Video message
 btn_work_with_us = Work with us
 btn_write_message = Write a message
 btn_your_profile = Your profile
@@ -242,6 +251,16 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_password_recovery =
+    {$domain} recovery code is: {$token}
+    Valid until {$expiresAt}.
+    {$domain}
+email_password_recovery_subject = {$domain} recovery code
+email_verification_code =
+    {$domain} verification code is: {$token}
+    Valid until {$expiresAt}.
+    {$domain}
+email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
 err_blacklisted = User is in blacklist
 err_call_already_exists = Call already exists
@@ -276,6 +295,8 @@ err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
+err_invalid_registration_token = Invalid registration token
+err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
 err_message_was_read = Message was read
 err_monolog = Can't perfom this action in a monolog
@@ -319,16 +340,128 @@ err_unsupported_format = Unsupported format
 err_unsupported_forwarded_item = Unsupported forwarded item
 err_uploaded_file_malformed = File is malformed
 err_use_monolog = Can't create dialog with yourself
+err_wrong_attachments_items_count = Wrong attachments count
 err_wrong_items_count = Wrong items count
 err_wrong_members_count = No more that 100 members is allowed
 err_wrong_old_password = Wrong password.
 err_wrong_recovery_code = Provided code is wrong.
+err_wrong_replying_item_count = Wrong replying items count
 err_you_already_add_this_email = Indicated E-mail has been added already.
 err_you_already_add_this_phone = Indicated phone has been added already.
 err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blacklisted = You are blacklisted
 err_you_are_not_member = Not a member
+fcm_dialog_title = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
+fcm_group_avatar_changed = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] updated avatar
+         *[delete] removed avatar
+      }
+fcm_group_name_changed = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] renamed chat to {$groupName}
+         *[delete] removed name
+      }
+fcm_group_title =
+    {$user1Name ->
+        [x] {$user1Num ->
+                [x] {""}
+               *[other] {$user1Num}
+            }
+       *[other] {$user1Name}
+    }{$user2Name ->
+        [x] {$user2Num ->
+                [x] {""}
+               *[other] {$user2Num}
+            }
+       *[other] , {$user2Name}
+    }{$user3Name ->
+        [x] {$user3Num ->
+                [x] {""}
+               *[other] {$user3Num}
+            }
+       *[other] , {$user3Name}
+    } {$moreMembers ->
+        [yes] ...
+       *[no] {""}
+    }
+fcm_incoming_call = Incoming call
+fcm_message =
+    { $type ->
+        [dialog] {""}
+        *[group]
+            {$userName ->
+                [x] {$userNum}
+                *[other] {$userName}
+            }:{" "}
+    }{ $attachmentsCount ->
+          [0] {""}
+          *[other] [{$attachmentsType ->
+               [image] { $attachmentsCount ->
+                           [1] Image
+                           *[other] {$attachmentsCount} images
+                       }
+               [video] { $attachmentsCount ->
+                           [1] Video
+                           *[other] {$attachmentsCount} videos
+                       }
+               [file] { $attachmentsCount ->
+                          [1] File
+                          *[other] {$attachmentsCount} files
+                      }
+              *[attachments] {$attachmentsCount} attachments
+        }]
+    }{ $textLength ->
+        [0] {""}
+        *[other] { $attachmentsCount ->
+            [0] {$text}
+            *[other] {" "}{$text}
+        }
+    }
+fcm_user_added_user =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } added {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
+fcm_user_added_you_to_group =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } added you to group
+fcm_user_joined_group_by_link =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } joined via link
+fcm_user_left_group =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } left the group
+fcm_user_removed_user =
+    {$authorName ->
+        [x] {$authorNum}
+       *[other] {$authorName}
+    } removed {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
+fcm_user_removed_you =
+    {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } removed you from group
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_account = Account
@@ -349,12 +482,12 @@ label_add_phone = Add phone number
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
-label_ago = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] { $hours ->
-                                    [0] { $minutes ->
+label_ago = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
+                            [0] {$hours ->
+                                    [0] {$minutes ->
                                             [0] just now
                                             [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
@@ -374,10 +507,10 @@ label_ago = { $years ->
     [1] an year ago
     *[other] {$years} years ago
 }
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
+label_ago_date = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
                             [0] Today
                             [1] Yesterday
                             *[other] {$days} days ago
@@ -397,7 +530,7 @@ label_application = Application
 label_are_you_sure_no = No
 label_are_you_sure_yes = Yes
 label_as_timeline = As timeline
-label_attachments = [{$count} { $count ->
+label_attachments = [{$count} {$count ->
     [1] attachment
     *[other] attachments
     }]
@@ -529,14 +662,12 @@ label_enter_confirmation_code_hint = Enter confirmation code
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
-label_file = File
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
    *[other] Пересланные сообщения
 }
-label_gallery = Gallery
 label_gb_slash_gb = {$a} GB / {$b} GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -594,9 +725,9 @@ label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
-label_mute_for = { $days ->
-    [0] { $hours ->
-            [0] { $minutes ->
+label_mute_for = {$days ->
+    [0] {$hours ->
+            [0] {$minutes ->
                     [0] Forever
                     [1] 1 minute
                     *[other] {$minutes} minutes
@@ -669,7 +800,7 @@ label_recovery_code_sent = The verification code has been sent to the verified E
 label_recovery_enter_new_password = Please enter the new password below.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
-label_replies = [{$count} { $count ->
+label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
@@ -713,7 +844,7 @@ label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
-label_unread_messages = { $quantity ->
+label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }

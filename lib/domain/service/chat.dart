@@ -19,16 +19,17 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/attachment.dart';
-import '../model/chat.dart';
-import '../model/chat_item.dart';
-import '../model/chat_item_quote_input.dart';
-import '../model/mute_duration.dart';
-import '../model/native_file.dart';
-import '../model/user.dart';
-import '../repository/chat.dart';
 import '/api/backend/schema.dart'
     show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
+import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/obs/obs.dart';
@@ -196,8 +197,11 @@ class ChatService extends DisposableService {
       _chatRepository.readChat(chatId, untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessage(ChatMessage item, ChatMessageText? text) =>
-      _chatRepository.editChatMessageText(item, text);
+  Future<void> editChatMessage(
+    ChatMessage item, {
+    ChatMessageTextInput? text,
+  }) =>
+      _chatRepository.editChatMessage(item, text: text);
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteChatItem(ChatItem item) async {

@@ -26,8 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart'
-    show ChatCallFinishReasonL10n, ChatController, FileAttachmentIsVideo;
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -228,7 +227,6 @@ class ChatItemWidget extends StatefulWidget {
         attachment: e,
         height: 300,
         width: filled ? double.infinity : null,
-        fit: BoxFit.cover,
         autoLoad: autoLoad,
         onError: onError,
       );
@@ -306,7 +304,7 @@ class ChatItemWidget extends StatefulWidget {
                                 Icons.error,
                                 key: const Key('Error'),
                                 size: 48,
-                                color: style.colors.dangerColor,
+                                color: style.colors.danger,
                               ),
                       ),
               )
@@ -1584,7 +1582,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   child: Icon(
                                     Icons.error_outline,
                                     size: 15,
-                                    color: style.colors.dangerColor,
+                                    color: style.colors.danger,
                                   ),
                                 )
                               : Container(key: const Key('Sent')),
@@ -1682,7 +1680,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 (item.at
                                         .add(ChatController.editMessageTimeout)
                                         .isAfter(PreciseDateTime.now()) ||
-                                    !_isRead))
+                                    !_isRead ||
+                                    widget.chat.value?.isMonolog == true))
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,

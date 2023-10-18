@@ -44,11 +44,15 @@ import 'event/my_user.dart'
 import 'search.dart';
 
 /// Implementation of an [AbstractUserRepository].
-class UserRepository implements AbstractUserRepository {
+class UserRepository extends DisposableInterface
+    implements AbstractUserRepository {
   UserRepository(
     this._graphQlProvider,
     this._userLocal,
   );
+
+  @override
+  final RxMap<UserId, HiveRxUser> users = RxMap();
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
@@ -65,9 +69,6 @@ class UserRepository implements AbstractUserRepository {
   /// [isReady] value.
   final RxBool _isReady = RxBool(false);
 
-  /// [users] value.
-  final RxMap<UserId, RxUser> _users = RxMap<UserId, RxUser>();
-
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
 
@@ -78,27 +79,29 @@ class UserRepository implements AbstractUserRepository {
   RxBool get isReady => _isReady;
 
   @override
-  RxMap<UserId, RxUser> get users => _users;
-
-  @override
-  Future<void> init() async {
+  Future<void> onInit() async {
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        _users[c.value.id] = HiveRxUser(this, _userLocal, c);
+        users[c.value.id] = HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
 
     _initLocalSubscription();
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    users.forEach((_, v) => v.dispose());
+    _localSubscription?.cancel();
+
+    super.onClose();
   }
 
   @override
   Future<void> clearCache() => _userLocal.clear();
-
-  @override
-  void dispose() {
-    _localSubscription?.cancel();
-  }
 
   @override
   SearchResult<UserId, RxUser> search({
@@ -142,8 +145,7 @@ class UserRepository implements AbstractUserRepository {
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
-    final SearchResultImpl<UserId, RxUser, UsersCursor> searchResult =
-        SearchResultImpl(
+    final SearchResultImpl<UserId, RxUser> searchResult = SearchResultImpl(
       pagination: pagination,
       initial: [
         {for (var u in users) u.id: u},
@@ -158,7 +160,7 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<RxUser?> get(UserId id) {
-    RxUser? user = _users[id];
+    RxUser? user = users[id];
     if (user != null) {
       return Future.value(user);
     }
@@ -172,7 +174,7 @@ class UserRepository implements AbstractUserRepository {
     }
 
     return mutex.protect(() async {
-      user = _users[id];
+      user = users[id];
 
       if (user == null) {
         var query = (await _graphQlProvider.getUser(id)).user;
@@ -191,7 +193,7 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
-    final RxUser? user = _users[id];
+    final RxUser? user = users[id];
     final BlocklistRecord? record = user?.user.value.isBlocked;
 
     if (user?.user.value.isBlocked == null) {
@@ -216,7 +218,7 @@ class UserRepository implements AbstractUserRepository {
 
   @override
   Future<void> unblockUser(UserId id) async {
-    final RxUser? user = _users[id];
+    final RxUser? user = users[id];
     final BlocklistRecord? record = user?.user.value.isBlocked;
 
     if (user?.user.value.isBlocked != null) {
@@ -246,9 +248,9 @@ class UserRepository implements AbstractUserRepository {
 
   /// Puts the provided [user] into the local [Hive] storage.
   void put(HiveUser user, {bool ignoreVersion = false}) async {
-    // If the provided [user] doesn't exist in the [_users] yet, then we should
+    // If the provided [user] doesn't exist in the [users] yet, then we should
     // lock the [mutex] to ensure [get] doesn't invoke remote while [put]ting.
-    if (_users.containsKey(user.value.id)) {
+    if (users.containsKey(user.value.id)) {
       await _putUser(user, ignoreVersion: ignoreVersion);
     } else {
       Mutex? mutex = _locks[user.value.id];
@@ -347,11 +349,11 @@ class UserRepository implements AbstractUserRepository {
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
       if (event.deleted) {
-        _users.remove(UserId(event.key));
+        users.remove(UserId(event.key))?.dispose();
       } else {
-        RxUser? user = _users[UserId(event.key)];
+        RxUser? user = users[UserId(event.key)];
         if (user == null) {
-          _users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
+          users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
           user.user.value = event.value.value;
           user.user.refresh();

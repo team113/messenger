@@ -174,7 +174,7 @@ class ChatsTabController extends GetxController {
     chats = RxList<RxChat>(_chatService.paginated.values.toList());
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -262,7 +262,7 @@ class ChatsTabController extends GetxController {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     scrollController.removeListener(_scrollListener);
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -537,9 +537,9 @@ class ChatsTabController extends GetxController {
     double position;
 
     if (to <= 0) {
-      position = favorites.first.chat.value.favoritePosition!.val / 2;
+      position = favorites.first.chat.value.favoritePosition!.val * 2;
     } else if (to >= favorites.length) {
-      position = favorites.last.chat.value.favoritePosition!.val * 2;
+      position = favorites.last.chat.value.favoritePosition!.val / 2;
     } else {
       position = (favorites[to].chat.value.favoritePosition!.val +
               favorites[to - 1].chat.value.favoritePosition!.val) /
