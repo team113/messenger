@@ -170,8 +170,8 @@ class MyUserService extends DisposableService {
   /// Updates or resets the [MyUser.avatar] field with the provided image
   /// [file].
   Future<void> updateAvatar(
-    NativeFile? file,
-    CropAreaInput? crop, {
+    NativeFile? file, {
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) =>
       _userRepo.updateAvatar(file, crop, onSendProgress: onSendProgress);

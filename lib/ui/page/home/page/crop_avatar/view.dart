@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
@@ -28,21 +29,47 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class CropAvatarView extends StatelessWidget {
-  const CropAvatarView(
-      {super.key, required this.fileData, required this.imageBytes});
+  const CropAvatarView({
+    super.key,
+    required this.originalImageWidth,
+    required this.originalImageHeight,
+    required this.imageBytes,
+    required this.updateAvatar,
+    required this.imageFile,
+  });
 
   /// .
-  final fileData;
+  final Function updateAvatar;
+
+  /// .
+  final int originalImageWidth;
+
+  /// .
+  final int originalImageHeight;
+
+  /// .
   final Uint8List imageBytes;
 
   /// .
+  final XFile imageFile;
+
+  /// .
   static Future<T?> show<T>(
-      BuildContext context, var fileData, Uint8List imageBytes) async {
+    BuildContext context,
+    int originalImageWidth,
+    int originalImageHeight,
+    Uint8List imageBytes,
+    Function updateAvatar,
+    XFile imageFile,
+  ) async {
     return ModalPopup.show(
         context: context,
         child: CropAvatarView(
-          fileData: fileData,
+          originalImageWidth: originalImageWidth,
+          originalImageHeight: originalImageHeight,
           imageBytes: imageBytes,
+          updateAvatar: updateAvatar,
+          imageFile: imageFile,
         ));
   }
 
@@ -54,7 +81,7 @@ class CropAvatarView extends StatelessWidget {
     const double maxWidth = 350;
     const double maxHeight = 350;
 
-    final aspectRatio = fileData.width / fileData.height;
+    final aspectRatio = originalImageWidth / originalImageHeight;
     final imageWidth = aspectRatio < 1 ? maxWidth * aspectRatio : maxWidth;
     final imageHeight = aspectRatio > 1 ? maxHeight / aspectRatio : maxHeight;
 
@@ -71,19 +98,11 @@ class CropAvatarView extends StatelessWidget {
     //   avatar: imageWidget as Avatar,
     // );
 
-    imageWidget.image.resolve(const ImageConfiguration()).addListener(
-      ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) {
-        //print("Фактическая height изображения: $realHeight");
-        //print("Фактическая width изображения: $realWidth");
-        //print("Высота экрана: $height");
-        //print("Ширина экрана: $width");
-      }),
-    );
-
     Widget header = ModalPopupHeader(text: 'label_avatar_crop'.l10n);
 
     return GetBuilder(
         init: CropAvatarController(
+          updateAvatar: updateAvatar,
           imageWidth: imageWidth,
           imageHeight: imageHeight,
         ),
@@ -199,6 +218,9 @@ class CropAvatarView extends StatelessWidget {
                     child: _CropMenu(
                       onRotateCw: c.onRotateCw,
                       onRotateCcw: c.onRotateCcw,
+                      uploadAvatar: c.uploadAvatar,
+                      imageFile: imageFile,
+                      imageBytes: imageBytes,
                     ),
                   ),
                 ],
@@ -211,10 +233,20 @@ class CropAvatarView extends StatelessWidget {
 
 /// Menu to interact with the image.
 class _CropMenu extends StatelessWidget {
-  _CropMenu({required this.onRotateCw, required this.onRotateCcw});
+  _CropMenu({
+    required this.onRotateCw,
+    required this.onRotateCcw,
+    required this.uploadAvatar,
+    required this.imageFile,
+    required this.imageBytes,
+  });
 
   final Function onRotateCw;
   final Function onRotateCcw;
+  final Function uploadAvatar;
+  final XFile imageFile;
+  final Uint8List imageBytes;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -241,7 +273,12 @@ class _CropMenu extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           OutlinedRoundedButton(
-            onPressed: () {},
+            onPressed: () {
+              uploadAvatar(
+                imageFile,
+                imageBytes,
+              );
+            },
             title: Text(
               'btn_proceed'.l10n,
             ),
