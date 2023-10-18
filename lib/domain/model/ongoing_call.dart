@@ -376,6 +376,30 @@ class OngoingCall {
 
       _initRoom();
 
+      try {
+        // Set all the constraints to ensure no disabled track is sent while
+        // initializing the local media.
+        await _room?.setLocalMediaSettings(
+          _mediaStreamSettings(
+            audio: audioState.value == LocalTrackState.enabling,
+            video: videoState.value == LocalTrackState.enabling,
+            screen: false,
+          ),
+          false,
+          true,
+        );
+      } on StateError catch (e) {
+        // [_room] is allowed to be in a detached state there as the call might
+        // has already ended.
+        if (!e.toString().contains('detached')) {
+          addError('setLocalMediaSettings() failed: $e');
+          rethrow;
+        }
+      } catch (e) {
+        addError('setLocalMediaSettings() failed: $e');
+        rethrow;
+      }
+
       await _initLocalMedia();
 
       if (state.value == OngoingCallState.active &&
@@ -1080,14 +1104,14 @@ class OngoingCall {
         try {
           switch (e.kind()) {
             case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
-              addError('Failed to acquire local audio: $e');
+              addError('Failed to acquire local audio: ${e.message()}');
               await _room?.disableAudio();
               _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
               audioState.value = LocalTrackState.disabled;
               break;
 
             case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
-              addError('Failed to acquire local video: $e');
+              addError('Failed to acquire local video: ${e.message()}');
               await setVideoEnabled(false);
               break;
 
@@ -1305,6 +1329,7 @@ class OngoingCall {
       await Permission.microphone.request();
       await Permission.camera.request();
     }
+
     await _mediaSettingsGuard.protect(() async {
       // Populate [devices] with a list of available media input devices.
       if (videoDevice.value == null &&
