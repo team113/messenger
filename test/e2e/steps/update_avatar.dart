@@ -38,7 +38,7 @@ final StepDefinitionGeneric updateAvatar = then<CustomWorld>(
     final NativeFile file =
         NativeFile(name: 'avatar.png', size: bytes.length, bytes: bytes);
 
-    await service.updateAvatar(file);
+    await service.updateAvatar(file, null);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

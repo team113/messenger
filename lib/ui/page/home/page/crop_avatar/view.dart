@@ -16,14 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import 'controller.dart';
 
-/// View for adding and confirming an [UserEmail].
+/// View for avatar cropping mechanism.
 ///
 /// Intended to be displayed with the [show] method.
 class CropAvatarView extends StatelessWidget {
@@ -32,11 +33,11 @@ class CropAvatarView extends StatelessWidget {
 
   /// .
   final fileData;
-  final imageBytes;
+  final Uint8List imageBytes;
 
   /// .
   static Future<T?> show<T>(
-      BuildContext context, var fileData, var imageBytes) async {
+      BuildContext context, var fileData, Uint8List imageBytes) async {
     return ModalPopup.show(
         context: context,
         child: CropAvatarView(
@@ -47,79 +48,165 @@ class CropAvatarView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-    final double height = size.height;
-    final double width = size.width;
-
-    final style = Theme.of(context).style;
+    //final Size size = MediaQuery.of(context).size;
+    //final double height = size.height;
+    //final double width = size.width;
+    const double maxWidth = 350;
+    const double maxHeight = 350;
 
     final aspectRatio = fileData.width / fileData.height;
+    final imageWidth = aspectRatio < 1 ? maxWidth * aspectRatio : maxWidth;
+    final imageHeight = aspectRatio > 1 ? maxHeight / aspectRatio : maxHeight;
+
+    //final style = Theme.of(context).style;
 
     final imageWidget = Image.memory(
       imageBytes,
-      width: aspectRatio < 1 ? 380 / aspectRatio : 380,
-      height: aspectRatio > 1 ? 380 / aspectRatio : 380,
+      width: imageWidth,
+      height: imageHeight,
       fit: BoxFit.fill,
     );
+    // final previewTile = AvatarWidget.fromContact(
+    //   null,
+    //   avatar: imageWidget as Avatar,
+    // );
 
-    imageWidget.image.resolve(ImageConfiguration()).addListener(
+    imageWidget.image.resolve(const ImageConfiguration()).addListener(
       ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) {
         //print("Фактическая height изображения: $realHeight");
         //print("Фактическая width изображения: $realWidth");
-        print("Высота экрана: $height");
-        print("Ширина экрана: $width");
+        //print("Высота экрана: $height");
+        //print("Ширина экрана: $width");
       }),
     );
 
-    final Widget header = ModalPopupHeader(
-      text: 'Crop',
-    );
-// Text(
-//               widget.label ?? 'btn_proceed'.l10n,
-//               style: style.fonts.bodyMediumOnPrimary,
-//             ),
-    return Container(
-      width: 300,
-      height: 600,
-      child: Column(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                header,
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned(
-                      child: imageWidget,
+    const Widget header = ModalPopupHeader(text: 'Crop Avatar');
+
+    return GetBuilder(
+        init: CropAvatarController(),
+        builder: (CropAvatarController c) {
+          return Obx(() {
+            // c.cropAreaWidth.value =
+            //     imageWidth > imageHeight ? imageHeight : imageWidth;
+            // c.cropAreaHeight.value =
+            //     imageHeight > imageWidth ? imageWidth : imageHeight;
+            return SizedBox(
+              width: 300,
+              height: 600,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        header,
+                        const SizedBox(height: 50),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Positioned(
+                              child: Transform.rotate(
+                                angle: c.rotateAngle.value,
+                                child: imageWidget,
+                              ),
+                            ),
+                            DarkenLayer(
+                              imageWidth: imageWidth,
+                              imageHeight: imageHeight,
+                            ),
+                            Positioned(
+                              left: c.cropAreaOffsetX.value,
+                              top: c.cropAreaOffsetY.value,
+                              child: SizedBox(
+                                width: c.cropAreaWidth.value,
+                                height: c.cropAreaHeight.value,
+                                child: MouseRegion(
+                                  //cursor: SystemMouseCursors.zoomOut,
+                                  child: GestureDetector(
+                                    onPanUpdate: (details) {
+                                      c.cropAreaOffsetX.value =
+                                          (details.delta.dx +
+                                                  c.cropAreaOffsetX.value)
+                                              .clamp(
+                                                  0,
+                                                  imageWidth -
+                                                      c.cropAreaWidth.value);
+
+                                      c.cropAreaOffsetY.value =
+                                          (details.delta.dy +
+                                                  c.cropAreaOffsetY.value)
+                                              .clamp(
+                                                  0,
+                                                  imageHeight -
+                                                      c.cropAreaHeight.value);
+                                    },
+                                    child: CustomPaint(
+                                      painter: CropAreaPainter(
+                                          cropAreaWidth: c.cropAreaWidth.value),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              left: c.cropAreaOffsetX.value +
+                                  c.cropAreaWidth.value -
+                                  40,
+                              top: c.cropAreaOffsetY.value +
+                                  c.cropAreaHeight.value -
+                                  40,
+                              child: GestureDetector(
+                                onPanUpdate: (details) {
+                                  // TODO: fix resize
+                                  c.cropAreaWidth.value =
+                                      (c.cropAreaWidth.value + details.delta.dx)
+                                          .clamp(
+                                              100,
+                                              imageWidth -
+                                                  c.cropAreaOffsetX.value);
+                                  c.cropAreaHeight.value =
+                                      (c.cropAreaHeight.value +
+                                              details.delta.dx)
+                                          .clamp(
+                                              100,
+                                              imageHeight -
+                                                  c.cropAreaOffsetY.value);
+                                },
+                                child: ClipPath(
+                                  clipper: ResizeAreaClipper(),
+                                  child: Container(
+                                    color: Colors.white,
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
                     ),
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: Container(
-                        color: Colors.red,
-                        width: 100,
-                        height: 100,
-                      ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: _CropMenu(
+                      onRotateCw: c.onRotateCw,
+                      onRotateCcw: c.onRotateCcw,
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: _CropMenu(),
-          ),
-        ],
-      ),
-    );
+                  ),
+                ],
+              ),
+            );
+          });
+        });
   }
 }
 
+/// Menu to interact with the image.
 class _CropMenu extends StatelessWidget {
-  const _CropMenu({super.key});
+  _CropMenu({required this.onRotateCw, required this.onRotateCcw});
 
+  final Function onRotateCw;
+  final Function onRotateCcw;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -133,27 +220,18 @@ class _CropMenu extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            icon: Icon(Icons.rotate_90_degrees_ccw),
+            icon: const Icon(Icons.rotate_90_degrees_ccw),
             onPressed: () {
-              // setState(() {
-              //   rotateAngle -= pi/2;
-              //   final double tempHeight = newMaxHeight;
-              //   newMaxHeight = newMaxWidth;
-              //   newMaxWidth = tempHeight;
-              // });
+              onRotateCcw();
             },
           ),
-          const SizedBox(width: 10),
           IconButton(
             icon: const Icon(Icons.rotate_90_degrees_cw_outlined),
             onPressed: () {
-              // setState(() {
-              //   rotateAngle += pi/2;
-
-              // });
+              onRotateCw();
             },
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 10),
           OutlinedRoundedButton(
             onPressed: () {},
             title: Text(
@@ -163,5 +241,97 @@ class _CropMenu extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class ResizeAreaClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.moveTo(0, size.height * 0.9);
+    path.lineTo(size.width * 0.9, size.height * 0.9);
+    path.lineTo(size.width * 0.9, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
+  }
+}
+
+/// [DarkenLayer] creates a darkening effect.
+class DarkenLayer extends StatelessWidget {
+  const DarkenLayer({
+    super.key,
+    required this.imageWidth,
+    required this.imageHeight,
+  });
+  final double imageWidth;
+  final double imageHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(imageWidth, imageHeight),
+      painter: DarkenPainter(),
+    );
+  }
+}
+
+/// Painter for [DarkenLayer].
+class DarkenPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.black.withOpacity(0.6)
+      ..blendMode = BlendMode.srcOver;
+
+    canvas.drawRect(
+      Rect.fromPoints(
+        const Offset(0, 0),
+        Offset(size.width, size.height),
+      ),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
+}
+
+/// Painter for [CropArea].
+class CropAreaPainter extends CustomPainter {
+  CropAreaPainter({required this.cropAreaWidth});
+
+  final double cropAreaWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.white.withOpacity(0.7)
+      ..blendMode = BlendMode.overlay;
+    Paint squarePaint = Paint()
+      ..color = Colors.white.withOpacity(0.3)
+      ..blendMode = BlendMode.overlay;
+
+    canvas.drawRect(
+      Rect.fromPoints(
+        const Offset(0, 0),
+        Offset(size.width, size.height),
+      ),
+      squarePaint,
+    );
+
+    canvas.drawCircle(
+        Offset(size.width / 2, size.height / 2), cropAreaWidth / 2, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }

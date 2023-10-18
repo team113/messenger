@@ -234,15 +234,14 @@ class MyProfileController extends GetxController {
       final CropAreaInput crop =
           CropAreaInput(bottomRight: bottomRight, topLeft: topLeft);
 
-      XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
-      Uint8List imageBytes = await image!.readAsBytes();
+      XFile? imageFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+      Uint8List imageBytes = await imageFile!.readAsBytes();
       var decodedImage = await decodeImageFromList(imageBytes);
-      print(decodedImage.width);
-      print(decodedImage.height);
+      //print(decodedImage.width);
+      //print(decodedImage.height);
 
-      if (await CropAvatarView.show(
-              router.context!, decodedImage, imageBytes) !=
-          true) {}
+      CropAvatarView.show(router.context!, decodedImage, imageBytes);
 
       // avatarUpload.value = RxStatus.loading();
       // final file = File(image.path) as PlatformFile;
