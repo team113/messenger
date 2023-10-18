@@ -692,9 +692,7 @@ class RecentChatTile extends StatelessWidget {
         onForbidden: onError,
         displayProgress: false,
       );
-    }
-
-    if (e is FileAttachment) {
+    } else if (e is FileAttachment) {
       if (e.isVideo) {
         content = FittedBox(
           fit: BoxFit.cover,

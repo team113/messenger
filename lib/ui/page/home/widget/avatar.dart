@@ -408,7 +408,7 @@ class AvatarWidget extends StatelessWidget {
 
       final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
 
-      ImageFile? avatarImage = maxWidth > 250
+      final ImageFile? image = maxWidth > 250
           ? avatar?.full
           : maxWidth > 100
               ? avatar?.big
@@ -472,9 +472,9 @@ class AvatarWidget extends StatelessWidget {
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    avatarImage!.url,
-                    checksum: avatarImage.checksum,
-                    thumbhash: avatarImage.thumbhash,
+                    image!.url,
+                    checksum: image.checksum,
+                    thumbhash: image.thumbhash,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,

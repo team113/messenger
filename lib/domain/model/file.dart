@@ -102,13 +102,16 @@ class ImageFile extends StorageFile {
   @HiveField(4)
   final int? height;
 
-  /// Base64URL-encoded [ThumbHash] of this [ImageFile].
+  /// [ThumbHash] of this [ImageFile].
   @HiveField(5)
   final ThumbHash? thumbhash;
 }
 
-/// Very compact representation of an image placeholder.
+/// [Base64URL][1]-encoded [ThumbHash][2].
+///
+/// [1]: https://base64.guru/standards/base64url
+/// [2]: https://evanw.github.io/thumbhash/
 @HiveType(typeId: ModelTypeId.thumbhash)
 class ThumbHash extends NewType<String> {
-  const ThumbHash(String val) : super(val);
+  const ThumbHash(super.val);
 }
