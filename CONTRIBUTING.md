@@ -361,9 +361,9 @@ class AuthService {
 ```
 
 
-### Explicit reactive variable creation
+### Explicit types
 
-Do __NOT__ use shorthand `.obs` syntax when creating rx (reactive) variables.
+__Do__ specify types explicitly to increase code readability and strictness.
 
 #### 🚫 Wrong
 ```dart
