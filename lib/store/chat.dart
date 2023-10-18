@@ -1295,7 +1295,7 @@ class ChatRepository extends DisposableInterface
 
     final HiveRxChat rxChat = _add(chat, pagination: pagination);
 
-// TODO: https://github.com/team113/messenger/issues/27
+    // TODO: https://github.com/team113/messenger/issues/27
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
@@ -1377,7 +1377,9 @@ class ChatRepository extends DisposableInterface
           await _recentLocal.removeAt(index);
         }
       } else {
-        _add(event.value);
+        if(chats[chatId] == null || chats[chatId]!.ver < event.value.ver) {
+          _add(event.value);
+        }
 
         final int index = _recentLocal.values.toList().indexOf(chatId);
         if (index != -1) {
