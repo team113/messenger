@@ -85,7 +85,7 @@ class RetryImage extends StatefulWidget {
     return RetryImage(
       image.url,
       checksum: image.checksum,
-      thumbhash: image.thumbhash,
+      thumbhash: image.thumbhash ?? attachment.big.thumbhash,
       fallbackUrl: attachment.small.url,
       fallbackChecksum: attachment.small.checksum,
       fit: fit,
@@ -182,7 +182,7 @@ class _RetryImageState extends State<RetryImage> {
       widget.onForbidden?.call();
     }
 
-    if (widget.thumbhash != null) {
+    if (widget.thumbhash != null && _image == null) {
       _thumbhashImage =
           thumbhash.ThumbHash.fromBase64(widget.thumbhash!.val).toImage();
     }
@@ -192,20 +192,20 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.thumbhash != widget.thumbhash) {
-      if (widget.thumbhash != null) {
-        _thumbhashImage =
-            thumbhash.ThumbHash.fromBase64(widget.thumbhash!.val).toImage();
-      } else {
-        _thumbhashImage = null;
-      }
-    }
-
     if (oldWidget.url != widget.url ||
         (!oldWidget.autoLoad && widget.autoLoad)) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _loadImage();
+    }
+
+    if (oldWidget.thumbhash != widget.thumbhash) {
+      if (widget.thumbhash != null && _image == null) {
+        _thumbhashImage =
+            thumbhash.ThumbHash.fromBase64(widget.thumbhash!.val).toImage();
+      } else {
+        _thumbhashImage = null;
+      }
     }
 
     super.didUpdateWidget(oldWidget);
@@ -332,7 +332,7 @@ class _RetryImageState extends State<RetryImage> {
             key: const Key('Thumbhash'),
             height: widget.height,
             width: widget.width,
-            fit: widget.fit,
+            fit: BoxFit.cover,
           ),
           Positioned.fill(
             child: Center(

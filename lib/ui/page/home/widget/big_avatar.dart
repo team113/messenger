@@ -216,8 +216,10 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                       GalleryItem.image(
                         avatar!.original.url,
                         avatar.original.checksum ?? DateTime.now().toString(),
+                        width: avatar.original.width,
+                        height: avatar.original.height,
                         checksum: avatar.original.checksum,
-                        thumbhash: avatar.original.thumbhash,
+                        thumbhash: avatar.big.thumbhash,
                       ),
                     ],
                   ),

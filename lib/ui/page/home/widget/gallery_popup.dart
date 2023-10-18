@@ -56,6 +56,8 @@ class GalleryItem {
     required this.link,
     required this.name,
     required this.size,
+    this.width,
+    this.height,
     this.checksum,
     this.thumbhash,
     this.isVideo = false,
@@ -67,6 +69,8 @@ class GalleryItem {
     String link,
     String name, {
     int? size,
+    int? width,
+    int? height,
     String? checksum,
     ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
@@ -75,6 +79,8 @@ class GalleryItem {
         link: link,
         name: name,
         size: size,
+        width: width,
+        height: height,
         checksum: checksum,
         thumbhash: thumbhash,
         isVideo: false,
@@ -115,6 +121,12 @@ class GalleryItem {
 
   /// Size in bytes of the file this [GalleryItem] represents.
   final int? size;
+
+  /// Width of the image this [GalleryItem] represents.
+  final int? width;
+
+  /// Height of the image this [GalleryItem] represents.
+  final int? height;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
   final FutureOr<void> Function()? onError;
@@ -531,6 +543,8 @@ class _GalleryPopupState extends State<GalleryPopup>
                       )
                     : RetryImage(
                         e.link,
+                        width: e.width?.toDouble(),
+                        height: e.height?.toDouble(),
                         checksum: e.checksum,
                         thumbhash: e.thumbhash,
                         onForbidden: e.onError,
@@ -638,7 +652,10 @@ class _GalleryPopupState extends State<GalleryPopup>
                               )
                             : RetryImage(
                                 e.link,
+                                width: e.width?.toDouble(),
+                                height: e.height?.toDouble(),
                                 checksum: e.checksum,
+                                thumbhash: e.thumbhash,
                                 onForbidden: e.onError,
                               ),
                       ),

@@ -600,8 +600,10 @@ class MessageFieldView extends StatelessWidget {
                               o.original.url,
                               o.filename,
                               size: o.original.size,
+                              width: (o.original as ImageFile).width,
+                              height: (o.original as ImageFile).height,
                               checksum: o.original.checksum,
-                              thumbhash: (o.original as ImageFile).thumbhash,
+                              thumbhash: o.big.thumbhash,
                             );
                           }
                           return GalleryItem.video(
