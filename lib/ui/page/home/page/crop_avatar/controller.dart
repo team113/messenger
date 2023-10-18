@@ -81,12 +81,25 @@ class CropAvatarController extends GetxController {
   /// Rotates image clockwise.
   void onRotateCw() {
     rotateAngle.value = rotateAngle.value += pi / 2;
+    switch(rotateAngle.value) {
+      case(0): angle.value = Angle.deg0;
+      case(90): angle.value = Angle.deg90;
+      case(180): angle.value = Angle.deg180;
+      case(270): angle.value = Angle.deg270;
+    }
+    
     //angle.value = Angle.;
   }
 
   /// Rotates image counterclockwise.
   void onRotateCcw() {
     rotateAngle.value -= pi / 2;
+    switch(rotateAngle.value) {
+      case(0): angle.value = Angle.deg0;
+      case(90): angle.value = Angle.deg90;
+      case(180): angle.value = Angle.deg180;
+      case(270): angle.value = Angle.deg270;
+    }
   }
 
   /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
