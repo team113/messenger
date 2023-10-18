@@ -39,7 +39,7 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
-      background: const Color(0xFFF5F8FA),
+      background: const Color(0xFFF2F5F8),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
@@ -48,20 +48,32 @@ class Themes {
       transparent: const Color(0x00000000),
       accept: const Color(0x7F34B139),
       acceptAuxiliary: const Color(0xFF4CAF50),
+      acceptLight: const Color(0xFFBFE3B9),
+      acceptLighter: const Color(0xFFD9FDD3),
+      acceptLightest: const Color(0xFFF2FDED),
       decline: const Color(0x7FFF0000),
       danger: const Color(0xFFF44336),
       warning: const Color(0xFFFF9800),
-      userColors: [
-        const Color(0xFF9C27B0),
-        const Color(0xFF673AB7),
-        const Color(0xFF3F51B5),
-        const Color(0xFF2196F3),
-        const Color(0xFF00BCD4),
-        const Color(0xFF8BC34A),
-        const Color(0xFFCDDC39),
-        const Color(0xFFFFC107),
-        const Color(0xFFFF9800),
-        const Color(0xFFFF5722),
+      userColors: const [
+        Color(0xFFD2B334),
+        Color(0xFF2192FF),
+        Color(0xFF9C27B0),
+        Color(0xFFFF9800),
+        Color(0xFF0094A7),
+        Color(0xFF7F81FF),
+        Color(0xFFFF5722),
+        Color(0xFFC70100),
+        Color(0xFF8BC34A),
+        Color(0xFF16712D),
+        Color(0xFFFF5B89),
+        Color(0xFF332FD0),
+        Color(0xFFB96215),
+        Color(0xFF00BF79),
+        Color(0xFF00ACCF),
+        Color(0xFFED36FF),
+        Color(0xFF00CC25),
+        Color(0xFFFF1008),
+        Color(0xFFCB9F7A),
       ],
     );
 
@@ -143,6 +155,7 @@ class Themes {
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
             cardColor: colors.onPrimaryOpacity95,
+            cardHoveredColor: colors.backgroundAuxiliaryLightest,
             cardHoveredBorder: Border.all(
               color: colors.primaryHighlightShiniest,
               width: 0.5,
@@ -159,20 +172,17 @@ class Themes {
               color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
-            readMessageColor: colors.primaryHighlightShiniest,
-            secondaryBorder: Border.all(
-              color: colors.primaryHighlightLightest,
-              width: 0.5,
-            ),
+            readMessageColor: colors.acceptLighter,
+            secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
             sidebarColor: colors.onPrimaryOpacity50,
             systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDarkest,
+              color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
             systemMessageStyle: fonts.bodySmallSecondary,
             systemMessagePrimary: fonts.bodySmallPrimary,
-            unreadMessageColor: colors.backgroundAuxiliaryLightest,
+            unreadMessageColor: colors.acceptLightest,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -196,6 +206,7 @@ class Themes {
         primaryIconTheme: const IconThemeData.fallback().copyWith(
           color: colors.secondary,
         ),
+        splashColor: colors.transparent,
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
         textTheme: Typography.blackCupertino.copyWith(
           displayLarge: fonts.displayLarge,
@@ -377,6 +388,7 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredColor,
     required this.cardHoveredBorder,
     required this.cardRadius,
     required this.cardSelectedBorder,
@@ -413,6 +425,9 @@ class Style extends ThemeExtension<Style> {
 
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
+
+  /// Background [Color] of card-like [Widget]s when hovered.
+  final Color cardHoveredColor;
 
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
@@ -475,6 +490,7 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Color? cardHoveredColor,
     Border? cardHoveredBorder,
     BorderRadius? cardRadius,
     Border? cardSelectedBorder,
@@ -500,6 +516,7 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
       cardRadius: cardRadius ?? this.cardRadius,
       cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
@@ -535,6 +552,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
@@ -1065,6 +1084,9 @@ class Palette {
     required this.transparent,
     required this.accept,
     required this.acceptAuxiliary,
+    required this.acceptLight,
+    required this.acceptLighter,
+    required this.acceptLightest,
     required this.decline,
     required this.danger,
     required this.warning,
@@ -1314,15 +1336,20 @@ class Palette {
   /// brightness.
   final Color transparent;
 
-  /// Indicator of an affirmative color to visually confirm elements of the user
-  /// interface.
-  ///
-  /// Used in accept call button.
+  /// Indicator of an affirmative color of confirmable elements.
   final Color accept;
 
-  /// [Color] is used as an auxiliary color to display pleasant action
-  /// confirmation messages.
+  /// [Color] displaying pleasant action confirmation messages.
   final Color acceptAuxiliary;
+
+  /// Light variant of the [accept] color.
+  final Color acceptLight;
+
+  /// Lighter variant of the [accept] color.
+  final Color acceptLighter;
+
+  /// Lightest variant of the [accept] color.
+  final Color acceptLightest;
 
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
@@ -1432,6 +1459,10 @@ class Palette {
       accept: Color.lerp(color.accept, other.accept, t)!,
       acceptAuxiliary:
           Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+      acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
+      acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
+      acceptLightest:
+          Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
       decline: Color.lerp(color.decline, other.decline, t)!,
       danger: Color.lerp(color.danger, other.danger, t)!,
       warning: Color.lerp(color.warning, other.warning, t)!,
