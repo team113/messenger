@@ -378,6 +378,30 @@ class OngoingCall {
 
       _initRoom();
 
+      try {
+        // Set all the constraints to ensure no disabled track is sent while
+        // initializing the local media.
+        await _room?.setLocalMediaSettings(
+          _mediaStreamSettings(
+            audio: audioState.value == LocalTrackState.enabling,
+            video: videoState.value == LocalTrackState.enabling,
+            screen: false,
+          ),
+          false,
+          true,
+        );
+      } on StateError catch (e) {
+        // [_room] is allowed to be in a detached state there as the call might
+        // has already ended.
+        if (!e.toString().contains('detached')) {
+          addError('setLocalMediaSettings() failed: $e');
+          rethrow;
+        }
+      } catch (e) {
+        addError('setLocalMediaSettings() failed: $e');
+        rethrow;
+      }
+
       await _initLocalMedia();
 
       if (state.value == OngoingCallState.active &&
@@ -1784,14 +1808,14 @@ class RtcVideoRenderer extends RtcRenderer {
     }
 
     Log.print(
-      '[${track.kind()} ${track.mediaSourceKind()}] initial size is ${_delegate.videoWidth}x${_delegate.videoHeight}, ${_delegate.quarterTurnsRotation}',
+      '[${track.kind()} ${track.mediaSourceKind()}] initial size is ${_delegate.videoWidth}x${_delegate.videoHeight}',
       'CALL',
     );
 
     // Listen for resizes to update [width] and [height].
     _delegate.onResize = () {
       Log.print(
-        '[${track.kind()} ${track.mediaSourceKind()}] resized to ${_delegate.videoWidth}x${_delegate.videoHeight}, ${_delegate.quarterTurnsRotation}',
+        '[${track.kind()} ${track.mediaSourceKind()}] resized to ${_delegate.videoWidth}x${_delegate.videoHeight}',
         'CALL',
       );
 

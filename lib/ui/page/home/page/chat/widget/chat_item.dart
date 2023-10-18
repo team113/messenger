@@ -1709,7 +1709,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             label: PlatformUtils.isMobile
                                 ? 'btn_info'.l10n
                                 : 'btn_message_info'.l10n,
-                            trailing: const Icon(Icons.info_outline),
+                            trailing: const SvgIcon(SvgIcons.info),
                             onPressed: () => MessageInfo.show(
                               context,
                               id: widget.item.value.id,
@@ -1722,7 +1722,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: const SvgIcon(SvgIcons.copy),
+                              trailing: Transform.translate(
+                                offset: const Offset(-2, 0),
+                                child: const SvgIcon(SvgIcons.copy18),
+                              ),
                               onPressed: () => widget.onCopy
                                   ?.call(_selection?.plainText ?? copyable!),
                             ),
@@ -1775,12 +1778,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   : PlatformUtils.isMobile
                                       ? 'btn_pin'.l10n
                                       : 'btn_pin_message'.l10n,
-
-                              // trailing: const SvgImage.asset(
-                              //   'assets/icons/send_small.svg',
-                              //   width: 18.37,
-                              //   height: 16,
-                              // ),
+                              trailing: Transform.translate(
+                                offset: const Offset(-3, 0),
+                                child: SvgIcon(
+                                  widget.pinned
+                                      ? SvgIcons.unpinOutlined
+                                      : SvgIcons.pinOutlined,
+                                ),
+                              ),
                               onPressed: widget.onPin,
                             ),
                             ContextMenuButton(
@@ -1788,10 +1793,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/delete_small.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.deleteThick),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
@@ -1845,11 +1847,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.deleteThick),
                               onPressed: () async {
                                 await ConfirmDialog.show(
                                   context,
@@ -1863,10 +1861,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ],
                                 );
                               },
-                            ),
-                            ContextMenuButton(
-                              label: 'btn_select'.l10n,
-                              trailing: const Icon(Icons.select_all),
                             ),
                           ],
                         ],

@@ -1095,6 +1095,70 @@ class _WidgetsViewState extends State<IconsView> {
           ),
           Block(
             children: [
+              Container(
+                margin: const EdgeInsets.only(left: 1, top: 1),
+                decoration: BoxDecoration(
+                  color: style.contextMenuBackgroundColor,
+                  borderRadius: style.contextMenuRadius,
+                  border: Border.all(
+                    color: style.colors.secondaryHighlightDarkest,
+                    width: 0.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 12,
+                      color: style.colors.onBackgroundOpacity20,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: style.contextMenuRadius,
+                  child: IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SvgIcons.info,
+                        SvgIcons.copyThick,
+                        SvgIcons.reply,
+                        SvgIcons.forwardSmall,
+                        SvgIcons.edit,
+                        SvgIcons.pin,
+                        SvgIcons.unpin,
+                        SvgIcons.deleteThick,
+                      ].map((e) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 15,
+                          ),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(width: 36 + 150),
+                              const Spacer(),
+                              AnimatedButton(
+                                onPressed: () =>
+                                    c.icon.value = IconDetails(e.asset),
+                                child: SvgIcon(e),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () => c.icon.value =

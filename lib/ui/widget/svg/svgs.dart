@@ -563,7 +563,6 @@ class SvgIcons {
     height: 10,
   );
 
-  // TODO
   static const SvgData forward = SvgData(
     'assets/icons/forward.svg',
     width: 26,
@@ -607,7 +606,7 @@ class SvgIcons {
   );
 
   static const SvgData fileOutlinedSmall = SvgData(
-    'assets/icons/file_outlined_mini.svg',
+    'assets/icons/file_outlined_small.svg',
     width: 17.2,
     height: 21,
   );
@@ -692,16 +691,97 @@ class SvgIcons {
 
   static const SvgData reply = SvgData(
     'assets/icons/reply.svg',
+    width: 18.5,
     height: 18,
   );
 
   static const SvgData forwardSmall = SvgData(
-    'assets/icons/forward.svg',
+    'assets/icons/forward_small.svg',
+    width: 18.5,
     height: 18,
   );
 
   static const SvgData edit = SvgData(
     'assets/icons/edit.svg',
+    width: 18,
     height: 18,
+  );
+
+  static const SvgData more = SvgData(
+    'assets/icons/more.svg',
+    width: 4,
+    height: 16,
+  );
+
+  static const SvgData pinOutlined = SvgData(
+    'assets/icons/pin_outlined.svg',
+    width: 13.02,
+    height: 18.01,
+  );
+
+  static const SvgData unpinOutlined = SvgData(
+    'assets/icons/unpin.svg',
+    width: 15.5,
+    height: 16.98,
+  );
+
+  static const SvgData deleteThick = SvgData(
+    'assets/icons/delete_small.svg',
+    width: 18.84,
+    height: 18,
+  );
+
+  static const SvgData info = SvgData(
+    'assets/icons/info.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData copy18 = SvgData(
+    'assets/icons/copy_18.svg',
+    width: 15.45,
+    height: 18,
+  );
+
+  // TODO
+  static const SvgData darkMode = SvgData(
+    'assets/icons/dark_mode.svg',
+    width: 20.8,
+    height: 20.8,
+  );
+
+  // TODO
+  static const SvgData lightMode = SvgData(
+    'assets/icons/light_mode.svg',
+    width: 23,
+    height: 23,
+  );
+
+  // TODO
+  static const SvgData palette = SvgData(
+    'assets/icons/palette.svg',
+    width: 20.8,
+    height: 20.8,
+  );
+
+  // TODO
+  static const SvgData typography = SvgData(
+    'assets/icons/typography.svg',
+    width: 24.02,
+    height: 16,
+  );
+
+  // TODO
+  static const SvgData widgets = SvgData(
+    'assets/icons/widgets.svg',
+    width: 18.78,
+    height: 18.78,
+  );
+
+  // TODO
+  static const SvgData icons = SvgData(
+    'assets/icons/icons.svg',
+    width: 20.95,
+    height: 18.8,
   );
 }

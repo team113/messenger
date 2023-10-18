@@ -246,19 +246,15 @@ class ChatsTabView extends StatelessWidget {
                                 ? c.closeSearch
                                 : c.startSearch,
                             child: Container(
-                              padding: const EdgeInsets.only(
-                                left: 20,
-                                right: 6,
-                              ),
+                              padding:
+                                  const EdgeInsets.only(left: 20, right: 6),
+                              width: 46,
                               height: double.infinity,
-                              child: c.searching.value
-                                  ? Icon(
-                                      key: const Key('ArrowBack'),
-                                      Icons.arrow_back_ios_new,
-                                      size: 20,
-                                      color: style.colors.primary,
-                                    )
-                                  : const SvgIcon(SvgIcons.search),
+                              child: Center(
+                                child: c.searching.value
+                                    ? const SvgIcon(SvgIcons.back)
+                                    : const SvgIcon(SvgIcons.search),
+                              ),
                             ),
                           ),
                         ),
@@ -384,9 +380,10 @@ class ChatsTabView extends StatelessWidget {
                                       right: 18,
                                     ),
                                     height: double.infinity,
-                                    child: Icon(
-                                      Icons.more_vert,
-                                      color: style.colors.primary,
+                                    child: const Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                      child: SvgIcon(SvgIcons.more),
                                     ),
                                   ),
                                 );
