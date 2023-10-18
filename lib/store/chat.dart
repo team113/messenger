@@ -1377,7 +1377,7 @@ class ChatRepository extends DisposableInterface
           await _recentLocal.removeAt(index);
         }
       } else {
-        if(chats[chatId] == null || chats[chatId]!.ver < event.value.ver) {
+        if (chats[chatId] == null || chats[chatId]!.ver < event.value.ver) {
           _add(event.value);
         }
 
