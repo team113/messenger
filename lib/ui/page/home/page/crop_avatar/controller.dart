@@ -78,27 +78,47 @@ class CropAvatarController extends GetxController {
     super.onInit();
   }
 
+  static const deg90 = pi / 2;
+  static const deg180 = pi;
+  static const deg270 = 3 * pi / 2;
+
   /// Rotates image clockwise.
   void onRotateCw() {
     rotateAngle.value = rotateAngle.value += pi / 2;
-    switch(rotateAngle.value) {
-      case(0): angle.value = Angle.deg0;
-      case(90): angle.value = Angle.deg90;
-      case(180): angle.value = Angle.deg180;
-      case(270): angle.value = Angle.deg270;
+    if (rotateAngle.value == 2 * pi) {
+      rotateAngle.value = 0;
     }
-    
+
+    switch (rotateAngle.value) {
+      case (0):
+        angle.value = Angle.deg0;
+      case (deg90):
+        angle.value = Angle.deg90;
+      case (deg180):
+        angle.value = Angle.deg180;
+      case (deg270):
+        angle.value = Angle.deg270;
+    }
+
     //angle.value = Angle.;
   }
 
   /// Rotates image counterclockwise.
   void onRotateCcw() {
     rotateAngle.value -= pi / 2;
-    switch(rotateAngle.value) {
-      case(0): angle.value = Angle.deg0;
-      case(90): angle.value = Angle.deg90;
-      case(180): angle.value = Angle.deg180;
-      case(270): angle.value = Angle.deg270;
+
+    if (rotateAngle.value == -(2 * pi)) {
+      rotateAngle.value = 0;
+    }
+    switch (rotateAngle.value) {
+      case (0):
+        angle.value = Angle.deg0;
+      case (-(deg90)):
+        angle.value = Angle.deg270;
+      case (-(deg180)):
+        angle.value = Angle.deg180;
+      case (-(deg270)):
+        angle.value = Angle.deg90;
     }
   }
 
@@ -122,13 +142,13 @@ class CropAvatarController extends GetxController {
         topLeft: topLeft,
         angle: angle.value,
       );
-      print(crop);
+      print(angle.value);
 
       avatarUpload.value = RxStatus.loading();
-      await updateAvatar(
-        NativeFile.fromXFile(imageFile!, imageBytes),
-        crop,
-      );
+      // await updateAvatar(
+      //   NativeFile.fromXFile(imageFile!, imageBytes),
+      //   crop,
+      // );
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
