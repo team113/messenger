@@ -202,50 +202,50 @@ class ChatRepository extends DisposableInterface
     // Popup shouldn't listen to recent chats remote updates, as it's happening
     // inside single [Chat].
     if (!WebUtils.isPopup) {
-     _initLocalSubscription();
+      _initLocalSubscription();
       _initDraftSubscription();
       _initRemoteSubscription();
       _initFavoriteSubscription();
 
       // TODO: Should display last known list of [Chat]s, until remote responds.
       _initPagination();
-      
+
       _localPagination = Pagination(
-      onKey: (e) => e.value.id,
-      perPage: 15,
-      provider: HivePageProvider(
-        _chatLocal,
-        getCursor: (e) => e?.recentCursor,
-        getKey: (e) => e.value.id,
-        isLast: (_) => true,
-        isFirst: (_) => true,
-        orderBy: (_) => _recentLocal.values,
-        strategy: PaginationStrategy.fromEnd,
-        reversed: true,
-      ),
-      compare: (a, b) => b.value.updatedAt.compareTo(a.value.updatedAt),
-    );
+        onKey: (e) => e.value.id,
+        perPage: 15,
+        provider: HivePageProvider(
+          _chatLocal,
+          getCursor: (e) => e?.recentCursor,
+          getKey: (e) => e.value.id,
+          isLast: (_) => true,
+          isFirst: (_) => true,
+          orderBy: (_) => _recentLocal.values,
+          strategy: PaginationStrategy.fromEnd,
+          reversed: true,
+        ),
+        compare: (a, b) => b.value.updatedAt.compareTo(a.value.updatedAt),
+      );
 
-    _paginationSubscription = _localPagination!.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          _putEntry(ChatData(event.value!, null, null), pagination: true);
-          break;
+      _paginationSubscription = _localPagination!.changes.listen((event) async {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            _putEntry(ChatData(event.value!, null, null), pagination: true);
+            break;
 
-        case OperationKind.removed:
-          remove(event.value!.value.id);
-          break;
+          case OperationKind.removed:
+            remove(event.value!.value.id);
+            break;
+        }
+      });
+
+      await _localPagination!.around();
+
+      await Future.delayed(1.milliseconds);
+
+      if (paginated.isNotEmpty) {
+        status.value = RxStatus.success();
       }
-    });
-
-    await _localPagination!.around();
-
-    await Future.delayed(1.milliseconds);
-
-    if (paginated.isNotEmpty) {
-      status.value = RxStatus.success();
-
     }
   }
 
@@ -1300,14 +1300,14 @@ class ChatRepository extends DisposableInterface
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
     if (!WebUtils.isPopup) {
-    HiveChat? hiveChat = await _chatLocal.get(chat.value.id);
+      HiveChat? hiveChat = await _chatLocal.get(chat.value.id);
 
-    // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-    chat.value.firstItem ??= hiveChat?.value.firstItem;
+      // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+      chat.value.firstItem ??= hiveChat?.value.firstItem;
 
-    if (hiveChat == null || hiveChat.ver < chat.ver) {
-      await _chatLocal.put(chat);
-    }
+      if (hiveChat == null || hiveChat.ver < chat.ver) {
+        await _chatLocal.put(chat);
+      }
     }
 
     return rxChat;
