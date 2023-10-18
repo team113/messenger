@@ -44,6 +44,7 @@ import '/provider/gql/exceptions.dart'
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
@@ -68,7 +69,8 @@ class HiveRxChat extends RxChat {
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        unreadCount = RxInt(hiveChat.value.unreadCount);
+        unreadCount = RxInt(hiveChat.value.unreadCount),
+        ver = hiveChat.ver;
 
   @override
   final Rx<Chat> chat;
@@ -102,6 +104,9 @@ class HiveRxChat extends RxChat {
 
   @override
   final RxInt unreadCount;
+
+  /// [ChatVersion] of this [HiveRxChat].
+  ChatVersion ver;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -710,9 +715,10 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [chat] and [chat]-related resources with the provided
   /// [newChat].
-  Future<void> updateChat(Chat newChat) async {
+  Future<void> updateChat(Chat newChat, ChatVersion newVer) async {
     if (chat.value.id != newChat.id) {
       chat.value = newChat;
+      ver = newVer;
 
       subscribe();
 
