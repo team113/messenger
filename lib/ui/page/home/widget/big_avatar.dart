@@ -167,7 +167,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   key: const Key('CropAvatar'),
                   onPressed: widget.onCrop,
                   child: Text(
-                    'Crop',
+                    'btn_crop'.l10n,
                     style: style.fonts.labelSmallPrimary,
                   ),
                 ),

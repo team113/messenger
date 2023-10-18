@@ -23,7 +23,21 @@ export 'view.dart';
 
 /// Controller of the [CropAvatarView].
 class CropAvatarController extends GetxController {
-  CropAvatarController();
+  CropAvatarController({required this.imageWidth, required this.imageHeight});
+
+  /// Original image width.
+  final double imageWidth;
+
+  /// Original image height.
+  final double imageHeight;
+
+  @override
+  void onInit() {
+    cropAreaWidth.value = imageWidth > imageHeight ? imageHeight : imageWidth;
+    cropAreaHeight.value = imageHeight > imageWidth ? imageWidth : imageHeight;
+
+    super.onInit();
+  }
 
   /// .
   final RxDouble cropAreaWidth = RxDouble(100);
@@ -40,11 +54,11 @@ class CropAvatarController extends GetxController {
   /// .
   final RxDouble rotateAngle = RxDouble(0);
 
-  onRotateCw() {
+  void onRotateCw() {
     rotateAngle.value = rotateAngle.value += pi / 2;
   }
 
-  onRotateCcw() {
+  void onRotateCcw() {
     rotateAngle.value -= pi / 2;
   }
 }

@@ -80,16 +80,15 @@ class CropAvatarView extends StatelessWidget {
       }),
     );
 
-    const Widget header = ModalPopupHeader(text: 'Crop Avatar');
+    Widget header = ModalPopupHeader(text: 'label_avatar_crop'.l10n);
 
     return GetBuilder(
-        init: CropAvatarController(),
+        init: CropAvatarController(
+          imageWidth: imageWidth,
+          imageHeight: imageHeight,
+        ),
         builder: (CropAvatarController c) {
           return Obx(() {
-            // c.cropAreaWidth.value =
-            //     imageWidth > imageHeight ? imageHeight : imageWidth;
-            // c.cropAreaHeight.value =
-            //     imageHeight > imageWidth ? imageWidth : imageHeight;
             return SizedBox(
               width: 300,
               height: 600,
@@ -156,13 +155,22 @@ class CropAvatarView extends StatelessWidget {
                                   40,
                               child: GestureDetector(
                                 onPanUpdate: (details) {
-                                  // TODO: fix resize
                                   c.cropAreaWidth.value =
-                                      (c.cropAreaWidth.value + details.delta.dx)
-                                          .clamp(
-                                              100,
-                                              imageWidth -
-                                                  c.cropAreaOffsetX.value);
+                                      imageHeight - c.cropAreaOffsetY.value ==
+                                                  c.cropAreaHeight.value &&
+                                              details.delta.dx > 0
+                                          ? c.cropAreaWidth.value
+                                          : (c.cropAreaWidth.value +
+                                                  details.delta.dx)
+                                              .clamp(
+                                                  100,
+                                                  imageWidth -
+                                                      c.cropAreaOffsetX.value);
+                                  if (c.cropAreaWidth.value ==
+                                      imageWidth - c.cropAreaOffsetX.value) {
+                                    return;
+                                  }
+
                                   c.cropAreaHeight.value =
                                       (c.cropAreaHeight.value +
                                               details.delta.dx)

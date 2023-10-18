@@ -264,6 +264,7 @@ class MyProfileController extends GetxController {
   Future<bool> cropAvatar() async {
     print('Crop');
     try {
+      print(myUser.value?.avatar);
       // Image avatar = Image.file(myUser.value.avatar?);
       // if (await CropAvatarView.show(router.context!, ) != true) {
       //   return false;
