@@ -147,7 +147,7 @@ class ChatRepository extends DisposableInterface
   StreamQueue<RecentChatsEvent>? _remoteSubscription;
 
   /// [DateTime] when the [_remoteSubscription] initializing has been started.
-  DateTime? _subscribingStarted;
+  DateTime? _subscribedAt;
 
   /// [_favoriteChatsEvents] subscription.
   ///
@@ -206,8 +206,6 @@ class ChatRepository extends DisposableInterface
       _initDraftSubscription();
       _initRemoteSubscription();
       _initFavoriteSubscription();
-
-      // TODO: Should display last known list of [Chat]s, until remote responds.
       _initPagination();
 
       _localPagination = Pagination(
@@ -1277,12 +1275,13 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    HiveRxChat? saved = chats[chat.value.id];
+    final HiveRxChat? saved = chats[chat.value.id];
     if (saved != null) {
       if (saved.ver > chat.ver) {
         if (pagination) {
           paginated[chat.value.id] ??= saved;
         }
+
         return saved;
       }
     }
@@ -1377,7 +1376,8 @@ class ChatRepository extends DisposableInterface
           await _recentLocal.removeAt(index);
         }
       } else {
-        if (chats[chatId] == null || chats[chatId]!.ver < event.value.ver) {
+        final HiveRxChat? chat = chats[chatId];
+        if (chat == null || chat.ver < event.value.ver) {
           _add(event.value);
         }
 
@@ -1411,13 +1411,13 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _subscribingStarted = DateTime.now();
+    _subscribedAt = DateTime.now();
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
     await _remoteSubscription!.execute(
       _recentChatsRemoteEvent,
-      onError: (_) => _subscribingStarted = DateTime.now(),
+      onError: (_) => _subscribedAt = DateTime.now(),
     );
   }
 
@@ -1426,9 +1426,8 @@ class ChatRepository extends DisposableInterface
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
-        // TODO: This re-creates the whole [_pagination], even when an auth
-        //       token is refreshed.
-        if (_subscribingStarted?.isBefore(
+        // If more than 1 minute has passed, recreate [Pagination].
+        if (_subscribedAt?.isBefore(
               DateTime.now().subtract(const Duration(minutes: 1)),
             ) ==
             true) {
@@ -1544,7 +1543,8 @@ class ChatRepository extends DisposableInterface
       paginated.clear();
       _localPagination = null;
 
-      // Add the received in [CombinedPagination.around] items to the [paginated].
+      // Add the received in [CombinedPagination.around] items to the
+      // [paginated].
       _pagination?.items
           .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
 
@@ -1673,7 +1673,7 @@ class ChatRepository extends DisposableInterface
                 _subscriptions.remove(localId);
               }
 
-              await localChat.updateChat(data.chat.value, data.chat.ver);
+              await localChat.updateChat(data.chat);
               entry = localChat;
             }
 

@@ -38,7 +38,7 @@ Feature: Chats pagination
     When I restart app
     Then I see 15 chats
 
-    When I scroll `Chats` to the end
+    When I scroll `Chats` to bottom
     Then I see 16 chats
 
     When I have Internet without delay

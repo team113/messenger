@@ -37,7 +37,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
     router.go(Routes.restart);
     await context.world.appDriver.waitForAppToSettle();
 
-    MockGraphQlProvider saved =
+    final MockGraphQlProvider provider =
         Get.find<GraphQlProvider>() as MockGraphQlProvider;
 
     await Get.deleteAll(force: true);
@@ -46,9 +46,11 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
     await Future.delayed(Duration.zero);
     await Hive.close();
 
-    Get.put<GraphQlProvider>(MockGraphQlProvider()
-      ..client.delay = saved.client.delay
-      ..client.throwException = saved.client.throwException);
+    Get.put<GraphQlProvider>(
+      MockGraphQlProvider()
+        ..client.delay = provider.client.delay
+        ..client.throwException = provider.client.throwException,
+    );
 
     await main();
     await context.world.appDriver.waitForAppToSettle();

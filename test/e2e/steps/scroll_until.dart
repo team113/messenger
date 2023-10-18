@@ -59,13 +59,13 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
   },
 );
 
-/// Scrolls the provided [Scrollable] to the end.
+/// Scrolls the provided [Scrollable] to bottom.
 ///
 /// Examples:
-/// - Then I scroll `Menu` to the end
+/// - Then I scroll `Menu` to bottom
 final StepDefinitionGeneric<CustomWorld> scrollToEnd =
     then1<WidgetKey, CustomWorld>(
-  RegExp(r'I scroll {key} to the end'),
+  RegExp(r'I scroll {key} to bottom'),
   (WidgetKey list, StepContext<CustomWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
 

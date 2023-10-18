@@ -723,10 +723,10 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [chat] and [chat]-related resources with the provided
   /// [newChat].
-  Future<void> updateChat(Chat newChat, ChatVersion newVer) async {
-    if (chat.value.id != newChat.id) {
-      chat.value = newChat;
-      ver = newVer;
+  Future<void> updateChat(HiveChat newChat) async {
+    if (chat.value.id != newChat.value.id) {
+      chat.value = newChat.value;
+      ver = newChat.ver;
 
       if (!_controller.isPaused && !_controller.isClosed) {
         _initRemoteSubscription();
@@ -747,7 +747,8 @@ class HiveRxChat extends RxChat {
 
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
-        final HiveChatMessage copy = e.copyWith()..value.chatId = newChat.id;
+        final HiveChatMessage copy = e.copyWith()
+          ..value.chatId = newChat.value.id;
 
         if (copy.value.status.value == SendingStatus.error) {
           copy.value.status.value = SendingStatus.sending;
