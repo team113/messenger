@@ -84,6 +84,7 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   stdlibc: ^0.1.4
   toml: ^0.14.0
+  flutter_thumbhash: ^0.1.0+1
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
   uuid: ^3.0.7

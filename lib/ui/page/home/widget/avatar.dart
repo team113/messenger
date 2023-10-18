@@ -25,6 +25,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -400,6 +401,14 @@ class AvatarWidget extends StatelessWidget {
 
       final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
 
+      ImageFile? avatarImage = maxWidth > 250
+          ? avatar?.full
+          : maxWidth > 100
+              ? avatar?.big
+              : maxWidth > 46
+                  ? avatar?.medium
+                  : avatar?.small;
+
       return Badge(
         largeSize: badgeSize * 1.16,
         isLabelVisible: isOnline,
@@ -456,20 +465,9 @@ class AvatarWidget extends StatelessWidget {
               Positioned.fill(
                 child: ClipOval(
                   child: RetryImage(
-                    maxWidth > 250
-                        ? avatar!.full.url
-                        : maxWidth > 100
-                            ? avatar!.big.url
-                            : maxWidth > 46
-                                ? avatar!.medium.url
-                                : avatar!.small.url,
-                    checksum: maxWidth > 250
-                        ? avatar!.full.checksum
-                        : maxWidth > 100
-                            ? avatar!.big.checksum
-                            : maxWidth > 46
-                                ? avatar!.medium.checksum
-                                : avatar!.small.checksum,
+                    avatarImage!.url,
+                    checksum: avatarImage.checksum,
+                    thumbhash: avatarImage.thumbhash,
                     fit: BoxFit.cover,
                     height: double.infinity,
                     width: double.infinity,

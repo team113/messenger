@@ -217,6 +217,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                         avatar!.original.url,
                         avatar.original.checksum ?? DateTime.now().toString(),
                         checksum: avatar.original.checksum,
+                        thumbhash: avatar.original.thumbhash,
                       ),
                     ],
                   ),

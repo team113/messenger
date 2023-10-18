@@ -85,6 +85,7 @@ class _ChatGalleryState extends State<ChatGallery> {
             o.attachment.filename,
             size: file.size,
             checksum: file.checksum,
+            thumbhash: (file as ImageFile).thumbhash,
             onError: () async {
               await o.onForbidden?.call();
               setState(() {});

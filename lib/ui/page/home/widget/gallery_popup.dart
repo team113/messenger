@@ -30,6 +30,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -56,6 +57,7 @@ class GalleryItem {
     required this.name,
     required this.size,
     this.checksum,
+    this.thumbhash,
     this.isVideo = false,
     this.onError,
   });
@@ -66,6 +68,7 @@ class GalleryItem {
     String name, {
     int? size,
     String? checksum,
+    ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
@@ -73,6 +76,7 @@ class GalleryItem {
         name: name,
         size: size,
         checksum: checksum,
+        thumbhash: thumbhash,
         isVideo: false,
         onError: onError,
       );
@@ -102,6 +106,9 @@ class GalleryItem {
 
   /// SHA-256 checksum of the file this [GalleryItem] represents.
   final String? checksum;
+
+  /// [ThumbHash] of the image this [GalleryItem] represents.
+  final ThumbHash? thumbhash;
 
   /// Name of the file this [GalleryItem] represents.
   final String name;
@@ -525,6 +532,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     : RetryImage(
                         e.link,
                         checksum: e.checksum,
+                        thumbhash: e.thumbhash,
                         onForbidden: e.onError,
                       ),
               ),

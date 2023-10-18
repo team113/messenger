@@ -19,6 +19,7 @@ import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
 import '/config.dart';
+import '/util/new_type.dart';
 
 part 'file.g.dart';
 
@@ -90,6 +91,7 @@ class ImageFile extends StorageFile {
     super.size,
     this.width,
     this.height,
+    this.thumbhash,
   });
 
   /// Width of this [ImageFile] in pixels.
@@ -99,4 +101,14 @@ class ImageFile extends StorageFile {
   /// Height of this [ImageFile] in pixels.
   @HiveField(4)
   final int? height;
+
+  /// Base64URL-encoded [ThumbHash] of this [ImageFile].
+  @HiveField(5)
+  final ThumbHash? thumbhash;
+}
+
+/// Very compact representation of an image placeholder.
+@HiveType(typeId: ModelTypeId.thumbhash)
+class ThumbHash extends NewType<String> {
+  const ThumbHash(String val) : super(val);
 }
