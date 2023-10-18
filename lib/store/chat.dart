@@ -1273,6 +1273,9 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? saved = chats[chat.value.id];
     if (saved != null) {
       if (saved.ver > chat.ver) {
+        if (pagination) {
+          paginated[chat.value.id] ??= saved;
+        }
         return saved;
       }
     }
