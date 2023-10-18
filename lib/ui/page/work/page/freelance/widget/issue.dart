@@ -70,8 +70,8 @@ class IssueWidget extends StatelessWidget {
             selectedHoverColor: style.colors.primaryOpacity20.darken(0.03),
             selectedColor: style.colors.primaryOpacity20,
             selected: expanded,
-            unselectedColor: style.cardColor.darken(0.05),
-            unselectedHoverColor: style.cardColor.darken(0.08),
+            unselectedColor: style.cardColor.darken(0.03),
+            unselectedHoverColor: style.cardHoveredColor,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

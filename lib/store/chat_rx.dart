@@ -139,12 +139,21 @@ class HiveRxChat extends RxChat {
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatEvents>? _remoteSubscription;
 
+  /// [StreamController] for [updates] of this [RxChat].
+  ///
+  /// Behaves like a reference counter: when [updates] are listened to, this
+  /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
+  /// cancels it.
+  late final StreamController<void> _controller = StreamController.broadcast(
+    onListen: _initRemoteSubscription,
+    onCancel: () {
+      _remoteSubscription?.cancel();
+      _remoteSubscription = null;
+    },
+  );
+
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
-
-  /// Indicator whether [_remoteSubscription] is initialized or is being
-  /// initialized used in [subscribe].
-  bool _remoteSubscriptionInitialized = false;
 
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
@@ -232,6 +241,12 @@ class HiveRxChat extends RxChat {
 
     return item;
   }
+
+  @override
+  Stream<void> get updates => _controller.stream;
+
+  /// Indicates whether this [RxChat] is listening to the remote updates.
+  bool get subscribed => _remoteSubscription != null;
 
   /// Initializes this [HiveRxChat].
   Future<void> init() async {
@@ -363,22 +378,15 @@ class HiveRxChat extends RxChat {
     _muteTimer?.cancel();
     _readTimer?.cancel();
     _remoteSubscription?.close(immediate: true);
+    _remoteSubscription = null;
     _paginationSubscription?.cancel();
     _messagesSubscription?.cancel();
-    _remoteSubscriptionInitialized = false;
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
     _userWorker?.dispose();
     for (var e in _userWorkers.values) {
       e.dispose();
-    }
-  }
-
-  /// Subscribes to the remote updates of the [chat] if not subscribed already.
-  void subscribe() {
-    if (!_remoteSubscriptionInitialized && !id.isLocal) {
-      _initRemoteSubscription();
     }
   }
 
@@ -714,7 +722,9 @@ class HiveRxChat extends RxChat {
     if (chat.value.id != newChat.id) {
       chat.value = newChat;
 
-      subscribe();
+      if (!_controller.isPaused && !_controller.isClosed) {
+        _initRemoteSubscription();
+      }
 
       // Retrieve all the [HiveChatItem]s to put them in the [newChat].
       final Iterable<HiveChatItem> saved = await _local.values;
@@ -965,29 +975,29 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscriptionInitialized = true;
+    if (!id.isLocal) {
+      _remoteSubscription?.close(immediate: true);
+      _remoteSubscription = StreamQueue(
+        _chatRepository.chatEvents(
+          id,
+          (await _chatLocal.get(id))?.ver,
+          () async => (await _chatLocal.get(id))?.ver,
+        ),
+      );
 
-    _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(
-      _chatRepository.chatEvents(
-        id,
-        (await _chatLocal.get(id))?.ver,
-        () async => (await _chatLocal.get(id))?.ver,
-      ),
-    );
+      await _remoteSubscription!.execute(
+        _chatEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            await _pagination.clear();
 
-    await _remoteSubscription!.execute(
-      _chatEvent,
-      onError: (e) async {
-        if (e is StaleVersionException) {
-          await _pagination.clear();
+            await _pagination.around(cursor: _lastReadItemCursor);
+          }
+        },
+      );
 
-          await _pagination.around(cursor: _lastReadItemCursor);
-        }
-      },
-    );
-
-    _remoteSubscriptionInitialized = false;
+      _remoteSubscription = null;
+    }
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
@@ -1016,12 +1026,12 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = _remoteSubscriptionInitialized;
+        bool putChat = subscribed;
         for (var event in versioned.events) {
-          putChat = _remoteSubscriptionInitialized;
+          putChat = subscribed;
 
           // Subscription was already disposed while processing the events.
-          if (!_remoteSubscriptionInitialized) {
+          if (!subscribed) {
             return;
           }
 

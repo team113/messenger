@@ -345,7 +345,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     Future.delayed(Duration.zero, _displayControls);
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack);
     }
 
@@ -361,7 +361,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       _exitFullscreen();
     }
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
