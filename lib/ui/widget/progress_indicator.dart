@@ -20,23 +20,43 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Circular progress indicator, which spins to indicate that the application is
 /// busy.
 class CustomProgressIndicator extends StatelessWidget {
-  const CustomProgressIndicator({
-    super.key,
-    this.color,
-    this.backgroundColor,
-    this.valueColor,
-    this.strokeWidth = 2.0,
-    this.value,
-    this.padding = const EdgeInsets.all(6),
-    this.size = 32,
-    this.blur = true,
-  });
+  const CustomProgressIndicator({super.key, this.value})
+      : size = 32,
+        padding = const EdgeInsets.all(6),
+        blur = true,
+        backgroundColor = null,
+        valueColor = null,
+        color = null,
+        strokeWidth = 2.0;
+
+  /// Constructs a [CustomProgressIndicator] with a `primary` style.
+  CustomProgressIndicator.primary({super.key, this.value})
+      : size = 40,
+        padding = const EdgeInsets.all(4),
+        blur = false,
+        backgroundColor = null,
+        valueColor = null,
+        color = router.context == null
+            ? const Color(0xFF63B4FF)
+            : Theme.of(router.context!).style.colors.primary,
+        strokeWidth = 2;
+
+  /// Constructs a [CustomProgressIndicator] with a `big` style.
+  const CustomProgressIndicator.big({super.key, this.value})
+      : size = 64,
+        padding = const EdgeInsets.all(6),
+        blur = true,
+        backgroundColor = null,
+        valueColor = null,
+        color = null,
+        strokeWidth = 2.0;
 
   /// Value of this [CustomProgressIndicator].
   final double? value;

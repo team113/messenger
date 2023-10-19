@@ -101,15 +101,15 @@ class _HomeViewState extends State<HomeView> {
         backgroundColor: PlatformUtils.isWeb
             ? style.colors.transparent
             : style.colors.onPrimary,
-        body: const Stack(
+        body: Stack(
           children: [
-            SvgImage.asset(
+            const SvgImage.asset(
               'assets/images/background_light.svg',
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
             ),
-            Center(child: CustomProgressIndicator()),
+            Center(child: CustomProgressIndicator.primary()),
           ],
         ),
       );
@@ -394,8 +394,8 @@ class _HomeViewState extends State<HomeView> {
                   sideBar,
                   SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
-                  const Scaffold(
-                    body: Center(child: CustomProgressIndicator()),
+                  Scaffold(
+                    body: Center(child: CustomProgressIndicator.primary()),
                   )
               ],
             );

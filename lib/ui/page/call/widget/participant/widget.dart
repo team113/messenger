@@ -129,7 +129,7 @@ class ParticipantWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(21.0),
                   child: Center(
                     child: Config.disableInfiniteAnimations
-                        ? const CustomProgressIndicator(size: 64, value: 0)
+                        ? const CustomProgressIndicator.big(value: 0)
                         : SpinKitDoubleBounce(
                             color: style.colors.secondaryHighlight,
                             size: 100 / 1.5,
@@ -145,8 +145,7 @@ class ParticipantWidget extends StatelessWidget {
                 height: double.infinity,
                 color: style.colors.onBackgroundOpacity50,
                 child: Center(
-                  child: CustomProgressIndicator(
-                    size: 64,
+                  child: CustomProgressIndicator.big(
                     value: Config.disableInfiniteAnimations ? 0 : null,
                   ),
                 ),
