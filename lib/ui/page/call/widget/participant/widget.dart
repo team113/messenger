@@ -144,11 +144,7 @@ class ParticipantWidget extends StatelessWidget {
                 width: double.infinity,
                 height: double.infinity,
                 color: style.colors.onBackgroundOpacity50,
-                child: Center(
-                  child: CustomProgressIndicator.big(
-                    value: Config.disableInfiniteAnimations ? 0 : null,
-                  ),
-                ),
+                child: const Center(child: CustomProgressIndicator.big()),
               );
             }
 
