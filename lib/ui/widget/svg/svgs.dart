@@ -468,7 +468,7 @@ class SvgIcons {
   );
 
   static const SvgData menuMedia = SvgData(
-    'assets/icons/menu_media.svg',
+    'assets/icons/menu_media2.svg',
     width: 32,
     height: 32,
   );
@@ -720,9 +720,9 @@ class SvgIcons {
   );
 
   static const SvgData unpinOutlined = SvgData(
-    'assets/icons/unpin.svg',
-    width: 15.5,
-    height: 16.98,
+    'assets/icons/unpin_outlined.svg',
+    width: 13.02,
+    height: 19.73,
   );
 
   static const SvgData deleteThick = SvgData(
@@ -743,45 +743,137 @@ class SvgIcons {
     height: 18,
   );
 
-  // TODO
   static const SvgData darkMode = SvgData(
     'assets/icons/dark_mode.svg',
-    width: 20.8,
-    height: 20.8,
+    width: 20.97,
+    height: 21,
   );
 
-  // TODO
   static const SvgData lightMode = SvgData(
     'assets/icons/light_mode.svg',
-    width: 23,
+    width: 23.06,
     height: 23,
   );
 
-  // TODO
   static const SvgData palette = SvgData(
     'assets/icons/palette.svg',
-    width: 20.8,
-    height: 20.8,
+    width: 21.02,
+    height: 21.01,
   );
 
-  // TODO
   static const SvgData typography = SvgData(
     'assets/icons/typography.svg',
-    width: 24.02,
-    height: 16,
+    width: 24.26,
+    height: 16.25,
   );
 
-  // TODO
   static const SvgData widgets = SvgData(
     'assets/icons/widgets.svg',
-    width: 18.78,
-    height: 18.78,
+    width: 18.98,
+    height: 18.98,
+  );
+
+  static const SvgData icons = SvgData(
+    'assets/icons/icons.svg',
+    width: 21.15,
+    height: 19.01,
+  );
+
+  static const SvgData callMore = SvgData(
+    'assets/icons/call_more.svg',
+    width: 27,
+    height: 27,
+  );
+
+  static const SvgData callEndBig = SvgData(
+    'assets/icons/call_end_big.svg',
+    width: 40,
+  );
+
+  static const SvgData callVideoOn = SvgData(
+    'assets/icons/call_camera_on.svg',
+    width: 35.88,
+    height: 30.66,
+  );
+
+  static const SvgData callVideoOff = SvgData(
+    'assets/icons/call_camera_off.svg',
+    width: 35.88,
+    height: 30.66,
   );
 
   // TODO
-  static const SvgData icons = SvgData(
-    'assets/icons/icons.svg',
-    width: 20.95,
-    height: 18.8,
+  static const SvgData callMicrophoneOn = SvgData(
+    'assets/icons/call_microphone_on.svg',
+    width: 30.66,
+    height: 30.66,
+  );
+
+  // TODO
+  static const SvgData callMicrophoneOff = SvgData(
+    'assets/icons/call_microphone_off.svg',
+    width: 30.66,
+    height: 30.66,
+  );
+
+  // TODO
+  static const SvgData callScreenShareOn = SvgData(
+    'assets/icons/screen_share_on.svg',
+    width: 60,
+  );
+
+  // TODO
+  static const SvgData callScreenShareOff = SvgData(
+    'assets/icons/screen_share_off.svg',
+    width: 60,
+  );
+
+  // TODO
+  static const SvgData callHandDown = SvgData(
+    'assets/icons/hand_down.svg',
+    width: 60,
+  );
+
+  // TODO
+  static const SvgData callHandUp = SvgData(
+    'assets/icons/hand_up.svg',
+    width: 60,
+  );
+
+  static const SvgData callSettings = SvgData(
+    'assets/icons/call_settings.svg',
+    width: 32,
+    height: 32,
+  );
+
+  // TODO
+  static const SvgData callParticipants = SvgData(
+    'assets/icons/call_participants.svg',
+    width: 29.36,
+    height: 26.83,
+  );
+
+  // TODO
+  static const SvgData callIncomingVideoOn = SvgData(
+    'assets/icons/incoming_video_on.svg',
+    width: 60,
+  );
+
+  // TODO
+  static const SvgData callIncomingVideoOff = SvgData(
+    'assets/icons/incoming_video_off.svg',
+    width: 60,
+  );
+
+  // TODO
+  static const SvgData callIncomingAudioOn = SvgData(
+    'assets/icons/speaker_on.svg',
+    width: 60,
+  );
+
+  // TODO
+  static const SvgData callIncomingAudioOff = SvgData(
+    'assets/icons/speaker_off.svg',
+    width: 60,
   );
 }

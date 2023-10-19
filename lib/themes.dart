@@ -147,215 +147,216 @@ class Themes {
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
-        extensions: [
-          Style(
-            colors: colors,
-            fonts: fonts,
-            barrierColor: colors.onBackgroundOpacity50,
-            cardBlur: 5,
-            cardBorder:
-                Border.all(color: colors.secondaryHighlightDark, width: 0.5),
-            cardColor: colors.onPrimaryOpacity95,
-            cardHoveredColor: colors.backgroundAuxiliaryLightest,
-            // cardHoveredColor: colors.primaryHighlightShiniest,
-            cardHoveredBorder: Border.all(
-              color: colors.primaryHighlightShiniest,
-              width: 0.5,
-            ),
-            cardRadius: BorderRadius.circular(14),
-            cardSelectedBorder:
-                Border.all(color: colors.primaryHighlightShiny, width: 0.5),
-            contextMenuBackgroundColor: colors.secondaryHighlight,
-            contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
-            contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: textStyle.copyWith(
-              color: colors.primary,
-              // decoration: TextDecoration.underline,
-              // decorationThickness: 2,
-            ),
-            messageColor: colors.onPrimary,
-            primaryBorder: Border.all(
-              color: colors.secondaryHighlightDark,
-              // color: colors.background,
-              width: 0.5,
-            ),
-            readMessageColor: colors.acceptLighter,
-            // readMessageColor: colors.primaryHighlightShiniest,
-            secondaryBorder: Border.all(
-              // color: colors.primaryHighlightLightest,
-              // color: colors.acceptColor,
-              color: colors.acceptLight,
-              // color: Color(0xFF34B139).withOpacity(0.3),
-              // color: colors.secondaryHighlightDarkest,
-              width: 0.5,
-            ),
-            sidebarColor: colors.onPrimaryOpacity50,
-            systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDark,
-              width: 0.5,
-            ),
-            systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle: fonts.bodySmallSecondary,
-            systemMessagePrimary: fonts.bodySmallPrimary,
-            unreadMessageColor: colors.acceptLightest,
-            activeColor: colors.primary,
-            selectedColor: colors.primaryOpacity70,
-            // selectedColor: colors.primaryOpacity70,
+      extensions: [
+        Style(
+          colors: colors,
+          fonts: fonts,
+          barrierColor: colors.onBackgroundOpacity50,
+          cardBlur: 5,
+          cardBorder:
+              Border.all(color: colors.secondaryHighlightDark, width: 0.5),
+          cardColor: colors.onPrimaryOpacity95,
+          cardHoveredColor: colors.backgroundAuxiliaryLightest,
+          // cardHoveredColor: colors.primaryHighlightShiniest,
+          cardHoveredBorder: Border.all(
+            color: colors.primaryHighlightShiniest,
+            width: 0.5,
           ),
-        ],
-        scaffoldBackgroundColor: colors.transparent,
-        appBarTheme: theme.appBarTheme.copyWith(
-          backgroundColor: colors.onPrimaryOpacity25,
-          foregroundColor: colors.secondary,
-          iconTheme: theme.appBarTheme.iconTheme?.copyWith(
-            color: colors.secondary,
+          cardRadius: BorderRadius.circular(14),
+          cardSelectedBorder:
+              Border.all(color: colors.primaryHighlightShiny, width: 0.5),
+          contextMenuBackgroundColor: colors.secondaryHighlight,
+          contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
+          contextMenuRadius: BorderRadius.circular(10),
+          linkStyle: textStyle.copyWith(
+            color: colors.primary,
+            // decoration: TextDecoration.underline,
+            // decorationThickness: 2,
           ),
-          actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
-            color: colors.secondary,
+          messageColor: colors.onPrimary,
+          primaryBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            // color: colors.background,
+            width: 0.5,
           ),
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: fonts.headlineMedium,
+          readMessageColor: colors.acceptLighter,
+          // readMessageColor: colors.primaryHighlightShiniest,
+          secondaryBorder: Border.all(
+            // color: colors.primaryHighlightLightest,
+            // color: colors.acceptColor,
+            color: colors.acceptLight,
+            // color: Color(0xFF34B139).withOpacity(0.3),
+            // color: colors.secondaryHighlightDarkest,
+            width: 0.5,
+          ),
+          sidebarColor: colors.onPrimaryOpacity50,
+          systemMessageBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            width: 0.5,
+          ),
+          systemMessageColor: colors.secondaryHighlight,
+          systemMessageStyle: fonts.bodySmallSecondary,
+          systemMessagePrimary: fonts.bodySmallPrimary,
+          unreadMessageColor: colors.acceptLightest,
+          activeColor: colors.primary,
+          selectedColor: colors.primaryOpacity70,
+          // selectedColor: colors.primaryOpacity70,
         ),
-        tabBarTheme: theme.tabBarTheme.copyWith(
-          labelColor: colors.primary,
-          unselectedLabelColor: colors.secondary,
-        ),
-        primaryIconTheme: const IconThemeData.fallback().copyWith(
+      ],
+      scaffoldBackgroundColor: colors.transparent,
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: colors.onPrimaryOpacity25,
+        foregroundColor: colors.secondary,
+        iconTheme: theme.appBarTheme.iconTheme?.copyWith(
           color: colors.secondary,
         ),
-        splashColor: colors.transparent,
-        iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
-        textTheme: Typography.blackCupertino.copyWith(
-          displayLarge: fonts.displayLarge,
-          displayMedium: fonts.displayMedium,
-          displaySmall: fonts.displaySmall,
-          headlineLarge: fonts.headlineLarge,
-          headlineMedium: fonts.headlineMedium,
-          headlineSmall: fonts.headlineSmall,
-          titleLarge: fonts.titleLarge,
-          titleMedium: fonts.titleMedium,
-          titleSmall: fonts.titleSmall,
-          labelLarge: fonts.labelLarge,
-          labelMedium: fonts.displayLarge,
-          labelSmall: fonts.labelSmall,
-          bodyLarge: fonts.bodyLarge,
-          bodyMedium: fonts.bodyMedium,
-          bodySmall: fonts.bodySmall,
+        actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
+          color: colors.secondary,
         ),
-        inputDecorationTheme: theme.inputDecorationTheme.copyWith(
-          focusColor: colors.primary,
-          hoverColor: colors.transparent,
-          fillColor: colors.primary,
-          hintStyle: fonts.input,
-          labelStyle: fonts.input,
-          errorStyle: fonts.error,
-          helperStyle: fonts.input,
-          prefixStyle: fonts.input,
-          suffixStyle: fonts.input,
-          counterStyle: fonts.counter,
-          floatingLabelStyle: fonts.input,
-          errorMaxLines: 5,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.primary),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.dangerColor),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.dangerColor),
-          ),
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: fonts.headlineMedium,
+      ),
+      tabBarTheme: theme.tabBarTheme.copyWith(
+        labelColor: colors.primary,
+        unselectedLabelColor: colors.secondary,
+      ),
+      primaryIconTheme: const IconThemeData.fallback().copyWith(
+        color: colors.secondary,
+      ),
+      splashColor: colors.transparent,
+      iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
+      textTheme: Typography.blackCupertino.copyWith(
+        displayLarge: fonts.displayLarge,
+        displayMedium: fonts.displayMedium,
+        displaySmall: fonts.displaySmall,
+        headlineLarge: fonts.headlineLarge,
+        headlineMedium: fonts.headlineMedium,
+        headlineSmall: fonts.headlineSmall,
+        titleLarge: fonts.titleLarge,
+        titleMedium: fonts.titleMedium,
+        titleSmall: fonts.titleSmall,
+        labelLarge: fonts.labelLarge,
+        labelMedium: fonts.displayLarge,
+        labelSmall: fonts.labelSmall,
+        bodyLarge: fonts.bodyLarge,
+        bodyMedium: fonts.bodyMedium,
+        bodySmall: fonts.bodySmall,
+      ),
+      inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+        focusColor: colors.primary,
+        hoverColor: colors.transparent,
+        fillColor: colors.primary,
+        hintStyle: fonts.input,
+        labelStyle: fonts.input,
+        errorStyle: fonts.error,
+        helperStyle: fonts.input,
+        prefixStyle: fonts.input,
+        suffixStyle: fonts.input,
+        counterStyle: fonts.counter,
+        floatingLabelStyle: fonts.input,
+        errorMaxLines: 5,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.primary),
         ),
-        textSelectionTheme: theme.textSelectionTheme.copyWith(
-          cursorColor: colors.primary,
-          selectionHandleColor: colors.primary,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
-        floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.dangerColor),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.dangerColor),
+        ),
+      ),
+      textSelectionTheme: theme.textSelectionTheme.copyWith(
+        cursorColor: colors.primary,
+        selectionHandleColor: colors.primary,
+      ),
+      floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+      ),
+      bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+        backgroundColor: colors.primaryHighlightShiniest,
+        selectedItemColor: colors.primary,
+        unselectedItemColor: colors.secondary,
+      ),
+      progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
+        color: colors.primary,
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: colors.secondary,
+          textStyle: fonts.bodyLargeSecondary,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          backgroundColor: colors.transparent,
+          foregroundColor: colors.secondary,
+          minimumSize: const Size(100, 60),
+          maximumSize: const Size(250, 60),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          side: BorderSide(width: 1, color: colors.secondary),
+          textStyle: fonts.bodyLargeSecondary,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
-          foregroundColor: colors.onPrimary,
-        ),
-        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-          backgroundColor: colors.primaryHighlightShiniest,
-          selectedItemColor: colors.primary,
-          unselectedItemColor: colors.secondary,
-        ),
-        progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
-          color: colors.primary,
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: colors.secondary,
-            textStyle: fonts.bodyLargeSecondary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
           ),
+          padding: const EdgeInsets.all(12),
+          textStyle: fonts.titleMediumSecondary,
         ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            backgroundColor: colors.transparent,
-            foregroundColor: colors.secondary,
-            minimumSize: const Size(100, 60),
-            maximumSize: const Size(250, 60),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: fonts.bodyLargeSecondary,
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.all(12),
-            textStyle: fonts.titleMediumSecondary,
-          ),
-        ),
-        scrollbarTheme: theme.scrollbarTheme.copyWith(
-          interactive: true,
-          thickness: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.dragged) ||
-                states.contains(MaterialState.hovered)) {
-              return 6;
-            }
+      ),
+      scrollbarTheme: theme.scrollbarTheme.copyWith(
+        interactive: true,
+        thickness: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.dragged) ||
+              states.contains(MaterialState.hovered)) {
+            return 6;
+          }
 
-            return 4;
-          }),
-        ),
-        radioTheme: theme.radioTheme.copyWith(
-          fillColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
-              return Colors.white;
-            }
+          return 4;
+        }),
+      ),
+      radioTheme: theme.radioTheme.copyWith(
+        fillColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.white;
+          }
 
-            return colors.primary;
-          }),
-        ),
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
-          },
-        ));
+          return colors.primary;
+        }),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
+    );
   }
 
   /// Returns a dark theme.

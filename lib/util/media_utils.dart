@@ -50,9 +50,9 @@ class MediaUtilsImpl {
 
   /// Returns the [Jason] instance of these [MediaUtils].
   Jason? get jason {
-    if (kDebugMode && PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
-      return null;
-    }
+    // if (kDebugMode && PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+    //   return null;
+    // }
 
     if (_jason == null) {
       try {

@@ -24,6 +24,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
+import 'package:messenger/ui/page/call/widget/call_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
@@ -298,6 +299,52 @@ class _WidgetsViewState extends State<IconsView> {
                     onPressed: () =>
                         c.icon.value = IconDetails(SvgIcons.addAccount.asset),
                     child: const SvgIcon(SvgIcons.addAccount),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _appBar(
+                context,
+                trailing: [
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.palette.asset),
+                    child: const SvgIcon(SvgIcons.palette),
+                  ),
+                  const SizedBox(width: 24),
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.typography.asset),
+                    child: const SvgIcon(SvgIcons.typography),
+                  ),
+                  const SizedBox(width: 24),
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.widgets.asset),
+                    child: const SvgIcon(SvgIcons.widgets),
+                  ),
+                  const SizedBox(width: 24),
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.icons.asset),
+                    child: const SvgIcon(SvgIcons.icons),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _appBar(
+                context,
+                trailing: [
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.lightMode.asset),
+                    child: const SvgIcon(SvgIcons.lightMode),
+                  ),
+                  const SizedBox(width: 24),
+                  AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.darkMode.asset),
+                    child: const SvgIcon(SvgIcons.darkMode),
                   ),
                 ],
               ),
@@ -1120,12 +1167,12 @@ class _WidgetsViewState extends State<IconsView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SvgIcons.info,
-                        SvgIcons.copyThick,
+                        SvgIcons.copy18,
                         SvgIcons.reply,
                         SvgIcons.forwardSmall,
                         SvgIcons.edit,
-                        SvgIcons.pin,
-                        SvgIcons.unpin,
+                        SvgIcons.pinOutlined,
+                        SvgIcons.unpinOutlined,
                         SvgIcons.deleteThick,
                       ].map((e) {
                         return Container(
@@ -1154,6 +1201,40 @@ class _WidgetsViewState extends State<IconsView> {
                     ),
                   ),
                 ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  SvgIcons.callMore,
+                  SvgIcons.callEndBig,
+                  SvgIcons.callVideoOn,
+                  SvgIcons.callVideoOff,
+                  SvgIcons.callMicrophoneOn,
+                  SvgIcons.callMicrophoneOff,
+                  SvgIcons.callScreenShareOn,
+                  SvgIcons.callScreenShareOff,
+                  SvgIcons.callHandDown,
+                  SvgIcons.callHandUp,
+                  SvgIcons.callSettings,
+                  SvgIcons.callParticipants,
+                  SvgIcons.callIncomingVideoOn,
+                  SvgIcons.callIncomingVideoOff,
+                  SvgIcons.callIncomingAudioOn,
+                  SvgIcons.callIncomingAudioOff,
+                ].map((e) {
+                  return CallButtonWidget(
+                    icon: e,
+                    onPressed: () => c.icon.value = IconDetails(
+                      e.asset,
+                      invert: true,
+                    ),
+                  );
+                }).toList(),
               ),
             ],
           ),

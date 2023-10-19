@@ -30,6 +30,8 @@ import 'conditional_backdrop.dart';
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
     super.key,
+    this.icon,
+    this.offset,
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
@@ -53,6 +55,9 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Text that will show above the button on a hover.
   final String? hint;
+
+  final SvgData? icon;
+  final Offset? offset;
 
   /// Name of the asset to place into the [SvgImage.asset].
   final String? asset;
@@ -110,18 +115,49 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    Widget? child = widget.child;
+    if (child == null) {
+      if (widget.icon == null) {
+        child = Center(
+          child: SizedBox(
+            width: min(widget.assetWidth, 60),
+            height: min(widget.assetWidth, 60),
+            child: SvgImage.asset(
+              'assets/icons/${widget.asset}.svg',
+              width: widget.assetWidth,
+            ),
+          ),
+        );
+      } else {
+        child = LayoutBuilder(builder: (context, constraints) {
+          return Center(
+            child: SizedBox(
+              width: (constraints.maxWidth / 60) * (widget.icon?.width ?? 60),
+              height:
+                  (constraints.maxHeight / 60) * (widget.icon?.height ?? 60),
+              child: Transform.translate(
+                offset: widget.offset ?? Offset.zero,
+                child: SvgIcon(widget.icon!),
+              ),
+            ),
+          );
+        });
+      }
+    }
+
     Widget button = Container(
+      constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
       color: style.colors.transparent,
       child: ConditionalBackdropFilter(
         condition: !WebUtils.isSafari && widget.withBlur,
-        borderRadius: BorderRadius.circular(60),
+        borderRadius: BorderRadius.circular(300),
         child: Material(
           key: _key,
           elevation: 0,
           color: widget.color,
           type: MaterialType.circle,
           child: InkWell(
-            borderRadius: BorderRadius.circular(60),
+            borderRadius: BorderRadius.circular(300),
             onHover: widget.hint != null
                 ? (b) {
                     if (b) {
@@ -133,17 +169,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   }
                 : null,
             onTap: widget.onPressed,
-            child: widget.child ??
-                SizedBox(
-                  width: max(widget.assetWidth, 60),
-                  height: max(widget.assetWidth, 60),
-                  child: Center(
-                    child: SvgImage.asset(
-                      'assets/icons/${widget.asset}.svg',
-                      width: widget.assetWidth,
-                    ),
-                  ),
-                ),
+            child: child,
           ),
         ),
       ),

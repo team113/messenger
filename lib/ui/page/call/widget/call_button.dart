@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import 'round_button.dart';
 
@@ -25,7 +26,9 @@ import 'round_button.dart';
 class CallButtonWidget extends StatelessWidget {
   const CallButtonWidget({
     super.key,
-    required this.asset,
+    this.icon,
+    this.offset,
+    this.asset,
     this.assetWidth = 60,
     this.onPressed,
     this.hint,
@@ -35,6 +38,9 @@ class CallButtonWidget extends StatelessWidget {
     this.color,
     this.border,
   });
+
+  final SvgData? icon;
+  final Offset? offset;
 
   /// Asset to display.
   final String? asset;
@@ -69,6 +75,8 @@ class CallButtonWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return RoundFloatingButton(
+      icon: icon,
+      offset: offset,
       asset: asset,
       assetWidth: assetWidth,
       color: color ?? style.colors.onSecondaryOpacity50,
