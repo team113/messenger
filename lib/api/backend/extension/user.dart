@@ -79,7 +79,7 @@ extension UserAvatarConversion on UserAvatarMixin {
                   x: crop!.bottomRight.x,
                   y: crop!.bottomRight.y,
                 ),
-                angle: crop?.angle,
+                //angle: crop?.angle,
               )
             : null,
       );
@@ -103,7 +103,7 @@ extension UserCallCoverConversion on UserCallCoverMixin {
                   x: crop!.bottomRight.x,
                   y: crop!.bottomRight.y,
                 ),
-                angle: crop?.angle,
+                //angle: crop?.angle,
               )
             : null,
       );

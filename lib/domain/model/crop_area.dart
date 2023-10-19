@@ -61,3 +61,15 @@ class CropPoint {
 
   CropPoint({required this.x, required this.y});
 }
+
+@HiveType(typeId: ModelTypeId.avatarAngle)
+enum Angle {
+  @HiveField(0)
+  deg0,
+  @HiveField(1)
+  deg180,
+  @HiveField(2)
+  deg270,
+  @HiveField(3)
+  deg90,
+}

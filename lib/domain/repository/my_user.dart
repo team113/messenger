@@ -17,7 +17,8 @@
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
+import '/api/backend/schema.dart' show Presence;
+import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -124,8 +125,8 @@ abstract class AbstractMyUserRepository {
   /// Updates or resets the [MyUser.avatar] field with the provided image
   /// [file].
   Future<void> updateAvatar(
-    NativeFile? file,
-    CropAreaInput? crop, {
+    NativeFile? file, {
+    CropArea? crop,
     void Function(int count, int total)? onSendProgress,
   });
 
@@ -133,6 +134,7 @@ abstract class AbstractMyUserRepository {
   /// [file].
   Future<void> updateCallCover(
     NativeFile? file, {
+    CropArea? crop,
     void Function(int count, int total)? onSendProgress,
   });
 

@@ -29,6 +29,7 @@ import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
+import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -387,8 +388,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> updateAvatar(
-    NativeFile? file,
-    CropAreaInput? crop, {
+    NativeFile? file, {
+    CropArea? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     dio.MultipartFile? upload;
@@ -428,11 +429,29 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     try {
-      await _graphQlProvider.updateUserAvatar(
-        upload,
-        crop,
-        onSendProgress: onSendProgress,
-      );
+      if (crop != null) {
+        final PointInput topLeft = PointInput(
+          x: crop.topLeft.x,
+          y: crop.topLeft.y,
+        );
+        final PointInput bottomRight = PointInput(
+          x: crop.bottomRight.x,
+          y: crop.bottomRight.y,
+        );
+        final CropAreaInput cropArea =
+            CropAreaInput(topLeft: topLeft, bottomRight: bottomRight);
+        await _graphQlProvider.updateUserAvatar(
+          upload,
+          cropArea,
+          onSendProgress: onSendProgress,
+        );
+      } else {
+        await _graphQlProvider.updateUserAvatar(
+          upload,
+          null,
+          onSendProgress: onSendProgress,
+        );
+      }
     } catch (_) {
       if (file == null) {
         myUser.update((u) => u?.avatar = avatar);
@@ -462,6 +481,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   Future<void> updateCallCover(
     NativeFile? file, {
+    CropArea? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     dio.MultipartFile? upload;
@@ -501,11 +521,29 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     try {
-      await _graphQlProvider.updateUserCallCover(
-        upload,
-        null,
-        onSendProgress: onSendProgress,
-      );
+      if (crop != null) {
+        final PointInput topLeft = PointInput(
+          x: crop.topLeft.x,
+          y: crop.topLeft.y,
+        );
+        final PointInput bottomRight = PointInput(
+          x: crop.bottomRight.x,
+          y: crop.bottomRight.y,
+        );
+        final CropAreaInput cropArea =
+            CropAreaInput(topLeft: topLeft, bottomRight: bottomRight);
+        await _graphQlProvider.updateUserAvatar(
+          upload,
+          cropArea,
+          onSendProgress: onSendProgress,
+        );
+      } else {
+        await _graphQlProvider.updateUserAvatar(
+          upload,
+          null,
+          onSendProgress: onSendProgress,
+        );
+      }
     } catch (_) {
       if (file == null) {
         myUser.update((u) => u?.callCover = callCover);

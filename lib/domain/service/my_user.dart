@@ -20,12 +20,13 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model/my_user.dart';
-import '../model/user.dart';
-import '../repository/my_user.dart';
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
+import '/api/backend/schema.dart' show Presence;
+import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/routes.dart';
 import 'auth.dart';
@@ -171,18 +172,20 @@ class MyUserService extends DisposableService {
   /// [file].
   Future<void> updateAvatar(
     NativeFile? file, {
-    CropAreaInput? crop,
+    CropArea? crop,
     void Function(int count, int total)? onSendProgress,
   }) =>
-      _userRepo.updateAvatar(file, crop, onSendProgress: onSendProgress);
+      _userRepo.updateAvatar(file, crop: crop, onSendProgress: onSendProgress);
 
   /// Updates or resets the [MyUser.callCover] field with the provided image
   /// [file].
   Future<void> updateCallCover(
     NativeFile? file, {
+    CropArea? crop,
     void Function(int count, int total)? onSendProgress,
   }) =>
-      _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
+      _userRepo.updateCallCover(file,
+          crop: crop, onSendProgress: onSendProgress);
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);

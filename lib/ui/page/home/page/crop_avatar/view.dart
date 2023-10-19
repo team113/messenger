@@ -289,6 +289,7 @@ class _CropMenu extends StatelessWidget {
   }
 }
 
+/// [CustomClipper] for area responsible for resizing crop area.
 class ResizeAreaClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -372,7 +373,10 @@ class CropAreaPainter extends CustomPainter {
     );
 
     canvas.drawCircle(
-        Offset(size.width / 2, size.height / 2), cropAreaWidth / 2, paint);
+      Offset(size.width / 2, size.height / 2),
+      cropAreaWidth / 2,
+      paint,
+    );
   }
 
   @override

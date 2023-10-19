@@ -142,7 +142,6 @@ class CropAvatarController extends GetxController {
         topLeft: topLeft,
         angle: angle.value,
       );
-      print(angle.value);
 
       avatarUpload.value = RxStatus.loading();
       // await updateAvatar(

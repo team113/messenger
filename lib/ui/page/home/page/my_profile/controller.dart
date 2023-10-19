@@ -26,9 +26,9 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/file.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../crop_avatar/controller.dart';
-import '/api/backend/schema.dart' show Presence, CropAreaInput, PointInput;
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
+import '/domain/model/crop_area.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -45,6 +45,7 @@ import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '../crop_avatar/controller.dart';
 
 export 'view.dart';
 
@@ -214,7 +215,7 @@ class MyProfileController extends GetxController {
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
     try {
-      await _updateAvatar(null, null);
+      await _updateAvatar(null);
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
@@ -223,52 +224,52 @@ class MyProfileController extends GetxController {
   /// Picks an image and opens [CropAvatarView].
   Future<void> uploadAvatar() async {
     try {
-      // FilePickerResult? result = await FilePicker.platform.pickFiles(
-      //   type: FileType.image,
-      //   allowMultiple: false,
-      //   withData: true,
-      // );
-      // PlatformFile? fileData = result!.files.first;
+      //   XFile? imageFile = await ImagePicker().pickImage(
+      //     source: ImageSource.gallery,
+      //   );
+      //   Uint8List imageBytes = await imageFile!.readAsBytes();
+      //   var decodedImage = await decodeImageFromList(imageBytes);
+      //   int originalImageWidth = decodedImage.width;
+      //   int originalImageHeight = decodedImage.height;
 
-      XFile? imageFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
-      Uint8List imageBytes = await imageFile!.readAsBytes();
-      var decodedImage = await decodeImageFromList(imageBytes);
-      int originalImageWidth = decodedImage.width;
-      int originalImageHeight = decodedImage.height;
+      //   CropAvatarView.show(
+      //     router.context!,
+      //     originalImageWidth,
+      //     originalImageHeight,
+      //     imageBytes,
+      //     uploadAvatar,
+      //     imageFile,
+      //   );
 
-      CropAvatarView.show(
-        router.context!,
-        originalImageWidth,
-        originalImageHeight,
-        imageBytes,
-        uploadAvatar,
-        imageFile,
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+        withData: true,
       );
 
-      // avatarUpload.value = RxStatus.loading();
-      // final file = File(image.path) as PlatformFile;
-      // await _updateAvatar(NativeFile.fromPlatformFile(file));
-
-      // if (result?.files.isNotEmpty == true) {
-      //   avatarUpload.value = RxStatus.loading();
-      //   await _updateAvatar(
-      //       NativeFile.fromPlatformFile(
-      //         result.files.first,
-      //       ),
-      //       crop);
-      // }
+      final CropPoint topLeft = CropPoint(x: 10, y: 10);
+      final CropPoint bottomRight = CropPoint(x: 230, y: 230);
+      if (result?.files.isNotEmpty == true) {
+        avatarUpload.value = RxStatus.loading();
+        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first),
+            crop: CropArea(
+              bottomRight: bottomRight,
+              topLeft: topLeft,
+            ));
+      }
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
   }
 
   /// Crop and upload existing [myUser] avatar.
-  Future<bool> cropAvatar() async {
+  Future<void> cropAvatar() async {
     try {
       final ImageFile imageFile = myUser.value!.avatar!.original;
-      //print(imageFile.width);
-      //print(imageFile.height);
+      // print(imageFile.width);
+      // print(imageFile.height);
+
+      // print(imageFile.size);
       //Uint8List imageBytes = await imageFile.readAsBytes();
       // Image avatar = Image.file(myUser.value.avatar?);
       // if (await CropAvatarView.show(router.context!, ) != true) {
@@ -276,7 +277,6 @@ class MyProfileController extends GetxController {
       // }
 //       myUser.value?.avatar
 // CropAvatarView.show(router.context!, decodedImage, imageBytes);
-      return true;
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
@@ -353,13 +353,13 @@ class MyProfileController extends GetxController {
   /// If [file] is `null`, then deletes the [MyUser.avatar] and
   /// [MyUser.callCover].
   Future<void> _updateAvatar(
-    NativeFile? file,
-    CropAreaInput? crop,
-  ) async {
+    NativeFile? file, {
+    CropArea? crop,
+  }) async {
     try {
       await Future.wait([
         _myUserService.updateAvatar(file, crop: crop),
-        _myUserService.updateCallCover(file)
+        _myUserService.updateCallCover(file, crop: crop)
       ]);
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);
