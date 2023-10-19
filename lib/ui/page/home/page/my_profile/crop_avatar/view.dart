@@ -20,6 +20,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '/domain/model/crop_area.dart';
+import '/domain/model/file.dart';
+import '/domain/model/native_file.dart';
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -33,13 +36,10 @@ class CropAvatarView extends StatelessWidget {
     super.key,
     required this.originalImageWidth,
     required this.originalImageHeight,
-    required this.imageBytes,
-    required this.updateAvatar,
-    required this.imageFile,
+    this.imageBytes,
+    this.imageFile,
+    this.imageXFile,
   });
-
-  /// .
-  final Function updateAvatar;
 
   /// .
   final int originalImageWidth;
@@ -48,28 +48,31 @@ class CropAvatarView extends StatelessWidget {
   final int originalImageHeight;
 
   /// .
-  final Uint8List imageBytes;
+  final Uint8List? imageBytes;
 
   /// .
-  final XFile imageFile;
+  final XFile? imageXFile;
+
+  /// .
+  final ImageFile? imageFile;
 
   /// .
   static Future<T?> show<T>(
-    BuildContext context,
-    int originalImageWidth,
-    int originalImageHeight,
-    Uint8List imageBytes,
-    Function updateAvatar,
-    XFile imageFile,
-  ) async {
+    BuildContext context, {
+    required int originalImageWidth,
+    required int originalImageHeight,
+    Uint8List? imageBytes,
+    ImageFile? imageFile,
+    XFile? imageXFile,
+  }) async {
     return ModalPopup.show(
         context: context,
         child: CropAvatarView(
           originalImageWidth: originalImageWidth,
           originalImageHeight: originalImageHeight,
           imageBytes: imageBytes,
-          updateAvatar: updateAvatar,
           imageFile: imageFile,
+          imageXFile: imageXFile,
         ));
   }
 
@@ -87,12 +90,6 @@ class CropAvatarView extends StatelessWidget {
 
     //final style = Theme.of(context).style;
 
-    final imageWidget = Image.memory(
-      imageBytes,
-      width: imageWidth,
-      height: imageHeight,
-      fit: BoxFit.fill,
-    );
     // final previewTile = AvatarWidget.fromContact(
     //   null,
     //   avatar: imageWidget as Avatar,
@@ -102,11 +99,19 @@ class CropAvatarView extends StatelessWidget {
 
     return GetBuilder(
         init: CropAvatarController(
-          updateAvatar: updateAvatar,
+          Get.find(),
           imageWidth: imageWidth,
           imageHeight: imageHeight,
         ),
         builder: (CropAvatarController c) {
+          final imageWidget = imageBytes != null
+              ? Image.memory(
+                  imageBytes!,
+                  width: imageWidth,
+                  height: imageHeight,
+                  fit: BoxFit.fill,
+                )
+              : null;
           return Obx(() {
             return SizedBox(
               width: 300,
@@ -215,12 +220,48 @@ class CropAvatarView extends StatelessWidget {
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: _CropMenu(
-                      onRotateCw: c.onRotateCw,
-                      onRotateCcw: c.onRotateCcw,
-                      uploadAvatar: c.uploadAvatar,
-                      imageFile: imageFile,
-                      imageBytes: imageBytes,
+                    child: Container(
+                      width: 300,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.rotate_90_degrees_ccw),
+                            onPressed: () {
+                              c.onRotateCcw();
+                            },
+                          ),
+                          IconButton(
+                            icon:
+                                const Icon(Icons.rotate_90_degrees_cw_outlined),
+                            onPressed: () {
+                              c.onRotateCw();
+                            },
+                          ),
+                          const SizedBox(width: 10),
+                          OutlinedRoundedButton(
+                            onPressed: () {
+                              final size = 12;
+                              final file = NativeFile.fromXFile(
+                                imageXFile!,
+                                size,
+                              );
+                              c.uploadAvatar(
+                                file,
+                                imageBytes,
+                              );
+                            },
+                            title: Text(
+                              'btn_proceed'.l10n,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -228,64 +269,6 @@ class CropAvatarView extends StatelessWidget {
             );
           });
         });
-  }
-}
-
-/// Menu to interact with the image.
-class _CropMenu extends StatelessWidget {
-  _CropMenu({
-    required this.onRotateCw,
-    required this.onRotateCcw,
-    required this.uploadAvatar,
-    required this.imageFile,
-    required this.imageBytes,
-  });
-
-  final Function onRotateCw;
-  final Function onRotateCcw;
-  final Function uploadAvatar;
-  final XFile imageFile;
-  final Uint8List imageBytes;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.rotate_90_degrees_ccw),
-            onPressed: () {
-              onRotateCcw();
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.rotate_90_degrees_cw_outlined),
-            onPressed: () {
-              onRotateCw();
-            },
-          ),
-          const SizedBox(width: 10),
-          OutlinedRoundedButton(
-            onPressed: () {
-              uploadAvatar(
-                imageFile,
-                imageBytes,
-              );
-            },
-            title: Text(
-              'btn_proceed'.l10n,
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
 

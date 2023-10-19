@@ -17,25 +17,26 @@
 
 import 'dart:math';
 
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
-import '/api/backend/schema.dart' show Angle, CropAreaInput, PointInput;
+import '/domain/model/crop_area.dart';
 import '/domain/model/native_file.dart';
+import '/domain/service/my_user.dart';
+import '/provider/gql/exceptions.dart';
+import '/util/message_popup.dart';
 
 export 'view.dart';
 
 /// Controller of the [CropAvatarView].
 class CropAvatarController extends GetxController {
-  CropAvatarController({
+  CropAvatarController(
+    this._myUserService, {
     required this.imageWidth,
     required this.imageHeight,
-    required this.updateAvatar,
   });
 
-  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
-  final Function updateAvatar;
+  /// Service responsible for [MyUser] management.
+  final MyUserService _myUserService;
 
   /// Original image width.
   final double imageWidth;
@@ -66,6 +67,30 @@ class CropAvatarController extends GetxController {
   final RxDouble rotateAngle = RxDouble(0);
 
   final Rx<Angle> angle = Rx<Angle>(Angle.deg0);
+
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
+  ///
+  /// If [file] is `null`, then deletes the [MyUser.avatar] and
+  /// [MyUser.callCover].
+  Future<void> _updateAvatar(
+    NativeFile? file, {
+    CropArea? crop,
+  }) async {
+    print('_updateAvatar');
+    try {
+      await Future.wait([
+        _myUserService.updateAvatar(file, crop: crop),
+        _myUserService.updateCallCover(file, crop: crop)
+      ]);
+    } on UpdateUserAvatarException catch (e) {
+      MessagePopup.error(e);
+    } on UpdateUserCallCoverException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
   @override
   void onInit() {
@@ -128,26 +153,26 @@ class CropAvatarController extends GetxController {
       // XFile? imageFile =
       //     await ImagePicker().pickImage(source: ImageSource.gallery);
       //Uint8List imageBytes = await imageFile!.readAsBytes();
-      final PointInput bottomRight = PointInput(
+      final CropPoint bottomRight = CropPoint(
         x: cropAreaWidth.value.toInt() + cropAreaOffsetX.value.toInt(),
         y: cropAreaHeight.value.toInt() + cropAreaOffsetY.value.toInt(),
       );
-      final PointInput topLeft = PointInput(
+      final CropPoint topLeft = CropPoint(
         x: cropAreaOffsetX.value.toInt(),
         y: cropAreaOffsetY.value.toInt(),
       );
 
-      final CropAreaInput crop = CropAreaInput(
+      final CropArea crop = CropArea(
         bottomRight: bottomRight,
         topLeft: topLeft,
         angle: angle.value,
       );
 
       avatarUpload.value = RxStatus.loading();
-      // await updateAvatar(
-      //   NativeFile.fromXFile(imageFile!, imageBytes),
-      //   crop,
-      // );
+      await _updateAvatar(
+        imageFile,
+        crop: crop,
+      );
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
