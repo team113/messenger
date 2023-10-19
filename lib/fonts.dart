@@ -1,6 +1,70 @@
 import 'package:flutter/rendering.dart';
 import 'package:messenger/themes.dart';
 
+///
+/// 27
+///   Bold
+///     onBackground
+///     primary
+///   Regular
+///     onBackground
+///
+/// 24
+///   Bold
+///     secondary
+///   Regular
+///     primary
+///
+
+class _Annotation {
+  const _Annotation(this.schema);
+  final Map<String, Map<String, List<String>>> schema;
+}
+
+class FontsSchema {
+  FontsSchema({
+    required TextStyle style,
+    double largest = 27,
+    double larger = 24,
+    double large = 21,
+    double big = 18,
+    double medium = 17,
+    double normal = 15,
+    double small = 13,
+    double smaller = 11,
+    double smallest = 9,
+    FontWeight bold = FontWeight.bold,
+    FontWeight regular = FontWeight.normal,
+    required Color onBackground,
+  });
+
+  final Sizes largest;
+  final Sizes larger;
+  final Sizes large;
+  final Sizes big;
+  final Sizes medium;
+  final Sizes normal;
+  final Sizes small;
+  final Sizes smaller;
+  final Sizes smallest;
+}
+
+@_Annotation(
+  {
+    'largest': {
+      'bold': ['onBackground', 'primary'],
+      'regular': ['onBackground', 'primary'],
+    },
+    'large': {
+      'bold': ['onBackground', 'primary', 'secondary'],
+      'regular': ['onBackground', 'onPrimary'],
+    },
+  },
+)
+class FontsExample extends FontsSchema {
+  FontsExample();
+}
+
 class Fonts {
   Fonts({
     double largest = 27,
@@ -16,14 +80,18 @@ class Fonts {
     FontWeight regular = FontWeight.normal,
     required TextStyle style,
     required Palette palette,
-  }) : largest = _LargestFonts(
-          style.copyWith(fontSize: largest),
-          palette,
-          bold: bold,
-          regular: regular,
+  }) : largest = _BoldRegular(
+          _LargestFontsBold(
+            style.copyWith(fontSize: largest, fontWeight: bold),
+            palette,
+          ),
+          _LargestFontsRegular(
+            style.copyWith(fontSize: largest, fontWeight: regular),
+            palette,
+          ),
         );
 
-  final _LargestFonts largest;
+  final BoldRegular<_LargestFontsBold, _LargestFontsRegular> largest;
   final _Sizes larger;
   final _Sizes large; // 21
   final _Sizes big; // 18
@@ -32,6 +100,18 @@ class Fonts {
   final _Sizes small;
   final _Sizes smaller;
   final _Sizes smallest;
+}
+
+class BoldRegular<T, K> {
+  const BoldRegular(this.bold, this.regular);
+  final T bold;
+  final K regular;
+}
+
+class OnBackgroundOnPrimary<T, K> {
+  const OnBackgroundOnPrimary(this.bold, this.regular);
+  final T bold;
+  final K regular;
 }
 
 class _LargestFonts {
