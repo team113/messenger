@@ -985,11 +985,7 @@ class HiveRxChat extends RxChat {
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = StreamQueue(
-        _chatRepository.chatEvents(
-          id,
-          (await _chatLocal.get(id))?.ver,
-          () async => (await _chatLocal.get(id))?.ver,
-        ),
+        _chatRepository.chatEvents(id, ver, () => ver),
       );
 
       await _remoteSubscription!.execute(

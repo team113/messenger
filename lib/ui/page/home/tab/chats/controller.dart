@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -155,6 +156,10 @@ class ChatsTabController extends GetxController {
   /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
   final List<RxUser> _recipients = [];
 
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollListened = false;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -245,11 +250,13 @@ class ChatsTabController extends GetxController {
     });
 
     if (_chatService.status.value.isSuccess) {
-      _ensureScrollable();
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => _ensureScrollable());
     } else {
       _statusSubscription = _chatService.status.listen((status) {
         if (status.isSuccess) {
-          _ensureScrollable();
+          SchedulerBinding.instance
+              .addPostFrameCallback((_) => _ensureScrollable());
         }
       });
     }
@@ -661,12 +668,19 @@ class ChatsTabController extends GetxController {
   /// Requests the next page of [Chat]s based on the [ScrollController.position]
   /// value.
   void _scrollListener() {
-    if (scrollController.hasClients &&
-        hasNext.isTrue &&
-        _chatService.nextLoading.isFalse &&
-        scrollController.position.pixels >
-            scrollController.position.maxScrollExtent - 500) {
-      _chatService.next();
+    if (!_scrollListened) {
+      _scrollListened = true;
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        _scrollListened = false;
+
+        if (scrollController.hasClients &&
+            hasNext.isTrue &&
+            _chatService.nextLoading.isFalse &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 500) {
+          _chatService.next();
+        }
+      });
     }
   }
 

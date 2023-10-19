@@ -528,6 +528,7 @@ class SubscriptionHandle {
             _resubscribe();
           }
         },
+        cancelOnError: true,
       );
     } catch (e) {
       _controller.addError(e);

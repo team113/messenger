@@ -296,6 +296,10 @@ class ChatController extends GetxController {
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
 
+  /// Indicator whether the [_loadMessages] is already invoked during the
+  /// current frame.
+  bool _messagesLoaded = false;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -1235,9 +1239,16 @@ class ChatController extends GetxController {
 
   /// Loads next and previous pages of the [RxChat.messages].
   void _loadMessages() async {
-    if (!_ignorePositionChanges && status.value.isSuccess) {
-      _loadNextPage();
-      _loadPreviousPage();
+    if (!_messagesLoaded) {
+      _messagesLoaded = true;
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        _messagesLoaded = false;
+
+        if (!_ignorePositionChanges && status.value.isSuccess) {
+          _loadNextPage();
+          _loadPreviousPage();
+        }
+      });
     }
   }
 

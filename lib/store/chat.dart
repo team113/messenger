@@ -157,6 +157,9 @@ class ChatRepository extends DisposableInterface
   /// Subscriptions for the [paginated] chats changes.
   final Map<ChatId, StreamSubscription> _subscriptions = {};
 
+  /// Subscriptions for the [paginated] changes populating the [_subscriptions].
+  StreamSubscription? _paginatedSubscription;
+
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _getGuards = {};
 
@@ -208,6 +211,28 @@ class ChatRepository extends DisposableInterface
       _initFavoriteSubscription();
       _initPagination();
 
+      _paginatedSubscription = paginated.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _subscriptions[e.key!] = e.value!.updates.listen((_) {});
+            break;
+
+          case OperationKind.updated:
+            if (e.oldKey != e.key) {
+              final StreamSubscription? subscription = _subscriptions[e.oldKey];
+              if (subscription != null) {
+                _subscriptions[e.key!] = subscription;
+                _subscriptions.remove(e.oldKey);
+              }
+            }
+            break;
+
+          case OperationKind.removed:
+            _subscriptions.remove(e.key!)?.cancel();
+            break;
+        }
+      });
+
       _localPagination = Pagination(
         onKey: (e) => e.value.id,
         perPage: 15,
@@ -257,14 +282,18 @@ class ChatRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
+    _paginatedSubscription?.cancel();
 
     super.onClose();
   }
 
   @override
   Future<void> next() async {
-    await _pagination?.next();
-    await _localPagination?.next();
+    if (_localPagination != null) {
+      await _localPagination!.next();
+    } else {
+      await _pagination!.next();
+    }
 
     if (hasNext.value == false) {
       _initMonolog();
@@ -1349,10 +1378,6 @@ class ChatRepository extends DisposableInterface
 
     if (!paginated.containsKey(chatId)) {
       paginated[chatId] = entry;
-
-      if (!WebUtils.isPopup) {
-        _subscriptions[chatId] = entry.updates.listen((_) {});
-      }
     }
 
     return entry;
@@ -1369,7 +1394,6 @@ class ChatRepository extends DisposableInterface
         chats.remove(chatId)?.dispose();
         paginated.remove(chatId);
         _pagination?.remove(chatId);
-        _subscriptions.remove(chatId)?.cancel();
 
         final int index = _recentLocal.values.toList().indexOf(chatId);
         if (index != -1) {
@@ -1666,12 +1690,6 @@ class ChatRepository extends DisposableInterface
             if (localChat != null) {
               chats.move(localId, data.chat.value.id);
               paginated.move(localId, data.chat.value.id);
-
-              final StreamSubscription? subscription = _subscriptions[localId];
-              if (subscription != null) {
-                _subscriptions[data.chat.value.id] = subscription;
-                _subscriptions.remove(localId);
-              }
 
               await localChat.updateChat(data.chat);
               entry = localChat;
