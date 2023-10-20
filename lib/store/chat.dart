@@ -1300,11 +1300,12 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    final HiveRxChat? saved = chats[chat.value.id];
+    ChatId chatId = chat.value.id;
+    final HiveRxChat? saved = chats[chatId];
     if (saved != null) {
       if (saved.ver > chat.ver) {
         if (pagination) {
-          paginated[chat.value.id] ??= saved;
+          paginated[chatId] ??= saved;
         }
 
         return saved;
@@ -1324,12 +1325,14 @@ class ChatRepository extends DisposableInterface
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
     if (!WebUtils.isPopup) {
-      HiveChat? hiveChat = await _chatLocal.get(chat.value.id);
+      HiveChat? hiveChat = await _chatLocal.get(chatId);
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
       chat.value.firstItem ??= hiveChat?.value.firstItem;
 
       if (hiveChat == null || hiveChat.ver < chat.ver) {
+        _recentLocal.put(chat.value.updatedAt, chatId);
+
         await _chatLocal.put(chat);
       }
     }
@@ -1391,21 +1394,14 @@ class ChatRepository extends DisposableInterface
         paginated.remove(chatId);
         _pagination?.remove(chatId);
 
-        final int index = _recentLocal.values.toList().indexOf(chatId);
-        if (index != -1) {
-          await _recentLocal.removeAt(index);
-        }
+        _recentLocal.remove(chatId);
       } else {
         final HiveRxChat? chat = chats[chatId];
         if (chat == null || chat.ver < event.value.ver) {
           _add(event.value);
         }
 
-        final int index = _recentLocal.values.toList().indexOf(chatId);
-        if (index != -1) {
-          await _recentLocal.removeAt(index);
-        }
-        await _recentLocal.put(chatId, event.value.value.updatedAt);
+        _recentLocal.put(event.value.value.updatedAt, chatId);
       }
     }
   }

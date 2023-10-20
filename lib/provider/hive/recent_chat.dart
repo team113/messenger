@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -23,6 +24,9 @@ import 'base.dart';
 
 /// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s.
 class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
+  /// [Mutex] guarding synchronized access to the [put] and [remove].
+  final Mutex _mutex = Mutex();
+
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -38,9 +42,27 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
   Iterable<ChatId> get values => valuesSafe;
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
-  Future<void> put(ChatId item, PreciseDateTime key) =>
-      putSafe(key.toUtc().toString(), item);
+  Future<void> put(PreciseDateTime key, ChatId item) async {
+    String stringKey = key.toUtc().toString();
 
-  /// Removes a [ChatId] item from [Hive] by the provided [index].
-  Future<void> removeAt(int index) => deleteAtSafe(index);
+    if (getSafe(stringKey) != item) {
+      _mutex.protect(() async {
+        final int index = values.toList().indexOf(item);
+        if (index != -1) {
+          await deleteAtSafe(index);
+        }
+        await putSafe(stringKey, item);
+      });
+    }
+  }
+
+  /// Removes the provided [ChatId] from [Hive].
+  Future<void> remove(ChatId item) async {
+    _mutex.protect(() async {
+      final int index = values.toList().indexOf(item);
+      if (index != -1) {
+        await deleteAtSafe(index);
+      }
+    });
+  }
 }
