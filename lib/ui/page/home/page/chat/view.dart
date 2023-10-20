@@ -150,7 +150,7 @@ class _ChatViewState extends State<ChatView>
                 padding: EdgeInsets.only(left: 4, right: 20),
                 leading: [StyledBackButton()],
               ),
-              body: Center(child: CustomProgressIndicator.primary()),
+              body: const Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
                 padding: Insets.dense.copyWith(top: 0),
                 child: _bottomBar(c),

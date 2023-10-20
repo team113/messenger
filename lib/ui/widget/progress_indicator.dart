@@ -21,7 +21,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '/config.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
@@ -34,19 +33,17 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = true,
         backgroundColor = null,
         valueColor = null,
-        color = null,
+        primaryColor = false,
         strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `primary` style.
-  CustomProgressIndicator.primary({super.key, this.value})
+  const CustomProgressIndicator.primary({super.key, this.value})
       : size = 40,
         padding = const EdgeInsets.all(4),
         blur = false,
         backgroundColor = null,
         valueColor = null,
-        color = router.context == null
-            ? const Color(0xFF63B4FF)
-            : Theme.of(router.context!).style.colors.primary,
+        primaryColor = true,
         strokeWidth = 2;
 
   /// Constructs a [CustomProgressIndicator] with a `big` style.
@@ -56,7 +53,7 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = true,
         backgroundColor = null,
         valueColor = null,
-        color = null,
+        primaryColor = false,
         strokeWidth = 2.0;
 
   /// Value of this [CustomProgressIndicator].
@@ -65,8 +62,8 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Background [Color] of this [CustomProgressIndicator].
   final Color? backgroundColor;
 
-  /// [Color] of this [CustomProgressIndicator].
-  final Color? color;
+  /// Indicator whether the [Palette.primary] color should be used.
+  final bool primaryColor;
 
   /// [Animation] animating the [color] of this [CustomProgressIndicator].
   final Animation<Color?>? valueColor;
@@ -97,7 +94,9 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: Config.disableInfiniteAnimations ? 0 : value,
-          color: color ?? style.colors.secondaryHighlightDarkest,
+          color: primaryColor
+              ? style.colors.primary
+              : style.colors.secondaryHighlightDarkest,
           backgroundColor:
               backgroundColor ?? style.colors.secondaryHighlightDark,
           valueColor: valueColor,
