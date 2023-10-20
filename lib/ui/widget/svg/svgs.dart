@@ -816,28 +816,28 @@ class SvgIcons {
     height: 30.66,
   );
 
-  // TODO
   static const SvgData callScreenShareOn = SvgData(
     'assets/icons/screen_share_on.svg',
-    width: 60,
+    width: 28,
+    height: 28.31,
   );
 
-  // TODO
   static const SvgData callScreenShareOff = SvgData(
     'assets/icons/screen_share_off.svg',
-    width: 60,
+    width: 28,
+    height: 28.31,
   );
 
-  // TODO
   static const SvgData callHandDown = SvgData(
     'assets/icons/hand_down.svg',
-    width: 60,
+    width: 30.66,
+    height: 31.81,
   );
 
-  // TODO
   static const SvgData callHandUp = SvgData(
     'assets/icons/hand_up.svg',
-    width: 60,
+    width: 30.66,
+    height: 31.81,
   );
 
   static const SvgData callSettings = SvgData(
