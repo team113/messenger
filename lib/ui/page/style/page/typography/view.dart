@@ -16,14 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/style/widget/builder_wrap.dart';
-import '/ui/page/style/widget/header.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/family.dart';
-import 'widget/font.dart';
+import 'widget/row.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatelessWidget {
@@ -43,35 +43,45 @@ class TypographyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Iterable<(TextStyle, String)> fonts = [
-      ...style.fonts.styles.map((e) => (e, e.runtimeType.toString())),
-    ];
-
-    final List<(FontWeight, String)> families = [
-      (FontWeight.w300, 'SFUI-Light'),
-      (FontWeight.w400, 'SFUI-Regular'),
-      (FontWeight.w700, 'SFUI-Bold'),
+    final List<(FontWeight, String, String)> families = [
+      (
+        FontWeight.w400,
+        'Noto Sans Display (Regular)',
+        'NotoSansDisplay-Regular.ttf'
+      ),
+      (FontWeight.w700, 'Noto Sans Display (Bold)', 'NotoSansDisplay-Bold.ttf'),
     ];
 
     return ScrollableColumn(
       children: [
         const SizedBox(height: CustomAppBar.height),
-        const SizedBox(height: 16),
-        const Header('Typography'),
-        const SubHeader('Fonts'),
-        BuilderWrap(
-          fonts,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontWidget(e, inverted: inverted, dense: dense),
+        Block(
+          title: 'Font families',
+          expanded: true,
+          children: families
+              .map((e) => FontFamily(weight: e.$1, name: e.$2, asset: e.$3))
+              .toList(),
         ),
-        const SubHeader('Families'),
-        BuilderWrap(
-          families,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontFamily(e, inverted: inverted, dense: dense),
-        ),
+        ...style.fonts.schema.entries.map((size) {
+          return Block(
+            title:
+                '${size.key.capitalizeFirst} (${size.value.values.first.values.first.fontSize} pt)',
+            expanded: true,
+            children: size.value.entries
+                .map((weight) {
+                  return weight.value.entries.map((color) {
+                    return FontRow(
+                      font: color.value,
+                      size: size.key,
+                      weight: weight.key,
+                      color: color.key,
+                    );
+                  });
+                })
+                .expand((e) => e)
+                .toList(),
+          );
+        }),
         const SizedBox(height: 16),
       ],
     );
