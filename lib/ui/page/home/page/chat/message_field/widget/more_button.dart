@@ -107,8 +107,8 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                 Text(
                   widget.label,
                   style: disabled
-                      ? style.fonts.bodyLargePrimaryHighlightLightest
-                      : style.fonts.bodyLargePrimary,
+                      ? style.fonts.medium.regular.primaryHighlightLightest
+                      : style.fonts.medium.regular.primary,
                 ),
                 const Spacer(),
                 const SizedBox(width: 16),

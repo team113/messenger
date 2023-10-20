@@ -82,6 +82,8 @@ dependencies:
   share_plus: ^7.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
+  sound_fonts:
+    git: https://github.com/lapuske/sound_fonts
   stdlibc: ^0.1.4
   toml: ^0.14.0
   universal_io: ^2.2.2

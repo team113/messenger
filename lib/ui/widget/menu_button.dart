@@ -96,8 +96,8 @@ class MenuButton extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: inverted
-                                ? style.fonts.headlineLargeOnPrimary
-                                : style.fonts.headlineLarge,
+                                ? style.fonts.big.regular.onPrimary
+                                : style.fonts.big.regular.onBackground,
                             child: Text(title!),
                           ),
                         if (title != null && subtitle != null)
@@ -107,8 +107,8 @@ class MenuButton extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: inverted
-                                ? style.fonts.labelMediumOnPrimary
-                                : style.fonts.labelMedium,
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.onBackground,
                             child: Text(subtitle!),
                           ),
                       ],

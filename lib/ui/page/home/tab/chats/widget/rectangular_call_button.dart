@@ -72,7 +72,7 @@ class RectangularCallButton extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   text,
-                  style: style.fonts.bodyMediumOnPrimary,
+                  style: style.fonts.normal.regular.onPrimary,
                 ).fixedDigits(),
               ],
             ),

@@ -55,10 +55,9 @@ class FontWidget extends StatelessWidget {
           width: 180,
           child: Text(
             '${style.$1.fontSize}pt  w${style.$1.fontWeight?.value}  ${style.$1.color?.toHex()}',
-            style: styles.fonts.titleMedium.copyWith(
-              color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-            ),
+            style: inverted
+                ? styles.fonts.normal.regular.onBackground
+                : styles.fonts.normal.regular.onPrimary,
           ),
         ),
         const SizedBox(width: 10),

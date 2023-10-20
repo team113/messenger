@@ -240,7 +240,8 @@ class ReactiveTextField extends StatelessWidget {
                                           key: const ValueKey('Approve'),
                                           child: Text(
                                             'btn_save'.l10n,
-                                            style: style.fonts.bodySmallPrimary,
+                                            style: style
+                                                .fonts.small.regular.primary,
                                           ),
                                         )
                                       : SizedBox(
@@ -326,10 +327,17 @@ class ReactiveTextField extends StatelessWidget {
                 labelText: label,
                 hintText: hint,
                 hintMaxLines: 1,
+                hintStyle: this.style?.copyWith(
+                      color: Theme.of(context)
+                          .inputDecorationTheme
+                          .hintStyle
+                          ?.color,
+                    ),
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: style.fonts.bodyLarge.copyWith(fontSize: 0),
+                errorStyle: style.fonts.medium.regular.onBackground
+                    .copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -401,7 +409,7 @@ class ReactiveTextField extends StatelessWidget {
                           ? Padding(
                               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                               child: DefaultTextStyle(
-                                style: style.fonts.labelMedium,
+                                style: style.fonts.small.regular.onBackground,
                                 child: subtitle!,
                               ),
                             )
@@ -410,7 +418,7 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value ?? '',
-                            style: style.fonts.labelMediumDanger,
+                            style: style.fonts.small.regular.danger,
                           ),
                         ),
                 ),

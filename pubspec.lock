@@ -1580,6 +1580,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0+1"
+  sound_fonts:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "405fab0ce1bd59419d0d23511821dd1450d0f866"
+      url: "https://github.com/lapuske/sound_fonts"
+    source: git
+    version: "0.1.0-dev"
   source_gen:
     dependency: transitive
     description:
@@ -1989,5 +1998,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.1.3 <4.0.0"
   flutter: ">=3.13.0"

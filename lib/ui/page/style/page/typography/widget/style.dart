@@ -59,9 +59,9 @@ class FontStyleWidget extends StatelessWidget {
     return SizedBox(
       width: 190,
       child: DefaultTextStyle(
-        style: styles.fonts.bodySmall.copyWith(
-          color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF888888),
-        ),
+        style: inverted
+            ? styles.fonts.small.regular.onBackground
+            : styles.fonts.small.regular.secondary,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -44,10 +44,9 @@ class FontFamily extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: style.fonts.displayBold.copyWith(
-        color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-        fontWeight: family.$1,
-      ),
+      style: inverted
+          ? style.fonts.largest.bold.onBackground
+          : style.fonts.largest.bold.onPrimary.copyWith(fontWeight: family.$1),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 16, horizontal: dense ? 0 : 16),
         child: Row(
