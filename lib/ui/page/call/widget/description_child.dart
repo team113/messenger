@@ -48,7 +48,7 @@ class DescriptionChild extends StatelessWidget {
         const SizedBox(height: 6),
         if (description != null)
           DefaultTextStyle(
-            style: style.fonts.bodySmallOnPrimary,
+            style: style.fonts.small.regular.onPrimary,
             textAlign: TextAlign.center,
             maxLines: 2,
             child: AnimatedOpacity(

@@ -75,8 +75,8 @@ class SearchUserTile extends StatelessWidget {
             Text(
               '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value ?? user?.user.value.num)}',
               style: selected
-                  ? style.fonts.labelMediumOnPrimary
-                  : style.fonts.labelMediumSecondary,
+                  ? style.fonts.small.regular.onPrimary
+                  : style.fonts.small.regular.secondary,
             ),
           ],
           trailing: [

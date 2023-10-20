@@ -140,8 +140,9 @@ class ChatTile extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
                                         style: selected
-                                            ? style.fonts.headlineLargeOnPrimary
-                                            : style.fonts.headlineLarge,
+                                            ? style.fonts.big.regular.onPrimary
+                                            : style
+                                                .fonts.big.regular.onBackground,
                                       );
                                     }),
                                   ),

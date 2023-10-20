@@ -83,7 +83,10 @@ class Block extends StatelessWidget {
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                      child: Text(title!, style: style.fonts.headlineMedium),
+                      child: Text(
+                        title!,
+                        style: style.fonts.big.regular.onBackground,
+                      ),
                     ),
                   ),
                 ),

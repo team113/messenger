@@ -74,7 +74,7 @@ class HintWidget extends StatelessWidget {
                     isError
                         ? 'label_error'.l10n
                         : 'label_hint_from_gapopa'.l10n,
-                    style: style.fonts.bodySmallSecondary,
+                    style: style.fonts.small.regular.secondary,
                   ),
                 ),
                 Center(
@@ -95,7 +95,7 @@ class HintWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 20),
             child: Center(
-              child: Text(text, style: style.fonts.bodySmallSecondary),
+              child: Text(text, style: style.fonts.small.regular.secondary),
             ),
           ),
         ],

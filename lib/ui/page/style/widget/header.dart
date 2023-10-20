@@ -36,8 +36,8 @@ class Header extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
           label,
-          style:
-              style.fonts.displayBold.copyWith(color: const Color(0xFF1F3C5D)),
+          style: style.fonts.largest.bold.onBackground
+              .copyWith(color: const Color(0xFF1F3C5D)),
         ),
       ),
     );
@@ -61,7 +61,7 @@ class SubHeader extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
         child: Text(
           label,
-          style: style.fonts.headlineLarge.copyWith(
+          style: style.fonts.big.regular.onBackground.copyWith(
             color: const Color(0xFF1F3C5D),
           ),
           textAlign: TextAlign.start,

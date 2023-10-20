@@ -323,7 +323,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                       child: Text(
                                         widget.label!,
                                         style:
-                                            style.fonts.headlineSmallOnPrimary,
+                                            style.fonts.small.regular.onPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),
