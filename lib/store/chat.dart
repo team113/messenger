@@ -59,7 +59,6 @@ import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/pagination/hive.dart';
 import '/store/user.dart';
-import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -165,9 +164,6 @@ class ChatRepository extends DisposableInterface
 
   /// [Mutex]es guarding synchronized access to the [_putEntry].
   final Map<ChatId, Mutex> _putEntryGuards = {};
-
-  /// [dio.CancelToken] for cancelling the [CombinedPagination.around].
-  dio.CancelToken _cancelToken = dio.CancelToken();
 
   /// Indicator whether a local [Chat]-monolog has been hidden.
   ///
@@ -276,7 +272,7 @@ class ChatRepository extends DisposableInterface
   void onClose() {
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
-    _cancelToken.cancel();
+    _pagination?.dispose();
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
@@ -1528,6 +1524,7 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
+    _pagination?.dispose();
     _pagination = CombinedPagination([
       CombinedPaginationEntry(calls, addIf: (e) => e.value.ongoingCall != null),
       CombinedPaginationEntry(
@@ -1541,47 +1538,39 @@ class ChatRepository extends DisposableInterface
       ),
     ]);
 
-    _cancelToken.cancel();
-    _cancelToken = dio.CancelToken();
+    await _pagination!.around();
 
-    try {
-      await Backoff.run(_pagination!.around, _cancelToken);
+    _paginationSubscription?.cancel();
+    _paginationSubscription = _pagination!.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          final ChatData chatData = ChatData(event.value!, null, null);
+          _putEntry(chatData, pagination: true);
+          break;
 
-      _paginationSubscription?.cancel();
-      _paginationSubscription = _pagination!.changes.listen((event) async {
-        switch (event.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            final ChatData chatData = ChatData(event.value!, null, null);
-            _putEntry(chatData, pagination: true);
-            break;
-
-          case OperationKind.removed:
-            remove(event.value!.value.id);
-            break;
-        }
-      });
-
-      // Clear the [paginated] and the [_localPagination] populating it, as
-      // [CombinedPagination.around] has fetched its results.
-      paginated.clear();
-      _localPagination = null;
-
-      // Add the received in [CombinedPagination.around] items to the
-      // [paginated].
-      _pagination?.items
-          .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
-
-      if (_pagination?.hasNext.value == false) {
-        await _initMonolog();
+        case OperationKind.removed:
+          remove(event.value!.value.id);
+          break;
       }
+    });
 
-      status.value = RxStatus.success();
-    } catch (e) {
-      if (e is! OperationCanceledException) {
-        rethrow;
-      }
+    // Clear the [paginated] and the [_localPagination] populating it, as
+    // [CombinedPagination.around] has fetched its results.
+    paginated.clear();
+    _localPagination?.dispose();
+    _localPagination = null;
+
+    // Add the received in [CombinedPagination.around] items to the
+    // [paginated].
+    _pagination?.items
+        .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
+
+    if (_pagination?.hasNext.value == false) {
+      await _initMonolog();
     }
+
+    status.value = RxStatus.success();
   }
 
   /// Subscribes to the remote updates of the [chats].

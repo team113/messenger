@@ -17,10 +17,12 @@
 
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'model/page_info.dart';
@@ -82,8 +84,17 @@ class Pagination<T, C, K> {
   /// [Mutex] guarding synchronized access to the [previous].
   final Mutex _previousGuard = Mutex();
 
+  /// [CancelToken] for cancelling [init], [around], [next] and [previous]
+  /// query.
+  final CancelToken _cancelToken = CancelToken();
+
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
+
+  /// Disposes this [Pagination].
+  void dispose() {
+    _cancelToken.cancel();
+  }
 
   /// Resets this [Pagination] to its initial state.
   Future<void> clear() {
@@ -99,7 +110,8 @@ class Pagination<T, C, K> {
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {
     return _guard.protect(() async {
-      final Page<T, C>? page = await provider.init(item, perPage);
+      final Page<T, C>? page =
+          await Backoff.run(() => provider.init(item, perPage), _cancelToken);
       Log.print(
         'init(item: $item)... \n'
             '\tFetched ${page?.edges.length} items\n'
@@ -135,7 +147,10 @@ class Pagination<T, C, K> {
 
       Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
 
-      final Page<T, C>? page = await provider.around(item, cursor, perPage);
+      final Page<T, C>? page = await Backoff.run(
+        () => provider.around(item, cursor, perPage),
+        _cancelToken,
+      );
       Log.print(
         'around(item: $item, cursor: $cursor)... \n'
             '\tFetched ${page?.edges.length} items\n'
@@ -173,8 +188,11 @@ class Pagination<T, C, K> {
         nextLoading.value = true;
 
         if (items.isNotEmpty) {
-          final Page<T, C>? page =
-              await provider.after(items.last, endCursor, perPage);
+          Backoff.run(() => provider.after(items.last, endCursor, perPage));
+          final Page<T, C>? page = await Backoff.run(
+            () => provider.after(items.last, endCursor, perPage),
+            _cancelToken,
+          );
           Log.print(
             'next()... fetched ${page?.edges.length} items',
             'Pagination',
@@ -211,8 +229,10 @@ class Pagination<T, C, K> {
         previousLoading.value = true;
 
         if (items.isNotEmpty) {
-          final Page<T, C>? page =
-              await provider.before(items.first, startCursor, perPage);
+          final Page<T, C>? page = await Backoff.run(
+            () => provider.before(items.first, startCursor, perPage),
+            _cancelToken,
+          );
           Log.print(
             'previous()... fetched ${page?.edges.length} items',
             'Pagination',

@@ -267,7 +267,12 @@ class HiveRxChat extends RxChat {
 
     _updateTitle(chat.value.members.map((e) => e.user));
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
-    _worker = ever(chat, (_) => _updateFields());
+
+    Chat oldChat = chat.value;
+    _worker = ever(chat, (_) {
+      _updateFields(oldChat: oldChat);
+      oldChat = chat.value;
+    });
 
     _messagesSubscription = messages.changes.listen((e) {
       switch (e.op) {
@@ -385,6 +390,7 @@ class HiveRxChat extends RxChat {
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
+    _pagination.dispose();
     _messagesSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
@@ -816,7 +822,7 @@ class HiveRxChat extends RxChat {
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.
-  Future<void> _updateFields() async {
+  Future<void> _updateFields({Chat? oldChat}) async {
     if (chat.value.name != null) {
       _updateTitle();
     }
@@ -875,7 +881,8 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.unreadCount < unreadCount.value || _readTimer == null) {
+    if (chat.value.unreadCount != oldChat?.unreadCount &&
+        (chat.value.unreadCount < unreadCount.value || _readTimer == null)) {
       unreadCount.value = chat.value.unreadCount;
     }
   }
