@@ -624,10 +624,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         constraints:
                             const BoxConstraints(minWidth: 1, minHeight: 1),
                         child: PlatformUtils.isWeb
-                            ? WebImage(
-                                e.link,
-                                onForbidden: e.onError,
-                              )
+                            ? WebImage(e.link, onForbidden: e.onError)
                             : RetryImage(
                                 e.link,
                                 checksum: e.checksum,

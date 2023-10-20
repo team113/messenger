@@ -63,7 +63,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
 ///
 /// Examples:
 /// - Then I scroll `Menu` to bottom
-final StepDefinitionGeneric<CustomWorld> scrollToEnd =
+final StepDefinitionGeneric<CustomWorld> scrollToBottom =
     then1<WidgetKey, CustomWorld>(
   RegExp(r'I scroll {key} to bottom'),
   (WidgetKey list, StepContext<CustomWorld> context) async {

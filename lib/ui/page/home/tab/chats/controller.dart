@@ -158,7 +158,7 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
-  bool _scrollListened = false;
+  bool _scrollIsInvoked = false;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -668,10 +668,11 @@ class ChatsTabController extends GetxController {
   /// Requests the next page of [Chat]s based on the [ScrollController.position]
   /// value.
   void _scrollListener() {
-    if (!_scrollListened) {
-      _scrollListened = true;
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        _scrollListened = false;
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
 
         if (scrollController.hasClients &&
             hasNext.isTrue &&

@@ -268,10 +268,10 @@ class HiveRxChat extends RxChat {
     _updateTitle(chat.value.members.map((e) => e.user));
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
 
-    Chat oldChat = chat.value;
+    Chat previous = chat.value;
     _worker = ever(chat, (_) {
-      _updateFields(oldChat: oldChat);
-      oldChat = chat.value;
+      _updateFields(previous: previous);
+      previous = chat.value;
     });
 
     _messagesSubscription = messages.changes.listen((e) {
@@ -822,7 +822,7 @@ class HiveRxChat extends RxChat {
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.
-  Future<void> _updateFields({Chat? oldChat}) async {
+  Future<void> _updateFields({Chat? previous}) async {
     if (chat.value.name != null) {
       _updateTitle();
     }
@@ -881,7 +881,7 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.unreadCount != oldChat?.unreadCount &&
+    if (chat.value.unreadCount != previous?.unreadCount &&
         (chat.value.unreadCount < unreadCount.value || _readTimer == null)) {
       unreadCount.value = chat.value.unreadCount;
     }

@@ -285,11 +285,7 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> next() async {
-    if (_localPagination != null) {
-      await _localPagination!.next();
-    } else {
-      await _pagination!.next();
-    }
+    await (_localPagination?.next ?? _pagination?.next)?.call();
 
     if (hasNext.value == false) {
       _initMonolog();
@@ -1300,7 +1296,7 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    ChatId chatId = chat.value.id;
+    final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
     if (saved != null) {
       if (saved.ver > chat.ver) {
@@ -1325,14 +1321,13 @@ class ChatRepository extends DisposableInterface
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
     if (!WebUtils.isPopup) {
-      HiveChat? hiveChat = await _chatLocal.get(chatId);
+      final HiveChat? hiveChat = await _chatLocal.get(chatId);
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
       chat.value.firstItem ??= hiveChat?.value.firstItem;
 
       if (hiveChat == null || hiveChat.ver < chat.ver) {
         _recentLocal.put(chat.value.updatedAt, chatId);
-
         await _chatLocal.put(chat);
       }
     }
@@ -1393,7 +1388,6 @@ class ChatRepository extends DisposableInterface
         chats.remove(chatId)?.dispose();
         paginated.remove(chatId);
         _pagination?.remove(chatId);
-
         _recentLocal.remove(chatId);
       } else {
         final HiveRxChat? chat = chats[chatId];

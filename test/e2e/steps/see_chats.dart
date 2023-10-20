@@ -22,7 +22,8 @@ import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Indicates whether a provided count of [Chat]s is visible.
+/// Indicates whether the provided count of [Chat]s are presented within
+/// [ChatsTabView].
 ///
 /// Examples:
 /// - Then I see 30 chats

@@ -163,7 +163,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         returnToPreviousPage,
         rightClickWidget,
         scrollAndSee,
-        scrollToEnd,
+        scrollToBottom,
         scrollUntilPresent,
         seeChatAsFavorite,
         seeChatAsMuted,

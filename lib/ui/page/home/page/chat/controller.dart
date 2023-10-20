@@ -298,7 +298,7 @@ class ChatController extends GetxController {
 
   /// Indicator whether the [_loadMessages] is already invoked during the
   /// current frame.
-  bool _messagesLoaded = false;
+  bool _messagesAreLoading = false;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -1239,10 +1239,11 @@ class ChatController extends GetxController {
 
   /// Loads next and previous pages of the [RxChat.messages].
   void _loadMessages() async {
-    if (!_messagesLoaded) {
-      _messagesLoaded = true;
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        _messagesLoaded = false;
+    if (!_messagesAreLoading) {
+      _messagesAreLoading = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _messagesAreLoading = false;
 
         if (!_ignorePositionChanges && status.value.isSuccess) {
           _loadNextPage();

@@ -23,6 +23,7 @@ Feature: Chat attachments have correct sending status
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
+    And I pause for 1 second
 
   Scenario: File attachment status changes from `sending` to `sent`
     Given I have Internet with delay of 4 seconds
@@ -43,8 +44,7 @@ Feature: Chat attachments have correct sending status
     And I wait until status of "test.jpg" attachment is sent
 
   Scenario: User resends file attachment
-    Given I pause for 1 second
-    And I do not have Internet
+    Given I do not have Internet
     When I attach "test.txt" file
     And I tap `Send` button
     Then I wait until status of "test.txt" attachment is error
@@ -56,8 +56,7 @@ Feature: Chat attachments have correct sending status
     And I wait until status of "test.txt" attachment is sent
 
   Scenario: User resends image attachment
-    Given I pause for 1 second
-    And I do not have Internet
+    Given I do not have Internet
     When I attach "test.jpg" image
     And I tap `Send` button
     Then I wait until status of "test.jpg" attachment is error
