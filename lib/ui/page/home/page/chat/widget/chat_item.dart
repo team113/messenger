@@ -431,7 +431,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: style.fonts.bodyLarge,
+      style: style.fonts.medium.regular.onBackground,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
           return _renderAsChatMessage(context);
@@ -741,7 +741,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               color: style.systemMessageColor,
             ),
             child: DefaultTextStyle(
-              style: style.fonts.bodySmall,
+              style: style.fonts.small.regular.onBackground,
               child: content,
             ),
           ),
@@ -804,7 +804,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onSelecting: widget.onSelecting,
                       onChanged: (a) => _selection = a,
-                      style: style.fonts.bodyLarge.copyWith(color: color),
+                      style: style.fonts.medium.regular.onBackground
+                          .copyWith(color: color),
                     ),
                   ),
                 ),
@@ -958,7 +959,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             (PlatformUtils.isDesktop || menu) && _text != null,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: style.fonts.bodyLarge,
+                        style: style.fonts.medium.regular.onBackground,
                       ),
                     ),
                   ),
@@ -1071,7 +1072,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onSelecting: widget.onSelecting,
                         onChanged: (a) => _selection = a,
-                        style: style.fonts.bodyLarge.copyWith(color: color),
+                        style: style.fonts.medium.regular.onBackground
+                            .copyWith(color: color),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -1218,7 +1220,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     '${'plus'.l10n}$count',
-                    style: style.fonts.titleMediumSecondary,
+                    style: style.fonts.normal.regular.secondary,
                   ),
                 ),
               ),
@@ -1231,17 +1233,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (item.text != null && item.text!.val.isNotEmpty) {
         content = SelectionContainer.disabled(
-          child:
-              Text(item.text!.val, maxLines: 1, style: style.fonts.titleMedium),
+          child: Text(
+            item.text!.val,
+            maxLines: 1,
+            style: style.fonts.normal.regular.onBackground,
+          ),
         );
       }
     } else if (item is ChatCallQuote) {
       content = _call(item.original as ChatCall?);
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.fonts.headlineMedium);
+      content = Text(
+        item.action.toString(),
+        style: style.fonts.big.regular.onBackground,
+      );
     } else {
-      content = Text('err_unknown'.l10n, style: style.fonts.headlineMedium);
+      content = Text(
+        'err_unknown'.l10n,
+        style: style.fonts.big.regular.onBackground,
+      );
     }
 
     final FutureOr<RxUser?>? user = widget.getUser?.call(item.author);
@@ -1275,7 +1286,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         data?.user.value.name?.val ??
                             data?.user.value.num.toString() ??
                             'dot'.l10n * 3,
-                        style: style.fonts.bodyLarge.copyWith(color: color),
+                        style: style.fonts.medium.regular.onBackground
+                            .copyWith(color: color),
                       ),
                     ),
                   ],
@@ -1357,7 +1369,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: style.fonts.bodyLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
               ),
               if (time != null) ...[
@@ -1371,7 +1383,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         time,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: style.fonts.labelLargeSecondary,
+                        style: style.fonts.normal.regular.secondary,
                       ).fixedDigits(),
                     ],
                   ),

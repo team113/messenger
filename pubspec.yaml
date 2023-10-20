@@ -82,6 +82,7 @@ dependencies:
   share_plus: ^7.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
+  sound_fonts: ^0.1.1
   stdlibc: ^0.1.4
   toml: ^0.14.0
   universal_io: ^2.2.2
@@ -147,14 +148,12 @@ flutter:
     - assets/images/logo/
     - assets/l10n/
   fonts:
-    - family: SFUI
+    - family: NotoSansDisplay
       fonts:
-        - asset: assets/fonts/SFUIDisplay-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/SFUIDisplay-Light.ttf
-          weight: 300
-        - asset: assets/fonts/SFUIDisplay-Bold.ttf
+        - asset: assets/fonts/NotoSansDisplay-Bold.ttf
           weight: 700
+        - asset: assets/fonts/NotoSansDisplay-Regular.ttf
+          weight: 400
 
 sentry:
   upload_native_symbols: true

@@ -124,11 +124,11 @@ class BackendWorkView extends StatelessWidget {
                           TextSpan(
                             text:
                                 'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей ',
-                            style: style.fonts.bodyMedium,
+                            style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
                             text: 'корпоративной песочницей.',
-                            style: style.fonts.bodyMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://github.com/instrumentisto/rust-incubator',

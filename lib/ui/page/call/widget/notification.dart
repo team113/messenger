@@ -107,7 +107,10 @@ class CallNotificationWidget extends StatelessWidget {
               Flexible(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
-                  child: Text(title, style: style.fonts.bodyMediumOnPrimary),
+                  child: Text(
+                    title,
+                    style: style.fonts.normal.regular.onPrimary,
+                  ),
                 ),
               ),
               WidgetButton(

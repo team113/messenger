@@ -128,11 +128,11 @@ class _UserLoginFieldState extends State<UserLoginField> {
           children: [
             TextSpan(
               text: 'label_login_visible'.l10n,
-              style: style.fonts.labelMediumSecondary,
+              style: style.fonts.small.regular.secondary,
             ),
             TextSpan(
               text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-              style: style.fonts.labelMediumPrimary,
+              style: style.fonts.small.regular.primary,
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {
                   await ConfirmDialog.show(
@@ -142,7 +142,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                       Center(
                         child: Text(
                           'label_login_visibility_hint'.l10n,
-                          style: style.fonts.labelLargeSecondary,
+                          style: style.fonts.normal.regular.secondary,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -150,7 +150,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'label_visible_to'.l10n,
-                          style: style.fonts.headlineMedium,
+                          style: style.fonts.big.regular.onBackground,
                         ),
                       ),
                     ],

@@ -125,7 +125,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
                     const SvgImage.asset('assets/icons/copy.svg', height: 15),
               ),
             ),
-      style: style.fonts.titleMedium,
+      style: style.fonts.normal.regular.onBackground,
     );
   }
 }

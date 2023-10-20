@@ -48,14 +48,14 @@ class AuthView extends StatelessWidget {
             const SizedBox(height: 4),
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
-              style: style.fonts.labelLargeSecondary,
+              style: style.fonts.normal.regular.secondary,
               onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
             StyledCupertinoButton(
               padding: const EdgeInsets.all(8),
               label: 'btn_work_with_us'.l10n,
-              style: style.fonts.labelMediumSecondary,
+              style: style.fonts.small.regular.secondary,
               onPressed: () => router.work(null),
             ),
             const SizedBox(height: 8),
@@ -70,7 +70,7 @@ class AuthView extends StatelessWidget {
         List<Widget> header = [
           Text(
             'Messenger',
-            style: style.fonts.displayLargeSecondary,
+            style: style.fonts.largest.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -78,7 +78,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: style.fonts.displaySmallSecondary,
+            style: style.fonts.large.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,

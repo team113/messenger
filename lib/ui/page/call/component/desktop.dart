@@ -262,7 +262,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
-                      style: style.fonts.bodyMediumOnPrimary,
+                      style: style.fonts.normal.regular.onPrimary,
                     ),
                   ],
                 ),
@@ -484,7 +484,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           const SizedBox(height: 6),
                           Text(
                             e.hint,
-                            style: style.fonts.labelSmallOnPrimary,
+                            style: style.fonts.smaller.regular.onPrimary,
                             textAlign: TextAlign.center,
                           )
                         ],
@@ -666,7 +666,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: style.fonts.labelMediumOnPrimary,
+                        style: style.fonts.small.regular.onPrimary,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -1903,8 +1903,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       Expanded(
                                         child: Text(
                                           'Draggable',
-                                          style:
-                                              style.fonts.labelMediumOnPrimary,
+                                          style: style
+                                              .fonts.small.regular.onPrimary,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),

@@ -60,7 +60,7 @@ class IntroductionView extends StatelessWidget {
                 Center(
                   child: Text(
                     'btn_set_password'.l10n,
-                    style: style.fonts.headlineMedium,
+                    style: style.fonts.big.regular.onBackground,
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -69,7 +69,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: style.fonts.bodyMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -83,7 +83,7 @@ class IntroductionView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: style.fonts.bodyMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgImage.asset(
@@ -97,8 +97,8 @@ class IntroductionView extends StatelessWidget {
                   title: Text(
                     'btn_proceed'.l10n,
                     style: c.password.isEmpty.value || c.repeat.isEmpty.value
-                        ? style.fonts.bodyMedium
-                        : style.fonts.bodyMediumOnPrimary,
+                        ? style.fonts.normal.regular.onBackground
+                        : style.fonts.normal.regular.onPrimary,
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
@@ -112,7 +112,7 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_password_set'.l10n,
-                  style: style.fonts.bodyMediumSecondary,
+                  style: style.fonts.medium.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -121,7 +121,7 @@ class IntroductionView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: style.fonts.bodyMediumOnPrimary,
+                      style: style.fonts.normal.regular.onPrimary,
                     ),
                     onPressed: Navigator.of(context).pop,
                     color: style.colors.primary,
@@ -134,7 +134,7 @@ class IntroductionView extends StatelessWidget {
               children = [
                 Text(
                   'label_introduction_description'.l10n,
-                  style: style.fonts.bodyMedium,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
@@ -142,7 +142,7 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_set_password'.l10n,
-                    style: style.fonts.bodyMediumOnPrimary,
+                    style: style.fonts.normal.regular.onPrimary,
                   ),
                   onPressed: () =>
                       c.stage.value = IntroductionViewStage.password,
@@ -182,13 +182,13 @@ class IntroductionView extends StatelessWidget {
                               'assets/icons/share.svg',
                               width: 18,
                             ),
-                            style: style.fonts.bodyMedium,
+                            style: style.fonts.normal.regular.onBackground,
                           )
                         : CopyableTextField(
                             key: const Key('NumCopyable'),
                             state: c.num,
                             label: 'label_num'.l10n,
-                            style: style.fonts.headlineMedium,
+                            style: style.fonts.big.regular.onBackground,
                           ),
                   ),
                   const SizedBox(height: 25),

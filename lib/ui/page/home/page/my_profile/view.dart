@@ -337,11 +337,11 @@ Widget _emails(BuildContext context, MyProfileController c) {
                   children: [
                     TextSpan(
                       text: 'label_email_visible'.l10n,
-                      style: style.fonts.labelMediumSecondary,
+                      style: style.fonts.small.regular.secondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.labelMediumPrimary,
+                      style: style.fonts.small.regular.primary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -352,7 +352,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: style.fonts.headlineMedium,
+                                  style: style.fonts.big.regular.onBackground,
                                 ),
                               ),
                             ],
@@ -408,7 +408,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
             context,
             c.myUser.value!.emails.unconfirmed!,
           ),
-          style: style.fonts.titleMediumSecondary,
+          style: style.fonts.normal.regular.secondary,
         ),
       ]);
       widgets.add(const SizedBox(height: 8));
@@ -424,7 +424,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
           onPressed: () => AddEmailView.show(context),
-          style: style.fonts.titleMediumPrimary,
+          style: style.fonts.normal.regular.primary,
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -476,11 +476,11 @@ Widget _phones(BuildContext context, MyProfileController c) {
                   children: [
                     TextSpan(
                       text: 'label_phone_visible'.l10n,
-                      style: style.fonts.labelMediumSecondary,
+                      style: style.fonts.small.regular.secondary,
                     ),
                     TextSpan(
                       text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.labelMediumPrimary,
+                      style: style.fonts.small.regular.primary,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await ConfirmDialog.show(
@@ -491,7 +491,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'label_visible_to'.l10n,
-                                  style: style.fonts.headlineMedium,
+                                  style: style.fonts.big.regular.onBackground,
                                 ),
                               ),
                             ],
@@ -547,7 +547,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
             context,
             c.myUser.value!.phones.unconfirmed!,
           ),
-          style: style.fonts.titleMediumSecondary,
+          style: style.fonts.normal.regular.secondary,
         ),
       ]);
       widgets.add(const SizedBox(height: 8));
@@ -563,7 +563,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          style: style.fonts.titleMediumPrimary,
+          style: style.fonts.normal.regular.primary,
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -591,7 +591,7 @@ Widget _presence(BuildContext context, MyProfileController c) {
         text: presence?.localizedString(),
         trailing:
             CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: style.fonts.titleMediumPrimary,
+        style: style.fonts.normal.regular.primary,
       ),
     );
   });
@@ -616,8 +616,8 @@ Widget _password(BuildContext context, MyProfileController c) {
                 : 'btn_set_password'.l10n,
             onPressed: () => ChangePasswordView.show(context),
             style: c.myUser.value?.hasPassword != true
-                ? style.fonts.titleMediumDanger
-                : style.fonts.titleMediumPrimary,
+                ? style.fonts.normal.regular.danger
+                : style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -640,7 +640,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
             padding: const EdgeInsets.only(left: 21.0),
             child: Text(
               'label_display_timestamps'.l10n,
-              style: style.fonts.titleMediumSecondary,
+              style: style.fonts.normal.regular.secondary,
             ),
           ),
         ),
@@ -654,7 +654,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
-            style: style.fonts.titleMediumPrimary,
+            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -677,7 +677,7 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: style.fonts.titleMediumPrimary,
+            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -711,7 +711,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.fonts.titleMediumPrimary,
+            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -735,7 +735,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.fonts.titleMediumPrimary,
+            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -759,7 +759,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.fonts.titleMediumPrimary,
+            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -782,7 +782,7 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: style.fonts.titleMediumPrimary,
+      style: style.fonts.normal.regular.primary,
     ),
   );
 }
@@ -799,8 +799,8 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
           onPressed:
               c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
           style: c.blacklist.isEmpty
-              ? style.fonts.titleMedium
-              : style.fonts.titleMediumPrimary,
+              ? style.fonts.normal.regular.onBackground
+              : style.fonts.normal.regular.primary,
         ),
       ),
     ],
@@ -875,7 +875,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
             ),
           ),
           onPressed: () => _deleteAccount(c, context),
-          style: style.fonts.titleMediumPrimary,
+          style: style.fonts.normal.regular.primary,
         ),
       ),
     ],
@@ -904,7 +904,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
               padding: const EdgeInsets.only(left: 21.0),
               child: Text(
                 'label_cache'.l10n,
-                style: style.fonts.titleMediumSecondary,
+                style: style.fonts.normal.regular.secondary,
               ),
             ),
           ),
@@ -929,7 +929,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                         'a': (size / GB).toPrecision(2),
                         'b': max ~/ GB,
                       }),
-                      style: style.fonts.labelSmall,
+                      style: style.fonts.smaller.regular.onBackground,
                     ),
                   ],
                 ),
@@ -937,7 +937,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 FieldButton(
                   onPressed: c.clearCache,
                   text: 'btn_clear_cache'.l10n,
-                  style: style.fonts.titleMediumPrimary,
+                  style: style.fonts.normal.regular.primary,
                 ),
               ],
             );
@@ -961,7 +961,7 @@ Future<void> _deleteEmail(
     'label_delete_email'.l10n,
     description: [
       TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(text: email.val, style: style.fonts.labelLarge),
+      TextSpan(text: email.val, style: style.fonts.normal.regular.onBackground),
       TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
     ],
   );
@@ -984,7 +984,7 @@ Future<void> _deletePhone(
     'label_delete_phone_number'.l10n,
     description: [
       TextSpan(text: 'alert_phone_will_be_deleted1'.l10n),
-      TextSpan(text: phone.val, style: style.fonts.labelLarge),
+      TextSpan(text: phone.val, style: style.fonts.normal.regular.onBackground),
       TextSpan(text: 'alert_phone_will_be_deleted2'.l10n),
     ],
   );
@@ -1007,7 +1007,7 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
             c.myUser.value?.login?.val ??
             c.myUser.value?.num.toString() ??
             'dot'.l10n * 3,
-        style: style.fonts.labelLarge,
+        style: style.fonts.normal.regular.onBackground,
       ),
       TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
     ],

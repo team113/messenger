@@ -6,6 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.11] · 2023-??-??
+[0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
+
+[Diff](/../../compare/v0.1.0-alpha.10.1...v0.1.0-alpha.11) | [Milestone](/../../milestone/12)
+
+### Changed
+
+- UI:
+    - Updated fonts. ([#663], [#615])
+    - Style page:
+        - Redesigned typography tab. ([#663], [#615])
+
+[#615]: /../../issues/615
+[#663]: /../../pull/663
+
+
+
+
 ## [0.1.0-alpha.10.1] · 2023-10-19
 [0.1.0-alpha.10.1]: /../../tree/v0.1.0-alpha.10.1
 
