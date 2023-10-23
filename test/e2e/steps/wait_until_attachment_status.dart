@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
@@ -46,16 +47,17 @@ final StepDefinitionGeneric waitUntilAttachmentStatus =
 
         RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        Attachment attachment = chat!.messages
+        Attachment? attachment = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .expand((e) => e.attachments)
-            .firstWhere((a) => a.filename == name);
+            .firstWhereOrNull((a) => a.filename == name);
 
         Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('AttachmentStatus_${attachment.id}');
+            .findByKeySkipOffstage('AttachmentStatus_${attachment?.id}');
 
-        if (await context.world.appDriver.isPresent(finder)) {
+        if (attachment != null &&
+            await context.world.appDriver.isPresent(finder)) {
           return status == SendingStatus.sending
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
