@@ -620,10 +620,12 @@ class ChatController extends GetxController {
         }
 
         message?.attachments.whereType<ImageAttachment>().forEach((e) {
-          precacheImage(
-            CacheWorker.instance.getThumbhashProvider(e.big.thumbhash!),
-            router.context!,
-          );
+          if(e.big.thumbhash != null) {
+            precacheImage(
+              CacheWorker.instance.getThumbhashProvider(e.big.thumbhash!),
+              router.context!,
+            );
+          }
         });
 
         if (item is ChatMessage) {
