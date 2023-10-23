@@ -881,8 +881,9 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.unreadCount != previous?.unreadCount &&
-        (chat.value.unreadCount < unreadCount.value || _readTimer == null)) {
+    if (chat.value.unreadCount < unreadCount.value ||
+        (chat.value.unreadCount != previous?.unreadCount &&
+            _readTimer == null)) {
       unreadCount.value = chat.value.unreadCount;
     }
   }
