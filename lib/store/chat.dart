@@ -1370,7 +1370,7 @@ class ChatRepository extends DisposableInterface
       entry.chat.refresh();
     }
 
-    if (!paginated.containsKey(chatId)) {
+    if (pagination && !paginated.containsKey(chatId)) {
       paginated[chatId] = entry;
     }
 
