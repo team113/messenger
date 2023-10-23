@@ -256,7 +256,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
                   b.leading!,
                   const SizedBox(width: 12),
                 ],
-                Text(b.label, style: style.fonts.labelLarge),
+                Text(b.label, style: style.fonts.normal.regular.onBackground),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,

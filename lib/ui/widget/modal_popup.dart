@@ -172,7 +172,7 @@ class ModalPopupHeader extends StatelessWidget {
           if (text != null)
             Expanded(
               child: Center(
-                child: Text(text!, style: style.fonts.headlineMedium),
+                child: Text(text!, style: style.fonts.big.regular.onBackground),
               ),
             )
           else

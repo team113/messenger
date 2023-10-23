@@ -68,7 +68,10 @@ class _AnimatedDotsState extends State<AnimatedDots> {
 
     return SizedBox(
       width: 13,
-      child: Text('dot'.l10n * _count, style: style.fonts.titleMediumOnPrimary),
+      child: Text(
+        'dot'.l10n * _count,
+        style: style.fonts.normal.regular.onPrimary,
+      ),
     );
   }
 }

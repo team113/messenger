@@ -61,7 +61,7 @@ class ColorSchemaWidget extends StatelessWidget {
                 ? style.colors.onBackground
                 : style.colors.onPrimary;
             final TextStyle textStyle =
-                style.fonts.bodySmall.copyWith(color: text);
+                style.fonts.small.regular.onBackground.copyWith(color: text);
             final double paddings = context.isNarrow ? 4 : 128;
 
             return TableRow(

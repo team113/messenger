@@ -112,13 +112,13 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.toString() ??
                                   'dot'.l10n * 3,
-                              style: style.fonts.headlineMedium,
+                              style: style.fonts.big.regular.onBackground,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: style.fonts.labelMediumSecondary,
+                                style: style.fonts.small.regular.secondary,
                               );
                             }),
                           ],

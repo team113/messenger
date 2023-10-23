@@ -69,11 +69,9 @@ class ColorWidget extends StatelessWidget {
                 child: Text(
                   color.toHex(),
                   textAlign: TextAlign.start,
-                  style: style.fonts.bodySmall.copyWith(
-                    color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
+                  style: inverted
+                      ? style.fonts.small.regular.onBackground
+                      : style.fonts.small.regular.onPrimary,
                 ),
               ),
               const Spacer(),
@@ -84,8 +82,8 @@ class ColorWidget extends StatelessWidget {
                     Icons.info_outline,
                     size: 13,
                     color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
+                        ? style.colors.onBackground
+                        : style.colors.onPrimary,
                   ),
                 ),
             ],
@@ -110,11 +108,9 @@ class ColorWidget extends StatelessWidget {
                 child: Text(
                   subtitle!,
                   textAlign: TextAlign.left,
-                  style: style.fonts.labelSmall.copyWith(
-                    color: inverted
-                        ? const Color(0xFFFFFFFF)
-                        : const Color(0xFF000000),
-                  ),
+                  style: inverted
+                      ? style.fonts.smaller.regular.onBackground
+                      : style.fonts.smaller.regular.onPrimary,
                 ),
               ),
             ),
