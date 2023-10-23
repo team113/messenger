@@ -21,7 +21,6 @@ import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_thumbhash/flutter_thumbhash.dart' as thumbhash;
 
 import '/domain/model/attachment.dart';
 import '/domain/model/file.dart';
@@ -154,9 +153,6 @@ class _RetryImageState extends State<RetryImage> {
   /// Byte data of the fetched image.
   Uint8List? _image;
 
-  /// [ImageProvider] of the [RetryImage.thumbhash].
-  ImageProvider? _thumbhashImage;
-
   /// Image fetching progress.
   double _progress = 0;
 
@@ -182,11 +178,6 @@ class _RetryImageState extends State<RetryImage> {
       widget.onForbidden?.call();
     }
 
-    if (widget.thumbhash != null && _image == null) {
-      _thumbhashImage =
-          thumbhash.ThumbHash.fromBase64(widget.thumbhash!.val).toImage();
-    }
-
     super.initState();
   }
 
@@ -197,15 +188,6 @@ class _RetryImageState extends State<RetryImage> {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _loadImage();
-    }
-
-    if (oldWidget.thumbhash != widget.thumbhash) {
-      if (widget.thumbhash != null && _image == null) {
-        _thumbhashImage =
-            thumbhash.ThumbHash.fromBase64(widget.thumbhash!.val).toImage();
-      } else {
-        _thumbhashImage = null;
-      }
     }
 
     super.didUpdateWidget(oldWidget);
@@ -323,12 +305,12 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (_thumbhashImage != null && _image == null) {
+    if (widget.thumbhash != null && _image == null) {
       return Stack(
         alignment: Alignment.center,
         children: [
           Image(
-            image: _thumbhashImage!,
+            image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
             key: const Key('Thumbhash'),
             height: widget.height,
             width: widget.width,
