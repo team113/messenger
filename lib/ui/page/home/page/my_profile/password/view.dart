@@ -65,7 +65,7 @@ class ChangePasswordView extends StatelessWidget {
                         c.stage.value == ChangePasswordFlowStage.set
                             ? 'label_password_set'.l10n
                             : 'label_password_changed'.l10n,
-                        style: style.fonts.bodyMediumSecondary,
+                        style: style.fonts.normal.regular.secondary,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -74,7 +74,7 @@ class ChangePasswordView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_close'.l10n,
-                        style: style.fonts.bodyMediumOnPrimary,
+                        style: style.fonts.normal.regular.onPrimary,
                       ),
                       onPressed: Navigator.of(context).pop,
                       color: style.colors.primary,
@@ -96,7 +96,7 @@ class ChangePasswordView extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 25),
                         child: Text(
                           'label_password_not_set_info'.l10n,
-                          style: style.fonts.bodyMediumSecondary,
+                          style: style.fonts.normal.regular.secondary,
                         ),
                       )
                     else
@@ -157,8 +157,8 @@ class ChangePasswordView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: enabled
-                              ? style.fonts.bodyMediumOnPrimary
-                              : style.fonts.bodyMedium,
+                              ? style.fonts.normal.regular.onPrimary
+                              : style.fonts.normal.regular.onBackground,
                         ),
                         onPressed: enabled ? c.changePassword : null,
                         color: style.colors.primary,

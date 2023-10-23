@@ -161,7 +161,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.user.value?.user.value.name?.val ??
               participant.user.value?.user.value.num.toString() ??
               'dot'.l10n * 3,
-          style: style.fonts.bodyMediumOnPrimary,
+          style: style.fonts.normal.regular.onPrimary,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

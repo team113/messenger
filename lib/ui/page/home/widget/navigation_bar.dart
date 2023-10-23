@@ -123,7 +123,8 @@ class CustomNavigationBar extends StatelessWidget {
                                               textAlign: TextAlign.center,
                                             ),
                                           ),
-                                    textStyle: style.fonts.bodyTinyOnPrimary,
+                                    textStyle:
+                                        style.fonts.smallest.regular.onPrimary,
                                     backgroundColor:
                                         b.badgeColor ?? style.colors.danger,
                                     isLabelVisible: b.badge != null,

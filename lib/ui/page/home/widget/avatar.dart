@@ -448,9 +448,10 @@ class AvatarWidget extends StatelessWidget {
                     SelectionContainer.disabled(
                       child: Text(
                         (title ?? '??').initials(),
-                        style: style.fonts.titleSmallOnPrimary.copyWith(
-                          fontSize: style.fonts.bodyMedium.fontSize! *
-                              (maxWidth / 40.0),
+                        style: style.fonts.normal.bold.onPrimary.copyWith(
+                          fontSize:
+                              style.fonts.normal.bold.onPrimary.fontSize! *
+                                  (maxWidth / 40.0),
                         ),
 
                         // Disable the accessibility size settings for this [Text].

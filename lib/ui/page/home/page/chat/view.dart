@@ -475,7 +475,8 @@ class _ChatViewState extends State<ChatView>
                                               .l10n
                                           : 'label_no_messages'.l10n,
                                       textAlign: TextAlign.center,
-                                      style: style.fonts.labelMedium,
+                                      style: style
+                                          .fonts.small.regular.onBackground,
                                     ),
                                   ),
                                 );

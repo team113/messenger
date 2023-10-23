@@ -43,8 +43,8 @@ class PrimaryButton extends StatelessWidget {
       title: Text(
         title,
         style: onPressed == null
-            ? style.fonts.titleLarge
-            : style.fonts.titleLargeOnPrimary,
+            ? style.fonts.medium.regular.onBackground
+            : style.fonts.medium.regular.onPrimary,
       ),
       onPressed: onPressed,
       color: style.colors.primary,
