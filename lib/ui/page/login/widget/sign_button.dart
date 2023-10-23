@@ -59,8 +59,8 @@ class SignButton extends StatelessWidget {
       child: PrefixButton(
         title: title,
         style: onPressed == null
-            ? style.fonts.titleLargeSecondary
-            : style.fonts.titleLarge,
+            ? style.fonts.medium.regular.secondary
+            : style.fonts.medium.regular.onBackground,
         onPressed: onPressed,
         prefix: Padding(
           padding: const EdgeInsets.only(left: 16).add(padding),

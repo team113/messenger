@@ -42,7 +42,7 @@ class CurrentPosition extends StatelessWidget {
 
         return Text(
           'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
-          style: style.fonts.labelMediumOnPrimary,
+          style: style.fonts.small.regular.onPrimary,
         ).fixedDigits();
       },
     );

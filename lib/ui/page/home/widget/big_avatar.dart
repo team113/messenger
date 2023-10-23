@@ -135,13 +135,13 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onUpload,
                   child: Text(
                     'btn_upload'.l10n,
-                    style: style.fonts.labelSmallPrimary,
+                    style: style.fonts.smaller.regular.primary,
                   ),
                 ),
               if (widget.onUpload != null && widget.onDelete != null)
                 Text(
                   'space_or_space'.l10n,
-                  style: style.fonts.labelSmall,
+                  style: style.fonts.smaller.regular.onBackground,
                 ),
               if (widget.onDelete != null)
                 WidgetButton(
@@ -149,7 +149,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onDelete,
                   child: Text(
                     'btn_delete'.l10n.toLowerCase(),
-                    style: style.fonts.labelSmallPrimary,
+                    style: style.fonts.smaller.regular.primary,
                   ),
                 ),
             ],

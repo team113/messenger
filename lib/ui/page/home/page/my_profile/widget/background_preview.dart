@@ -115,7 +115,7 @@ class BackgroundPreview extends StatelessWidget {
                   onPressed: background == null ? onPick : onRemove,
                   child: Text(
                     background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,
-                    style: style.fonts.labelSmallPrimary,
+                    style: style.fonts.smaller.regular.primary,
                   ),
                 ),
               ],
@@ -161,7 +161,10 @@ class _MessageWidget extends StatelessWidget {
               if (text != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(text!, style: style.fonts.bodyLarge),
+                  child: Text(
+                    text!,
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
                 ),
             ],
           ),

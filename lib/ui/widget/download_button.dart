@@ -70,8 +70,8 @@ class DownloadButton extends StatelessWidget {
               ),
             ),
       style: link == null
-          ? style.fonts.titleMedium
-          : style.fonts.titleMediumPrimary,
+          ? style.fonts.normal.regular.onBackground
+          : style.fonts.normal.regular.primary,
     );
   }
 }

@@ -190,7 +190,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       mirror: widget.renderer.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
-      autoRotate: widget.renderer.autoRotate,
     );
 
     // Wait for the size to be determined if necessary.
@@ -324,7 +323,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                       child: Text(
                                         widget.label!,
                                         style:
-                                            style.fonts.headlineSmallOnPrimary,
+                                            style.fonts.small.regular.onPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),
