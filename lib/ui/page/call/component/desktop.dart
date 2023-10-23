@@ -1975,13 +1975,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                           ? style.colors.onBackgroundOpacity27
                                           : style.colors.onBackgroundOpacity50,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: style.colors.onPrimary,
-                                      ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),

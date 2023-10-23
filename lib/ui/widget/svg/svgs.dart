@@ -846,34 +846,75 @@ class SvgIcons {
     height: 32,
   );
 
-  // TODO
   static const SvgData callParticipants = SvgData(
     'assets/icons/call_participants.svg',
     width: 29.36,
     height: 26.83,
   );
 
-  // TODO
   static const SvgData callIncomingVideoOn = SvgData(
     'assets/icons/incoming_video_on.svg',
-    width: 60,
+    width: 28.78,
+    height: 28,
   );
 
-  // TODO
   static const SvgData callIncomingVideoOff = SvgData(
     'assets/icons/incoming_video_off.svg',
-    width: 60,
+    width: 28.78,
+    height: 28,
   );
 
-  // TODO
   static const SvgData callIncomingAudioOn = SvgData(
     'assets/icons/speaker_on.svg',
-    width: 60,
+    width: 27.89,
+    height: 25,
   );
 
-  // TODO
   static const SvgData callIncomingAudioOff = SvgData(
     'assets/icons/speaker_off.svg',
-    width: 60,
+    width: 27.89,
+    height: 25,
+  );
+
+  static const SvgData addBig = SvgData(
+    'assets/icons/add_big.svg',
+    width: 20.4,
+    height: 20.4,
+  );
+
+  static const SvgData addBigger = SvgData(
+    'assets/icons/add_bigger.svg',
+    width: 29,
+    height: 29,
+  );
+
+  static const SvgData audioOffSmall = SvgData(
+    'assets/icons/audio_off_small.svg',
+    width: 16.73,
+    height: 15,
+  );
+
+  static const SvgData microphoneOffSmall = SvgData(
+    'assets/icons/microphone_off_small.svg',
+    width: 15,
+    height: 15,
+  );
+
+  static const SvgData lowSignalSmall = SvgData(
+    'assets/icons/low_signal_level.svg',
+    width: 12.19,
+    height: 14,
+  );
+
+  static const SvgData screenShareSmall = SvgData(
+    'assets/icons/screen_share_small.svg',
+    width: 15.53,
+    height: 12.2,
+  );
+
+  static const SvgData videoOffSmall = SvgData(
+    'assets/icons/video_off_small.svg',
+    width: 19.89,
+    height: 17,
   );
 }

@@ -486,7 +486,7 @@ class WelcomeMessageView extends StatelessWidget {
               //                     child: const Padding(
               //                       padding: EdgeInsets.all(16),
               //                       child: Icon(
-              //                         Icons.add_rounded,
+
               //                         size: 50,
               //                         color: Colors.white,
               //                       ),

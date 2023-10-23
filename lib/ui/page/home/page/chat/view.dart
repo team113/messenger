@@ -46,7 +46,6 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -707,13 +706,9 @@ class _ChatViewState extends State<ChatView>
                                           color: style
                                               .colors.onBackgroundOpacity27,
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Icon(
-                                            Icons.add_rounded,
-                                            size: 50,
-                                            color: style.colors.onPrimary,
-                                          ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: SvgIcon(SvgIcons.addBigger),
                                         ),
                                       ),
                                     ),

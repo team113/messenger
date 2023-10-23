@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -160,13 +161,9 @@ class ChatForwardView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                       color: style.colors.onBackgroundOpacity27,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: style.colors.onPrimary,
-                                      ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),

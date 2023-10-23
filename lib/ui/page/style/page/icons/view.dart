@@ -26,6 +26,7 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/call_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/call/widget/drop_box.dart';
 import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -1235,6 +1236,92 @@ class _WidgetsViewState extends State<IconsView> {
                     ),
                   );
                 }).toList(),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: style.colors.onBackgroundOpacity50,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: AnimatedButton(
+                    onPressed: () => c.icon.value = IconDetails(
+                      SvgIcons.addBigger.asset,
+                      invert: true,
+                    ),
+                    child: const SvgIcon(SvgIcons.addBigger),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: style.colors.onBackgroundOpacity50,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: AnimatedButton(
+                    onPressed: () => c.icon.value = IconDetails(
+                      SvgIcons.addBig.asset,
+                      invert: true,
+                    ),
+                    child: const SvgIcon(SvgIcons.addBig),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Container(
+                key: const Key('Tooltip'),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity13,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: style.colors.primaryDarkOpacity70,
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 6,
+                    right: 6,
+                    top: 4,
+                    bottom: 4,
+                  ),
+                  height: 32,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgIcons.audioOffSmall,
+                      SvgIcons.microphoneOffSmall,
+                      SvgIcons.screenShareSmall,
+                      SvgIcons.videoOffSmall,
+                      SvgIcons.lowSignalSmall,
+                    ].map((e) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        child: AnimatedButton(
+                          onPressed: () =>
+                              c.icon.value = IconDetails(e.asset, invert: true),
+                          child: SvgIcon(e),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ],
           ),
