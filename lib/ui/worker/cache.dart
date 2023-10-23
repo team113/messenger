@@ -209,9 +209,15 @@ class CacheWorker extends DisposableService {
 
   /// Returns the [ImageProvider] for the provided [thumbhash].
   ImageProvider getThumbhashProvider(ThumbHash thumbhash) {
-    return _thumbhashProviders[thumbhash] ??
+    ImageProvider thumbhashProvider = _thumbhashProviders[thumbhash] ??
         (_thumbhashProviders[thumbhash] =
             t.ThumbHash.fromBase64(thumbhash.val).toImage());
+
+    if (_thumbhashProviders.length > 100) {
+      _thumbhashProviders.remove(_thumbhashProviders.keys.first);
+    }
+
+    return thumbhashProvider;
   }
 
   /// Adds the provided [data] to the cache.
