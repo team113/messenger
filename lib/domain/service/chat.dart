@@ -199,9 +199,23 @@ class ChatService extends DisposableService {
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessage(
     ChatMessage item, {
-    ChatMessageTextInput? text,
-  }) =>
-      _chatRepository.editChatMessage(item, text: text);
+    required ChatMessageTextInput text,
+    required ChatMessageAttachmentsInput attachments,
+    required ChatMessageRepliesInput repliesTo,
+  }) {
+    if (attachments.changed.isEmpty &&
+        text.changed.val.isEmpty &&
+        repliesTo.changed.isNotEmpty) {
+      text = const ChatMessageTextInput(ChatMessageText(' '));
+    }
+
+    return _chatRepository.editChatMessage(
+      item,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteChatItem(ChatItem item) async {

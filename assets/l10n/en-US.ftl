@@ -722,6 +722,7 @@ label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
+label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created

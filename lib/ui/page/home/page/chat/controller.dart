@@ -28,7 +28,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' hide ChatItemQuoteInput, ChatMessageTextInput;
+import '/api/backend/schema.dart'
+    hide
+        ChatItemQuoteInput,
+        ChatMessageTextInput,
+        ChatMessageAttachmentsInput,
+        ChatMessageRepliesInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -506,20 +511,27 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
-          if (edit.value?.field.text == item.text?.val) {
+          if (edit.value?.field.text.trim() == item.text?.val &&
+              edit.value?.attachments.length == item.attachments.length &&
+              edit.value?.replied.length == item.repliesTo.length) {
             edit.value?.onClose();
             edit.value = null;
-          } else if (edit.value!.field.text.isNotEmpty ||
-              item.attachments.isNotEmpty) {
-            ChatMessageText? text;
-            if (edit.value!.field.text.isNotEmpty) {
-              text = ChatMessageText(edit.value!.field.text);
-            }
+          } else if (edit.value!.field.text.trim().isNotEmpty ||
+              edit.value!.attachments.isNotEmpty ||
+              edit.value!.replied.isNotEmpty) {
+            ChatMessageText? text =
+                ChatMessageText(edit.value!.field.text.trim());
+            List<AttachmentId>? attachments =
+                edit.value!.attachments.map((e) => e.value.id).toList();
+            List<ChatItemId>? repliesTo =
+                edit.value!.replied.map((e) => e.id).toList();
 
             try {
               await _chatService.editChatMessage(
                 item,
-                text: text == null ? null : ChatMessageTextInput(text),
+                text: ChatMessageTextInput(text),
+                attachments: ChatMessageAttachmentsInput(attachments),
+                repliesTo: ChatMessageRepliesInput(repliesTo),
               );
 
               edit.value?.onClose();

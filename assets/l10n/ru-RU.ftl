@@ -748,6 +748,7 @@ label_media_section_hint = Аудио и видео устройства
 label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
+label_message_editing = Редактирование сообщения
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
 label_microphone_changed = Микрофон был изменён на {$microphone}
 label_monolog_created = Чат создан

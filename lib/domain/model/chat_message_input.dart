@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'attachment.dart';
 import 'chat_item.dart';
 
 /// New text to assign to the [ChatMessage].
@@ -24,5 +25,21 @@ class ChatMessageTextInput {
   /// New [ChatMessageText].
   ///
   /// `null` means that the previous [ChatMessageText] should be deleted.
-  final ChatMessageText? changed;
+  final ChatMessageText changed;
+}
+
+/// New attachments to assign to the [ChatMessage].
+class ChatMessageAttachmentsInput {
+  const ChatMessageAttachmentsInput(this.changed);
+
+  /// New [Attachment] IDs.
+  final List<AttachmentId> changed;
+}
+
+/// New replies to assign to the [ChatMessage].
+class ChatMessageRepliesInput {
+  const ChatMessageRepliesInput(this.changed);
+
+  /// New replies IDs.
+  final List<ChatItemId> changed;
 }

@@ -34,6 +34,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
@@ -510,29 +511,49 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> editChatMessage(
     ChatMessage message, {
-    model.ChatMessageTextInput? text,
+    required model.ChatMessageTextInput text,
+    required model.ChatMessageAttachmentsInput attachments,
+    required model.ChatMessageRepliesInput repliesTo,
   }) async {
     final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
 
-    ChatMessageText? previous;
+    ChatMessageText? previousText;
+    List<Attachment>? previousAttachments;
+    List<ChatItemQuote>? previousReplies;
     if (item?.value is ChatMessage) {
-      previous = (item?.value as ChatMessage).text;
+      previousText = (item?.value as ChatMessage).text;
+      previousAttachments = (item?.value as ChatMessage).attachments;
+      previousReplies = (item?.value as ChatMessage).repliesTo;
 
-      if (text != null) {
-        item?.update((c) => (c as ChatMessage?)?.text = text.changed);
-      }
+      item?.update((c) {
+        (c as ChatMessage?)?.text = text.changed;
+
+        c?.attachments
+            .removeWhere((e) => attachments.changed.none((c) => c == e.id));
+
+        c?.repliesTo.removeWhere(
+          (e) => repliesTo.changed
+              .none((c) => e.original == null || c == e.original?.id),
+        );
+      });
     }
 
     try {
       await _graphQlProvider.editChatMessage(
         message.id,
-        text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
+        text: ChatMessageTextInput(kw$new: text.changed.val.isNotEmpty ? text.changed : null),
+        attachments: ChatMessageAttachmentsInput(kw$new: attachments.changed),
+        repliesTo: ChatMessageRepliesInput(kw$new: repliesTo.changed),
       );
     } catch (_) {
       if (item?.value is ChatMessage) {
-        item?.update((c) => (c as ChatMessage?)?.text = previous);
+        item?.update((c) {
+          (c as ChatMessage?)?.text = previousText;
+          c?.attachments = previousAttachments ?? [];
+          c?.repliesTo = previousReplies ?? [];
+        });
       }
 
       rethrow;
