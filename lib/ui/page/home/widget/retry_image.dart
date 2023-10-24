@@ -81,6 +81,14 @@ class RetryImage extends StatefulWidget {
       image = attachment.big;
     }
 
+    if ((width == null || width == double.infinity) &&
+        height != null &&
+        height != double.infinity &&
+        image.height != null &&
+        image.width != null) {
+      width = height * (image.width! / image.height!);
+    }
+
     return RetryImage(
       image.url,
       checksum: image.checksum,
@@ -305,7 +313,7 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (widget.thumbhash != null && _image == null) {
+    if (widget.thumbhash != null) {
       return Stack(
         alignment: Alignment.center,
         children: [
@@ -314,7 +322,7 @@ class _RetryImageState extends State<RetryImage> {
             key: const Key('Thumbhash'),
             height: widget.height,
             width: widget.width,
-            fit: BoxFit.cover,
+            fit: widget.fit ?? BoxFit.cover,
           ),
           Positioned.fill(
             child: Center(
