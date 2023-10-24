@@ -718,14 +718,16 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
-label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+label_introduction_description1 =
+    Доступ к одноразовому аккаунту сохраняется в течение одного года или пока:
 
-        • Вы не удалите пользовательские данные из приложения (браузера);
+        • Вы не удалите куки / кэш;
 
         • Вы не нажмёте кнопку "Выйти".
 
-    Чтобы не потерять доступ к аккаунту, задайте пароль.
+    Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
+label_introduction_description2 = настройках
+label_introduction_description3 = {" "}задайте пароль, e-mail или номер телефона.
 label_kb = {$amount} КБ
 label_language = Язык
 label_language_entry = {$code}, {$name}
@@ -789,6 +791,7 @@ label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_offline = офлайн
+label_one_time_account_created = Одноразовый аккаунт создан
 label_online = онлайн
 label_open_calls_in_app = Отображать звонки в окне приложения.
 label_open_calls_in_window = Отображать звонки в отдельном окне.

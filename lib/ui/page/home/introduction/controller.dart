@@ -15,25 +15,34 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
-import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
+import '/provider/gql/exceptions.dart'
+    show
+        ConfirmUserEmailException,
+        CreateChatDirectLinkException,
+        UpdateUserPasswordException;
 import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 /// Possible [IntroductionViewStage] flow stage.
 enum IntroductionViewStage {
   password,
   success,
+  signUp,
 }
 
 /// Controller of an [IntroductionView].
 class IntroductionController extends GetxController {
-  IntroductionController(this._myUser);
+  IntroductionController(this._myUserService);
 
   /// [IntroductionViewStage] currently being displayed.
   final Rx<IntroductionViewStage?> stage = Rx(null);
@@ -56,16 +65,93 @@ class IntroductionController extends GetxController {
   /// Indicator whether the [repeat]ed password should be obscured.
   final RxBool obscureRepeat = RxBool(true);
 
+  /// Indicator whether [UserEmail] confirmation code has been resent.
+  final RxBool resent = RxBool(false);
+
+  /// Timeout of a [resendEmail].
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  late final TextFieldState emailCode = TextFieldState(
+    onChanged: (s) {
+      s.error.value = null;
+      s.unsubmit();
+    },
+    onSubmitted: (s) async {
+      if (s.text.isEmpty) {
+        s.error.value = 'err_wrong_recovery_code'.l10n;
+      }
+
+      if (s.error.value == null) {
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
+        try {
+          await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
+          s.clear();
+        } on FormatException {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        } on ConfirmUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.unsubmit();
+          rethrow;
+        } finally {
+          s.editable.value = true;
+          s.status.value = RxStatus.empty();
+        }
+      }
+    },
+  );
+
+  late final TextFieldState link = TextFieldState(
+    text:
+        '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? ChatDirectLinkSlug.generate(10).val}',
+    editable: false,
+  );
+
+  late final String _origin =
+      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
+
+  Future<void> copyLink({void Function()? onSuccess}) async {
+    if (myUser.value?.chatDirectLink?.slug.val == link.text) {
+      onSuccess?.call();
+      return;
+    }
+
+    if (!link.status.value.isEmpty) {
+      return;
+    }
+
+    link.status.value = RxStatus.loading();
+
+    try {
+      await _myUserService.createChatDirectLink(ChatDirectLinkSlug(link.text));
+      link.status.value = RxStatus.success();
+
+      onSuccess?.call();
+
+      await Future.delayed(const Duration(seconds: 1));
+      link.status.value = RxStatus.empty();
+    } on CreateChatDirectLinkException catch (e) {
+      link.status.value = RxStatus.empty();
+      link.error.value = e.toMessage();
+    } catch (e) {
+      link.status.value = RxStatus.empty();
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// [MyUserService] setting the password.
-  final MyUserService _myUser;
+  final MyUserService _myUserService;
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUser.myUser;
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
     num = TextFieldState(
-      text: _myUser.myUser.value!.num.toString(),
+      text: _myUserService.myUser.value!.num.toString(),
       editable: false,
     );
 
@@ -142,7 +228,8 @@ class IntroductionController extends GetxController {
     password.editable.value = false;
     repeat.editable.value = false;
     try {
-      await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
+      await _myUserService.updateUserPassword(
+          newPassword: UserPassword(repeat.text));
       stage.value = IntroductionViewStage.success;
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();

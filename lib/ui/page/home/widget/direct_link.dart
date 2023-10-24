@@ -37,10 +37,24 @@ import '/util/platform_utils.dart';
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(this.link, {super.key, this.onSubmit});
+  const DirectLinkField(
+    this.link, {
+    super.key,
+    this.slug,
+    this.labelAsOrigin = true,
+    this.onSubmit,
+  });
 
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
+
+  /// [String] to generate [ChatDirectLinkSlug] from.
+  ///
+  /// If `null`, then [ChatDirectLinkSlug.generate] is used.
+  final String? slug;
+
+  /// Indicator, whether [Config.origin] part should be printed as a label.
+  final bool labelAsOrigin;
 
   /// Callback, called when [ChatDirectLinkSlug] is submitted.
   final FutureOr<void> Function(ChatDirectLinkSlug)? onSubmit;
@@ -54,13 +68,17 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   /// Generated [ChatDirectLinkSlug], used in the [_state], if any.
   String? _generated;
 
+  /// [Config.origin] without its protocol.
+  final String _origin =
+      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
+
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
 
   @override
   void initState() {
     if (widget.link == null) {
-      _generated = ChatDirectLinkSlug.generate(10).val;
+      _generated = widget.slug ?? ChatDirectLinkSlug.generate(10).val;
     }
 
     _state = TextFieldState(
@@ -137,6 +155,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
+          prefixText: _origin,
           onSuffixPressed: _state.isEmpty.value
               ? null
               : () {
@@ -150,15 +169,14 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               ? null
               : Transform.translate(
                   offset: const Offset(0, -1),
-                  child: Transform.scale(
-                    scale: 1.15,
-                    child: const SvgImage.asset(
-                      'assets/icons/copy.svg',
-                      height: 15,
-                    ),
+                  child: const SvgImage.asset(
+                    'assets/icons/copy.svg',
+                    height: 17.25,
                   ),
                 ),
-          label: '${Config.origin}/',
+          label: widget.labelAsOrigin
+              ? '${Config.origin}/'
+              : 'label_your_direct_link'.l10n,
           subtitle: RichText(
             text: TextSpan(
               style: style.fonts.small.regular.onBackground,
