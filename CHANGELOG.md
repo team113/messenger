@@ -17,8 +17,14 @@ All user visible changes to this project will be documented in this file. This p
     - Updated fonts. ([#663], [#615])
     - Style page:
         - Redesigned typography tab. ([#663], [#615])
+    - Chat page:
+        - Display message field while loading. ([#662], [#634])
+- Web:
+    - Updated loading animation. ([#662], [#634])
 
 [#615]: /../../issues/615
+[#634]: /../../issues/634
+[#662]: /../../pull/662
 [#663]: /../../pull/663
 
 
@@ -40,9 +46,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Attachments panel smoothly appearing and disappearing. ([#657], [#641])
         - Updated messages color. ([#656])
-        - Updated loading animation. ([#662], [#634])
-- Web:
-    - Updated loading animation on initial page. ([#662], [#634])
 
 ### Fixed
 
@@ -59,11 +62,9 @@ All user visible changes to this project will be documented in this file. This p
 [#525]: /../../issues/525
 [#548]: /../../issues/548
 [#628]: /../../pull/628
-[#634]: /../../issues/634
 [#641]: /../../pull/641
 [#656]: /../../pull/656
 [#657]: /../../pull/657
-[#662]: /../../pull/662
 
 
 

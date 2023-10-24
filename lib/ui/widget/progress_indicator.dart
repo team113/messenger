@@ -33,7 +33,7 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = true,
         backgroundColor = null,
         valueColor = null,
-        primaryColor = false,
+        primary = false,
         strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `primary` style.
@@ -43,7 +43,7 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = false,
         backgroundColor = null,
         valueColor = null,
-        primaryColor = true,
+        primary = true,
         strokeWidth = 2;
 
   /// Constructs a [CustomProgressIndicator] with a `big` style.
@@ -53,7 +53,7 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = true,
         backgroundColor = null,
         valueColor = null,
-        primaryColor = false,
+        primary = false,
         strokeWidth = 2.0;
 
   /// Value of this [CustomProgressIndicator].
@@ -62,8 +62,9 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Background [Color] of this [CustomProgressIndicator].
   final Color? backgroundColor;
 
-  /// Indicator whether the [Palette.primary] color should be used.
-  final bool primaryColor;
+  /// Indicator whether this [CustomProgressIndicator] is primary, meaning
+  /// [Palette.primary] should be used.
+  final bool primary;
 
   /// [Animation] animating the [color] of this [CustomProgressIndicator].
   final Animation<Color?>? valueColor;
@@ -94,7 +95,7 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: Config.disableInfiniteAnimations ? 0 : value,
-          color: primaryColor
+          color: primary
               ? style.colors.primary
               : style.colors.secondaryHighlightDarkest,
           backgroundColor:
