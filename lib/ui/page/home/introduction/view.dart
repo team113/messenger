@@ -21,8 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/widget/direct_link.dart';
-import 'package:messenger/ui/page/work/widget/share_icon_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -42,11 +40,23 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class IntroductionView extends StatelessWidget {
-  const IntroductionView({super.key});
+  const IntroductionView({
+    super.key,
+    this.initial = IntroductionViewStage.oneTime,
+  });
+
+  /// Initial [IntroductionViewStage] to display.
+  final IntroductionViewStage initial;
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const IntroductionView());
+  static Future<T?> show<T>(
+    BuildContext context, {
+    IntroductionViewStage initial = IntroductionViewStage.oneTime,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: IntroductionView(initial: initial),
+    );
   }
 
   @override
@@ -55,7 +65,7 @@ class IntroductionView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('IntroductionView'),
-      init: IntroductionController(Get.find()),
+      init: IntroductionController(Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
           List<Widget> numId() {
@@ -120,94 +130,7 @@ class IntroductionView extends StatelessWidget {
               ];
               break;
 
-            case IntroductionViewStage.password:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
-                text: 'label_one_time_account_created'.l10n,
-              );
-
-              children = [
-                ...numId(),
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    'btn_set_password'.l10n,
-                    style: style.fonts.big.regular.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  style: style.fonts.big.regular.onBackground,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ReactiveTextField(
-                  key: const Key('RepeatPasswordField'),
-                  state: c.repeat,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeat.value,
-                  style: style.fonts.normal.regular.onBackground,
-                  onSuffixPressed: c.obscureRepeat.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                OutlinedRoundedButton(
-                  key: const Key('ChangePasswordButton'),
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: c.password.isEmpty.value || c.repeat.isEmpty.value
-                        ? style.fonts.normal.regular.onBackground
-                        : style.fonts.normal.regular.onPrimary,
-                  ),
-                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
-                      ? null
-                      : c.setPassword,
-                  color: style.colors.primary,
-                ),
-              ];
-              break;
-
-            case IntroductionViewStage.success:
-              header = ModalPopupHeader(
-                text: 'label_one_time_account_created'.l10n,
-              );
-
-              children = [
-                ...numId(),
-                Text(
-                  'label_password_set'.l10n,
-                  style: style.fonts.medium.regular.secondary,
-                ),
-                const SizedBox(height: 25),
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('CloseButton'),
-                    maxWidth: double.infinity,
-                    title: Text(
-                      'btn_close'.l10n,
-                      style: style.fonts.normal.regular.onPrimary,
-                    ),
-                    onPressed: Navigator.of(context).pop,
-                    color: style.colors.primary,
-                  ),
-                ),
-              ];
-              break;
-
-            default:
+            case IntroductionViewStage.oneTime:
               header = ModalPopupHeader(
                 text: 'label_one_time_account_created'.l10n,
               );
@@ -258,7 +181,7 @@ class IntroductionView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
-              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+              key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
@@ -279,35 +202,14 @@ class IntroductionView extends StatelessWidget {
   }
 
   Widget _link(IntroductionController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return ReactiveTextField(
       state: c.link,
       onSuffixPressed: () {
         // TODO: Create link and copy/share it.
       },
-      onCopied: (_, __) {
+      onCopied: (_, __) async {
         // TODO: Create link and copy/share it.
-      },
-      trailing: PlatformUtils.isMobile
-          ? const SvgImage.asset(
-              'assets/icons/share_thick.svg',
-              width: 17.54,
-              height: 18.36,
-            )
-          : const SvgImage.asset('assets/icons/copy.svg', height: 17.25),
-      label: 'label_your_direct_link'.l10n,
-    );
 
-    return ReactiveTextField(
-      key: const Key('LinkField'),
-      state: TextFieldState(
-        text:
-            '${Config.origin.replaceFirst('https://', '').replaceFirst('http://', '')}${Routes.chatDirectLink}/${c.link.text}',
-        editable: false,
-      ),
-      style: style.fonts.normal.regular.onBackground,
-      onSuffixPressed: () async {
         await c.copyLink(
           onSuccess: () async {
             final link =
@@ -322,7 +224,6 @@ class IntroductionView extends StatelessWidget {
           },
         );
       },
-      // trailing: const ShareIconButton(''),
       trailing: PlatformUtils.isMobile
           ? const SvgImage.asset(
               'assets/icons/share_thick.svg',
@@ -330,7 +231,6 @@ class IntroductionView extends StatelessWidget {
               height: 18.36,
             )
           : const SvgImage.asset('assets/icons/copy.svg', height: 17.25),
-
       label: 'label_your_direct_link'.l10n,
     );
   }
