@@ -26,7 +26,6 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/call_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/call/widget/drop_box.dart';
 import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -118,6 +117,9 @@ class _WidgetsViewState extends State<IconsView> {
             ],
           ),
           const SizedBox(height: 8),
+          // Block(
+          //   children: SvgIcons.head.map((e) => AnimatedButton(child: SvgIcon(data))).toList(),
+          // ),
           Block(
             children: [
               _appBar(
@@ -1327,99 +1329,38 @@ class _WidgetsViewState extends State<IconsView> {
           ),
           Block(
             children: [
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () => c.icon.value =
-                      IconDetails(SvgIcons.publicInformation.asset),
-                  child: const SvgIcon(SvgIcons.publicInformation),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                inverted: true,
-                leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails(
-                    SvgIcons.publicInformationWhite.asset,
-                    invert: true,
-                  ),
-                  child: const SvgIcon(SvgIcons.publicInformationWhite),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuSigning.asset),
-                  child: const SvgIcon(SvgIcons.menuSigning),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuLink.asset),
-                  child: const SvgIcon(SvgIcons.menuLink),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
+              ...[
+                SvgIcons.menuProfile,
+                SvgIcons.menuSigning,
+                SvgIcons.menuLink,
+                SvgIcons.menuBackground,
+                SvgIcons.menuChats,
+                SvgIcons.menuCalls,
+                SvgIcons.menuMedia,
+                SvgIcons.menuWelcome,
+                SvgIcons.menuPayment,
+                SvgIcons.menuDonate,
+                SvgIcons.menuNotifications,
+                SvgIcons.menuStorage,
+                SvgIcons.menuLanguage,
+                SvgIcons.menuBlocklist,
+                SvgIcons.menuDevices,
+                SvgIcons.menuWork,
+                SvgIcons.menuDownload,
+                SvgIcons.menuDanger,
+                SvgIcons.menuStyle,
+                SvgIcons.menuLogout,
+              ].map(
+                (e) => MenuButton(
                   leading: AnimatedButton(
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.menuBackground.asset),
-                child: const SvgIcon(SvgIcons.menuBackground),
-              )),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuChats.asset),
-                  child: const SvgIcon(SvgIcons.menuChats),
+                    onPressed: () => c.icon.value = IconDetails(e.asset),
+                    child: SvgIcon(e),
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuCalls.asset),
-                  child: const SvgIcon(SvgIcons.menuCalls),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                leading: AnimatedButton(
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.menuMedia.asset),
-                  child: const SvgIcon(SvgIcons.menuMedia),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.welcome)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.getPaid)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.donates)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.notifications)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.storage)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.language)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.blocklist)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.devices)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.vacancies)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.download)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.danger)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.styles)),
-              const SizedBox(height: 8),
-              MenuButton(leading: RectangleIcon.tab(ProfileTab.logout)),
             ],
           ),
+
           const SizedBox(height: 120),
         ];
 

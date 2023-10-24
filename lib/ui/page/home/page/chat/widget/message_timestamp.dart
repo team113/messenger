@@ -33,6 +33,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.date = false,
     this.read = false,
+    this.halfRead = false,
     this.delivered = false,
     this.inverted = false,
     this.fontSize,
@@ -52,6 +53,8 @@ class MessageTimestamp extends StatelessWidget {
   /// Indicator whether this [MessageTimestamp] is considered to be read,
   /// meaning it should display an appropriate icon.
   final bool read;
+
+  final bool halfRead;
 
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
   /// meaning it should display an appropriate icon.
@@ -126,7 +129,9 @@ class MessageTimestamp extends StatelessWidget {
             (isSent || isDelivered || isRead || isSending || isError)) ...[
           SvgIcon(
             isRead
-                ? SvgIcons.readSmall
+                ? halfRead
+                    ? SvgIcons.halfReadSmall
+                    : SvgIcons.readSmall
                 : isDelivered
                     ? SvgIcons.deliveredSmall
                     : isSending

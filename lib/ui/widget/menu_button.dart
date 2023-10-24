@@ -88,17 +88,26 @@ class MenuButton extends StatelessWidget {
           ProfileTab.logout => 'label_end_session'.l10n,
         },
         leading = switch (tab) {
-          ProfileTab.public => SvgIcon(
-              inverted
-                  ? SvgIcons.publicInformationWhite
-                  : SvgIcons.publicInformation,
-            ),
-          ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
-          ProfileTab.link => const SvgIcon(SvgIcons.menuLink),
-          ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
+           ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
           ProfileTab.background => const SvgIcon(SvgIcons.menuBackground),
-          ProfileTab.media => const SvgIcon(SvgIcons.menuMedia),
+          ProfileTab.blocklist => const SvgIcon(SvgIcons.menuBlocklist),
           ProfileTab.calls => const SvgIcon(SvgIcons.menuCalls),
+          ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
+          ProfileTab.danger => const SvgIcon(SvgIcons.menuDanger),
+          ProfileTab.devices => const SvgIcon(SvgIcons.menuDevices),
+          ProfileTab.donates => const SvgIcon(SvgIcons.menuDonate),
+          ProfileTab.download => const SvgIcon(SvgIcons.menuDownload),
+          ProfileTab.language => const SvgIcon(SvgIcons.menuLanguage),
+          ProfileTab.link => const SvgIcon(SvgIcons.menuLink),
+          ProfileTab.logout => const SvgIcon(SvgIcons.menuLogout),
+          ProfileTab.media => const SvgIcon(SvgIcons.menuMedia),
+          ProfileTab.notifications => const SvgIcon(SvgIcons.menuNotifications),
+          ProfileTab.getPaid => const SvgIcon(SvgIcons.menuPayment),
+          ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
+          ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
+          ProfileTab.styles => const SvgIcon(SvgIcons.menuStyle),
+          ProfileTab.welcome => const SvgIcon(SvgIcons.menuWelcome),
+          ProfileTab.vacancies => const SvgIcon(SvgIcons.menuWork),
           (_) => RectangleIcon.tab(tab),
         },
         super(
@@ -165,9 +174,8 @@ class MenuButton extends StatelessWidget {
             child: InkWell(
               borderRadius: style.cardRadius,
               onTap: onPressed,
-              hoverColor: inverted
-                  ? style.colors.primary
-                  : style.cardColor.darken(0.03),
+              hoverColor:
+                  inverted ? style.colors.primary : style.cardHoveredColor,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Row(

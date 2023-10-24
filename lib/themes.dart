@@ -79,7 +79,7 @@ class Themes {
 
     final TextStyle textStyle = TextStyle(
       fontFamily: 'NotoSansDisplay',
-      fontFamilyFallback: const ['.SF UI Display'],
+      // fontFamilyFallback: const ['.SF UI Display'],
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,

@@ -762,8 +762,6 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context, bool inverted) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -773,6 +771,16 @@ class RecentChatTile extends StatelessWidget {
         final bool isSent = item.status.value == SendingStatus.sent;
         final bool isRead =
             chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
+        final bool isHalfRead = isSent &&
+            chat.members.any((e) {
+              if (e.user.id == me) {
+                return false;
+              }
+
+              final LastChatRead? read = chat.lastReads
+                  .firstWhereOrNull((m) => m.memberId == e.user.id);
+              return read == null || read.at.isBefore(item.at);
+            });
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
@@ -781,9 +789,13 @@ class RecentChatTile extends StatelessWidget {
           padding: const EdgeInsets.only(right: 4),
           child: SvgIcon(
             isRead
-                ? inverted
-                    ? SvgIcons.readWhite
-                    : SvgIcons.read
+                ? isHalfRead
+                    ? inverted
+                        ? SvgIcons.halfReadWhite
+                        : SvgIcons.halfRead
+                    : inverted
+                        ? SvgIcons.readWhite
+                        : SvgIcons.read
                 : isDelivered
                     ? inverted
                         ? SvgIcons.deliveredWhite
@@ -797,29 +809,6 @@ class RecentChatTile extends StatelessWidget {
                         : inverted
                             ? SvgIcons.sentWhite
                             : SvgIcons.sent,
-          ),
-        );
-
-        return Padding(
-          padding: const EdgeInsets.only(right: 4),
-          child: Icon(
-            isRead || isDelivered
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? inverted
-                    ? style.colors.onPrimary
-                    : style.colors.primary
-                : isError
-                    ? style.colors.dangerColor
-                    : inverted
-                        ? style.colors.onPrimary
-                        : style.colors.secondary,
-            size: 16,
           ),
         );
       }

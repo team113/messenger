@@ -270,7 +270,7 @@ class _WidgetsViewState extends State<WidgetsView> {
     return [
       _headline(
         top: false,
-        subtitle: _downloadButton('head0000.svg', prefix: 'logo'),
+        subtitle: _downloadButton('head_0.svg', prefix: 'logo'),
         child: const InteractiveLogo(),
       ),
       _headline(

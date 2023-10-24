@@ -404,6 +404,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
+  /// Indicates whether this [ChatItem] was read by any [User].
+  bool get _isHalfRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    return chat.members.any((e) {
+      if (e.user.id == widget.me) {
+        return false;
+      }
+
+      final LastChatRead? read =
+          chat.lastReads.firstWhereOrNull((m) => m.memberId == e.user.id);
+      return read == null || read.at.isBefore(widget.item.value.at);
+    });
+  }
+
   /// Returns the [UserId] of [User] posted this [ChatItem].
   UserId get _author => widget.item.value.author.id;
 
@@ -1899,6 +1917,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ? item.status.value
               : null,
           read: _isRead || isMonolog,
+          halfRead: _isRead && _isHalfRead,
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,

@@ -55,7 +55,7 @@ class _InteractiveLogoState extends State<InteractiveLogo> {
     return Listener(
       onPointerDown: (_) => _animate(),
       child: SvgImage.asset(
-        'assets/images/logo/head000$_frame.svg',
+        'assets/images/logo/head_$_frame.svg',
         height: 134,
         fit: BoxFit.contain,
         placeholderBuilder: (context) {
