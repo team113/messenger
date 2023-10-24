@@ -161,6 +161,9 @@ class _RetryImageState extends State<RetryImage> {
   /// Byte data of the fetched image.
   Uint8List? _image;
 
+  /// Indicator whether the [_image] has been initialized.
+  bool _imageInitialized = false;
+
   /// Image fetching progress.
   double _progress = 0;
 
@@ -230,6 +233,12 @@ class _RetryImageState extends State<RetryImage> {
           height: widget.height,
           width: widget.width,
           fit: widget.fit,
+          frameBuilder: (_, child, frame, ____) {
+            if(frame != null && _imageInitialized == false) {
+              _imageInitialized = true;
+            }
+            return child;
+          },
         );
       }
 
@@ -313,7 +322,7 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (widget.thumbhash != null) {
+    if (widget.thumbhash != null && _imageInitialized == false) {
       return Stack(
         alignment: Alignment.center,
         children: [
