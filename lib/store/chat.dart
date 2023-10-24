@@ -287,7 +287,7 @@ class ChatRepository extends DisposableInterface
   Future<void> next() async {
     await (_localPagination?.next ?? _pagination?.next)?.call();
 
-    if (hasNext.value == false) {
+    if (_pagination?.hasNext.value == false) {
       _initMonolog();
     }
   }
@@ -1299,9 +1299,11 @@ class ChatRepository extends DisposableInterface
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
     if (saved != null) {
-      if (saved.ver > chat.ver) {
+      if (saved.ver >= chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
+        } else {
+          await _pagination?.put(chat);
         }
 
         return saved;
@@ -1644,20 +1646,32 @@ class ChatRepository extends DisposableInterface
 
   /// Puts the provided [data] to [Hive].
   Future<HiveRxChat> _putEntry(ChatData data, {bool pagination = false}) async {
-    Mutex? mutex = _putEntryGuards[data.chat.value.id];
+    final ChatId chatId = data.chat.value.id;
+
+    Mutex? mutex = _putEntryGuards[chatId];
+
+    if (mutex != null) {
+      await Future.delayed(Duration.zero);
+    }
+
+    // If the [data] is already in [chats], then don't invoke [_putEntry] again.
+    final HiveRxChat? saved = chats[chatId];
+    if (saved != null) {
+      return put(data.chat, pagination: pagination);
+    }
 
     if (mutex == null) {
       mutex = Mutex();
-      _putEntryGuards[data.chat.value.id] = mutex;
+      _putEntryGuards[chatId] = mutex;
     }
 
     return await mutex.protect(() async {
-      HiveRxChat? entry = chats[data.chat.value.id];
+      HiveRxChat? entry = chats[chatId];
 
       if (entry == null) {
         // If [data] is a remote [Chat]-dialog, then try to replace the existing
         // local [Chat], if any is associated with this [data].
-        if (!data.chat.value.isGroup && !data.chat.value.id.isLocal) {
+        if (!data.chat.value.isGroup && !chatId.isLocal) {
           final ChatMember? member = data.chat.value.members.firstWhereOrNull(
             (m) => data.chat.value.isMonolog || m.user.id != me,
           );
@@ -1667,14 +1681,14 @@ class ChatRepository extends DisposableInterface
             final HiveRxChat? localChat = chats[localId];
 
             if (localChat != null) {
-              chats.move(localId, data.chat.value.id);
-              paginated.move(localId, data.chat.value.id);
+              chats.move(localId, chatId);
+              paginated.move(localId, chatId);
 
               await localChat.updateChat(data.chat);
               entry = localChat;
             }
 
-            _draftLocal.move(localId, data.chat.value.id);
+            _draftLocal.move(localId, chatId);
             remove(localId);
           }
         }
@@ -1689,7 +1703,7 @@ class ChatRepository extends DisposableInterface
         entry.put(item);
       }
 
-      _putEntryGuards.remove(data.chat.value.id);
+      _putEntryGuards.remove(chatId);
       return entry;
     });
   }
