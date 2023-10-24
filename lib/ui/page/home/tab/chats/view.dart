@@ -360,7 +360,9 @@ class ChatsTabView extends StatelessWidget {
                 ),
                 body: Obx(() {
                   if (c.status.value.isLoading) {
-                    return const Center(child: CustomProgressIndicator());
+                    return const Center(
+                      child: CustomProgressIndicator.primary(),
+                    );
                   }
 
                   final Widget? child;
