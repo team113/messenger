@@ -1267,9 +1267,13 @@ class ChatController extends GetxController {
 
       await chat!.next();
 
-      final double offset = listController.position.pixels;
+      double? offset;
+      if (listController.hasClients) {
+        offset = listController.position.pixels;
+      }
+
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (offset < loaderHeight) {
+        if (offset != null && offset < loaderHeight) {
           listController.jumpTo(
             listController.position.pixels - (loaderHeight + 28),
           );
