@@ -235,7 +235,7 @@ class ReactiveTextField extends StatelessWidget {
                                         color: style.colors.danger,
                                       ),
                                     )
-                                  : (state.approvable && state.changed.value)
+                                  : (state.approvable && state.changed.value && !state.isEmpty.value)
                                       ? AllowOverflow(
                                           key: const ValueKey('Approve'),
                                           child: Text(
