@@ -43,6 +43,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   get: ^4.6.5
+  google_fonts: ^6.1.0
   graphql_flutter: ^5.1.2
   hive_flutter: ^1.1.0
   hive: ^2.2.3
@@ -141,7 +142,7 @@ flutter:
   assets:
     - assets/audio/
     - assets/conf.toml
-    - assets/fonts/
+    - assets/google_fonts/
     - assets/icons/
     - assets/icons/notification/
     - assets/images/
@@ -150,9 +151,9 @@ flutter:
   fonts:
     - family: NotoSansDisplay
       fonts:
-        - asset: assets/fonts/NotoSansDisplay-Bold.ttf
+        - asset: assets/google_fonts/NotoSansDisplay-Bold.ttf
           weight: 700
-        - asset: assets/fonts/NotoSansDisplay-Regular.ttf
+        - asset: assets/google_fonts/NotoSansDisplay-Regular.ttf
           weight: 400
 
 sentry:

@@ -21,11 +21,13 @@ All user visible changes to this project will be documented in this file. This p
         - Display message field while loading. ([#662], [#634])
 - Web:
     - Updated loading animation. ([#662], [#634])
+    - Updated [Progressive Web Application (PWA)][PWA] iOS home screen icon. ([#669])
 
 [#615]: /../../issues/615
 [#634]: /../../issues/634
 [#662]: /../../pull/662
 [#663]: /../../pull/663
+[#669]: /../../pull/669
 
 
 
@@ -702,4 +704,5 @@ All user visible changes to this project will be documented in this file. This p
 
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
 [Helm]: https://helm.sh
+[PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org
