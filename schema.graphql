@@ -9295,7 +9295,7 @@ scalar UserNum
 """State of a `User` to be offline at the moment."""
 type UserOffline {
   """`DateTime` when the `User` was seen online last time."""
-  lastSeenAt: DateTime!
+  lastSeenAt: DateTime
 }
 
 """State of a `User` to be online at the moment."""
