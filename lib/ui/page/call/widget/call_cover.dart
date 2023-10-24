@@ -101,7 +101,6 @@ class CallCoverWidget extends StatelessWidget {
             cover!.full.url,
             key: Key(cover!.full.url),
             checksum: cover!.full.checksum,
-            thumbhash: cover!.full.thumbhash,
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

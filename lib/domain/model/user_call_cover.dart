@@ -39,22 +39,22 @@ class UserCallCover extends HiveObject {
 
   /// Original image [StorageFile] representing this [UserCallCover].
   @HiveField(0)
-  final ImageFile original;
+  final StorageFile original;
 
   /// Full-sized [UserCallCover]'s image [StorageFile], keeping the original
   /// sizes.
   @HiveField(1)
-  final ImageFile full;
+  final StorageFile full;
 
   /// Vertical [UserCallCover]'s view image [StorageFile] of `675px`x`900px`
   /// size.
   @HiveField(2)
-  final ImageFile vertical;
+  final StorageFile vertical;
 
   /// Square [[UserCallCover]]'s view image [StorageFile] of `300px`x`300px`
   /// size.
   @HiveField(3)
-  final ImageFile square;
+  final StorageFile square;
 
   /// [CropArea] applied to the original [ImageFile] for creating this
   /// [UserCallCover].

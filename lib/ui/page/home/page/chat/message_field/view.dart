@@ -29,7 +29,6 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -595,15 +594,13 @@ class MessageFieldView extends StatelessWidget {
                               .removeWhere((o) => o.value == attachments[i]);
                         },
                         children: attachments.map((o) {
-                          if (o is ImageAttachment) {
+                          if (o is ImageAttachment ||
+                              (o is LocalAttachment && o.file.isImage)) {
                             return GalleryItem.image(
                               o.original.url,
                               o.filename,
                               size: o.original.size,
-                              width: (o.original as ImageFile).width,
-                              height: (o.original as ImageFile).height,
                               checksum: o.original.checksum,
-                              thumbhash: o.big.thumbhash,
                             );
                           }
                           return GalleryItem.video(
@@ -813,7 +810,6 @@ class MessageFieldView extends StatelessWidget {
                   : RetryImage(
                       image.small.url,
                       checksum: image.small.checksum,
-                      thumbhash: image.small.thumbhash,
                       fit: BoxFit.cover,
                       height: double.infinity,
                       width: double.infinity,

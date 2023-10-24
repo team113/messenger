@@ -119,5 +119,4 @@ class ModelTypeId {
   static const cacheInfo = 99;
   static const imageFile = 100;
   static const favoriteChatsCursor = 101;
-  static const thumbhash = 102;
 }

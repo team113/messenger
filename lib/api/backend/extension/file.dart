@@ -37,6 +37,5 @@ extension ImageFileConversion on ImageFileMixin {
         size: size,
         width: width,
         height: height,
-        thumbhash: thumbhash,
       );
 }

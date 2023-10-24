@@ -23,7 +23,6 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/file.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -83,7 +82,6 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
     Hive.maybeRegisterAdapter(NativeFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
-    Hive.maybeRegisterAdapter(ThumbHashAdapter());
   }
 
   @override
