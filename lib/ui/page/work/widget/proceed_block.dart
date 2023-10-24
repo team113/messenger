@@ -44,7 +44,7 @@ class ProceedBlock extends StatelessWidget {
             onPressed: onPressed,
             maxWidth: double.infinity,
             color: style.colors.primary,
-            title: Text(text, style: style.fonts.titleLargeOnPrimary),
+            title: Text(text, style: style.fonts.medium.regular.onPrimary),
           ),
         ),
       ],

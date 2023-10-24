@@ -72,7 +72,7 @@ class AddEmailView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_email_confirmation_sent_again'.l10n
                               : 'label_add_email_confirmation_sent'.l10n,
-                          style: style.fonts.bodyMediumSecondary,
+                          style: style.fonts.normal.regular.secondary,
                         );
                       }),
                     ),
@@ -98,8 +98,8 @@ class AddEmailView extends StatelessWidget {
                                         {'timeout': c.resendEmailTimeout.value},
                                       ),
                                 style: c.resendEmailTimeout.value == 0
-                                    ? style.fonts.bodyMediumOnPrimary
-                                    : style.fonts.bodyMedium,
+                                    ? style.fonts.normal.regular.onPrimary
+                                    : style.fonts.normal.regular.onBackground,
                               ),
                               onPressed: c.resendEmailTimeout.value == 0
                                   ? c.resendEmail
@@ -115,8 +115,8 @@ class AddEmailView extends StatelessWidget {
                               title: Text(
                                 'btn_proceed'.l10n,
                                 style: c.emailCode.isEmpty.value
-                                    ? style.fonts.bodyMedium
-                                    : style.fonts.bodyMediumOnPrimary,
+                                    ? style.fonts.normal.regular.onBackground
+                                    : style.fonts.normal.regular.onPrimary,
                               ),
                               onPressed: c.emailCode.isEmpty.value
                                   ? null
@@ -143,7 +143,7 @@ class AddEmailView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_email_description'.l10n,
-                        style: style.fonts.bodyMediumSecondary,
+                        style: style.fonts.normal.regular.secondary,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -161,8 +161,8 @@ class AddEmailView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: c.email.isEmpty.value
-                              ? style.fonts.bodyMedium
-                              : style.fonts.bodyMediumOnPrimary,
+                              ? style.fonts.normal.regular.onBackground
+                              : style.fonts.normal.regular.onPrimary,
                         ),
                         onPressed:
                             c.email.isEmpty.value ? null : c.email.submit,
