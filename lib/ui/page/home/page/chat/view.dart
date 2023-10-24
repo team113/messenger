@@ -146,8 +146,15 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: AppBar(),
-              body: const Center(child: CustomProgressIndicator()),
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
+              ),
+              body: const Center(child: CustomProgressIndicator.primary()),
+              bottomNavigationBar: Padding(
+                padding: Insets.dense.copyWith(top: 0),
+                child: _bottomBar(c),
+              ),
             );
           }
 
@@ -886,7 +893,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+        onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id),
         canForward: true,
       );
