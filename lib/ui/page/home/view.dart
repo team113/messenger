@@ -209,23 +209,22 @@ class _HomeViewState extends State<HomeView> {
                           child: CustomNavigationBar(
                             items: [
                               const CustomNavigationBarItem(
-                                key: Key('WorkButton'),
                                 child: SvgImage.asset(
                                   'assets/icons/partner.svg',
+                                  key: Key('WorkButton'),
                                   width: 36,
                                   height: 28,
                                 ),
                               ),
                               const CustomNavigationBarItem(
-                                key: Key('ContactsButton'),
                                 child: SvgImage.asset(
                                   'assets/icons/contacts.svg',
+                                  key: Key('ContactsButton'),
                                   width: 32,
                                   height: 32,
                                 ),
                               ),
                               CustomNavigationBarItem(
-                                key: const Key('ChatsButton'),
                                 badge: c.unreadChatsCount.value == 0
                                     ? null
                                     : '${c.unreadChatsCount.value}',
@@ -233,6 +232,7 @@ class _HomeViewState extends State<HomeView> {
                                     ? style.colors.secondaryHighlightDarkest
                                     : style.colors.danger,
                                 child: ContextMenuRegion(
+                                  key: const Key('ChatsButton'),
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
                                   margin: const EdgeInsets.only(bottom: 4),
@@ -278,8 +278,8 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               ),
                               CustomNavigationBarItem(
-                                key: const Key('MenuButton'),
                                 child: ContextMenuRegion(
+                                  key: const Key('MenuButton'),
                                   selector: c.profileKey,
                                   alignment: Alignment.bottomRight,
                                   margin: const EdgeInsets.only(bottom: 4),
