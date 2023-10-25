@@ -19,13 +19,17 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned typography tab. ([#663], [#615])
     - Chat page:
         - Display message field while loading. ([#662], [#634])
+    - Profile page:
+        - Refactored Login filed behavior. ([#672], [#575])
 - Web:
-    - Updated loading animation. ([#662], [#634])
+    - Updated loading animation. ([#672], [#634])
 
 [#615]: /../../issues/615
 [#634]: /../../issues/634
+[#575]: /../../issues/575
 [#662]: /../../pull/662
 [#663]: /../../pull/663
+[#672]: /../../pull/672
 
 
 
