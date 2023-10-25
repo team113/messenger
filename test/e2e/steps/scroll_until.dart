@@ -69,10 +69,11 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
     Finder scrollable, {
     double dy = 100,
   }) async {
-    final double height = nativeDriver.view.display.size.height;
-    print(
-      '[scrollIntoVisible] nativeDriver.view.display.size: ${nativeDriver.view.display.size}',
-    );
+    final WidgetTester tester = (nativeDriver as WidgetTester);
+
+    final double height =
+        (tester.view.physicalSize / tester.view.devicePixelRatio).height;
+    print('[scrollIntoVisible] height: $height');
 
     for (int i = 0; i < 500; ++i) {
       print(
@@ -89,18 +90,17 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
         );
 
         print(
-          '[scrollIntoVisible] center: ${nativeDriver.getCenter(finder.first)} < $height - $dy (${nativeDriver.getCenter(finder.first).dy <= height - dy})',
+          '[scrollIntoVisible] center: ${tester.getCenter(finder.first)} < $height - $dy (${tester.getCenter(finder.first).dy <= height - dy})',
         );
 
         // If [finder] is present and it's within our view, then break the loop.
-        if (nativeDriver.getCenter(finder.first).dy <= height - dy) {
+        if (tester.getCenter(finder.first).dy <= height - dy) {
           break;
         }
       }
 
       // Or otherwise keep on scrolling the [scrollable].
-      final ScrollableState state =
-          nativeDriver.state(scrollable) as ScrollableState;
+      final ScrollableState state = tester.state(scrollable) as ScrollableState;
       final ScrollPosition position = state.position;
 
       position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
@@ -108,7 +108,7 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
         '[scrollIntoVisible] position.jumpTo(min(${position.pixels} + $dy, ${position.maxScrollExtent}))',
       );
 
-      await nativeDriver.pump();
+      await tester.pump();
     }
   }
 }
