@@ -348,6 +348,10 @@ class ChatController extends GetxController {
       _settingsRepository,
       onChanged: updateDraft,
       onSubmit: () async {
+        if (chat == null) {
+          return;
+        }
+
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
@@ -370,7 +374,7 @@ class ChatController extends GetxController {
               send.replied.isNotEmpty) {
             _chatService
                 .sendChatMessage(
-                  chat!.chat.value.id,
+                  chat?.chat.value.id ?? id,
                   text: send.field.text.trim().isEmpty
                       ? null
                       : ChatMessageText(send.field.text.trim()),
@@ -614,7 +618,10 @@ class ChatController extends GetxController {
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val ?? send.field.text;
+      if (send.field.text.isEmpty) {
+        send.field.unchecked = draft?.text?.val ?? send.field.text;
+      }
+
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],

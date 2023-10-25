@@ -19,6 +19,7 @@ Feature: Application muting and unmuting
 
   Scenario: User mutes and unmutes application
     Given I am Alice
+    And I pause for 1 second
 
     When I right click `ChatsButton` button
     And I tap `MuteChatsButton` button
