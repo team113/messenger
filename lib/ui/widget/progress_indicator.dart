@@ -94,7 +94,7 @@ class CustomProgressIndicator extends StatelessWidget {
         decoration: const BoxDecoration(shape: BoxShape.circle),
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
-          value: Config.disableInfiniteAnimations ? 0 : value,
+          value: value,
           color: primary
               ? style.colors.primary
               : style.colors.secondaryHighlightDarkest,
