@@ -102,25 +102,25 @@ class MessageFieldView extends StatelessWidget {
     return Theme.of(context).copyWith(
       shadowColor: style.colors.onBackgroundOpacity27,
       iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: InputDecorationTheme(
-        border: border,
-        errorBorder: border,
-        enabledBorder: border,
-        focusedBorder: border,
-        disabledBorder: border,
-        focusedErrorBorder: border,
-        focusColor: style.colors.onPrimary,
-        fillColor: style.colors.onPrimary,
-        hoverColor: style.colors.transparent,
-        filled: true,
-        isDense: true,
-        contentPadding: EdgeInsets.fromLTRB(
-          15,
-          PlatformUtils.isDesktop ? 30 : 23,
-          15,
-          0,
-        ),
-      ),
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+            border: border,
+            errorBorder: border,
+            enabledBorder: border,
+            focusedBorder: border,
+            disabledBorder: border,
+            focusedErrorBorder: border,
+            focusColor: style.colors.onPrimary,
+            fillColor: style.colors.onPrimary,
+            hoverColor: style.colors.transparent,
+            filled: true,
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(
+              15,
+              PlatformUtils.isDesktop ? 30 : 23,
+              15,
+              0,
+            ),
+          ),
     );
   }
 
@@ -482,7 +482,7 @@ class MessageFieldView extends StatelessWidget {
                     filled: false,
                     dense: true,
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    style: style.fonts.bodyLarge,
+                    style: style.fonts.medium.regular.onBackground,
                     type: TextInputType.multiline,
                     textInputAction: TextInputAction.newline,
                   ),
@@ -656,12 +656,15 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: style.fonts.bodySmall,
+                      style: style.fonts.small.regular.onBackground,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(p.extension(e.filename), style: style.fonts.bodySmall)
+                  Text(
+                    p.extension(e.filename),
+                    style: style.fonts.small.regular.onBackground,
+                  )
                 ],
               ),
             ),
@@ -674,7 +677,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: style.fonts.bodySmallSecondary,
+                style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -822,7 +825,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: style.fonts.bodyLarge,
+          style: style.fonts.medium.regular.onBackground,
         );
       }
     } else if (item is ChatCall) {
@@ -863,7 +866,9 @@ class MessageFieldView extends StatelessWidget {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: style.fonts.bodyLarge)),
+          Flexible(
+            child: Text(title, style: style.fonts.medium.regular.onBackground),
+          ),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -872,7 +877,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.fonts.headlineSmallSecondary,
+                style: style.fonts.small.regular.secondary,
               ),
             ),
           ],
@@ -882,13 +887,19 @@ class MessageFieldView extends StatelessWidget {
       // TODO: Implement `ChatForward`.
       content = Text(
         'label_forwarded_message'.l10n,
-        style: style.fonts.bodyLarge,
+        style: style.fonts.medium.regular.onBackground,
       );
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.fonts.bodyLarge);
+      content = Text(
+        item.action.toString(),
+        style: style.fonts.medium.regular.onBackground,
+      );
     } else {
-      content = Text('err_unknown'.l10n, style: style.fonts.bodyLarge);
+      content = Text(
+        'err_unknown'.l10n,
+        style: style.fonts.medium.regular.onBackground,
+      );
     }
 
     final Widget expanded;
@@ -912,7 +923,10 @@ class MessageFieldView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('label_edit'.l10n, style: style.fonts.bodyLargePrimary),
+                  Text(
+                    'label_edit'.l10n,
+                    style: style.fonts.medium.regular.primary,
+                  ),
                   if (content != null) ...[
                     const SizedBox(height: 2),
                     DefaultTextStyle.merge(maxLines: 1, child: content),
@@ -953,10 +967,14 @@ class MessageFieldView extends StatelessWidget {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
                               snapshot.data!.user.value.num.toString(),
-                          style: style.fonts.bodyLarge.copyWith(color: color),
+                          style: style.fonts.medium.regular.onBackground
+                              .copyWith(color: color),
                         );
                       })
-                    : Text('dot'.l10n * 3, style: style.fonts.bodyLargePrimary),
+                    : Text(
+                        'dot'.l10n * 3,
+                        style: style.fonts.medium.regular.primary,
+                      ),
                 if (content != null) ...[
                   const SizedBox(height: 2),
                   DefaultTextStyle.merge(maxLines: 1, child: content),

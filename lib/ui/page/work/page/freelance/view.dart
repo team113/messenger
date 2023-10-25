@@ -85,7 +85,7 @@ class FreelanceWorkView extends StatelessWidget {
                           ),
                           TextSpan(
                             text: 'Contribution Guide',
-                            style: style.fonts.bodyMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://github.com/team113/messenger/blob/main/CONTRIBUTING.md',
@@ -104,7 +104,7 @@ class FreelanceWorkView extends StatelessWidget {
                           ),
                           TextSpan(
                             text: 'Effective Dart: Documentation',
-                            style: style.fonts.bodyMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://dart.dev/effective-dart/documentation',
@@ -173,11 +173,11 @@ class FreelanceWorkView extends StatelessWidget {
                           TextSpan(
                             text:
                                 'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Flutter, Вы можете воспользоваться нашей ',
-                            style: style.fonts.bodyMedium,
+                            style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
                             text: 'корпоративной песочницей.',
-                            style: style.fonts.bodyMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://github.com/team113/flutter-incubator',

@@ -17,8 +17,64 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sound_fonts/sound_fonts.dart';
+
+part 'themes.g.dart';
 
 /// Application themes constants.
+@SoundFonts({
+  'largest': {
+    'bold': ['onBackground', 'onPrimary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
+  },
+  'larger': {
+    'regular': ['onBackground', 'secondary']
+  },
+  'large': {
+    'regular': ['onBackground', 'secondary']
+  },
+  'big': {
+    'regular': ['onBackground', 'onPrimary'],
+  },
+  'medium': {
+    'regular': [
+      'onBackground',
+      'onPrimary',
+      'primary',
+      'primaryHighlightLightest',
+      'secondary',
+    ],
+  },
+  'normal': {
+    'bold': ['onBackground', 'onPrimary'],
+    'regular': [
+      'danger',
+      'onBackground',
+      'onPrimary',
+      'primary',
+      'secondary',
+      'secondaryHighlightDarkest',
+    ],
+  },
+  'small': {
+    'regular': [
+      'danger',
+      'onBackground',
+      'onPrimary',
+      'primary',
+      'secondary',
+      'secondaryHighlight',
+      'secondaryHighlightDarkest',
+    ],
+  },
+  'smaller': {
+    'bold': ['onPrimary', 'secondary'],
+    'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
+  },
+  'smallest': {
+    'regular': ['onBackground', 'onPrimary']
+  },
+})
 class Themes {
   /// Returns a light theme.
   static ThemeData light() {
@@ -39,7 +95,7 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
-      background: const Color(0xFFF5F8FA),
+      background: const Color(0xFFF2F5F8),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
@@ -48,26 +104,37 @@ class Themes {
       transparent: const Color(0x00000000),
       accept: const Color(0x7F34B139),
       acceptAuxiliary: const Color(0xFF4CAF50),
+      acceptLight: const Color(0xFFBFE3B9),
+      acceptLighter: const Color(0xFFD9FDD3),
+      acceptLightest: const Color(0xFFF2FDED),
       decline: const Color(0x7FFF0000),
       danger: const Color(0xFFF44336),
       warning: const Color(0xFFFF9800),
-      userColors: [
-        const Color(0xFF9C27B0),
-        const Color(0xFF673AB7),
-        const Color(0xFF3F51B5),
-        const Color(0xFF2196F3),
-        const Color(0xFF00BCD4),
-        const Color(0xFF8BC34A),
-        const Color(0xFFCDDC39),
-        const Color(0xFFFFC107),
-        const Color(0xFFFF9800),
-        const Color(0xFFFF5722),
+      userColors: const [
+        Color(0xFFD2B334),
+        Color(0xFF2192FF),
+        Color(0xFF9C27B0),
+        Color(0xFFFF9800),
+        Color(0xFF0094A7),
+        Color(0xFF7F81FF),
+        Color(0xFFFF5722),
+        Color(0xFFC70100),
+        Color(0xFF8BC34A),
+        Color(0xFF16712D),
+        Color(0xFFFF5B89),
+        Color(0xFF332FD0),
+        Color(0xFFB96215),
+        Color(0xFF00BF79),
+        Color(0xFF00ACCF),
+        Color(0xFFED36FF),
+        Color(0xFF00CC25),
+        Color(0xFFFF1008),
+        Color(0xFFCB9F7A),
       ],
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'SFUI',
-      fontFamilyFallback: const ['.SF UI Display'],
+      fontFamily: 'NotoSansDisplay',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
@@ -75,51 +142,26 @@ class Themes {
     );
 
     final Fonts fonts = Fonts(
+      style: textStyle,
       primary: colors.primary,
       primaryHighlightLightest: colors.primaryHighlightLightest,
+      onBackground: colors.onBackground,
       secondary: colors.secondary,
+      secondaryHighlight: colors.secondaryHighlight,
+      secondaryHighlightDarkest: colors.secondaryHighlightDarkest,
       onPrimary: colors.onPrimary,
       danger: colors.danger,
-      displayBold:
-          textStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 27),
-      displayLarge:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 27),
-      displayMedium:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
-      displaySmall:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 21),
-      displayTiny:
-          textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
-      headlineLarge: textStyle.copyWith(fontSize: 18),
-      headlineMedium:
-          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
-      headlineSmall: textStyle.copyWith(fontSize: 13),
-      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
-      titleMedium: textStyle.copyWith(fontSize: 15),
-      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
-      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-      labelMedium:
-          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
-      labelSmall: textStyle.copyWith(
-        fontSize: 11,
-        fontWeight: FontWeight.w300,
-        letterSpacing: 0.4,
-      ),
-      bodyLarge: textStyle,
-      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
-      bodyTiny: textStyle.copyWith(fontSize: 9, fontWeight: FontWeight.w300),
-      error: textStyle.copyWith(fontSize: 13, color: colors.danger),
-      input: textStyle.copyWith(
-        fontSize: 15,
-        fontWeight: FontWeight.w300,
-        color: colors.secondaryHighlightDarkest,
-      ),
-      counter: textStyle.copyWith(
-        fontSize: 13,
-        fontWeight: FontWeight.w300,
-        color: colors.secondaryHighlightDarkest,
-      ),
+      bold: FontWeight.w700,
+      regular: FontWeight.w400,
+      largest: 27,
+      larger: 24,
+      large: 21,
+      big: 18,
+      medium: 17,
+      normal: 15,
+      small: 13,
+      smaller: 11,
+      smallest: 9,
     );
 
     SystemChrome.setSystemUIOverlayStyle(
@@ -143,6 +185,7 @@ class Themes {
             cardBorder:
                 Border.all(color: colors.secondaryHighlightDark, width: 0.5),
             cardColor: colors.onPrimaryOpacity95,
+            cardHoveredColor: colors.backgroundAuxiliaryLightest,
             cardHoveredBorder: Border.all(
               color: colors.primaryHighlightShiniest,
               width: 0.5,
@@ -159,20 +202,17 @@ class Themes {
               color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
-            readMessageColor: colors.primaryHighlightShiniest,
-            secondaryBorder: Border.all(
-              color: colors.primaryHighlightLightest,
-              width: 0.5,
-            ),
+            readMessageColor: colors.acceptLighter,
+            secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
             sidebarColor: colors.onPrimaryOpacity50,
             systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDarkest,
+              color: colors.secondaryHighlightDark,
               width: 0.5,
             ),
             systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle: fonts.bodySmallSecondary,
-            systemMessagePrimary: fonts.bodySmallPrimary,
-            unreadMessageColor: colors.backgroundAuxiliaryLightest,
+            systemMessageStyle: fonts.small.regular.secondary,
+            systemMessagePrimary: fonts.small.regular.primary,
+            unreadMessageColor: colors.acceptLightest,
           ),
         ],
         scaffoldBackgroundColor: colors.transparent,
@@ -187,7 +227,7 @@ class Themes {
           ),
           elevation: 0,
           centerTitle: true,
-          titleTextStyle: fonts.headlineMedium,
+          titleTextStyle: fonts.big.regular.onBackground,
         ),
         tabBarTheme: theme.tabBarTheme.copyWith(
           labelColor: colors.primary,
@@ -196,36 +236,37 @@ class Themes {
         primaryIconTheme: const IconThemeData.fallback().copyWith(
           color: colors.secondary,
         ),
+        splashColor: colors.transparent,
         iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
         textTheme: Typography.blackCupertino.copyWith(
-          displayLarge: fonts.displayLarge,
-          displayMedium: fonts.displayMedium,
-          displaySmall: fonts.displaySmall,
-          headlineLarge: fonts.headlineLarge,
-          headlineMedium: fonts.headlineMedium,
-          headlineSmall: fonts.headlineSmall,
-          titleLarge: fonts.titleLarge,
-          titleMedium: fonts.titleMedium,
-          titleSmall: fonts.titleSmall,
-          labelLarge: fonts.labelLarge,
-          labelMedium: fonts.displayLarge,
-          labelSmall: fonts.labelSmall,
-          bodyLarge: fonts.bodyLarge,
-          bodyMedium: fonts.bodyMedium,
-          bodySmall: fonts.bodySmall,
+          displayLarge: fonts.largest.regular.onBackground,
+          displayMedium: fonts.larger.regular.onBackground,
+          displaySmall: fonts.large.regular.onBackground,
+          headlineLarge: fonts.big.regular.onBackground,
+          headlineMedium: fonts.big.regular.onBackground,
+          headlineSmall: fonts.small.regular.onBackground,
+          titleLarge: fonts.medium.regular.onBackground,
+          titleMedium: fonts.normal.regular.onBackground,
+          titleSmall: fonts.normal.bold.onBackground,
+          labelLarge: fonts.normal.regular.onBackground,
+          labelMedium: fonts.small.regular.onBackground,
+          labelSmall: fonts.smaller.regular.onBackground,
+          bodyLarge: fonts.medium.regular.onBackground,
+          bodyMedium: fonts.normal.regular.onBackground,
+          bodySmall: fonts.small.regular.onBackground,
         ),
         inputDecorationTheme: theme.inputDecorationTheme.copyWith(
           focusColor: colors.primary,
           hoverColor: colors.transparent,
           fillColor: colors.primary,
-          hintStyle: fonts.input,
-          labelStyle: fonts.input,
-          errorStyle: fonts.error,
-          helperStyle: fonts.input,
-          prefixStyle: fonts.input,
-          suffixStyle: fonts.input,
-          counterStyle: fonts.counter,
-          floatingLabelStyle: fonts.input,
+          hintStyle: fonts.normal.regular.secondaryHighlightDarkest,
+          labelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+          errorStyle: fonts.small.regular.danger,
+          helperStyle: fonts.normal.regular.secondaryHighlightDarkest,
+          prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+          suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+          counterStyle: fonts.small.regular.secondaryHighlightDarkest,
+          floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
           errorMaxLines: 5,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25),
@@ -271,7 +312,7 @@ class Themes {
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
             foregroundColor: colors.secondary,
-            textStyle: fonts.bodyLargeSecondary,
+            textStyle: fonts.medium.regular.secondary,
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -284,7 +325,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: fonts.bodyLargeSecondary,
+            textStyle: fonts.medium.regular.secondary,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -294,7 +335,7 @@ class Themes {
               borderRadius: BorderRadius.circular(30),
             ),
             padding: const EdgeInsets.all(12),
-            textStyle: fonts.titleMediumSecondary,
+            textStyle: fonts.normal.regular.secondary,
           ),
         ),
         scrollbarTheme: theme.scrollbarTheme.copyWith(
@@ -377,6 +418,7 @@ class Style extends ThemeExtension<Style> {
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredColor,
     required this.cardHoveredBorder,
     required this.cardRadius,
     required this.cardSelectedBorder,
@@ -413,6 +455,9 @@ class Style extends ThemeExtension<Style> {
 
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
+
+  /// Background [Color] of card-like [Widget]s when hovered.
+  final Color cardHoveredColor;
 
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
@@ -475,6 +520,7 @@ class Style extends ThemeExtension<Style> {
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Color? cardHoveredColor,
     Border? cardHoveredBorder,
     BorderRadius? cardRadius,
     Border? cardSelectedBorder,
@@ -500,6 +546,7 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
       cardRadius: cardRadius ?? this.cardRadius,
       cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
@@ -535,6 +582,8 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
@@ -575,442 +624,6 @@ class Style extends ThemeExtension<Style> {
       )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
-    );
-  }
-}
-
-/// [TextStyle]s used throughout the application.
-class Fonts {
-  Fonts({
-    Color? primary,
-    Color? primaryHighlightLightest,
-    Color? secondary,
-    Color? onPrimary,
-    Color? danger,
-    required this.displayBold,
-    TextStyle? displayBoldOnPrimary,
-    required this.displayLarge,
-    TextStyle? displayLargeOnPrimary,
-    TextStyle? displayLargeSecondary,
-    required this.displayMedium,
-    TextStyle? displayMediumSecondary,
-    required this.displaySmall,
-    TextStyle? displaySmallSecondary,
-    required this.displayTiny,
-    TextStyle? displayTinySecondary,
-    TextStyle? displayTinyOnPrimary,
-    required this.headlineLarge,
-    TextStyle? headlineLargeOnPrimary,
-    required this.headlineMedium,
-    TextStyle? headlineMediumOnPrimary,
-    required this.headlineSmall,
-    TextStyle? headlineSmallSecondary,
-    TextStyle? headlineSmallOnPrimary,
-    required this.titleLarge,
-    TextStyle? titleLargePrimary,
-    TextStyle? titleLargeSecondary,
-    TextStyle? titleLargeOnPrimary,
-    required this.titleMedium,
-    TextStyle? titleMediumPrimary,
-    TextStyle? titleMediumSecondary,
-    TextStyle? titleMediumOnPrimary,
-    TextStyle? titleMediumDanger,
-    required this.titleSmall,
-    TextStyle? titleSmallOnPrimary,
-    required this.labelLarge,
-    TextStyle? labelLargePrimary,
-    TextStyle? labelLargeSecondary,
-    TextStyle? labelLargeOnPrimary,
-    required this.labelMedium,
-    TextStyle? labelMediumPrimary,
-    TextStyle? labelMediumSecondary,
-    TextStyle? labelMediumOnPrimary,
-    TextStyle? labelMediumDanger,
-    required this.labelSmall,
-    TextStyle? labelSmallPrimary,
-    TextStyle? labelSmallSecondary,
-    TextStyle? labelSmallOnPrimary,
-    required this.bodyLarge,
-    TextStyle? bodyLargePrimary,
-    TextStyle? bodyLargePrimaryHighlightLightest,
-    TextStyle? bodyLargeSecondary,
-    required this.bodyMedium,
-    TextStyle? bodyMediumPrimary,
-    TextStyle? bodyMediumSecondary,
-    TextStyle? bodyMediumOnPrimary,
-    required this.bodySmall,
-    TextStyle? bodySmallPrimary,
-    TextStyle? bodySmallSecondary,
-    TextStyle? bodySmallOnPrimary,
-    required this.bodyTiny,
-    TextStyle? bodyTinyOnPrimary,
-    required this.input,
-    required this.error,
-    required this.counter,
-  })  : displayBoldOnPrimary =
-            displayBoldOnPrimary ?? displayBold.copyWith(color: onPrimary),
-        displayLargeOnPrimary =
-            displayLargeOnPrimary ?? displayLarge.copyWith(color: onPrimary),
-        displayLargeSecondary =
-            displayLargeSecondary ?? displayLarge.copyWith(color: secondary),
-        displayMediumSecondary =
-            displayMediumSecondary ?? displayMedium.copyWith(color: secondary),
-        displaySmallSecondary =
-            displaySmallSecondary ?? displaySmall.copyWith(color: secondary),
-        displayTinyOnPrimary =
-            displayTinyOnPrimary ?? displayTiny.copyWith(color: onPrimary),
-        displayTinySecondary =
-            displayTinySecondary ?? displayTiny.copyWith(color: secondary),
-        headlineLargeOnPrimary =
-            headlineLargeOnPrimary ?? headlineLarge.copyWith(color: onPrimary),
-        headlineMediumOnPrimary = headlineMediumOnPrimary ??
-            headlineMedium.copyWith(color: onPrimary),
-        headlineSmallSecondary =
-            headlineSmallSecondary ?? headlineSmall.copyWith(color: secondary),
-        headlineSmallOnPrimary =
-            headlineSmallOnPrimary ?? headlineSmall.copyWith(color: onPrimary),
-        titleLargePrimary =
-            titleLargePrimary ?? titleLarge.copyWith(color: primary),
-        titleLargeSecondary =
-            titleLargeSecondary ?? titleLarge.copyWith(color: secondary),
-        titleLargeOnPrimary =
-            titleLargeOnPrimary ?? titleLarge.copyWith(color: onPrimary),
-        titleMediumPrimary =
-            titleMediumPrimary ?? titleMedium.copyWith(color: primary),
-        titleMediumSecondary =
-            titleMediumSecondary ?? titleMedium.copyWith(color: secondary),
-        titleMediumOnPrimary =
-            titleMediumOnPrimary ?? titleMedium.copyWith(color: onPrimary),
-        titleMediumDanger =
-            titleMediumDanger ?? titleMedium.copyWith(color: danger),
-        titleSmallOnPrimary =
-            titleSmallOnPrimary ?? titleSmall.copyWith(color: onPrimary),
-        labelLargePrimary =
-            labelLargePrimary ?? labelLarge.copyWith(color: primary),
-        labelLargeSecondary =
-            labelLargeSecondary ?? labelLarge.copyWith(color: secondary),
-        labelLargeOnPrimary =
-            labelLargeOnPrimary ?? labelLarge.copyWith(color: onPrimary),
-        labelMediumPrimary =
-            labelMediumPrimary ?? labelMedium.copyWith(color: primary),
-        labelMediumSecondary =
-            labelMediumSecondary ?? labelMedium.copyWith(color: secondary),
-        labelMediumOnPrimary =
-            labelMediumOnPrimary ?? labelMedium.copyWith(color: onPrimary),
-        labelMediumDanger =
-            labelMediumDanger ?? labelMedium.copyWith(color: danger),
-        labelSmallPrimary =
-            labelSmallPrimary ?? labelSmall.copyWith(color: primary),
-        labelSmallSecondary =
-            labelSmallSecondary ?? labelSmall.copyWith(color: secondary),
-        labelSmallOnPrimary =
-            labelSmallOnPrimary ?? labelSmall.copyWith(color: onPrimary),
-        bodyLargePrimary =
-            bodyLargePrimary ?? bodyLarge.copyWith(color: primary),
-        bodyLargePrimaryHighlightLightest = bodyLargePrimaryHighlightLightest ??
-            bodyLarge.copyWith(color: primaryHighlightLightest),
-        bodyLargeSecondary =
-            bodyLargeSecondary ?? bodyLarge.copyWith(color: secondary),
-        bodyMediumPrimary =
-            bodyMediumPrimary ?? bodyMedium.copyWith(color: primary),
-        bodyMediumSecondary =
-            bodyMediumSecondary ?? bodyMedium.copyWith(color: secondary),
-        bodyMediumOnPrimary =
-            bodyMediumOnPrimary ?? bodyMedium.copyWith(color: onPrimary),
-        bodySmallPrimary =
-            bodySmallPrimary ?? bodySmall.copyWith(color: primary),
-        bodySmallSecondary =
-            bodySmallSecondary ?? bodySmall.copyWith(color: secondary),
-        bodySmallOnPrimary =
-            bodySmallOnPrimary ?? bodySmall.copyWith(color: onPrimary),
-        bodyTinyOnPrimary =
-            bodyTinyOnPrimary ?? bodyTiny.copyWith(color: onPrimary);
-
-  /// Bold version of display text of `onBackground` color.
-  final TextStyle displayBold;
-
-  /// [displayBold] of `onPrimary` color.
-  final TextStyle displayBoldOnPrimary;
-
-  /// Large version of display text of `onBackground` color.
-  final TextStyle displayLarge;
-
-  /// [displayLarge] of `onPrimary` color with [FontWeight.bold].
-  final TextStyle displayLargeOnPrimary;
-
-  /// [displayLarge] of `secondary` color.
-  final TextStyle displayLargeSecondary;
-
-  /// Medium version of display text of `onBackground` color.
-  final TextStyle displayMedium;
-
-  /// [displayMedium] with `secondary` color.
-  final TextStyle displayMediumSecondary;
-
-  /// Small version of display text of `onBackground` color.
-  final TextStyle displaySmall;
-
-  /// [displaySmall] with `secondary` color.
-  final TextStyle displaySmallSecondary;
-
-  /// Tiny version of display text of `onBackground` color.
-  final TextStyle displayTiny;
-
-  /// [displayTiny] with `secondary` color.
-  final TextStyle displayTinySecondary;
-
-  /// [displayTiny] with `onPrimary` color.
-  final TextStyle displayTinyOnPrimary;
-
-  /// Large version of headline text of `onBackground` color.
-  final TextStyle headlineLarge;
-
-  /// [headlineLarge] of `onPrimary` color.
-  final TextStyle headlineLargeOnPrimary;
-
-  /// Medium version of headline text of `onBackground` color.
-  final TextStyle headlineMedium;
-
-  /// [headlineMedium] of `onPrimary` color.
-  final TextStyle headlineMediumOnPrimary;
-
-  /// Small version of headline text of `onBackground` color.
-  final TextStyle headlineSmall;
-
-  /// [headlineSmall] of `secondary` color.
-  final TextStyle headlineSmallSecondary;
-
-  /// [headlineSmall] of `onPrimary` color.
-  final TextStyle headlineSmallOnPrimary;
-
-  /// Large version of title text of `onBackground` color.
-  final TextStyle titleLarge;
-
-  /// [titleLarge] of `primary` color.
-  final TextStyle titleLargePrimary;
-
-  /// [titleLarge] of `secondary` color.
-  final TextStyle titleLargeSecondary;
-
-  /// [titleLarge] of `onPrimary` color.
-  final TextStyle titleLargeOnPrimary;
-
-  /// Medium version of title text with `onBackground` color.
-  final TextStyle titleMedium;
-
-  /// [titleMedium] of `primary` color.
-  final TextStyle titleMediumPrimary;
-
-  /// [titleMedium] of `secondary` color.
-  final TextStyle titleMediumSecondary;
-
-  /// [titleMedium] of `onPrimary` color.
-  final TextStyle titleMediumOnPrimary;
-
-  /// [titleMedium] of `danger` color.
-  final TextStyle titleMediumDanger;
-
-  /// Small version of title text of `onBackground` color.
-  final TextStyle titleSmall;
-
-  /// [titleSmall] with `onPrimary` color.
-  final TextStyle titleSmallOnPrimary;
-
-  /// Large version of label text of `onBackground` color.
-  final TextStyle labelLarge;
-
-  /// [labelLarge] of `primary` color.
-  final TextStyle labelLargePrimary;
-
-  /// [labelLarge] of `secondary` color.
-  final TextStyle labelLargeSecondary;
-
-  /// [labelLarge] of `onPrimary` color.
-  final TextStyle labelLargeOnPrimary;
-
-  /// Medium version of label text of `onBackground` color.
-  final TextStyle labelMedium;
-
-  /// [labelMedium] of `primary` color.
-  final TextStyle labelMediumPrimary;
-
-  /// [labelMedium] of `secondary` color.
-  final TextStyle labelMediumSecondary;
-
-  /// [labelMedium] of `onPrimary` color.
-  final TextStyle labelMediumOnPrimary;
-
-  /// [labelMedium] of `danger` color.
-  final TextStyle labelMediumDanger;
-
-  /// Small version of label text of `onBackground` color.
-  final TextStyle labelSmall;
-
-  /// [labelSmall] of `primary` color.
-  final TextStyle labelSmallPrimary;
-
-  /// [labelSmall] of `secondary` color.
-  final TextStyle labelSmallSecondary;
-
-  /// [labelSmall] of `onPrimary` color.
-  final TextStyle labelSmallOnPrimary;
-
-  /// Large version of body text of `onBackground` color.
-  final TextStyle bodyLarge;
-
-  /// [bodyLarge] of `primary` color.
-  final TextStyle bodyLargePrimary;
-
-  /// [bodyLarge] of `primaryHighlightLightest` color.
-  final TextStyle bodyLargePrimaryHighlightLightest;
-
-  /// [bodyLarge] of `secondary` color.
-  final TextStyle bodyLargeSecondary;
-
-  /// Medium version of body text of `onBackground` color.
-  final TextStyle bodyMedium;
-
-  /// [bodyMedium] of `primary` color.
-  final TextStyle bodyMediumPrimary;
-
-  /// [bodyMedium] of `secondary` color.
-  final TextStyle bodyMediumSecondary;
-
-  /// [bodyMedium] of `onPrimary` color.
-  final TextStyle bodyMediumOnPrimary;
-
-  /// Small version of body text of `onBackground` color.
-  final TextStyle bodySmall;
-
-  /// [bodySmall] of `primary` color.
-  final TextStyle bodySmallPrimary;
-
-  /// [bodySmall] of `secondary` color.
-  final TextStyle bodySmallSecondary;
-
-  /// [bodySmall] of `onPrimary` color.
-  final TextStyle bodySmallOnPrimary;
-
-  /// Tiny version of body text of `onBackground` color.
-  final TextStyle bodyTiny;
-
-  /// [bodyTiny] of `onPrimary` color.
-  final TextStyle bodyTinyOnPrimary;
-
-  /// [TextStyle] for the decoration text in an input field.
-  final TextStyle input;
-
-  /// [TextStyle] of an error.
-  final TextStyle error;
-
-  /// [TextStyle] of a small counter text.
-  final TextStyle counter;
-
-  /// Linear interpolation between two [Fonts] objects based on a given [t]
-  /// value.
-  static Fonts lerp(Fonts font, Fonts? other, double t) {
-    if (other == null) {
-      return font;
-    }
-
-    return Fonts(
-      displayBold: TextStyle.lerp(font.displayBold, other.displayBold, t)!,
-      displayBoldOnPrimary: TextStyle.lerp(
-          font.displayBoldOnPrimary, other.displayBoldOnPrimary, t)!,
-      displayLarge: TextStyle.lerp(font.displayLarge, other.displayLarge, t)!,
-      displayLargeOnPrimary: TextStyle.lerp(
-          font.displayLargeOnPrimary, other.displayLargeOnPrimary, t)!,
-      displayLargeSecondary: TextStyle.lerp(
-          font.displayLargeSecondary, other.displayLargeSecondary, t)!,
-      displayMedium:
-          TextStyle.lerp(font.displayMedium, other.displayMedium, t)!,
-      displayMediumSecondary: TextStyle.lerp(
-          font.displayMediumSecondary, other.displayMediumSecondary, t)!,
-      displaySmall: TextStyle.lerp(font.displaySmall, other.displaySmall, t)!,
-      displaySmallSecondary: TextStyle.lerp(
-          font.displaySmallSecondary, other.displaySmallSecondary, t)!,
-      displayTiny: TextStyle.lerp(font.displayTiny, other.displayTiny, t)!,
-      displayTinySecondary: TextStyle.lerp(
-          font.displayTinySecondary, other.displayTinySecondary, t)!,
-      displayTinyOnPrimary: TextStyle.lerp(
-          font.displayTinyOnPrimary, other.displayTinyOnPrimary, t)!,
-      headlineLarge:
-          TextStyle.lerp(font.headlineLarge, other.headlineLarge, t)!,
-      headlineLargeOnPrimary: TextStyle.lerp(
-          font.headlineLargeOnPrimary, other.headlineLargeOnPrimary, t)!,
-      headlineMedium:
-          TextStyle.lerp(font.headlineMedium, other.headlineMedium, t)!,
-      headlineMediumOnPrimary: TextStyle.lerp(
-          font.headlineMediumOnPrimary, other.headlineMediumOnPrimary, t)!,
-      headlineSmall:
-          TextStyle.lerp(font.headlineSmall, other.headlineSmall, t)!,
-      headlineSmallSecondary: TextStyle.lerp(
-          font.headlineSmallSecondary, other.headlineSmallSecondary, t)!,
-      headlineSmallOnPrimary: TextStyle.lerp(
-          font.headlineSmallOnPrimary, other.headlineSmallOnPrimary, t)!,
-      titleLarge: TextStyle.lerp(font.titleLarge, other.titleLarge, t)!,
-      titleLargePrimary:
-          TextStyle.lerp(font.titleLargePrimary, other.titleLargePrimary, t)!,
-      titleLargeSecondary: TextStyle.lerp(
-          font.titleLargeSecondary, other.titleLargeSecondary, t)!,
-      titleLargeOnPrimary: TextStyle.lerp(
-          font.titleLargeOnPrimary, other.titleLargeOnPrimary, t)!,
-      titleMedium: TextStyle.lerp(font.titleMedium, other.titleMedium, t)!,
-      titleMediumPrimary:
-          TextStyle.lerp(font.titleMediumPrimary, other.titleMediumPrimary, t)!,
-      titleMediumSecondary: TextStyle.lerp(
-          font.titleMediumSecondary, other.titleMediumSecondary, t)!,
-      titleMediumOnPrimary: TextStyle.lerp(
-          font.titleMediumOnPrimary, other.titleMediumOnPrimary, t)!,
-      titleSmall: TextStyle.lerp(font.titleSmall, other.titleSmall, t)!,
-      titleSmallOnPrimary: TextStyle.lerp(
-          font.titleSmallOnPrimary, other.titleSmallOnPrimary, t)!,
-      labelLarge: TextStyle.lerp(font.labelLarge, other.labelLarge, t)!,
-      labelLargeSecondary: TextStyle.lerp(
-          font.labelLargeSecondary, other.labelLargeSecondary, t)!,
-      labelLargeOnPrimary: TextStyle.lerp(
-          font.labelLargeOnPrimary, other.labelLargeOnPrimary, t)!,
-      labelMedium: TextStyle.lerp(font.labelMedium, other.labelMedium, t)!,
-      labelMediumPrimary:
-          TextStyle.lerp(font.labelMediumPrimary, other.labelMediumPrimary, t)!,
-      labelMediumSecondary: TextStyle.lerp(
-          font.labelMediumSecondary, other.labelMediumSecondary, t)!,
-      labelMediumOnPrimary: TextStyle.lerp(
-          font.labelMediumOnPrimary, other.labelMediumOnPrimary, t)!,
-      labelMediumDanger:
-          TextStyle.lerp(font.labelMediumDanger, other.labelMediumDanger, t)!,
-      labelSmall: TextStyle.lerp(font.labelSmall, other.labelSmall, t)!,
-      labelSmallPrimary:
-          TextStyle.lerp(font.labelSmallPrimary, other.labelSmallPrimary, t)!,
-      labelSmallSecondary: TextStyle.lerp(
-          font.labelSmallSecondary, other.labelSmallSecondary, t)!,
-      labelSmallOnPrimary: TextStyle.lerp(
-          font.labelSmallOnPrimary, other.labelSmallOnPrimary, t)!,
-      bodyLarge: TextStyle.lerp(font.bodyLarge, other.bodyLarge, t)!,
-      bodyLargePrimary:
-          TextStyle.lerp(font.bodyLargePrimary, other.bodyLargePrimary, t)!,
-      bodyLargeSecondary:
-          TextStyle.lerp(font.bodyLargeSecondary, other.bodyLargeSecondary, t)!,
-      bodyMedium: TextStyle.lerp(font.bodyMedium, other.bodyMedium, t)!,
-      bodyMediumPrimary:
-          TextStyle.lerp(font.bodyMediumPrimary, other.bodyMediumPrimary, t)!,
-      bodyMediumSecondary: TextStyle.lerp(
-          font.bodyMediumSecondary, other.bodyMediumSecondary, t)!,
-      bodyMediumOnPrimary: TextStyle.lerp(
-          font.bodyMediumOnPrimary, other.bodyMediumOnPrimary, t)!,
-      bodySmall: TextStyle.lerp(font.bodySmall, other.bodySmall, t)!,
-      bodySmallPrimary:
-          TextStyle.lerp(font.bodySmallPrimary, other.bodySmallPrimary, t)!,
-      bodySmallSecondary:
-          TextStyle.lerp(font.bodySmallSecondary, other.bodySmallSecondary, t)!,
-      bodySmallOnPrimary:
-          TextStyle.lerp(font.bodySmallOnPrimary, other.bodySmallOnPrimary, t)!,
-      bodyTiny: TextStyle.lerp(font.bodyTiny, other.bodyTiny, t)!,
-      bodyTinyOnPrimary:
-          TextStyle.lerp(font.bodyTinyOnPrimary, other.bodyTinyOnPrimary, t)!,
-      input: TextStyle.lerp(font.input, other.input, t)!,
-      error: TextStyle.lerp(font.error, other.error, t)!,
-      counter: TextStyle.lerp(font.counter, other.counter, t)!,
     );
   }
 }
@@ -1065,6 +678,9 @@ class Palette {
     required this.transparent,
     required this.accept,
     required this.acceptAuxiliary,
+    required this.acceptLight,
+    required this.acceptLighter,
+    required this.acceptLightest,
     required this.decline,
     required this.danger,
     required this.warning,
@@ -1314,15 +930,20 @@ class Palette {
   /// brightness.
   final Color transparent;
 
-  /// Indicator of an affirmative color to visually confirm elements of the user
-  /// interface.
-  ///
-  /// Used in accept call button.
+  /// Indicator of an affirmative color of confirmable elements.
   final Color accept;
 
-  /// [Color] is used as an auxiliary color to display pleasant action
-  /// confirmation messages.
+  /// [Color] displaying pleasant action confirmation messages.
   final Color acceptAuxiliary;
+
+  /// Light variant of the [accept] color.
+  final Color acceptLight;
+
+  /// Lighter variant of the [accept] color.
+  final Color acceptLighter;
+
+  /// Lightest variant of the [accept] color.
+  final Color acceptLightest;
 
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
@@ -1432,6 +1053,10 @@ class Palette {
       accept: Color.lerp(color.accept, other.accept, t)!,
       acceptAuxiliary:
           Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+      acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
+      acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
+      acceptLightest:
+          Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
       decline: Color.lerp(color.decline, other.decline, t)!,
       danger: Color.lerp(color.danger, other.danger, t)!,
       warning: Color.lerp(color.warning, other.warning, t)!,

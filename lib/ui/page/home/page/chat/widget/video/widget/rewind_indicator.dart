@@ -64,7 +64,7 @@ class RewindIndicator extends StatelessWidget {
               ),
               Text(
                 'label_count_seconds'.l10nfmt({'count': seconds}),
-                style: style.fonts.bodyMediumOnPrimary,
+                style: style.fonts.normal.regular.onPrimary,
               ),
             ],
           ),

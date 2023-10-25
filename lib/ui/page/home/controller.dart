@@ -174,6 +174,11 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> updateAvatar() async {
+    await _myUserService.refresh();
+  }
+
   /// Refreshes the controller on [router] change.
   ///
   /// Required in order for the [BottomNavigatorBar] to rebuild.

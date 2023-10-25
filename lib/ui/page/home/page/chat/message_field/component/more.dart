@@ -27,18 +27,65 @@ import '/util/platform_utils.dart';
 /// Visual representation of the [MessageFieldController.panel].
 ///
 /// Intended to be drawn in the overlay.
-class MessageFieldMore extends StatelessWidget {
-  const MessageFieldMore(this.c, {super.key});
+class MessageFieldMore extends StatefulWidget {
+  const MessageFieldMore(this.c, {super.key, this.onDismissed});
 
   /// [MessageFieldController] this [MessageFieldMore] is bound to.
   final MessageFieldController c;
+
+  /// Callback, called when animation of this [MessageFieldMore] is
+  /// [AnimationStatus.dismissed].
+  final void Function()? onDismissed;
+
+  @override
+  State<MessageFieldMore> createState() => _MessageFieldMoreState();
+}
+
+/// State of a [MessageFieldMore] maintaining the [_controller].
+class _MessageFieldMoreState extends State<MessageFieldMore>
+    with TickerProviderStateMixin {
+  /// Controller animating [FadeTransition].
+  late AnimationController _controller;
+
+  /// Animation of [FadeTransition] and [SlideTransition].
+  late Animation<double> _animation;
+
+  /// [Worker] reacting on the [MessageFieldController.moreOpened] changes
+  /// [dismiss]ing this [MessageFieldMore]
+  Worker? _worker;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    )..forward();
+
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.ease);
+
+    _worker = ever(widget.c.moreOpened, (opened) {
+      if (!opened) {
+        dismiss();
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _worker?.dispose();
+    _worker = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final Rect? rect = c.fieldKey.globalPaintBounds;
+      final Rect? rect = widget.c.fieldKey.globalPaintBounds;
 
       final double left = rect?.left ?? 0;
       final double right =
@@ -48,23 +95,23 @@ class MessageFieldMore extends StatelessWidget {
           : (constraints.maxHeight - rect.bottom + rect.height);
 
       final List<Widget> widgets = [];
-      for (int i = 0; i < c.panel.length; ++i) {
-        final e = c.panel.elementAt(i);
+      for (int i = 0; i < widget.c.panel.length; ++i) {
+        final e = widget.c.panel.elementAt(i);
 
         widgets.add(
           Obx(() {
-            final bool contains = c.buttons.contains(e);
+            final bool contains = widget.c.buttons.contains(e);
 
             return ChatMoreWidget(
               e,
               pinned: contains,
-              onPressed: c.toggleMore,
-              onPin: contains || c.canPin.value
+              onPressed: dismiss,
+              onPin: contains || widget.c.canPin.value
                   ? () {
-                      if (c.buttons.contains(e)) {
-                        c.buttons.remove(e);
+                      if (widget.c.buttons.contains(e)) {
+                        widget.c.buttons.remove(e);
                       } else {
-                        c.buttons.add(e);
+                        widget.c.buttons.add(e);
                       }
                     }
                   : null,
@@ -84,7 +131,7 @@ class MessageFieldMore extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Listener(
-              onPointerDown: (_) => c.toggleMore(),
+              onPointerDown: (_) => dismiss(),
               child: Container(
                 width: rect?.left ?? constraints.maxWidth,
                 height: constraints.maxHeight,
@@ -95,7 +142,7 @@ class MessageFieldMore extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Listener(
-              onPointerDown: (_) => c.toggleMore(),
+              onPointerDown: (_) => dismiss(),
               child: Container(
                 margin: EdgeInsets.only(
                   left: (rect?.left ?? constraints.maxWidth) + 50,
@@ -111,7 +158,7 @@ class MessageFieldMore extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Listener(
-              onPointerDown: (_) => c.toggleMore(),
+              onPointerDown: (_) => dismiss(),
               child: Container(
                 margin:
                     EdgeInsets.only(left: (rect?.left ?? constraints.maxWidth)),
@@ -124,24 +171,51 @@ class MessageFieldMore extends StatelessWidget {
           Positioned(
             left: left,
             right: context.isNarrow ? right : null,
-            bottom: bottom + 10,
-            child: Container(
-              decoration: BoxDecoration(
-                color: style.colors.onPrimary,
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
+            bottom: 0,
+            child: SlideTransition(
+              position: Tween(
+                begin: context.isMobile ? const Offset(0, 1) : Offset.zero,
+                end: Offset.zero,
+              ).animate(_animation),
+              child: FadeTransition(
+                opacity: Tween(
+                  begin: context.isMobile ? 1.0 : 0.0,
+                  end: 1.0,
+                ).animate(_animation),
+                child: Container(
+                  margin: EdgeInsets.only(bottom: bottom + 10),
+                  decoration: BoxDecoration(
+                    color: style.colors.onPrimary,
+                    borderRadius: style.cardRadius,
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: style.colors.onBackgroundOpacity13,
+                      ),
+                    ],
                   ),
-                ],
+                  child: context.isNarrow
+                      ? actions
+                      : IntrinsicWidth(child: actions),
+                ),
               ),
-              child:
-                  context.isNarrow ? actions : IntrinsicWidth(child: actions),
             ),
           ),
         ],
       );
     });
+  }
+
+  /// Dismisses this [MessageFieldMore] with animation.
+  Future<void> dismiss() async {
+    _worker?.dispose();
+    _worker = null;
+
+    await _controller.reverse();
+    widget.onDismissed?.call();
+
+    if (widget.c.moreOpened.isTrue) {
+      widget.c.toggleMore();
+    }
   }
 }

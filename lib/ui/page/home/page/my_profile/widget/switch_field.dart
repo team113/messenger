@@ -48,7 +48,7 @@ class SwitchField extends StatelessWidget {
         IgnorePointer(
           child: ReactiveTextField(
             state: TextFieldState(text: text, editable: false),
-            style: style.fonts.bodyMediumSecondary,
+            style: style.fonts.normal.regular.secondary,
           ),
         ),
         Align(

@@ -68,6 +68,7 @@
 
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
+  <link href='https://fonts.googleapis.com/css?family=Noto Sans Display' rel='stylesheet'>
   <style type="text/css">
     body {
       background-image: url('assets/assets/images/background_light.svg');
@@ -76,12 +77,6 @@
       background-size: cover;
       background-position: center;
       overflow-x: hidden;
-    }
-
-    @font-face {
-      font-family: "SF UI Display";
-      src: url('assets/assets/fonts/SFUIDisplay-Light.ttf');
-      src: url('assets/assets/fonts/SFUIDisplay-Light.ttf') format('truetype');
     }
 
     .content {
@@ -106,64 +101,6 @@
     @keyframes shimmer {
       100% {
         -webkit-mask-position: left
-      }
-    }
-
-    .dot-flashing {
-      position: relative;
-      width: 4px;
-      height: 4px;
-      border-radius: 5px;
-      background-color: #888888;
-      color: #888888;
-      animation: dot-flashing 800ms infinite linear alternate;
-      animation-delay: 0.3s;
-    }
-
-    .dot-flashing::before,
-    .dot-flashing::after {
-      content: "";
-      display: inline-block;
-      position: absolute;
-      top: 0;
-    }
-
-    .dot-flashing::before {
-      left: -7px;
-      width: 4px;
-      height: 4px;
-      border-radius: 5px;
-      background-color: #888888;
-      color: #888888;
-      animation: dot-flashing 800ms infinite alternate;
-      animation-delay: 0s;
-    }
-
-    .dot-flashing::after {
-      left: 7px;
-      width: 4px;
-      height: 4px;
-      border-radius: 5px;
-      background-color: #888888;
-      color: #888888;
-      animation: dot-flashing 800ms infinite alternate;
-      animation-delay: 800ms;
-    }
-
-    .gapopa {
-      max-width: none;
-      padding-left: unset;
-      padding-right: unset;
-    }
-
-    @keyframes dot-flashing {
-      0% {
-        background-color: #888888;
-      }
-
-      50%,
-      100% {
-        background-color: rgba(136, 136, 136, 0.2);
       }
     }
   </style>
@@ -224,23 +161,23 @@
   <div id="loader" class="container content">
     <div style="vertical-align: middle;">
       <div style="display: flex; justify-content: center; margin-bottom: 12px;">
-        <div style="color:#888888; font-weight: 300; font-size:18pt; font-family: SF UI Display, system-ui;">
+        <div style="color:#888888; font-weight: 300; font-size:20pt; font-family: Noto Sans Display, system-ui;">
           Messenger
         </div>
       </div>
       <div style="display: flex; justify-content: center; margin-bottom: 24px;">
         <div
-          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui; transform: translate(0px, -8px);">
+          style="color:#888888; font-weight: 300; font-size:16pt; font-family: Noto Sans Display, system-ui; transform: translate(0px, -8px);">
           by Gapopa
         </div>
       </div>
       <div style="display: flex; justify-content: center;">
-        <canvas class="gapopa" id="canvas"></canvas>
+        <img id="logo" height="168px" src="assets/assets/images/logo/head0000.svg">
       </div>
       <div style="display: flex; justify-content: center; margin-top: 24px;">
         <div class="col-auto h4 shimmer"
-          style="color:#888888; font-weight: 300; font-size:13pt; font-family: SF UI Display, system-ui;">
-          Loading
+             style="color:#888888; font-weight: 300; font-size:13pt; font-family: Noto Sans Display, system-ui;">
+          Loading...
         </div>
       </div>
     </div>
@@ -322,57 +259,36 @@
   </script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Animate the blinking loader -->
-  <script src="https://unpkg.com/@rive-app/canvas@1.0.79"></script>
   <script>
-    var canvas = document.getElementById("canvas");
+    var interval;
 
-    function embed(name) {
-      const r = new rive.Rive({
-        src: `./assets/assets/images/logo/${name}.riv`,
-        canvas: canvas,
-        stateMachines: ["Machine"],
-        autoplay: true,
-        onLoad: () => {
-          r.resizeDrawingSurfaceToCanvas();
-          const inputs = r.stateMachineInputs("Machine");
-          const blink = inputs.find((input) => {
-            return input.name === "blink";
-          });
+    var i = 0;
+    async function animate() {
+      i = 1;
 
-          setTimeout(() => blink.fire(), 500);
-
-          window.addEventListener("click", function (e) {
-            blink.fire();
-          });
-        }
-      });
-    }
-
-    var lastNarrow = undefined;
-    var narrow = undefined;
-
-    function recalculate() {
-      if (canvas == null) {
-        return;
+      if (interval != null) {
+        clearInterval(interval);
+        interval = null;
       }
 
-      narrow = window.innerHeight < 500;
-      if (narrow != lastNarrow) {
-        lastNarrow = narrow;
-        if (narrow) {
-          document.getElementById('canvas').height = 90;
-          document.getElementById('canvas').setAttribute("style", "height: 150px; width:" + window.innerWidth + "px;");
-          embed('head');
-        } else {
-          document.getElementById('canvas').height = 200;
-          document.getElementById('canvas').setAttribute("style", "height: 300px; width:" + window.innerWidth + "px;");
-          embed('logo');
+      interval = setInterval(function () {
+        ++i;
+
+        if (i == 10) {
+          i = 0;
+          clearInterval(interval);
+          interval = null;
         }
-      }
+
+        $("#logo").attr("src", `assets/assets/images/logo/head000${i}.svg`);
+      }, 45);
     }
 
-    window.addEventListener("resize", (_) => { recalculate(); });
-    recalculate();
+    $('html').on('click', function () {
+      if ($("#logo").length) {
+        animate();
+      }
+    });
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>

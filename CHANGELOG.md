@@ -9,14 +9,62 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.1.0-alpha.11] · 2023-??-??
 [0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
 
-[Diff](/../../compare/v0.1.0-alpha.10...v0.1.0-alpha.11) | [Milestone](/../../milestone/11)
+[Diff](/../../compare/v0.1.0-alpha.10.1...v0.1.0-alpha.11) | [Milestone](/../../milestone/12)
+
+### Changed
+
+- UI:
+    - Updated fonts. ([#663], [#615])
+    - Style page:
+        - Redesigned typography tab. ([#663], [#615])
+    - Chat page:
+        - Display message field while loading. ([#662], [#634])
+- Web:
+    - Updated loading animation. ([#662], [#634])
+
+[#615]: /../../issues/615
+[#634]: /../../issues/634
+[#662]: /../../pull/662
+[#663]: /../../pull/663
+
+
+
+
+## [0.1.0-alpha.10.1] · 2023-10-19
+[0.1.0-alpha.10.1]: /../../tree/v0.1.0-alpha.10.1
+
+[Diff](/../../compare/v0.1.0-alpha.10...v0.1.0-alpha.10.1) | [Milestone](/../../milestone/11)
 
 ### Added
 
 - Push notifications. ([#202], [#201])
 
+### Changed
+
+- UI:
+    - Updated avatars colors. ([#656])
+    - Chat page:
+        - Attachments panel smoothly appearing and disappearing. ([#657], [#641])
+        - Updated messages color. ([#656])
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Wide image attachments having blurry previews. ([#628], [#525])
+- Web:
+    - Back button not working on Android. ([#548])
+- macOS:
+    - Application crashing when encountering video attachments in chat. ([#656])
+
 [#201]: /../../issues/201
 [#202]: /../../pull/202
+[#525]: /../../issues/525
+[#548]: /../../issues/548
+[#628]: /../../pull/628
+[#641]: /../../pull/641
+[#656]: /../../pull/656
+[#657]: /../../pull/657
 
 
 
@@ -308,7 +356,7 @@ All user visible changes to this project will be documented in this file. This p
         - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
 - Windows:
-    - Unread chats count badge on app's icon. ([#342], [#327])    
+    - Unread chats count badge on app's icon. ([#342], [#327])
 
 ### Changed
 
@@ -595,7 +643,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Mobile minimization gesture being too rapid. ([#45], [#44])
         - Media not enabling in empty call. ([#79], [#117], [#75])
-        - Prevent device from sleeping. ([#112], [#92]) 
+        - Prevent device from sleeping. ([#112], [#92])
 
 [#2]: /../../issues/2
 [#3]: /../../issues/3

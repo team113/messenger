@@ -236,6 +236,9 @@ class ChatController extends GetxController {
   /// [active].
   StreamSubscription? _onActivityChanged;
 
+  /// Subscription for the [chat] changes.
+  StreamSubscription? _chatSubscription;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -335,6 +338,10 @@ class ChatController extends GetxController {
       _settingsRepository,
       onChanged: updateDraft,
       onSubmit: () async {
+        if (chat == null) {
+          return;
+        }
+
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
@@ -357,7 +364,7 @@ class ChatController extends GetxController {
               send.replied.isNotEmpty) {
             _chatService
                 .sendChatMessage(
-                  chat!.chat.value.id,
+                  chat?.chat.value.id ?? id,
                   text: send.field.text.trim().isEmpty
                       ? null
                       : ChatMessageText(send.field.text.trim()),
@@ -416,6 +423,7 @@ class ChatController extends GetxController {
     _chatWorker?.dispose();
     _statusWorker?.dispose();
     _typingSubscription?.cancel();
+    _chatSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -579,11 +587,16 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      _chatSubscription = chat!.updates.listen((_) {});
+
       unreadMessages = chat!.chat.value.unreadCount;
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val ?? send.field.text;
+      if (send.field.text.isEmpty) {
+        send.field.unchecked = draft?.text?.val ?? send.field.text;
+      }
+
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],

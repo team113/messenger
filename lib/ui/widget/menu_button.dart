@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 
 /// Rounded button with an [icon], [title] and [subtitle] intended to be used in
 /// a menu list.
@@ -57,68 +56,65 @@ class MenuButton extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        height: 73,
-        child: Container(
-          decoration: BoxDecoration(
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 73),
+        decoration: BoxDecoration(
+          borderRadius: style.cardRadius,
+          border: style.cardBorder,
+          color: style.colors.transparent,
+        ),
+        child: Material(
+          type: MaterialType.card,
+          borderRadius: style.cardRadius,
+          color: inverted ? style.colors.primary : style.cardColor,
+          child: InkWell(
             borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: style.colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: inverted ? style.colors.primary : style.cardColor,
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: onPressed,
-              hoverColor: inverted
-                  ? style.colors.primary
-                  : style.cardColor.darken(0.03),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 12),
-                    if (leading != null) leading!,
-                    if (icon != null)
-                      Icon(
-                        icon,
-                        color: inverted
-                            ? style.colors.onPrimary
-                            : style.colors.primary,
-                      ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (title != null)
-                            DefaultTextStyle(
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: inverted
-                                  ? style.fonts.headlineLargeOnPrimary
-                                  : style.fonts.headlineLarge,
-                              child: Text(title!),
-                            ),
-                          if (title != null && subtitle != null)
-                            const SizedBox(height: 6),
-                          if (subtitle != null)
-                            DefaultTextStyle.merge(
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: inverted
-                                  ? style.fonts.labelMediumOnPrimary
-                                  : style.fonts.labelMedium,
-                              child: Text(subtitle!),
-                            ),
-                        ],
-                      ),
+            onTap: onPressed,
+            hoverColor:
+                inverted ? style.colors.primary : style.cardHoveredColor,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  const SizedBox(width: 12),
+                  if (leading != null) leading!,
+                  if (icon != null)
+                    Icon(
+                      icon,
+                      color: inverted
+                          ? style.colors.onPrimary
+                          : style.colors.primary,
                     ),
-                  ],
-                ),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (title != null)
+                          DefaultTextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: inverted
+                                ? style.fonts.big.regular.onPrimary
+                                : style.fonts.big.regular.onBackground,
+                            child: Text(title!),
+                          ),
+                        if (title != null && subtitle != null)
+                          const SizedBox(height: 6),
+                        if (subtitle != null)
+                          DefaultTextStyle.merge(
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: inverted
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.onBackground,
+                            child: Text(subtitle!),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

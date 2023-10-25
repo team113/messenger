@@ -83,14 +83,14 @@ class ChatInfoCard extends StatelessWidget {
                                 chat?.title.value ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: style.fonts.headlineLargeOnPrimary,
+                                style: style.fonts.big.regular.onPrimary,
                               ),
                             ),
                             duration == null
                                 ? const SizedBox()
                                 : Text(
                                     duration!.hhMmSs(),
-                                    style: style.fonts.labelLargeOnPrimary,
+                                    style: style.fonts.normal.regular.onPrimary,
                                   ),
                           ],
                         ),
@@ -101,13 +101,13 @@ class ChatInfoCard extends StatelessWidget {
                               if (subtitle != null)
                                 Text(
                                   subtitle!,
-                                  style: style.fonts.labelLargeOnPrimary,
+                                  style: style.fonts.normal.regular.onPrimary,
                                 ),
                               const Spacer(),
                               if (trailing != null)
                                 Text(
                                   trailing!,
-                                  style: style.fonts.labelLargeOnPrimary,
+                                  style: style.fonts.normal.regular.onPrimary,
                                 ),
                             ],
                           ),

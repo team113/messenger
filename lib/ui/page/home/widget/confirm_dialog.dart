@@ -134,7 +134,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             onTap: () => setState(() => _variant = variant),
             hoverColor: _variant == variant
                 ? style.colors.primary
-                : style.cardColor.darken(0.08),
+                : style.cardHoveredColor,
             borderRadius: style.cardRadius,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
@@ -143,8 +143,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                   Expanded(
                     child: DefaultTextStyle.merge(
                       style: _variant == variant
-                          ? style.fonts.headlineMediumOnPrimary
-                          : style.fonts.headlineMedium,
+                          ? style.fonts.big.regular.onPrimary
+                          : style.fonts.big.regular.onBackground,
                       child: variant.child,
                     ),
                   ),
@@ -180,7 +180,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             child: Center(
               child: Text(
                 widget.description!,
-                style: style.fonts.labelLargeSecondary,
+                style: style.fonts.normal.regular.secondary,
               ),
             ),
           ),
@@ -209,7 +209,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             maxWidth: double.infinity,
             title: Text(
               widget.label ?? 'btn_proceed'.l10n,
-              style: style.fonts.bodyMediumOnPrimary,
+              style: style.fonts.normal.regular.onPrimary,
             ),
             onPressed: () {
               Navigator.of(context).pop(_variant.onProceed?.call());
