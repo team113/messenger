@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
@@ -337,6 +338,10 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     send = MessageFieldController(
       _chatService,
       _userService,
@@ -369,7 +374,7 @@ class ChatController extends GetxController {
                   text: send.field.text.trim().isEmpty
                       ? null
                       : ChatMessageText(send.field.text.trim()),
-                  repliesTo: send.replied.reversed.toList(),
+                  repliesTo: send.replied.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
                 .then((_) => AudioUtils.once(
@@ -442,6 +447,10 @@ class ChatController extends GetxController {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
     }
 
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -512,8 +521,12 @@ class ChatController extends GetxController {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
           if (edit.value?.field.text.trim() == item.text?.val &&
-              edit.value?.attachments.length == item.attachments.length &&
-              edit.value?.replied.length == item.repliesTo.length) {
+              item.attachments
+                  .map((e) => e.id)
+                  .sameAs(edit.value?.attachments.map((e) => e.value.id)) &&
+              item.repliesTo
+                  .map((e) => e.original?.id)
+                  .sameAs(edit.value?.replied.map((e) => e.id))) {
             edit.value?.onClose();
             edit.value = null;
           } else if (edit.value!.field.text.trim().isNotEmpty ||
@@ -534,12 +547,7 @@ class ChatController extends GetxController {
                 repliesTo: ChatMessageRepliesInput(repliesTo),
               );
 
-              edit.value?.onClose();
-              edit.value = null;
-
-              _typingSubscription?.cancel();
-              _typingSubscription = null;
-              _typingTimer?.cancel();
+              closeEditing();
 
               if (send.field.isEmpty.isFalse) {
                 send.field.focus.requestFocus();
@@ -554,8 +562,7 @@ class ChatController extends GetxController {
         },
         onChanged: () {
           if (edit.value?.edited.value == null) {
-            edit.value?.onClose();
-            edit.value = null;
+            closeEditing();
           }
         },
       );
@@ -563,6 +570,12 @@ class ChatController extends GetxController {
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
     }
+  }
+
+  /// Closes the [edit]ing if any.
+  void closeEditing() {
+    edit.value?.onClose();
+    edit.value = null;
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
@@ -953,7 +966,14 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) {
+    RxUser? user = _userService.users[id];
+    if (user != null) {
+      return user;
+    }
+
+    return _userService.get(id);
+  }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -1411,6 +1431,20 @@ class ChatController extends GetxController {
       }
     });
   }
+
+  /// Invokes [closeEditing], if [edit]ing.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (edit.value != null) {
+      closeEditing();
+      return true;
+    }
+
+    return false;
+  }
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
@@ -1678,4 +1712,22 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
+}
+
+/// Extension adding an ability to compare equality of two [List]s.
+extension CompareListsExtension<T> on Iterable<T> {
+  /// Return indicator whether the provided [list] is the same as this.
+  bool sameAs(Iterable<T>? list) {
+    if (list == null || list.length != length) {
+      return false;
+    }
+
+    for (int i = 0; i < length; i++) {
+      if (list.elementAt(i) != elementAt(i)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

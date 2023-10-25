@@ -527,32 +527,37 @@ class ChatRepository extends DisposableInterface
       previousAttachments = (item?.value as ChatMessage).attachments;
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
-      item?.update((c) {
-        (c as ChatMessage?)?.text = text.changed;
+      item!.update((c) {
+        (c as ChatMessage).text = text.changed;
 
-        c?.attachments
-            .removeWhere((e) => attachments.changed.none((c) => c == e.id));
+        c.attachments = attachments.changed
+            .map((e) => c.attachments.firstWhereOrNull((a) => a.id == e))
+            .whereNotNull()
+            .toList();
 
-        c?.repliesTo.removeWhere(
-          (e) => repliesTo.changed
-              .none((c) => e.original == null || c == e.original?.id),
-        );
+        c.repliesTo = repliesTo.changed
+            .map(
+              (e) => c.repliesTo.firstWhereOrNull((a) => a.original?.id == e),
+            )
+            .whereNotNull()
+            .toList();
       });
     }
 
     try {
       await _graphQlProvider.editChatMessage(
         message.id,
-        text: ChatMessageTextInput(kw$new: text.changed.val.isNotEmpty ? text.changed : null),
+        text: ChatMessageTextInput(
+            kw$new: text.changed.val.isNotEmpty ? text.changed : null),
         attachments: ChatMessageAttachmentsInput(kw$new: attachments.changed),
         repliesTo: ChatMessageRepliesInput(kw$new: repliesTo.changed),
       );
     } catch (_) {
       if (item?.value is ChatMessage) {
-        item?.update((c) {
-          (c as ChatMessage?)?.text = previousText;
-          c?.attachments = previousAttachments ?? [];
-          c?.repliesTo = previousReplies ?? [];
+        item!.update((c) {
+          (c as ChatMessage).text = previousText;
+          c.attachments = previousAttachments ?? [];
+          c.repliesTo = previousReplies ?? [];
         });
       }
 

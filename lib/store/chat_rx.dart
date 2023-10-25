@@ -1091,32 +1091,35 @@ class HiveRxChat extends RxChat {
               event as EventChatItemEdited;
               final message = await get(event.itemId);
               if (message != null) {
-                if(event.text != null) {
+                if (event.text != null) {
                   (message.value as ChatMessage).text = event.text;
                 }
 
-                if(event.attachments != null) {
-                  (message.value as ChatMessage).attachments = event.attachments!;
+                if (event.attachments != null) {
+                  (message.value as ChatMessage).attachments =
+                      event.attachments!;
                 }
 
-                if(event.quotes != null) {
+                if (event.quotes != null) {
                   (message.value as ChatMessage).repliesTo = event.quotes!;
                 }
 
                 put(message);
               }
 
-              if(chatEntity.value.lastItem?.id == event.itemId) {
-                if(event.text != null) {
+              if (chatEntity.value.lastItem?.id == event.itemId) {
+                if (event.text != null) {
                   (chatEntity.value.lastItem as ChatMessage).text = event.text;
                 }
 
-                if(event.attachments != null) {
-                  (chatEntity.value.lastItem as ChatMessage).attachments = event.attachments!;
+                if (event.attachments != null) {
+                  (chatEntity.value.lastItem as ChatMessage).attachments =
+                      event.attachments!;
                 }
 
-                if(event.quotes != null) {
-                  (chatEntity.value.lastItem as ChatMessage).repliesTo = event.quotes!;
+                if (event.quotes != null) {
+                  (chatEntity.value.lastItem as ChatMessage).repliesTo =
+                      event.quotes!;
                 }
               }
               break;

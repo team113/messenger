@@ -18,7 +18,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
+import 'package:messenger/api/backend/schema.dart'
+    hide
+        ChatMessageTextInput,
+        ChatMessageAttachmentsInput,
+        ChatMessageRepliesInput;
 import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -237,6 +241,8 @@ void main() async {
         PreciseDateTime.now(),
       ),
       text: const ChatMessageTextInput(ChatMessageText('new text')),
+      attachments: const ChatMessageAttachmentsInput([]),
+      repliesTo: const ChatMessageRepliesInput([]),
     );
 
     verify(graphQlProvider.editChatMessage(
@@ -314,6 +320,8 @@ void main() async {
           PreciseDateTime.now(),
         ),
         text: const ChatMessageTextInput(ChatMessageText('new text')),
+        attachments: const ChatMessageAttachmentsInput([]),
+        repliesTo: const ChatMessageRepliesInput([]),
       ),
       throwsA(isA<EditChatMessageException>()),
     );

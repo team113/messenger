@@ -300,7 +300,6 @@ class MessageFieldView extends StatelessWidget {
                 child: child,
               );
             },
-            reverse: true,
             padding: const EdgeInsets.symmetric(horizontal: 1),
             children: c.replied.map((e) {
               return ReorderableDragStartListener(
@@ -790,7 +789,7 @@ class MessageFieldView extends StatelessWidget {
                 style: style.fonts.medium.regular.primary,
               ),
             ),
-            WidgetButton(
+            AnimatedButton(
               key: const Key('CancelEditButton'),
               onPressed: onClose,
               child: Text(

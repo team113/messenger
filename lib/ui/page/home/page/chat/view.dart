@@ -629,13 +629,15 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
+      FutureOr<RxUser?> user = c.getUser(e.value.author.id);
+
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.author.id),
+          future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
@@ -652,7 +654,7 @@ class _ChatViewState extends State<ChatView>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
                         m.memberId != e.value.author.id),
-                user: snapshot.data,
+                user: snapshot.data ?? (user is RxUser? ? user : null),
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -662,7 +664,7 @@ class _ChatViewState extends State<ChatView>
                   if (c.send.replied.any((i) => i.id == e.value.id)) {
                     c.send.replied.removeWhere((i) => i.id == e.value.id);
                   } else {
-                    c.send.replied.insert(0, e.value);
+                    c.send.replied.add(e.value);
                   }
                 },
                 onCopy: (text) {
@@ -693,14 +695,16 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is ChatForwardElement) {
+      FutureOr<RxUser?> user = c.getUser(element.authorId);
+
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(element.authorId),
-          builder: (_, u) => Obx(() {
+          future: user is Future<RxUser?> ? user : null,
+          builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
@@ -718,7 +722,7 @@ class _ChatViewState extends State<ChatView>
                         m.at == element.forwards.last.value.at &&
                         m.memberId != c.me &&
                         m.memberId != element.authorId),
-                user: u.data,
+                user: snapshot.data ?? (user is RxUser? ? user : null),
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -764,11 +768,11 @@ class _ChatViewState extends State<ChatView>
                     }
                   } else {
                     if (element.note.value != null) {
-                      c.send.replied.insert(0, element.note.value!.value);
+                      c.send.replied.add(element.note.value!.value);
                     }
 
                     for (Rx<ChatItem> e in element.forwards) {
-                      c.send.replied.insert(0, e.value);
+                      c.send.replied.add(e.value);
                     }
                   }
                 },
