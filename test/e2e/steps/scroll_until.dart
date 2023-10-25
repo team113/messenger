@@ -74,7 +74,7 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
     for (int i = 0; i < 500; ++i) {
       // If [finder] is present and it's within our view, then break the loop.
       if (await isPresent(finder) &&
-          nativeDriver.getCenter(finder).dy <= height - dy) {
+          nativeDriver.getCenter(finder.first).dy <= height - dy) {
         await Scrollable.ensureVisible(finder.evaluate().single);
         break;
       }
