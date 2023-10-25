@@ -19,13 +19,16 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned typography tab. ([#663], [#615])
     - Chat page:
         - Display message field while loading. ([#662], [#634])
+        - Allow message attachments and replies editing. ([#671], [#557])
 - Web:
     - Updated loading animation. ([#662], [#634])
 
+[#557]: /../../issues/557
 [#615]: /../../issues/615
 [#634]: /../../issues/634
 [#662]: /../../pull/662
 [#663]: /../../pull/663
+[#671]: /../../pull/671
 
 
 

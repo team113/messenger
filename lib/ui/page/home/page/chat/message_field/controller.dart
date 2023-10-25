@@ -120,13 +120,11 @@ class MessageFieldController extends GetxController {
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
     _editedWorker ??= ever(edited, (item) {
       if (item != null) {
-        final ChatMessage msg = item as ChatMessage;
-
-        field.text = msg.text?.val ?? '';
+        field.text = item.text?.val ?? '';
         this.attachments.value =
-            msg.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
+            item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
         replied.value =
-            msg.repliesTo.map((e) => e.original).whereNotNull().toList();
+            item.repliesTo.map((e) => e.original).whereNotNull().toList();
       } else {
         field.text = '';
         this.attachments.clear();
@@ -157,7 +155,7 @@ class MessageFieldController extends GetxController {
   late final RxList<ChatItemQuoteInput> quotes;
 
   /// [ChatItem] being edited.
-  final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
+  final Rx<ChatMessage?> edited = Rx<ChatMessage?>(null);
 
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
