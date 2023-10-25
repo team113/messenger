@@ -26,6 +26,8 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/call_button.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
+import 'package:messenger/ui/page/call/widget/raised_hand.dart';
+import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/widget/action.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -1324,6 +1326,151 @@ class _WidgetsViewState extends State<IconsView> {
                     }).toList(),
                   ),
                 ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              AnimatedButton(
+                onPressed: () => c.icon.value =
+                    IconDetails(SvgIcons.handUpBig.asset, invert: true),
+                child: const RaisedHand(true),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Container(
+                key: const ValueKey('TitleBar'),
+                color: style.colors.backgroundAuxiliaryLight,
+                height: 30,
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 3, left: 5),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedButton(
+                            onPressed: () => c.icon.value = IconDetails(
+                              SvgIcons.fullscreenExitSmall.asset,
+                              invert: true,
+                            ),
+                            child: const SvgIcon(SvgIcons.fullscreenExitSmall),
+                          ),
+                          const SizedBox(width: 10),
+                          AnimatedButton(
+                            onPressed: () => c.icon.value = IconDetails(
+                              SvgIcons.fullscreenEnterSmall.asset,
+                              invert: true,
+                            ),
+                            child: const SvgIcon(SvgIcons.fullscreenEnterSmall),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.fullscreenExit.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.fullscreenExit,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.fullscreenEnter.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.fullscreenEnter,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.arrowLeft.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.arrowLeft,
+                      offset: const Offset(-1, 0),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.arrowRight.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.arrowRight,
+                      offset: const Offset(1, 0),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.arrowLeftDisabled.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.arrowLeftDisabled,
+                      offset: const Offset(-1, 0),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.arrowRightDisabled.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.arrowRightDisabled,
+                      offset: const Offset(1, 0),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: RoundFloatingButton(
+                      color: style.colors.onSecondaryOpacity50,
+                      onPressed: () => c.icon.value = IconDetails(
+                        SvgIcons.close.asset,
+                        invert: true,
+                      ),
+                      icon: SvgIcons.close,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

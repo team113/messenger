@@ -1451,7 +1451,7 @@ class _ChatViewState extends State<ChatView>
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const SizedBox(height: 4),
+              const SizedBox(height: 0),
               Obx(() {
                 final bool visible =
                     c.visible[c.pinned[c.displayPinned.value].id] != null;

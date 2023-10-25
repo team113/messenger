@@ -27,6 +27,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -667,7 +668,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.centerLeft,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayLeft && left) || _showControls ? 1 : 0,
+                opacity: _displayLeft || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: WidgetButton(
@@ -695,14 +696,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                               color: style.colors.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_left_rounded,
-                                color: left
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
+                            child: Center(
+                              child: Transform.translate(
+                                offset: const Offset(-1, 0),
+                                child: SvgIcon(
+                                  left
+                                      ? SvgIcons.arrowLeft
+                                      : SvgIcons.arrowLeftDisabled,
+                                ),
                               ),
                             ),
                           ),
@@ -720,7 +721,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.centerRight,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayRight && right) || _showControls ? 1 : 0,
+                opacity: _displayRight || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: WidgetButton(
@@ -748,14 +749,14 @@ class _GalleryPopupState extends State<GalleryPopup>
                               color: style.colors.onSecondaryOpacity50,
                               borderRadius: BorderRadius.circular(60),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_right_rounded,
-                                color: right
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
+                            child: Center(
+                              child: Transform.translate(
+                                offset: const Offset(1, 0),
+                                child: SvgIcon(
+                                  right
+                                      ? SvgIcons.arrowRight
+                                      : SvgIcons.arrowRightDisabled,
+                                ),
                               ),
                             ),
                           ),
@@ -784,11 +785,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     color: style.colors.onSecondaryOpacity50,
                     onPressed: _dismiss,
                     withBlur: true,
-                    child: Icon(
-                      Icons.close_rounded,
-                      color: style.colors.onPrimary,
-                      size: 28,
-                    ),
+                    icon: SvgIcons.close,
                   ),
                 ),
               ),
@@ -812,10 +809,13 @@ class _GalleryPopupState extends State<GalleryPopup>
                       color: style.colors.onSecondaryOpacity50,
                       onPressed: _toggleFullscreen,
                       withBlur: true,
-                      assetWidth: 22,
-                      asset: _isFullscreen.value
-                          ? 'fullscreen_exit_white'
-                          : 'fullscreen_enter_white',
+                      icon: _isFullscreen.value
+                          ? SvgIcons.fullscreenExit
+                          : SvgIcons.fullscreenEnter,
+                      // assetWidth: 22,
+                      // asset: _isFullscreen.value
+                      //     ? 'fullscreen_exit_white'
+                      //     : 'fullscreen_enter_white',
                     ),
                   ),
                 ),

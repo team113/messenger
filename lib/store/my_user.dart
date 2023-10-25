@@ -113,20 +113,22 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initRemoteSubscription();
     _initBlacklistSubscription();
 
-    if (await PlatformUtils.isActive) {
+    if (PlatformUtils.isDesktop || await PlatformUtils.isActive) {
       _initKeepOnlineSubscription();
     }
 
-    _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
-      if (active) {
-        if (_keepOnlineSubscription == null) {
-          _initKeepOnlineSubscription();
+    if (!PlatformUtils.isDesktop) {
+      _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
+        if (active) {
+          if (_keepOnlineSubscription == null) {
+            _initKeepOnlineSubscription();
+          }
+        } else {
+          _keepOnlineSubscription?.cancel();
+          _keepOnlineSubscription = null;
         }
-      } else {
-        _keepOnlineSubscription?.cancel();
-        _keepOnlineSubscription = null;
-      }
-    });
+      });
+    }
 
     if (!_blocklistLocal.isEmpty) {
       final List<RxUser?> users =

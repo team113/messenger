@@ -93,16 +93,20 @@ class SvgIcons {
     height: 17.77,
   );
 
-  // Think about colors naming.
   static const SvgData closePrimary = SvgData(
     'assets/icons/close_primary.svg',
     width: 15,
     height: 15,
   );
 
-  // Think about colors naming.
   static const SvgData closeSmallPrimary = SvgData(
     'assets/icons/close_small_primary.svg',
+    width: 10.4,
+    height: 10.4,
+  );
+
+  static const SvgData closeSmall = SvgData(
+    'assets/icons/close_small_white.svg',
     width: 10.4,
     height: 10.4,
   );
@@ -855,6 +859,12 @@ class SvgIcons {
     height: 31.81,
   );
 
+  static const SvgData handUpBig = SvgData(
+    'assets/icons/hand_up_big.svg',
+    width: 46,
+    height: 57.51,
+  );
+
   static const SvgData callSettings = SvgData(
     'assets/icons/call_settings.svg',
     width: 32,
@@ -1069,4 +1079,98 @@ class SvgIcons {
       height: 220.68,
     ),
   ];
+
+  static const SvgData fullscreenEnterSmall = SvgData(
+    'assets/icons/fullscreen_enter_small.svg',
+    width: 12,
+    height: 12,
+  );
+
+  static const SvgData fullscreenExitSmall = SvgData(
+    'assets/icons/fullscreen_exit_small.svg',
+    width: 12,
+    height: 12,
+  );
+
+  static const SvgData fullscreenEnter = SvgData(
+    'assets/icons/fullscreen_enter.svg',
+    width: 22,
+    height: 22,
+  );
+
+  static const SvgData fullscreenExit = SvgData(
+    'assets/icons/fullscreen_exit.svg',
+    width: 22,
+    height: 22,
+  );
+
+  static const SvgData arrowLeft = SvgData(
+    'assets/icons/arrow_left.svg',
+    width: 9.81,
+    height: 16.7,
+  );
+
+  static const SvgData arrowLeftDisabled = SvgData(
+    'assets/icons/arrow_left_disabled.svg',
+    width: 9.81,
+    height: 16.7,
+  );
+
+  static const SvgData arrowRight = SvgData(
+    'assets/icons/arrow_right.svg',
+    width: 9.81,
+    height: 16.7,
+  );
+
+  static const SvgData arrowRightDisabled = SvgData(
+    'assets/icons/arrow_right_disabled.svg',
+    width: 9.81,
+    height: 16.7,
+  );
+
+  static const SvgData close = SvgData(
+    'assets/icons/close.svg',
+    width: 16.05,
+    height: 16.05,
+  );
+
+  static const SvgData callAudio = SvgData(
+    'assets/icons/call_audio.svg',
+    height: 12,
+  );
+
+  static const SvgData callAudioMissed = SvgData(
+    'assets/icons/call_audio_red.svg',
+    height: 12,
+  );
+
+  static const SvgData callAudioWhite = SvgData(
+    'assets/icons/call_audio_white.svg',
+    height: 12,
+  );
+
+   static const SvgData callAudioDisabled = SvgData(
+    'assets/icons/call_audio_disabled.svg',
+    height: 12,
+  );
+
+  static const SvgData callVideo = SvgData(
+    'assets/icons/call_video.svg',
+    height: 11,
+  );
+
+  static const SvgData callVideoMissed = SvgData(
+    'assets/icons/call_video_red.svg',
+    height: 11,
+  );
+
+  static const SvgData callVideoWhite = SvgData(
+    'assets/icons/call_video_white.svg',
+    height: 11,
+  );
+
+    static const SvgData callVideoDisabled = SvgData(
+    'assets/icons/call_video_grey.svg',
+    height: 11,
+  );
 }

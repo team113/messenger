@@ -1914,10 +1914,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       ),
                                       InkResponse(
                                         onTap: isAnyDrag ? null : c.focusAll,
-                                        child: const SvgImage.asset(
-                                          'assets/icons/close.svg',
-                                          height: 10.25,
-                                        ),
+                                        child:
+                                            const SvgIcon(SvgIcons.closeSmall),
                                       ),
                                       const SizedBox(width: 7),
                                     ],

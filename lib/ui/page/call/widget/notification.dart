@@ -114,11 +114,7 @@ class CallNotificationWidget extends StatelessWidget {
                 onPressed: onClose,
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
-                  child: const SvgImage.asset(
-                    'assets/icons/close.svg',
-                    width: 10,
-                    height: 10,
-                  ),
+                  child: const SvgIcon(SvgIcons.closeSmall),
                 ),
               ),
               const SizedBox(width: 6),

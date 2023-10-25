@@ -410,12 +410,19 @@ class RecentChatTile extends StatelessWidget {
         if (item is ChatCall) {
           Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(
-              Icons.call,
-              size: 16,
-              color: inverted
-                  ? style.colors.onPrimary
-                  : style.colors.secondaryBackgroundLightest,
+            child: SvgIcon(
+              item.withVideo
+                  ? inverted
+                      ? SvgIcons.callVideoWhite
+                      : SvgIcons.callVideoDisabled
+                  : inverted
+                      ? SvgIcons.callAudioWhite
+                      : SvgIcons.callAudioDisabled,
+              // Icons.call,
+              // size: 16,
+              // color: inverted
+              //     ? style.colors.onPrimary
+              //     : style.colors.secondaryBackgroundLightest,
             ),
           );
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/attachment_selector.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -69,18 +68,19 @@ class AttachmentButton extends ChatButton {
 
   @override
   void Function(bool)? get onPressed => (_) async {
-        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
-          await c.pickFile();
-        } else {
-          c.field.focus.unfocus();
-          await AttachmentSourceSelector.show(
-            router.context!,
-            onPickFile: c.pickFile,
-            onTakePhoto: c.pickImageFromCamera,
-            onPickMedia: c.pickMedia,
-            onTakeVideo: c.pickVideoFromCamera,
-          );
-        }
+        await c.pickFile();
+        // if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
+        //   await c.pickFile();
+        // } else {
+        //   c.field.focus.unfocus();
+        //   await AttachmentSourceSelector.show(
+        //     router.context!,
+        //     onPickFile: c.pickFile,
+        //     onTakePhoto: c.pickImageFromCamera,
+        //     onPickMedia: c.pickMedia,
+        //     onTakeVideo: c.pickVideoFromCamera,
+        //   );
+        // }
       };
 
   @override

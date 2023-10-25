@@ -553,12 +553,12 @@ class PlatformUtilsImpl {
 
     _activityTimer?.cancel();
 
-    if (active) {
-      _activityTimer = Timer(_activityTimeout, () {
-        _isActive = false;
-        _activityController?.add(false);
-      });
-    }
+    // if (active) {
+    //   _activityTimer = Timer(_activityTimeout, () {
+    //     _isActive = false;
+    //     _activityController?.add(false);
+    //   });
+    // }
   }
 }
 

@@ -34,8 +34,8 @@ class AnimatedLogo extends StatelessWidget {
     return Stack(
       children: [
         // Load the whole [SvgImage]s beforehand to reduce possible frame drops.
-        ...List.generate(10, (i) => 'assets/images/logo/head_$i.svg')
-            .map((e) => Offstage(child: SvgImage.asset(e)))
+        ...List.generate(10, (i) => SvgIcons.head[i])
+            .map((e) => Offstage(child: SvgIcon(e)))
             .toList(),
 
         // Animation itself.
