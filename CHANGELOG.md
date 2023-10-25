@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Refactored Login filed behavior. ([#672], [#575])
 - Web:
-    - Updated loading animation. ([#672], [#634])
+    - Updated loading animation. ([#662], [#634])
 
 [#615]: /../../issues/615
 [#634]: /../../issues/634
