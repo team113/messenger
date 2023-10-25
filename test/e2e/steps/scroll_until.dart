@@ -71,10 +71,11 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
   }) async {
     final double height = nativeDriver.view.display.size.height;
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 500; ++i) {
       // If [finder] is present and it's within our view, then break the loop.
       if (await isPresent(finder) &&
           nativeDriver.getCenter(finder).dy <= height - dy) {
+        await Scrollable.ensureVisible(finder.evaluate().single);
         break;
       }
 

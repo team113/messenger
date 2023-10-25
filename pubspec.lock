@@ -523,7 +523,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "1f4bd95334b76c32aa4fde845c58f1d70a470b81"
+      resolved-ref: "0d89e589055c6facfc3b49713933a96f97bc017c"
       url: "https://github.com/krida2000/flutter_list_view.git"
     source: git
     version: "1.1.18"
