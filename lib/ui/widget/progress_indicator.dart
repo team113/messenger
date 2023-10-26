@@ -20,7 +20,6 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
@@ -94,7 +93,7 @@ class CustomProgressIndicator extends StatelessWidget {
         decoration: const BoxDecoration(shape: BoxShape.circle),
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
-          value: Config.disableInfiniteAnimations ? 0 : value,
+          value: value,
           color: primary
               ? style.colors.primary
               : style.colors.secondaryHighlightDarkest,
