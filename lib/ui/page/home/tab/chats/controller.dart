@@ -687,6 +687,10 @@ class ChatsTabController extends GetxController {
 
   /// Ensures the [ChatsTabView] is scrollable.
   Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
     if (hasNext.isTrue) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {

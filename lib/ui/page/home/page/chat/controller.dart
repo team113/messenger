@@ -1206,6 +1206,10 @@ class ChatController extends GetxController {
 
     _stickyTimer?.cancel();
     _stickyTimer = Timer(const Duration(seconds: 2), () {
+      if (isClosed) {
+        return;
+      }
+
       if (stickyIndex.value != null) {
         final double? offset =
             listController.sliverController.getItemOffset(stickyIndex.value!);
@@ -1223,6 +1227,10 @@ class ChatController extends GetxController {
 
   /// Ensures the [ChatView] is scrollable.
   Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
     if (hasNext.isTrue || hasPrevious.isTrue) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
@@ -1250,6 +1258,10 @@ class ChatController extends GetxController {
       _messagesAreLoading = true;
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (isClosed) {
+          return;
+        }
+
         _messagesAreLoading = false;
 
         if (!_ignorePositionChanges && status.value.isSuccess) {
