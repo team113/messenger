@@ -66,7 +66,7 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's window focus changes.
   static Stream<bool> get onWindowFocus => const Stream.empty();
 
-  /// Returns a stream broadcasting the browser's `BroadcastChannel` changes.
+  /// Returns a stream broadcasting the browser's broadcast channel changes.
   static Stream<dynamic> get onBroadcastMessage => const Stream.empty();
 
   /// Sets the provided [Credentials] to the browser's storage.

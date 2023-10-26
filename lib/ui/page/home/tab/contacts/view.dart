@@ -671,11 +671,9 @@ class ContactsTabView extends StatelessWidget {
                 ? 'label_sort_by_visit'.l10n
                 : 'label_sort_by_name'.l10n,
             onPressed: c.toggleSorting,
-            trailing: SvgImage.asset(
-              'assets/icons/sort_${c.sortByName ? 'abc' : 'time'}.svg',
+            trailing: SvgIcon(
+              c.sortByName ? SvgIcons.sortAbc : SvgIcons.sortTime,
               key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-              width: 29.69,
-              height: 21,
             ),
           ),
           const ContextMenuDivider(),
@@ -717,13 +715,9 @@ class ContactsTabView extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgImage.asset(
-                inverted
-                    ? 'assets/icons/muted_light.svg'
-                    : 'assets/icons/muted.svg',
+              child: SvgIcon(
+                inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
                 key: Key('MuteIndicator_${contact.id}'),
-                width: 19.99,
-                height: 15,
               ),
             );
           }),

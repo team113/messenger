@@ -21,6 +21,7 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -41,6 +42,7 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
+import '/util/backoff.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
@@ -93,6 +95,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onActivityChanged;
 
+  /// [CancelToken] for cancelling the [_fetchBlocklist].
+  final CancelToken _cancelToken = CancelToken();
+
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
 
@@ -136,16 +141,23 @@ class MyUserRepository implements AbstractMyUserRepository {
       blacklist.addAll(users.whereNotNull());
     }
 
-    final List<HiveUser> blacklisted = await _fetchBlocklist();
+    try {
+      final List<HiveUser> blacklisted =
+          await Backoff.run(_fetchBlocklist, _cancelToken);
 
-    for (UserId c in _blocklistLocal.blocked) {
-      if (blacklisted.none((e) => e.value.id == c)) {
-        _blocklistLocal.remove(c);
+      for (UserId c in _blocklistLocal.blocked) {
+        if (blacklisted.none((e) => e.value.id == c)) {
+          _blocklistLocal.remove(c);
+        }
       }
-    }
 
-    for (HiveUser c in blacklisted) {
-      _blocklistLocal.put(c.value.id);
+      for (HiveUser c in blacklisted) {
+        _blocklistLocal.put(c.value.id);
+      }
+    } catch (e) {
+      if (e is! OperationCanceledException) {
+        rethrow;
+      }
     }
   }
 
@@ -156,6 +168,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
     _onActivityChanged?.cancel();
+    _cancelToken.cancel();
   }
 
   @override
@@ -515,6 +528,15 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
+  @override
+  Future<void> refresh() async {
+    final response = await _graphQlProvider.getMyUser();
+
+    if (response.myUser != null) {
+      _setMyUser(response.myUser!.toHive(), ignoreVersion: true);
+    }
+  }
+
   // TODO: Blocklist can be huge, so we should implement pagination and
   //       loading on demand.
   /// Fetches __all__ blacklisted [User]s from the remote.
@@ -586,8 +608,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Saves the provided [user] in [Hive].
-  void _setMyUser(HiveMyUser user) {
-    if (user.ver > _myUserLocal.myUser?.ver) {
+  void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
+    if (user.ver > _myUserLocal.myUser?.ver || ignoreVersion) {
       _myUserLocal.set(user);
     }
   }

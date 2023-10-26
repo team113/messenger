@@ -241,7 +241,7 @@ class WebUtils {
     return controller.stream;
   }
 
-  /// Returns a stream broadcasting the browser's `BroadcastChannel` changes.
+  /// Returns a stream broadcasting the browser's broadcast channel changes.
   static Stream<dynamic> get onBroadcastMessage {
     StreamController<dynamic>? controller;
     StreamSubscription? subscription;
@@ -250,9 +250,7 @@ class WebUtils {
 
     controller = StreamController(
       onListen: () {
-        subscription = channel.onMessage.listen((e) {
-          controller?.add(e.data);
-        });
+        subscription = channel.onMessage.listen((e) => controller?.add(e.data));
       },
       onCancel: () => subscription?.cancel(),
     );

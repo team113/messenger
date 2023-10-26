@@ -287,15 +287,18 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp.router(
-      routerDelegate: router.delegate,
-      routeInformationParser: router.parser,
-      routeInformationProvider: router.provider,
-      navigatorObservers: [SentryNavigatorObserver()],
-      onGenerateTitle: (context) => 'Gapopa',
-      theme: Themes.light(),
-      themeMode: ThemeMode.light,
-      debugShowCheckedModeBanner: false,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+      child: GetMaterialApp.router(
+        routerDelegate: router.delegate,
+        routeInformationParser: router.parser,
+        routeInformationProvider: router.provider,
+        navigatorObservers: [SentryNavigatorObserver()],
+        onGenerateTitle: (context) => 'Gapopa',
+        theme: Themes.light(),
+        themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
@@ -307,8 +310,8 @@ Future<void> _initHive() async {
 
   // Load and compare application version.
   Box box = await Hive.openBox('version');
-  String version = Pubspec.version;
-  String? stored = box.get(0);
+  final String version = Config.version ?? Pubspec.version;
+  final String? stored = box.get(0);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
   if (stored != version) {

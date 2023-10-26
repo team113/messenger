@@ -353,6 +353,23 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              _appBar(
+                context,
+                leading: [
+                  const SizedBox(width: 32),
+                  Column(
+                    children: [
+                      const SizedBox(height: 32),
+                      AnimatedButton(
+                        onPressed: () => c.icon.value =
+                            IconDetails(SvgIcons.mutedSmall.asset),
+                        child: const SvgIcon(SvgIcons.mutedSmall),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
           Block(
@@ -498,6 +515,22 @@ class _WidgetsViewState extends State<IconsView> {
                 readOnly: true,
                 trailing: const SvgIcon(SvgIcons.share),
               ),
+              const SizedBox(height: 8),
+              ReactiveTextField(
+                state: TextFieldState(),
+                onSuffixPressed: () =>
+                    c.icon.value = IconDetails(SvgIcons.timer.asset),
+                readOnly: true,
+                trailing: const SvgIcon(SvgIcons.timer),
+              ),
+              const SizedBox(height: 8),
+              ReactiveTextField(
+                state: TextFieldState(),
+                onSuffixPressed: () =>
+                    c.icon.value = IconDetails(SvgIcons.errorBig.asset),
+                readOnly: true,
+                trailing: const SvgIcon(SvgIcons.errorBig),
+              ),
             ],
           ),
           Block(
@@ -565,14 +598,15 @@ class _WidgetsViewState extends State<IconsView> {
                 [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails('wallet_closed1.svg'),
+                        c.icon.value = IconDetails(SvgIcons.walletClosed.asset),
                     child: const WalletWidget(
                       balance: 0,
                       visible: true,
                     ),
                   ),
                   AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails('wallet.svg'),
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.wallet.asset),
                     child: const WalletWidget(
                       balance: 1000,
                       visible: true,
@@ -580,7 +614,7 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails('wallet_opened1.svg'),
+                        c.icon.value = IconDetails(SvgIcons.walletOpened.asset),
                     child: const WalletWidget(
                       balance: 1000,
                       visible: false,
@@ -942,6 +976,25 @@ class _WidgetsViewState extends State<IconsView> {
               _messageStatus(context, c, SvgIcons.sendingSmall),
               const SizedBox(height: 8),
               _messageStatus(context, c, SvgIcons.errorSmall),
+            ],
+          ),
+          Block(
+            children: [
+              _messageCall(context, c, SvgIcons.callAudio),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callAudioDisabled),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callAudioMissed),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callAudioWhite),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callVideo),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callVideoDisabled),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callVideoMissed),
+              const SizedBox(height: 8),
+              _messageCall(context, c, SvgIcons.callVideoWhite),
             ],
           ),
           Block(
@@ -1476,6 +1529,44 @@ class _WidgetsViewState extends State<IconsView> {
           ),
           Block(
             children: [
+              Container(
+                width: 250,
+                height: 250,
+                color: style.colors.onBackgroundOpacity13,
+                child: Center(
+                  child: AnimatedButton(
+                    onPressed: () =>
+                        c.icon.value = IconDetails(SvgIcons.download.asset),
+                    child: const SvgIcon(SvgIcons.download),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Block(
+            children: [
+              Container(
+                height: 250,
+                width: 370,
+                decoration: BoxDecoration(
+                  color: style.colors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: AnimatedButton(
+                    onPressed: () => c.icon.value = IconDetails(
+                      SvgIcons.noVideo.asset,
+                      invert: true,
+                    ),
+                    child: const SvgIcon(SvgIcons.noVideo),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          Block(
+            children: [
               ...[
                 SvgIcons.menuProfile,
                 SvgIcons.menuSigning,
@@ -1684,6 +1775,35 @@ Widget _navBar(BuildContext context, List<Widget> children) {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: children,
       ),
+    ),
+  );
+}
+
+Widget _messageCall(
+  BuildContext context,
+  IconsController c,
+  SvgData icon,
+) {
+  final style = Theme.of(context).style;
+
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      color: style.colors.background,
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
+          child: AnimatedButton(
+            onPressed: () => c.icon.value = IconDetails(icon.asset),
+            child: SvgIcon(icon),
+          ),
+        ),
+        const SizedBox(width: 100, height: 34),
+      ],
     ),
   );
 }

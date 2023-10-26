@@ -237,58 +237,37 @@ class ReactiveTextField extends StatelessWidget {
                     height: 24,
                     child: ElasticAnimatedSwitcher(
                       child: state.status.value.isLoading
-                          ? const SvgImage.asset(
-                              'assets/icons/timer.svg',
-                              width: 17,
-                              height: 17,
-                            )
-                          : state.status.value.isSuccess
-                              ? SizedBox(
-                                  key: const ValueKey('Success'),
+                          ? const SvgIcon(SvgIcons.timer)
+                          : (state.error.value != null && treatErrorAsStatus) ||
+                                  state.status.value.isError
+                              ? const SizedBox(
+                                  key: ValueKey('Error'),
                                   width: 24,
-                                  child: Icon(
-                                    Icons.check,
-                                    size: 18,
-                                    color: style.colors.acceptAuxiliaryColor,
-                                  ),
+                                  child: SvgIcon(SvgIcons.errorBig),
                                 )
-                              : (state.error.value != null &&
-                                          treatErrorAsStatus) ||
-                                      state.status.value.isError
-                                  ? SizedBox(
-                                      key: const ValueKey('Error'),
-                                      width: 24,
-                                      child: Icon(
-                                        Icons.error,
-                                        size: 18,
-                                        color: style.colors.dangerColor,
+                              : (state.approvable && state.changed.value)
+                                  ? AllowOverflow(
+                                      key: const ValueKey('Approve'),
+                                      child: Text(
+                                        'btn_save'.l10n,
+                                        style: style.fonts.bodySmallPrimary,
                                       ),
                                     )
-                                  : (state.approvable && state.changed.value)
-                                      ? AllowOverflow(
-                                          key: const ValueKey('Approve'),
-                                          child: Text(
-                                            'btn_save'.l10n,
-                                            style: style.fonts.bodySmallPrimary,
-                                          ),
-                                        )
-                                      : SizedBox(
-                                          key: const ValueKey('Icon'),
-                                          width: trailingWidth == null
-                                              ? null
-                                              : (trailingWidth! +
-                                                  (PlatformUtils.isWeb
-                                                      ? 6
-                                                      : 0)),
-                                          child: Transform.translate(
-                                            offset: const Offset(5, 0),
-                                            child: suffix != null
-                                                ? Icon(suffix)
-                                                : trailing == null
-                                                    ? Container()
-                                                    : trailing!,
-                                          ),
-                                        ),
+                                  : SizedBox(
+                                      key: const ValueKey('Icon'),
+                                      width: trailingWidth == null
+                                          ? null
+                                          : (trailingWidth! +
+                                              (PlatformUtils.isWeb ? 6 : 0)),
+                                      child: Transform.translate(
+                                        offset: const Offset(5, 0),
+                                        child: suffix != null
+                                            ? Icon(suffix)
+                                            : trailing == null
+                                                ? Container()
+                                                : trailing!,
+                                      ),
+                                    ),
                     ),
                   )
                 : const SizedBox(width: 1, height: 0),

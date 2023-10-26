@@ -28,8 +28,8 @@ import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
-import '/domain/model/file.dart';
 import '/domain/model/fcm_registration_token.dart';
+import '/domain/model/file.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
@@ -51,7 +51,7 @@ class NotificationService extends DisposableService {
   /// Language to receive Firebase Cloud Messaging notifications on.
   String? _language;
 
-  /// Firebase Cloud Messaging token used to subscribe for push notifications.
+  /// Firebase Cloud Messaging token used to subscribe to push notifications.
   String? _token;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
@@ -239,16 +239,10 @@ class NotificationService extends DisposableService {
       // first to a [File] and then pass the path to it to the plugin.
       if (image != null) {
         try {
-          File? file;
-
-          if (icon != null) {
-            file = (await CacheWorker.instance.get(
-              url: icon.url,
-              checksum: icon.checksum,
-              responseType: CacheResponseType.file,
-            ))
-                .file;
-          }
+          final String name =
+              'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg';
+          final File? file =
+              await PlatformUtils.download(image, name, null, temporary: true);
 
           imagePath = file?.path;
         } catch (_) {
@@ -438,6 +432,10 @@ class NotificationService extends DisposableService {
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // On Web push notifications don't support playing any sounds, it's up to
+      // operating system to decide, whether to play sound at all. Thus this
+      // listens to `BroadcastChannel` fired from FCM Service Worker to play a
+      // sound by ourselves.
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
         AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
       });

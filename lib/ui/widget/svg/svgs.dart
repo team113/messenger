@@ -1149,8 +1149,8 @@ class SvgIcons {
     height: 12,
   );
 
-   static const SvgData callAudioDisabled = SvgData(
-    'assets/icons/call_audio_disabled.svg',
+  static const SvgData callAudioDisabled = SvgData(
+    'assets/icons/call_audio_grey.svg',
     height: 12,
   );
 
@@ -1169,8 +1169,50 @@ class SvgIcons {
     height: 11,
   );
 
-    static const SvgData callVideoDisabled = SvgData(
+  static const SvgData callVideoDisabled = SvgData(
     'assets/icons/call_video_grey.svg',
     height: 11,
+  );
+
+  static const SvgData download = SvgData(
+    'assets/icons/download.svg',
+    width: 42,
+    height: 42,
+  );
+
+  static const SvgData mutedSmall = SvgData(
+    'assets/icons/muted_small.svg',
+    width: 13.09,
+    height: 10,
+  );
+
+  static const SvgData noVideo = SvgData(
+    'assets/icons/no_video.svg',
+    width: 49.15,
+    height: 42,
+  );
+
+  static const SvgData sortAbc = SvgData(
+    'assets/icons/sort_abc.svg',
+    width: 29.69,
+    height: 21,
+  );
+
+  static const SvgData sortTime = SvgData(
+    'assets/icons/sort_time.svg',
+    width: 29.69,
+    height: 21,
+  );
+
+  static const SvgData timer = SvgData(
+    'assets/icons/timer.svg',
+    width: 17,
+    height: 17,
+  );
+
+   static const SvgData errorBig = SvgData(
+    'assets/icons/error_big.svg',
+    width: 17,
+    height: 17,
   );
 }

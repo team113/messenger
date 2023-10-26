@@ -121,11 +121,6 @@ class ChatsMoreView extends StatelessWidget {
                 c.toggleMute(e);
                 Navigator.of(context).pop();
               },
-              // trailing: SvgImage.asset(
-              //   'assets/icons/chat_${e ? '' : 'un'}muted${selected ? '_white' : ''}.svg',
-              //   height: 15,
-              // ),
-              // trailingColor: e.getColor(),
             ),
           );
         });

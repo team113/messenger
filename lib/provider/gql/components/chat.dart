@@ -966,7 +966,6 @@ mixin ChatGraphQlMixin {
     );
   }
 
-
   /// Edits a [ChatMessage] by the authenticated [MyUser] with the provided
   /// [text]/[attachments]/[repliesTo] (at least one of three must be
   /// specified).

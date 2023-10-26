@@ -28,18 +28,18 @@ import '/store/pagination.dart';
 /// [PageProvider] fetching items from the [Hive].
 ///
 /// [HiveLazyProvider] must be initialized and disposed properly manually.
-class HivePageProvider<T extends Object, C, K extends Object>
+class HivePageProvider<T extends Object, C, K>
     implements PageProvider<T, C, K> {
   HivePageProvider(
     this._provider, {
     required this.getCursor,
     required this.getKey,
-    this.sortingProvider,
+    Iterable<K> Function(Iterable<K>)? orderBy,
     this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
     this.reversed = false,
-  });
+  }) : orderBy = orderBy ?? _defaultOrderBy<K>;
 
   /// Callback, called when a key of the provided [T] is required.
   final K Function(T item) getKey;
@@ -47,8 +47,9 @@ class HivePageProvider<T extends Object, C, K extends Object>
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T? item) getCursor;
 
-  /// [IterableHiveProvider] to fetch the items keys from.
-  IterableHiveProvider<K, dynamic>? sortingProvider;
+  /// Callback, called to retrieve the order of keys the items from
+  /// [IterableHiveProvider] should be sorted in.
+  final Iterable<K> Function(Iterable<K>) orderBy;
 
   /// Callback, called to indicate whether the provided [T] is the first.
   final bool Function(T item)? isFirst;
@@ -57,10 +58,10 @@ class HivePageProvider<T extends Object, C, K extends Object>
   final bool Function(T item)? isLast;
 
   /// [PaginationStrategy] of [around] invoke.
-  PaginationStrategy strategy;
+  final PaginationStrategy strategy;
 
   /// Indicator whether this [HivePageProvider] is reversed.
-  bool reversed;
+  final bool reversed;
 
   /// [IterableHiveProvider] to fetch the items from.
   IterableHiveProvider<T, K> _provider;
@@ -73,31 +74,30 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
   @override
   Future<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    if (_provider.keys.isEmpty) {
+    final Iterable<K> ordered = orderBy(_provider.keys);
+
+    if (ordered.isEmpty) {
       return null;
     }
 
     Iterable<dynamic>? keys;
-
-    final Iterable<K> providerKeys =
-        await sortingProvider?.values ?? _provider.keys;
     if (item != null) {
       final K key = getKey(item);
-      final int initial = providerKeys.toList().indexOf(key);
+      final int initial = ordered.toList().indexOf(key);
 
       if (initial != -1) {
-        providerKeys.around(initial, count);
+        ordered.around(initial, count);
       }
     }
 
     switch (strategy) {
       case PaginationStrategy.fromStart:
-        keys ??= providerKeys.take(count);
+        keys ??= ordered.take(count);
         break;
 
       case PaginationStrategy.fromEnd:
-        keys ??= providerKeys.skip(
-          (providerKeys.length - count).clamp(0, double.maxFinite.toInt()),
+        keys ??= ordered.skip(
+          (ordered.length - count).clamp(0, double.maxFinite.toInt()),
         );
         break;
     }
@@ -110,7 +110,7 @@ class HivePageProvider<T extends Object, C, K extends Object>
       }
     }
 
-    return await _page(items);
+    return _page(items);
   }
 
   @override
@@ -129,19 +129,18 @@ class HivePageProvider<T extends Object, C, K extends Object>
     }
 
     final key = getKey(item);
-    final Iterable<K> providerKeys =
-        await sortingProvider?.values ?? _provider.keys;
-    final index = providerKeys.toList().indexOf(key);
-    if (index != -1 && index < providerKeys.length - 1) {
+    final Iterable<K> ordered = orderBy(_provider.keys);
+    final index = ordered.toList().indexOf(key);
+    if (index != -1 && index < ordered.length - 1) {
       List<T> items = [];
-      for (var k in providerKeys.after(index, count)) {
+      for (var k in ordered.after(index, count)) {
         final T? item = await _provider.get(k);
         if (item != null) {
           items.add(item);
         }
       }
 
-      return await _page(items);
+      return _page(items);
     }
 
     return null;
@@ -163,19 +162,18 @@ class HivePageProvider<T extends Object, C, K extends Object>
     }
 
     final K key = getKey(item);
-    final Iterable<K> providerKeys =
-        await sortingProvider?.values ?? _provider.keys;
-    final int index = providerKeys.toList().indexOf(key);
+    final Iterable<K> ordered = orderBy(_provider.keys);
+    final int index = ordered.toList().indexOf(key);
     if (index > 0) {
       final List<T> items = [];
-      for (var i in providerKeys.before(index, count)) {
+      for (var i in ordered.before(index, count)) {
         final T? item = await _provider.get(i);
         if (item != null) {
           items.add(item);
         }
       }
 
-      return await _page(items);
+      return _page(items);
     }
 
     return null;
@@ -191,22 +189,21 @@ class HivePageProvider<T extends Object, C, K extends Object>
   Future<void> clear() => _provider.clear();
 
   /// Creates a [Page] from the provided [items].
-  Future<Page<T, C>> _page(List<T> items) async {
+  Page<T, C> _page(List<T> items) {
     bool hasNext = true;
     bool hasPrevious = true;
 
+    final Iterable<K> ordered = orderBy(_provider.keys);
+
     final T? firstItem = items.firstOrNull;
     if (firstItem != null && isFirst != null) {
-      hasPrevious = !isFirst!.call(firstItem) ||
-          getKey(items.first) !=
-              ((await sortingProvider?.values)?.first ?? _provider.keys.first);
+      hasPrevious =
+          !isFirst!.call(firstItem) || getKey(firstItem) != ordered.first;
     }
 
     final T? lastItem = items.lastOrNull;
     if (lastItem != null && isLast != null) {
-      hasNext = !isLast!.call(lastItem) ||
-          getKey(items.last) !=
-              ((await sortingProvider?.values)?.last ?? _provider.keys.last);
+      hasNext = !isLast!.call(lastItem) || getKey(lastItem) != ordered.last;
     }
 
     final Page<T, C> page = Page(
@@ -223,6 +220,11 @@ class HivePageProvider<T extends Object, C, K extends Object>
 
     return reversed ? page.reversed() : page;
   }
+
+  /// Returns the [keys].
+  ///
+  /// Intended to be used as a default [orderBy].
+  static Iterable<K> _defaultOrderBy<K>(Iterable<K> keys) => keys;
 }
 
 /// Extension adding ability to take items around, after and before an index.

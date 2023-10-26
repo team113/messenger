@@ -357,17 +357,7 @@ class UserView extends StatelessWidget {
 
             return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: isMuted
-                  ? const SvgImage.asset(
-                      'assets/icons/btn_mute.svg',
-                      width: 18.68,
-                      height: 15,
-                    )
-                  : const SvgImage.asset(
-                      'assets/icons/btn_unmute.svg',
-                      width: 17.86,
-                      height: 15,
-                    ),
+              trailing: SvgIcon(isMuted ? SvgIcons.mute : SvgIcons.unmute),
               onPressed: isMuted ? c.unmuteChat : c.muteChat,
             );
           }),

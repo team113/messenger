@@ -16,14 +16,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s.
-class RecentChatHiveProvider extends HiveBaseProvider<ChatId>
-    implements IterableHiveProvider<ChatId, PreciseDateTime> {
+class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
+  /// [Mutex] guarding synchronized access to the [put] and [remove].
+  final Mutex _mutex = Mutex();
+
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -35,25 +38,32 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId>
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
-  @override
-  Iterable<PreciseDateTime> get keys =>
-      keysSafe.map((e) => PreciseDateTime.parse(e));
-
-  @override
+  /// Returns a list of [ChatId]s from [Hive].
   Iterable<ChatId> get values => valuesSafe;
 
-  @override
-  Future<void> put(ChatId item, [PreciseDateTime? key]) => putSafe(
-        (key?.toString() ?? PreciseDateTime(DateTime.now())).toString(),
-        item,
-      );
+  /// Puts the provided [ChatId] by the provided [key] to [Hive].
+  Future<void> put(PreciseDateTime key, ChatId item) async {
+    final String i = key.toUtc().toString();
 
-  @override
-  ChatId? get(PreciseDateTime key) => getSafe(key.toString());
+    if (getSafe(i) != item) {
+      await _mutex.protect(() async {
+        final int index = values.toList().indexOf(item);
+        if (index != -1) {
+          await deleteAtSafe(index);
+        }
 
-  @override
-  Future<void> remove(PreciseDateTime key) => deleteSafe(key.toString());
+        await putSafe(i, item);
+      });
+    }
+  }
 
-  /// Removes a [ChatId] item from [Hive] by the provided [index].
-  Future<void> removeAt(int index) => deleteAtSafe(index);
+  /// Removes the provided [ChatId] from [Hive].
+  Future<void> remove(ChatId item) async {
+    await _mutex.protect(() async {
+      final int index = values.toList().indexOf(item);
+      if (index != -1) {
+        await deleteAtSafe(index);
+      }
+    });
+  }
 }

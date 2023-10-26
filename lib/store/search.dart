@@ -24,8 +24,7 @@ import '/util/obs/obs.dart';
 import 'pagination.dart';
 
 /// Implementation of a [SearchResult].
-class SearchResultImpl<K extends Comparable, T, C>
-    implements SearchResult<K, T> {
+class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
   SearchResultImpl({
     this.pagination,
     List<FutureOr<Map<K, T>>> initial = const [],
@@ -81,7 +80,7 @@ class SearchResultImpl<K extends Comparable, T, C>
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Pagination fetching [items].
-  final Pagination<T, C, K>? pagination;
+  final Pagination<T, Object, K>? pagination;
 
   /// [StreamSubscription] to the [Pagination.changes].
   StreamSubscription? _paginationSubscription;
@@ -95,6 +94,7 @@ class SearchResultImpl<K extends Comparable, T, C>
   @override
   void dispose() {
     _paginationSubscription?.cancel();
+    pagination?.dispose();
   }
 
   @override

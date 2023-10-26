@@ -290,6 +290,9 @@ class ChatController extends GetxController {
   /// [active].
   StreamSubscription? _onActivityChanged;
 
+  /// Subscription for the [chat] changes.
+  StreamSubscription? _chatSubscription;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -361,6 +364,10 @@ class ChatController extends GetxController {
 
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
+
+  /// Indicator whether the [_loadMessages] is already invoked during the
+  /// current frame.
+  bool _messagesAreLoading = false;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -460,17 +467,14 @@ class ChatController extends GetxController {
               return;
             }
 
-            bool? result = await ChatForwardView.show(
+            await ChatForwardView.show(
               router.context!,
               id,
               send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
+              onSent: send.clear,
             );
-
-            if (result == true) {
-              send.clear();
-            }
           }
         } else {
           String text = onlyDonation ? '' : send.field.text.trim();

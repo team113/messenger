@@ -1734,6 +1734,9 @@ class DummyRxUser extends RxUser {
           name: UserName('Participant'),
         ),
       );
+
+  @override
+  Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());
 }
 
 class DummyRxChat extends RxChat {

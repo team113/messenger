@@ -18,8 +18,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -177,7 +177,7 @@ class AuthService extends GetxService {
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
   ///
-  /// Sends a recovery [ConfirmationCode] to [MyUser]'s `email` and `phone`.
+  /// Sends a recovery [ConfirmationCode] to [MyUser]'s [email] and [phone].
   ///
   /// If [MyUser] has no password yet, then this method still may be used for
   /// recovering his sign-in capability.
@@ -351,7 +351,7 @@ class AuthService extends GetxService {
     status.value = RxStatus.loading();
 
     try {
-      FcmRegistrationToken? fcmRegistrationToken;
+      FcmRegistrationToken? fcmToken;
 
       if (PlatformUtils.pushNotifications) {
         final NotificationSettings settings =
@@ -363,12 +363,12 @@ class AuthService extends GetxService {
           );
 
           if (token != null) {
-            fcmRegistrationToken = FcmRegistrationToken(token);
+            fcmToken = FcmRegistrationToken(token);
           }
         }
       }
 
-      await _authRepository.logout(fcmRegistrationToken);
+      await _authRepository.logout(fcmToken);
     } catch (e) {
       printError(info: e.toString());
     }
