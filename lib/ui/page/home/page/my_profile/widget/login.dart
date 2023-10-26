@@ -160,15 +160,15 @@ class _UserLoginFieldState extends State<UserLoginField> {
                     variants: [
                       ConfirmDialogVariant(
                         onProceed: () {},
-                        child: Text('label_all'.l10n),
+                        label: 'label_all'.l10n,
                       ),
                       ConfirmDialogVariant(
                         onProceed: () {},
-                        child: Text('label_my_contacts'.l10n),
+                        label: 'label_my_contacts'.l10n,
                       ),
                       ConfirmDialogVariant(
                         onProceed: () {},
-                        child: Text('label_nobody'.l10n),
+                        label: 'label_nobody'.l10n,
                       ),
                     ],
                   );
