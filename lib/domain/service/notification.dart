@@ -143,8 +143,8 @@ class NotificationService extends DisposableService {
           onBackground: onBackground,
         );
       } catch (e) {
-        Log.print(
-          'Failed to initialize push notifications: $e',
+        Log.error(
+          'Failed to initialize push notifications: ${e.toString()}',
           'NotificationService',
         );
       }
@@ -415,7 +415,7 @@ class NotificationService extends DisposableService {
           sound: 'notification',
         );
       } catch (e) {
-        Log.error(e);
+        Log.error(e.toString());
       }
     }
 

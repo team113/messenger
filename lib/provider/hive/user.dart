@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -40,6 +41,7 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'UserHiveProvider');
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
@@ -62,13 +64,22 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
   Iterable<HiveUser> get users => valuesSafe;
 
   /// Puts the provided [User] to [Hive].
-  Future<void> put(HiveUser user) => putSafe(user.value.id.val, user);
+  Future<void> put(HiveUser user) async {
+    Log.debug('put(HiveUser)', 'UserHiveProvider');
+    putSafe(user.value.id.val, user);
+  }
 
   /// Returns a [User] from [Hive] by its [id].
-  HiveUser? get(UserId id) => getSafe(id.val);
+  HiveUser? get(UserId id) {
+    Log.debug('get(UserId)', 'UserHiveProvider');
+    return getSafe(id.val);
+  }
 
   /// Removes an [User] from [Hive] by its [id].
-  Future<void> remove(UserId id) => deleteSafe(id.val);
+  Future<void> remove(UserId id) async {
+    Log.debug('remove(UserId)', 'UserHiveProvider');
+    deleteSafe(id.val);
+  }
 }
 
 /// Persisted in [Hive] storage [User]'s [value].

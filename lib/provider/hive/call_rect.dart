@@ -17,6 +17,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/chat.dart';
 import 'base.dart';
@@ -31,14 +32,21 @@ class CallRectHiveProvider extends HiveBaseProvider<Rect> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'CallRectHiveProvider');
     Hive.maybeRegisterAdapter(_RectAdapter());
   }
 
   /// Puts the provided [Rect] preferences to [Hive].
-  Future<void> put(ChatId chatId, Rect prefs) => putSafe(chatId.val, prefs);
+  Future<void> put(ChatId chatId, Rect prefs) async {
+    Log.debug('put(ChatId, Rect)', 'CallRectHiveProvider');
+    putSafe(chatId.val, prefs);
+  }
 
   /// Returns the [Rect] preferences from [Hive] by its [id].
-  Rect? get(ChatId id) => getSafe(id.val);
+  Rect? get(ChatId id) {
+    Log.debug('get(ChatId)', 'CallRectHiveProvider');
+    return getSafe(id.val);
+  }
 }
 
 /// [Hive] adapter for a [Rect].

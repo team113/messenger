@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -49,6 +50,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'ChatItemHiveProvider');
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
@@ -92,14 +94,22 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
   Future<Iterable<HiveChatItem>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChatItem item) =>
-      putSafe(item.value.key.toString(), item);
+  Future<void> put(HiveChatItem item) async {
+    Log.debug('put(HiveChatItem)', 'ChatItemHiveProvider');
+    putSafe(item.value.key.toString(), item);
+  }
 
   @override
-  Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
+  Future<HiveChatItem?> get(ChatItemKey key) async {
+    Log.debug('get(ChatItemKey)', 'ChatItemHiveProvider');
+    return getSafe(key.toString());
+  }
 
   @override
-  Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
+  Future<void> remove(ChatItemKey key) async {
+    Log.debug('remove(ChatItemKey)', 'ChatItemHiveProvider');
+    deleteSafe(key.toString());
+  }
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].

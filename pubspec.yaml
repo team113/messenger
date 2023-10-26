@@ -95,7 +95,10 @@ dependencies:
   win_toast: ^0.3.0
   window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
-  log_me: ^0.1.2
+  log_me:
+    git:
+      url: https://github.com/lapuske/log_me.git
+      ref: bring-colors-to-web
 
 dev_dependencies:
   artemis: ^7.13.0-beta.2

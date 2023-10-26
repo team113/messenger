@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/adapters.dart';
 
+import '/util/log.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -36,6 +37,7 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'SessionDataHiveProvider');
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
     Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
@@ -49,25 +51,44 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   }
 
   /// Returns the stored [Credentials] from [Hive].
-  Credentials? getCredentials() => getSafe(0)?.credentials;
+  Credentials? getCredentials() {
+    Log.debug('getCredentials()', 'SessionDataHiveProvider');
+    return getSafe(0)?.credentials;
+  }
 
   /// Returns the stored [ChatContactsListVersion] from [Hive].
-  ChatContactsListVersion? getChatContactsListVersion() =>
-      getSafe(0)?.chatContactsListVersion;
+  ChatContactsListVersion? getChatContactsListVersion() {
+    Log.debug('getChatContactsListVersion()', 'SessionDataHiveProvider');
+    return getSafe(0)?.chatContactsListVersion;
+  }
 
   /// Returns the stored [FavoriteChatsListVersion] from [Hive].
-  FavoriteChatsListVersion? getFavoriteChatsListVersion() =>
-      getSafe(0)?.favoriteChatsListVersion;
+  FavoriteChatsListVersion? getFavoriteChatsListVersion() {
+    Log.debug('getFavoriteChatsListVersion()', 'SessionDataHiveProvider');
+    return getSafe(0)?.favoriteChatsListVersion;
+  }
 
   /// Stores new [Credentials] to [Hive].
-  Future<void> setCredentials(Credentials credentials) =>
-      putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
+  Future<void> setCredentials(Credentials credentials) async {
+    Log.debug('setCredentials(Credentials)', 'SessionDataHiveProvider');
+    putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
+  }
 
   /// Stores a new [ChatContactsListVersion] to [Hive].
-  Future<void> setChatContactsListVersion(ChatContactsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
+  Future<void> setChatContactsListVersion(ChatContactsListVersion ver) async {
+    Log.debug(
+      'setChatContactsListVersion(ChatContactsListVersion)',
+      'SessionDataHiveProvider',
+    );
+    putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
+  }
 
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
-  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) async {
+    Log.debug(
+      'setFavoriteChatsListVersion(FavoriteChatsListVersion)',
+      'SessionDataHiveProvider',
+    );
+    putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+  }
 }

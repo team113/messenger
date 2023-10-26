@@ -1152,7 +1152,7 @@ class OngoingCall {
     });
 
     _room!.onConnectionLoss((e) async {
-      Log.print('onConnectionLoss', 'CALL');
+      Log.info('onConnectionLoss', 'CALL');
 
       if (connectionLost.isFalse) {
         connectionLost.value = true;
@@ -1166,7 +1166,7 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.print('onNewConnection', 'CALL');
+      Log.info('onNewConnection', 'CALL');
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1195,12 +1195,12 @@ class OngoingCall {
       }
 
       conn.onClose(() {
-        Log.print('onClose', 'CALL');
+        Log.info('onClose', 'CALL');
         members.remove(id)?.dispose();
       });
 
       conn.onRemoteTrackAdded((track) async {
-        Log.print(
+        Log.info(
           'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
           'CALL',
         );
@@ -1225,7 +1225,7 @@ class OngoingCall {
         track.onUnmuted(() => t.isMuted.value = false);
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
-          Log.print(
+          Log.info(
             'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
             'CALL',
           );
@@ -1256,7 +1256,7 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.print(
+          Log.info(
             'onStopped ${track.kind()}-${track.mediaSourceKind()}',
             'CALL',
           );
@@ -1482,9 +1482,9 @@ class OngoingCall {
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     me.isConnected.value = false;
 
-    Log.print('Joining the room...', 'CALL');
+    Log.info('Joining the room...', 'CALL');
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
-      Log.print('Closing the previous one and connecting to the new', 'CALL');
+      Log.info('Closing the previous one and connecting to the new', 'CALL');
       _closeRoom();
       _initRoom();
     }
@@ -1496,7 +1496,7 @@ class OngoingCall {
       rethrow;
     }
 
-    Log.print('Room joined!', 'CALL');
+    Log.info('Room joined!', 'CALL');
 
     me.isConnected.value = true;
   }

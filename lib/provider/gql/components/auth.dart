@@ -17,6 +17,7 @@
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import '/util/log.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
@@ -27,7 +28,9 @@ import '/domain/model/user.dart';
 /// Authentication related functionality.
 mixin AuthGraphQlMixin {
   GraphQlClient get client;
+
   AccessToken? get token;
+
   set token(AccessToken? value);
 
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
@@ -49,6 +52,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
+    Log.debug('signUp()', 'AuthGraphQlMixin');
     final variables = SignUpArguments(remember: remember);
     final QueryResult result = await client.query(QueryOptions(
       document: SignUpMutation(variables: variables).document,
@@ -72,6 +76,7 @@ mixin AuthGraphQlMixin {
   /// Succeeds as no-op if the [Session] with the provided [AccessToken] has
   /// been deleted already.
   Future<void> deleteSession() async {
+    Log.debug('deleteSession()', 'AuthGraphQlMixin');
     if (token != null) {
       final variables = DeleteSessionArguments(token: token!);
       final QueryResult result = await client.query(QueryOptions(
@@ -99,12 +104,17 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session].
   Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
-      UserPassword password,
-      UserLogin? login,
-      UserNum? num,
-      UserEmail? email,
-      UserPhone? phone,
-      bool remember) async {
+    UserPassword password,
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    bool remember,
+  ) async {
+    Log.debug(
+      'signIn(UserPassword, UserLogin, UserNum, UserEmail, UserPhone, remember)',
+      'AuthGraphQlMixin',
+    );
     final variables = SignInArguments(
       password: password,
       login: login,
@@ -134,6 +144,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Mandatory.
   Future<ValidateToken$Query> validateToken() async {
+    Log.debug('validateToken()', 'AuthGraphQlMixin');
     QueryResult res = await client
         .query(QueryOptions(document: ValidateTokenQuery().document));
     return ValidateToken$Query.fromJson(res.data!);
@@ -162,6 +173,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session] and generates a new [RefreshToken].
   Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
+    Log.debug('renewSession(RefreshToken)', 'AuthGraphQlMixin');
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -199,8 +211,16 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time sends a new unique password recovery [ConfirmationCode].
-  Future<void> recoverUserPassword(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
+  Future<void> recoverUserPassword(
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  ) async {
+    Log.debug(
+      'recoverUserPassword(UserLogin, UserNum, UserEmail, UserPhone)',
+      'AuthGraphQlMixin',
+    );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
         'Exactly one of num/login/email/phone should be specified.',
@@ -237,8 +257,17 @@ mixin AuthGraphQlMixin {
   /// ### Idempotent
   ///
   /// [ConfirmationCode] can be validated unlimited number of times (for now).
-  Future<void> validateUserPasswordRecoveryCode(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone, ConfirmationCode code) async {
+  Future<void> validateUserPasswordRecoveryCode(
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    ConfirmationCode code,
+  ) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode(UserLogin, UserNum, UserEmail, UserPhone, ConfirmationCode)',
+      'AuthGraphQlMixin',
+    );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
           'Exactly one of num/login/email/phone should be specified.');
@@ -294,6 +323,10 @@ mixin AuthGraphQlMixin {
     ConfirmationCode code,
     UserPassword newPassword,
   ) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode(UserLogin, UserNum, UserEmail, UserPhone, ConfirmationCode)',
+      'AuthGraphQlMixin',
+    );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
         'Exactly one of num/login/email/phone should be specified.',

@@ -17,6 +17,7 @@
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import '/util/log.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
@@ -74,6 +75,10 @@ mixin CallGraphQlMixin {
     int? last,
     IncomingChatCallsCursor? before,
   }) async {
+    Log.debug(
+      'incomingCalls(first, IncomingChatCallsCursor, last, IncomingChatCallsCursor)',
+      'CallGraphQlMixin',
+    );
     final variables = IncomingCallsArguments(
       first: first,
       after: after,
@@ -137,6 +142,7 @@ mixin CallGraphQlMixin {
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
+    Log.debug('callEvents(ChatItemId, ChatCallDeviceId)', 'CallGraphQlMixin');
     final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
       SubscriptionOptions(
@@ -187,6 +193,7 @@ mixin CallGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Stream<QueryResult> incomingCallsTopEvents(int count) {
+    Log.debug('incomingCallsTopEvents(count)', 'CallGraphQlMixin');
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -225,6 +232,7 @@ mixin CallGraphQlMixin {
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
+    Log.debug('startChatCall(ChatId, ChatCallCredentials)', 'CallGraphQlMixin');
     final variables = StartCallArguments(
       chatId: chatId,
       creds: creds,
@@ -272,6 +280,7 @@ mixin CallGraphQlMixin {
   /// [MyUser] joined the current [ChatCall] already (is a member of it).
   Future<JoinCall$Mutation$JoinChatCall$JoinChatCallOk> joinChatCall(
       ChatId chatId, ChatCallCredentials creds) async {
+    Log.debug('joinChatCall(ChatId, ChatCallCredentials)', 'CallGraphQlMixin');
     final variables = JoinCallArguments(chatId: chatId, creds: creds);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -312,6 +321,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     ChatCallDeviceId deviceId,
   ) async {
+    Log.debug('leaveChatCall(ChatId, ChatCallDeviceId)', 'CallGraphQlMixin');
     final variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -350,6 +360,7 @@ mixin CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if there is no current
   /// [ChatCall], or it is declined by the authenticated [MyUser] already.
   Future<ChatEventsVersionedMixin?> declineChatCall(ChatId chatId) async {
+    Log.debug('declineChatCall(ChatId)', 'CallGraphQlMixin');
     final variables = DeclineCallArguments(chatId: chatId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -391,7 +402,10 @@ mixin CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatCallEvent]) if the authenticated
   /// [MyUser] has raised/lowered his hand already.
   Future<ChatCallEventsVersionedMixin?> toggleChatCallHand(
-      ChatId chatId, bool raised) async {
+    ChatId chatId,
+    bool raised,
+  ) async {
+    Log.debug('toggleChatCallHand(ChatId, raised)', 'CallGraphQlMixin');
     final variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -435,6 +449,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     UserId memberId,
   ) async {
+    Log.debug('redialChatCallMember(ChatId, UserId)', 'CallGraphQlMixin');
     final variables = RedialChatCallMemberArguments(
       chatId: chatId,
       memberId: memberId,
@@ -488,6 +503,10 @@ mixin CallGraphQlMixin {
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
+    Log.debug(
+      'transformDialogCallIntoGroupCall(ChatId, additionalMemberIds, ChatName)',
+      'CallGraphQlMixin',
+    );
     final variables = TransformDialogCallIntoGroupCallArguments(
       chatId: chatId,
       additionalMemberIds: additionalMemberIds,
@@ -536,6 +555,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     UserId userId,
   ) async {
+    Log.debug('removeChatCallMember(ChatId, UserId)', 'CallGraphQlMixin');
     final variables = RemoveChatCallMemberArguments(
       chatId: chatId,
       userId: userId,

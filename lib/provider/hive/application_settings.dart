@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:messenger/util/log.dart';
 
 import '/domain/model/application_settings.dart';
 import 'base.dart';
@@ -31,79 +32,122 @@ class ApplicationSettingsHiveProvider
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'ApplicationSettingsHiveProvider');
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
-  ApplicationSettings? get settings => getSafe(0);
+  ApplicationSettings? get settings {
+    Log.debug('get', 'ApplicationSettingsHiveProvider');
+    return getSafe(0);
+  }
 
   /// Saves the provided [ApplicationSettings] in [Hive].
-  Future<void> set(ApplicationSettings settings) => putSafe(0, settings);
+  Future<void> set(ApplicationSettings settings) async {
+    Log.debug('set(ApplicationSettings)', 'ApplicationSettingsHiveProvider');
+    putSafe(0, settings);
+  }
 
   /// Stores a new [enabled] value of [ApplicationSettings.enablePopups] to
   /// [Hive].
-  Future<void> setPopupsEnabled(bool enabled) =>
-      putSafe(0, (box.get(0) ?? ApplicationSettings())..enablePopups = enabled);
+  Future<void> setPopupsEnabled(bool enabled) async {
+    Log.debug('setPopupsEnabled(enabled)', 'ApplicationSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? ApplicationSettings())..enablePopups = enabled);
+  }
 
   /// Stores a new [locale] value of [ApplicationSettings.locale] to [Hive].
-  Future<void> setLocale(String locale) =>
-      putSafe(0, (box.get(0) ?? ApplicationSettings())..locale = locale);
+  Future<void> setLocale(String locale) async {
+    Log.debug('setLocale(locale)', 'ApplicationSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? ApplicationSettings())..locale = locale);
+  }
 
   /// Stores a new [show] value of [ApplicationSettings.showIntroduction] to
   /// [Hive].
-  Future<void> setShowIntroduction(bool show) => putSafe(
-      0, (box.get(0) ?? ApplicationSettings())..showIntroduction = show);
+  Future<void> setShowIntroduction(bool show) async {
+    Log.debug('setShowIntroduction(show)', 'ApplicationSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? ApplicationSettings())..showIntroduction = show);
+  }
 
   /// Stores a new [width] value of [ApplicationSettings.sideBarWidth] to
   /// [Hive].
-  Future<void> setSideBarWidth(double width) =>
-      putSafe(0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
+  Future<void> setSideBarWidth(double width) async {
+    Log.debug('setSideBarWidth(width)', 'ApplicationSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
+  }
 
   /// Stores a new [buttons] value of [ApplicationSettings.callButtons] to
   /// [Hive].
-  Future<void> setCallButtons(List<String> buttons) =>
-      putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
+  Future<void> setCallButtons(List<String> buttons) async {
+    Log.debug('setCallButtons(buttons)', 'ApplicationSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
+  }
 
   /// Stores a new [show] value of
   /// [ApplicationSettings.showDragAndDropVideosHint] to [Hive].
-  Future<void> setShowDragAndDropVideosHint(bool show) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..showDragAndDropVideosHint = show,
-      );
+  Future<void> setShowDragAndDropVideosHint(bool show) async {
+    Log.debug(
+      'setShowDragAndDropVideosHint(show)',
+      'ApplicationSettingsHiveProvider',
+    );
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..showDragAndDropVideosHint = show,
+    );
+  }
 
   /// Stores a new [show] value of
   /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
-  Future<void> setShowDragAndDropButtonsHint(bool show) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())
-          ..showDragAndDropButtonsHint = show,
-      );
+  Future<void> setShowDragAndDropButtonsHint(bool show) async {
+    Log.debug(
+      'setShowDragAndDropButtonsHint(show)',
+      'ApplicationSettingsHiveProvider',
+    );
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..showDragAndDropButtonsHint = show,
+    );
+  }
 
   /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
   /// to [Hive].
-  Future<void> setSortContactsByName(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
-      );
+  Future<void> setSortContactsByName(bool enabled) async {
+    Log.debug(
+      'setSortContactsByName(enabled)',
+      'ApplicationSettingsHiveProvider',
+    );
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
+    );
+  }
 
   /// Stores a new [enabled] value of [ApplicationSettings.loadImages]
   /// to [Hive].
-  Future<void> setLoadImages(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
-      );
+  Future<void> setLoadImages(bool enabled) async {
+    Log.debug('setLoadImages(enabled)', 'ApplicationSettingsHiveProvider');
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
+    );
+  }
 
   /// Stores a new [enabled] value of [ApplicationSettings.timelineEnabled]
   /// to [Hive].
-  Future<void> setTimelineEnabled(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
-      );
+  Future<void> setTimelineEnabled(bool enabled) async {
+    Log.debug('setTimelineEnabled(enabled)', 'ApplicationSettingsHiveProvider');
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
+    );
+  }
 
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
-  Future<void> setPinnedActions(List<String> buttons) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
-      );
+  Future<void> setPinnedActions(List<String> buttons) async {
+    Log.debug('setPinnedActions(buttons)', 'ApplicationSettingsHiveProvider');
+    putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
+    );
+  }
 }

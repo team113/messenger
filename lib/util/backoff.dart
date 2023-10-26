@@ -55,7 +55,7 @@ class Backoff {
               backoff *= 2;
             }
 
-            Log.error(e);
+            Log.error(e.toString());
           }
         }
       }),

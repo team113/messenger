@@ -36,6 +36,7 @@ import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import 'base.dart';
 import 'chat_item.dart';
+import '/util/log.dart';
 
 part 'chat.g.dart';
 
@@ -50,6 +51,7 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'ChatHiveProvider');
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatAvatarAdapter());
@@ -109,13 +111,22 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   Future<Iterable<HiveChat>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChat item) => putSafe(item.value.id.val, item);
+  Future<void> put(HiveChat item) async {
+    Log.debug('put(HiveChat)', 'ChatHiveProvider');
+    putSafe(item.value.id.val, item);
+  }
 
   @override
-  Future<HiveChat?> get(ChatId key) => getSafe(key.val);
+  Future<HiveChat?> get(ChatId key) async {
+    Log.debug('get(ChatId)', 'ChatHiveProvider');
+    return getSafe(key.val);
+  }
 
   @override
-  Future<void> remove(ChatId key) => deleteSafe(key.val);
+  Future<void> remove(ChatId key) async {
+    Log.debug('remove(ChatId)', 'ChatHiveProvider');
+    deleteSafe(key.val);
+  }
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].

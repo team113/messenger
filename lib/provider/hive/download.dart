@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [File.path]s.
@@ -36,11 +37,20 @@ class DownloadHiveProvider extends HiveLazyProvider<String> {
   Future<Iterable<String>> get downloads => valuesSafe;
 
   /// Puts the provided [File.path] to [Hive].
-  Future<void> put(String checksum, String path) => putSafe(checksum, path);
+  Future<void> put(String checksum, String path) async {
+    Log.debug('put(checksum, path)', 'DownloadHiveProvider');
+    putSafe(checksum, path);
+  }
 
   /// Returns a [File.path] from [Hive] by its [checksum].
-  Future<String?> get(String checksum) => getSafe(checksum);
+  Future<String?> get(String checksum) async {
+    Log.debug('get(checksum)', 'DownloadHiveProvider');
+    return getSafe(checksum);
+  }
 
   /// Removes an [File.path] from [Hive] by its [checksum].
-  Future<void> remove(String checksum) => deleteSafe(checksum);
+  Future<void> remove(String checksum) async {
+    Log.debug('remove(checksum)', 'DownloadHiveProvider');
+    deleteSafe(checksum);
+  }
 }

@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model/chat.dart';
 import 'base.dart';
 
@@ -31,12 +32,19 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'MonologHiveProvider');
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Returns the stored [ChatId] from [Hive].
-  ChatId? get() => getSafe(0);
+  ChatId? get() {
+    Log.debug('get()', 'MonologHiveProvider');
+    return getSafe(0);
+  }
 
   /// Saves the provided [ChatId] to [Hive].
-  Future<void> set(ChatId id) => putSafe(0, id);
+  Future<void> set(ChatId id) async {
+    Log.debug('set(ChatId)', 'MonologHiveProvider');
+    putSafe(0, id);
+  }
 }

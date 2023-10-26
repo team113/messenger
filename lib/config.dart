@@ -18,6 +18,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
 
 import '/l10n/l10n.dart';
@@ -100,6 +101,9 @@ class Config {
     };
   }
 
+  /// Log level.
+  static late me.LogLevel logLevel;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -166,6 +170,18 @@ class Config {
 
     origin = url;
 
+    if (document['conf']?['logLevel'] != null) {
+      if (document['conf']?['logLevel'] == 'debug') {
+        logLevel = me.LogLevel.debug;
+      } else if (document['conf']?['logLevel'] == 'info') {
+        logLevel = me.LogLevel.info;
+      } else if (document['conf']?['logLevel'] == 'error') {
+        logLevel = me.LogLevel.error;
+      } else {
+        logLevel = me.LogLevel.all;
+      }
+    }
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -228,7 +244,7 @@ class Config {
           }
         }
       } catch (e) {
-        Log.print('Remote configuration fetch failed.', 'CONFIG');
+        Log.error('Remote configuration fetch failed.', 'CONFIG');
       }
     }
 

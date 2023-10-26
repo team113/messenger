@@ -15,21 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: avoid_print
+import 'package:log_me/log_me.dart' as me;
 
-import 'dart:core' as core;
-
-import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
-
-// TODO: That's a temporary solution, we should use a proper logger.
 class Log {
-  /// Prints the provided [message] into the console.
-  static void print(core.String message, [core.String? tag]) =>
-      core.print('[$tag]: $message');
+  static void fatal(String message, [String? tag]) {
+    me.Log.fatal('${tag != null ? '[$tag]' : ''} $message');
+  }
 
-  /// Prints the provided [object] into the console as an error.
-  static void error(core.Object? object) => PlatformUtils.isWeb
-      ? WebUtils.consoleError(object.toString())
-      : core.print(object);
+  static void error(String message, [String? tag]) {
+    me.Log.error('${tag != null ? '[$tag]' : ''} $message');
+  }
+
+  static void warning(String message, [String? tag]) {
+    me.Log.warning('${tag != null ? '[$tag]' : ''} $message');
+  }
+
+  static void info(String message, [String? tag]) {
+    me.Log.info('${tag != null ? '[$tag]' : ''} $message');
+  }
+
+  static void debug(String message, [String? tag]) {
+    me.Log.debug('${tag != null ? '[$tag]' : ''} $message');
+  }
+
+  static void trace(String message, [String? tag]) {
+    me.Log.trace('${tag != null ? '[$tag]' : ''} $message');
+  }
 }

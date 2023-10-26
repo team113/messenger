@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
+import '/util/log.dart';
 import '/store/model/window_preferences.dart';
 import 'base.dart';
 
@@ -32,14 +33,19 @@ class WindowPreferencesHiveProvider
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'WindowPreferencesHiveProvider');
     Hive.maybeRegisterAdapter(WindowPreferencesAdapter());
   }
 
   /// Returns the stored [WindowPreferences] from [Hive].
-  WindowPreferences? get() => getSafe(0);
+  WindowPreferences? get() {
+    Log.debug('get()', 'WindowPreferencesHiveProvider');
+    return getSafe(0);
+  }
 
   /// Stores the new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
+    Log.debug('set(Size, Offset)', 'WindowPreferencesHiveProvider');
     final WindowPreferences? stored = get();
     putSafe(
       0,

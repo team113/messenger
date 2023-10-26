@@ -35,6 +35,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:log_me/log_me.dart' as me;
 
 import 'api/backend/schema.dart';
 import 'config.dart';
@@ -62,6 +63,7 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
+  me.Log.options = me.LogOptions(level: Config.logLevel);
   MediaKit.ensureInitialized();
 
   // Initializes and runs the [App].

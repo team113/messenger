@@ -56,13 +56,22 @@ class GraphQlProviderBase {
   set token(AccessToken? value) => _client.token = value;
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
-  Future<void> reconnect() => _client.reconnect();
+  Future<void> reconnect() async {
+    Log.debug('reconnect()', 'GraphQlProviderBase');
+    _client.reconnect();
+  }
 
   /// Disconnects the [client] and disposes the connection.
-  void disconnect() => _client.disconnect();
+  void disconnect() {
+    Log.debug('disconnect()', 'GraphQlProviderBase');
+    _client.disconnect();
+  }
 
   /// Clears the cache attached to the client.
-  void clearCache() => _client.clearCache();
+  void clearCache() {
+    Log.debug('clearCache()', 'GraphQlProviderBase');
+    _client.clearCache();
+  }
 }
 
 /// Wrapper around [GraphQLClient] used to implement middleware capabilities.
@@ -289,7 +298,7 @@ class GraphQlClient {
       _reconnectPeriodMillis = maxReconnectPeriodMillis;
     }
 
-    Log.print('Reconnecting in $_reconnectPeriodMillis ms...', 'WebSocket');
+    Log.info('Reconnecting in $_reconnectPeriodMillis ms...', 'WebSocket');
 
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
@@ -343,7 +352,7 @@ class GraphQlClient {
           _channelSubscription = socket.stream.listen(
             (_) {
               if (!_wsConnected) {
-                Log.print('Connected', 'WebSocket');
+                Log.info('Connected', 'WebSocket');
                 _checkConnectionTimer?.cancel();
                 _backoffTimer?.cancel();
                 _wsConnected = true;
@@ -505,7 +514,7 @@ class SubscriptionHandle {
       _subscription = (await _listen(_options)).listen(
         (e) {
           if (_backoff != null) {
-            Log.print(
+            Log.info(
               'Successfully resubscribed 👍',
               _options.operationName,
             );
@@ -537,7 +546,7 @@ class SubscriptionHandle {
 
   /// Resubscribes to the events.
   void _resubscribe({bool noVersion = false}) async {
-    Log.print('Reconnecting in $_backoffDuration...', _options.operationName);
+    Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
 
     if (ver != null) {
       _options.variables['ver'] = noVersion ? null : (await ver!())?.val;

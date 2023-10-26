@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model/media_settings.dart';
 import 'base.dart';
 
@@ -30,6 +31,7 @@ class MediaSettingsHiveProvider extends HiveBaseProvider<MediaSettings> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'MediaSettingsHiveProvider');
     Hive.maybeRegisterAdapter(MediaSettingsAdapter());
   }
 
@@ -37,17 +39,26 @@ class MediaSettingsHiveProvider extends HiveBaseProvider<MediaSettings> {
   MediaSettings? get settings => getSafe(0);
 
   /// Saves the provided [MediaSettings] in [Hive].
-  Future<void> set(MediaSettings mediaSettings) => putSafe(0, mediaSettings);
+  Future<void> set(MediaSettings mediaSettings) async {
+    Log.debug('set(MediaSettings)', 'MediaSettingsHiveProvider');
+    putSafe(0, mediaSettings);
+  }
 
   /// Stores a new video device [id] to [Hive].
-  Future<void> setVideoDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..videoDevice = id);
+  Future<void> setVideoDevice(String id) async {
+    Log.debug('setVideoDevice(id)', 'MediaSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? MediaSettings())..videoDevice = id);
+  }
 
   /// Stores a new audio device [id] to [Hive].
-  Future<void> setAudioDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..audioDevice = id);
+  Future<void> setAudioDevice(String id) async {
+    Log.debug('setAudioDevice(id)', 'MediaSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? MediaSettings())..audioDevice = id);
+  }
 
   /// Stores a new output device [id] to [Hive].
-  Future<void> setOutputDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..outputDevice = id);
+  Future<void> setOutputDevice(String id) async {
+    Log.debug('setOutputDevice(id)', 'MediaSettingsHiveProvider');
+    putSafe(0, (box.get(0) ?? MediaSettings())..outputDevice = id);
+  }
 }

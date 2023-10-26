@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import 'base.dart';
@@ -34,6 +35,7 @@ class ChatCallCredentialsHiveProvider
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'ChatCallCredentialsHiveProvider');
     Hive.maybeRegisterAdapter(ChatCallCredentialsAdapter());
   }
 
@@ -41,12 +43,23 @@ class ChatCallCredentialsHiveProvider
   Iterable<ChatCallCredentials> get items => valuesSafe;
 
   /// Puts the provided [ChatCallCredentials] to [Hive].
-  Future<void> put(ChatItemId id, ChatCallCredentials creds) =>
-      putSafe(id.val, creds);
+  Future<void> put(ChatItemId id, ChatCallCredentials creds) async {
+    Log.debug(
+      'put(ChatItemId, ChatCallCredentials)',
+      'ChatCallCredentialsHiveProvider',
+    );
+    putSafe(id.val, creds);
+  }
 
   /// Returns a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
-  ChatCallCredentials? get(ChatItemId id) => getSafe(id.val);
+  ChatCallCredentials? get(ChatItemId id) {
+    Log.debug('get(ChatItemId)', 'ChatCallCredentialsHiveProvider');
+    return getSafe(id.val);
+  }
 
   /// Removes a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
-  Future<void> remove(ChatItemId id) => deleteSafe(id.val);
+  Future<void> remove(ChatItemId id) async {
+    Log.debug('remove(ChatItemId)', 'ChatCallCredentialsHiveProvider');
+    deleteSafe(id.val);
+  }
 }

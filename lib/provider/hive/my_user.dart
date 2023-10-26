@@ -17,6 +17,7 @@
 
 import 'package:hive/hive.dart';
 
+import '/util/log.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
@@ -41,6 +42,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'MyUserHiveProvider');
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
@@ -68,10 +70,16 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   }
 
   /// Returns the stored [MyUser] from [Hive].
-  HiveMyUser? get myUser => getSafe(0);
+  HiveMyUser? get myUser {
+    Log.debug('get', 'MyUserHiveProvider');
+    return getSafe(0);
+  }
 
   /// Saves the provided [MyUser] in [Hive].
-  Future<void> set(HiveMyUser user) => putSafe(0, user);
+  Future<void> set(HiveMyUser user) async {
+    Log.debug('set(HiveMyUser)', 'MyUserHiveProvider');
+    putSafe(0, user);
+  }
 }
 
 /// Persisted in [Hive] storage [MyUser]'s [value].

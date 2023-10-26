@@ -17,6 +17,7 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '/util/log.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -44,6 +45,7 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', 'DraftHiveProvider');
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
@@ -89,16 +91,26 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
   Iterable<ChatMessage> get drafts => valuesSafe;
 
   /// Puts the provided [ChatMessage] to [Hive].
-  Future<void> put(ChatId id, ChatMessage draft) => putSafe(id.val, draft);
+  Future<void> put(ChatId id, ChatMessage draft) async {
+    Log.debug('put(ChatId, ChatMessage)', 'DraftHiveProvider');
+    putSafe(id.val, draft);
+  }
 
   /// Returns a [ChatMessage] from [Hive] by the provided [id].
-  ChatMessage? get(ChatId id) => getSafe(id.val);
+  ChatMessage? get(ChatId id) {
+    Log.debug('get(ChatId)', 'DraftHiveProvider');
+    return getSafe(id.val);
+  }
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
-  Future<void> remove(ChatId id) => deleteSafe(id.val);
+  Future<void> remove(ChatId id) async {
+    Log.debug('remove(ChatId)', 'DraftHiveProvider');
+    deleteSafe(id.val);
+  }
 
   /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
   Future<void> move(ChatId oldKey, ChatId newKey) async {
+    Log.debug('move(ChatId, ChatId)', 'DraftHiveProvider');
     final ChatMessage? value = get(oldKey);
     if (value != null) {
       remove(oldKey);
