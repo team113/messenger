@@ -153,7 +153,8 @@ class ReactiveTextField extends StatelessWidget {
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
 
-  /// Indicator whether this [ReactiveTextField] should display
+  /// Indicator whether this [ReactiveTextField] should display a save button,
+  /// when being empty, if [state] is approvable.
   final bool clearable;
 
   @override
