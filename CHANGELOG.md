@@ -22,10 +22,18 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Updated loading animation. ([#662], [#634])
 
+### Fixed
+
+- UI:
+    - Profile page:
+        - Save button displaying when login field is empty. ([#672], [#575])
+
 [#615]: /../../issues/615
 [#634]: /../../issues/634
+[#575]: /../../issues/575
 [#662]: /../../pull/662
 [#663]: /../../pull/663
+[#672]: /../../pull/672
 
 
 

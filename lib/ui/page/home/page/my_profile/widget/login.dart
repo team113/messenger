@@ -123,6 +123,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
             ),
       label: 'label_login'.l10n,
       hint: widget.login == null ? 'label_login_hint'.l10n : widget.login!.val,
+      clearable: false,
       subtitle: RichText(
         text: TextSpan(
           children: [
