@@ -109,6 +109,24 @@ make clean dockerized=yes  # Docker-wrapped
 ```
 
 
+### Application icons changing
+
+To update the application icons, use the following [`Makefile`] command:
+```bash
+make icon.update
+make icon.update dockerized=yes  # Docker-wrapped
+```
+
+__Note:__ To update, you need to download new icons along the path `assets/icons/launcher` and match the correct naming:
+* `android_background.png` - for android adaptive background
+* `android_foreground.png` - for android adaptive foreground
+* `android.png` - for android launcher icon
+* `apple.png` - for ios and macos launcher icon
+* `apple_rounded` - for ios and macos adaptive rounded icon
+* `linux.png` - for linux launcher icon
+* `web_alert.png` - for web launcher icon (alert)
+* `web.png` - for web launcher icon and favicon
+* `windows.png` - for windows launcher icon
 
 
 ## Structure overview

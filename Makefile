@@ -79,6 +79,9 @@ fmt: flutter.fmt
 gen: flutter.gen
 
 
+icon: icon.update
+
+
 lint: flutter.analyze
 
 
@@ -808,6 +811,29 @@ fcm.conf:
 
 
 ################
+# NPM commands #
+################
+
+
+# Update the launcher icons.
+#
+# Usage:
+#	make icon.update [dockerized=(no|yes)]
+
+icon.update:
+ifeq ($(dockerized),yes)
+	docker run --rm -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		node:${NODE_VER} \
+			make icon.update dockerized=no
+else
+	npx update-flutter-app-icon dev/icons.json
+endif
+
+
+
+
+################
 # Git commands #
 ################
 
@@ -844,5 +870,6 @@ endif
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
+		icon.update \
         minikube.boot \
         test.e2e test.unit
