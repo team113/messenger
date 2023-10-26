@@ -23,11 +23,19 @@ All user visible changes to this project will be documented in this file. This p
     - Updated loading animation. ([#662], [#634])
     - Updated [Progressive Web Application (PWA)][PWA] iOS home screen icon. ([#669])
 
+### Fixed
+
+- UI:
+    - Profile page:
+        - Save button displaying when login field is empty. ([#672], [#575])
+
 [#615]: /../../issues/615
 [#634]: /../../issues/634
+[#575]: /../../issues/575
 [#662]: /../../pull/662
 [#663]: /../../pull/663
 [#669]: /../../pull/669
+[#672]: /../../pull/672
 
 
 
