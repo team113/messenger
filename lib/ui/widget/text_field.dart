@@ -61,7 +61,7 @@ class ReactiveTextField extends StatelessWidget {
     this.treatErrorAsStatus = true,
     this.type,
     this.subtitle,
-    this.canBeEmpty = true,
+    this.clearable = true,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -153,8 +153,8 @@ class ReactiveTextField extends StatelessWidget {
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
 
-  /// Indicator whether this [ReactiveTextField] can be empty
-  final bool canBeEmpty;
+  /// Indicator whether this [ReactiveTextField] should display
+  final bool clearable;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +194,9 @@ class ReactiveTextField extends StatelessWidget {
 
         return AnimatedButton(
           onPressed: state.approvable && state.changed.value
-              ? state.submit
+              ? state.isEmpty.value && !clearable
+                  ? null
+                  : state.submit
               : onSuffixPressed,
           decorator: (child) {
             if (!hasSuffix) {
@@ -239,11 +241,14 @@ class ReactiveTextField extends StatelessWidget {
                                         color: style.colors.danger,
                                       ),
                                     )
-                                  : state.isEmpty.value && !canBeEmpty
-                                      ? const SizedBox(width: 1, height: 0)
-                                      : (state.approvable &&
-                                              state.changed.value)
-                                          ? AllowOverflow(
+                                  : (state.approvable && state.changed.value)
+                                      ? state.isEmpty.value && !clearable
+                                          ? const SizedBox(
+                                              key: Key('Empty'),
+                                              width: 1,
+                                              height: 0,
+                                            )
+                                          : AllowOverflow(
                                               key: const ValueKey('Approve'),
                                               child: Text(
                                                 'btn_save'.l10n,
@@ -251,13 +256,13 @@ class ReactiveTextField extends StatelessWidget {
                                                     .primary,
                                               ),
                                             )
-                                          : SizedBox(
-                                              key: const ValueKey('Icon'),
-                                              width: 24,
-                                              child: suffix != null
-                                                  ? Icon(suffix)
-                                                  : trailing,
-                                            ),
+                                      : SizedBox(
+                                          key: const ValueKey('Icon'),
+                                          width: 24,
+                                          child: suffix != null
+                                              ? Icon(suffix)
+                                              : trailing,
+                                        ),
                     ),
                   )
                 : const SizedBox(width: 1, height: 0),
