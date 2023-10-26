@@ -43,22 +43,23 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(PreciseDateTime key, ChatId item) async {
-    String stringKey = key.toUtc().toString();
+    final String i = key.toUtc().toString();
 
-    if (getSafe(stringKey) != item) {
-      _mutex.protect(() async {
+    if (getSafe(i) != item) {
+      await _mutex.protect(() async {
         final int index = values.toList().indexOf(item);
         if (index != -1) {
           await deleteAtSafe(index);
         }
-        await putSafe(stringKey, item);
+
+        await putSafe(i, item);
       });
     }
   }
 
   /// Removes the provided [ChatId] from [Hive].
   Future<void> remove(ChatId item) async {
-    _mutex.protect(() async {
+    await _mutex.protect(() async {
       final int index = values.toList().indexOf(item);
       if (index != -1) {
         await deleteAtSafe(index);
