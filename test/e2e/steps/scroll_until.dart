@@ -73,28 +73,13 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
 
     final double height =
         (tester.view.physicalSize / tester.view.devicePixelRatio).height;
-    print('[scrollIntoVisible] height: $height');
 
     for (int i = 0; i < 500; ++i) {
-      print(
-        '[scrollIntoVisible][$i] isPresent: ${await isPresent(finder)}',
-      );
-
       final ScrollableState state = tester.state(scrollable) as ScrollableState;
       final ScrollPosition position = state.position;
 
       if (await isPresent(finder)) {
-        print(
-          '[scrollIntoVisible] await Scrollable.ensureVisible...',
-        );
         await Scrollable.ensureVisible(finder.evaluate().single);
-        print(
-          '[scrollIntoVisible] await Scrollable.ensureVisible... done',
-        );
-
-        print(
-          '[scrollIntoVisible] center: ${tester.getCenter(finder.first)} < $height - $dy (${tester.getCenter(finder.first).dy <= height - dy})',
-        );
 
         // If [finder] is present and it's within our view, then break the loop.
         if (tester.getCenter(finder.first).dy <= height - dy ||
@@ -105,9 +90,6 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
 
       // Or otherwise keep on scrolling the [scrollable].
       position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
-      print(
-        '[scrollIntoVisible] position.jumpTo(min(${position.pixels} + $dy, ${position.maxScrollExtent}))',
-      );
 
       await tester.pump();
     }
