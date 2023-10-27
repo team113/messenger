@@ -1731,19 +1731,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   variants: [
                                     if (!deletable || !isMonolog)
                                       ConfirmDialogVariant(
+                                        key: const Key('HideForMe'),
                                         onProceed: widget.onHide,
-                                        child: Text(
-                                          'label_delete_for_me'.l10n,
-                                          key: const Key('HideForMe'),
-                                        ),
+                                        label: 'label_delete_for_me'.l10n,
                                       ),
                                     if (deletable)
                                       ConfirmDialogVariant(
+                                        key: const Key('DeleteForAll'),
                                         onProceed: widget.onDelete,
-                                        child: Text(
-                                          key: const Key('DeleteForAll'),
-                                          'label_delete_for_everyone'.l10n,
-                                        ),
+                                        label: 'label_delete_for_everyone'.l10n,
                                       )
                                   ],
                                 );
@@ -1779,11 +1775,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   title: 'label_delete_message'.l10n,
                                   variants: [
                                     ConfirmDialogVariant(
+                                      key: const Key('DeleteForAll'),
                                       onProceed: widget.onDelete,
-                                      child: Text(
-                                        'label_delete_for_everyone'.l10n,
-                                        key: const Key('DeleteForAll'),
-                                      ),
+                                      label: 'label_delete_for_everyone'.l10n,
                                     )
                                   ],
                                 );

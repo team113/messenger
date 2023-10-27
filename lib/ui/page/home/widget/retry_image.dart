@@ -283,12 +283,7 @@ class _RetryImageState extends State<RetryImage> {
               alignment: Alignment.center,
               children: [
                 if (!_canceled && widget.displayProgress)
-                  CustomProgressIndicator(
-                    size: 40,
-                    blur: false,
-                    padding: const EdgeInsets.all(4),
-                    strokeWidth: 2,
-                    color: style.colors.primary,
+                  CustomProgressIndicator.primary(
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
                 if (widget.cancelable)

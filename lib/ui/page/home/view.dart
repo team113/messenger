@@ -109,7 +109,7 @@ class _HomeViewState extends State<HomeView> {
               height: double.infinity,
               fit: BoxFit.cover,
             ),
-            Center(child: CustomProgressIndicator()),
+            Center(child: CustomProgressIndicator.primary()),
           ],
         ),
       );
@@ -395,7 +395,7 @@ class _HomeViewState extends State<HomeView> {
                   SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CustomProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator.primary()),
                   )
               ],
             );

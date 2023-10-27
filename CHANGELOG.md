@@ -17,9 +17,25 @@ All user visible changes to this project will be documented in this file. This p
     - Updated fonts. ([#663], [#615])
     - Style page:
         - Redesigned typography tab. ([#663], [#615])
+    - Chat page:
+        - Display message field while loading. ([#662], [#634])
+    - Disabled larger fonts accessibility setting temporary. ([#679])
+- Web:
+    - Updated loading animation. ([#662], [#634])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Save button displaying when login field is empty. ([#672], [#575])
 
 [#615]: /../../issues/615
+[#634]: /../../issues/634
+[#575]: /../../issues/575
+[#662]: /../../pull/662
 [#663]: /../../pull/663
+[#672]: /../../pull/672
+[#679]: /../../pull/679
 
 
 
@@ -350,7 +366,7 @@ All user visible changes to this project will be documented in this file. This p
         - Blacklisting. ([#317], [#277], [#234], [#229])
     - Window's size and position persistence. ([#274], [#263])
 - Windows:
-    - Unread chats count badge on app's icon. ([#342], [#327])    
+    - Unread chats count badge on app's icon. ([#342], [#327])
 
 ### Changed
 
@@ -637,7 +653,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Mobile minimization gesture being too rapid. ([#45], [#44])
         - Media not enabling in empty call. ([#79], [#117], [#75])
-        - Prevent device from sleeping. ([#112], [#92]) 
+        - Prevent device from sleeping. ([#112], [#92])
 
 [#2]: /../../issues/2
 [#3]: /../../issues/3
