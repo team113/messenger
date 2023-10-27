@@ -1549,7 +1549,9 @@ class ChatRepository extends DisposableInterface
 
     // Clear the [paginated] and the [_localPagination] populating it, as
     // [CombinedPagination.around] has fetched its results.
-    paginated.clear();
+    paginated.removeWhere(
+      (key, _) => _pagination?.items.none((e) => e.value.id == key) == true,
+    );
     _localPagination?.dispose();
     _localPagination = null;
 
