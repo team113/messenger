@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
@@ -91,6 +92,9 @@ class NativeFile {
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
   MediaType? mime;
+
+  /// [Size] of the image this [NativeFile] represents, if [isImage].
+  final Rx<Size?> dimensions = Rx(null);
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
@@ -199,6 +203,21 @@ class NativeFile {
 
         bytes.value = Uint8List.fromList(data);
         _readStream = null;
+      }
+
+      // Decode the file, if it [isImage].
+      //
+      // Throws an error, if decoding fails.
+      if (isImage && bytes.value != null) {
+        // TODO: Validate SVGs and retrieve its width and height.
+        if (!isSvg) {
+          final decoded = await instantiateImageCodec(bytes.value!);
+          final frame = await decoded.getNextFrame();
+          dimensions.value = Size(
+            frame.image.width.toDouble(),
+            frame.image.height.toDouble(),
+          );
+        }
       }
 
       return bytes.value;

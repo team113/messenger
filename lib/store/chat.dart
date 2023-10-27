@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/domain/model/file.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -791,6 +792,7 @@ class ChatRepository extends DisposableInterface
       );
 
       var model = response.attachment.toModel();
+
       attachment.id = model.id;
       attachment.filename = model.filename;
       attachment.original = model.original;
@@ -1598,7 +1600,7 @@ class ChatRepository extends DisposableInterface
 
     // Clear the [paginated] and the [_localPagination] populating it, as
     // [CombinedPagination.around] has fetched its results.
-    paginated.clear();
+    // paginated.clear();
     _localPagination?.dispose();
     _localPagination = null;
 

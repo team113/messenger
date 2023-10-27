@@ -173,6 +173,7 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         avatarBuilder: avatarBuilder,
+        dimmed: blocked,
         status: [
           _status(context, inverted),
           if (!chat.id.isLocalWith(me))
@@ -290,6 +291,10 @@ class RecentChatTile extends StatelessWidget {
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
     final style = Theme.of(context).style;
 
+    if (blocked) {
+      return Text('Blocked', style: style.fonts.bodyMediumSecondary);
+    }
+
     return Obx(() {
       final List<Widget> subtitle;
 
@@ -313,7 +318,7 @@ class RecentChatTile extends StatelessWidget {
                       ? style.fonts.labelMediumOnPrimary
                       : style.fonts.labelMediumPrimary,
                 ),
-                const SizedBox(width: 3),
+                const SizedBox(width: 2),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: AnimatedTyping(inverted: inverted),
@@ -337,7 +342,7 @@ class RecentChatTile extends StatelessWidget {
                           : style.fonts.labelMediumPrimary,
                     ),
                   ),
-                  const SizedBox(width: 3),
+                  const SizedBox(width: 2),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: AnimatedTyping(inverted: inverted),
@@ -655,6 +660,7 @@ class RecentChatTile extends StatelessWidget {
             ? style.fonts.bodyMediumOnPrimary
             : style.fonts.bodyMediumSecondary,
         overflow: TextOverflow.ellipsis,
+        maxLines: 1,
         child: Row(children: subtitle),
       );
     });

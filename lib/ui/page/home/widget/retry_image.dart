@@ -223,7 +223,8 @@ class _RetryImageState extends State<RetryImage> {
           _image!,
           width: widget.width,
           height: widget.height,
-          fit: widget.fit ?? BoxFit.contain,
+          fit: BoxFit.contain,
+          // fit: widget.fit ?? BoxFit.contain,
         );
       } else {
         image = Image.memory(

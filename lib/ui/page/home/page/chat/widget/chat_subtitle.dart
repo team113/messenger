@@ -133,9 +133,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('label_typing'.l10n, style: style.fonts.labelMediumPrimary),
-              const SizedBox(width: 3),
+              const SizedBox(width: 2),
               const Padding(
-                padding: EdgeInsets.only(bottom: 3),
+                padding: EdgeInsets.only(bottom: 4),
                 child: AnimatedTyping(),
               ),
             ],
@@ -158,9 +158,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 style: style.fonts.labelMediumPrimary,
               ),
             ),
-            const SizedBox(width: 3),
+            const SizedBox(width: 2),
             const Padding(
-              padding: EdgeInsets.only(bottom: 3),
+              padding: EdgeInsets.only(bottom: 4),
               child: AnimatedTyping(),
             ),
           ],

@@ -485,14 +485,14 @@ class SvgIcons {
 
   static const SvgData blocked = SvgData(
     'assets/icons/blocked.svg',
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
   );
 
   static const SvgData blockedWhite = SvgData(
     'assets/icons/blocked_white.svg',
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
   );
 
   static const SvgData sent = SvgData(
@@ -507,19 +507,9 @@ class SvgIcons {
     height: 9,
   );
 
-  static const SvgData sentSmall = SvgData(
-    'assets/icons/sent_small.svg',
-    height: 7,
-  );
-
   static const SvgData delivered = SvgData(
     'assets/icons/delivered.svg',
     height: 9,
-  );
-
-  static const SvgData deliveredSmall = SvgData(
-    'assets/icons/delivered_small.svg',
-    height: 7,
   );
 
   static const SvgData deliveredWhite = SvgData(
@@ -537,19 +527,9 @@ class SvgIcons {
     height: 9,
   );
 
-  static const SvgData halfReadSmall = SvgData(
-    'assets/icons/half_read_small.svg',
-    height: 7,
-  );
-
   static const SvgData read = SvgData(
     'assets/icons/read.svg',
     height: 9,
-  );
-
-  static const SvgData readSmall = SvgData(
-    'assets/icons/read_small.svg',
-    height: 7,
   );
 
   static const SvgData readWhite = SvgData(
@@ -567,19 +547,9 @@ class SvgIcons {
     height: 13,
   );
 
-  static const SvgData sendingSmall = SvgData(
-    'assets/icons/sending_small.svg',
-    height: 10,
-  );
-
   static const SvgData error = SvgData(
     'assets/icons/error.svg',
     height: 13,
-  );
-
-  static const SvgData errorSmall = SvgData(
-    'assets/icons/error_small.svg',
-    height: 10,
   );
 
   static const SvgData forward = SvgData(
@@ -1210,7 +1180,7 @@ class SvgIcons {
     height: 17,
   );
 
-   static const SvgData errorBig = SvgData(
+  static const SvgData errorBig = SvgData(
     'assets/icons/error_big.svg',
     width: 17,
     height: 17,

@@ -50,6 +50,7 @@ class ChatTile extends StatefulWidget {
     this.folded = false,
     this.special = false,
     this.highlight = false,
+    this.dimmed = false,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -106,6 +107,8 @@ class ChatTile extends StatefulWidget {
   final bool special;
   final bool highlight;
 
+  final bool dimmed;
+
   @override
   State<ChatTile> createState() => _ChatTileState();
 
@@ -151,8 +154,11 @@ class _ChatTileState extends State<ChatTile> {
             folded: widget.folded,
             child: InkWellWithHover(
               selectedColor: chosen,
-              unselectedColor:
-                  widget.highlight ? paid : normal.darken(widget.darken),
+              unselectedColor: widget.dimmed
+                  ? style.colors.onPrimaryOpacity50
+                  : widget.highlight
+                      ? paid
+                      : normal.darken(widget.darken),
               selectedHoverColor: chosen,
               unselectedHoverColor:
                   widget.highlight ? paid.darken(0.03) : style.cardHoveredColor,

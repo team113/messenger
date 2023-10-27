@@ -967,15 +967,15 @@ class _WidgetsViewState extends State<IconsView> {
           ),
           Block(
             children: [
-              _messageStatus(context, c, SvgIcons.readSmall),
+              _messageStatus(context, c, SvgIcons.read),
               const SizedBox(height: 8),
-              _messageStatus(context, c, SvgIcons.deliveredSmall),
+              _messageStatus(context, c, SvgIcons.delivered),
               const SizedBox(height: 8),
-              _messageStatus(context, c, SvgIcons.sentSmall),
+              _messageStatus(context, c, SvgIcons.sent),
               const SizedBox(height: 8),
-              _messageStatus(context, c, SvgIcons.sendingSmall),
+              _messageStatus(context, c, SvgIcons.sending),
               const SizedBox(height: 8),
-              _messageStatus(context, c, SvgIcons.errorSmall),
+              _messageStatus(context, c, SvgIcons.error),
             ],
           ),
           Block(

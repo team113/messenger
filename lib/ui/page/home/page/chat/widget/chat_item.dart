@@ -212,6 +212,7 @@ class ChatItemWidget extends StatefulWidget {
           MediaAttachment(
             key: key,
             attachment: e,
+            // TODO: Wait for backend to return video's height.
             height: 300,
             autoLoad: autoLoad,
             onError: onError,
@@ -237,9 +238,9 @@ class ChatItemWidget extends StatefulWidget {
       attachment = MediaAttachment(
         key: key,
         attachment: e,
-        height: 300,
+        // height: 300,
         width: filled ? double.infinity : null,
-        fit: BoxFit.cover,
+        // fit: BoxFit.cover,
         autoLoad: autoLoad,
         onError: onError,
       );
@@ -1075,10 +1076,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? Container(
                           padding: const EdgeInsets.only(left: 4, right: 4),
                           decoration: BoxDecoration(
-                            color: style.colors.onBackgroundOpacity50,
+                            // color: style.colors.onBackgroundOpacity50,
+                            color: style.colors.onPrimaryOpacity95,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: _timestamp(msg, true),
+                          child: _timestamp(msg, false),
                         )
                       : _timestamp(msg),
                 )

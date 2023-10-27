@@ -171,11 +171,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         child: Container(
           padding: isMobile
               ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
-              : const EdgeInsets.fromLTRB(12, 6, 12, 6),
+              : const EdgeInsets.fromLTRB(11, 6, 11, 6),
           margin: isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             color: isMouseOver
                 ? isMobile
                     ? style.contextMenuHoveredColor

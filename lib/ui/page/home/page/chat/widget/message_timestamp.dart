@@ -130,15 +130,15 @@ class MessageTimestamp extends StatelessWidget {
           SvgIcon(
             isRead
                 ? halfRead
-                    ? SvgIcons.halfReadSmall
-                    : SvgIcons.readSmall
+                    ? SvgIcons.halfRead
+                    : SvgIcons.read
                 : isDelivered
-                    ? SvgIcons.deliveredSmall
+                    ? SvgIcons.delivered
                     : isSending
                         ? isError
-                            ? SvgIcons.errorSmall
-                            : SvgIcons.sendingSmall
-                        : SvgIcons.sentSmall,
+                            ? SvgIcons.error
+                            : SvgIcons.sending
+                        : SvgIcons.sent,
           ),
           // Icon(
           //   (isRead || isDelivered)
