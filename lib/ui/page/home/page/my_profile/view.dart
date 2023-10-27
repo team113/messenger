@@ -361,15 +361,15 @@ Widget _emails(BuildContext context, MyProfileController c) {
                             variants: [
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_all'.l10n),
+                                label: 'label_all'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_my_contacts'.l10n),
+                                label: 'label_my_contacts'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_nobody'.l10n),
+                                label: 'label_nobody'.l10n,
                               ),
                             ],
                           );
@@ -500,15 +500,15 @@ Widget _phones(BuildContext context, MyProfileController c) {
                             variants: [
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_all'.l10n),
+                                label: 'label_all'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_my_contacts'.l10n),
+                                label: 'label_my_contacts'.l10n,
                               ),
                               ConfirmDialogVariant(
                                 onProceed: () {},
-                                child: Text('label_nobody'.l10n),
+                                label: 'label_nobody'.l10n,
                               ),
                             ],
                           );

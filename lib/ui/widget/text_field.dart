@@ -62,6 +62,7 @@ class ReactiveTextField extends StatelessWidget {
     this.treatErrorAsStatus = true,
     this.type,
     this.subtitle,
+    this.clearable = true,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -157,6 +158,10 @@ class ReactiveTextField extends StatelessWidget {
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
 
+  /// Indicator whether this [ReactiveTextField] should display a save button,
+  /// when being empty, if [state] is approvable.
+  final bool clearable;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -195,7 +200,9 @@ class ReactiveTextField extends StatelessWidget {
 
         return AnimatedButton(
           onPressed: state.approvable && state.changed.value
-              ? state.submit
+              ? state.isEmpty.value && !clearable
+                  ? null
+                  : state.submit
               : onSuffixPressed,
           decorator: (child) {
             if (!hasSuffix) {
@@ -241,14 +248,20 @@ class ReactiveTextField extends StatelessWidget {
                                       ),
                                     )
                                   : (state.approvable && state.changed.value)
-                                      ? AllowOverflow(
-                                          key: const ValueKey('Approve'),
-                                          child: Text(
-                                            'btn_save'.l10n,
-                                            style: style
-                                                .fonts.small.regular.primary,
-                                          ),
-                                        )
+                                      ? state.isEmpty.value && !clearable
+                                          ? const SizedBox(
+                                              key: Key('Empty'),
+                                              width: 1,
+                                              height: 0,
+                                            )
+                                          : AllowOverflow(
+                                              key: const ValueKey('Approve'),
+                                              child: Text(
+                                                'btn_save'.l10n,
+                                                style: style.fonts.small.regular
+                                                    .primary,
+                                              ),
+                                            )
                                       : SizedBox(
                                           key: const ValueKey('Icon'),
                                           width: 24,

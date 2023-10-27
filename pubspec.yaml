@@ -151,10 +151,10 @@ flutter:
   fonts:
     - family: NotoSansDisplay
       fonts:
-        - asset: assets/google_fonts/NotoSansDisplay-Bold.ttf
-          weight: 700
-        - asset: assets/google_fonts/NotoSansDisplay-Regular.ttf
+        - asset: assets/fonts/NotoSansDisplay-Regular.ttf
           weight: 400
+        - asset: assets/fonts/NotoSansDisplay-Bold.ttf
+          weight: 700
 
 sentry:
   upload_native_symbols: true
