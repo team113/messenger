@@ -689,6 +689,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             return deps;
           },
+          signedUp: router.arguments?['signedUp'] as bool? ?? false,
         ),
       ));
     } else if (_state.route.startsWith(Routes.work)) {
@@ -784,7 +785,10 @@ extension RouteLinks on RouterState {
   void auth() => go(Routes.auth);
 
   /// Changes router location to the [Routes.home] page.
-  void home() => go(Routes.home);
+  void home({bool? signedUp}) {
+    go(Routes.home);
+    arguments = {'signedUp': signedUp};
+  }
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);

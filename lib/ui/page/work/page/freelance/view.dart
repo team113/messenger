@@ -242,7 +242,7 @@ class FreelanceWorkView extends StatelessWidget {
                               await LoginView.show(
                                 context,
                                 initial: LoginViewStage.signUpOrSignIn,
-                                onSuccess: () async => await c.useLink(),
+                                onSuccess: c.useLink,
                               );
                             }
                           },

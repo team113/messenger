@@ -50,7 +50,6 @@ class ReactiveTextField extends StatelessWidget {
     this.obscure = false,
     this.onChanged,
     this.onSuffixPressed,
-    this.onCopied = _defaultOnCopied,
     this.padding,
     this.prefix,
     this.prefixText,
@@ -63,6 +62,7 @@ class ReactiveTextField extends StatelessWidget {
     this.type,
     this.subtitle,
     this.clearable = true,
+    this.selectable,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -135,10 +135,6 @@ class ReactiveTextField extends StatelessWidget {
   /// Only meaningful if [suffix] is non-`null`.
   final void Function()? onSuffixPressed;
 
-  /// Callback, called when the contents of this field are copied.
-  final void Function(EditableTextState field, ReactiveFieldState state)
-      onCopied;
-
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
@@ -161,6 +157,10 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether this [ReactiveTextField] should display a save button,
   /// when being empty, if [state] is approvable.
   final bool clearable;
+
+  /// Indicator whether text within this [ReactiveTextField] should be
+  /// selectable.
+  final bool? selectable;
 
   @override
   Widget build(BuildContext context) {
@@ -300,6 +300,7 @@ class ReactiveTextField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              enableInteractiveSelection: selectable,
               selectionControls: PlatformUtils.isAndroid
                   ? MaterialTextSelectionControls()
                   : PlatformUtils.isIOS
@@ -385,7 +386,20 @@ class ReactiveTextField extends StatelessWidget {
                           actions: [
                             ContextMenuButton(
                               label: 'btn_copy'.l10n,
-                              onPressed: () => onCopied.call(field, state),
+                              onPressed: () {
+                                if (field.copyEnabled) {
+                                  field.copySelection(
+                                    SelectionChangedCause.toolbar,
+                                  );
+                                } else {
+                                  PlatformUtils.copy(
+                                    text: state.controller.text,
+                                  );
+                                  field.hideToolbar();
+                                }
+
+                                MessagePopup.success('label_copied'.l10n);
+                              },
                             ),
                             if (field.pasteEnabled)
                               ContextMenuButton(
@@ -433,21 +447,6 @@ class ReactiveTextField extends StatelessWidget {
         ),
       );
     });
-  }
-
-  /// Puts the contents of the selected [field] to the clipboard.
-  static void _defaultOnCopied(
-    EditableTextState field,
-    ReactiveFieldState state,
-  ) {
-    if (field.copyEnabled) {
-      field.copySelection(SelectionChangedCause.toolbar);
-    } else {
-      PlatformUtils.copy(text: state.controller.text);
-      field.hideToolbar();
-    }
-
-    MessagePopup.success('label_copied'.l10n);
   }
 }
 
