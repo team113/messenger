@@ -53,12 +53,12 @@ class BackendWorkController extends GetxController {
   Rx<RxStatus> get status => _authService.status;
 
   /// Uses the [ChatDirectLinkSlug].
-  Future<void> useLink() async {
+  Future<void> useLink({bool? signedUp}) async {
     linkStatus.value = RxStatus.loading();
 
     try {
       if (status.value.isEmpty) {
-        router.home();
+        router.home(signedUp: signedUp);
       }
 
       router.chat(

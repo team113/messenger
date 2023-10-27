@@ -47,13 +47,13 @@ class LoginView extends StatelessWidget {
   /// Callback, called when this [LoginView] successfully signs into an account.
   ///
   /// If not specified, the [RouteLinks.home] redirect is invoked.
-  final void Function()? onSuccess;
+  final void Function({bool? signedUp})? onSuccess;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     LoginViewStage initial = LoginViewStage.signUp,
-    void Function()? onSuccess,
+    void Function({bool? signedUp})? onSuccess,
   }) {
     return ModalPopup.show(
       context: context,
@@ -219,7 +219,7 @@ class LoginView extends StatelessWidget {
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
                       style: enabled
-                          ? style.fonts.medium.regular.onPrimary
+                          ? style.fonts.medium.regular.primary
                           : style.fonts.medium.regular.onBackground,
                     ),
                   );

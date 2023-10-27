@@ -15,143 +15,74 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
-import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
-import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 /// Possible [IntroductionViewStage] flow stage.
 enum IntroductionViewStage {
-  password,
-  success,
+  oneTime,
+  signUp,
 }
 
 /// Controller of an [IntroductionView].
 class IntroductionController extends GetxController {
-  IntroductionController(this._myUser);
+  IntroductionController(
+    this._myUserService, {
+    IntroductionViewStage initial = IntroductionViewStage.oneTime,
+  }) : stage = Rx(initial);
 
   /// [IntroductionViewStage] currently being displayed.
-  final Rx<IntroductionViewStage?> stage = Rx(null);
+  final Rx<IntroductionViewStage> stage;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [MyUser.num]'s copyable [TextFieldState].
-  late final TextFieldState num;
+  /// [TextFieldState] of the link to use in [createLink] method.
+  late final TextFieldState link = TextFieldState(
+    text:
+        '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? ChatDirectLinkSlug.generate(10).val}',
+    editable: false,
+  );
 
-  /// [TextFieldState] for a password input.
-  late final TextFieldState password;
+  /// Origin to display withing the [link] field.
+  late final String _origin =
+      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
 
-  /// [TextFieldState] for a repeated password input.
-  late final TextFieldState repeat;
+  /// Creates a [ChatDirectLink] from the [link].
+  Future<void> createLink() async {
+    final String text = link.text.replaceFirst(_origin, '');
 
-  /// Indicator whether the [password] should be obscured.
-  final RxBool obscurePassword = RxBool(true);
+    if (myUser.value?.chatDirectLink?.slug.val == text) {
+      return;
+    }
 
-  /// Indicator whether the [repeat]ed password should be obscured.
-  final RxBool obscureRepeat = RxBool(true);
+    if (!link.status.value.isEmpty) {
+      return;
+    }
 
-  /// [MyUserService] setting the password.
-  final MyUserService _myUser;
+    try {
+      await _myUserService.createChatDirectLink(ChatDirectLinkSlug(text));
+    } on CreateChatDirectLinkException catch (e) {
+      link.error.value = e.toMessage();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUser.myUser;
-
-  @override
-  void onInit() {
-    num = TextFieldState(
-      text: _myUser.myUser.value!.num.toString(),
-      editable: false,
-    );
-
-    password = TextFieldState(
-      onChanged: (s) {
-        password.error.value = null;
-        repeat.error.value = null;
-
-        if (s.text.isNotEmpty) {
-          try {
-            UserPassword(s.text);
-
-            if (repeat.text != password.text && repeat.isValidated) {
-              repeat.error.value = 'err_passwords_mismatch'.l10n;
-            }
-          } on FormatException {
-            if (s.text.isEmpty) {
-              s.error.value = 'err_password_empty'.l10n;
-            } else {
-              s.error.value = 'err_password_incorrect'.l10n;
-            }
-          }
-        }
-      },
-      onSubmitted: (_) => repeat.focus.requestFocus(),
-    );
-
-    repeat = TextFieldState(
-      onChanged: (s) {
-        password.error.value = null;
-        repeat.error.value = null;
-
-        if (s.text.isNotEmpty) {
-          try {
-            UserPassword(s.text);
-
-            if (repeat.text != password.text && password.isValidated) {
-              repeat.error.value = 'err_passwords_mismatch'.l10n;
-            }
-          } on FormatException {
-            if (s.text.isEmpty) {
-              s.error.value = 'err_repeat_password_empty'.l10n;
-            } else {
-              s.error.value = 'err_password_incorrect'.l10n;
-            }
-          }
-        }
-      },
-      onSubmitted: (_) => setPassword(),
-    );
-
-    super.onInit();
-  }
-
-  /// Validates and sets the [password] of the currently authenticated [MyUser].
-  Future<void> setPassword() async {
-    if (password.error.value != null ||
-        repeat.error.value != null ||
-        !password.editable.value ||
-        !repeat.editable.value) {
-      return;
-    }
-
-    if (password.text.isEmpty) {
-      password.error.value = 'err_password_empty'.l10n;
-      return;
-    }
-
-    if (repeat.text.isEmpty) {
-      repeat.error.value = 'err_repeat_password_empty'.l10n;
-      return;
-    }
-
-    password.editable.value = false;
-    repeat.editable.value = false;
-    try {
-      await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
-      stage.value = IntroductionViewStage.success;
-    } on UpdateUserPasswordException catch (e) {
-      repeat.error.value = e.toMessage();
-    } catch (e) {
-      repeat.error.value = 'err_data_transfer'.l10n;
-      rethrow;
-    } finally {
-      password.editable.value = true;
-      repeat.editable.value = true;
-    }
-  }
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 }
