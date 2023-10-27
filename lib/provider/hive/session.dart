@@ -70,25 +70,19 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
 
   /// Stores new [Credentials] to [Hive].
   Future<void> setCredentials(Credentials credentials) async {
-    Log.debug('setCredentials(Credentials)', 'SessionDataHiveProvider');
+    Log.debug('setCredentials($credentials)', 'SessionDataHiveProvider');
     putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
   }
 
   /// Stores a new [ChatContactsListVersion] to [Hive].
   Future<void> setChatContactsListVersion(ChatContactsListVersion ver) async {
-    Log.debug(
-      'setChatContactsListVersion(ChatContactsListVersion)',
-      'SessionDataHiveProvider',
-    );
+    Log.debug('setChatContactsListVersion($ver)', 'SessionDataHiveProvider');
     putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
   }
 
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
   Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) async {
-    Log.debug(
-      'setFavoriteChatsListVersion(FavoriteChatsListVersion)',
-      'SessionDataHiveProvider',
-    );
+    Log.debug('setFavoriteChatsListVersion($ver)', 'SessionDataHiveProvider');
     putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
   }
 }

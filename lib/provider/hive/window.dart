@@ -45,7 +45,7 @@ class WindowPreferencesHiveProvider
 
   /// Stores the new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
-    Log.debug('set(Size, Offset)', 'WindowPreferencesHiveProvider');
+    Log.debug('set($size, $position)', 'WindowPreferencesHiveProvider');
     final WindowPreferences? stored = get();
     putSafe(
       0,

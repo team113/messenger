@@ -92,25 +92,25 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   /// Puts the provided [ChatMessage] to [Hive].
   Future<void> put(ChatId id, ChatMessage draft) async {
-    Log.debug('put(ChatId, ChatMessage)', 'DraftHiveProvider');
+    Log.debug('put($id, $draft)', 'DraftHiveProvider');
     putSafe(id.val, draft);
   }
 
   /// Returns a [ChatMessage] from [Hive] by the provided [id].
   ChatMessage? get(ChatId id) {
-    Log.debug('get(ChatId)', 'DraftHiveProvider');
+    Log.debug('get($id)', 'DraftHiveProvider');
     return getSafe(id.val);
   }
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) async {
-    Log.debug('remove(ChatId)', 'DraftHiveProvider');
+    Log.debug('remove($id)', 'DraftHiveProvider');
     deleteSafe(id.val);
   }
 
   /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
   Future<void> move(ChatId oldKey, ChatId newKey) async {
-    Log.debug('move(ChatId, ChatId)', 'DraftHiveProvider');
+    Log.debug('move($oldKey, $newKey)', 'DraftHiveProvider');
     final ChatMessage? value = get(oldKey);
     if (value != null) {
       remove(oldKey);

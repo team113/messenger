@@ -71,13 +71,13 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   /// Returns the stored [MyUser] from [Hive].
   HiveMyUser? get myUser {
-    Log.debug('get', 'MyUserHiveProvider');
+    Log.debug('get myUser', 'MyUserHiveProvider');
     return getSafe(0);
   }
 
   /// Saves the provided [MyUser] in [Hive].
   Future<void> set(HiveMyUser user) async {
-    Log.debug('set(HiveMyUser)', 'MyUserHiveProvider');
+    Log.debug('set($user)', 'MyUserHiveProvider');
     putSafe(0, user);
   }
 }

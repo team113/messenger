@@ -22,6 +22,7 @@ import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/util/log.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
@@ -74,6 +75,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   void onInit() {
+    Log.debug('onInit()', 'SettingsRepository');
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
     background.value = _backgroundLocal.bytes;
@@ -86,6 +88,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   void onClose() {
+    Log.debug('onClose()', 'SettingsRepository');
     _mediaSubscription?.cancel();
     _settingsSubscription?.cancel();
     _backgroundSubscription?.cancel();
@@ -93,73 +96,116 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> clearCache() => _mediaLocal.clear();
+  Future<void> clearCache() async {
+    Log.debug('clearCache()', 'SettingsRepository');
+    _mediaLocal.clear();
+  }
 
   @override
-  Future<void> setVideoDevice(String id) => _mediaLocal.setVideoDevice(id);
+  Future<void> setVideoDevice(String id) async {
+    Log.debug('setVideoDevice($id)', 'SettingsRepository');
+    _mediaLocal.setVideoDevice(id);
+  }
 
   @override
-  Future<void> setAudioDevice(String id) => _mediaLocal.setAudioDevice(id);
+  Future<void> setAudioDevice(String id) async {
+    Log.debug('setAudioDevice($id)', 'SettingsRepository');
+    _mediaLocal.setAudioDevice(id);
+  }
 
   @override
-  Future<void> setOutputDevice(String id) => _mediaLocal.setOutputDevice(id);
+  Future<void> setOutputDevice(String id) async {
+    Log.debug('setOutputDevice($id)', 'SettingsRepository');
+    _mediaLocal.setOutputDevice(id);
+  }
 
   @override
-  Future<void> setPopupsEnabled(bool enabled) =>
-      _settingsLocal.setPopupsEnabled(enabled);
+  Future<void> setPopupsEnabled(bool enabled) async {
+    Log.debug('setPopupsEnabled($enabled)', 'SettingsRepository');
+    _settingsLocal.setPopupsEnabled(enabled);
+  }
 
   @override
-  Future<void> setLocale(String locale) => _settingsLocal.setLocale(locale);
+  Future<void> setLocale(String locale) async {
+    Log.debug('setLocale($locale)', 'SettingsRepository');
+    _settingsLocal.setLocale(locale);
+  }
 
   @override
-  Future<void> setShowIntroduction(bool show) =>
-      _settingsLocal.setShowIntroduction(show);
+  Future<void> setShowIntroduction(bool show) async {
+    Log.debug('setShowIntroduction($show)', 'SettingsRepository');
+    _settingsLocal.setShowIntroduction(show);
+  }
 
   @override
-  Future<void> setSideBarWidth(double width) =>
-      _settingsLocal.setSideBarWidth(width);
+  Future<void> setSideBarWidth(double width) async {
+    Log.debug('setSideBarWidth($width)', 'SettingsRepository');
+    _settingsLocal.setSideBarWidth(width);
+  }
 
   @override
-  Future<void> setBackground(Uint8List? bytes) =>
-      bytes == null ? _backgroundLocal.delete() : _backgroundLocal.set(bytes);
+  Future<void> setBackground(Uint8List? bytes) async {
+    Log.debug('setBackground($bytes)', 'SettingsRepository');
+    bytes == null ? _backgroundLocal.delete() : _backgroundLocal.set(bytes);
+  }
 
   @override
-  Future<void> setCallButtons(List<String> buttons) =>
-      _settingsLocal.setCallButtons(buttons);
+  Future<void> setCallButtons(List<String> buttons) async {
+    Log.debug('setCallButtons($buttons)', 'SettingsRepository');
+    _settingsLocal.setCallButtons(buttons);
+  }
 
   @override
-  Future<void> setShowDragAndDropVideosHint(bool show) =>
-      _settingsLocal.setShowDragAndDropVideosHint(show);
+  Future<void> setShowDragAndDropVideosHint(bool show) async {
+    Log.debug('setShowDragAndDropVideosHint($show)', 'SettingsRepository');
+    _settingsLocal.setShowDragAndDropVideosHint(show);
+  }
 
   @override
-  Future<void> setShowDragAndDropButtonsHint(bool show) =>
-      _settingsLocal.setShowDragAndDropButtonsHint(show);
+  Future<void> setShowDragAndDropButtonsHint(bool show) async {
+    Log.debug('setShowDragAndDropButtonsHint($show)', 'SettingsRepository');
+    _settingsLocal.setShowDragAndDropButtonsHint(show);
+  }
 
   @override
-  Future<void> setSortContactsByName(bool enabled) =>
-      _settingsLocal.setSortContactsByName(enabled);
+  Future<void> setSortContactsByName(bool enabled) async {
+    Log.debug('setSortContactsByName($enabled)', 'SettingsRepository');
+    _settingsLocal.setSortContactsByName(enabled);
+  }
 
   @override
-  Future<void> setLoadImages(bool enabled) =>
-      _settingsLocal.setLoadImages(enabled);
+  Future<void> setLoadImages(bool enabled) async {
+    Log.debug('setLoadImages($enabled)', 'SettingsRepository');
+    _settingsLocal.setLoadImages(enabled);
+  }
 
   @override
-  Future<void> setCallRect(ChatId chatId, Rect prefs) =>
-      _callRectLocal.put(chatId, prefs);
+  Future<void> setCallRect(ChatId chatId, Rect prefs) async {
+    Log.debug('setCallRect($chatId, $prefs)', 'SettingsRepository');
+    _callRectLocal.put(chatId, prefs);
+  }
 
   @override
-  Rect? getCallRect(ChatId id) => _callRectLocal.get(id);
+  Rect? getCallRect(ChatId id) {
+    Log.debug('getCallRect($id)', 'SettingsRepository');
+    return _callRectLocal.get(id);
+  }
 
   @override
-  Future<void> setTimelineEnabled(bool enabled) =>
-      _settingsLocal.setTimelineEnabled(enabled);
+  Future<void> setTimelineEnabled(bool enabled) async {
+    Log.debug('setTimelineEnabled($enabled)', 'SettingsRepository');
+    _settingsLocal.setTimelineEnabled(enabled);
+  }
 
   @override
-  Future<void> setPinnedActions(List<String> buttons) =>
-      _settingsLocal.setPinnedActions(buttons);
+  Future<void> setPinnedActions(List<String> buttons) async {
+    Log.debug('setPinnedActions($buttons)', 'SettingsRepository');
+    _settingsLocal.setPinnedActions(buttons);
+  }
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
+    Log.debug('_initMediaSubscription()', 'SettingsRepository');
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);
     while (await _mediaSubscription!.moveNext()) {
       BoxEvent event = _mediaSubscription!.current;
@@ -174,6 +220,7 @@ class SettingsRepository extends DisposableInterface
 
   /// Initializes [ApplicationSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initSettingsSubscription() async {
+    Log.debug('_initSettingsSubscription()', 'SettingsRepository');
     _settingsSubscription = StreamIterator(_settingsLocal.boxEvents);
     while (await _settingsSubscription!.moveNext()) {
       BoxEvent event = _settingsSubscription!.current;
@@ -188,6 +235,7 @@ class SettingsRepository extends DisposableInterface
 
   /// Initializes [BackgroundHiveProvider.boxEvents] subscription.
   Future<void> _initBackgroundSubscription() async {
+    Log.debug('_initBackgroundSubscription()', 'SettingsRepository');
     _backgroundSubscription = StreamIterator(_backgroundLocal.boxEvents);
     while (await _backgroundSubscription!.moveNext()) {
       BoxEvent event = _backgroundSubscription!.current;

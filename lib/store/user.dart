@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
+import '/util/log.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -80,6 +81,7 @@ class UserRepository extends DisposableInterface
 
   @override
   Future<void> onInit() async {
+    Log.debug('onInit()', 'UserRepository');
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
         users[c.value.id] = HiveRxUser(this, _userLocal, c);
@@ -94,6 +96,7 @@ class UserRepository extends DisposableInterface
 
   @override
   void onClose() {
+    Log.debug('onClose()', 'UserRepository');
     users.forEach((_, v) => v.dispose());
     _localSubscription?.cancel();
 
@@ -101,7 +104,10 @@ class UserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> clearCache() => _userLocal.clear();
+  Future<void> clearCache() async {
+    Log.debug('clearCache()', 'UserRepository');
+    _userLocal.clear();
+  }
 
   @override
   SearchResult<UserId, RxUser> search({
@@ -110,6 +116,7 @@ class UserRepository extends DisposableInterface
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) {
+    Log.debug('search($num, $name, $login, $link)', 'UserRepository');
     if (num == null && name == null && login == null && link == null) {
       return SearchResultImpl();
     }
@@ -160,6 +167,7 @@ class UserRepository extends DisposableInterface
 
   @override
   Future<RxUser?> get(UserId id) {
+    Log.debug('get($id)', 'UserRepository');
     RxUser? user = users[id];
     if (user != null) {
       return Future.value(user);
@@ -193,6 +201,7 @@ class UserRepository extends DisposableInterface
 
   @override
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
+    Log.debug('blockUser($id, $reason)', 'UserRepository');
     final RxUser? user = users[id];
     final BlocklistRecord? record = user?.user.value.isBlocked;
 
@@ -218,6 +227,7 @@ class UserRepository extends DisposableInterface
 
   @override
   Future<void> unblockUser(UserId id) async {
+    Log.debug('unblockUser($id)', 'UserRepository');
     final RxUser? user = users[id];
     final BlocklistRecord? record = user?.user.value.isBlocked;
 
@@ -239,6 +249,7 @@ class UserRepository extends DisposableInterface
 
   /// Updates the locally stored [HiveUser] with the provided [user] value.
   void update(User user) {
+    Log.debug('update($user)', 'UserRepository');
     HiveUser? hiveUser = _userLocal.get(user.id);
     if (hiveUser != null) {
       hiveUser.value = user;
@@ -248,6 +259,7 @@ class UserRepository extends DisposableInterface
 
   /// Puts the provided [user] into the local [Hive] storage.
   void put(HiveUser user, {bool ignoreVersion = false}) async {
+    Log.debug('put($user, $ignoreVersion)', 'UserRepository');
     // If the provided [user] doesn't exist in the [users] yet, then we should
     // lock the [mutex] to ensure [get] doesn't invoke remote while [put]ting.
     if (users.containsKey(user.value.id)) {
@@ -295,6 +307,7 @@ class UserRepository extends DisposableInterface
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
+    Log.debug('userEvents($id)', 'UserRepository');
     return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -333,6 +346,7 @@ class UserRepository extends DisposableInterface
 
   /// Puts the provided [user] to [Hive].
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
+    Log.debug('_putUser($user, $ignoreVersion)', 'UserRepository');
     var saved = _userLocal.get(user.value.id);
 
     if (saved == null ||
@@ -345,6 +359,7 @@ class UserRepository extends DisposableInterface
 
   /// Initializes [ContactHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
+    Log.debug('_initLocalSubscription()', 'UserRepository');
     _localSubscription = StreamIterator(_userLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
@@ -374,6 +389,10 @@ class UserRepository extends DisposableInterface
     UsersCursor? after,
     int? first,
   }) async {
+    Log.debug(
+      '_search($num, $name, $login, $link, $after, $first)',
+      'UserRepository',
+    );
     const maxInt = 120;
     var query = await _graphQlProvider.searchUsers(
       num: num,
@@ -403,6 +422,7 @@ class UserRepository extends DisposableInterface
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
   UserEvent _userEvent(UserEventsVersionedMixin$Events e) {
+    Log.debug('_userEvent($e)', 'UserRepository');
     if (e.$$typename == 'EventUserAvatarDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
       return EventUserAvatarDeleted(node.userId, node.at);
@@ -455,6 +475,7 @@ class UserRepository extends DisposableInterface
   /// Constructs a [BlocklistEvent] from the
   /// [BlocklistEventsVersionedMixin$Events].
   BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
+    Log.debug('_blocklistEvent($e)', 'UserRepository');
     if (e.$$typename == 'EventBlocklistRecordAdded') {
       var node =
           e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;

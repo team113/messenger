@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:get/get.dart';
 
+import '/util/log.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -85,6 +86,7 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
+    Log.debug('get dialog', 'HiveRxUser');
     final ChatId id = user.value.dialog;
 
     if (_dialog.value == null) {
@@ -96,12 +98,14 @@ class HiveRxUser extends RxUser {
 
   /// Disposes this [HiveRxUser].
   void dispose() {
+    Log.debug('dispose()', 'HiveRxUser');
     _lastSeenTimer?.cancel();
     _worker?.dispose();
   }
 
   @override
   void listenUpdates() {
+    Log.debug('listenUpdates()', 'HiveRxUser');
     if (_listeners++ == 0) {
       _initRemoteSubscription();
     }
@@ -109,6 +113,7 @@ class HiveRxUser extends RxUser {
 
   @override
   void stopUpdates() {
+    Log.debug('stopUpdates()', 'HiveRxUser');
     if (--_listeners == 0) {
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
@@ -117,6 +122,7 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    Log.debug('_initRemoteSubscription()', 'HiveRxUser');
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
@@ -126,6 +132,7 @@ class HiveRxUser extends RxUser {
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
   Future<void> _userEvent(UserEvents events) async {
+    Log.debug('_userEvent($events)', 'HiveRxUser');
     switch (events.kind) {
       case UserEventsKind.initialized:
         // No-op.
@@ -244,6 +251,7 @@ class HiveRxUser extends RxUser {
   // TODO: Cover with unit tests.
   /// Starts the [_lastSeenTimer] refreshing the [lastSeen].
   void _runLastSeenTimer() {
+    Log.debug('_runLastSeenTimer()', 'HiveRxUser');
     _lastSeenTimer?.cancel();
     if (user.value.lastSeenAt == null) {
       return;

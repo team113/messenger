@@ -38,47 +38,47 @@ class ApplicationSettingsHiveProvider
 
   /// Returns the stored [ApplicationSettings] from [Hive].
   ApplicationSettings? get settings {
-    Log.debug('get', 'ApplicationSettingsHiveProvider');
+    Log.debug('get settings', 'ApplicationSettingsHiveProvider');
     return getSafe(0);
   }
 
   /// Saves the provided [ApplicationSettings] in [Hive].
   Future<void> set(ApplicationSettings settings) async {
-    Log.debug('set(ApplicationSettings)', 'ApplicationSettingsHiveProvider');
+    Log.debug('set($settings)', 'ApplicationSettingsHiveProvider');
     putSafe(0, settings);
   }
 
   /// Stores a new [enabled] value of [ApplicationSettings.enablePopups] to
   /// [Hive].
   Future<void> setPopupsEnabled(bool enabled) async {
-    Log.debug('setPopupsEnabled(enabled)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setPopupsEnabled($enabled)', 'ApplicationSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? ApplicationSettings())..enablePopups = enabled);
   }
 
   /// Stores a new [locale] value of [ApplicationSettings.locale] to [Hive].
   Future<void> setLocale(String locale) async {
-    Log.debug('setLocale(locale)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setLocale($locale)', 'ApplicationSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? ApplicationSettings())..locale = locale);
   }
 
   /// Stores a new [show] value of [ApplicationSettings.showIntroduction] to
   /// [Hive].
   Future<void> setShowIntroduction(bool show) async {
-    Log.debug('setShowIntroduction(show)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setShowIntroduction($show)', 'ApplicationSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? ApplicationSettings())..showIntroduction = show);
   }
 
   /// Stores a new [width] value of [ApplicationSettings.sideBarWidth] to
   /// [Hive].
   Future<void> setSideBarWidth(double width) async {
-    Log.debug('setSideBarWidth(width)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setSideBarWidth($width)', 'ApplicationSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
   }
 
   /// Stores a new [buttons] value of [ApplicationSettings.callButtons] to
   /// [Hive].
   Future<void> setCallButtons(List<String> buttons) async {
-    Log.debug('setCallButtons(buttons)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setCallButtons($buttons)', 'ApplicationSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
   }
 
@@ -86,7 +86,7 @@ class ApplicationSettingsHiveProvider
   /// [ApplicationSettings.showDragAndDropVideosHint] to [Hive].
   Future<void> setShowDragAndDropVideosHint(bool show) async {
     Log.debug(
-      'setShowDragAndDropVideosHint(show)',
+      'setShowDragAndDropVideosHint($show)',
       'ApplicationSettingsHiveProvider',
     );
     putSafe(
@@ -99,7 +99,7 @@ class ApplicationSettingsHiveProvider
   /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
   Future<void> setShowDragAndDropButtonsHint(bool show) async {
     Log.debug(
-      'setShowDragAndDropButtonsHint(show)',
+      'setShowDragAndDropButtonsHint($show)',
       'ApplicationSettingsHiveProvider',
     );
     putSafe(
@@ -112,7 +112,7 @@ class ApplicationSettingsHiveProvider
   /// to [Hive].
   Future<void> setSortContactsByName(bool enabled) async {
     Log.debug(
-      'setSortContactsByName(enabled)',
+      'setSortContactsByName($enabled)',
       'ApplicationSettingsHiveProvider',
     );
     putSafe(
@@ -124,7 +124,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [enabled] value of [ApplicationSettings.loadImages]
   /// to [Hive].
   Future<void> setLoadImages(bool enabled) async {
-    Log.debug('setLoadImages(enabled)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setLoadImages($enabled)', 'ApplicationSettingsHiveProvider');
     putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
@@ -134,7 +134,10 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [enabled] value of [ApplicationSettings.timelineEnabled]
   /// to [Hive].
   Future<void> setTimelineEnabled(bool enabled) async {
-    Log.debug('setTimelineEnabled(enabled)', 'ApplicationSettingsHiveProvider');
+    Log.debug(
+      'setTimelineEnabled($enabled)',
+      'ApplicationSettingsHiveProvider',
+    );
     putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
@@ -144,7 +147,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
   Future<void> setPinnedActions(List<String> buttons) async {
-    Log.debug('setPinnedActions(buttons)', 'ApplicationSettingsHiveProvider');
+    Log.debug('setPinnedActions($buttons)', 'ApplicationSettingsHiveProvider');
     putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,

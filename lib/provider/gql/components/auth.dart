@@ -112,7 +112,7 @@ mixin AuthGraphQlMixin {
     bool remember,
   ) async {
     Log.debug(
-      'signIn(UserPassword, UserLogin, UserNum, UserEmail, UserPhone, remember)',
+      'signIn($password, $login, $num, $email, $phone, $remember)',
       'AuthGraphQlMixin',
     );
     final variables = SignInArguments(
@@ -173,7 +173,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session] and generates a new [RefreshToken].
   Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
-    Log.debug('renewSession(RefreshToken)', 'AuthGraphQlMixin');
+    Log.debug('renewSession($token)', 'AuthGraphQlMixin');
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -218,7 +218,7 @@ mixin AuthGraphQlMixin {
     UserPhone? phone,
   ) async {
     Log.debug(
-      'recoverUserPassword(UserLogin, UserNum, UserEmail, UserPhone)',
+      'recoverUserPassword($login, $num, $email, $phone)',
       'AuthGraphQlMixin',
     );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
@@ -265,7 +265,7 @@ mixin AuthGraphQlMixin {
     ConfirmationCode code,
   ) async {
     Log.debug(
-      'validateUserPasswordRecoveryCode(UserLogin, UserNum, UserEmail, UserPhone, ConfirmationCode)',
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code)',
       'AuthGraphQlMixin',
     );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
@@ -324,7 +324,7 @@ mixin AuthGraphQlMixin {
     UserPassword newPassword,
   ) async {
     Log.debug(
-      'validateUserPasswordRecoveryCode(UserLogin, UserNum, UserEmail, UserPhone, ConfirmationCode)',
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, $newPassword)',
       'AuthGraphQlMixin',
     );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {

@@ -44,7 +44,7 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Saves the provided [ChatId] to [Hive].
   Future<void> set(ChatId id) async {
-    Log.debug('set(ChatId)', 'MonologHiveProvider');
+    Log.debug('set($id)', 'MonologHiveProvider');
     putSafe(0, id);
   }
 }

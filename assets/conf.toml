@@ -3,6 +3,7 @@
 #
 # Default:
 #   remote = true
+logLevel = 'debug'
 
 [server.http]
 # URL address of HTTP backend server.

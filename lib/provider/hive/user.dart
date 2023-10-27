@@ -65,19 +65,19 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   /// Puts the provided [User] to [Hive].
   Future<void> put(HiveUser user) async {
-    Log.debug('put(HiveUser)', 'UserHiveProvider');
+    Log.debug('put($user)', 'UserHiveProvider');
     putSafe(user.value.id.val, user);
   }
 
   /// Returns a [User] from [Hive] by its [id].
   HiveUser? get(UserId id) {
-    Log.debug('get(UserId)', 'UserHiveProvider');
+    Log.debug('get($id)', 'UserHiveProvider');
     return getSafe(id.val);
   }
 
   /// Removes an [User] from [Hive] by its [id].
   Future<void> remove(UserId id) async {
-    Log.debug('remove(UserId)', 'UserHiveProvider');
+    Log.debug('remove($id)', 'UserHiveProvider');
     deleteSafe(id.val);
   }
 }

@@ -40,25 +40,25 @@ class MediaSettingsHiveProvider extends HiveBaseProvider<MediaSettings> {
 
   /// Saves the provided [MediaSettings] in [Hive].
   Future<void> set(MediaSettings mediaSettings) async {
-    Log.debug('set(MediaSettings)', 'MediaSettingsHiveProvider');
+    Log.debug('set($mediaSettings)', 'MediaSettingsHiveProvider');
     putSafe(0, mediaSettings);
   }
 
   /// Stores a new video device [id] to [Hive].
   Future<void> setVideoDevice(String id) async {
-    Log.debug('setVideoDevice(id)', 'MediaSettingsHiveProvider');
+    Log.debug('setVideoDevice($id)', 'MediaSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? MediaSettings())..videoDevice = id);
   }
 
   /// Stores a new audio device [id] to [Hive].
   Future<void> setAudioDevice(String id) async {
-    Log.debug('setAudioDevice(id)', 'MediaSettingsHiveProvider');
+    Log.debug('setAudioDevice($id)', 'MediaSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? MediaSettings())..audioDevice = id);
   }
 
   /// Stores a new output device [id] to [Hive].
   Future<void> setOutputDevice(String id) async {
-    Log.debug('setOutputDevice(id)', 'MediaSettingsHiveProvider');
+    Log.debug('setOutputDevice($id)', 'MediaSettingsHiveProvider');
     putSafe(0, (box.get(0) ?? MediaSettings())..outputDevice = id);
   }
 }

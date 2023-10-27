@@ -56,7 +56,7 @@ mixin UserGraphQlMixin {
   ///
   /// Optional.
   Future<GetUser$Query> getUser(UserId id) async {
-    Log.debug('getUser(UserId)', 'UserGraphQlMixin');
+    Log.debug('getUser($id)', 'UserGraphQlMixin');
     final variables = GetUserArguments(id: id);
     QueryResult res = await client.query(QueryOptions(
       document: GetUserQuery(variables: variables).document,
@@ -110,7 +110,7 @@ mixin UserGraphQlMixin {
     UsersCursor? before,
   }) async {
     Log.debug(
-      'searchUsers(UserNum, UserLogin, ChatDirectLinkSlug, UserName, first, UsersCursor, last, UsersCursor)',
+      'searchUsers($num, $login, $link, $name, $first, $after, $last, $before)',
       'UserGraphQlMixin',
     );
     final variables = SearchUsersArguments(
@@ -147,7 +147,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [name] already.
   Future<MyUserEventsVersionedMixin?> updateUserName(UserName? name) async {
-    Log.debug('updateUserName(UserName)', 'UserGraphQlMixin');
+    Log.debug('updateUserName($name)', 'UserGraphQlMixin');
     final variables = UpdateUserNameArguments(name: name);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -177,7 +177,7 @@ mixin UserGraphQlMixin {
   Future<MyUserEventsVersionedMixin?> updateUserStatus(
     UserTextStatus? text,
   ) async {
-    Log.debug('updateUserStatus(UserTextStatus)', 'UserGraphQlMixin');
+    Log.debug('updateUserStatus($text)', 'UserGraphQlMixin');
     final variables = UpdateUserStatusArguments(text: text);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -204,7 +204,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [login] already.
   Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin login) async {
-    Log.debug('updateUserLogin(UserLogin)', 'UserGraphQlMixin');
+    Log.debug('updateUserLogin($login)', 'UserGraphQlMixin');
     final variables = UpdateUserLoginArguments(login: login);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -238,7 +238,7 @@ mixin UserGraphQlMixin {
   /// [MyUser] has the provided [presence] value already.
   Future<MyUserEventsVersionedMixin?> updateUserPresence(
       Presence presence) async {
-    Log.debug('updateUserPresence(Presence)', 'UserGraphQlMixin');
+    Log.debug('updateUserPresence($presence)', 'UserGraphQlMixin');
     final variables = UpdateUserPresenceArguments(presence: presence);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -273,7 +273,7 @@ mixin UserGraphQlMixin {
     UserPassword newPassword,
   ) async {
     Log.debug(
-      'updateUserPassword(UserPassword, UserPassword)',
+      'updateUserPassword($oldPassword, $newPassword)',
       'UserGraphQlMixin',
     );
     final variables = UpdateUserPasswordArguments(
@@ -439,7 +439,7 @@ mixin UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
   Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
-    Log.debug('userEvents(UserId, UserVersion)', 'UserGraphQlMixin');
+    Log.debug('userEvents($id, UserVersion)', 'UserGraphQlMixin');
     final variables = UserEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
@@ -468,7 +468,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [email] in his [MyUser.emails] already.
   Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail(UserEmail)', 'UserGraphQlMixin');
+    Log.debug('deleteUserEmail($email)', 'UserGraphQlMixin');
     final variables = DeleteUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserEmail',
@@ -495,7 +495,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [phone] in his [MyUser.phones] already.
   Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone(UserPhone)', 'UserGraphQlMixin');
+    Log.debug('deleteUserPhone($phone)', 'UserGraphQlMixin');
     final variables = DeleteUserPhoneArguments(phone: phone);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserPhone',
@@ -537,7 +537,7 @@ mixin UserGraphQlMixin {
     UserEmail email, {
     RawClientOptions? raw,
   }) async {
-    Log.debug('addUserEmail(UserEmail, RawClientOptions)', 'UserGraphQlMixin');
+    Log.debug('addUserEmail($email, $raw)', 'UserGraphQlMixin');
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -584,7 +584,7 @@ mixin UserGraphQlMixin {
   /// already is present in a [MyUser.phones] field (either in confirmed or
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone(UserPhone)', 'UserGraphQlMixin');
+    Log.debug('addUserPhone($phone)', 'UserGraphQlMixin');
     final variables = AddUserPhoneArguments(phone: phone);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -622,10 +622,7 @@ mixin UserGraphQlMixin {
     ConfirmationCode code, {
     RawClientOptions? raw,
   }) async {
-    Log.debug(
-      'confirmEmailCode(ConfirmationCode, RawClientOptions)',
-      'UserGraphQlMixin',
-    );
+    Log.debug('confirmEmailCode($code, $raw)', 'UserGraphQlMixin');
     final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -663,7 +660,7 @@ mixin UserGraphQlMixin {
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
       ConfirmationCode code) async {
-    Log.debug('confirmPhoneCode(ConfirmationCode)', 'UserGraphQlMixin');
+    Log.debug('confirmPhoneCode($code)', 'UserGraphQlMixin');
     final variables = ConfirmUserPhoneArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -703,7 +700,7 @@ mixin UserGraphQlMixin {
   ///
   /// Each time generates a new [ConfirmationCode].
   Future<void> resendEmail({RawClientOptions? raw}) async {
-    Log.debug('resendEmail(RawClientOptions)', 'UserGraphQlMixin');
+    Log.debug('resendEmail($raw)', 'UserGraphQlMixin');
     await client.mutate(
       MutationOptions(
         operationName: 'ResendUserEmailConfirmation',
@@ -775,7 +772,7 @@ mixin UserGraphQlMixin {
   /// already.
   Future<MyUserEventsVersionedMixin?> createUserDirectLink(
       ChatDirectLinkSlug slug) async {
-    Log.debug('createUserDirectLink(ChatDirectLinkSlug)', 'UserGraphQlMixin');
+    Log.debug('createUserDirectLink($slug)', 'UserGraphQlMixin');
     final variables = CreateUserDirectLinkArguments(slug: slug);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -850,7 +847,7 @@ mixin UserGraphQlMixin {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug(
-      'updateUserAvatar(dio.MultipartFile, CropAreaInput, onSendProgress)',
+      'updateUserAvatar($file, $crop, onSendProgress)',
       'UserGraphQlMixin',
     );
     final variables = UpdateUserAvatarArguments(file: null, crop: crop);
@@ -931,7 +928,7 @@ mixin UserGraphQlMixin {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug(
-      'updateUserCallCover(dio.MultipartFile, CropAreaInput, onSendProgress)',
+      'updateUserCallCover($file, $crop, onSendProgress)',
       'UserGraphQlMixin',
     );
     final variables = UpdateUserCallCoverArguments(file: null, crop: crop);
@@ -1011,7 +1008,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] is muted already `until` the specified [DateTime] (or unmuted).
   Future<MyUserEventsVersionedMixin?> toggleMyUserMute(Muting? mute) async {
-    Log.debug('toggleMyUserMute(Muting)', 'UserGraphQlMixin');
+    Log.debug('toggleMyUserMute($mute)', 'UserGraphQlMixin');
     final variables = ToggleMyUserMuteArguments(mute: mute);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1091,7 +1088,7 @@ mixin UserGraphQlMixin {
     UserId id,
     BlocklistReason? reason,
   ) async {
-    Log.debug('blockUser(UserId, BlocklistReason)', 'UserGraphQlMixin');
+    Log.debug('blockUser($id, $reason)', 'UserGraphQlMixin');
     final variables = BlockUserArguments(id: id, reason: reason);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1126,7 +1123,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
   /// [User] is not blocked by the authenticated [MyUser] already.
   Future<BlocklistEventsVersionedMixin?> unblockUser(UserId id) async {
-    Log.debug('unblockUser(UserId)', 'UserGraphQlMixin');
+    Log.debug('unblockUser($id)', 'UserGraphQlMixin');
     final variables = UnblockUserArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1167,7 +1164,7 @@ mixin UserGraphQlMixin {
     BlocklistCursor? before,
   }) async {
     Log.debug(
-      'getBlocklist(first, BlocklistCursor, last, BlocklistCursor)',
+      'getBlocklist($first, $after, $last, $before)',
       'UserGraphQlMixin',
     );
     final variables = GetBlocklistArguments(
@@ -1214,10 +1211,7 @@ mixin UserGraphQlMixin {
     FcmRegistrationToken token,
     String? locale,
   ) async {
-    Log.debug(
-      'registerFcmDevice(FcmRegistrationToken, locale)',
-      'UserGraphQlMixin',
-    );
+    Log.debug('registerFcmDevice($token, $locale)', 'UserGraphQlMixin');
     final variables = RegisterFcmDeviceArguments(token: token);
     final query = MutationOptions(
       operationName: 'RegisterFcmDevice',
@@ -1262,7 +1256,7 @@ mixin UserGraphQlMixin {
   ///
   /// Succeeds if the specified [token] is not registered already.
   Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
-    Log.debug('unregisterFcmDevice(FcmRegistrationToken)', 'UserGraphQlMixin');
+    Log.debug('unregisterFcmDevice($token)', 'UserGraphQlMixin');
     final variables = UnregisterFcmDeviceArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(

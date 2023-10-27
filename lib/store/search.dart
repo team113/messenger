@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/util/log.dart';
 import '/domain/repository/search.dart';
 import '/util/obs/obs.dart';
 import 'pagination.dart';
@@ -98,6 +99,7 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
 
   @override
   Future<void> next() async {
+    Log.debug('next()', 'SearchResultImpl');
     if (pagination != null && nextLoading.isFalse) {
       if (status.value.isSuccess) {
         status.value = RxStatus.loadingMore();

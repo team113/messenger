@@ -44,7 +44,7 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
 
   /// Saves the provided [Uint8List] to [Hive].
   Future<void> set(Uint8List bytes) async {
-    Log.debug('set(bytes)', 'BackgroundHiveProvider');
+    Log.debug('set($bytes)', 'BackgroundHiveProvider');
     putSafe(0, HiveBackground(bytes));
   }
 

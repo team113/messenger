@@ -26,6 +26,7 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/util/log.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
@@ -43,6 +44,7 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   set token(AccessToken? token) {
+    Log.debug('token($token)', 'AuthRepository');
     _graphQlProvider.token = token;
     if (token == null) {
       _graphQlProvider.disconnect();
@@ -51,24 +53,36 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   set authExceptionHandler(
-          Future<void> Function(AuthorizationException) handler) =>
-      _graphQlProvider.authExceptionHandler = handler;
+      Future<void> Function(AuthorizationException) handler) {
+    Log.debug('authExceptionHandler(handler)', 'AuthRepository');
+    _graphQlProvider.authExceptionHandler = handler;
+  }
 
   @override
-  void applyToken() => _graphQlProvider.reconnect();
+  void applyToken() {
+    Log.debug('applyToken()', 'AuthRepository');
+    _graphQlProvider.reconnect();
+  }
 
   @override
   Future<Credentials> signUp() async {
+    Log.debug('signUp()', 'AuthRepository');
     var response = await _graphQlProvider.signUp();
     return response.toModel();
   }
 
   @override
-  Future<Credentials> signIn(UserPassword password,
-      {UserLogin? login,
-      UserNum? num,
-      UserEmail? email,
-      UserPhone? phone}) async {
+  Future<Credentials> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  }) async {
+    Log.debug(
+      'signIn($password, $login, $num, $email, $phone)',
+      'AuthRepository',
+    );
     var response =
         await _graphQlProvider.signIn(password, login, num, email, phone, true);
     return response.toModel();
@@ -76,6 +90,7 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   Future<void> signUpWithEmail(UserEmail email) async {
+    Log.debug('signUpWithEmail($email)', 'AuthRepository');
     _signUpCredentials = null;
 
     final response = await _graphQlProvider.signUp();
@@ -92,6 +107,7 @@ class AuthRepository implements AbstractAuthRepository {
   Future<Credentials> confirmSignUpEmail(
     ConfirmationCode code,
   ) async {
+    Log.debug('confirmSignUpEmail($code)', 'AuthRepository');
     if (_signUpCredentials == null) {
       throw ArgumentError.notNull('_signUpCredentials');
     }
@@ -105,6 +121,7 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   Future<void> resendSignUpEmail() async {
+    Log.debug('resendSignUpEmail()', 'AuthRepository');
     if (_signUpCredentials == null) {
       throw ArgumentError.notNull('_signUpCredentials');
     }
@@ -116,6 +133,7 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]) async {
+    Log.debug('logout($fcmRegistrationToken)', 'AuthRepository');
     if (fcmRegistrationToken != null) {
       await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
     }
@@ -123,17 +141,22 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> validateToken() async => await _graphQlProvider.validateToken();
+  Future<void> validateToken() async {
+    Log.debug('validateToken()', 'AuthRepository');
+    await _graphQlProvider.validateToken();
+  }
 
   @override
-  Future<Credentials> renewSession(RefreshToken token) =>
-      _graphQlProvider.clientGuard.protect(() async {
-        var response = (await _graphQlProvider.renewSession(token)).renewSession
-            as RenewSession$Mutation$RenewSession$RenewSessionOk;
-        _graphQlProvider.token = response.session.token;
-        _graphQlProvider.reconnect();
-        return response.toModel();
-      });
+  Future<Credentials> renewSession(RefreshToken token) {
+    Log.debug('renewSession($token)', 'AuthRepository');
+    return _graphQlProvider.clientGuard.protect(() async {
+      var response = (await _graphQlProvider.renewSession(token)).renewSession
+          as RenewSession$Mutation$RenewSession$RenewSessionOk;
+      _graphQlProvider.token = response.session.token;
+      _graphQlProvider.reconnect();
+      return response.toModel();
+    });
+  }
 
   @override
   Future<void> recoverUserPassword({
@@ -141,8 +164,13 @@ class AuthRepository implements AbstractAuthRepository {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _graphQlProvider.recoverUserPassword(login, num, email, phone);
+  }) async {
+    Log.debug(
+      'recoverUserPassword($login, $num, $email, $phone)',
+      'AuthRepository',
+    );
+    _graphQlProvider.recoverUserPassword(login, num, email, phone);
+  }
 
   @override
   Future<void> validateUserPasswordRecoveryCode({
@@ -151,9 +179,19 @@ class AuthRepository implements AbstractAuthRepository {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _graphQlProvider.validateUserPasswordRecoveryCode(
-          login, num, email, phone, code);
+  }) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode($code, $login, $num, $email, $phone)',
+      'AuthRepository',
+    );
+    _graphQlProvider.validateUserPasswordRecoveryCode(
+      login,
+      num,
+      email,
+      phone,
+      code,
+    );
+  }
 
   @override
   Future<void> resetUserPassword({
@@ -163,12 +201,18 @@ class AuthRepository implements AbstractAuthRepository {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _graphQlProvider.resetUserPassword(
-          login, num, email, phone, code, newPassword);
+  }) async {
+    Log.debug(
+      'resetUserPassword($code, $newPassword, $login, $num, $email, $phone)',
+      'AuthRepository',
+    );
+    _graphQlProvider.resetUserPassword(
+        login, num, email, phone, code, newPassword);
+  }
 
   @override
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+    Log.debug('useChatDirectLink($slug)', 'AuthRepository');
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
   }

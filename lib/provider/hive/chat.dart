@@ -112,19 +112,19 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
 
   @override
   Future<void> put(HiveChat item) async {
-    Log.debug('put(HiveChat)', 'ChatHiveProvider');
+    Log.debug('put($item)', 'ChatHiveProvider');
     putSafe(item.value.id.val, item);
   }
 
   @override
   Future<HiveChat?> get(ChatId key) async {
-    Log.debug('get(ChatId)', 'ChatHiveProvider');
+    Log.debug('get($key)', 'ChatHiveProvider');
     return getSafe(key.val);
   }
 
   @override
   Future<void> remove(ChatId key) async {
-    Log.debug('remove(ChatId)', 'ChatHiveProvider');
+    Log.debug('remove($key)', 'ChatHiveProvider');
     deleteSafe(key.val);
   }
 }

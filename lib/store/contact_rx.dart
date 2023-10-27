@@ -19,6 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/util/log.dart';
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
@@ -43,17 +44,20 @@ class HiveRxChatContact extends RxChatContact {
 
   /// Initializes this [HiveRxChatContact].
   void init() {
+    Log.debug('init()', 'HiveRxChatContact');
     _updateUser(contact.value);
     _worker = ever(contact, _updateUser);
   }
 
   /// Disposes this [HiveRxChatContact].
   void dispose() {
+    Log.debug('dispose()', 'HiveRxChatContact');
     _worker.dispose();
   }
 
   /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
   void _updateUser(ChatContact c) async {
+    Log.debug('_updateUser($c)', 'HiveRxChatContact');
     if (user.value?.id != c.users.firstOrNull?.id) {
       user.value =
           c.users.isEmpty ? null : await _userRepository.get(c.users.first.id);

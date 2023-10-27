@@ -38,13 +38,13 @@ class CallRectHiveProvider extends HiveBaseProvider<Rect> {
 
   /// Puts the provided [Rect] preferences to [Hive].
   Future<void> put(ChatId chatId, Rect prefs) async {
-    Log.debug('put(ChatId, Rect)', 'CallRectHiveProvider');
+    Log.debug('put($chatId, $prefs)', 'CallRectHiveProvider');
     putSafe(chatId.val, prefs);
   }
 
   /// Returns the [Rect] preferences from [Hive] by its [id].
   Rect? get(ChatId id) {
-    Log.debug('get(ChatId)', 'CallRectHiveProvider');
+    Log.debug('get($id)', 'CallRectHiveProvider');
     return getSafe(id.val);
   }
 }

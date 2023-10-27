@@ -39,7 +39,7 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
 
   /// Returns the stored [CacheInfo] from [Hive].
   CacheInfo get info {
-    Log.debug('get', 'CacheInfoHiveProvider');
+    Log.debug('get info', 'CacheInfoHiveProvider');
     return getSafe(0) ?? CacheInfo();
   }
 
@@ -51,7 +51,7 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
     DateTime? modified,
   }) {
     Log.debug(
-      'set(checksums, size, maxSize, DateTime)',
+      'set($checksums, $size, $maxSize, $modified)',
       'CacheInfoHiveProvider',
     );
     final CacheInfo info = this.info;
