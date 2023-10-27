@@ -35,6 +35,14 @@ jobs:
       - test-unit
     runs-on: ubuntu-latest
     steps:
+      - name: "Set Log Level"
+        run: |
+          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
+                jq -r .title)
+
+          if [[ $pr_title == *"[debug]"* ]]; then
+            echo "SOCAPP_LOG_LEVEL=debug" >> $GITHUB_ENV
       - run: true
 
 

@@ -170,15 +170,19 @@ class Config {
 
     origin = url;
 
-    if (document['conf']?['logLevel'] != null) {
-      if (document['conf']?['logLevel'] == 'debug') {
-        logLevel = me.LogLevel.debug;
-      } else if (document['conf']?['logLevel'] == 'info') {
+    if (const bool.hasEnvironment('SOCAPP_LOG_LEVEL')) {
+      if (const String.fromEnvironment('SOCAPP_LOG_LEVEL') == 'debug') {
+        logLevel = me.LogLevel.all;
+      } else {
         logLevel = me.LogLevel.info;
+      }
+    } else if (document['conf']?['logLevel'] != null) {
+      if (document['conf']?['logLevel'] == 'debug') {
+        logLevel = me.LogLevel.all;
       } else if (document['conf']?['logLevel'] == 'error') {
         logLevel = me.LogLevel.error;
       } else {
-        logLevel = me.LogLevel.all;
+        logLevel = me.LogLevel.info;
       }
     }
 
