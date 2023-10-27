@@ -47,9 +47,6 @@ class IntroductionController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [MyUser.num]'s copyable [TextFieldState].
-  late final TextFieldState num;
-
   late final TextFieldState link = TextFieldState(
     text:
         '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? ChatDirectLinkSlug.generate(10).val}',
@@ -59,9 +56,11 @@ class IntroductionController extends GetxController {
   late final String _origin =
       '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
 
-  Future<void> copyLink({void Function()? onSuccess}) async {
-    if (myUser.value?.chatDirectLink?.slug.val == link.text) {
-      onSuccess?.call();
+  /// Creates a [ChatDirectLink] from the [link].
+  Future<void> createLink() async {
+    final String text = link.text.replaceFirst(_origin, '');
+
+    if (myUser.value?.chatDirectLink?.slug.val == text) {
       return;
     }
 
@@ -69,21 +68,11 @@ class IntroductionController extends GetxController {
       return;
     }
 
-    link.status.value = RxStatus.loading();
-
     try {
-      await _myUserService.createChatDirectLink(ChatDirectLinkSlug(link.text));
-      link.status.value = RxStatus.success();
-
-      onSuccess?.call();
-
-      await Future.delayed(const Duration(seconds: 1));
-      link.status.value = RxStatus.empty();
+      await _myUserService.createChatDirectLink(ChatDirectLinkSlug(text));
     } on CreateChatDirectLinkException catch (e) {
-      link.status.value = RxStatus.empty();
       link.error.value = e.toMessage();
     } catch (e) {
-      link.status.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
     }

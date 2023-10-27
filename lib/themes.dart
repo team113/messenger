@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
 part 'themes.g.dart';
@@ -134,7 +133,8 @@ class Themes {
       ],
     );
 
-    final TextStyle textStyle = GoogleFonts.notoSansDisplay(
+    final TextStyle textStyle = TextStyle(
+      fontFamily: 'NotoSansDisplay',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,

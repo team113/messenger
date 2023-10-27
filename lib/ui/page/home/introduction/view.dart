@@ -19,19 +19,17 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/sharable.dart';
+import '/ui/page/home/widget/num.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -68,28 +66,6 @@ class IntroductionView extends StatelessWidget {
       init: IntroductionController(Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
-          List<Widget> numId() {
-            return [
-              const SizedBox(height: 25),
-              if (PlatformUtils.isMobile)
-                SharableTextField(
-                  key: const Key('NumCopyable'),
-                  text: c.num.text,
-                  label: 'label_num'.l10n,
-                  share: 'Gapopa ID: ${c.myUser.value?.num}',
-                  style: style.fonts.big.regular.onBackground,
-                )
-              else
-                CopyableTextField(
-                  key: const Key('NumCopyable'),
-                  state: c.num,
-                  label: 'label_num'.l10n,
-                  style: style.fonts.big.regular.onBackground,
-                ),
-              const SizedBox(height: 25),
-            ];
-          }
-
           final Widget header;
           final List<Widget> children;
 
@@ -99,22 +75,8 @@ class IntroductionView extends StatelessWidget {
 
               children = [
                 const SizedBox(height: 25),
-                if (PlatformUtils.isMobile)
-                  SharableTextField(
-                    text: c.num.text,
-                    label: 'label_num'.l10n,
-                    share: 'Gapopa ID: ${c.myUser.value?.num}',
-                    style: style.fonts.big.regular.onBackground,
-                  )
-                else
-                  CopyableTextField(
-                    state: c.num,
-                    label: 'label_num'.l10n,
-                    style: style.fonts.big.regular.onBackground,
-                  ),
+                _num(c, context),
                 const SizedBox(height: 25),
-                // _emails(c, context),
-                // _phones(c, context),
                 _link(c, context),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
@@ -136,7 +98,9 @@ class IntroductionView extends StatelessWidget {
               );
 
               children = [
-                ...numId(),
+                const SizedBox(height: 25),
+                _num(c, context),
+                const SizedBox(height: 25),
                 _link(c, context),
                 const SizedBox(height: 25),
                 Text.rich(
@@ -201,29 +165,31 @@ class IntroductionView extends StatelessWidget {
     );
   }
 
+  Widget _num(IntroductionController c, BuildContext context) {
+    return Obx(() {
+      return UserNumCopyable(
+        c.myUser.value?.num,
+        share: PlatformUtils.isMobile,
+      );
+    });
+  }
+
   Widget _link(IntroductionController c, BuildContext context) {
+    Future<void> copy() async {
+      if (PlatformUtils.isMobile) {
+        Share.share(c.link.text);
+      } else {
+        PlatformUtils.copy(text: c.link.text);
+        MessagePopup.success('label_copied'.l10n);
+      }
+
+      await c.createLink();
+    }
+
     return ReactiveTextField(
       state: c.link,
-      onSuffixPressed: () {
-        // TODO: Create link and copy/share it.
-      },
-      onCopied: (_, __) async {
-        // TODO: Create link and copy/share it.
-
-        await c.copyLink(
-          onSuccess: () async {
-            final link =
-                '${Config.origin}${Routes.chatDirectLink}/${c.link.text}';
-
-            if (PlatformUtils.isMobile) {
-              await Share.share(link);
-            } else {
-              PlatformUtils.copy(text: link);
-              MessagePopup.success('label_copied'.l10n);
-            }
-          },
-        );
-      },
+      onSuffixPressed: copy,
+      onCopied: (_, __) async => await copy,
       trailing: PlatformUtils.isMobile
           ? const SvgImage.asset(
               'assets/icons/share_thick.svg',
