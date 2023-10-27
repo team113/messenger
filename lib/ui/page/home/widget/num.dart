@@ -31,7 +31,8 @@ class UserNumCopyable extends StatelessWidget {
   /// [UserNum] to display.
   final UserNum? num;
 
-  /// Indicator whether [num] should invoke [Share] modal instead.
+  /// Indicator whether [num] should use the [SharableTextField] instead of the
+  /// [CopyableTextField].
   final bool share;
 
   @override

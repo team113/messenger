@@ -47,12 +47,14 @@ class IntroductionController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// [TextFieldState] of the link to use in [createLink] method.
   late final TextFieldState link = TextFieldState(
     text:
         '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? ChatDirectLinkSlug.generate(10).val}',
     editable: false,
   );
 
+  /// Origin to display withing the [link] field.
   late final String _origin =
       '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
 
@@ -78,7 +80,7 @@ class IntroductionController extends GetxController {
     }
   }
 
-  /// [MyUserService] setting the password.
+  /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
   /// Returns the currently authenticated [MyUser].

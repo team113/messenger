@@ -165,6 +165,7 @@ class IntroductionView extends StatelessWidget {
     );
   }
 
+  /// Builds the [UserNumCopyable].
   Widget _num(IntroductionController c, BuildContext context) {
     return Obx(() {
       return UserNumCopyable(
@@ -174,6 +175,7 @@ class IntroductionView extends StatelessWidget {
     });
   }
 
+  /// Builds the [ChatDirectLink] visual representation field.
   Widget _link(IntroductionController c, BuildContext context) {
     Future<void> copy() async {
       if (PlatformUtils.isMobile) {
@@ -189,7 +191,7 @@ class IntroductionView extends StatelessWidget {
     return ReactiveTextField(
       state: c.link,
       onSuffixPressed: copy,
-      onCopied: (_, __) async => await copy,
+      onCopied: (_, __) => copy,
       trailing: PlatformUtils.isMobile
           ? const SvgImage.asset(
               'assets/icons/share_thick.svg',
