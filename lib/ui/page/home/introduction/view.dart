@@ -170,6 +170,7 @@ class IntroductionView extends StatelessWidget {
     return Obx(() {
       return UserNumCopyable(
         c.myUser.value?.num,
+        key: const Key('NumCopyable'),
         share: PlatformUtils.isMobile,
       );
     });
