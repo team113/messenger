@@ -229,6 +229,7 @@ class ChatItemWidget extends StatefulWidget {
         width: filled ? double.infinity : null,
         autoLoad: autoLoad,
         onError: onError,
+        fit: !filled ? BoxFit.contain : null,
       );
 
       if (!isLocal) {

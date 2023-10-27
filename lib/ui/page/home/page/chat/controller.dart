@@ -61,7 +61,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -608,25 +607,6 @@ class ChatController extends GetxController {
         PreciseDateTime day = item.at.toDay();
         DateTimeElement dateElement = DateTimeElement(day);
         elements.putIfAbsent(dateElement.id, () => dateElement);
-
-        ChatMessage? message;
-        if (item is ChatMessage) {
-          message = item;
-        } else if (item is ChatForward) {
-          ChatItem? quote = item.quote.original;
-          if (quote is ChatMessage) {
-            message = quote;
-          }
-        }
-
-        message?.attachments.whereType<ImageAttachment>().forEach((e) {
-          if (e.big.thumbhash != null) {
-            precacheImage(
-              CacheWorker.instance.getThumbhashProvider(e.big.thumbhash!),
-              router.context!,
-            );
-          }
-        });
 
         if (item is ChatMessage) {
           ChatMessageElement element = ChatMessageElement(e);

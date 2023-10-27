@@ -44,11 +44,11 @@ class RetryImage extends StatefulWidget {
     super.key,
     this.checksum,
     this.thumbhash,
-    this.fallbackUrl,
-    this.fallbackChecksum,
     this.fit,
     this.height,
     this.width,
+    this.imageHeight,
+    this.imageWidth,
     this.borderRadius,
     this.onForbidden,
     this.filter,
@@ -81,23 +81,15 @@ class RetryImage extends StatefulWidget {
       image = attachment.big;
     }
 
-    if ((width == null || width == double.infinity) &&
-        height != null &&
-        height != double.infinity &&
-        image.height != null &&
-        image.width != null) {
-      width = height * (image.width! / image.height!);
-    }
-
     return RetryImage(
       image.url,
       checksum: image.checksum,
       thumbhash: image.thumbhash ?? attachment.big.thumbhash,
-      fallbackUrl: attachment.small.url,
-      fallbackChecksum: attachment.small.checksum,
       fit: fit,
       height: height,
       width: width,
+      imageHeight: image.height,
+      imageWidth: image.width,
       borderRadius: borderRadius,
       onForbidden: onForbidden,
       filter: filter,
@@ -116,12 +108,6 @@ class RetryImage extends StatefulWidget {
   /// [ThumbHash] of this [RetryImage].
   final ThumbHash? thumbhash;
 
-  /// URL of a fallback image to display.
-  final String? fallbackUrl;
-
-  /// SHA-256 checksum of the fallback image to display.
-  final String? fallbackChecksum;
-
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
   final FutureOr<void> Function()? onForbidden;
@@ -134,6 +120,12 @@ class RetryImage extends StatefulWidget {
 
   /// Width of this [RetryImage].
   final double? width;
+
+  /// Width of an image to display.
+  final int? imageWidth;
+
+  /// Height of an image to display.
+  final int? imageHeight;
 
   /// [ImageFilter] to apply to this [RetryImage].
   final ImageFilter? filter;
@@ -185,7 +177,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     // We're expecting a checksum to properly fetch the image from the cache.
-    if (widget.checksum == null && widget.fallbackChecksum == null) {
+    if (widget.checksum == null) {
       widget.onForbidden?.call();
     }
 
@@ -331,26 +323,41 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     if (widget.thumbhash != null && _imageInitialized == false) {
-      return Stack(
-        alignment: Alignment.center,
-        children: [
-          Image(
-            image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
-            key: const Key('Thumbhash'),
-            height: widget.height,
-            width: widget.width,
-            fit: widget.fit ?? BoxFit.cover,
-          ),
-          Positioned.fill(
-            child: Center(
-              child: SafeAnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                child:
-                    KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
+      Widget thumbhash = Image(
+        image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
+        key: const Key('Thumbhash'),
+        height: widget.height,
+        width: widget.width,
+        fit: BoxFit.cover,
+      );
+
+      if (widget.imageHeight != null &&
+          widget.imageWidth != null &&
+          widget.fit == BoxFit.contain) {
+        thumbhash = AspectRatio(
+          aspectRatio: widget.imageWidth! / widget.imageHeight!,
+          child: thumbhash,
+        );
+      }
+
+      return SizedBox(
+        height: widget.height,
+        width: widget.width,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            thumbhash,
+            Positioned.fill(
+              child: Center(
+                child: SafeAnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: KeyedSubtree(
+                      key: Key('Image_${widget.url}'), child: child),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
