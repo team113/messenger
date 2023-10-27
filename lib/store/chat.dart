@@ -1339,11 +1339,15 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
-  Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
+  Future<HiveRxChat> put(
+    HiveChat chat, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
     if (saved != null) {
-      if (saved.ver >= chat.ver) {
+      if (saved.ver >= chat.ver && !ignoreVersion) {
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
@@ -1372,7 +1376,7 @@ class ChatRepository extends DisposableInterface
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
       chat.value.firstItem ??= hiveChat?.value.firstItem;
 
-      if (hiveChat == null || hiveChat.ver < chat.ver) {
+      if (ignoreVersion || hiveChat == null || hiveChat.ver < chat.ver) {
         _recentLocal.put(chat.value.updatedAt, chatId);
         await _chatLocal.put(chat);
       }
@@ -1574,6 +1578,7 @@ class ChatRepository extends DisposableInterface
       ),
     ]);
 
+    // await Future.delayed(Duration(seconds: 60));
     await _pagination!.around();
 
     _paginationSubscription?.cancel();
