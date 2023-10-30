@@ -62,6 +62,7 @@ class ReactiveTextField extends StatelessWidget {
     this.type,
     this.subtitle,
     this.clearable = true,
+    this.selectable,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -132,7 +133,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Callback, called when user presses the [suffix].
   ///
   /// Only meaningful if [suffix] is non-`null`.
-  final VoidCallback? onSuffixPressed;
+  final void Function()? onSuffixPressed;
 
   /// Optional text prefix to display before the input.
   final String? prefixText;
@@ -157,6 +158,10 @@ class ReactiveTextField extends StatelessWidget {
   /// when being empty, if [state] is approvable.
   final bool clearable;
 
+  /// Indicator whether text within this [ReactiveTextField] should be
+  /// selectable.
+  final bool? selectable;
+  
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -205,7 +210,7 @@ class ReactiveTextField extends StatelessWidget {
             }
 
             return Padding(
-              padding: const EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(left: 8, right: 16),
               child: child,
             );
           },
@@ -295,6 +300,7 @@ class ReactiveTextField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              enableInteractiveSelection: selectable,
               selectionControls: PlatformUtils.isAndroid
                   ? MaterialTextSelectionControls()
                   : PlatformUtils.isIOS

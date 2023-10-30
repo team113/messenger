@@ -272,15 +272,18 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp.router(
-      routerDelegate: router.delegate,
-      routeInformationParser: router.parser,
-      routeInformationProvider: router.provider,
-      navigatorObservers: [SentryNavigatorObserver()],
-      onGenerateTitle: (context) => 'Gapopa',
-      theme: Themes.light(),
-      themeMode: ThemeMode.light,
-      debugShowCheckedModeBanner: false,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+      child: GetMaterialApp.router(
+        routerDelegate: router.delegate,
+        routeInformationParser: router.parser,
+        routeInformationProvider: router.provider,
+        navigatorObservers: [SentryNavigatorObserver()],
+        onGenerateTitle: (context) => 'Gapopa',
+        theme: Themes.light(),
+        themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }

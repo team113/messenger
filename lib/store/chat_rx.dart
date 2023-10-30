@@ -795,7 +795,8 @@ class HiveRxChat extends RxChat {
         ChatMessage(
           ChatItemId.local(),
           id,
-          User(const UserId('0'), UserNum('1234123412341234')),
+          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user ??
+              User(const UserId('0'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
           text: text,
         ),

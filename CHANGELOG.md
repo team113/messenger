@@ -19,13 +19,28 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned typography tab. ([#663], [#615])
     - Chat page:
         - Display message field while loading. ([#662], [#634])
+    - Disabled larger fonts accessibility setting temporary. ([#679])
+    - Home page:
+        - Redesigned introduction modal. ([#668], [#633])
 - Web:
     - Updated loading animation. ([#662], [#634])
+    - Updated [Progressive Web Application (PWA)][PWA] iOS home screen icon. ([#668])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Save button displaying when login field is empty. ([#672], [#575])
 
 [#615]: /../../issues/615
 [#634]: /../../issues/634
+[#575]: /../../issues/575
+[#633]: /../../issues/633
 [#662]: /../../pull/662
 [#663]: /../../pull/663
+[#668]: /../../pull/668
+[#672]: /../../pull/672
+[#679]: /../../pull/679
 
 
 
@@ -702,4 +717,5 @@ All user visible changes to this project will be documented in this file. This p
 
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
 [Helm]: https://helm.sh
+[PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org

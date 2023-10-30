@@ -59,6 +59,7 @@ mixin UserGraphQlMixin {
     Log.debug('getUser($id)', 'UserGraphQlMixin');
     final variables = GetUserArguments(id: id);
     QueryResult res = await client.query(QueryOptions(
+      operationName: 'GetUser',
       document: GetUserQuery(variables: variables).document,
       variables: variables.toJson(),
     ));
