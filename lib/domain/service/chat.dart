@@ -204,7 +204,8 @@ class ChatService extends DisposableService {
     ChatMessageRepliesInput? repliesTo,
   }) {
     if ((attachments?.changed ?? item.attachments).isEmpty &&
-        (text?.changed ?? item.text)?.val.isEmpty != false) {
+        (text?.changed ?? item.text)?.val.isEmpty != false &&
+        (repliesTo?.changed ?? item.repliesTo).isNotEmpty) {
       text = const ChatMessageTextInput(ChatMessageText(' '));
     }
 

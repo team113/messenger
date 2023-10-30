@@ -234,8 +234,6 @@ void main() async {
   when(graphQlProvider.editChatMessage(
     const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
     text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-    attachments: api.ChatMessageAttachmentsInput(kw$new: []),
-    repliesTo: api.ChatMessageRepliesInput(kw$new: []),
   )).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',

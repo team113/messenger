@@ -18,11 +18,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/api/backend/schema.dart'
-    hide
-        ChatMessageTextInput,
-        ChatMessageAttachmentsInput,
-        ChatMessageRepliesInput;
+import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
 import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -321,6 +317,8 @@ void main() async {
       ),
       throwsA(isA<EditChatMessageException>()),
     );
+
+    await Future.delayed(Duration.zero);
 
     verify(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
