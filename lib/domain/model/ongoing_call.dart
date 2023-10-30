@@ -1350,6 +1350,7 @@ class OngoingCall {
       await Permission.microphone.request();
       await Permission.camera.request();
     }
+
     await _mediaSettingsGuard.protect(() async {
       // Populate [devices] with a list of available media input devices.
       if (videoDevice.value == null &&

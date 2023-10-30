@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/model/file.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -339,17 +338,6 @@ class ChatRepository extends DisposableInterface
     return _chatLocal.clear();
   }
 
-  Future<HiveRxChat?> _getFromHive(ChatId id) async {
-    final HiveChat? hiveChat = await _chatLocal.get(id);
-    final HiveRxChat? existing = chats[id];
-
-    if (hiveChat != null && !chats.containsKey(id)) {
-      return await put(hiveChat);
-    }
-
-    return existing;
-  }
-
   @override
   Future<HiveRxChat?> get(ChatId id) async {
     HiveRxChat? chat = chats[id];
@@ -366,7 +354,7 @@ class ChatRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      chat = chats[id] ?? await _getFromHive(id);
+      chat = chats[id];
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
@@ -383,7 +371,9 @@ class ChatRepository extends DisposableInterface
           }
         }
 
-        chats[id] = chat!;
+        if (chat != null) {
+          chats[id] = chat!;
+        }
       }
 
       return chat;
@@ -792,7 +782,6 @@ class ChatRepository extends DisposableInterface
       );
 
       var model = response.attachment.toModel();
-
       attachment.id = model.id;
       attachment.filename = model.filename;
       attachment.original = model.original;
@@ -1348,8 +1337,8 @@ class ChatRepository extends DisposableInterface
   }) async {
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
-    if (saved != null) {
-      if (saved.ver >= chat.ver && !ignoreVersion) {
+    if (saved != null && !ignoreVersion) {
+      if (saved.ver >= chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
@@ -1373,12 +1362,12 @@ class ChatRepository extends DisposableInterface
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
     if (!WebUtils.isPopup) {
-      final HiveChat? hiveChat = await _chatLocal.get(chatId);
+      final HiveChat? saved = await _chatLocal.get(chatId);
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-      chat.value.firstItem ??= hiveChat?.value.firstItem;
+      chat.value.firstItem ??= saved?.value.firstItem;
 
-      if (ignoreVersion || hiveChat == null || hiveChat.ver < chat.ver) {
+      if (saved == null || saved.ver < chat.ver || ignoreVersion) {
         _recentLocal.put(chat.value.updatedAt, chatId);
         await _chatLocal.put(chat);
       }
@@ -1422,8 +1411,8 @@ class ChatRepository extends DisposableInterface
       entry.chat.refresh();
     }
 
-    if (pagination && !paginated.containsKey(chatId)) {
-      paginated[chatId] = entry;
+    if (pagination) {
+      paginated[chatId] ??= entry;
     }
 
     return entry;
@@ -1589,7 +1578,7 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
+          _putEntry(chatData, pagination: true, ignoreVersion: true);
           break;
 
         case OperationKind.removed:
@@ -1600,14 +1589,19 @@ class ChatRepository extends DisposableInterface
 
     // Clear the [paginated] and the [_localPagination] populating it, as
     // [CombinedPagination.around] has fetched its results.
-    // paginated.clear();
+    paginated.removeWhere(
+      (key, _) => _pagination?.items.none((e) => e.value.id == key) == true,
+    );
     _localPagination?.dispose();
     _localPagination = null;
 
     // Add the received in [CombinedPagination.around] items to the
     // [paginated].
-    _pagination?.items
-        .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
+    _pagination?.items.forEach((e) => _putEntry(
+          ChatData(e, null, null),
+          pagination: true,
+          ignoreVersion: true,
+        ));
 
     if (_pagination?.hasNext.value == false) {
       await _initMonolog();
@@ -1696,7 +1690,11 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Puts the provided [data] to [Hive].
-  Future<HiveRxChat> _putEntry(ChatData data, {bool pagination = false}) async {
+  Future<HiveRxChat> _putEntry(
+    ChatData data, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     final ChatId chatId = data.chat.value.id;
 
     Mutex? mutex = _putEntryGuards[chatId];
@@ -1708,7 +1706,11 @@ class ChatRepository extends DisposableInterface
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
     final HiveRxChat? saved = chats[chatId];
     if (saved != null) {
-      return put(data.chat, pagination: pagination);
+      return put(
+        data.chat,
+        pagination: pagination,
+        ignoreVersion: ignoreVersion,
+      );
     }
 
     if (mutex == null) {
@@ -1745,7 +1747,11 @@ class ChatRepository extends DisposableInterface
         }
       }
 
-      entry = await put(data.chat, pagination: pagination);
+      entry = await put(
+        data.chat,
+        pagination: pagination,
+        ignoreVersion: ignoreVersion,
+      );
 
       for (var item in [
         if (data.lastItem != null) data.lastItem!,

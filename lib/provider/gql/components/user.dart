@@ -56,6 +56,7 @@ mixin UserGraphQlMixin {
   Future<GetUser$Query> getUser(UserId id) async {
     final variables = GetUserArguments(id: id);
     QueryResult res = await client.query(QueryOptions(
+      operationName: 'GetUser',
       document: GetUserQuery(variables: variables).document,
       variables: variables.toJson(),
     ));

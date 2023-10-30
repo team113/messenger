@@ -1823,6 +1823,9 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<void> updateAttachments(ChatItem item) async {}
+
+  @override
+  Stream<void> get updates => const Stream.empty();
 }
 
 class _HoveredBuilder extends StatefulWidget {

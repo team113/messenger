@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -228,6 +229,44 @@ class MessageFieldController extends GetxController {
   Rx<MyUser?> get myUser => _myUserService?.myUser ?? Rx(null);
 
   @override
+  void onInit() {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
+    // // Constructs a list of [ChatButton]s from the provided [list] of [String]s.
+    // List<ChatButton> toButtons(List<String>? list) {
+    //   List<ChatButton>? persisted = list
+    //       ?.map((e) =>
+    //           panel.firstWhereOrNull((m) => m.runtimeType.toString() == e))
+    //       .whereNotNull()
+    //       .toList();
+
+    //   return persisted ?? [];
+    // }
+
+    // buttons = RxList(
+    //   toButtons(_settingsRepository.applicationSettings.value?.pinnedActions),
+    // );
+
+    // _buttonsWorker = ever(buttons, (List<ChatButton> list) {
+    //   _settingsRepository.setPinnedActions(
+    //     list.map((e) => e.runtimeType.toString()).toList(),
+    //   );
+    // });
+
+    // String route = router.route;
+    // _routesWorker = ever(router.routes, (routes) {
+    //   if (router.route != route) {
+    //     _moreEntry?.remove();
+    //     _moreEntry = null;
+    //   }
+    // });
+
+    super.onInit();
+  }
+
+  @override
   void onClose() {
     for (var e in entries.values) {
       e.remove();
@@ -237,6 +276,11 @@ class MessageFieldController extends GetxController {
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
+
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -281,11 +325,17 @@ class MessageFieldController extends GetxController {
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
+  Future<void> pickMedia() {
+    field.focus.unfocus();
+    return _pickAttachment(
+      PlatformUtils.isIOS ? FileType.media : FileType.image,
+    );
+  }
 
   /// Opens the camera app and adds the captured image to the [attachments].
   Future<void> pickImageFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? photo = await ImagePicker().pickImage(
       source: ImageSource.camera,
@@ -301,6 +351,8 @@ class MessageFieldController extends GetxController {
 
   /// Opens the camera app and adds the captured video to the [attachments].
   Future<void> pickVideoFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? video = await ImagePicker().pickVideo(
       source: ImageSource.camera,
@@ -314,7 +366,10 @@ class MessageFieldController extends GetxController {
 
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
+  Future<void> pickFile() {
+    field.focus.unfocus();
+    return _pickAttachment(FileType.any);
+  }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
@@ -339,6 +394,7 @@ class MessageFieldController extends GetxController {
       allowMultiple: true,
       // withReadStream: true,
       withData: true,
+      lockParentWindow: true,
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -381,5 +437,19 @@ class MessageFieldController extends GetxController {
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
+  }
+
+  /// Invokes [toggleMore], if [moreOpened].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (moreOpened.isTrue) {
+      toggleMore();
+      return true;
+    }
+
+    return false;
   }
 }

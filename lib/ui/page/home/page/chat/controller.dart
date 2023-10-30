@@ -349,9 +349,6 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
-  /// Worker capturing any [status] changes.
-  Worker? _statusWorker;
-
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
@@ -548,8 +545,8 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
-    _statusWorker?.dispose();
     _typingSubscription?.cancel();
+    _chatSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -747,11 +744,16 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      _chatSubscription = chat!.updates.listen((_) {});
+
       unreadMessages = chat!.chat.value.unreadCount;
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val ?? send.field.text;
+      if (send.field.text.isEmpty) {
+        send.field.unchecked = draft?.text?.val ?? send.field.text;
+      }
+
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
@@ -1124,7 +1126,10 @@ class ChatController extends GetxController {
       }
     }
 
-    _ensureScrollable();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _ensureScrollable();
+    });
+
     _ignorePositionChanges = false;
   }
 
@@ -1386,6 +1391,10 @@ class ChatController extends GetxController {
 
     _stickyTimer?.cancel();
     _stickyTimer = Timer(const Duration(seconds: 2), () {
+      if (isClosed) {
+        return;
+      }
+
       if (stickyIndex.value != null) {
         final double? offset =
             listController.sliverController.getItemOffset(stickyIndex.value!);
@@ -1403,6 +1412,10 @@ class ChatController extends GetxController {
 
   /// Ensures the [ChatView] is scrollable.
   Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
     if (hasNext.isTrue || hasPrevious.isTrue) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
@@ -1426,9 +1439,21 @@ class ChatController extends GetxController {
 
   /// Loads next and previous pages of the [RxChat.messages].
   void _loadMessages() async {
-    if (!_ignorePositionChanges && status.value.isSuccess) {
-      _loadNextPage();
-      _loadPreviousPage();
+    if (!_messagesAreLoading) {
+      _messagesAreLoading = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (isClosed) {
+          return;
+        }
+
+        _messagesAreLoading = false;
+
+        if (!_ignorePositionChanges && status.value.isSuccess) {
+          _loadNextPage();
+          _loadPreviousPage();
+        }
+      });
     }
   }
 
@@ -1446,9 +1471,13 @@ class ChatController extends GetxController {
 
       await chat!.next();
 
-      final double offset = listController.position.pixels;
+      double? offset;
+      if (listController.hasClients) {
+        offset = listController.position.pixels;
+      }
+
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (offset < loaderHeight) {
+        if (offset != null && offset < loaderHeight) {
           listController.jumpTo(
             listController.position.pixels - (loaderHeight + 28),
           );
@@ -1781,10 +1810,10 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({User? partner}) {
+  String? getSubtitle({RxUser? partner}) {
     switch (kind) {
       case ChatKind.dialog:
-        return partner?.getStatus();
+        return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
         return '${members.length} ${'label_subtitle_participants'.l10n}';

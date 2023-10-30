@@ -42,7 +42,7 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Returns the initialization [RxStatus] of this repository and its [chats].
+  /// Returns the initialization [RxStatus] of this repository.
   Rx<RxStatus> get status;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
@@ -286,6 +286,10 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// Returns the last [ChatItem] of this [RxChat].
   ChatItem? get lastItem;
+
+  /// Listens to the updates of this [RxChat] while the returned [Stream] is
+  /// listened to.
+  Stream<void> get updates;
 
   /// Fetches the initial [messages] page around the [firstUnread].
   Future<void> around();
