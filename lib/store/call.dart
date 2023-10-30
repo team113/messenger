@@ -212,7 +212,9 @@ class CallRepository extends DisposableInterface
     bool withScreen = false,
   }) async {
     Log.debug(
-        'start($chatId, $withAudio, $withVideo, $withScreen)', 'CallRepository',);
+      'start($chatId, $withAudio, $withVideo, $withScreen)',
+      'CallRepository',
+    );
     // TODO: Call should be displayed right away.
     if (chatId.isLocal && ensureRemoteDialog != null) {
       chatId = (await ensureRemoteDialog!.call(chatId))!.id;
@@ -503,10 +505,7 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    Log.debug(
-      '_callEvent($e)',
-      'CallRepository'
-    );
+    Log.debug('_callEvent($e)', 'CallRepository');
     if (e.$$typename == 'EventChatCallFinished') {
       var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
       for (var m in node.call.members) {
