@@ -363,7 +363,7 @@ void main() async {
     await tester
         .pumpWidget(createWidgetForTesting(child: const ChatsTabView()));
 
-    while (chatProvider.isLocked) {
+    for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
 

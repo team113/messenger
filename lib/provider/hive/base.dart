@@ -18,8 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart'
-    show mustCallSuper, protected, visibleForTesting;
+import 'package:flutter/foundation.dart' show mustCallSuper, protected;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -205,10 +204,6 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
     return [];
   }
-
-  /// Indicates whether the [_mutex] is locked.
-  @visibleForTesting
-  bool get isLocked => _mutex.isLocked;
 
   @protected
   void registerAdapters();

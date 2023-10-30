@@ -50,7 +50,7 @@ class CombinedPagination<T, K> {
   Stream<MapChangeNotification<K, T>> get changes =>
       StreamGroup.merge(paginations.map((e) => e.p.items.changes));
 
-  /// Disposes the [CombinedPagination].
+  /// Disposes this [CombinedPagination].
   void dispose() {
     for (final p in paginations.map((e) => e.p)) {
       p.dispose();

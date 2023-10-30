@@ -1327,12 +1327,12 @@ class ChatRepository extends DisposableInterface
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
     if (!WebUtils.isPopup) {
-      final HiveChat? hiveChat = await _chatLocal.get(chatId);
+      final HiveChat? saved = await _chatLocal.get(chatId);
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-      chat.value.firstItem ??= hiveChat?.value.firstItem;
+      chat.value.firstItem ??= saved?.value.firstItem;
 
-      if (hiveChat == null || hiveChat.ver < chat.ver || ignoreVersion) {
+      if (saved == null || saved.ver < chat.ver || ignoreVersion) {
         _recentLocal.put(chat.value.updatedAt, chatId);
         await _chatLocal.put(chat);
       }
@@ -1376,8 +1376,8 @@ class ChatRepository extends DisposableInterface
       entry.chat.refresh();
     }
 
-    if (pagination && !paginated.containsKey(chatId)) {
-      paginated[chatId] = entry;
+    if (pagination) {
+      paginated[chatId] ??= entry;
     }
 
     return entry;
