@@ -407,13 +407,13 @@ class SvgIcons {
 
   static const SvgData muted = SvgData(
     'assets/icons/muted.svg',
-    width: 19.99,
+    width: 14.25,
     height: 15,
   );
 
   static const SvgData mutedWhite = SvgData(
     'assets/icons/muted_white.svg',
-    width: 19.99,
+    width: 14.25,
     height: 15,
   );
 
@@ -562,6 +562,36 @@ class SvgIcons {
     'assets/icons/send.svg',
     width: 25.44,
     height: 21.91,
+  );
+
+  static const SvgData readSmall = SvgData(
+    'assets/icons/read.svg',
+    height: 7,
+  );
+
+  static const SvgData halfReadSmall = SvgData(
+    'assets/icons/half_read.svg',
+    height: 7,
+  );
+
+  static const SvgData sendingSmall = SvgData(
+    'assets/icons/sending.svg',
+    height: 10,
+  );
+
+  static const SvgData deliveredSmall = SvgData(
+    'assets/icons/delivered.svg',
+    height: 7,
+  );
+
+  static const SvgData errorSmall = SvgData(
+    'assets/icons/error.svg',
+    height: 10,
+  );
+
+  static const SvgData sentSmall = SvgData(
+    'assets/icons/sent.svg',
+    height: 7,
   );
 
   static const SvgData audioMessage = SvgData(
@@ -1152,7 +1182,7 @@ class SvgIcons {
 
   static const SvgData mutedSmall = SvgData(
     'assets/icons/muted_small.svg',
-    width: 13.09,
+    width: 9.5,
     height: 10,
   );
 

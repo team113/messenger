@@ -125,45 +125,6 @@ class MessageTimestamp extends StatelessWidget {
             ),
           ],
         ],
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
-          SvgIcon(
-            isRead
-                ? halfRead
-                    ? SvgIcons.halfRead
-                    : SvgIcons.read
-                : isDelivered
-                    ? SvgIcons.delivered
-                    : isSending
-                        ? isError
-                            ? SvgIcons.error
-                            : SvgIcons.sending
-                        : SvgIcons.sent,
-          ),
-          // Icon(
-          //   (isRead || isDelivered)
-          //       ? Icons.done_all
-          //       : isSending
-          //           ? Icons.access_alarm
-          //           : isError
-          //               ? Icons.error_outline
-          //               : Icons.done,
-          //   color: isRead
-          //       ? style.colors.primary
-          //       : isError
-          //           ? style.colors.dangerColor
-          //           : style.colors.secondary,
-          //   size: 12,
-          //   key: Key(
-          //     isError
-          //         ? 'Error'
-          //         : isSending
-          //             ? 'Sending'
-          //             : 'Sent',
-          //   ),
-          // ),
-          if (at != null) const SizedBox(width: 3),
-        ],
         if (at != null)
           SelectionContainer.disabled(
             child: Text(
@@ -176,6 +137,36 @@ class MessageTimestamp extends StatelessWidget {
               ),
             ),
           ),
+        if (status != null &&
+            (isSent || isDelivered || isRead || isSending || isError)) ...[
+          if (at != null) const SizedBox(width: 3),
+          SizedBox(
+            width: 17,
+            child: SvgIcon(
+              isRead
+                  ? halfRead
+                      ? inverted
+                          ? SvgIcons.halfReadWhite
+                          : SvgIcons.halfRead
+                      : inverted
+                          ? SvgIcons.readWhite
+                          : SvgIcons.read
+                  : isDelivered
+                      ? inverted
+                          ? SvgIcons.deliveredWhite
+                          : SvgIcons.delivered
+                      : isSending
+                          ? isError
+                              ? SvgIcons.error
+                              : inverted
+                                  ? SvgIcons.sendingWhite
+                                  : SvgIcons.sending
+                          : inverted
+                              ? SvgIcons.sentWhite
+                              : SvgIcons.sent,
+            ),
+          ),
+        ],
       ],
     );
   }

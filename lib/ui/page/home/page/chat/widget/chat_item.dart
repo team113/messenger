@@ -1074,13 +1074,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   bottom: 4,
                   child: timeInBubble
                       ? Container(
-                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                           decoration: BoxDecoration(
-                            // color: style.colors.onBackgroundOpacity50,
-                            color: style.colors.onPrimaryOpacity95,
+                            color: style.colors.secondaryOpacity40,
+                            // color: style.colors.onPrimaryOpacity95,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: _timestamp(msg, false),
+                          child: _timestamp(msg, true),
                         )
                       : _timestamp(msg),
                 )
@@ -1588,6 +1588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isDelivered:
           isSent && widget.chat.value?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && _isRead,
+      isHalfRead: isSent && _isRead && _isHalfRead,
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(item.at.val.toLocal().hm),

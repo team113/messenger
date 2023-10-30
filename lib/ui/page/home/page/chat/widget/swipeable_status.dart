@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/themes.dart';
 
@@ -31,6 +32,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
+    this.isHalfRead = false,
     this.isSending = false,
     this.isError = false,
     this.status = true,
@@ -39,7 +41,7 @@ class SwipeableStatus extends StatelessWidget {
   });
 
   /// Expanded width of the [swipeable].
-  static const double width = 65;
+  static const double width = 75;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -61,6 +63,8 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Indicator whether status is read.
   final bool isRead;
+
+  final bool isHalfRead;
 
   /// Indicator whether status is sending.
   final bool isSending;
@@ -110,7 +114,7 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.fonts.labelSmallSecondary,
+      style: style.fonts.labelMediumSecondary,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
@@ -125,21 +129,38 @@ class SwipeableStatus extends StatelessWidget {
           children: [
             if (status) ...[
               if (isSent || isDelivered || isRead || isSending || isError)
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? style.colors.primary
-                      : isError
-                          ? style.colors.dangerColor
-                          : style.colors.secondary,
-                  size: 12,
+                SizedBox(
+                  child: Center(
+                    child: SvgIcon(
+                      isRead
+                          ? isHalfRead
+                              ? SvgIcons.halfRead
+                              : SvgIcons.read
+                          : isDelivered
+                              ? SvgIcons.delivered
+                              : isSending
+                                  ? isError
+                                      ? SvgIcons.error
+                                      : SvgIcons.sending
+                                  : SvgIcons.sent,
+                    ),
+                  ),
                 ),
+              // Icon(
+              //   (isRead || isDelivered)
+              //       ? Icons.done_all
+              //       : isSending
+              //           ? Icons.access_alarm
+              //           : isError
+              //               ? Icons.error_outline
+              //               : Icons.done,
+              //   color: isRead
+              //       ? style.colors.primary
+              //       : isError
+              //           ? style.colors.dangerColor
+              //           : style.colors.secondary,
+              //   size: 12,
+              // ),
               const SizedBox(width: 3),
             ],
             SelectionContainer.disabled(child: swipeable),
