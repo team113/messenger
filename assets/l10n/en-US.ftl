@@ -262,7 +262,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
-err_blacklisted = User is in blacklist
+err_blacklisted = You've been added to the blocklist of this user
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup

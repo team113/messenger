@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned typography tab. ([#663], [#615])
     - Chat page:
         - Display message field while loading. ([#662], [#634])
-        - Allow message attachments and replies editing. ([#671], [#557])
+        - Message attachments and replies editing. ([#671], [#557])
     - Disabled larger fonts accessibility setting temporary. ([#679])
     - Home page:
         - Redesigned introduction modal. ([#668], [#633])

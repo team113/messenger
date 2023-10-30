@@ -636,7 +636,7 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
-      FutureOr<RxUser?> user = c.getUser(e.value.author.id);
+      final FutureOr<RxUser?> user = c.getUser(e.value.author.id);
 
       return Padding(
         padding: EdgeInsets.only(
@@ -702,7 +702,7 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is ChatForwardElement) {
-      FutureOr<RxUser?> user = c.getUser(element.authorId);
+      final FutureOr<RxUser?> user = c.getUser(element.authorId);
 
       return Padding(
         padding: EdgeInsets.only(

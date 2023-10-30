@@ -536,19 +536,25 @@ class ChatController extends GetxController {
           } else if (edit.value!.field.text.trim().isNotEmpty ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
-            ChatMessageText? text =
+            final ChatMessageText text =
                 ChatMessageText(edit.value!.field.text.trim());
-            List<AttachmentId>? attachments =
+            final List<AttachmentId> attachments =
                 edit.value!.attachments.map((e) => e.value.id).toList();
-            List<ChatItemId>? repliesTo =
+            final List<ChatItemId> repliesTo =
                 edit.value!.replied.map((e) => e.id).toList();
 
             try {
               await _chatService.editChatMessage(
                 item,
-                text: ChatMessageTextInput(text),
-                attachments: ChatMessageAttachmentsInput(attachments),
-                repliesTo: ChatMessageRepliesInput(repliesTo),
+                text: text == item.text ? null : ChatMessageTextInput(text),
+                attachments:
+                    attachments.sameAs(item.attachments.map((e) => e.id))
+                        ? null
+                        : ChatMessageAttachmentsInput(attachments),
+                repliesTo:
+                    item.repliesTo.map((e) => e.original?.id).sameAs(repliesTo)
+                        ? null
+                        : ChatMessageRepliesInput(repliesTo),
               );
 
               closeEditing();
@@ -974,7 +980,7 @@ class ChatController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) {
-    RxUser? user = _userService.users[id];
+    final RxUser? user = _userService.users[id];
     if (user != null) {
       return user;
     }
@@ -1723,7 +1729,7 @@ class _ListViewIndexCalculationResult {
 
 /// Extension adding an ability to compare equality of two [List]s.
 extension CompareListsExtension<T> on Iterable<T> {
-  /// Return indicator whether the provided [list] is the same as this.
+  /// Indicates whether the provided [list] is the same as this.
   bool sameAs(Iterable<T>? list) {
     if (list == null || list.length != length) {
       return false;

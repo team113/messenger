@@ -18,7 +18,7 @@
 import 'attachment.dart';
 import 'chat_item.dart';
 
-/// New text to assign to the [ChatMessage].
+/// New [ChatMessageText] to assign to the [ChatMessage].
 class ChatMessageTextInput {
   const ChatMessageTextInput(this.changed);
 
@@ -28,7 +28,7 @@ class ChatMessageTextInput {
   final ChatMessageText changed;
 }
 
-/// New attachments to assign to the [ChatMessage].
+/// New [Attachment]s to assign to the [ChatMessage].
 class ChatMessageAttachmentsInput {
   const ChatMessageAttachmentsInput(this.changed);
 
@@ -36,7 +36,7 @@ class ChatMessageAttachmentsInput {
   final List<AttachmentId> changed;
 }
 
-/// New replies to assign to the [ChatMessage].
+/// New replied [ChatItemId]s to assign to the [ChatMessage].
 class ChatMessageRepliesInput {
   const ChatMessageRepliesInput(this.changed);
 
