@@ -109,7 +109,7 @@ class LoginController extends GetxController {
   /// account.
   ///
   /// If not specified, the [RouteLinks.home] redirect is invoked.
-  final void Function()? onSuccess;
+  final void Function({bool? signedUp})? onSuccess;
 
   /// Amount of [signIn] unsuccessful submitting attempts.
   int signInAttempts = 0;
@@ -211,6 +211,7 @@ class LoginController extends GetxController {
         }
       },
       onSubmitted: (s) async {
+        emailCode.clear();
         stage.value = LoginViewStage.signUpWithEmailCode;
         try {
           await _authService
@@ -239,7 +240,7 @@ class LoginController extends GetxController {
           await _authService
               .confirmSignUpEmail(ConfirmationCode(emailCode.text));
 
-          (onSuccess ?? router.home)();
+          (onSuccess ?? router.home)(signedUp: true);
         } on ConfirmUserEmailException catch (e) {
           switch (e.code) {
             case ConfirmUserEmailErrorCode.wrongCode:

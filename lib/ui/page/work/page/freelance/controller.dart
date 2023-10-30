@@ -88,12 +88,12 @@ class FreelanceWorkController extends GetxController {
   }
 
   /// Uses the [ChatDirectLinkSlug].
-  Future<void> useLink() async {
+  Future<void> useLink({bool? signedUp}) async {
     linkStatus.value = RxStatus.loading();
 
     try {
       if (status.value.isEmpty) {
-        router.home();
+        router.home(signedUp: signedUp);
       }
 
       router.chat(

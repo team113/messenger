@@ -19,23 +19,37 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
 import '/ui/widget/text_field.dart';
+import 'sharable.dart';
 
 /// [CopyableTextField] representation of the provided [UserNum].
 class UserNumCopyable extends StatelessWidget {
-  const UserNumCopyable(this.num, {super.key});
+  const UserNumCopyable(this.num, {super.key, this.share = false});
 
   /// [UserNum] to display.
   final UserNum? num;
 
+  /// Indicator whether [num] should use the [SharableTextField] instead of the
+  /// [CopyableTextField].
+  final bool share;
+
   @override
   Widget build(BuildContext context) {
-    return CopyableTextField(
-      state: TextFieldState(
+    final style = Theme.of(context).style;
+
+    if (share) {
+      return SharableTextField(
         text: num?.toString(),
-        editable: false,
-      ),
+        label: 'label_num'.l10n,
+        share: 'Gapopa ID: $num',
+        style: style.fonts.big.regular.onBackground,
+      );
+    }
+
+    return CopyableTextField(
+      state: TextFieldState(text: num?.toString(), editable: false),
       label: 'label_num'.l10n,
     );
   }

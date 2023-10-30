@@ -49,7 +49,13 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key});
+  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  ///
+  /// Should also mean that sign up operation just has been occurred.
+  final bool signedUp;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -116,7 +122,12 @@ class _HomeViewState extends State<HomeView> {
     }
 
     return GetBuilder(
-      init: HomeController(Get.find(), Get.find(), Get.find()),
+      init: HomeController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        signedUp: widget.signedUp,
+      ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
