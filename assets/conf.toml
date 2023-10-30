@@ -3,7 +3,6 @@
 #
 # Default:
 #   remote = true
-logLevel = 'debug'
 
 [server.http]
 # URL address of HTTP backend server.
@@ -92,3 +91,9 @@ logLevel = 'debug'
 #
 # Default:
 #   vapidKey = "BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0"
+
+[log]
+# Log level.
+#
+# Default:
+#   level = 'debug'

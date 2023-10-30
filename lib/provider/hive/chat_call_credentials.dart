@@ -17,9 +17,9 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatCallCredentials].

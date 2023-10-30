@@ -17,7 +17,6 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -32,6 +31,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 import 'chat_item.dart';
 

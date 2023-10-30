@@ -17,13 +17,13 @@
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '/util/log.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/util/log.dart';
 
 /// Authentication related functionality.
 mixin AuthGraphQlMixin {
@@ -112,7 +112,7 @@ mixin AuthGraphQlMixin {
     bool remember,
   ) async {
     Log.debug(
-      'signIn($password, $login, $num, $email, $phone, $remember)',
+      'signIn(password, $login, $num, $email, $phone, $remember)',
       'AuthGraphQlMixin',
     );
     final variables = SignInArguments(
@@ -324,7 +324,7 @@ mixin AuthGraphQlMixin {
     UserPassword newPassword,
   ) async {
     Log.debug(
-      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, $newPassword)',
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, newPassword)',
       'AuthGraphQlMixin',
     );
     if ([login, num, email, phone].where((e) => e != null).length != 1) {

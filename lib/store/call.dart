@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
-import '/util/log.dart';
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
@@ -38,6 +37,7 @@ import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';

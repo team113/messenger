@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/util/log.dart';
 import '/api/backend/schema.dart'
     show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
 import '/domain/model/attachment.dart';
@@ -33,6 +32,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -83,19 +83,19 @@ class ChatService extends DisposableService {
     ChatName? name,
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', 'ChatService');
-    return _chatRepository.createGroupChat(memberIds, name: name);
+    return await _chatRepository.createGroupChat(memberIds, name: name);
   }
 
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id) async {
     Log.debug('get($id)', 'ChatService');
-    return _chatRepository.get(id);
+    return await _chatRepository.get(id);
   }
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() async {
     Log.debug('next()', 'ChatService');
-    return _chatRepository.next();
+    return await _chatRepository.next();
   }
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
@@ -160,7 +160,7 @@ class ChatService extends DisposableService {
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) async {
     Log.debug('resendChatItem($item)', 'ChatService');
-    _chatRepository.resendChatItem(item);
+    await _chatRepository.resendChatItem(item);
   }
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
@@ -279,7 +279,7 @@ class ChatService extends DisposableService {
   /// method.
   Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', 'ChatService');
-    return _chatRepository.uploadAttachment(attachment);
+    return await _chatRepository.uploadAttachment(attachment);
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -376,14 +376,14 @@ class ChatService extends DisposableService {
   /// sets its [position] in the favorites list.
   Future<void> favoriteChat(ChatId id, [ChatFavoritePosition? position]) async {
     Log.debug('favoriteChat($id, $position)', 'ChatService');
-    _chatRepository.favoriteChat(id, position);
+    await _chatRepository.favoriteChat(id, position);
   }
 
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) async {
     Log.debug('unfavoriteChat($id)', 'ChatService');
-    _chatRepository.unfavoriteChat(id);
+    await _chatRepository.unfavoriteChat(id);
   }
 
   /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
@@ -393,7 +393,7 @@ class ChatService extends DisposableService {
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
     Log.debug('clearChat($id, $untilId)', 'ChatService');
-    _chatRepository.clearChat(id, untilId);
+    await _chatRepository.clearChat(id, untilId);
   }
 }
 

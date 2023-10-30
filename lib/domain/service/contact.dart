@@ -19,11 +19,11 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/util/log.dart';
 import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/search.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
@@ -56,7 +56,7 @@ class ContactService extends DisposableService {
   /// address book.
   Future<void> deleteContact(ChatContactId id) async {
     Log.debug('deleteContact($id)', 'ContactService');
-    _contactRepository.deleteContact(id);
+    await _contactRepository.deleteContact(id);
   }
 
   /// Updates `name` of the specified [ChatContact] in the authenticated
@@ -73,14 +73,14 @@ class ContactService extends DisposableService {
     ChatContactFavoritePosition? position,
   ]) async {
     Log.debug('favoriteChatContact($id, $position)', 'ContactService');
-    _contactRepository.favoriteChatContact(id, position);
+    await _contactRepository.favoriteChatContact(id, position);
   }
 
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id) async {
     Log.debug('unfavoriteChatContact($id)', 'ContactService');
-    _contactRepository.unfavoriteChatContact(id);
+    await _contactRepository.unfavoriteChatContact(id);
   }
 
   /// Searches [ChatContact]s by the given criteria.

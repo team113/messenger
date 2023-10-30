@@ -17,9 +17,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/chat.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [Rect] preferences of the [OngoingCall]s.

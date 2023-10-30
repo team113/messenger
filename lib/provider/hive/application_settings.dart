@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:messenger/util/log.dart';
 
 import '/domain/model/application_settings.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ApplicationSettings].

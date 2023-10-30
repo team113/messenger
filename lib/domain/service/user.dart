@@ -19,10 +19,10 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/util/log.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
+import '/util/log.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
@@ -58,20 +58,20 @@ class UserService extends DisposableService {
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id) async {
     Log.debug('get($id)', 'NotificationService');
-    return _userRepository.get(id);
+    return await _userRepository.get(id);
   }
 
   /// Blacklists the specified [User] for the authenticated [MyUser].
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
     Log.debug('blockUser($id, $reason)', 'NotificationService');
-    _userRepository.blockUser(id, reason);
+    await _userRepository.blockUser(id, reason);
   }
 
   /// Removes the specified [User] from the blacklist of the authenticated
   /// [MyUser].
   Future<void> unblockUser(UserId id) async {
     Log.debug('unblockUser($id)', 'NotificationService');
-    _userRepository.unblockUser(id);
+    await _userRepository.unblockUser(id);
   }
 
   /// Removes [users] from the local data storage.

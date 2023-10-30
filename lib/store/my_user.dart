@@ -24,7 +24,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/util/log.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -42,6 +41,7 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';

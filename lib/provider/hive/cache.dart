@@ -19,8 +19,8 @@ import 'dart:collection';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model/cache_info.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [CacheInfo].

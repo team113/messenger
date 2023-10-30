@@ -17,12 +17,12 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/store/model/contact.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'contact.g.dart';

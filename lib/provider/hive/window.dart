@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
-import '/util/log.dart';
 import '/store/model/window_preferences.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for the [WindowPreferences].

@@ -1152,7 +1152,7 @@ class OngoingCall {
     });
 
     _room!.onConnectionLoss((e) async {
-      Log.info('onConnectionLoss', 'CALL');
+      Log.debug('onConnectionLoss', 'CALL');
 
       if (connectionLost.isFalse) {
         connectionLost.value = true;
@@ -1166,7 +1166,7 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.info('onNewConnection', 'CALL');
+      Log.debug('onNewConnection', 'CALL');
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1195,12 +1195,12 @@ class OngoingCall {
       }
 
       conn.onClose(() {
-        Log.info('onClose', 'CALL');
+        Log.debug('onClose', 'CALL');
         members.remove(id)?.dispose();
       });
 
       conn.onRemoteTrackAdded((track) async {
-        Log.info(
+        Log.debug(
           'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
           'CALL',
         );
@@ -1225,7 +1225,7 @@ class OngoingCall {
         track.onUnmuted(() => t.isMuted.value = false);
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
-          Log.info(
+          Log.debug(
             'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
             'CALL',
           );
@@ -1256,7 +1256,7 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.info(
+          Log.debug(
             'onStopped ${track.kind()}-${track.mediaSourceKind()}',
             'CALL',
           );

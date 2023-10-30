@@ -19,11 +19,11 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/util/log.dart';
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/contact.dart';
+import '/util/log.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact extends RxChatContact {

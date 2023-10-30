@@ -19,8 +19,8 @@ import 'dart:typed_data';
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model_type_id.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'background.g.dart';

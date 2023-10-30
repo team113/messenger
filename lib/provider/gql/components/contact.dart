@@ -17,13 +17,13 @@
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '/util/log.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/store/model/contact.dart';
+import '/util/log.dart';
 
 /// [ChatContact]s related functionality.
 mixin ContactGraphQlMixin {

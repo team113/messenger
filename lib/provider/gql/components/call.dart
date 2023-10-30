@@ -17,7 +17,6 @@
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '/util/log.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
@@ -27,6 +26,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/store/event/chat_call.dart';
 import '/store/model/chat_call.dart';
+import '/util/log.dart';
 
 /// [ChatCall] related functionality.
 mixin CallGraphQlMixin {

@@ -80,7 +80,7 @@ class AuthRepository implements AbstractAuthRepository {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'signIn($password, $login, $num, $email, $phone)',
+      'signIn(password, $login, $num, $email, $phone)',
       'AuthRepository',
     );
     var response =
@@ -203,7 +203,7 @@ class AuthRepository implements AbstractAuthRepository {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, $newPassword, $login, $num, $email, $phone)',
+      'resetUserPassword($code, newPassword, $login, $num, $email, $phone)',
       'AuthRepository',
     );
     _graphQlProvider.resetUserPassword(

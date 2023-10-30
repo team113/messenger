@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:get/get.dart';
 
-import '/util/log.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -29,6 +28,7 @@ import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 

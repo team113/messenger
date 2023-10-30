@@ -34,9 +34,9 @@ import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 import 'chat_item.dart';
-import '/util/log.dart';
 
 part 'chat.g.dart';
 

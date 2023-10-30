@@ -24,7 +24,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '/util/log.dart';
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/page_info.dart';
@@ -58,6 +57,7 @@ import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';

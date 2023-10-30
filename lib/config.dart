@@ -18,6 +18,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
 
@@ -102,7 +103,7 @@ class Config {
   }
 
   /// Log level.
-  static late me.LogLevel logLevel;
+  static me.LogLevel logLevel = me.LogLevel.info;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -170,21 +171,17 @@ class Config {
 
     origin = url;
 
-    if (const bool.hasEnvironment('SOCAPP_LOG_LEVEL')) {
-      if (const String.fromEnvironment('SOCAPP_LOG_LEVEL') == 'debug') {
-        logLevel = me.LogLevel.all;
-      } else {
-        logLevel = me.LogLevel.info;
-      }
-    } else if (document['conf']?['logLevel'] != null) {
-      if (document['conf']?['logLevel'] == 'debug') {
-        logLevel = me.LogLevel.all;
-      } else if (document['conf']?['logLevel'] == 'error') {
-        logLevel = me.LogLevel.error;
-      } else {
-        logLevel = me.LogLevel.info;
-      }
-    }
+    logLevel = const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
+        ? me.LogLevel.values.firstWhereOrNull(
+              (e) => e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL'),
+            ) ??
+            me.LogLevel.info
+        : document['log']?['level'] != null
+            ? me.LogLevel.values.firstWhereOrNull(
+                  (e) => e.name == document['log']?['level'],
+                ) ??
+                me.LogLevel.info
+            : me.LogLevel.info;
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
@@ -248,7 +245,7 @@ class Config {
           }
         }
       } catch (e) {
-        Log.error('Remote configuration fetch failed.', 'CONFIG');
+        Log.info('Remote configuration fetch failed.', 'CONFIG');
       }
     }
 

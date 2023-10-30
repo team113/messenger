@@ -17,8 +17,8 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model/user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for blocked [UserId]s of the authenticated [MyUser].

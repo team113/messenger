@@ -19,8 +19,8 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/util/log.dart';
 import '/domain/repository/search.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'pagination.dart';
 

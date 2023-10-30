@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '/util/log.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -39,6 +38,7 @@ import '/store/model/user.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;

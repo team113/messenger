@@ -23,7 +23,6 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/util/log.dart';
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
@@ -40,6 +39,7 @@ import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';

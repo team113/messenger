@@ -21,7 +21,6 @@ import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '/util/log.dart';
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
@@ -33,6 +32,7 @@ import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import '/util/log.dart';
 
 /// [MyUser] related functionality.
 mixin UserGraphQlMixin {

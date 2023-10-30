@@ -23,7 +23,6 @@ import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '/util/log.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -35,6 +34,7 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -197,7 +197,7 @@ class AuthService extends GetxService {
       'recoverUserPassword($login, $num, $email, $phone)',
       'AuthService',
     );
-    _authRepository.recoverUserPassword(
+    await _authRepository.recoverUserPassword(
       login: login,
       num: num,
       email: email,
@@ -243,7 +243,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, $newPassword, $login, $num, $email, $phone)',
+      'resetUserPassword($code, newPassword, $login, $num, $email, $phone)',
       'AuthService',
     );
     await _authRepository.resetUserPassword(
@@ -285,7 +285,7 @@ class AuthService extends GetxService {
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
   Future<void> signUpWithEmail(UserEmail email) async {
     Log.debug('signUpWithEmail($email)', 'AuthService');
-    _authRepository.signUpWithEmail(email);
+    await _authRepository.signUpWithEmail(email);
   }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
@@ -305,7 +305,7 @@ class AuthService extends GetxService {
   /// [signUpWithEmail].
   Future<void> resendSignUpEmail() async {
     Log.debug('resendSignUpEmail()', 'AuthService');
-    _authRepository.resendSignUpEmail();
+    await _authRepository.resendSignUpEmail();
   }
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
@@ -321,7 +321,7 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
   }) async {
-    Log.debug('signIn($password, $login, $num, $email, $phone)', 'AuthService');
+    Log.debug('signIn(password, $login, $num, $email, $phone)', 'AuthService');
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {
@@ -442,7 +442,7 @@ class AuthService extends GetxService {
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', 'AuthService');
-    return _authRepository.useChatDirectLink(slug);
+    return await _authRepository.useChatDirectLink(slug);
   }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").

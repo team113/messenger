@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/util/log.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
@@ -33,6 +32,7 @@ import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart'
     show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -318,12 +318,12 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) async {
     Log.debug('removeCredentials($id)', 'CallService');
-    _callsRepo.removeCredentials(id);
+    await _callsRepo.removeCredentials(id);
   }
 
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> getChat(ChatId id) async {
     Log.debug('getChat($id)', 'CallService');
-    return _chatService.get(id);
+    return await _chatService.get(id);
   }
 }

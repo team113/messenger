@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '/util/log.dart';
 import '../model/my_user.dart';
 import '../model/user.dart';
 import '../repository/my_user.dart';
@@ -28,6 +27,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/repository/user.dart';
+import '/util/log.dart';
 import '/routes.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -75,7 +75,7 @@ class MyUserService extends DisposableService {
   /// If [name] is `null`, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
     Log.debug('updateUserName($name)', 'MyUserService');
-    _userRepo.updateUserName(name);
+    await _userRepo.updateUserName(name);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
@@ -83,13 +83,13 @@ class MyUserService extends DisposableService {
   /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin login) async {
     Log.debug('updateUserLogin($login)', 'MyUserService');
-    _userRepo.updateUserLogin(login);
+    await _userRepo.updateUserLogin(login);
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
     Log.debug('updateUserStatus($status)', 'MyUserService');
-    _userRepo.updateUserStatus(status);
+    await _userRepo.updateUserStatus(status);
   }
 
   /// Updates password for the authenticated [MyUser].
@@ -120,7 +120,7 @@ class MyUserService extends DisposableService {
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence) async {
     Log.debug('updateUserPresence($presence)', 'MyUserService');
-    _userRepo.updateUserPresence(presence);
+    await _userRepo.updateUserPresence(presence);
   }
 
   /// Deletes the authenticated [MyUser] completely.
@@ -136,14 +136,14 @@ class MyUserService extends DisposableService {
   /// [MyUser].
   Future<void> deleteUserEmail(UserEmail email) async {
     Log.debug('deleteUserEmail($email)', 'MyUserService');
-    _userRepo.deleteUserEmail(email);
+    await _userRepo.deleteUserEmail(email);
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
   Future<void> deleteUserPhone(UserPhone phone) async {
     Log.debug('deleteUserPhone($phone)', 'MyUserService');
-    _userRepo.deleteUserPhone(phone);
+    await _userRepo.deleteUserPhone(phone);
   }
 
   /// Adds a new [email] address for the authenticated [MyUser].
@@ -207,7 +207,7 @@ class MyUserService extends DisposableService {
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
   Future<void> deleteChatDirectLink() async {
     Log.debug('deleteChatDirectLink()', 'MyUserService');
-    _userRepo.deleteChatDirectLink();
+    await _userRepo.deleteChatDirectLink();
   }
 
   /// Updates or resets the [MyUser.avatar] field with the provided image
@@ -217,7 +217,7 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateAvatar($file, onSendProgress)', 'MyUserService');
-    _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
+    await _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
   }
 
   /// Updates or resets the [MyUser.callCover] field with the provided image
@@ -227,7 +227,7 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateCallCover($file, onSendProgress)', 'MyUserService');
-    _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
+    await _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].

@@ -17,8 +17,8 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model/media_settings.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [MediaSettings].

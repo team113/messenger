@@ -17,13 +17,13 @@
 
 import 'package:hive_flutter/adapters.dart';
 
-import '/util/log.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 // TODO: Encrypt stored data.

@@ -17,7 +17,6 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/util/log.dart';
 import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -27,6 +26,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'user.g.dart';
