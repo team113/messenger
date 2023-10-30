@@ -153,7 +153,7 @@ class MyUserService extends DisposableService {
   /// a [ConfirmationCode].
   Future<void> addUserEmail(UserEmail email) async {
     Log.debug('addUserEmail($email)', 'MyUserService');
-    _userRepo.addUserEmail(email);
+    await _userRepo.addUserEmail(email);
   }
 
   /// Adds a new [phone] number for the authenticated [MyUser].
@@ -163,7 +163,7 @@ class MyUserService extends DisposableService {
   /// [ConfirmationCode].
   Future<void> addUserPhone(UserPhone phone) async {
     Log.debug('addUserPhone($phone)', 'MyUserService');
-    _userRepo.addUserPhone(phone);
+    await _userRepo.addUserPhone(phone);
   }
 
   /// Confirms the given [MyUserEmails.unconfirmed] address with the provided
@@ -171,7 +171,7 @@ class MyUserService extends DisposableService {
   /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
   Future<void> confirmEmailCode(ConfirmationCode code) async {
     Log.debug('confirmEmailCode($code)', 'MyUserService');
-    _userRepo.confirmEmailCode(code);
+    await _userRepo.confirmEmailCode(code);
   }
 
   /// Confirms the given [MyUserPhones.unconfirmed] number with the provided
@@ -179,21 +179,21 @@ class MyUserService extends DisposableService {
   /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
     Log.debug('confirmPhoneCode($code)', 'MyUserService');
-    _userRepo.confirmPhoneCode(code);
+    await _userRepo.confirmPhoneCode(code);
   }
 
   /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address for
   /// the authenticated [MyUser].
   Future<void> resendEmail() async {
     Log.debug('resendEmail()', 'MyUserService');
-    _userRepo.resendEmail();
+    await _userRepo.resendEmail();
   }
 
   /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
   /// the authenticated [MyUser].
   Future<void> resendPhone() async {
     Log.debug('resendPhone()', 'MyUserService');
-    _userRepo.resendPhone();
+    await _userRepo.resendPhone();
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -201,7 +201,7 @@ class MyUserService extends DisposableService {
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', 'MyUserService');
-    _userRepo.createChatDirectLink(slug);
+    await _userRepo.createChatDirectLink(slug);
   }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
@@ -233,7 +233,7 @@ class MyUserService extends DisposableService {
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', 'MyUserService');
-    _userRepo.toggleMute(mute);
+    await _userRepo.toggleMute(mute);
   }
 
   /// Removes [MyUser] from the local data storage.

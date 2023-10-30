@@ -105,7 +105,7 @@ class ChatService extends DisposableService {
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name) async {
     Log.debug('renameChat($id, $name)', 'ChatService');
-    _chatRepository.renameChat(id, name);
+    await _chatRepository.renameChat(id, name);
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -178,7 +178,7 @@ class ChatService extends DisposableService {
   /// [MyUser].
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', 'ChatService');
-    _chatRepository.addChatMember(chatId, userId);
+    await _chatRepository.addChatMember(chatId, userId);
   }
 
   /// Removes an [User] from a [Chat]-group by the authority of the
@@ -220,7 +220,7 @@ class ChatService extends DisposableService {
   /// [Chat.unreadCount] value.
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readChat($chatId, $untilId)', 'ChatService');
-    _chatRepository.readChat(chatId, untilId);
+    await _chatRepository.readChat(chatId, untilId);
   }
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
@@ -229,7 +229,7 @@ class ChatService extends DisposableService {
     ChatMessageTextInput? text,
   }) async {
     Log.debug('editChatMessage($item, $text)', 'ChatService');
-    _chatRepository.editChatMessage(item, text: text);
+    await _chatRepository.editChatMessage(item, text: text);
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
@@ -288,13 +288,13 @@ class ChatService extends DisposableService {
   Future<void> createChatDirectLink(
       ChatId chatId, ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($chatId, $slug)', 'ChatService');
-    _chatRepository.createChatDirectLink(chatId, slug);
+    await _chatRepository.createChatDirectLink(chatId, slug);
   }
 
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
   Future<void> deleteChatDirectLink(ChatId chatId) async {
     Log.debug('deleteChatDirectLink($chatId)', 'ChatService');
-    _chatRepository.deleteChatDirectLink(chatId);
+    await _chatRepository.deleteChatDirectLink(chatId);
   }
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
@@ -344,7 +344,7 @@ class ChatService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateChatAvatar($id, $file, onSendProgress)', 'ChatService');
-    _chatRepository.updateChatAvatar(
+    await _chatRepository.updateChatAvatar(
       id,
       file: file,
       onSendProgress: onSendProgress,
@@ -355,7 +355,7 @@ class ChatService extends DisposableService {
   /// Overrides an existing mute even if it's longer.
   Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
     Log.debug('toggleChatMute($id, $mute)', 'ChatService');
-    _chatRepository.toggleChatMute(id, mute);
+    await _chatRepository.toggleChatMute(id, mute);
   }
 
   /// Callback, called when a [User] identified by the provided [userId] gets

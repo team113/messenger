@@ -63,7 +63,7 @@ class ContactService extends DisposableService {
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name) async {
     Log.debug('changeContactName($id, $name)', 'ContactService');
-    _contactRepository.changeContactName(id, name);
+    await _contactRepository.changeContactName(id, name);
   }
 
   /// Marks the specified [ChatContact] as favorited for the authenticated

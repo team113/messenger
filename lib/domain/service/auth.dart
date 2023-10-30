@@ -219,7 +219,7 @@ class AuthService extends GetxService {
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone)',
       'AuthService',
     );
-    _authRepository.validateUserPasswordRecoveryCode(
+    await _authRepository.validateUserPasswordRecoveryCode(
       login: login,
       num: num,
       email: email,
@@ -246,7 +246,7 @@ class AuthService extends GetxService {
       'resetUserPassword($code, $newPassword, $login, $num, $email, $phone)',
       'AuthService',
     );
-    _authRepository.resetUserPassword(
+    await _authRepository.resetUserPassword(
       login: login,
       num: num,
       email: email,
