@@ -988,7 +988,7 @@ class ChatController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) {
-    RxUser? user = _userService.users[id];
+    final RxUser? user = _userService.users[id];
     if (user != null) {
       return user;
     }
@@ -1737,7 +1737,7 @@ class _ListViewIndexCalculationResult {
 
 /// Extension adding an ability to compare equality of two [List]s.
 extension CompareListsExtension<T> on Iterable<T> {
-  /// Return indicator whether the provided [list] is the same as this.
+  /// Indicates whether the provided [list] is the same as this.
   bool sameAs(Iterable<T>? list) {
     if (list == null || list.length != length) {
       return false;

@@ -69,11 +69,8 @@ class CopyableTextField extends StatelessWidget {
             onSuffixPressed: state.text.isNotEmpty ? _copy : null,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: Transform.scale(
-                scale: 1.15,
-                child:
-                    const SvgImage.asset('assets/icons/copy.svg', height: 15),
-              ),
+              child:
+                  const SvgImage.asset('assets/icons/copy.svg', height: 17.25),
             ),
             label: label,
             style: this.style,

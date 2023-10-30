@@ -527,7 +527,7 @@ class ChatRepository extends DisposableInterface
       previousAttachments = (item?.value as ChatMessage).attachments;
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
-      item!.update((c) {
+      item?.update((c) {
         (c as ChatMessage).text = text?.changed ?? previousText;
 
         c.attachments = attachments?.changed
@@ -538,8 +538,9 @@ class ChatRepository extends DisposableInterface
 
         c.repliesTo = repliesTo?.changed
                 .map(
-                  (e) =>
-                      c.repliesTo.firstWhereOrNull((a) => a.original?.id == e),
+                  (e) => c.repliesTo.firstWhereOrNull(
+                    (a) => a.original?.id == e,
+                  ),
                 )
                 .whereNotNull()
                 .toList() ??
@@ -553,7 +554,8 @@ class ChatRepository extends DisposableInterface
         text: text == null
             ? null
             : ChatMessageTextInput(
-                kw$new: text.changed.val.isNotEmpty ? text.changed : null),
+                kw$new: text.changed.val.isNotEmpty ? text.changed : null,
+              ),
         attachments: attachments == null
             ? null
             : ChatMessageAttachmentsInput(kw$new: attachments.changed),
