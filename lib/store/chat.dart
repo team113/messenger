@@ -46,7 +46,10 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, UploadAttachmentException;
+    show
+        ConnectionException,
+        EditChatMessageException,
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
@@ -530,11 +533,7 @@ class ChatRepository extends DisposableInterface
       item?.update((c) {
         (c as ChatMessage).text = text?.changed ?? previousText;
 
-        c.attachments = attachments?.changed
-                .map((e) => c.attachments.firstWhereOrNull((a) => a.id == e))
-                .whereNotNull()
-                .toList() ??
-            previousAttachments!;
+        c.attachments = attachments?.changed ?? previousAttachments!;
 
         c.repliesTo = repliesTo?.changed
                 .map(
@@ -548,7 +547,33 @@ class ChatRepository extends DisposableInterface
       });
     }
 
+    List<Future>? uploads = attachments?.changed
+        .mapIndexed((i, e) {
+          if (e is LocalAttachment) {
+            return e.upload.value?.future.then(
+              (a) {
+                attachments.changed[i] = a;
+                (item?.value as ChatMessage).attachments[i] = a;
+              },
+              onError: (_) {
+                // No-op, as failed upload attempts are handled below.
+              },
+            );
+          }
+        })
+        .whereNotNull()
+        .toList();
+
+    await Future.wait(uploads ?? []);
+
     try {
+      if (attachments?.changed.whereType<LocalAttachment>().isNotEmpty ==
+          true) {
+        throw const ConnectionException(EditChatMessageException(
+          EditChatMessageErrorCode.unknownAttachment,
+        ));
+      }
+
       await _graphQlProvider.editChatMessage(
         message.id,
         text: text == null
@@ -558,7 +583,9 @@ class ChatRepository extends DisposableInterface
               ),
         attachments: attachments == null
             ? null
-            : ChatMessageAttachmentsInput(kw$new: attachments.changed),
+            : ChatMessageAttachmentsInput(
+                kw$new: attachments.changed.map((e) => e.id).toList(),
+              ),
         repliesTo: repliesTo == null
             ? null
             : ChatMessageRepliesInput(kw$new: repliesTo.changed),

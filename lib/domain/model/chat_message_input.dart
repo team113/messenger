@@ -32,8 +32,8 @@ class ChatMessageTextInput {
 class ChatMessageAttachmentsInput {
   const ChatMessageAttachmentsInput(this.changed);
 
-  /// New [Attachment] IDs.
-  final List<AttachmentId> changed;
+  /// New [Attachment]s.
+  final List<Attachment> changed;
 }
 
 /// New replied [ChatItemId]s to assign to the [ChatMessage].

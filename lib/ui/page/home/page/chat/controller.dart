@@ -529,12 +529,11 @@ class ChatController extends GetxController {
             text = ChatMessageText(edit.value!.field.text.trim());
           }
 
-          List<AttachmentId>? attachments;
+          List<Attachment>? attachments;
           if (!item.attachments
               .map((e) => e.id)
               .sameAs(edit.value?.attachments.map((e) => e.value.id))) {
-            attachments =
-                edit.value!.attachments.map((e) => e.value.id).toList();
+            attachments = edit.value!.attachments.map((e) => e.value).toList();
           }
 
           List<ChatItemId>? repliesTo;
@@ -550,9 +549,8 @@ class ChatController extends GetxController {
           } else if (edit.value!.field.text.trim().isNotEmpty ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
-
             try {
-              await _chatService.editChatMessage(
+              _chatService.editChatMessage(
                 item,
                 text: text == null ? null : ChatMessageTextInput(text),
                 attachments: attachments == null

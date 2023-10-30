@@ -668,10 +668,12 @@ class _ChatViewState extends State<ChatView>
                 onHide: () => c.hideChatItem(e.value),
                 onDelete: () => c.deleteMessage(e.value),
                 onReply: () {
-                  if (c.send.replied.any((i) => i.id == e.value.id)) {
-                    c.send.replied.removeWhere((i) => i.id == e.value.id);
+                  MessageFieldController field = c.edit.value ?? c.send;
+
+                  if (field.replied.any((i) => i.id == e.value.id)) {
+                    field.replied.removeWhere((i) => i.id == e.value.id);
                   } else {
-                    c.send.replied.add(e.value);
+                    field.replied.add(e.value);
                   }
                 },
                 onCopy: (text) {
@@ -760,26 +762,28 @@ class _ChatViewState extends State<ChatView>
                   await Future.wait(futures);
                 },
                 onReply: () {
+                  MessageFieldController field = c.edit.value ?? c.send;
+
                   if (element.forwards.any((e) =>
-                          c.send.replied.any((i) => i.id == e.value.id)) ||
-                      c.send.replied
+                          field.replied.any((i) => i.id == e.value.id)) ||
+                      field.replied
                           .any((i) => i.id == element.note.value?.value.id)) {
                     for (Rx<ChatItem> e in element.forwards) {
-                      c.send.replied.removeWhere((i) => i.id == e.value.id);
+                      field.replied.removeWhere((i) => i.id == e.value.id);
                     }
 
                     if (element.note.value != null) {
-                      c.send.replied.removeWhere(
+                      field.replied.removeWhere(
                         (i) => i.id == element.note.value!.value.id,
                       );
                     }
                   } else {
                     if (element.note.value != null) {
-                      c.send.replied.add(element.note.value!.value);
+                      field.replied.add(element.note.value!.value);
                     }
 
                     for (Rx<ChatItem> e in element.forwards) {
-                      c.send.replied.add(e.value);
+                      field.replied.add(e.value);
                     }
                   }
                 },
@@ -889,8 +893,9 @@ class _ChatViewState extends State<ChatView>
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
+          onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
           onItemPressed: (id) => c.animateTo(id),
-          canAttach: false,
+          canAttach: true,
         );
       }
 

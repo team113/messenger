@@ -228,8 +228,6 @@ void main() async {
     when(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-      attachments: api.ChatMessageAttachmentsInput(kw$new: []),
-      repliesTo: api.ChatMessageRepliesInput(kw$new: []),
     )).thenAnswer((_) => Future.value());
 
     await chatService.editChatMessage(
@@ -243,15 +241,11 @@ void main() async {
         PreciseDateTime.now(),
       ),
       text: const ChatMessageTextInput(ChatMessageText('new text')),
-      attachments: const ChatMessageAttachmentsInput([]),
-      repliesTo: const ChatMessageRepliesInput([]),
     );
 
     verify(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-      attachments: api.ChatMessageAttachmentsInput(kw$new: []),
-      repliesTo: api.ChatMessageRepliesInput(kw$new: []),
     ));
   });
 
@@ -304,8 +298,6 @@ void main() async {
     when(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-      attachments: api.ChatMessageAttachmentsInput(kw$new: []),
-      repliesTo: api.ChatMessageRepliesInput(kw$new: []),
     )).thenThrow(
       const EditChatMessageException(
         EditChatMessageErrorCode.unknownReplyingChatItem,
@@ -326,8 +318,6 @@ void main() async {
           PreciseDateTime.now(),
         ),
         text: const ChatMessageTextInput(ChatMessageText('new text')),
-        attachments: const ChatMessageAttachmentsInput([]),
-        repliesTo: const ChatMessageRepliesInput([]),
       ),
       throwsA(isA<EditChatMessageException>()),
     );
@@ -335,8 +325,6 @@ void main() async {
     verify(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-      attachments: api.ChatMessageAttachmentsInput(kw$new: []),
-      repliesTo: api.ChatMessageRepliesInput(kw$new: []),
     ));
   });
 }
