@@ -47,13 +47,13 @@ class LoginView extends StatelessWidget {
   /// Callback, called when this [LoginView] successfully signs into an account.
   ///
   /// If not specified, the [RouteLinks.home] redirect is invoked.
-  final void Function()? onSuccess;
+  final void Function({bool? signedUp})? onSuccess;
 
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     LoginViewStage initial = LoginViewStage.signUp,
-    void Function()? onSuccess,
+    void Function({bool? signedUp})? onSuccess,
   }) {
     return ModalPopup.show(
       context: context,
@@ -88,7 +88,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.titleLargeSecondary,
+                  style: style.fonts.medium.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -115,7 +115,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: style.fonts.titleLargeSecondary,
+                  style: style.fonts.medium.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -144,7 +144,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: style.fonts.titleLargeSecondary,
+                  style: style.fonts.medium.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -195,9 +195,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text.toLowerCase()}).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -205,7 +205,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
+                    style: style.fonts.medium.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -219,8 +219,8 @@ class LoginView extends StatelessWidget {
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
                       style: enabled
-                          ? style.fonts.titleLargePrimary
-                          : style.fonts.titleLarge,
+                          ? style.fonts.medium.regular.primary
+                          : style.fonts.medium.regular.onBackground,
                     ),
                   );
                 }),
@@ -262,7 +262,7 @@ class LoginView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',
-                  style: style.fonts.bodyMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
@@ -274,8 +274,8 @@ class LoginView extends StatelessWidget {
                       title: Text(
                         'btn_proceed'.l10n,
                         style: enabled
-                            ? style.fonts.titleLargeOnPrimary
-                            : style.fonts.titleLarge,
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
                       ),
                       onPressed: enabled ? c.email.submit : null,
                       color: style.colors.primary,
@@ -344,7 +344,7 @@ class LoginView extends StatelessWidget {
                     },
                     child: Text(
                       'btn_forgot_password'.l10n,
-                      style: style.fonts.bodySmallPrimary,
+                      style: style.fonts.small.regular.primary,
                     ),
                   ),
                 ),

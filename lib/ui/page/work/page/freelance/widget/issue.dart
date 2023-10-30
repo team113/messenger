@@ -70,8 +70,8 @@ class IssueWidget extends StatelessWidget {
             selectedHoverColor: style.colors.primaryOpacity20.darken(0.03),
             selectedColor: style.colors.primaryOpacity20,
             selected: expanded,
-            unselectedColor: style.cardColor.darken(0.05),
-            unselectedHoverColor: style.cardColor.darken(0.08),
+            unselectedColor: style.cardColor.darken(0.03),
+            unselectedHoverColor: style.cardHoveredColor,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -81,12 +81,12 @@ class IssueWidget extends StatelessWidget {
                     issue.title,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 10,
-                    style: style.fonts.headlineLarge,
+                    style: style.fonts.big.regular.onBackground,
                   ),
                   StyledCupertinoButton(
                     onPressed: () => launchUrlString(issue.url),
                     label: 'GitHub #${issue.number}',
-                    style: style.fonts.bodyLargePrimary,
+                    style: style.fonts.medium.regular.primary,
                   ),
                 ],
               ),
@@ -101,8 +101,8 @@ class IssueWidget extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: expanded
-                ? style.fonts.labelMediumOnPrimary
-                : style.fonts.labelMedium,
+                ? style.fonts.small.regular.onPrimary
+                : style.fonts.small.regular.onBackground,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius.copyWith(
@@ -123,10 +123,11 @@ class IssueWidget extends StatelessWidget {
                       h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
 
                       // TODO: Exception.
-                      h2: style.fonts.displayBold.copyWith(fontSize: 20),
+                      h2: style.fonts.largest.bold.onBackground
+                          .copyWith(fontSize: 20),
 
-                      p: style.fonts.titleMedium,
-                      code: style.fonts.bodySmall.copyWith(
+                      p: style.fonts.normal.regular.onBackground,
+                      code: style.fonts.small.regular.onBackground.copyWith(
                         letterSpacing: 1.2,
                         backgroundColor: style.colors.secondaryHighlight,
                       ),
@@ -143,7 +144,7 @@ class IssueWidget extends StatelessWidget {
                   StyledCupertinoButton(
                     onPressed: onPressed,
                     label: 'Свернуть',
-                    style: style.fonts.labelMediumPrimary,
+                    style: style.fonts.small.regular.primary,
                   ),
                 ],
               ),

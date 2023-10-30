@@ -92,8 +92,16 @@ class VideoThumbnail extends StatefulWidget {
 /// State of a [VideoThumbnail], used to initialize and dispose a
 /// [VideoController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
+  /// [Player] opening and maintaining the video to use in [_controller].
+  final Player _player = Player();
+
   /// [VideoController] to display the first frame of the video.
-  final VideoController _controller = VideoController(Player());
+  late final VideoController _controller = VideoController(
+    _player,
+    configuration: const VideoControllerConfiguration(
+      enableHardwareAcceleration: true,
+    ),
+  );
 
   /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
   CancelToken? _cancelToken;
@@ -127,7 +135,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     return AnimatedSize(
       duration: const Duration(milliseconds: 200),
       child: StreamBuilder(
-        stream: _controller.player.stream.width,
+        stream: _player.stream.width,
         builder: (_, __) {
           double width = 0;
           double height = 0;
@@ -135,9 +143,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
           if (widget.width != null && widget.height != null) {
             width = widget.width!;
             height = widget.height!;
-          } else if (_controller.player.state.width != null) {
-            width = _controller.player.state.width!.toDouble();
-            height = _controller.player.state.height!.toDouble();
+          } else if (_player.state.width != null) {
+            width = _player.state.width!.toDouble();
+            height = _player.state.height!.toDouble();
 
             if (widget.height != null) {
               width = width * widget.height! / height;
@@ -145,7 +153,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             }
           }
 
-          if (_controller.player.state.width != null) {
+          if (_player.state.width != null) {
             return SizedBox(
               width: width,
               height: height,
@@ -156,10 +164,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                     child: FittedBox(
                       fit: BoxFit.cover,
                       child: SizedBox(
-                        width:
-                            _controller.player.state.width?.toDouble() ?? 1920,
-                        height:
-                            _controller.player.state.height?.toDouble() ?? 1080,
+                        width: _player.state.width?.toDouble() ?? 1920,
+                        height: _player.state.height?.toDouble() ?? 1080,
                         child: IgnorePointer(
                           child: Video(
                             controller: _controller,
@@ -216,11 +222,11 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     try {
       if (file != null) {
-        await _controller.player.open(Media(file.path), play: false);
+        await _player.open(Media(file.path), play: false);
       } else if (bytes != null) {
-        await _controller.player.open(await Media.memory(bytes), play: false);
+        await _player.open(await Media.memory(bytes), play: false);
       } else {
-        await _controller.player.open(Media(widget.url!), play: false);
+        await _player.open(Media(widget.url!), play: false);
       }
     } catch (_) {
       // No-op.
@@ -240,7 +246,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             // Reinitialize the [_controller] if an unexpected error was
             // thrown.
             if (shouldReload) {
-              await _controller.player.open(Media(widget.url!), play: false);
+              await _player.open(Media(widget.url!), play: false);
             }
           } catch (e) {
             if (e is DioException && e.response?.statusCode == 403) {

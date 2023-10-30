@@ -28,7 +28,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' hide ChatItemQuoteInput;
+import '/api/backend/schema.dart' hide ChatItemQuoteInput, ChatMessageTextInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -37,6 +37,7 @@ import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -235,6 +236,9 @@ class ChatController extends GetxController {
   /// [active].
   StreamSubscription? _onActivityChanged;
 
+  /// Subscription for the [chat] changes.
+  StreamSubscription? _chatSubscription;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -331,8 +335,13 @@ class ChatController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _settingsRepository,
       onChanged: updateDraft,
       onSubmit: () async {
+        if (chat == null) {
+          return;
+        }
+
         if (send.forwarding.value) {
           if (send.replied.isNotEmpty) {
             if (send.replied.any((e) => e is ChatCall)) {
@@ -355,7 +364,7 @@ class ChatController extends GetxController {
               send.replied.isNotEmpty) {
             _chatService
                 .sendChatMessage(
-                  chat!.chat.value.id,
+                  chat?.chat.value.id ?? id,
                   text: send.field.text.trim().isEmpty
                       ? null
                       : ChatMessageText(send.field.text.trim()),
@@ -414,6 +423,7 @@ class ChatController extends GetxController {
     _chatWorker?.dispose();
     _statusWorker?.dispose();
     _typingSubscription?.cancel();
+    _chatSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -495,6 +505,7 @@ class ChatController extends GetxController {
       edit.value ??= MessageFieldController(
         _chatService,
         _userService,
+        _settingsRepository,
         text: item.text?.val,
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
@@ -510,7 +521,10 @@ class ChatController extends GetxController {
             }
 
             try {
-              await _chatService.editChatMessage(item, text);
+              await _chatService.editChatMessage(
+                item,
+                text: text == null ? null : ChatMessageTextInput(text),
+              );
 
               edit.value?.onClose();
               edit.value = null;
@@ -573,11 +587,16 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      _chatSubscription = chat!.updates.listen((_) {});
+
       unreadMessages = chat!.chat.value.unreadCount;
 
       final ChatMessage? draft = chat!.draft.value;
 
-      send.field.unchecked = draft?.text?.val ?? send.field.text;
+      if (send.field.text.isEmpty) {
+        send.field.unchecked = draft?.text?.val ?? send.field.text;
+      }
+
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
@@ -1557,10 +1576,10 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({User? partner}) {
+  String? getSubtitle({RxUser? partner}) {
     switch (kind) {
       case ChatKind.dialog:
-        return partner?.getStatus();
+        return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
         return '${members.length} ${'label_subtitle_participants'.l10n}';
@@ -1613,20 +1632,6 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
       case ChatCallFinishReason.artemisUnknown:
         return null;
     }
-  }
-}
-
-/// Extension adding indication whether a [FileAttachment] represents a video.
-extension FileAttachmentIsVideo on FileAttachment {
-  /// Indicates whether this [FileAttachment] represents a video.
-  bool get isVideo {
-    String file = filename.toLowerCase();
-    return file.endsWith('.mp4') ||
-        file.endsWith('.mov') ||
-        file.endsWith('.webm') ||
-        file.endsWith('.mkv') ||
-        file.endsWith('.flv') ||
-        file.endsWith('.3gp');
   }
 }
 

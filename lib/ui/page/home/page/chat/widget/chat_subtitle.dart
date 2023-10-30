@@ -49,7 +49,7 @@ class ChatSubtitle extends StatefulWidget {
   final UserId? me;
 
   /// Indicator whether ongoing activities of the provided [chat] should be
-  /// displayed withing this [ChatSubtitle].
+  /// displayed within this [ChatSubtitle].
   final bool withActivities;
 
   @override
@@ -120,7 +120,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         }
 
         return Text.rich(
-          TextSpan(children: spans, style: style.fonts.bodySmallSecondary),
+          TextSpan(children: spans, style: style.fonts.small.regular.secondary),
         );
       }
 
@@ -132,7 +132,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('label_typing'.l10n, style: style.fonts.labelMediumPrimary),
+              Text(
+                'label_typing'.l10n,
+                style: style.fonts.small.regular.primary,
+              ),
               const SizedBox(width: 3),
               const Padding(
                 padding: EdgeInsets.only(bottom: 3),
@@ -155,7 +158,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 typings.join('comma_space'.l10n),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.fonts.labelMediumPrimary,
+                style: style.fonts.small.regular.primary,
               ),
             ),
             const SizedBox(width: 3),
@@ -169,14 +172,17 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     }
 
     if (chat.isGroup) {
-      return Text(chat.getSubtitle()!, style: style.fonts.bodySmallSecondary);
+      return Text(
+        chat.getSubtitle()!,
+        style: style.fonts.small.regular.secondary,
+      );
     } else if (chat.isDialog) {
       final RxUser? member = widget.chat.members.values
           .firstWhereOrNull((u) => u.user.value.id != widget.me);
 
       if (member != null) {
         return Obx(() {
-          final String? subtitle = chat.getSubtitle(partner: member.user.value);
+          final String? subtitle = chat.getSubtitle(partner: member);
           final UserTextStatus? status = member.user.value.status;
           final Widget child;
 
@@ -191,7 +197,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
             child = Text(
               buffer.toString(),
-              style: style.fonts.bodySmallSecondary,
+              style: style.fonts.small.regular.secondary,
             );
           } else {
             child = const SizedBox();

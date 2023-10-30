@@ -72,7 +72,7 @@ class AddPhoneView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_phone_confirmation_sent_again'.l10n
                               : 'label_add_phone_confirmation_sent'.l10n,
-                          style: style.fonts.bodyMediumSecondary,
+                          style: style.fonts.normal.regular.secondary,
                         );
                       }),
                     ),
@@ -98,8 +98,8 @@ class AddPhoneView extends StatelessWidget {
                                         {'timeout': c.resendPhoneTimeout.value},
                                       ),
                                 style: c.resendPhoneTimeout.value == 0
-                                    ? style.fonts.bodyMediumOnPrimary
-                                    : style.fonts.bodyMedium,
+                                    ? style.fonts.normal.regular.onPrimary
+                                    : style.fonts.normal.regular.onBackground,
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
                                   ? c.resendPhone
@@ -115,8 +115,8 @@ class AddPhoneView extends StatelessWidget {
                               title: Text(
                                 'btn_proceed'.l10n,
                                 style: c.phoneCode.isEmpty.value
-                                    ? style.fonts.bodyMedium
-                                    : style.fonts.bodyMediumOnPrimary,
+                                    ? style.fonts.normal.regular.onBackground
+                                    : style.fonts.normal.regular.onPrimary,
                               ),
                               onPressed: c.phoneCode.isEmpty.value
                                   ? null
@@ -143,7 +143,7 @@ class AddPhoneView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_phone_description'.l10n,
-                        style: style.fonts.bodyMediumSecondary,
+                        style: style.fonts.normal.regular.secondary,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -165,8 +165,8 @@ class AddPhoneView extends StatelessWidget {
                         title: Text(
                           'btn_proceed'.l10n,
                           style: c.phone.isEmpty.value
-                              ? style.fonts.bodyMedium
-                              : style.fonts.bodyMediumOnPrimary,
+                              ? style.fonts.normal.regular.onBackground
+                              : style.fonts.normal.regular.onPrimary,
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,

@@ -20,17 +20,18 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
-import '../model/attachment.dart';
-import '../model/avatar.dart';
-import '../model/chat.dart';
-import '../model/chat_item.dart';
-import '../model/chat_item_quote_input.dart';
-import '../model/mute_duration.dart';
-import '../model/my_user.dart';
-import '../model/native_file.dart';
-import '../model/user.dart';
-import '../model/user_call_cover.dart';
-import '../repository/user.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
+import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
@@ -130,7 +131,10 @@ abstract class AbstractChatRepository {
   Future<void> readChat(ChatId chatId, ChatItemId untilId);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
-  Future<void> editChatMessageText(ChatMessage message, ChatMessageText? text);
+  Future<void> editChatMessage(
+    ChatMessage message, {
+    ChatMessageTextInput? text,
+  });
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> deleteChatMessage(ChatMessage message);
@@ -282,6 +286,10 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// Returns the last [ChatItem] of this [RxChat].
   ChatItem? get lastItem;
+
+  /// Listens to the updates of this [RxChat] while the returned [Stream] is
+  /// listened to.
+  Stream<void> get updates;
 
   /// Fetches the initial [messages] page around the [firstUnread].
   Future<void> around();

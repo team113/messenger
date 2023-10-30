@@ -21,6 +21,7 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
+import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import '../parameters/keys.dart';
@@ -125,6 +126,10 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
 
       case CopyableTextField:
         text = (widget as CopyableTextField).state.controller.text;
+        break;
+
+      case UserNumCopyable:
+        text = (widget as UserNumCopyable).num.toString();
         break;
 
       default:

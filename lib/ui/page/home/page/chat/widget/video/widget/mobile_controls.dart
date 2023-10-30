@@ -108,7 +108,7 @@ class _MobileControlsState extends State<MobileControls>
           GestureDetector(
             onTap: toggleStuff,
             child: Container(
-              color: Colors.transparent,
+              color: style.colors.transparent,
               width: double.infinity,
               height: double.infinity,
             ),

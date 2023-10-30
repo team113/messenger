@@ -274,7 +274,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             style.colors.userColors.length];
 
     return DefaultTextStyle(
-      style: style.fonts.bodyLarge,
+      style: style.fonts.medium.regular.onBackground,
       child: Obx(() {
         return _rounded(
           context,
@@ -323,7 +323,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             selectable: PlatformUtils.isDesktop || menu,
                             onChanged: (a) => _selection = a,
                             onSelecting: widget.onSelecting,
-                            style: style.fonts.bodyLarge.copyWith(color: color),
+                            style: style.fonts.medium.regular.onBackground
+                                .copyWith(color: color),
                           ),
                         ),
                       ],
@@ -334,7 +335,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           'label_forwarded_messages'.l10nfmt({
                             'count': widget.forwards.length,
                           }),
-                          style: style.fonts.headlineSmallSecondary,
+                          style: style.fonts.small.regular.secondary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -439,7 +440,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           selectable: PlatformUtils.isDesktop || menu,
                           onChanged: (a) => _selection = a,
                           onSelecting: widget.onSelecting,
-                          style: style.fonts.bodyLarge.copyWith(color: color),
+                          style: style.fonts.medium.regular.onBackground
+                              .copyWith(color: color),
                         ),
                       ),
                     ),
@@ -500,7 +502,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: MessageTimestamp(
                         at: quote.at,
                         date: true,
-                        fontSize: style.fonts.labelSmall.fontSize,
+                        fontSize:
+                            style.fonts.smaller.regular.onBackground.fontSize,
                       ),
                     ),
                 ],
@@ -526,7 +529,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.fonts.bodyLarge,
+                      style: style.fonts.medium.regular.onBackground,
                     ),
                   ),
                 ),
@@ -586,7 +589,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     time,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: style.fonts.bodyLarge,
+                    style: style.fonts.medium.regular.onBackground,
                   ),
                 ),
               ],
@@ -594,9 +597,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           )
         ];
       } else if (quote is ChatInfoQuote) {
-        content = [Text(quote.action.toString(), style: style.fonts.bodyLarge)];
+        content = [
+          Text(
+            quote.action.toString(),
+            style: style.fonts.medium.regular.onBackground,
+          )
+        ];
       } else {
-        content = [Text('err_unknown'.l10n, style: style.fonts.bodyLarge)];
+        content = [
+          Text(
+            'err_unknown'.l10n,
+            style: style.fonts.medium.regular.onBackground,
+          )
+        ];
       }
 
       return AnimatedContainer(
@@ -648,7 +661,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             child: MessageTimestamp(
                               at: quote.at,
                               date: true,
-                              fontSize: style.fonts.labelSmall.fontSize,
+                              fontSize: style
+                                  .fonts.smaller.regular.onBackground.fontSize,
                               inverted: true,
                             ),
                           ),
@@ -656,7 +670,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       : MessageTimestamp(
                           at: quote.at,
                           date: true,
-                          fontSize: style.fonts.labelSmall.fontSize,
+                          fontSize:
+                              style.fonts.smaller.regular.onBackground.fontSize,
                         ),
                 )
               ],
@@ -719,7 +734,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
                       onSelecting: widget.onSelecting,
-                      style: style.fonts.bodyLarge.copyWith(color: color),
+                      style: style.fonts.medium.regular.onBackground
+                          .copyWith(color: color),
                     ),
                   ),
                 ),
@@ -800,7 +816,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
                         onSelecting: widget.onSelecting,
-                        style: style.fonts.bodyLarge,
+                        style: style.fonts.medium.regular.onBackground,
                       ),
                     ),
                   ),
@@ -1120,19 +1136,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   variants: [
                                     if (!deletable || !isMonolog)
                                       ConfirmDialogVariant(
+                                        key: const Key('HideForMe'),
                                         onProceed: widget.onHide,
-                                        child: Text(
-                                          'label_delete_for_me'.l10n,
-                                          key: const Key('HideForMe'),
-                                        ),
+                                        label: 'label_delete_for_me'.l10n,
                                       ),
                                     if (deletable)
                                       ConfirmDialogVariant(
+                                        key: const Key('DeleteForAll'),
                                         onProceed: widget.onDelete,
-                                        child: Text(
-                                          'label_delete_for_everyone'.l10n,
-                                          key: const Key('DeleteForAll'),
-                                        ),
+                                        label: 'label_delete_for_everyone'.l10n,
                                       )
                                   ],
                                 );

@@ -49,7 +49,13 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key});
+  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  ///
+  /// Should also mean that sign up operation just has been occurred.
+  final bool signedUp;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -109,14 +115,19 @@ class _HomeViewState extends State<HomeView> {
               height: double.infinity,
               fit: BoxFit.cover,
             ),
-            Center(child: CustomProgressIndicator()),
+            Center(child: CustomProgressIndicator.primary()),
           ],
         ),
       );
     }
 
     return GetBuilder(
-      init: HomeController(Get.find(), Get.find(), Get.find()),
+      init: HomeController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        signedUp: widget.signedUp,
+      ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
@@ -231,7 +242,7 @@ class _HomeViewState extends State<HomeView> {
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.colors.secondaryHighlightDarkest
-                                    : style.colors.dangerColor,
+                                    : style.colors.danger,
                                 child: ContextMenuRegion(
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
@@ -292,9 +303,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.green,
+                                          color: style.colors.acceptAuxiliary,
                                         ),
                                       ),
                                     ),
@@ -306,9 +317,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.orange,
+                                          color: style.colors.warning,
                                         ),
                                       ),
                                     ),
@@ -319,6 +330,7 @@ class _HomeViewState extends State<HomeView> {
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
                                       radius: 15,
+                                      onForbidden: c.updateAvatar,
                                     ),
                                   ),
                                 ),
@@ -394,7 +406,7 @@ class _HomeViewState extends State<HomeView> {
                   SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CustomProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator.primary()),
                   )
               ],
             );
@@ -414,6 +426,8 @@ class _HomeViewState extends State<HomeView> {
           final Widget image;
           if (c.background.value != null) {
             image = Image.memory(
+              width: double.infinity,
+              height: double.infinity,
               c.background.value!,
               key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,

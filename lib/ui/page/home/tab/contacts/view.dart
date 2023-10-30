@@ -93,7 +93,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: style.fonts.bodyLarge,
+                        style: style.fonts.medium.regular.onBackground,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -111,7 +111,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: style.fonts.labelMediumSecondary,
+                        style: style.fonts.small.regular.secondary,
                       ),
                     ),
                   );
@@ -361,7 +361,8 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.fonts.labelLarge,
+                                  style:
+                                      style.fonts.normal.regular.onBackground,
                                 ),
                               ),
                             ),
@@ -379,13 +380,6 @@ class ContactsTabView extends StatelessWidget {
                               ],
                             );
                           }
-
-                          child = Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: CustomNavigationBar.height + 5,
-                            ),
-                            child: child,
-                          );
                         }
 
                         return AnimationConfiguration.staggeredList(
@@ -408,7 +402,7 @@ class ContactsTabView extends StatelessWidget {
                     key: const Key('NothingFound'),
                     child: Text(
                       'label_nothing_found'.l10n,
-                      style: style.fonts.labelMedium,
+                      style: style.fonts.small.regular.onBackground,
                     ),
                   ),
                 );
@@ -562,7 +556,7 @@ class ContactsTabView extends StatelessWidget {
                             delegate: SliverChildListDelegate.fixed(
                               c.contacts.mapIndexed((i, e) {
                                 return AnimationConfiguration.staggeredList(
-                                  position: i,
+                                  position: c.favorites.length + i,
                                   duration: const Duration(milliseconds: 375),
                                   child: SlideAnimation(
                                     horizontalOffset: 50,
@@ -611,7 +605,7 @@ class ContactsTabView extends StatelessWidget {
                       'btn_cancel'.l10n,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
-                      style: style.fonts.titleLarge,
+                      style: style.fonts.medium.regular.onBackground,
                     ),
                   ),
                   ShadowedRoundedButton(
@@ -627,8 +621,8 @@ class ContactsTabView extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: c.selectedContacts.isEmpty
-                          ? style.fonts.titleLarge
-                          : style.fonts.titleLargeOnPrimary,
+                          ? style.fonts.medium.regular.onBackground
+                          : style.fonts.medium.regular.onPrimary,
                     ),
                   )
                 ],
@@ -705,17 +699,23 @@ class ContactsTabView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Obx(() {
-              final subtitle = contact.user.value?.user.value.getStatus();
+              if (contact.user.value == null) {
+                return const SizedBox();
+              }
+
+              final subtitle = contact.user.value?.user.value
+                  .getStatus(contact.user.value?.lastSeen.value);
+
               if (subtitle != null) {
                 return Text(
                   subtitle,
                   style: inverted
-                      ? style.fonts.labelMediumOnPrimary
-                      : style.fonts.labelMediumSecondary,
+                      ? style.fonts.small.regular.onPrimary
+                      : style.fonts.small.regular.secondary,
                 );
               }
 
-              return Container();
+              return const SizedBox();
             }),
           ),
         ],
@@ -789,7 +789,7 @@ class ContactsTabView extends StatelessWidget {
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
           text: contact.contact.value.name.val,
-          style: style.fonts.bodySmall,
+          style: style.fonts.small.regular.onBackground,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],

@@ -22,6 +22,7 @@ import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
@@ -282,18 +283,7 @@ Future<CustomUser> createUser(
   final result = await provider.signUp();
 
   final CustomUser customUser = CustomUser(
-    Credentials(
-      Session(
-        result.createUser.session.token,
-        result.createUser.session.expireAt,
-      ),
-      RememberedSession(
-        result.createUser.remembered!.token,
-        result.createUser.remembered!.expireAt,
-      ),
-      result.createUser.user.id,
-    ),
-    result.createUser.user.id,
+    result.toModel(),
     result.createUser.user.num,
   );
 

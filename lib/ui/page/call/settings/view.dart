@@ -99,7 +99,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.fonts.titleMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                           );
                         }),
                       ),
@@ -132,7 +132,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.fonts.titleMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                           );
                         }),
                       ),
@@ -165,7 +165,7 @@ class CallSettingsView extends StatelessWidget {
                                   'label_media_no_device_available'.l10n,
                               editable: false,
                             ),
-                            style: style.fonts.titleMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                           );
                         }),
                       ),
@@ -185,7 +185,7 @@ class CallSettingsView extends StatelessWidget {
                                 : 'label_open_calls_in_app'.l10n,
                           ),
                           maxLines: null,
-                          style: style.fonts.titleMediumPrimary,
+                          style: style.fonts.normal.regular.primary,
                         ),
                       ),
                     ),

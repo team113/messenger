@@ -35,6 +35,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
+import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -59,6 +60,7 @@ import '/store/user.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
@@ -135,6 +137,9 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<FavoriteChatsEvents>? _favoriteChatsSubscription;
 
+  /// Subscriptions for the [paginated] chats changes.
+  final Map<ChatId, StreamSubscription> _subscriptions = {};
+
   /// Indicator whether [_remoteSubscription] is initialized.
   ///
   /// Used to skip the [_initPagination] invoke in the first
@@ -179,24 +184,26 @@ class ChatRepository extends DisposableInterface
 
     status.value = RxStatus.loading();
 
-    _initDraftSubscription();
-    _initRemoteSubscription();
-    _initFavoriteSubscription();
+    // Popup shouldn't listen to recent chats remote updates, as it's happening
+    // inside single [Chat].
+    if (!WebUtils.isPopup) {
+      _initDraftSubscription();
+      _initRemoteSubscription();
+      _initFavoriteSubscription();
 
-    // TODO: Should display last known list of [Chat]s, until remote responds.
-    _initPagination();
+      // TODO: Should display last known list of [Chat]s, until remote responds.
+      _initPagination();
+    }
   }
 
   @override
   void onClose() {
-    for (var c in chats.entries) {
-      c.value.dispose();
-    }
-
+    chats.forEach((_, v) => v.dispose());
+    _subscriptions.forEach((_, v) => v.cancel());
     _cancelToken.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
-    _favoriteChatsSubscription?.cancel();
+    _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
 
     super.onClose();
@@ -268,6 +275,7 @@ class ChatRepository extends DisposableInterface
     chats.remove(id)?.dispose();
     paginated.remove(id);
     _pagination?.remove(id);
+    _subscriptions.remove(id)?.cancel();
     return _chatLocal.remove(id);
   }
 
@@ -500,10 +508,10 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> editChatMessageText(
-    ChatMessage message,
-    ChatMessageText? text,
-  ) async {
+  Future<void> editChatMessage(
+    ChatMessage message, {
+    model.ChatMessageTextInput? text,
+  }) async {
     final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
@@ -511,11 +519,17 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? previous;
     if (item?.value is ChatMessage) {
       previous = (item?.value as ChatMessage).text;
-      item?.update((c) => (c as ChatMessage?)?.text = text);
+
+      if (text != null) {
+        item?.update((c) => (c as ChatMessage?)?.text = text.changed);
+      }
     }
 
     try {
-      await _graphQlProvider.editChatMessageText(message.id, text);
+      await _graphQlProvider.editChatMessage(
+        message.id,
+        text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
+      );
     } catch (_) {
       if (item?.value is ChatMessage) {
         item?.update((c) => (c as ChatMessage?)?.text = previous);
@@ -636,22 +650,19 @@ class ChatRepository extends DisposableInterface
     try {
       dio.MultipartFile upload;
 
-      if (attachment.file.path != null) {
-        attachment.file
-            .readFile()
-            .then((_) => attachment.read.value?.complete(null));
-        upload = await dio.MultipartFile.fromFile(
-          attachment.file.path!,
+      await attachment.file.readFile();
+      attachment.read.value?.complete(null);
+      attachment.status.refresh();
+
+      if (attachment.file.bytes.value != null) {
+        upload = dio.MultipartFile.fromBytes(
+          attachment.file.bytes.value!,
           filename: attachment.file.name,
           contentType: attachment.file.mime,
         );
-      } else if (attachment.file.stream != null ||
-          attachment.file.bytes.value != null) {
-        await attachment.file.readFile();
-        attachment.read.value?.complete(null);
-        attachment.status.refresh();
-        upload = dio.MultipartFile.fromBytes(
-          attachment.file.bytes.value!,
+      } else if (attachment.file.path != null) {
+        upload = await dio.MultipartFile.fromFile(
+          attachment.file.path!,
           filename: attachment.file.name,
           contentType: attachment.file.mime,
         );
@@ -923,16 +934,16 @@ class ChatRepository extends DisposableInterface
           .toList();
 
       favorites.sort(
-        (a, b) => a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!),
+        (a, b) => b.chat.value.favoritePosition!
+            .compareTo(a.chat.value.favoritePosition!),
       );
 
-      final double? lowestFavorite = favorites.isEmpty
+      final double? highestFavorite = favorites.isEmpty
           ? null
           : favorites.first.chat.value.favoritePosition!.val;
 
       newPosition = ChatFavoritePosition(
-        lowestFavorite == null ? 9007199254740991 : lowestFavorite / 2,
+        highestFavorite == null ? 1 : highestFavorite * 2,
       );
     } else {
       newPosition = position;
@@ -1080,12 +1091,14 @@ class ChatRepository extends DisposableInterface
         e.chatId,
         node.itemId,
       );
-    } else if (e.$$typename == 'EventChatItemTextEdited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemTextEdited;
-      return EventChatItemTextEdited(
+    } else if (e.$$typename == 'EventChatItemEdited') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
+      return EventChatItemEdited(
         e.chatId,
         node.itemId,
-        node.text,
+        node.text?.changed,
+        node.attachments?.changed.map((e) => e.toModel()).toList(),
+        node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
@@ -1213,22 +1226,30 @@ class ChatRepository extends DisposableInterface
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
-    final HiveChat? saved = await _chatLocal.get(chat.value.id);
-
-    // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-    chat.value.firstItem ??= saved?.value.firstItem;
-
-    if (saved == null || saved.ver < chat.ver) {
-      _chatLocal.put(chat);
-    }
-
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
       await _pagination?.put(chat);
     }
 
-    return _add(chat, pagination: pagination);
+    HiveRxChat hiveChat = _add(chat, pagination: pagination);
+
+    // TODO: https://github.com/team113/messenger/issues/27
+    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+    // synchronization, thus writes from multiple applications may lead to
+    // missing events.
+    if (!WebUtils.isPopup) {
+      final HiveChat? saved = await _chatLocal.get(chat.value.id);
+
+      // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+      chat.value.firstItem ??= saved?.value.firstItem;
+
+      if (saved == null || saved.ver < chat.ver) {
+        await _chatLocal.put(chat);
+      }
+    }
+
+    return hiveChat;
   }
 
   /// Adds the provided [HiveChat] to the [chats] and optionally to the
@@ -1241,11 +1262,7 @@ class ChatRepository extends DisposableInterface
       entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
       chats[chatId] = entry;
 
-      if (pagination) {
-        paginated[chatId] = entry;
-      }
       entry.init();
-      entry.subscribe();
     } else {
       if (entry.chat.value.isMonolog) {
         if (_localMonologFavoritePosition != null) {
@@ -1267,9 +1284,13 @@ class ChatRepository extends DisposableInterface
 
       entry.chat.value = chat.value;
       entry.chat.refresh();
+    }
 
-      if (pagination) {
-        paginated[chatId] ??= entry;
+    if (!paginated.containsKey(chatId)) {
+      paginated[chatId] = entry;
+
+      if (!WebUtils.isPopup) {
+        _subscriptions[chatId] = entry.updates.listen((_) {});
       }
     }
 
@@ -1327,9 +1348,9 @@ class ChatRepository extends DisposableInterface
 
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
-        // Update the chat only if it's new since, otherwise its state is
-        // maintained by itself via [chatEvents].
-        if (chats[event.chat.chat.value.id] == null) {
+        // Update the chat only if its state is not maintained by itself via
+        // [chatEvents].
+        if (chats[event.chat.chat.value.id]?.subscribed != true) {
           _putEntry(event.chat);
         }
         break;
@@ -1532,6 +1553,13 @@ class ChatRepository extends DisposableInterface
             if (localChat != null) {
               chats.move(localId, data.chat.value.id);
               paginated.move(localId, data.chat.value.id);
+
+              final StreamSubscription? subscription = _subscriptions[localId];
+              if (subscription != null) {
+                _subscriptions[data.chat.value.id] = subscription;
+                _subscriptions.remove(localId);
+              }
+
               await localChat.updateChat(data.chat.value);
               entry = localChat;
             }

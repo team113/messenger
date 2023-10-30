@@ -87,7 +87,7 @@ class Pagination<T, C, K> {
 
   /// Resets this [Pagination] to its initial state.
   Future<void> clear() {
-    Log.print('reset()', 'Pagination');
+    Log.print('clear()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;

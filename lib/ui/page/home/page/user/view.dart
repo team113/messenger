@@ -94,7 +94,9 @@ class UserView extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
+                          final String? status = c.user?.user.value
+                              .getStatus(c.user?.lastSeen.value);
+
                           final UserTextStatus? text =
                               c.user?.user.value.status;
                           final StringBuffer buffer = StringBuffer();
@@ -120,7 +122,7 @@ class UserView extends StatelessWidget {
                               if (subtitle.isNotEmpty)
                                 Text(
                                   subtitle,
-                                  style: style.fonts.bodySmallSecondary,
+                                  style: style.fonts.small.regular.secondary,
                                 )
                             ],
                           );
@@ -200,10 +202,13 @@ class UserView extends StatelessWidget {
                           if (c.user!.user.value.status != null)
                             UserStatusCopyable(c.user!.user.value.status!),
                           if (c.user!.user.value.presence != null)
-                            UserPresenceField(
-                              c.user!.user.value.presence!,
-                              c.user!.user.value.getStatus(),
-                            ),
+                            Obx(() {
+                              return UserPresenceField(
+                                c.user!.user.value.presence!,
+                                c.user!.user.value
+                                    .getStatus(c.user?.lastSeen.value),
+                              );
+                            }),
                         ],
                       ),
                       Block(
@@ -264,6 +269,10 @@ class UserView extends StatelessWidget {
           );
         }),
         Obx(() {
+          if (!c.inContacts.value) {
+            return const SizedBox();
+          }
+
           return ActionButton(
             text: c.inFavorites.value
                 ? 'btn_delete_from_favorites'.l10n
@@ -353,7 +362,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -375,7 +384,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -397,7 +406,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -419,7 +428,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

@@ -123,16 +123,17 @@ class _UserLoginFieldState extends State<UserLoginField> {
             ),
       label: 'label_login'.l10n,
       hint: widget.login == null ? 'label_login_hint'.l10n : widget.login!.val,
+      clearable: false,
       subtitle: RichText(
         text: TextSpan(
           children: [
             TextSpan(
               text: 'label_login_visible'.l10n,
-              style: style.fonts.labelMediumSecondary,
+              style: style.fonts.small.regular.secondary,
             ),
             TextSpan(
               text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-              style: style.fonts.labelMediumPrimary,
+              style: style.fonts.small.regular.primary,
               recognizer: TapGestureRecognizer()
                 ..onTap = () async {
                   await ConfirmDialog.show(
@@ -142,7 +143,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                       Center(
                         child: Text(
                           'label_login_visibility_hint'.l10n,
-                          style: style.fonts.labelLargeSecondary,
+                          style: style.fonts.normal.regular.secondary,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -150,7 +151,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'label_visible_to'.l10n,
-                          style: style.fonts.headlineMedium,
+                          style: style.fonts.big.regular.onBackground,
                         ),
                       ),
                     ],
@@ -159,15 +160,15 @@ class _UserLoginFieldState extends State<UserLoginField> {
                     variants: [
                       ConfirmDialogVariant(
                         onProceed: () {},
-                        child: Text('label_all'.l10n),
+                        label: 'label_all'.l10n,
                       ),
                       ConfirmDialogVariant(
                         onProceed: () {},
-                        child: Text('label_my_contacts'.l10n),
+                        label: 'label_my_contacts'.l10n,
                       ),
                       ConfirmDialogVariant(
                         onProceed: () {},
-                        child: Text('label_nobody'.l10n),
+                        label: 'label_nobody'.l10n,
                       ),
                     ],
                   );

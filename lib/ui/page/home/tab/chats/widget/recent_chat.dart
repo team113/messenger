@@ -156,8 +156,8 @@ class RecentChatTile extends StatelessWidget {
             Text(
               chat.updatedAt.val.toLocal().short,
               style: inverted
-                  ? style.fonts.labelLargeOnPrimary
-                  : style.fonts.labelLargeSecondary,
+                  ? style.fonts.normal.regular.onPrimary
+                  : style.fonts.normal.regular.secondary,
             ),
         ],
         subtitle: [
@@ -284,8 +284,8 @@ class RecentChatTile extends StatelessWidget {
                 Text(
                   'label_typing'.l10n,
                   style: inverted
-                      ? style.fonts.labelMediumOnPrimary
-                      : style.fonts.labelMediumPrimary,
+                      ? style.fonts.small.regular.onPrimary
+                      : style.fonts.small.regular.primary,
                 ),
                 const SizedBox(width: 3),
                 Padding(
@@ -307,8 +307,8 @@ class RecentChatTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: inverted
-                          ? style.fonts.labelMediumOnPrimary
-                          : style.fonts.labelMediumPrimary,
+                          ? style.fonts.small.regular.onPrimary
+                          : style.fonts.small.regular.primary,
                     ),
                   ),
                   const SizedBox(width: 3),
@@ -615,8 +615,8 @@ class RecentChatTile extends StatelessWidget {
 
       return DefaultTextStyle(
         style: inverted
-            ? style.fonts.bodyMediumOnPrimary
-            : style.fonts.bodyMediumSecondary,
+            ? style.fonts.normal.regular.onPrimary
+            : style.fonts.normal.regular.secondary,
         overflow: TextOverflow.ellipsis,
         child: Row(children: subtitle),
       );
@@ -764,7 +764,7 @@ class RecentChatTile extends StatelessWidget {
                     ? style.colors.onPrimary
                     : style.colors.primary
                 : isError
-                    ? style.colors.dangerColor
+                    ? style.colors.danger
                     : inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
@@ -820,7 +820,10 @@ class RecentChatTile extends StatelessWidget {
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
+        TextSpan(
+          text: rxChat.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );

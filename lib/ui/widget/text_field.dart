@@ -61,6 +61,8 @@ class ReactiveTextField extends StatelessWidget {
     this.treatErrorAsStatus = true,
     this.type,
     this.subtitle,
+    this.clearable = true,
+    this.selectable,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -131,7 +133,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Callback, called when user presses the [suffix].
   ///
   /// Only meaningful if [suffix] is non-`null`.
-  final VoidCallback? onSuffixPressed;
+  final void Function()? onSuffixPressed;
 
   /// Optional text prefix to display before the input.
   final String? prefixText;
@@ -151,6 +153,14 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Maximum number of characters allowed in this [TextField].
   final int? maxLength;
+
+  /// Indicator whether this [ReactiveTextField] should display a save button,
+  /// when being empty, if [state] is approvable.
+  final bool clearable;
+
+  /// Indicator whether text within this [ReactiveTextField] should be
+  /// selectable.
+  final bool? selectable;
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +200,9 @@ class ReactiveTextField extends StatelessWidget {
 
         return AnimatedButton(
           onPressed: state.approvable && state.changed.value
-              ? state.submit
+              ? state.isEmpty.value && !clearable
+                  ? null
+                  : state.submit
               : onSuffixPressed,
           decorator: (child) {
             if (!hasSuffix) {
@@ -198,7 +210,7 @@ class ReactiveTextField extends StatelessWidget {
             }
 
             return Padding(
-              padding: const EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(left: 8, right: 16),
               child: child,
             );
           },
@@ -220,7 +232,7 @@ class ReactiveTextField extends StatelessWidget {
                                   child: Icon(
                                     Icons.check,
                                     size: 18,
-                                    color: style.colors.acceptAuxiliaryColor,
+                                    color: style.colors.acceptAuxiliary,
                                   ),
                                 )
                               : (state.error.value != null &&
@@ -232,17 +244,24 @@ class ReactiveTextField extends StatelessWidget {
                                       child: Icon(
                                         Icons.error,
                                         size: 18,
-                                        color: style.colors.dangerColor,
+                                        color: style.colors.danger,
                                       ),
                                     )
                                   : (state.approvable && state.changed.value)
-                                      ? AllowOverflow(
-                                          key: const ValueKey('Approve'),
-                                          child: Text(
-                                            'btn_save'.l10n,
-                                            style: style.fonts.bodySmallPrimary,
-                                          ),
-                                        )
+                                      ? state.isEmpty.value && !clearable
+                                          ? const SizedBox(
+                                              key: Key('Empty'),
+                                              width: 1,
+                                              height: 0,
+                                            )
+                                          : AllowOverflow(
+                                              key: const ValueKey('Approve'),
+                                              child: Text(
+                                                'btn_save'.l10n,
+                                                style: style.fonts.small.regular
+                                                    .primary,
+                                              ),
+                                            )
                                       : SizedBox(
                                           key: const ValueKey('Icon'),
                                           width: 24,
@@ -268,7 +287,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? Theme.of(context)
                         .inputDecorationTheme
                         .floatingLabelStyle
-                        ?.copyWith(color: style.colors.dangerColor)
+                        ?.copyWith(color: style.colors.danger)
                     : state.isFocused.value
                         ? Theme.of(context)
                             .inputDecorationTheme
@@ -281,6 +300,7 @@ class ReactiveTextField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              enableInteractiveSelection: selectable,
               selectionControls: PlatformUtils.isAndroid
                   ? MaterialTextSelectionControls()
                   : PlatformUtils.isIOS
@@ -326,10 +346,17 @@ class ReactiveTextField extends StatelessWidget {
                 labelText: label,
                 hintText: hint,
                 hintMaxLines: 1,
+                hintStyle: this.style?.copyWith(
+                      color: Theme.of(context)
+                          .inputDecorationTheme
+                          .hintStyle
+                          ?.color,
+                    ),
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
-                errorStyle: style.fonts.bodyLarge.copyWith(fontSize: 0),
+                errorStyle: style.fonts.medium.regular.onBackground
+                    .copyWith(fontSize: 0),
                 errorText: state.error.value,
               ),
               obscureText: obscure,
@@ -401,7 +428,7 @@ class ReactiveTextField extends StatelessWidget {
                           ? Padding(
                               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                               child: DefaultTextStyle(
-                                style: style.fonts.labelMedium,
+                                style: style.fonts.small.regular.onBackground,
                                 child: subtitle!,
                               ),
                             )
@@ -410,9 +437,7 @@ class ReactiveTextField extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                           child: Text(
                             state.error.value ?? '',
-                            style: style.fonts.labelMedium.copyWith(
-                              color: style.colors.dangerColor,
-                            ),
+                            style: style.fonts.small.regular.danger,
                           ),
                         ),
                 ),

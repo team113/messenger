@@ -32,12 +32,22 @@ import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/util/message_popup.dart';
+import 'introduction/controller.dart';
 
 export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUserService, this._settings);
+  HomeController(
+    this._auth,
+    this._myUserService,
+    this._settings, {
+    this.signedUp = false,
+  });
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  final bool signedUp;
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -174,6 +184,11 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> updateAvatar() async {
+    await _myUserService.refresh();
+  }
+
   /// Refreshes the controller on [router] change.
   ///
   /// Required in order for the [BottomNavigatorBar] to rebuild.
@@ -188,8 +203,18 @@ class HomeController extends GetxController {
 
   /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
   void _displayIntroduction(MyUser myUser) {
-    if (!myUser.hasPassword) {
-      IntroductionView.show(router.context!)
+    IntroductionViewStage? stage;
+
+    if (!myUser.hasPassword &&
+        myUser.emails.confirmed.isEmpty &&
+        myUser.phones.confirmed.isEmpty) {
+      stage = IntroductionViewStage.oneTime;
+    } else if (signedUp) {
+      stage = IntroductionViewStage.signUp;
+    }
+
+    if (stage != null) {
+      IntroductionView.show(router.context!, initial: stage)
           .then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);

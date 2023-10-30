@@ -42,6 +42,9 @@ abstract class AbstractMyUserRepository {
     required Function() onPasswordUpdated,
   });
 
+  /// Disposes the repository.
+  void dispose();
+
   /// Clears the stored [MyUser].
   Future<void> clearCache();
 
@@ -66,7 +69,9 @@ abstract class AbstractMyUserRepository {
   /// password is not required. Otherwise (when changes his password), it's
   /// mandatory to specify the `old` one.
   Future<void> updateUserPassword(
-      UserPassword? oldPassword, UserPassword newPassword);
+    UserPassword? oldPassword,
+    UserPassword newPassword,
+  );
 
   /// Deletes the authenticated [MyUser] completely.
   ///
@@ -138,6 +143,6 @@ abstract class AbstractMyUserRepository {
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute);
 
-  /// Disposes the repository.
-  void dispose();
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> refresh();
 }

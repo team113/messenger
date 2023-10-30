@@ -146,8 +146,15 @@ class _ChatViewState extends State<ChatView>
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: AppBar(),
-              body: const Center(child: CustomProgressIndicator()),
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
+              ),
+              body: const Center(child: CustomProgressIndicator.primary()),
+              bottomNavigationBar: Padding(
+                padding: Insets.dense.copyWith(top: 0),
+                child: _bottomBar(c),
+              ),
             );
           }
 
@@ -251,7 +258,7 @@ class _ChatViewState extends State<ChatView>
                                 height: 32,
                                 width: 32,
                                 decoration: BoxDecoration(
-                                  color: style.colors.dangerColor,
+                                  color: style.colors.danger,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Center(
@@ -468,7 +475,8 @@ class _ChatViewState extends State<ChatView>
                                               .l10n
                                           : 'label_no_messages'.l10n,
                                       textAlign: TextAlign.center,
-                                      style: style.fonts.labelMedium,
+                                      style: style
+                                          .fonts.small.regular.onBackground,
                                     ),
                                   ),
                                 );
@@ -885,7 +893,7 @@ class _ChatViewState extends State<ChatView>
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.chat!.chat.value.isMonolog ? null : c.keepTyping,
+        onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
         onItemPressed: (id) => c.animateTo(id),
         canForward: true,
       );

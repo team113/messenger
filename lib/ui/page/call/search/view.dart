@@ -114,7 +114,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: style.fonts.titleMedium,
+                    style: style.fonts.normal.regular.onBackground,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -212,14 +212,21 @@ class SearchView extends StatelessWidget {
                             child = const SizedBox();
                           }
 
-                          if (i == childCount - 1 && c.hasNext.value == true) {
-                            child = Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                child,
-                                const CustomProgressIndicator(),
-                              ],
-                            );
+                          if (i == childCount - 1) {
+                            Widget widget = child;
+                            child = Obx(() {
+                              if (c.searchStatus.value.isLoadingMore) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    widget,
+                                    const CustomProgressIndicator(),
+                                  ],
+                                );
+                              } else {
+                                return widget;
+                              }
+                            });
                           }
 
                           return child;
@@ -248,8 +255,8 @@ class SearchView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: enabled
-                            ? style.fonts.titleLargeOnPrimary
-                            : style.fonts.titleLarge,
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,

@@ -48,7 +48,7 @@ class ActionButton extends StatelessWidget {
       child: FieldButton(
         onPressed: onPressed,
         text: text,
-        style: style.fonts.titleMediumPrimary,
+        style: style.fonts.normal.regular.primary,
         trailing: trailing != null
             ? Transform.translate(
                 offset: const Offset(0, -1),

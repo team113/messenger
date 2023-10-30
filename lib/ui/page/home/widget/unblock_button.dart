@@ -60,7 +60,7 @@ class UnblockButton extends StatelessWidget {
                 child: Text(
                   'btn_unblock'.l10n,
                   textAlign: TextAlign.center,
-                  style: style.fonts.bodyLargePrimary,
+                  style: style.fonts.medium.regular.primary,
                 ),
               ),
             ],

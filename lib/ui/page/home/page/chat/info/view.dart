@@ -165,7 +165,7 @@ class ChatInfoView extends StatelessWidget {
                       width: 22,
                       decoration: BoxDecoration(
                         color: c.inCall
-                            ? style.colors.dangerColor
+                            ? style.colors.danger
                             : style.colors.primary,
                         shape: BoxShape.circle,
                       ),
@@ -330,7 +330,7 @@ class ChatInfoView extends StatelessWidget {
                         child: DefaultTextStyle(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: style.fonts.bodyMediumPrimary,
+                          style: style.fonts.normal.regular.primary,
                           child: title,
                         ),
                       ),
@@ -532,7 +532,10 @@ class ChatInfoView extends StatelessWidget {
       'label_hide_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
         TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
     );
@@ -550,7 +553,10 @@ class ChatInfoView extends StatelessWidget {
       'label_clear_history'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
       ],
     );
@@ -571,7 +577,10 @@ class ChatInfoView extends StatelessWidget {
       'label_block'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_blocked1'.l10n),
-        TextSpan(text: c.chat?.title.value, style: style.fonts.labelLarge),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
         TextSpan(text: 'alert_chat_will_be_blocked2'.l10n),
       ],
     );

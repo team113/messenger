@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/selected_dot.dart';
 
 /// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
@@ -29,6 +30,7 @@ class RectangleButton extends StatelessWidget {
     this.onPressed,
     required this.label,
     this.trailingColor,
+    this.radio = false,
   });
 
   /// Label of this [RectangleButton].
@@ -37,6 +39,9 @@ class RectangleButton extends StatelessWidget {
   /// Indicator whether this [RectangleButton] is selected, meaning an
   /// [Icons.check] should be displayed in a trailing.
   final bool selected;
+
+  /// Indicator whether this [RectangleButton] is radio button.
+  final bool radio;
 
   /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
@@ -50,8 +55,9 @@ class RectangleButton extends StatelessWidget {
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color:
-          selected ? style.colors.primary : style.colors.onPrimary.darken(0.05),
+      color: selected && !radio
+          ? style.colors.primary
+          : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -64,9 +70,9 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: selected
-                      ? style.fonts.labelLargeOnPrimary
-                      : style.fonts.labelLarge,
+                  style: selected && !radio
+                      ? style.fonts.normal.regular.onPrimary
+                      : style.fonts.normal.regular.onBackground,
                 ),
               ),
               const SizedBox(width: 12),
@@ -78,15 +84,21 @@ class RectangleButton extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor: style.colors.onPrimary,
+                            backgroundColor: radio
+                                ? style.colors.primary
+                                : style.colors.onPrimary,
                             radius: 12,
                             child: Icon(
                               Icons.check,
-                              color: style.colors.primary,
+                              color: radio
+                                  ? style.colors.onPrimary
+                                  : style.colors.primary,
                               size: 12,
                             ),
                           )
-                        : const SizedBox(),
+                        : radio
+                            ? const SelectedDot()
+                            : const SizedBox(),
                   ),
                 )
               else

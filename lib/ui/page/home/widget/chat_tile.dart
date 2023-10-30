@@ -110,7 +110,7 @@ class ChatTile extends StatelessWidget {
             border: selected ? style.cardSelectedBorder : style.cardBorder,
             borderRadius: style.cardRadius,
             onTap: onTap,
-            unselectedHoverColor: style.cardColor.darken(darken + 0.03),
+            unselectedHoverColor: style.cardHoveredColor,
             selectedHoverColor: style.colors.primary,
             folded: chat?.chat.value.favoritePosition != null,
             child: Padding(
@@ -140,8 +140,9 @@ class ChatTile extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
                                         style: selected
-                                            ? style.fonts.headlineLargeOnPrimary
-                                            : style.fonts.headlineLarge,
+                                            ? style.fonts.big.regular.onPrimary
+                                            : style
+                                                .fonts.big.regular.onBackground,
                                       );
                                     }),
                                   ),

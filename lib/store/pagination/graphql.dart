@@ -63,10 +63,6 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
   @override
   FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
-    if (cursor == null) {
-      return null;
-    }
-
     if (reversed) {
       return (await fetch(before: cursor, last: count)).reversed();
     } else {
@@ -76,10 +72,6 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
   @override
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
-    if (cursor == null) {
-      return null;
-    }
-
     if (reversed) {
       return (await fetch(after: cursor, first: count)).reversed();
     } else {

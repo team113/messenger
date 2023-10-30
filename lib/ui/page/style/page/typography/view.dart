@@ -16,15 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/style/widget/builder_wrap.dart';
-import '/ui/page/style/widget/header.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/page/style/widget/scrollable_column.dart';
 import 'widget/family.dart';
-import 'widget/font.dart';
-import 'widget/style.dart';
+import 'widget/row.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatelessWidget {
@@ -44,139 +43,45 @@ class TypographyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Iterable<(TextStyle, String)> styles = [
-      (style.fonts.displayBold, 'displayBold'),
-      (style.fonts.displayLarge, 'displayLarge'),
-      (style.fonts.displayMedium, 'displayMedium'),
-      (style.fonts.displaySmall, 'displaySmall'),
-      (style.fonts.displayTiny, 'displayTiny'),
-      (style.fonts.headlineLarge, 'headlineLarge'),
-      (style.fonts.headlineMedium, 'headlineMedium'),
-      (style.fonts.headlineSmall, 'headlineSmall'),
-      (style.fonts.titleLarge, 'titleLarge'),
-      (style.fonts.titleMedium, 'titleMedium'),
-      (style.fonts.titleSmall, 'titleSmall'),
-      (style.fonts.labelLarge, 'labelLarge'),
-      (style.fonts.labelMedium, 'labelMedium'),
-      (style.fonts.labelSmall, 'labelSmall'),
-      (style.fonts.bodyLarge, 'bodyLarge'),
-      (style.fonts.bodyMedium, 'bodyMedium'),
-      (style.fonts.bodySmall, 'bodySmall'),
-      (style.fonts.bodyTiny, 'bodyTiny'),
-    ];
-
-    final Iterable<(TextStyle, String)> fonts = [
-      (style.fonts.displayBold, 'displayBold'),
-      (style.fonts.displayBoldOnPrimary, 'displayBoldOnPrimary'),
-      (style.fonts.displayLarge, 'displayLarge'),
-      (style.fonts.displayLargeOnPrimary, 'displayLargeOnPrimary'),
-      (style.fonts.displayLargeSecondary, 'displayLargeSecondary'),
-      (style.fonts.displayMedium, 'displayMedium'),
-      (style.fonts.displayMediumSecondary, 'displayMediumSecondary'),
-      (style.fonts.displaySmall, 'displaySmall'),
-      (style.fonts.displaySmallSecondary, 'displaySmallSecondary'),
-      (style.fonts.displayTiny, 'displayTiny'),
-      (style.fonts.displayTinyOnPrimary, 'displayTinyOnPrimary'),
-      (style.fonts.displayTinySecondary, 'displayTinySecondary'),
-      (style.fonts.headlineLarge, 'headlineLarge'),
-      (style.fonts.headlineLargeOnPrimary, 'headlineLarge'),
-      (style.fonts.headlineMedium, 'headlineMedium'),
-      (style.fonts.headlineMediumOnPrimary, 'headlineMedium'),
-      (style.fonts.headlineSmall, 'headlineSmall'),
-      (style.fonts.headlineSmallOnPrimary, 'headlineSmallOnPrimary'),
+    final List<(FontWeight, String, String)> families = [
       (
-        style.fonts.headlineSmallOnPrimary.copyWith(
-          shadows: [
-            Shadow(blurRadius: 6, color: style.colors.onBackground),
-            Shadow(blurRadius: 6, color: style.colors.onBackground),
-          ],
-        ),
-        'headlineSmallOnPrimary (shadows)',
+        FontWeight.w400,
+        'Noto Sans Display (Regular)',
+        'NotoSansDisplay-Regular.ttf'
       ),
-      (style.fonts.headlineSmallSecondary, 'headlineSmall'),
-      (style.fonts.titleLarge, 'titleLarge'),
-      (style.fonts.titleLargePrimary, 'titleLargePrimary'),
-      (style.fonts.titleLargeOnPrimary, 'titleLargeOnPrimary'),
-      (style.fonts.titleLargeSecondary, 'titleLargeSecondary'),
-      (style.fonts.titleMedium, 'titleMedium'),
-      (style.fonts.titleMediumDanger, 'titleMediumDanger'),
-      (style.fonts.titleMediumOnPrimary, 'titleMediumOnPrimary'),
-      (style.fonts.titleMediumPrimary, 'titleMediumPrimary'),
-      (style.fonts.titleMediumSecondary, 'titleMediumSecondary'),
-      (style.fonts.titleSmall, 'titleSmall'),
-      (style.fonts.titleSmallOnPrimary, 'titleSmallOnPrimary'),
-      (style.fonts.labelLarge, 'labelLarge'),
-      (style.fonts.labelLargeOnPrimary, 'labelLargeOnPrimary'),
-      (style.fonts.labelLargePrimary, 'labelLargePrimary'),
-      (style.fonts.labelLargeSecondary, 'labelLargeSecondary'),
-      (style.fonts.labelMedium, 'labelMedium'),
-      (style.fonts.labelMediumOnPrimary, 'labelMediumOnPrimary'),
-      (style.fonts.labelMediumPrimary, 'labelMediumPrimary'),
-      (style.fonts.labelMediumSecondary, 'labelMediumSecondary'),
-      (style.fonts.labelSmall, 'labelSmall'),
-      (style.fonts.labelSmallOnPrimary, 'labelSmallOnPrimary'),
-      (style.fonts.labelSmallPrimary, 'labelSmallPrimary'),
-      (style.fonts.labelSmallSecondary, 'labelSmallSecondary'),
-      (style.fonts.bodyLarge, 'bodyLarge'),
-      (style.fonts.bodyLargePrimary, 'bodyLargePrimary'),
-      (style.fonts.bodyLargeSecondary, 'bodyLargeSecondary'),
-      (style.fonts.bodyMedium, 'bodyMedium'),
-      (style.fonts.bodyMediumOnPrimary, 'bodyMediumOnPrimary'),
-      (style.fonts.bodyMediumPrimary, 'bodyMediumPrimary'),
-      (style.fonts.bodyMediumSecondary, 'bodyMediumSecondary'),
-      (style.fonts.bodySmall, 'bodySmall'),
-      (style.fonts.bodySmallOnPrimary, 'bodySmallOnPrimary'),
-      (style.fonts.bodySmallPrimary, 'bodySmallPrimary'),
-      (style.fonts.bodySmallSecondary, 'bodySmallSecondary'),
-      (style.fonts.bodyTiny, 'bodyTiny'),
-      (style.fonts.bodyTinyOnPrimary, 'bodyTinyOnPrimary'),
-    ];
-
-    final List<(FontWeight, String)> families = [
-      (FontWeight.w300, 'SFUI-Light'),
-      (FontWeight.w400, 'SFUI-Regular'),
-      (FontWeight.w700, 'SFUI-Bold'),
+      (FontWeight.w700, 'Noto Sans Display (Bold)', 'NotoSansDisplay-Bold.ttf'),
     ];
 
     return ScrollableColumn(
       children: [
         const SizedBox(height: CustomAppBar.height),
-        const SizedBox(height: 16),
-        const Header('Typography'),
-        const SubHeader('Fonts'),
-        BuilderWrap(
-          fonts,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontWidget(e, inverted: inverted, dense: dense),
+        Block(
+          title: 'Font families',
+          expanded: true,
+          children: families
+              .map((e) => FontFamily(weight: e.$1, name: e.$2, asset: e.$3))
+              .toList(),
         ),
-        const SubHeader('Typefaces'),
-        BuilderWrap(
-          styles,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontWidget((
-            e.$1.copyWith(
-              color:
-                  inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-            ),
-            e.$2,
-          ), inverted: inverted, dense: dense),
-        ),
-        const SubHeader('Families'),
-        BuilderWrap(
-          families,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontFamily(e, inverted: inverted, dense: dense),
-        ),
-        const SubHeader('Styles'),
-        BuilderWrap(
-          styles,
-          inverted: inverted,
-          dense: dense,
-          (e) => FontStyleWidget(e, inverted: inverted),
-        ),
+        ...style.fonts.schema.entries.map((size) {
+          return Block(
+            title:
+                '${size.key.capitalizeFirst} (${size.value.values.first.values.first.fontSize} pt)',
+            expanded: true,
+            children: size.value.entries
+                .map((weight) {
+                  return weight.value.entries.map((color) {
+                    return FontRow(
+                      font: color.value,
+                      size: size.key,
+                      weight: weight.key,
+                      color: color.key,
+                    );
+                  });
+                })
+                .expand((e) => e)
+                .toList(),
+          );
+        }),
         const SizedBox(height: 16),
       ],
     );

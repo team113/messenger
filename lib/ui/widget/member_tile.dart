@@ -78,7 +78,7 @@ class MemberTile extends StatelessWidget {
               color: inCall == true
                   ? onCall == null
                       ? style.colors.primaryHighlightLightest
-                      : style.colors.dangerColor
+                      : style.colors.danger
                   : style.colors.primary,
               type: MaterialType.circle,
               child: InkWell(
@@ -114,7 +114,7 @@ class MemberTile extends StatelessWidget {
                   TextSpan(
                     text: user.user.value.name?.val ??
                         user.user.value.num.toString(),
-                    style: style.fonts.labelLarge,
+                    style: style.fonts.normal.regular.onBackground,
                   ),
                   TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                 ],
@@ -128,7 +128,7 @@ class MemberTile extends StatelessWidget {
           child: canLeave
               ? Text(
                   'btn_leave'.l10n,
-                  style: style.fonts.labelLargePrimary,
+                  style: style.fonts.normal.regular.primary,
                 )
               : const SvgImage.asset(
                   'assets/icons/delete.svg',

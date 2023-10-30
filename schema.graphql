@@ -317,6 +317,46 @@ enum BlockUserErrorCode {
 """Result of performing `Mutation.blockUser`."""
 union BlockUserResult = BlockUserError | BlocklistEventsVersioned
 
+"""Changed `Attachment`s of a `ChatMessage`."""
+type ChangedChatMessageAttachments {
+  """
+  New `Attachment`s of the `ChatMessage`.
+
+  Empty list means that the previous `Attachment`s were deleted.
+
+  ## Sorting
+
+  Returned `Attachment`s are sorted in the same order as were provided to
+  the `Mutation.editChatMessage` by the `ChatMessage`'s author.
+  """
+  changed: [Attachment!]!
+}
+
+"""Changed replied `ChatItem`s of a `ChatMessage`."""
+type ChangedChatMessageReplies {
+  """
+  New `ChatItemQuote`s of the `ChatMessage`.
+
+  Empty list means that the previous `ChatItemQuote`s were deleted.
+
+  ## Sorting
+
+  Returned `ChatItemQuote`s are sorted in the same order as were provided
+  to the `Mutation.editChatMessage` by the `ChatMessage`'s author.
+  """
+  changed: [ChatItemQuote!]!
+}
+
+"""Changed `ChatMessageText` of a `ChatMessage`."""
+type ChangedChatMessageText {
+  """
+  Changed `ChatMessageText`.
+
+  `null` means that the previous `ChatMessageText` was deleted.
+  """
+  changed: ChatMessageText
+}
+
 """`Chat` is a conversation between `User`s."""
 type Chat {
   """Avatar of this `Chat`."""
@@ -1299,9 +1339,9 @@ input ChatItemQuoteInput {
   IDs of the `ChatItem`'s `Attachment`s to be forwarded.
 
   - `null` means all the `ChatItem`'s `Attachment`s will be forwarded, if
-  any.
+    any.
   - `[]` (empty list) means no `Attachment`s, only the text will be
-  forwarded.
+    forwarded.
   """
   attachments: [AttachmentId!]
 
@@ -1522,6 +1562,16 @@ type ChatMessage implements ChatItem {
   ver: ChatItemVersion!
 }
 
+"""`Attachment`s used as input of `Mutation.editChatMessage`."""
+input ChatMessageAttachmentsInput {
+  """
+  IDs of new `Attachment`s.
+
+  Empty list means that the previous `Attachment`s should be deleted.
+  """
+  new: [AttachmentId!]!
+}
+
 """`ChatItemQuote` of a `ChatMessage`."""
 type ChatMessageQuote implements ChatItemQuote {
   """`DateTime` when the quoted `ChatMessage` was posted."""
@@ -1551,6 +1601,16 @@ type ChatMessageQuote implements ChatItemQuote {
   text: ChatMessageText
 }
 
+"""Replied `ChatItem`s used as input of `Mutation.editChatMessage`."""
+input ChatMessageRepliesInput {
+  """
+  IDs of new replied `ChatItem`s.
+
+  Empty list means that the previous `ChatItemQuote`s should be deleted.
+  """
+  new: [ChatItemId!]!
+}
+
 """
 Type of `ChatMessage`'s text.
 
@@ -1559,6 +1619,16 @@ requirements:
 - be maximum 8192 UTF-8 characters long.
 """
 scalar ChatMessageText
+
+"""`ChatMessageText` used as input of `Mutation.editChatMessage`."""
+input ChatMessageTextInput {
+  """
+  New `ChatMessageText`.
+
+  `null` means that the previous `ChatMessageText` should be deleted.
+  """
+  new: ChatMessageText
+}
 
 """
 Type of a `Chat`'s name.
@@ -2190,14 +2260,14 @@ enum DeleteChatMessageErrorCode {
 """Result of performing `Mutation.deleteChatMessage`."""
 union DeleteChatMessageResult = ChatEventsVersioned | DeleteChatMessageError
 
-"""Error of performing `Mutation.editChatMessageText`."""
-type EditChatMessageTextError {
+"""Error of performing `Mutation.editChatMessage`."""
+type EditChatMessageError {
   """Code indicating why this error has happened."""
-  code: EditChatMessageTextErrorCode!
+  code: EditChatMessageErrorCode!
 }
 
-"""Possible error codes of performing `Mutation.editChatMessageText`."""
-enum EditChatMessageTextErrorCode {
+"""Possible error codes of performing `Mutation.editChatMessage`."""
+enum EditChatMessageErrorCode {
   """
   5 minutes passed since `ChatMessage` creation and it was read by other `Chat` members.
 
@@ -2206,11 +2276,48 @@ enum EditChatMessageTextErrorCode {
   UNEDITABLE
 
   """
+  Authenticated `MyUser` is blocked by the `User` who receives the `ChatMessage`.
+
+  This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+
+  Status code: 403 Forbidden.
+  """
+  BLOCKED
+
+  """
   Authenticated `MyUser` is not an author of the `ChatMessage`.
 
   Status code: 403 Forbidden.
   """
   NOT_AUTHOR
+
+  """
+  List of `Attachment`s should contain at most 100 elements.
+
+  Status code: 400 Bad Request.
+  """
+  WRONG_ATTACHMENTS_COUNT
+
+  """
+  List of replied `ChatItem`s should contain at most 100 elements.
+
+  Status code: 400 Bad Request.
+  """
+  WRONG_REPLYING_CHAT_ITEMS_COUNT
+
+  """
+  One of the specified `Attachment`s doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_ATTACHMENT
+
+  """
+  Replied `ChatItem` doesn't exist in the `Chat`.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_REPLYING_CHAT_ITEM
 
   """
   `ChatMessage` with the provided ID doesn't exist.
@@ -2227,8 +2334,8 @@ enum EditChatMessageTextErrorCode {
   NO_TEXT_AND_NO_ATTACHMENT
 }
 
-"""Result of performing `Mutation.editChatMessageText`."""
-union EditChatMessageTextResult = ChatEventsVersioned | EditChatMessageTextError
+"""Result of performing `Mutation.editChatMessage`."""
+union EditChatMessageResult = ChatEventsVersioned | EditChatMessageError
 
 """
 Event of a `BlocklistRecord` being added to `Query.blocklist` of the
@@ -2852,6 +2959,36 @@ type EventChatItemDeleted implements ChatEvent {
   itemId: ChatItemId!
 }
 
+"""Event of a `ChatItem` being edited by its author."""
+type EventChatItemEdited implements ChatEvent {
+  """
+  Edited `Attachment`s of the `ChatItem`.
+
+  `null` means that the previous `Attachment`s remain unchanged.
+  """
+  attachments: ChangedChatMessageAttachments
+
+  """ID of the `Chat` where the `ChatItem` was edited by its author."""
+  chatId: ChatId!
+
+  """ID of the edited `ChatItem`."""
+  itemId: ChatItemId!
+
+  """
+  `ChatItemQuote`s the edited `ChatItem` replies to.
+
+  `null` means that the previous `ChatItemQuote`s remain unchanged.
+  """
+  repliesTo: ChangedChatMessageReplies
+
+  """
+  Edited `ChatItem`'s text.
+
+  `null` means that the previous `ChatItem`'s text remains unchanged.
+  """
+  text: ChangedChatMessageText
+}
+
 """Event of a `ChatItem` being hidden by the authenticated `MyUser`."""
 type EventChatItemHidden implements ChatEvent {
   """
@@ -2878,18 +3015,6 @@ type EventChatItemPosted implements ChatEvent {
 
   """Posted `ChatItem`."""
   item: ChatItemsEdge!
-}
-
-"""Event of a `ChatItem`'s text being edited by its author."""
-type EventChatItemTextEdited implements ChatEvent {
-  """ID of the `Chat` where `ChatItem`'s text being edited by its author."""
-  chatId: ChatId!
-
-  """ID of the edited `ChatItem`."""
-  itemId: ChatItemId!
-
-  """Edited `ChatItem`'s text."""
-  text: ChatMessageText
 }
 
 """Event of a `Chat` last item being updated."""
@@ -3766,6 +3891,20 @@ type ImageFile implements File {
   is ready and successfully downloaded from a file storage.
   """
   size: Int
+
+  """
+  [Base64URL]-encoded [ThumbHash] of this `ImageFile`.
+
+  May be `null` in case this `ImageFile` is an `original`, or it is not
+  ready on a file storage yet.
+
+  This [ThumbHash] is especially useful on a client side to pre-render
+  this `ImageFile` before downloading it from a file storage.
+
+  [Base64URL]: https://base64.guru/standards/base64url
+  [ThumbHash]: https://evanw.github.io/thumbhash
+  """
+  thumbhash: ThumbHash
 
   """Width of this `ImageFile` in pixels."""
   width: Int
@@ -4669,9 +4808,11 @@ type Mutation {
   ): MyUserEventsVersioned
 
   """
-  Edits `ChatMessage`'s text by the authenticated `MyUser`.
+  Edits a `ChatMessage` by the authenticated `MyUser` with the provided
+  `text`/`attachments`/`repliesTo` (at least one of three must be
+  specified).
 
-  `ChatMessage`'s text is allowed to be edited within 5 minutes since its
+  `ChatMessage` is allowed to be edited within 5 minutes since its
   creation __or__ if it hasn't been read by any other `Chat` member yet.
 
   ## Authentication
@@ -4681,24 +4822,57 @@ type Mutation {
   ## Result
 
   Only the following `ChatEvent` may be produced on success:
-  - `EventChatItemTextEdited`.
+  - `EventChatItemEdited`.
 
   ## Idempotent
 
-  Succeeds as no-op (and returns no `ChatEvent`) if the given
-  `ChatMessage`'s text is already set to the given value.
+  Succeeds as no-op (and returns no `ChatEvent`s) if the specified
+  `ChatMessage` already has the specified `text`, `attachments` and
+  `replies_to` in the same order.
   """
-  editChatMessageText(
+  editChatMessage(
     """ID of the `ChatMessage` to edit."""
     id: ChatItemId!
 
     """
+    IDs of `Attachment`s to assign to the `ChatMessage`.
+
+    - If `null`, then the previous `Attachment`s will remain unchanged.
+    - If `ChatMessageAttachmentsInput.new` is empty, then the previous `ChatMessage`'s `Attachment`s will be deleted.
+    - Otherwise, `ChatMessageAttachmentsInput.new` will replace the previous `Attachment`s.
+
+    `ChatMessageAttachmentsInput.new` can be empty only if the resulting `ChatMessage` has a `ChatMessageText`.
+
+    Mandatory, if `text` and `repliesTo` arguments are missing.
+    """
+    attachments: ChatMessageAttachmentsInput
+
+    """
+    IDs of the `ChatItem`s that the edited `ChatMessage` is replying to.
+
+    - If `null`, then the previous `ChatItemQuote`s will remain unchanged.
+    - If `ChatMessageRepliesInput.new` is empty, then the previous `ChatItemQuote`s will be deleted.
+    - Otherwise, `ChatMessageRepliesInput.new` will replace the previous `ChatItemQuote`s.
+
+    The replied `ChatItem`s may belong to the current `Chat` only.
+
+    Mandatory, if `text` and `attachments` arguments are missing.
+    """
+    repliesTo: ChatMessageRepliesInput
+
+    """
     New text to assign to the `ChatMessage`.
 
-    Can be `null` only if the `ChatMessage` has at least 1 `Attachment`.
+    - If `null`, then the previous `ChatMessageText` will remain unchanged.
+    - If `ChatMessageTextInput.new` is empty, then the previous `ChatMessageText` will be deleted.
+    - Otherwise, `ChatMessageTextInput.new` will replace the previous `ChatMessageText`.
+
+    `ChatMessageTextInput.new` can be `null` only if the resulting `ChatMessage` has at least one `Attachment`.
+
+    Mandatory, if `attachments` and `repliesTo` arguments are missing.
     """
-    text: ChatMessageText
-  ): EditChatMessageTextResult
+    text: ChatMessageTextInput
+  ): EditChatMessageResult
 
   """
   Marks the specified `Chat` as favorited for the authenticated `MyUser`
@@ -4885,23 +5059,23 @@ type Mutation {
 
   The best-effort `ChatCall` lifecycle on a client side should look like:
   1. Initiate (start or join) a `ChatCall` via `Mutation.startChatCall` or
-  `Mutation.joinChatCall`.
+     `Mutation.joinChatCall`.
   2. Make a `Subscription.chatCallEvents` using the `deviceId` from the
-  previous step.
+     previous step.
   3. Once an `EventChatCallRoomReady` is emitted (or in case a
-  `ChatCall.joinLink` is present already in the initial `ChatCall`
-  returned by the `Subscription.chatCallEvents` from the previous
-  step), establish a WebSocket connection with a media server using the
-  emitted `joinLink`.
+     `ChatCall.joinLink` is present already in the initial `ChatCall`
+     returned by the `Subscription.chatCallEvents` from the previous
+     step), establish a WebSocket connection with a media server using the
+     emitted `joinLink`.
   4. Whenever an `EventChatCallRoomReady` is emitted again, reestablish a
-  WebSocket connection with a media server forcefully, using the new
-  emitted `joinLink`, even if the previous one is healthy.
+     WebSocket connection with a media server forcefully, using the new
+     emitted `joinLink`, even if the previous one is healthy.
   5. Finish or leave the ongoing `ChatCall` via executing
-  `Mutation.leaveChatCall` first, then dropping the
-  `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
-  connection with a media server. Do not try to reconnect if the media
-  server drops it earlier, after execution of the
-  `Mutation.leaveChatCall`.
+     `Mutation.leaveChatCall` first, then dropping the
+     `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
+     connection with a media server. Do not try to reconnect if the media
+     server drops it earlier, after execution of the
+     `Mutation.leaveChatCall`.
 
   ## Authentication
 
@@ -4961,9 +5135,9 @@ type Mutation {
   Succeeds as no-op (and returns no `ChatEvent`) when:
   - There is no ongoing `ChatCall` in the specified `Chat` at the moment.
   - The authenticated `MyUser` is not a member of the specified `Chat`
-  already.
+    already.
   - The authenticated `MyUser` is not a member of the ongoing `ChatCall`
-  already.
+    already.
   """
   leaveChatCall(
     """ID of the `Chat` to leave the ongoing `ChatCall` of."""
@@ -5417,23 +5591,23 @@ type Mutation {
 
   The best-effort `ChatCall` lifecycle on a client side should look like:
   1. Initiate (start or join) a `ChatCall` via `Mutation.startChatCall` or
-  `Mutation.joinChatCall`.
+     `Mutation.joinChatCall`.
   2. Make a `Subscription.chatCallEvents` using the `deviceId` from the
-  previous step.
+     previous step.
   3. Once an `EventChatCallRoomReady` is emitted (or in case a
-  `ChatCall.joinLink` is present already in the initial `ChatCall`
-  returned by the `Subscription.chatCallEvents` from the previous
-  step), establish a WebSocket connection with a media server using the
-  emitted `joinLink`.
+     `ChatCall.joinLink` is present already in the initial `ChatCall`
+     returned by the `Subscription.chatCallEvents` from the previous
+     step), establish a WebSocket connection with a media server using the
+     emitted `joinLink`.
   4. Whenever an `EventChatCallRoomReady` is emitted again, reestablish a
-  WebSocket connection with a media server forcefully, using the new
-  emitted `joinLink`, even if the previous one is healthy.
+     WebSocket connection with a media server forcefully, using the new
+     emitted `joinLink`, even if the previous one is healthy.
   5. Finish or leave the ongoing `ChatCall` via executing
-  `Mutation.leaveChatCall` first, then dropping the
-  `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
-  connection with a media server. Do not try to reconnect if the media
-  server drops it earlier, after execution of the
-  `Mutation.leaveChatCall`.
+     `Mutation.leaveChatCall` first, then dropping the
+     `Subscription.chatCallEvents`, and, finally, dropping the WebSocket
+     connection with a media server. Do not try to reconnect if the media
+     server drops it earlier, after execution of the
+     `Mutation.leaveChatCall`.
 
   ## Authentication
 
@@ -6101,7 +6275,7 @@ type Mutation {
   Only the following `ChatEvent` may be produced on success for the
   `Chat`-group:
   - `EventChatItemPosted` (`ChatInfo` with either `ChatInfoActionCreated`
-  or `ChatInfoActionMemberAdded`).
+    or `ChatInfoActionMemberAdded`).
 
   ## Idempotent
 
@@ -6535,11 +6709,18 @@ enum PostChatMessageErrorCode {
   NO_TEXT_AND_NO_ATTACHMENT
 
   """
+  List of `Attachment`s should contain at most 100 elements.
+
+  Status code: 400 Bad Request.
+  """
+  WRONG_ATTACHMENTS_COUNT
+
+  """
   List of replied `ChatItem`s should contain at most 100 elements.
 
   Status code: 400 Bad Request.
   """
-  WRONG_ITEMS_COUNT
+  WRONG_REPLYING_CHAT_ITEMS_COUNT
 
   """
   One of the specified `Attachment`s doesn't exist.
@@ -6738,7 +6919,7 @@ type Query {
   Query returns `null` when:
   - No `User` exists with the specified `userId`.
   - No dialog `Chat` exists between the specified `User` and the
-  authenticated `MyUser`.
+    authenticated `MyUser`.
   """
   dialog(
     """ID of the `User` to return a dialog `Chat` with."""
@@ -6845,7 +7026,7 @@ type Query {
 
   A `ChatCall` is considered incoming when:
   - it's not yet answered or declined (or the authenticated `MyUser` has
-  been redialed after it was answered or declined);
+    been redialed after it was answered or declined);
   - its `Chat` is not muted by the authenticated `MyUser`;
   - its initiator is not the authenticated `MyUser`.
 
@@ -6859,9 +7040,9 @@ type Query {
   A `ChatCall` is removed from this list when:
   - it has been finished;
   - `MyUser` executes `Mutation.joinChatCall` or
-  `Mutation.declineChatCall` on it;
+    `Mutation.declineChatCall` on it;
   - `MyUser` executes `Mutation.toggleChatMute` on its `Chat` (or
-  `Mutation.toggleMyUserMute` on himself).
+    `Mutation.toggleMyUserMute` on himself).
 
   Executing `Mutation.toggleMyUserMute` with `mute` argument (muting)
   makes this list always empty until the consecutive execution of
@@ -6923,7 +7104,7 @@ type Query {
 
   Query returns empty list when:
   - The specified `User` is not linked to any `ChatContact`s of the
-  authenticated `MyUser`.
+    authenticated `MyUser`.
   """
   linkedChatContacts(
     """ID of the `User` returned `ChatContacts` should be linked to."""
@@ -7052,12 +7233,12 @@ type Query {
 
   Returned `ChatContact`s are sorted depending on the provided arguments:
   - If one of the `email`/`phone` arguments is specified, then returned
-  `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
-  the same) in ascending order.
+    `ChatContact`s are sorted by their `name`s (by IDs if the `name` is
+    the same) in ascending order.
   - If the `name` argument is specified, then returned `ChatContact`s are
-  sorted primarily by the [Levenshtein distance][0] of their `name`s,
-  and secondary by their IDs (if the [Levenshtein distance][0] is the
-  same), in descending order.
+    sorted primarily by the [Levenshtein distance][0] of their `name`s,
+    and secondary by their IDs (if the [Levenshtein distance][0] is the
+    same), in descending order.
 
   ## Pagination
 
@@ -7117,11 +7298,11 @@ type Query {
 
   Returned `User`s are sorted depending on the provided arguments:
   - If one of the `num`/`login`/`direct_link` arguments is specified, then
-  an exact `User` is returned.
+    an exact `User` is returned.
   - If the `name` argument is specified, then returned `User`s are sorted
-  primarily by the [Levenshtein distance][0] of their `name`s, and
-  secondary by their IDs (if the [Levenshtein distance][0] is the same),
-  in descending order.
+    primarily by the [Levenshtein distance][0] of their `name`s, and
+    secondary by their IDs (if the [Levenshtein distance][0] is the same),
+    in descending order.
 
   ## Pagination
 
@@ -7740,17 +7921,17 @@ type Subscription {
   Completes without re-subscription necessity when:
   - The `ChatCall` is finished (`EventChatCallFinished` is emitted).
   - The authenticated `MyUser` is no longer a member of the `ChatCall`
-  (`EventChatCallMemberLeft` is emitted for the the authenticated
-  `MyUser`).
+    (`EventChatCallMemberLeft` is emitted for the the authenticated
+    `MyUser`).
   - The `ChatCall` is not found or the authenticated `MyUser` doesn't
-  participate in it from the specified `MyUser`'s device (emits nothing,
-  completes immediately after being established).
+    participate in it from the specified `MyUser`'s device (emits nothing,
+    completes immediately after being established).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
   """
   chatCallEvents(
     """
@@ -7795,10 +7976,10 @@ type Subscription {
   may become stale, so this subscription will return `STALE_VERSION` error
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.chatContacts` (or
-  `Query.favoriteChatContacts`);
+    `Query.favoriteChatContacts`);
   - or a re-subscription should be done without specifying a `ver`
-  argument (so the fresh `ver` may be obtained in the emitted initial
-  state of the `ChatContact`s list).
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `ChatContact`s list).
 
   ## Completion
 
@@ -7808,7 +7989,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
 
   ## Idempotency
 
@@ -7861,10 +8042,10 @@ type Subscription {
   may become stale, so this subscription will return `STALE_VERSION` error
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.chat` (or
-  `Query.recentChats`);
+    `Query.recentChats`);
   - or a re-subscription should be done without specifying a `ver`
-  argument (so the fresh `ver` may be obtained in the emitted initial
-  state of the `Chat`).
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `Chat`).
 
   ## Completion
 
@@ -7872,19 +8053,19 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The `Chat` does not exist (emits nothing, completes immediately after
-  being established).
+    being established).
   - The authenticated `MyUser` is not a member of the `Chat` at the moment
-  of subscribing (emits nothing, completes immediately after being
-  established).
+    of subscribing (emits nothing, completes immediately after being
+    established).
   - The authenticated `MyUser` is no longer a member of the `Chat` (emits
-  an `EventChatItemPosted` of a `ChatInfo` with
-  `ChatInfoActionMemberRemoved` and completes).
+    an `EventChatItemPosted` of a `ChatInfo` with
+    `ChatInfoActionMemberRemoved` and completes).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
   """
   chatEvents(
     """ID of the `Chat` to subscribe onto."""
@@ -7930,8 +8111,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.favoriteChats`;
   - or a re-subscription should be done without specifying a `ver`
-  argument (so the fresh `ver` may be obtained in the emitted initial
-  state of the `FavoriteChatsList`).
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `FavoriteChatsList`).
 
   ## Completion
 
@@ -7941,7 +8122,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
 
   ## Idempotency
 
@@ -8005,7 +8186,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
   """
   incomingChatCallsTopEvents(
     """
@@ -8045,7 +8226,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
   """
   keepOnline: SubscriptionInitialized!
 
@@ -8082,7 +8263,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
   """
   keepTyping(
     """ID of the `Chat` to type in."""
@@ -8119,8 +8300,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.myUser`;
   - or a re-subscription should be done without specifying a `ver`
-  argument (so the fresh `ver` may be obtained in the emitted initial
-  state of the `MyUser`).
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `MyUser`).
 
   ## Completion
 
@@ -8128,13 +8309,13 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The authenticated `MyUser` is deleted (emits `EventUserDeleted` and
-  completes).
+    completes).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
 
   ## Idempotency
 
@@ -8191,7 +8372,7 @@ type Subscription {
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
   """
   recentChatsTopEvents(
     """
@@ -8246,8 +8427,8 @@ type Subscription {
   on initialization. In such case:
   - either a fresh version should be obtained via `Query.user`;
   - or a re-subscription should be done without specifying a `ver`
-  argument (so the fresh `ver` may be obtained in the emitted initial
-  state of the `User`).
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `User`).
 
   ## Completion
 
@@ -8255,15 +8436,15 @@ type Subscription {
 
   Completes without re-subscription necessity when:
   - The specified `User` is deleted (emits `EventUserDeleted` and
-  completes).
+    completes).
   - The specified `User` doesn't exist (emits nothing, completes
-  immediately after being established).
+    immediately after being established).
 
   Completes requiring a re-subscription when:
   - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
   - An error occurs on the server (error is emitted).
   - The server is shutting down or becoming unreachable (unexpectedly
-  completes after initialization).
+    completes after initialization).
 
   ## Idempotency
 
@@ -8293,6 +8474,14 @@ type SubscriptionInitialized {
   """Always `true`."""
   ok: Boolean!
 }
+
+"""
+[Base64URL]-encoded [ThumbHash].
+
+[Base64URL]: https://base64.guru/standards/base64url
+[ThumbHash]: https://evanw.github.io/thumbhash
+"""
+scalar ThumbHash
 
 """Error of performing `Mutation.toggleChatCallHand`."""
 type ToggleChatCallHandError {
@@ -8508,7 +8697,8 @@ enum UpdateChatAvatarErrorCode {
   INVALID_CROP_COORDINATES
 
   """
-  Top left point coordinates of `crop` area must be smaller than bottom right ones.
+  Top left point coordinates of `crop` area must be smaller than bottom right
+  ones and `crop` area dimensions must be greater than zero.
 
   Status code: 400 Bad Request.
   """
@@ -8529,18 +8719,18 @@ enum UpdateChatAvatarErrorCode {
   UNSUPPORTED_FORMAT
 
   """
-  Uploaded file is too big in size.
+  Uploaded file is too big or zero in size.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_SIZE
+  INVALID_SIZE
 
   """
   Uploaded image has too big dimensions.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_DIMENSIONS
+  INVALID_DIMENSIONS
 
   """
   `Chat` represents a dialog, so cannot have avatars.
@@ -8595,7 +8785,8 @@ enum UpdateUserAvatarErrorCode {
   INVALID_CROP_COORDINATES
 
   """
-  Top left point coordinates of `crop` area must be smaller than bottom right ones.
+  Top left point coordinates of `crop` area must be smaller than bottom right
+  ones and `crop` area dimensions must be greater than zero.
 
   Status code: 400 Bad Request.
   """
@@ -8616,18 +8807,18 @@ enum UpdateUserAvatarErrorCode {
   UNSUPPORTED_FORMAT
 
   """
-  Uploaded file is too big in size.
+  Uploaded file is too big or zero in size.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_SIZE
+  INVALID_SIZE
 
   """
   Uploaded image has too big dimensions.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_DIMENSIONS
+  INVALID_DIMENSIONS
 }
 
 """Result of performing `Mutation.updateUserAvatar`."""
@@ -8649,7 +8840,8 @@ enum UpdateUserCallCoverErrorCode {
   INVALID_CROP_COORDINATES
 
   """
-  Top left point coordinates of `crop` area must be smaller than bottom right ones.
+  Top left point coordinates of `crop` area must be smaller than bottom right
+  ones and `crop` area dimensions must be greater than zero.
 
   Status code: 400 Bad Request.
   """
@@ -8670,18 +8862,18 @@ enum UpdateUserCallCoverErrorCode {
   UNSUPPORTED_FORMAT
 
   """
-  Uploaded file is too big in size.
+  Uploaded file is too big or zero in size.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_SIZE
+  INVALID_SIZE
 
   """
   Uploaded image has too big dimensions.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_DIMENSIONS
+  INVALID_DIMENSIONS
 }
 
 """Result of performing `Mutation.updateUserCallCover`."""
@@ -8753,11 +8945,11 @@ enum UploadAttachmentErrorCode {
   NO_FILENAME
 
   """
-  Uploaded file is too big in size.
+  Uploaded file is too big or zero in size.
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_SIZE
+  INVALID_SIZE
 
   """
   Uploaded image cannot be decoded as an image.
@@ -8771,7 +8963,7 @@ enum UploadAttachmentErrorCode {
 
   Status code: 400 Bad Request.
   """
-  TOO_BIG_DIMENSIONS
+  INVALID_DIMENSIONS
 }
 
 """Result of a successful performing `Mutation.uploadAttachment`."""
@@ -8815,7 +9007,7 @@ type UseChatDirectLinkOk {
   The only `ChatEvent` which may be produced by performing
   `Mutation.useChatDirectLink`:
   - `EventChatItemPosted` (`ChatInfo` with either `ChatInfoActionCreated`
-  or `ChatInfoActionMemberAdded`).
+    or `ChatInfoActionMemberAdded`).
 
   `null` means no-op due to idempotency.
   """
@@ -9102,8 +9294,12 @@ scalar UserNum
 
 """State of a `User` to be offline at the moment."""
 type UserOffline {
-  """`DateTime` when the `User` was seen online last time."""
-  lastSeenAt: DateTime!
+  """
+  `DateTime` when the `User` was seen online last time.
+
+  `null` if the `User` was never seen online before.
+  """
+  lastSeenAt: DateTime
 }
 
 """State of a `User` to be online at the moment."""
