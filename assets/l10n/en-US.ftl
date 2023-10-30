@@ -692,14 +692,16 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
-label_introduction_description =
-    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
+label_introduction_description1 =
+    Access to a one-time account is maintained for one year or until:
 
-        • You will not delete user data from the application (browser);
+         • you delete cookies / cache;
 
-        • You will not press the "Logout" button.
+         • you click the button "Sign out".
 
-    In order not to lose access to your account, set a password.
+     To save access to your account, please set a password, e-mail or phone number in the{" "}
+label_introduction_description2 = settings
+label_introduction_description3 = .
 label_kb = {$amount} KB
 label_language = Language
 label_language_entry = {$code}, {$name}
@@ -760,6 +762,7 @@ label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_offline = offline
+label_one_time_account_created = One-time account created
 label_online = online
 label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
