@@ -355,7 +355,8 @@ class ChatInfoView extends StatelessWidget {
             key: const Key('AddMemberButton'),
             leading: Icon(Icons.people, color: style.colors.primary),
             title: Text('btn_add_member'.l10n),
-            onTap: () => AddChatMemberView.show(context, chatId: c.chat?.id ?? id),
+            onTap: () =>
+                AddChatMemberView.show(context, chatId: c.chat?.id ?? id),
           ),
           const SizedBox(height: 3),
           ...members.map((e) {
