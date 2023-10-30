@@ -161,7 +161,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether text within this [ReactiveTextField] should be
   /// selectable.
   final bool? selectable;
-  
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
