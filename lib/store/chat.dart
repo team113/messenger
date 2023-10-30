@@ -1295,10 +1295,14 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
-  Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
+  Future<HiveRxChat> put(
+    HiveChat chat, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
-    if (saved != null) {
+    if (saved != null && !ignoreVersion) {
       if (saved.ver >= chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
@@ -1328,7 +1332,7 @@ class ChatRepository extends DisposableInterface
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
       chat.value.firstItem ??= hiveChat?.value.firstItem;
 
-      if (hiveChat == null || hiveChat.ver < chat.ver) {
+      if (hiveChat == null || hiveChat.ver < chat.ver || ignoreVersion) {
         _recentLocal.put(chat.value.updatedAt, chatId);
         await _chatLocal.put(chat);
       }
@@ -1538,7 +1542,7 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
+          _putEntry(chatData, pagination: true, ignoreVersion: true);
           break;
 
         case OperationKind.removed:
@@ -1557,8 +1561,11 @@ class ChatRepository extends DisposableInterface
 
     // Add the received in [CombinedPagination.around] items to the
     // [paginated].
-    _pagination?.items
-        .forEach((e) => _putEntry(ChatData(e, null, null), pagination: true));
+    _pagination?.items.forEach((e) => _putEntry(
+          ChatData(e, null, null),
+          pagination: true,
+          ignoreVersion: true,
+        ));
 
     if (_pagination?.hasNext.value == false) {
       await _initMonolog();
@@ -1647,7 +1654,11 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Puts the provided [data] to [Hive].
-  Future<HiveRxChat> _putEntry(ChatData data, {bool pagination = false}) async {
+  Future<HiveRxChat> _putEntry(
+    ChatData data, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     final ChatId chatId = data.chat.value.id;
 
     Mutex? mutex = _putEntryGuards[chatId];
@@ -1659,7 +1670,11 @@ class ChatRepository extends DisposableInterface
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
     final HiveRxChat? saved = chats[chatId];
     if (saved != null) {
-      return put(data.chat, pagination: pagination);
+      return put(
+        data.chat,
+        pagination: pagination,
+        ignoreVersion: ignoreVersion,
+      );
     }
 
     if (mutex == null) {
@@ -1696,7 +1711,11 @@ class ChatRepository extends DisposableInterface
         }
       }
 
-      entry = await put(data.chat, pagination: pagination);
+      entry = await put(
+        data.chat,
+        pagination: pagination,
+        ignoreVersion: ignoreVersion,
+      );
 
       for (var item in [
         if (data.lastItem != null) data.lastItem!,
@@ -1860,6 +1879,8 @@ class ChatRepository extends DisposableInterface
   /// Initializes the [monolog], fetching it from remote, if none is known.
   Future<void> _initMonolog() async {
     if (monolog.isLocal && paginated[monolog] == null) {
+      // TODO: Monolog will be always fetched by pagination, so `getMonolog` can
+      //       be omitted.
       final ChatMixin? query = await _graphQlProvider.getMonolog();
       if (query == null) {
         await _createLocalDialog(me);

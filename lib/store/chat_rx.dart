@@ -1023,7 +1023,7 @@ class HiveRxChat extends RxChat {
         HiveChat? chatEntity = await _chatLocal.get(id);
         if (node.chat.ver > chatEntity?.ver) {
           chatEntity = node.chat;
-          _chatRepository.put(chatEntity);
+          _chatRepository.put(chatEntity, ignoreVersion: true);
           _lastReadItemCursor = node.chat.lastReadItemCursor;
         }
         break;
