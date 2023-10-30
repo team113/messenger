@@ -304,6 +304,8 @@ err_network = Connection to the server refused
 err_no_filename = File should have a name
 err_no_text_and_no_attachment =
     Either text or at least one attachment should be specified
+err_no_text_no_attachment_and_reply =
+    Either text or at least one attachment or reply should be specified
 err_no_unconfirmed_email = No unconfirmed Emails were found
 err_no_unconfirmed_phone = No unconfirmed phone numbers were found
 err_not_author = Not an author

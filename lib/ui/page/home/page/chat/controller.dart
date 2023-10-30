@@ -524,31 +524,43 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
-          if (edit.value?.field.text.trim() == item.text?.val &&
-              item.attachments
-                  .map((e) => e.id)
-                  .sameAs(edit.value?.attachments.map((e) => e.value.id)) &&
-              item.repliesTo
-                  .map((e) => e.original?.id)
-                  .sameAs(edit.value?.replied.map((e) => e.id))) {
+          ChatMessageText? text;
+          if (edit.value?.field.text.trim() != item.text?.val) {
+            text = ChatMessageText(edit.value!.field.text.trim());
+          }
+
+          List<AttachmentId>? attachments;
+          if (!item.attachments
+              .map((e) => e.id)
+              .sameAs(edit.value?.attachments.map((e) => e.value.id))) {
+            attachments =
+                edit.value!.attachments.map((e) => e.value.id).toList();
+          }
+
+          List<ChatItemId>? repliesTo;
+          if (!item.repliesTo
+              .map((e) => e.original?.id)
+              .sameAs(edit.value?.replied.map((e) => e.id))) {
+            repliesTo = edit.value!.replied.map((e) => e.id).toList();
+          }
+
+          if (text == null && attachments == null && repliesTo == null) {
             edit.value?.onClose();
             edit.value = null;
           } else if (edit.value!.field.text.trim().isNotEmpty ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
-            ChatMessageText? text =
-                ChatMessageText(edit.value!.field.text.trim());
-            List<AttachmentId>? attachments =
-                edit.value!.attachments.map((e) => e.value.id).toList();
-            List<ChatItemId>? repliesTo =
-                edit.value!.replied.map((e) => e.id).toList();
 
             try {
               await _chatService.editChatMessage(
                 item,
-                text: ChatMessageTextInput(text),
-                attachments: ChatMessageAttachmentsInput(attachments),
-                repliesTo: ChatMessageRepliesInput(repliesTo),
+                text: text == null ? null : ChatMessageTextInput(text),
+                attachments: attachments == null
+                    ? null
+                    : ChatMessageAttachmentsInput(attachments),
+                repliesTo: repliesTo == null
+                    ? null
+                    : ChatMessageRepliesInput(repliesTo),
               );
 
               closeEditing();
@@ -562,6 +574,8 @@ class ChatController extends GetxController {
               MessagePopup.error(e);
               rethrow;
             }
+          } else {
+            MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
           }
         },
         onChanged: () {

@@ -305,6 +305,8 @@ err_network = Ошибка подключения к серверу
 err_no_filename = Файл должен иметь имя
 err_no_text_and_no_attachment =
     Сообщение должно иметь текст или прикрепления
+err_no_text_no_attachment_and_reply =
+    Сообщение должно иметь текст, прикрепление или цитату
 err_no_unconfirmed_email = Нет неподтверждённых Email адресов
 err_no_unconfirmed_phone = Нет неподтверждённых номеров телефонов
 err_not_author = Не автор
