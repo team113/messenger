@@ -132,7 +132,7 @@ class MessageTimestamp extends StatelessWidget {
               style: style.fonts.labelSmall.copyWith(
                 fontSize: fontSize ?? style.fonts.labelSmall.fontSize,
                 color: inverted
-                    ? style.colors.secondaryHighlightDark
+                    ? style.colors.onBackground
                     : style.colors.secondary,
               ),
             ),
