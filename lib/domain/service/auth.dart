@@ -99,6 +99,7 @@ class AuthService extends GetxService {
   @override
   void onClose() {
     Log.debug('onClose()', 'AuthService');
+
     _storageSubscription?.cancel();
     _sessionSubscription?.cancel();
     _sessionProvider.close();
@@ -112,6 +113,7 @@ class AuthService extends GetxService {
   /// from the server to be up-to-date with it.
   Future<String?> init() async {
     Log.debug('init()', 'AuthService');
+
     // Try to refresh session, otherwise just force logout.
     _authRepository.authExceptionHandler = (e) async {
       if (credentials.value?.rememberedSession.expireAt
@@ -197,6 +199,7 @@ class AuthService extends GetxService {
       'recoverUserPassword($login, $num, $email, $phone)',
       'AuthService',
     );
+
     await _authRepository.recoverUserPassword(
       login: login,
       num: num,
@@ -219,6 +222,7 @@ class AuthService extends GetxService {
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone)',
       'AuthService',
     );
+
     await _authRepository.validateUserPasswordRecoveryCode(
       login: login,
       num: num,
@@ -246,6 +250,7 @@ class AuthService extends GetxService {
       'resetUserPassword($code, newPassword, $login, $num, $email, $phone)',
       'AuthService',
     );
+
     await _authRepository.resetUserPassword(
       login: login,
       num: num,
@@ -263,6 +268,7 @@ class AuthService extends GetxService {
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
     Log.debug('register()', 'AuthService');
+
     status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
@@ -291,6 +297,7 @@ class AuthService extends GetxService {
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   Future<void> confirmSignUpEmail(ConfirmationCode code) async {
     Log.debug('confirmSignUpEmail($code)', 'AuthService');
+
     try {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
       _authorized(creds);
@@ -322,6 +329,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     Log.debug('signIn(password, $login, $num, $email, $phone)', 'AuthService');
+
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {
@@ -346,6 +354,7 @@ class AuthService extends GetxService {
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
     Log.debug('signInWith($credentials)', 'AuthService');
+
     // Check if the [credentials] are valid.
     credentials =
         await _authRepository.renewSession(credentials.rememberedSession.token);
@@ -362,6 +371,7 @@ class AuthService extends GetxService {
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {
     Log.debug('logout()', 'AuthService');
+
     status.value = RxStatus.loading();
 
     try {
@@ -392,6 +402,7 @@ class AuthService extends GetxService {
   /// Validates the current [AccessToken].
   Future<bool> validateToken() async {
     Log.debug('validateToken()', 'AuthService');
+
     try {
       await _authRepository.validateToken();
       return true;
@@ -403,6 +414,7 @@ class AuthService extends GetxService {
   /// Refreshes the current [session].
   Future<void> renewSession() async {
     Log.debug('renewSession()', 'AuthService');
+
     if (WebUtils.credentialsUpdating) {
       // Wait until the [Credentials] are done updating in another tab.
       await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
@@ -448,6 +460,7 @@ class AuthService extends GetxService {
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
     Log.debug('_authorized($creds)', 'AuthService');
+
     _authRepository.token = creds.session.token;
     credentials.value = creds;
     _refreshTimer?.cancel();
@@ -463,6 +476,7 @@ class AuthService extends GetxService {
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
   String _unauthorized() {
     Log.debug('_unauthorized()', 'AuthService');
+
     _sessionProvider.clear();
     _authRepository.token = null;
     credentials.value = null;

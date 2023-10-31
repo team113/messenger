@@ -46,7 +46,8 @@ class UserService extends DisposableService {
     UserLogin? login,
     ChatDirectLinkSlug? link,
   }) {
-    Log.debug('search($num, $name, $login, $link)', 'NotificationService');
+    Log.debug('search($num, $name, $login, $link)', '$runtimeType');
+
     return _userRepository.search(
       num: num,
       name: name,
@@ -57,26 +58,26 @@ class UserService extends DisposableService {
 
   /// Returns an [User] by the provided [id].
   Future<RxUser?> get(UserId id) async {
-    Log.debug('get($id)', 'NotificationService');
+    Log.debug('get($id)', '$runtimeType');
     return await _userRepository.get(id);
   }
 
   /// Blacklists the specified [User] for the authenticated [MyUser].
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
-    Log.debug('blockUser($id, $reason)', 'NotificationService');
+    Log.debug('blockUser($id, $reason)', '$runtimeType');
     await _userRepository.blockUser(id, reason);
   }
 
   /// Removes the specified [User] from the blacklist of the authenticated
   /// [MyUser].
   Future<void> unblockUser(UserId id) async {
-    Log.debug('unblockUser($id)', 'NotificationService');
+    Log.debug('unblockUser($id)', '$runtimeType');
     await _userRepository.unblockUser(id);
   }
 
   /// Removes [users] from the local data storage.
   Future<void> clearCached() async {
-    Log.debug('clearCached()', 'NotificationService');
+    Log.debug('clearCached()', '$runtimeType');
     await _userRepository.clearCache();
   }
 }

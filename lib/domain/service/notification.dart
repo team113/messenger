@@ -113,8 +113,9 @@ class NotificationService extends DisposableService {
   }) async {
     Log.debug(
       'init($language, $firebaseOptions, onResponse, onBackground)',
-      'NotificationService',
+      '$runtimeType',
     );
+
     if (WebUtils.isPopup) {
       return;
     }
@@ -149,7 +150,7 @@ class NotificationService extends DisposableService {
       } catch (e) {
         Log.error(
           'Failed to initialize push notifications: ${e.toString()}',
-          'NotificationService',
+          '$runtimeType',
         );
       }
     }
@@ -157,7 +158,8 @@ class NotificationService extends DisposableService {
 
   @override
   void onClose() {
-    Log.debug('onClose()', 'NotificationService');
+    Log.debug('onClose()', '$runtimeType');
+
     _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
@@ -179,8 +181,9 @@ class NotificationService extends DisposableService {
   }) async {
     Log.debug(
       'show($title, $body, $payload, $icon, $tag, $image)',
-      'NotificationService',
+      '$runtimeType',
     );
+
     // Don't display a notification with the provided [tag], if it's in the
     // [_tags] list already, or otherwise add it to that list.
     if (_foregroundSubscription != null && tag != null) {
@@ -299,7 +302,8 @@ class NotificationService extends DisposableService {
   /// Sets the provided [language] as a preferred localization of the push
   /// notifications.
   void setLanguage(String? language) async {
-    Log.debug('setLanguage($language)', 'NotificationService');
+    Log.debug('setLanguage($language)', '$runtimeType');
+
     if (_language != language) {
       _language = language;
 
@@ -315,7 +319,8 @@ class NotificationService extends DisposableService {
   Future<void> _initLocalNotifications({
     void Function(NotificationResponse)? onResponse,
   }) async {
-    Log.debug('_initLocalNotifications(onResponse)', 'NotificationService');
+    Log.debug('_initLocalNotifications(onResponse)', '$runtimeType');
+
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
       // a browser's policy to ask for notifications permission only after
@@ -382,8 +387,9 @@ class NotificationService extends DisposableService {
   }) async {
     Log.debug(
       '_initPushNotifications($options, onResponse, onBackground)',
-      'NotificationService',
+      '$runtimeType',
     );
+
     FirebaseMessaging.onMessageOpenedApp.listen(onResponse);
 
     if (onBackground != null) {
@@ -430,7 +436,7 @@ class NotificationService extends DisposableService {
           sound: 'notification',
         );
       } catch (e) {
-        Log.error(e.toString());
+        Log.error(e.toString(), '$runtimeType');
       }
     }
 
@@ -470,7 +476,8 @@ class NotificationService extends DisposableService {
   /// Registers a device (Android, iOS, or Web) for receiving notifications via
   /// Firebase Cloud Messaging.
   Future<void> _registerFcmDevice() async {
-    Log.debug('_registerFcmDevice()', 'NotificationService');
+    Log.debug('_registerFcmDevice()', '$runtimeType');
+
     _pushNotifications = false;
 
     if (_token != null) {
@@ -486,7 +493,8 @@ class NotificationService extends DisposableService {
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
   /// via Firebase Cloud Messaging.
   Future<void> _unregisterFcmDevice() async {
-    Log.debug('_unregisterFcmDevice()', 'NotificationService');
+    Log.debug('_unregisterFcmDevice()', '$runtimeType');
+
     if (_token != null) {
       await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
       _pushNotifications = false;

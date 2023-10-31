@@ -54,7 +54,8 @@ class MyUserService extends DisposableService {
 
   @override
   void onInit() {
-    Log.debug('onInit()', 'MyUserService');
+    Log.debug('onInit()', '$runtimeType');
+
     assert(_auth.initialized);
     _userRepo.init(
       onPasswordUpdated: _onPasswordUpdated,
@@ -65,7 +66,8 @@ class MyUserService extends DisposableService {
 
   @override
   void onClose() {
-    Log.debug('onClose()', 'MyUserService');
+    Log.debug('onClose()', '$runtimeType');
+
     _userRepo.dispose();
     super.onClose();
   }
@@ -74,7 +76,7 @@ class MyUserService extends DisposableService {
   ///
   /// If [name] is `null`, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
-    Log.debug('updateUserName($name)', 'MyUserService');
+    Log.debug('updateUserName($name)', '$runtimeType');
     await _userRepo.updateUserName(name);
   }
 
@@ -82,13 +84,13 @@ class MyUserService extends DisposableService {
   ///
   /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin login) async {
-    Log.debug('updateUserLogin($login)', 'MyUserService');
+    Log.debug('updateUserLogin($login)', '$runtimeType');
     await _userRepo.updateUserLogin(login);
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
-    Log.debug('updateUserStatus($status)', 'MyUserService');
+    Log.debug('updateUserStatus($status)', '$runtimeType');
     await _userRepo.updateUserStatus(status);
   }
 
@@ -105,8 +107,9 @@ class MyUserService extends DisposableService {
   }) async {
     Log.debug(
       'updateUserPassword($oldPassword, $newPassword)',
-      'MyUserService',
+      '$runtimeType',
     );
+
     _passwordChangeGuard.protect(() async {
       await _userRepo.updateUserPassword(oldPassword, newPassword);
 
@@ -119,7 +122,7 @@ class MyUserService extends DisposableService {
 
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence) async {
-    Log.debug('updateUserPresence($presence)', 'MyUserService');
+    Log.debug('updateUserPresence($presence)', '$runtimeType');
     await _userRepo.updateUserPresence(presence);
   }
 
@@ -127,7 +130,8 @@ class MyUserService extends DisposableService {
   ///
   /// __This action cannot be reverted.__
   Future<void> deleteMyUser() async {
-    Log.debug('deleteMyUser()', 'MyUserService');
+    Log.debug('deleteMyUser()', '$runtimeType');
+
     await _userRepo.deleteMyUser();
     _onUserDeleted();
   }
@@ -135,14 +139,14 @@ class MyUserService extends DisposableService {
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
   Future<void> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', 'MyUserService');
+    Log.debug('deleteUserEmail($email)', '$runtimeType');
     await _userRepo.deleteUserEmail(email);
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
   Future<void> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', 'MyUserService');
+    Log.debug('deleteUserPhone($phone)', '$runtimeType');
     await _userRepo.deleteUserPhone(phone);
   }
 
@@ -152,7 +156,7 @@ class MyUserService extends DisposableService {
   /// of a [MyUser.emails] field and sends to this address an email message with
   /// a [ConfirmationCode].
   Future<void> addUserEmail(UserEmail email) async {
-    Log.debug('addUserEmail($email)', 'MyUserService');
+    Log.debug('addUserEmail($email)', '$runtimeType');
     await _userRepo.addUserEmail(email);
   }
 
@@ -162,7 +166,7 @@ class MyUserService extends DisposableService {
   /// of a [MyUser.phones] field and sends to this number SMS with a
   /// [ConfirmationCode].
   Future<void> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', 'MyUserService');
+    Log.debug('addUserPhone($phone)', '$runtimeType');
     await _userRepo.addUserPhone(phone);
   }
 
@@ -170,7 +174,7 @@ class MyUserService extends DisposableService {
   /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
   /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
   Future<void> confirmEmailCode(ConfirmationCode code) async {
-    Log.debug('confirmEmailCode($code)', 'MyUserService');
+    Log.debug('confirmEmailCode($code)', '$runtimeType');
     await _userRepo.confirmEmailCode(code);
   }
 
@@ -178,21 +182,21 @@ class MyUserService extends DisposableService {
   /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
   /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
-    Log.debug('confirmPhoneCode($code)', 'MyUserService');
+    Log.debug('confirmPhoneCode($code)', '$runtimeType');
     await _userRepo.confirmPhoneCode(code);
   }
 
   /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address for
   /// the authenticated [MyUser].
   Future<void> resendEmail() async {
-    Log.debug('resendEmail()', 'MyUserService');
+    Log.debug('resendEmail()', '$runtimeType');
     await _userRepo.resendEmail();
   }
 
   /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
   /// the authenticated [MyUser].
   Future<void> resendPhone() async {
-    Log.debug('resendPhone()', 'MyUserService');
+    Log.debug('resendPhone()', '$runtimeType');
     await _userRepo.resendPhone();
   }
 
@@ -200,13 +204,13 @@ class MyUserService extends DisposableService {
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('createChatDirectLink($slug)', 'MyUserService');
+    Log.debug('createChatDirectLink($slug)', '$runtimeType');
     await _userRepo.createChatDirectLink(slug);
   }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
   Future<void> deleteChatDirectLink() async {
-    Log.debug('deleteChatDirectLink()', 'MyUserService');
+    Log.debug('deleteChatDirectLink()', '$runtimeType');
     await _userRepo.deleteChatDirectLink();
   }
 
@@ -216,7 +220,7 @@ class MyUserService extends DisposableService {
     NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateAvatar($file, onSendProgress)', 'MyUserService');
+    Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
     await _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
   }
 
@@ -226,25 +230,25 @@ class MyUserService extends DisposableService {
     NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateCallCover($file, onSendProgress)', 'MyUserService');
+    Log.debug('updateCallCover($file, onSendProgress)', '$runtimeType');
     await _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute) async {
-    Log.debug('toggleMute($mute)', 'MyUserService');
+    Log.debug('toggleMute($mute)', '$runtimeType');
     await _userRepo.toggleMute(mute);
   }
 
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async {
-    Log.debug('clearCached()', 'MyUserService');
+    Log.debug('clearCached()', '$runtimeType');
     await _userRepo.clearCache();
   }
 
   /// Refreshes the [MyUser] to be up to date.
   Future<void> refresh() async {
-    Log.debug('refresh()', 'MyUserService');
+    Log.debug('refresh()', '$runtimeType');
     await _userRepo.refresh();
   }
 
@@ -252,8 +256,9 @@ class MyUserService extends DisposableService {
   ///
   /// Performs log out if the current [AccessToken] is not valid.
   Future<void> _onPasswordUpdated() async {
-    Log.debug('_onPasswordUpdated()', 'MyUserService');
-    _passwordChangeGuard.protect(() async {
+    Log.debug('_onPasswordUpdated()', '$runtimeType');
+
+    await _passwordChangeGuard.protect(() async {
       bool isTokenValid = await _auth.validateToken();
       if (!isTokenValid) {
         router.go(await _auth.logout());
@@ -265,7 +270,8 @@ class MyUserService extends DisposableService {
   ///
   /// Performs log out and clears [MyUser] store.
   Future<void> _onUserDeleted() async {
-    Log.debug('_onUserDeleted()', 'MyUserService');
+    Log.debug('_onUserDeleted()', '$runtimeType');
+
     _auth.logout();
     router.auth();
     await clearCached();

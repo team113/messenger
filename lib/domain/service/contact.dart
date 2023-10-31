@@ -47,22 +47,25 @@ class ContactService extends DisposableService {
 
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) async {
-    Log.debug('createChatContact($user)', 'ContactService');
-    _contactRepository.createChatContact(
-        user.name ?? UserName(user.num.toString()), user.id);
+    Log.debug('createChatContact($user)', '$runtimeType');
+
+    await _contactRepository.createChatContact(
+      user.name ?? UserName(user.num.toString()),
+      user.id,
+    );
   }
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
   /// address book.
   Future<void> deleteContact(ChatContactId id) async {
-    Log.debug('deleteContact($id)', 'ContactService');
+    Log.debug('deleteContact($id)', '$runtimeType');
     await _contactRepository.deleteContact(id);
   }
 
   /// Updates `name` of the specified [ChatContact] in the authenticated
   /// [MyUser]'s address book.
   Future<void> changeContactName(ChatContactId id, UserName name) async {
-    Log.debug('changeContactName($id, $name)', 'ContactService');
+    Log.debug('changeContactName($id, $name)', '$runtimeType');
     await _contactRepository.changeContactName(id, name);
   }
 
@@ -72,14 +75,14 @@ class ContactService extends DisposableService {
     ChatContactId id, [
     ChatContactFavoritePosition? position,
   ]) async {
-    Log.debug('favoriteChatContact($id, $position)', 'ContactService');
+    Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
     await _contactRepository.favoriteChatContact(id, position);
   }
 
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id) async {
-    Log.debug('unfavoriteChatContact($id)', 'ContactService');
+    Log.debug('unfavoriteChatContact($id)', '$runtimeType');
     await _contactRepository.unfavoriteChatContact(id);
   }
 
@@ -89,7 +92,7 @@ class ContactService extends DisposableService {
     UserEmail? email,
     UserPhone? phone,
   }) {
-    Log.debug('search($name, $email, $phone)', 'ContactService');
+    Log.debug('search($name, $email, $phone)', '$runtimeType');
     return _contactRepository.search(
       name: name,
       email: email,

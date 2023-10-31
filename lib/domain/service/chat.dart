@@ -72,6 +72,7 @@ class ChatService extends DisposableService {
   @override
   void onInit() {
     Log.debug('onInit()', 'ChatService');
+
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
   }
@@ -83,6 +84,7 @@ class ChatService extends DisposableService {
     ChatName? name,
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', 'ChatService');
+
     return await _chatRepository.createGroupChat(memberIds, name: name);
   }
 
@@ -126,6 +128,7 @@ class ChatService extends DisposableService {
       'sendChatMessage($chatId, $text, $attachments, $repliesTo)',
       'ChatService',
     );
+
     if (text?.val.isNotEmpty != true &&
         attachments?.isNotEmpty != true &&
         repliesTo.isNotEmpty) {

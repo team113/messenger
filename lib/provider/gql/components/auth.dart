@@ -53,6 +53,7 @@ mixin AuthGraphQlMixin {
   /// Each time creates a new unique [MyUser] and a new [Session].
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
     Log.debug('signUp()', 'AuthGraphQlMixin');
+
     final variables = SignUpArguments(remember: remember);
     final QueryResult result = await client.query(QueryOptions(
       document: SignUpMutation(variables: variables).document,
@@ -77,6 +78,7 @@ mixin AuthGraphQlMixin {
   /// been deleted already.
   Future<void> deleteSession() async {
     Log.debug('deleteSession()', 'AuthGraphQlMixin');
+
     if (token != null) {
       final variables = DeleteSessionArguments(token: token!);
       final QueryResult result = await client.query(QueryOptions(
@@ -115,6 +117,7 @@ mixin AuthGraphQlMixin {
       'signIn(password, $login, $num, $email, $phone, $remember)',
       'AuthGraphQlMixin',
     );
+
     final variables = SignInArguments(
       password: password,
       login: login,
@@ -145,7 +148,8 @@ mixin AuthGraphQlMixin {
   /// Mandatory.
   Future<ValidateToken$Query> validateToken() async {
     Log.debug('validateToken()', 'AuthGraphQlMixin');
-    QueryResult res = await client
+
+    final QueryResult res = await client
         .query(QueryOptions(document: ValidateTokenQuery().document));
     return ValidateToken$Query.fromJson(res.data!);
   }
@@ -174,6 +178,7 @@ mixin AuthGraphQlMixin {
   /// Each time creates a new [Session] and generates a new [RefreshToken].
   Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
     Log.debug('renewSession($token)', 'AuthGraphQlMixin');
+
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -221,6 +226,7 @@ mixin AuthGraphQlMixin {
       'recoverUserPassword($login, $num, $email, $phone)',
       'AuthGraphQlMixin',
     );
+
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
         'Exactly one of num/login/email/phone should be specified.',
@@ -268,6 +274,7 @@ mixin AuthGraphQlMixin {
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code)',
       'AuthGraphQlMixin',
     );
+
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
           'Exactly one of num/login/email/phone should be specified.');
@@ -327,6 +334,7 @@ mixin AuthGraphQlMixin {
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, newPassword)',
       'AuthGraphQlMixin',
     );
+
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
         'Exactly one of num/login/email/phone should be specified.',

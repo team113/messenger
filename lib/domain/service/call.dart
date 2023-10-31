@@ -71,6 +71,7 @@ class CallService extends DisposableService {
       'call($chatId, $withAudio, $withVideo, $withScreen)',
       'CallService',
     );
+
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
     if (WebUtils.containsCall(chatId)) {
@@ -112,6 +113,7 @@ class CallService extends DisposableService {
       'join($chatId, $withAudio, $withVideo, $withScreen)',
       'CallService',
     );
+
     if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
     }
@@ -157,6 +159,7 @@ class CallService extends DisposableService {
   /// Leaves or declines an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Log.debug('leave($chatId, $deviceId)', 'CallService');
+
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       deviceId ??= call.value.deviceId;
@@ -179,6 +182,7 @@ class CallService extends DisposableService {
   /// Declines an [OngoingCall] identified by the given [chatId].
   Future<void> decline(ChatId chatId) async {
     Log.debug('decline($chatId)', 'CallService');
+
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
@@ -206,6 +210,7 @@ class CallService extends DisposableService {
       'addStored($stored, $withAudio, $withVideo, $withScreen)',
       'CallService',
     );
+
     return _callsRepo.addStored(
       stored,
       withAudio: withAudio,
@@ -224,7 +229,7 @@ class CallService extends DisposableService {
   /// identified by the given [chatId].
   Future<void> toggleHand(ChatId chatId, bool raised) async {
     Log.debug('toggleHand($chatId, $raised)', 'CallService');
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.toggleHand(chatId, raised);
     }
@@ -262,7 +267,8 @@ class CallService extends DisposableService {
       'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
       'CallService',
     );
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(
         chatId,
@@ -277,10 +283,7 @@ class CallService extends DisposableService {
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
-  Stream<ChatCallEvents> heartbeat(
-    ChatItemId id,
-    ChatCallDeviceId deviceId,
-  ) {
+  Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId) {
     Log.debug('heartbeat($id, $deviceId)', 'CallService');
     return _callsRepo.heartbeat(id, deviceId);
   }
@@ -297,7 +300,8 @@ class CallService extends DisposableService {
       'moveCall($chatId, $newChatId, $callId, $newCallId)',
       'CallService',
     );
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
       _callsRepo.moveCredentials(callId, newCallId);
