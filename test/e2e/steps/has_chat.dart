@@ -92,6 +92,8 @@ final StepDefinitionGeneric haveGroupNamed =
     );
 
     context.world.groups[name] = chat.id;
+    context.world.me!.groups[name] = chat.id;
+    context.world.sessions[user.name]!.groups[name] = chat.id;
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

@@ -39,7 +39,7 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
       context.world,
       password: password,
     );
-    context.world.me = me.userId;
+    context.world.me = me;
 
     await Get.find<AuthService>()
         .signIn(password, num: context.world.sessions[user.name]?.userNum);

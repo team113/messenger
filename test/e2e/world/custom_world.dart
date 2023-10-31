@@ -45,12 +45,12 @@ class CustomWorld extends FlutterWidgetTesterWorld {
   ClipboardData? clipboard;
 
   /// [UserId] of the currently authenticated [MyUser].
-  UserId? me;
+  CustomUser? me;
 
   @override
-  void dispose() {
+  Future<void> dispose() async {
     for (var session in sessions.values) {
-      session.call?.dispose();
+      await session.call?.dispose();
     }
 
     super.dispose();
@@ -112,7 +112,8 @@ class Call {
   StreamSubscription? _eventsSubscription;
 
   /// Disposes this [Call].
-  dispose() {
+  Future<void> dispose() async {
+    print('_________________________dispose');
     if (_room != null) {
       try {
         _jason?.closeRoom(_room!);
@@ -120,7 +121,7 @@ class Call {
       } catch (_) {}
     }
     _jason?.free();
-    _eventsSubscription?.cancel();
+    await _eventsSubscription?.cancel();
     provider.disconnect();
   }
 
@@ -130,34 +131,54 @@ class Call {
     _room = _jason!.initRoom();
 
     _room!.onFailedLocalMedia((p0) {});
-    _room!.onConnectionLoss((p0) {});
+    _room!.onConnectionLoss((p0) {
+      print('_______________________ onConnectionLoss');
+    });
     _room!.onNewConnection((p0) {});
+    _room!.onClose((p0) {
+      print('_______________________ onClose');
+    });
 
     if (chatCall.joinLink != null) {
+      print('________________________room!.join 1');
       await _room!.join('${chatCall.joinLink}?token=$creds');
+      print('________________________room!.join 1 completed');
     }
 
     _eventsSubscription = provider.callEvents(chatCall.id, deviceId).listen(
       (event) async {
         var events =
             CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+        print('_________________________provider.callEvents');
+        print(events.$$typename);
 
         if (events.$$typename == 'ChatCallEventsVersioned') {
           var mixin = events as ChatCallEventsVersionedMixin;
 
           for (var e in mixin.events) {
+            print(e.$$typename);
             if (e.$$typename == 'EventChatCallRoomReady') {
               var node = e
                   as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
+              print('________________________room!.join 2');
               await _room!.join('${node.joinLink}?token=$creds');
+              print('________________________room!.join 2 completed');
             } else if (e.$$typename == 'ChatCall') {
               var call = e as CallEvents$Subscription$ChatCallEvents$ChatCall;
               if (call.joinLink != null) {
+                print('________________________room!.join 3');
                 await _room!.join('${call.joinLink}?token=$creds');
+                print('________________________room!.join 3 completed');
               }
             }
           }
         }
+      },
+      onError: (error) {
+        print('_________________________error $error');
+      },
+      onDone: () {
+        print('_________________________onDone');
       },
     );
 
