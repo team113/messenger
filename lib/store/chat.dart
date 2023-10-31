@@ -181,8 +181,8 @@ class ChatRepository extends DisposableInterface
   ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
-  RxBool get hasNext => _localPagination == null && _pagination != null
-      ? _pagination!.hasNext
+  RxBool get hasNext => _localPagination == null
+      ? _pagination?.hasNext ?? RxBool(false)
       : RxBool(true);
 
   @override
