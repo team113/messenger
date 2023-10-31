@@ -186,8 +186,9 @@ class ChatRepository extends DisposableInterface
   late final Rx<({ChatId id, bool isHidden})> monolog;
 
   @override
-  RxBool get hasNext =>
-      _localPagination?.hasNext ?? _pagination?.hasNext ?? RxBool(false);
+  RxBool get hasNext => _localPagination == null
+      ? _pagination?.hasNext ?? RxBool(false)
+      : RxBool(true);
 
   @override
   RxBool get nextLoading =>
