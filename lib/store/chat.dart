@@ -181,8 +181,15 @@ class ChatRepository extends DisposableInterface
   ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
-  RxBool get hasNext =>
-      _localPagination?.hasNext ?? _pagination?.hasNext ?? RxBool(false);
+  RxBool get hasNext {
+    if (_localPagination == null && _pagination != null) {
+      return _pagination!.hasNext;
+    } else if (monolog.isLocal && paginated[monolog] != null) {
+      return RxBool(false);
+    } else {
+      return RxBool(true);
+    }
+  }
 
   @override
   RxBool get nextLoading =>
@@ -285,10 +292,12 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> next() async {
-    await (_localPagination?.next ?? _pagination?.next)?.call();
+    if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
+      await (_localPagination?.next ?? _pagination?.next)?.call();
 
-    if (_pagination?.hasNext.value == false) {
-      _initMonolog();
+      if (_pagination?.hasNext.value == false) {
+        _initMonolog();
+      }
     }
   }
 

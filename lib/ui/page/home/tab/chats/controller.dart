@@ -241,6 +241,8 @@ class ChatsTabController extends GetxController {
               return false;
             });
           }
+
+          _scrollListener();
           break;
 
         case OperationKind.updated:
