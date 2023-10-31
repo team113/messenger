@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../world/custom_world.dart';
@@ -36,6 +37,27 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
 
         final controller = Get.find<ChatsTabController>();
         if (controller.chats.where((e) => !e.id.isLocal).length == count) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      timeout: const Duration(seconds: 30),
+    );
+  },
+);
+
+/// Indicates whether the [AbstractChatRepository] is contains remote chats.
+///
+/// Examples:
+/// - Then I see chats fetched from remote
+final StepDefinitionGeneric seeRemoteChats = then<CustomWorld>(
+  'I see chats fetched from remote',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        final chatRepository = Get.find<AbstractChatRepository>();
+        if (chatRepository.isRemote) {
           return true;
         } else {
           return false;

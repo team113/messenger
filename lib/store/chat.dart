@@ -192,6 +192,9 @@ class ChatRepository extends DisposableInterface
       RxBool(false);
 
   @override
+  bool get isRemote => _localPagination == null && _pagination != null;
+
+  @override
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
   }) async {

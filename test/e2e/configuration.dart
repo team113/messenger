@@ -179,6 +179,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
+        seeRemoteChats,
         seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,

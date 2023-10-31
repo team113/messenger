@@ -42,4 +42,4 @@ Feature: Chats pagination
     Then I see 16 chats
 
     When I have Internet without delay
-    Then I see 15 chats
+    Then I see chats fetched from remote

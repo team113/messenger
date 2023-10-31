@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
@@ -54,6 +55,10 @@ abstract class AbstractChatRepository {
 
   /// Indicator whether a next page of the [paginated] is loading.
   RxBool get nextLoading;
+
+  /// Indicates whether this [AbstractChatRepository] uses a remote pagination.
+  @visibleForTesting
+  bool get isRemote;
 
   /// Initializes this repository.
   ///
