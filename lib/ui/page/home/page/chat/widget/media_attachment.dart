@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -131,8 +132,12 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         child = RetryImage.attachment(
           attachment as ImageAttachment,
           fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
-          width: widget.width,
-          height: widget.height,
+          width: widget.width ?? max(100, file.width?.toDouble() ?? 550),
+          height: widget.height ??
+              max(
+                100,
+                min(file.height?.toDouble() ?? 300, 300),
+              ),
           onForbidden: widget.onError,
           cancelable: true,
           autoLoad: widget.autoLoad,
