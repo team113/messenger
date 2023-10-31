@@ -270,7 +270,7 @@ class ChatRepository extends DisposableInterface
       await Future.delayed(1.milliseconds);
 
       if (paginated.isNotEmpty) {
-        status.value = RxStatus.success();
+        status.value = RxStatus.loadingMore();
       }
     }
   }
