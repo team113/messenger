@@ -532,9 +532,7 @@ class ChatRepository extends DisposableInterface
 
       item?.update((c) {
         (c as ChatMessage).text = text?.changed ?? previousText;
-
         c.attachments = attachments?.changed ?? previousAttachments!;
-
         c.repliesTo = repliesTo?.changed
                 .map(
                   (e) => c.repliesTo.firstWhereOrNull(

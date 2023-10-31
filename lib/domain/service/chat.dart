@@ -207,6 +207,8 @@ class ChatService extends DisposableService {
         (text?.changed ?? item.text)?.val.isEmpty != false &&
         (repliesTo?.changed ?? item.repliesTo).isNotEmpty) {
       text = const ChatMessageTextInput(ChatMessageText(' '));
+    } else if (text?.changed.val.isNotEmpty == true) {
+      text = ChatMessageTextInput(ChatMessageText(text!.changed.val.trim()));
     }
 
     return _chatRepository.editChatMessage(

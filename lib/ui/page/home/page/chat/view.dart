@@ -762,7 +762,7 @@ class _ChatViewState extends State<ChatView>
                   await Future.wait(futures);
                 },
                 onReply: () {
-                  MessageFieldController field = c.edit.value ?? c.send;
+                  final MessageFieldController field = c.edit.value ?? c.send;
 
                   if (element.forwards.any((e) =>
                           field.replied.any((i) => i.id == e.value.id)) ||
@@ -895,7 +895,6 @@ class _ChatViewState extends State<ChatView>
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
           onItemPressed: (id) => c.animateTo(id),
-          canAttach: true,
         );
       }
 
