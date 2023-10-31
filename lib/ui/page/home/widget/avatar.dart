@@ -418,7 +418,11 @@ class _AvatarWidgetState extends State<AvatarWidget> {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
+      final double badgeSize = maxWidth >= 40
+          ? maxWidth >= 100
+              ? maxWidth / 10
+              : maxWidth / 5
+          : maxWidth / 3.75;
 
       return Badge(
         largeSize: badgeSize * 1.16,
@@ -426,7 +430,11 @@ class _AvatarWidgetState extends State<AvatarWidget> {
         alignment: Alignment.bottomRight,
         backgroundColor: style.colors.onPrimary,
         padding: EdgeInsets.all(badgeSize / 12),
-        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
+        offset: maxWidth >= 40
+            ? maxWidth >= 100
+                ? const Offset(-15, -15)
+                : const Offset(-2.5, -2.5)
+            : const Offset(0, 0),
         label: SizedBox(
           width: badgeSize,
           height: badgeSize,

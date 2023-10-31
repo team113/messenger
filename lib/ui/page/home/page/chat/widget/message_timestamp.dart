@@ -131,9 +131,8 @@ class MessageTimestamp extends StatelessWidget {
               date ? at!.val.toLocal().yMdHm : at!.val.toLocal().hm,
               style: style.fonts.labelSmall.copyWith(
                 fontSize: fontSize ?? style.fonts.labelSmall.fontSize,
-                color: inverted
-                    ? style.colors.onBackground
-                    : style.colors.secondary,
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
               ),
             ),
           ),

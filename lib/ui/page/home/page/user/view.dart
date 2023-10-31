@@ -97,119 +97,189 @@ class UserView extends StatelessWidget {
           return LayoutBuilder(builder: (context, constraints) {
             return Scaffold(
               appBar: CustomAppBar(
-                title: Row(
-                  children: [
-                    Material(
-                      elevation: 6,
-                      type: MaterialType.circle,
-                      shadowColor: style.colors.onBackgroundOpacity27,
-                      color: style.colors.onPrimary,
-                      child: Center(
-                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
-                      ),
+                title: Center(
+                  child: SizedBox(
+                    width: 400,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        // const Spacer(),
+                        AnimatedButton(
+                          onPressed: c.openChat,
+                          child: const SvgIcon(SvgIcons.chat),
+                        ),
+                        // const SizedBox(width: 28),
+                        AnimatedButton(
+                          onPressed: () => c.call(true),
+                          child: const SvgIcon(SvgIcons.chatVideoCall),
+                        ),
+                        // const SizedBox(width: 28),
+                        AnimatedButton(
+                          onPressed: () => c.call(false),
+                          child: const SvgIcon(SvgIcons.chatAudioCall),
+                        ),
+                        // const SizedBox(width: 28),
+                        AnimatedButton(
+                          onPressed: () {},
+                          child: const SvgIcon(SvgIcons.quickMute),
+                        ),
+                        // const SizedBox(width: 28),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Flexible(
-                      child: DefaultTextStyle.merge(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        child: Obx(() {
-                          final String? status = c.user?.user.value.getStatus();
-                          final UserTextStatus? text =
-                              c.user?.user.value.status;
-                          final StringBuffer buffer = StringBuffer();
-
-                          if (status != null || text != null) {
-                            buffer.write(text ?? '');
-
-                            if (status != null && text != null) {
-                              buffer.write('space_vertical_space'.l10n);
-                            }
-
-                            buffer.write(status ?? '');
-                          }
-
-                          final String subtitle = buffer.toString();
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
-                              if (subtitle.isNotEmpty)
-                                Text(
-                                  subtitle,
-                                  style: style.fonts.bodySmallSecondary,
-                                )
-                            ],
-                          );
-                        }),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
+                  ),
                 ),
                 padding: const EdgeInsets.only(left: 4, right: 20),
                 leading: const [StyledBackButton()],
                 actions: [
                   AnimatedButton(
-                    onPressed: c.openChat,
-                    child: Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: const SvgIcon(SvgIcons.chat),
-                    ),
+                    onPressed: () {},
+                    child: const SvgIcon(SvgIcons.favorite),
                   ),
-                  Obx(() {
-                    if (c.isBlocked != null) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (constraints.maxWidth > 400) ...[
-                          const SizedBox(width: 28),
-                          AnimatedButton(
-                            onPressed: () => c.call(true),
-                            child: const SvgIcon(SvgIcons.chatVideoCall),
-                          ),
-                        ],
-                        const SizedBox(width: 28),
-                        AnimatedButton(
-                          onPressed: () => c.call(false),
-                          child: const SvgIcon(SvgIcons.chatAudioCall),
-                        ),
-                      ],
-                    );
-                  }),
                 ],
+                // title: Row(
+                //   children: [
+                //     Material(
+                //       elevation: 6,
+                //       type: MaterialType.circle,
+                //       shadowColor: style.colors.onBackgroundOpacity27,
+                //       color: style.colors.onPrimary,
+                //       child: Center(
+                //         child: AvatarWidget.fromRxUser(c.user, radius: 17),
+                //       ),
+                //     ),
+                //     const SizedBox(width: 10),
+                //     Flexible(
+                //       child: DefaultTextStyle.merge(
+                //         maxLines: 1,
+                //         overflow: TextOverflow.ellipsis,
+                //         child: Obx(() {
+                //           final String? status = c.user?.user.value.getStatus();
+                //           final UserTextStatus? text =
+                //               c.user?.user.value.status;
+                //           final StringBuffer buffer = StringBuffer();
+
+                //           if (status != null || text != null) {
+                //             buffer.write(text ?? '');
+
+                //             if (status != null && text != null) {
+                //               buffer.write('space_vertical_space'.l10n);
+                //             }
+
+                //             buffer.write(status ?? '');
+                //           }
+
+                //           final String subtitle = buffer.toString();
+
+                //           return Column(
+                //             mainAxisAlignment: MainAxisAlignment.center,
+                //             crossAxisAlignment: CrossAxisAlignment.start,
+                //             children: [
+                //               Text(
+                //                   '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
+                //               if (subtitle.isNotEmpty)
+                //                 Text(
+                //                   subtitle,
+                //                   style: style.fonts.bodySmallSecondary,
+                //                 )
+                //             ],
+                //           );
+                //         }),
+                //       ),
+                //     ),
+                //     const SizedBox(width: 10),
+                //   ],
+                // ),
+                // padding: const EdgeInsets.only(left: 4, right: 20),
+                // leading: const [StyledBackButton()],
+                // actions: [
+                //   AnimatedButton(
+                //     onPressed: c.openChat,
+                //     child: Transform.translate(
+                //       offset: const Offset(0, 1),
+                //       child: const SvgIcon(SvgIcons.chat),
+                //     ),
+                //   ),
+                //   Obx(() {
+                //     if (c.isBlocked != null) {
+                //       return const SizedBox.shrink();
+                //     }
+
+                //     return Row(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         if (constraints.maxWidth > 400) ...[
+                //           const SizedBox(width: 28),
+                //           AnimatedButton(
+                //             onPressed: () => c.call(true),
+                //             child: const SvgIcon(SvgIcons.chatVideoCall),
+                //           ),
+                //         ],
+                //         const SizedBox(width: 28),
+                //         AnimatedButton(
+                //           onPressed: () => c.call(false),
+                //           child: const SvgIcon(SvgIcons.chatAudioCall),
+                //         ),
+                //       ],
+                //     );
+                //   }),
+                // ],
               ),
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
+                  final String? onlineStatus = c.user?.user.value.getStatus();
+                  final UserTextStatus? textStatus = c.user?.user.value.status;
+                  Widget? subtitle;
+
+                  if (textStatus != null || onlineStatus != null) {
+                    final StringBuffer buffer = StringBuffer(textStatus ?? '');
+
+                    if (textStatus != null && onlineStatus != null) {
+                      buffer.write('space_vertical_space'.l10n);
+                    }
+
+                    buffer.write(onlineStatus ?? '');
+
+                    subtitle = Text(
+                      buffer.toString(),
+                      style: style.fonts.bodySmallSecondary,
+                    );
+                  }
+
                   final List<Widget> blocks = [
+                    const SizedBox(height: 8),
                     if (c.isBlocked != null)
                       Block(
                         title: 'label_user_is_blocked'.l10n,
                         children: [BlocklistRecordWidget(c.isBlocked!)],
                       ),
                     Block(
-                      title: 'label_public_information'.l10n,
+                      // title: 'label_public_information'.l10n,
+                      // title:
+                      //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
                       children: [
+                        Text(
+                          '${c.user!.user.value.name ?? c.user!.user.value.num}',
+                          style: style.fonts.headlineMedium,
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          subtitle,
+                        ],
+                        const SizedBox(height: 12),
                         BigAvatarWidget.user(c.user),
                         const SizedBox(height: 12),
-                        UserNameCopyable(
-                          c.user!.user.value.name,
-                          c.user!.user.value.num,
-                        ),
-                        if (c.user!.user.value.status != null)
-                          UserStatusCopyable(c.user!.user.value.status!),
-                        if (c.user!.user.value.presence != null)
-                          UserPresenceField(
-                            c.user!.user.value.presence!,
-                            c.user!.user.value.getStatus(),
-                          ),
+                        // UserNameCopyable(
+                        //   c.user!.user.value.name,
+                        //   c.user!.user.value.num,
+                        // ),
+                        // if (c.user!.user.value.status != null)
+                        //   UserStatusCopyable(c.user!.user.value.status!),
+                        // if (c.user!.user.value.presence != null)
+                        //   UserPresenceField(
+                        //     c.user!.user.value.presence!,
+                        //     c.user!.user.value.getStatus(),
+                        //   ),
                       ],
                     ),
                     Block(

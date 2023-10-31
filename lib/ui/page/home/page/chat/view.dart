@@ -215,10 +215,28 @@ class _ChatViewState extends State<ChatView>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Obx(() {
-                                      return Text(
-                                        c.chat!.title.value,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
+                                      return Row(
+                                        children: [
+                                          Obx(() {
+                                            if (c.chat?.chat.value.muted ==
+                                                null) {
+                                              return const SizedBox();
+                                            }
+
+                                            return const Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 8),
+                                              child: SvgIcon(SvgIcons.muted),
+                                            );
+                                          }),
+                                          Flexible(
+                                            child: Text(
+                                              c.chat!.title.value,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ],
                                       );
                                     }),
                                     if (!isMonolog && c.chat != null)

@@ -174,6 +174,21 @@ class RecentChatTile extends StatelessWidget {
         chat: rxChat,
         avatarBuilder: avatarBuilder,
         dimmed: blocked,
+        titleBuilder: (t) {
+          return Row(
+            children: [
+              if (chat.muted != null) ...[
+                // const SizedBox(width: 5),
+                SvgIcon(
+                  inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                  key: Key('MuteIndicator_${chat.id}'),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Flexible(child: t),
+            ],
+          );
+        },
         status: [
           _status(context, inverted),
           if (!chat.id.isLocalWith(me))
@@ -200,14 +215,15 @@ class RecentChatTile extends StatelessWidget {
                       inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
                     ),
                     const SizedBox(width: 5),
-                  ] else if (chat.muted != null) ...[
-                    const SizedBox(width: 5),
-                    SvgIcon(
-                      inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                      key: Key('MuteIndicator_${chat.id}'),
-                    ),
-                    const SizedBox(width: 5),
                   ],
+                  // ] else if (chat.muted != null) ...[
+                  //   const SizedBox(width: 5),
+                  //   SvgIcon(
+                  //     inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                  //     key: Key('MuteIndicator_${chat.id}'),
+                  //   ),
+                  //   const SizedBox(width: 5),
+                  // ],
                   if (rxChat.unreadCount.value > 0) ...[
                     const SizedBox(width: 4),
                     UnreadCounter(

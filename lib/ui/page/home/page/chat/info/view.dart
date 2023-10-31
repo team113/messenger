@@ -73,103 +73,141 @@ class ChatInfoView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(
-              title: Row(
-                children: [
-                  Material(
-                    elevation: 6,
-                    type: MaterialType.circle,
-                    shadowColor: style.colors.onBackgroundOpacity27,
-                    color: style.colors.onPrimary,
-                    child: Center(
-                      child: AvatarWidget.fromRxChat(c.chat, radius: 17),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: DefaultTextStyle.merge(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  c.chat!.title.value,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ),
-                              // if (c.chat?.chat.value.muted != null) ...[
-                              //   const SizedBox(width: 5),
-                              //   const SvgImage.asset(
-                              //     'assets/icons/muted.svg',
-                              //     width: 19.99 * 0.6,
-                              //     height: 15 * 0.6,
-                              //   ),
-                              // ]
-                            ],
-                          ),
-                          ChatSubtitle(c.chat!, c.me, withActivities: false),
-                        ],
+              actions: [
+                AnimatedButton(
+                  onPressed: () {},
+                  child: const SvgIcon(SvgIcons.quickFavorite),
+                ),
+              ],
+              title: Center(
+                child: SizedBox(
+                  width: 400,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // const Spacer(),
+                      AnimatedButton(
+                        onPressed: () => router.chat(c.chat?.id ?? id),
+                        child: const SvgIcon(SvgIcons.quickChat),
                       ),
-                    ),
+                      // const SizedBox(width: 28),
+                      AnimatedButton(
+                        onPressed: () => c.call(true),
+                        child: const SvgIcon(SvgIcons.quickVideoCall),
+                      ),
+                      // const SizedBox(width: 28),
+                      AnimatedButton(
+                        onPressed: () => c.call(false),
+                        child: const SvgIcon(SvgIcons.quickAudioCall),
+                      ),
+                      // const SizedBox(width: 28),
+                      AnimatedButton(
+                        onPressed: () {},
+                        child: const SvgIcon(SvgIcons.quickMute),
+                      ),
+                      // const SizedBox(width: 28),
+                    ],
+
+                    //  [
+                    //     Material(
+                    //       elevation: 6,
+                    //       type: MaterialType.circle,
+                    //       shadowColor: style.colors.onBackgroundOpacity27,
+                    //       color: style.colors.onPrimary,
+                    //       child: Center(
+                    //         child:
+                    //             AvatarWidget.fromRxChat(c.chat, radius: 17),
+                    //       ),
+                    //     ),
+                    //     const SizedBox(width: 10),
+                    //     Flexible(
+                    //       child: DefaultTextStyle.merge(
+                    //         maxLines: 1,
+                    //         overflow: TextOverflow.ellipsis,
+                    //         child: Column(
+                    //           mainAxisAlignment: MainAxisAlignment.center,
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             Row(
+                    //               children: [
+                    //                 Flexible(
+                    //                   child: Text(
+                    //                     c.chat!.title.value,
+                    //                     overflow: TextOverflow.ellipsis,
+                    //                     maxLines: 1,
+                    //                   ),
+                    //                 ),
+                    //                 // if (c.chat?.chat.value.muted != null) ...[
+                    //                 //   const SizedBox(width: 5),
+                    //                 //   const SvgImage.asset(
+                    //                 //     'assets/icons/muted.svg',
+                    //                 //     width: 19.99 * 0.6,
+                    //                 //     height: 15 * 0.6,
+                    //                 //   ),
+                    //                 // ]
+                    //               ],
+                    //             ),
+                    //             ChatSubtitle(c.chat!, c.me,
+                    //                 withActivities: false),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const SizedBox(width: 10),
+                    //   ],
                   ),
-                  const SizedBox(width: 10),
-                ],
+                ),
               ),
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
-              actions: [
-                Transform.translate(
-                  offset: const Offset(0, 1),
-                  child: AnimatedButton(
-                    onPressed: () => router.chat(id, push: true),
-                    child: const SvgIcon(SvgIcons.chat),
-                  ),
-                ),
-                if (c.chat!.chat.value.ongoingCall == null) ...[
-                  if (!context.isMobile) ...[
-                    const SizedBox(width: 28),
-                    AnimatedButton(
-                      onPressed: () => c.call(true),
-                      child: const SvgIcon(SvgIcons.chatVideoCall),
-                    ),
-                  ],
-                  const SizedBox(width: 28),
-                  AnimatedButton(
-                    onPressed: () => c.call(false),
-                    child: const SvgIcon(SvgIcons.chatAudioCall),
-                  ),
-                ] else ...[
-                  const SizedBox(width: 14),
-                  AnimatedButton(
-                    key: c.inCall ? const Key('Drop') : const Key('Join'),
-                    onPressed: c.inCall ? c.dropCall : c.joinCall,
-                    child: Container(
-                      key: const Key('ActiveCallButton'),
-                      height: 22,
-                      width: 22,
-                      decoration: BoxDecoration(
-                        color: c.inCall
-                            ? style.colors.dangerColor
-                            : style.colors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: 300.milliseconds,
-                          child: c.inCall
-                              ? const SvgIcon(SvgIcons.callEndSmall)
-                              : const SvgIcon(SvgIcons.callStartSmall),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
+              // actions: [
+              //   Transform.translate(
+              //     offset: const Offset(0, 1),
+              //     child: AnimatedButton(
+              //       onPressed: () => router.chat(id, push: true),
+              //       child: const SvgIcon(SvgIcons.chat),
+              //     ),
+              //   ),
+              //   if (c.chat!.chat.value.ongoingCall == null) ...[
+              //     if (!context.isMobile) ...[
+              //       const SizedBox(width: 28),
+              //       AnimatedButton(
+              //         onPressed: () => c.call(true),
+              //         child: const SvgIcon(SvgIcons.chatVideoCall),
+              //       ),
+              //     ],
+              //     const SizedBox(width: 28),
+              //     AnimatedButton(
+              //       onPressed: () => c.call(false),
+              //       child: const SvgIcon(SvgIcons.chatAudioCall),
+              //     ),
+              //   ] else ...[
+              //     const SizedBox(width: 14),
+              //     AnimatedButton(
+              //       key: c.inCall ? const Key('Drop') : const Key('Join'),
+              //       onPressed: c.inCall ? c.dropCall : c.joinCall,
+              //       child: Container(
+              //         key: const Key('ActiveCallButton'),
+              //         height: 22,
+              //         width: 22,
+              //         decoration: BoxDecoration(
+              //           color: c.inCall
+              //               ? style.colors.dangerColor
+              //               : style.colors.primary,
+              //           shape: BoxShape.circle,
+              //         ),
+              //         child: Center(
+              //           child: AnimatedSwitcher(
+              //             duration: 300.milliseconds,
+              //             child: c.inCall
+              //                 ? const SvgIcon(SvgIcons.callEndSmall)
+              //                 : const SvgIcon(SvgIcons.callStartSmall),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ],
             ),
             body: Scrollbar(
               controller: c.scrollController,
@@ -178,6 +216,9 @@ class ChatInfoView extends StatelessWidget {
                 key: const Key('ChatInfoScrollable'),
                 children: [
                   const SizedBox(height: 8),
+                  const SizedBox(height: 0),
+                  if (false) _quick(c, context),
+                  // const SizedBox(height: 4),
                   Block(
                     title: 'label_public_information'.l10n,
                     children: [
@@ -396,6 +437,49 @@ class ChatInfoView extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+
+  /// Returns the action buttons to do with this [Chat].
+  Widget _quick(ChatInfoController c, BuildContext context) {
+    Widget button({
+      required SvgData icon,
+      Color color = Colors.yellow,
+    }) {
+      return AnimatedButton(
+        onPressed: () {},
+        child: Container(
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Center(child: SvgIcon(icon)),
+        ),
+      );
+    }
+
+    return Center(
+      child: SizedBox(
+        width: 400,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            button(icon: SvgIcons.chat, color: Colors.indigo),
+            button(icon: SvgIcons.chatAudioCall, color: Colors.orange),
+            button(icon: SvgIcons.chatVideoCall, color: Colors.pink),
+            button(icon: SvgIcons.chat, color: Colors.teal),
+            button(icon: SvgIcons.chat, color: Colors.green),
+          ]
+              .map((e) => Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: e,
+                  )))
+              .toList(),
+        ),
+      ),
     );
   }
 

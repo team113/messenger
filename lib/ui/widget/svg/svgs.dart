@@ -1215,4 +1215,40 @@ class SvgIcons {
     width: 17,
     height: 17,
   );
+
+  static const SvgData quickChat = SvgData(
+    'assets/icons/quick_chat.svg',
+    width: 29.81,
+    height: 32.61,
+  );
+
+  static const SvgData quickVideoCall = SvgData(
+    'assets/icons/quick_video_call.svg',
+    width: 37.13,
+    height: 26,
+  );
+
+  static const SvgData quickAudioCall = SvgData(
+    'assets/icons/quick_audio_call.svg',
+    width: 31.93,
+    height: 32,
+  );
+
+  static const SvgData quickMute = SvgData(
+    'assets/icons/quick_mute.svg',
+    width: 30.5 * 0.7,
+    height: 32 * 0.7,
+  );
+
+  static const SvgData quickFavorite = SvgData(
+    'assets/icons/quick_favorite.svg',
+    width: 35.84,
+    height: 34.09,
+  );
+
+  static const SvgData favorite = SvgData(
+    'assets/icons/favorite.svg',
+    width: 24.28,
+    height: 23.09,
+  );
 }

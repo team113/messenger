@@ -240,7 +240,7 @@ class ChatItemWidget extends StatefulWidget {
         attachment: e,
         // height: 300,
         width: filled ? double.infinity : null,
-        // fit: BoxFit.cover,
+        fit: !filled ? BoxFit.contain : null,
         autoLoad: autoLoad,
         onError: onError,
       );

@@ -138,7 +138,7 @@ class Themes {
       SystemUiOverlayStyle(
         systemNavigationBarColor: colors.transparent,
         statusBarColor: colors.transparent,
-        statusBarBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.dark,
       ),
     );
