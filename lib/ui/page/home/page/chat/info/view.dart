@@ -76,7 +76,7 @@ class ChatInfoView extends StatelessWidget {
               actions: [
                 AnimatedButton(
                   onPressed: () {},
-                  child: const SvgIcon(SvgIcons.quickFavorite),
+                  child: const SvgIcon(SvgIcons.favorite),
                 ),
               ],
               title: Center(
@@ -88,17 +88,17 @@ class ChatInfoView extends StatelessWidget {
                       // const Spacer(),
                       AnimatedButton(
                         onPressed: () => router.chat(c.chat?.id ?? id),
-                        child: const SvgIcon(SvgIcons.quickChat),
+                        child: const SvgIcon(SvgIcons.chat),
                       ),
                       // const SizedBox(width: 28),
                       AnimatedButton(
                         onPressed: () => c.call(true),
-                        child: const SvgIcon(SvgIcons.quickVideoCall),
+                        child: const SvgIcon(SvgIcons.chatVideoCall),
                       ),
                       // const SizedBox(width: 28),
                       AnimatedButton(
                         onPressed: () => c.call(false),
-                        child: const SvgIcon(SvgIcons.quickAudioCall),
+                        child: const SvgIcon(SvgIcons.chatAudioCall),
                       ),
                       // const SizedBox(width: 28),
                       AnimatedButton(
