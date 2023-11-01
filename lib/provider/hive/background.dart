@@ -35,7 +35,7 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'BackgroundHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(HiveBackgroundAdapter());
   }
 
@@ -44,14 +44,14 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
 
   /// Saves the provided [Uint8List] to [Hive].
   Future<void> set(Uint8List bytes) async {
-    Log.debug('set($bytes)', 'BackgroundHiveProvider');
-    putSafe(0, HiveBackground(bytes));
+    Log.debug('set($bytes)', '$runtimeType');
+    await putSafe(0, HiveBackground(bytes));
   }
 
   /// Deletes the stored [Uint8List].
   Future<void> delete() async {
-    Log.debug('delete()', 'BackgroundHiveProvider');
-    deleteSafe(0);
+    Log.debug('delete()', '$runtimeType');
+    await deleteSafe(0);
   }
 }
 

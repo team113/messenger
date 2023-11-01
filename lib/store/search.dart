@@ -99,7 +99,8 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
 
   @override
   Future<void> next() async {
-    Log.debug('next()', 'SearchResultImpl');
+    Log.debug('next()', '$runtimeType');
+
     if (pagination != null && nextLoading.isFalse) {
       if (status.value.isSuccess) {
         status.value = RxStatus.loadingMore();

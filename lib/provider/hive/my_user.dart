@@ -42,7 +42,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'MyUserHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
@@ -71,14 +71,14 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   /// Returns the stored [MyUser] from [Hive].
   HiveMyUser? get myUser {
-    Log.debug('get myUser', 'MyUserHiveProvider');
+    Log.debug('get myUser', '$runtimeType');
     return getSafe(0);
   }
 
   /// Saves the provided [MyUser] in [Hive].
   Future<void> set(HiveMyUser user) async {
-    Log.debug('set($user)', 'MyUserHiveProvider');
-    putSafe(0, user);
+    Log.debug('set($user)', '$runtimeType');
+    await putSafe(0, user);
   }
 }
 

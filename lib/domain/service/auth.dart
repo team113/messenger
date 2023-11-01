@@ -98,7 +98,7 @@ class AuthService extends GetxService {
 
   @override
   void onClose() {
-    Log.debug('onClose()', 'AuthService');
+    Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
     _sessionSubscription?.cancel();
@@ -112,7 +112,7 @@ class AuthService extends GetxService {
   /// [Routes.auth] page if this operation fails. Otherwise, fetches user data
   /// from the server to be up-to-date with it.
   Future<String?> init() async {
-    Log.debug('init()', 'AuthService');
+    Log.debug('init()', '$runtimeType');
 
     // Try to refresh session, otherwise just force logout.
     _authRepository.authExceptionHandler = (e) async {
@@ -197,7 +197,7 @@ class AuthService extends GetxService {
   }) async {
     Log.debug(
       'recoverUserPassword($login, $num, $email, $phone)',
-      'AuthService',
+      '$runtimeType',
     );
 
     await _authRepository.recoverUserPassword(
@@ -220,7 +220,7 @@ class AuthService extends GetxService {
   }) async {
     Log.debug(
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone)',
-      'AuthService',
+      '$runtimeType',
     );
 
     await _authRepository.validateUserPasswordRecoveryCode(
@@ -248,7 +248,7 @@ class AuthService extends GetxService {
   }) async {
     Log.debug(
       'resetUserPassword($code, newPassword, $login, $num, $email, $phone)',
-      'AuthService',
+      '$runtimeType',
     );
 
     await _authRepository.resetUserPassword(
@@ -267,7 +267,7 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
-    Log.debug('register()', 'AuthService');
+    Log.debug('register()', '$runtimeType');
 
     status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
@@ -290,13 +290,13 @@ class AuthService extends GetxService {
   ///
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
   Future<void> signUpWithEmail(UserEmail email) async {
-    Log.debug('signUpWithEmail($email)', 'AuthService');
+    Log.debug('signUpWithEmail($email)', '$runtimeType');
     await _authRepository.signUpWithEmail(email);
   }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   Future<void> confirmSignUpEmail(ConfirmationCode code) async {
-    Log.debug('confirmSignUpEmail($code)', 'AuthService');
+    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
 
     try {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
@@ -311,7 +311,7 @@ class AuthService extends GetxService {
   /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
   /// [signUpWithEmail].
   Future<void> resendSignUpEmail() async {
-    Log.debug('resendSignUpEmail()', 'AuthService');
+    Log.debug('resendSignUpEmail()', '$runtimeType');
     await _authRepository.resendSignUpEmail();
   }
 
@@ -328,7 +328,7 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
   }) async {
-    Log.debug('signIn(password, $login, $num, $email, $phone)', 'AuthService');
+    Log.debug('signIn(password, $login, $num, $email, $phone)', '$runtimeType');
 
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
@@ -353,7 +353,7 @@ class AuthService extends GetxService {
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
-    Log.debug('signInWith($credentials)', 'AuthService');
+    Log.debug('signInWith($credentials)', '$runtimeType');
 
     // Check if the [credentials] are valid.
     credentials =
@@ -370,7 +370,7 @@ class AuthService extends GetxService {
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {
-    Log.debug('logout()', 'AuthService');
+    Log.debug('logout()', '$runtimeType');
 
     status.value = RxStatus.loading();
 
@@ -401,7 +401,7 @@ class AuthService extends GetxService {
 
   /// Validates the current [AccessToken].
   Future<bool> validateToken() async {
-    Log.debug('validateToken()', 'AuthService');
+    Log.debug('validateToken()', '$runtimeType');
 
     try {
       await _authRepository.validateToken();
@@ -413,7 +413,7 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [session].
   Future<void> renewSession() async {
-    Log.debug('renewSession()', 'AuthService');
+    Log.debug('renewSession()', '$runtimeType');
 
     if (WebUtils.credentialsUpdating) {
       // Wait until the [Credentials] are done updating in another tab.
@@ -453,13 +453,13 @@ class AuthService extends GetxService {
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', 'AuthService');
+    Log.debug('useChatDirectLink($slug)', '$runtimeType');
     return await _authRepository.useChatDirectLink(slug);
   }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
-    Log.debug('_authorized($creds)', 'AuthService');
+    Log.debug('_authorized($creds)', '$runtimeType');
 
     _authRepository.token = creds.session.token;
     credentials.value = creds;
@@ -475,7 +475,7 @@ class AuthService extends GetxService {
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
   String _unauthorized() {
-    Log.debug('_unauthorized()', 'AuthService');
+    Log.debug('_unauthorized()', '$runtimeType');
 
     _sessionProvider.clear();
     _authRepository.token = null;

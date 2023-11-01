@@ -52,7 +52,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
-    Log.debug('signUp()', 'AuthGraphQlMixin');
+    Log.debug('signUp()', '$runtimeType');
 
     final variables = SignUpArguments(remember: remember);
     final QueryResult result = await client.query(QueryOptions(
@@ -77,7 +77,7 @@ mixin AuthGraphQlMixin {
   /// Succeeds as no-op if the [Session] with the provided [AccessToken] has
   /// been deleted already.
   Future<void> deleteSession() async {
-    Log.debug('deleteSession()', 'AuthGraphQlMixin');
+    Log.debug('deleteSession()', '$runtimeType');
 
     if (token != null) {
       final variables = DeleteSessionArguments(token: token!);
@@ -115,7 +115,7 @@ mixin AuthGraphQlMixin {
   ) async {
     Log.debug(
       'signIn(password, $login, $num, $email, $phone, $remember)',
-      'AuthGraphQlMixin',
+      '$runtimeType',
     );
 
     final variables = SignInArguments(
@@ -147,7 +147,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Mandatory.
   Future<ValidateToken$Query> validateToken() async {
-    Log.debug('validateToken()', 'AuthGraphQlMixin');
+    Log.debug('validateToken()', '$runtimeType');
 
     final QueryResult res = await client
         .query(QueryOptions(document: ValidateTokenQuery().document));
@@ -177,7 +177,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session] and generates a new [RefreshToken].
   Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
-    Log.debug('renewSession($token)', 'AuthGraphQlMixin');
+    Log.debug('renewSession($token)', '$runtimeType');
 
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
@@ -224,7 +224,7 @@ mixin AuthGraphQlMixin {
   ) async {
     Log.debug(
       'recoverUserPassword($login, $num, $email, $phone)',
-      'AuthGraphQlMixin',
+      '$runtimeType',
     );
 
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
@@ -272,7 +272,7 @@ mixin AuthGraphQlMixin {
   ) async {
     Log.debug(
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code)',
-      'AuthGraphQlMixin',
+      '$runtimeType',
     );
 
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
@@ -332,7 +332,7 @@ mixin AuthGraphQlMixin {
   ) async {
     Log.debug(
       'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, newPassword)',
-      'AuthGraphQlMixin',
+      '$runtimeType',
     );
 
     if ([login, num, email, phone].where((e) => e != null).length != 1) {

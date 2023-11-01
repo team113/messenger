@@ -37,19 +37,19 @@ class BlocklistHiveProvider extends HiveBaseProvider<bool> {
 
   /// Puts the provided [UserId] to [Hive].
   Future<void> put(UserId id) async {
-    Log.debug('put($id)', 'BlocklistHiveProvider');
-    putSafe(id.val, true);
+    Log.debug('put($id)', '$runtimeType');
+    await putSafe(id.val, true);
   }
 
   /// Indicates whether the provided [id] is stored in [Hive].
   bool get(UserId id) {
-    Log.debug('get($id)', 'BlocklistHiveProvider');
+    Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val) ?? false;
   }
 
   /// Removes the provided [UserId] from [Hive].
   Future<void> remove(UserId id) async {
-    Log.debug('remove($id)', 'BlocklistHiveProvider');
-    deleteSafe(id.val);
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
   }
 }

@@ -87,7 +87,8 @@ class Pagination<T, C, K> {
 
   /// Resets this [Pagination] to its initial state.
   Future<void> clear() {
-    Log.info('clear()', 'Pagination');
+    Log.debug('clear()', '$runtimeType');
+
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
@@ -100,14 +101,14 @@ class Pagination<T, C, K> {
   Future<void> init(T? item) {
     return _guard.protect(() async {
       final Page<T, C>? page = await provider.init(item, perPage);
-      Log.info(
+      Log.debug(
         'init(item: $item)... \n'
             '\tFetched ${page?.edges.length} items\n'
             '\tstartCursor: ${page?.info.startCursor}\n'
             '\tendCursor: ${page?.info.endCursor}\n'
             '\thasPrevious: ${page?.info.hasPrevious}\n'
             '\thasNext: ${page?.info.hasNext}',
-        'Pagination',
+        '$runtimeType',
       );
 
       for (var e in page?.edges ?? []) {
@@ -118,7 +119,7 @@ class Pagination<T, C, K> {
       endCursor = page?.info.endCursor;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      Log.info('init(item: $item)... done', 'Pagination');
+      Log.debug('init(item: $item)... done', '$runtimeType');
     });
   }
 
@@ -133,17 +134,17 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.info('around(item: $item, cursor: $cursor)...', 'Pagination');
+      Log.debug('around(item: $item, cursor: $cursor)...', '$runtimeType');
 
       final Page<T, C>? page = await provider.around(item, cursor, perPage);
-      Log.info(
+      Log.debug(
         'around(item: $item, cursor: $cursor)... \n'
             '\tFetched ${page?.edges.length} items\n'
             '\tstartCursor: ${page?.info.startCursor}\n'
             '\tendCursor: ${page?.info.endCursor}\n'
             '\thasPrevious: ${page?.info.hasPrevious}\n'
             '\thasNext: ${page?.info.hasNext}',
-        'Pagination',
+        '$runtimeType',
       );
 
       for (var e in page?.edges ?? []) {
@@ -154,7 +155,7 @@ class Pagination<T, C, K> {
       endCursor = page?.info.endCursor;
       hasNext.value = page?.info.hasNext ?? hasNext.value;
       hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      Log.info('around(item: $item, cursor: $cursor)... done', 'Pagination');
+      Log.debug('around(item: $item, cursor: $cursor)... done', '$runtimeType');
     });
   }
 
@@ -167,7 +168,7 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.info('next()...', 'Pagination');
+      Log.debug('next()...', '$runtimeType');
 
       if (hasNext.isTrue && nextLoading.isFalse) {
         nextLoading.value = true;
@@ -175,9 +176,9 @@ class Pagination<T, C, K> {
         if (items.isNotEmpty) {
           final Page<T, C>? page =
               await provider.after(items.last, endCursor, perPage);
-          Log.info(
+          Log.debug(
             'next()... fetched ${page?.edges.length} items',
-            'Pagination',
+            '$runtimeType',
           );
 
           for (var e in page?.edges ?? []) {
@@ -186,7 +187,7 @@ class Pagination<T, C, K> {
 
           endCursor = page?.info.endCursor ?? endCursor;
           hasNext.value = page?.info.hasNext ?? hasNext.value;
-          Log.info('next()... done', 'Pagination');
+          Log.debug('next()... done', '$runtimeType');
         } else {
           await around();
         }
@@ -205,7 +206,7 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.info('previous()...', 'Pagination');
+      Log.debug('previous()...', '$runtimeType');
 
       if (hasPrevious.isTrue && previousLoading.isFalse) {
         previousLoading.value = true;
@@ -213,9 +214,9 @@ class Pagination<T, C, K> {
         if (items.isNotEmpty) {
           final Page<T, C>? page =
               await provider.before(items.first, startCursor, perPage);
-          Log.info(
+          Log.debug(
             'previous()... fetched ${page?.edges.length} items',
-            'Pagination',
+            '$runtimeType',
           );
 
           for (var e in page?.edges ?? []) {
@@ -224,7 +225,7 @@ class Pagination<T, C, K> {
 
           startCursor = page?.info.startCursor ?? startCursor;
           hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-          Log.info('previous()... done', 'Pagination');
+          Log.debug('previous()... done', '$runtimeType');
         } else {
           await around();
         }
@@ -238,7 +239,7 @@ class Pagination<T, C, K> {
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
   Future<void> put(T item, {bool ignoreBounds = false}) async {
-    Log.info('put($item)', 'Pagination');
+    Log.debug('put($item)', '$runtimeType');
 
     Future<void> put() async {
       items[onKey(item)] = item;
@@ -273,6 +274,8 @@ class Pagination<T, C, K> {
 
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
+    Log.debug('remove($K)', '$runtimeType');
+
     items.remove(key);
     return provider.remove(key);
   }

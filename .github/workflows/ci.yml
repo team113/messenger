@@ -35,14 +35,6 @@ jobs:
       - test-unit
     runs-on: ubuntu-latest
     steps:
-      - name: "Set Log Level"
-        run: |
-          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
-                jq -r .title)
-
-          if [[ $pr_title == *"[debug]"* ]]; then
-            echo "SOCAPP_LOG_LEVEL=debug" >> $GITHUB_ENV
       - run: true
 
 
@@ -192,6 +184,14 @@ jobs:
 
       - run: make flutter.pub
 
+      - run: |
+          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
+                jq -r .title)
+
+          if [[ $pr_title == *"[debug]"* ]]; then
+            echo LOG_LEVEL="debug" >> .env
+
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}'
         if: ${{ matrix.platform == 'web' }}
@@ -200,7 +200,8 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}
+                            SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name

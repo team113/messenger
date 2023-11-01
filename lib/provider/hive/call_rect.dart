@@ -32,19 +32,19 @@ class CallRectHiveProvider extends HiveBaseProvider<Rect> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'CallRectHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(_RectAdapter());
   }
 
   /// Puts the provided [Rect] preferences to [Hive].
   Future<void> put(ChatId chatId, Rect prefs) async {
-    Log.debug('put($chatId, $prefs)', 'CallRectHiveProvider');
-    putSafe(chatId.val, prefs);
+    Log.debug('put($chatId, $prefs)', '$runtimeType');
+    await putSafe(chatId.val, prefs);
   }
 
   /// Returns the [Rect] preferences from [Hive] by its [id].
   Rect? get(ChatId id) {
-    Log.debug('get($id)', 'CallRectHiveProvider');
+    Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 }

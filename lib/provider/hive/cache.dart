@@ -33,13 +33,13 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'CacheInfoHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(CacheInfoAdapter());
   }
 
   /// Returns the stored [CacheInfo] from [Hive].
   CacheInfo get info {
-    Log.debug('get info', 'CacheInfoHiveProvider');
+    Log.debug('get info', '$runtimeType');
     return getSafe(0) ?? CacheInfo();
   }
 
@@ -50,10 +50,8 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
     int? maxSize,
     DateTime? modified,
   }) {
-    Log.debug(
-      'set($checksums, $size, $maxSize, $modified)',
-      'CacheInfoHiveProvider',
-    );
+    Log.trace('set($checksums, $size, $maxSize, $modified)', '$runtimeType');
+
     final CacheInfo info = this.info;
 
     info.checksums = checksums ?? info.checksums;

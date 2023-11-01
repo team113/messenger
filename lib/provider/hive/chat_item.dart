@@ -50,7 +50,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'ChatItemHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
@@ -95,20 +95,20 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
 
   @override
   Future<void> put(HiveChatItem item) async {
-    Log.debug('put($item)', 'ChatItemHiveProvider');
-    putSafe(item.value.key.toString(), item);
+    Log.debug('put($item)', '$runtimeType');
+    await putSafe(item.value.key.toString(), item);
   }
 
   @override
   Future<HiveChatItem?> get(ChatItemKey key) async {
-    Log.debug('get($key)', 'ChatItemHiveProvider');
-    return getSafe(key.toString());
+    Log.debug('get($key)', '$runtimeType');
+    return await getSafe(key.toString());
   }
 
   @override
   Future<void> remove(ChatItemKey key) async {
-    Log.debug('remove($key)', 'ChatItemHiveProvider');
-    deleteSafe(key.toString());
+    Log.debug('remove($key)', '$runtimeType');
+    await deleteSafe(key.toString());
   }
 }
 

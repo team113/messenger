@@ -46,7 +46,7 @@ mixin ChatGraphQlMixin {
   ///
   /// Mandatory.
   Future<GetChat$Query> getChat(ChatId id) async {
-    Log.debug('getChat($id)', 'ChatGraphQlMixin');
+    Log.debug('getChat($id)', '$runtimeType');
     final variables = GetChatArguments(id: id);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -97,8 +97,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'recentChats($first, $after, $last, $before, $noFavorite, $withOngoingCalls)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = RecentChatsArguments(
       first: first,
       after: after,
@@ -149,8 +150,8 @@ mixin ChatGraphQlMixin {
     int? last,
     FavoriteChatsCursor? before,
   }) async {
-    Log.debug(
-        'favoriteChats($first, $after, $last, $before)', 'ChatGraphQlMixin');
+    Log.debug('favoriteChats($first, $after, $last, $before)', '$runtimeType');
+
     final variables = FavoriteChatsArguments(
       first: first,
       after: after,
@@ -181,7 +182,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op if a [Chat] with the given responder [User] exists
   /// already, and returns this [Chat].
   Future<ChatMixin> createDialogChat(UserId responderId) async {
-    Log.debug('createDialogChat($responderId)', 'ChatGraphQlMixin');
+    Log.debug('createDialogChat($responderId)', '$runtimeType');
+
     final variables = CreateDialogArguments(responderId: responderId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -206,7 +208,8 @@ mixin ChatGraphQlMixin {
     List<UserId> memberIds, {
     ChatName? name,
   }) async {
-    Log.debug('createGroupChat($memberIds, $name)', 'ChatGraphQlMixin');
+    Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
+
     final variables =
         CreateGroupChatArguments(memberIds: memberIds, name: name);
     final QueryResult result = await client.query(
@@ -246,7 +249,8 @@ mixin ChatGraphQlMixin {
   /// the specified name already
   Future<ChatEventsVersionedMixin?> renameChat(
       ChatId id, ChatName? name) async {
-    Log.debug('renameChat($id, $name)', 'ChatGraphQlMixin');
+    Log.debug('renameChat($id, $name)', '$runtimeType');
+
     RenameChatArguments variables = RenameChatArguments(id: id, name: name);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -287,8 +291,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'chatItems($id, $first, $after, $last, $before, $onlyAttachments)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = GetMessagesArguments(
       id: id,
       first: first,
@@ -340,8 +345,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'postChatMessage($chatId, $text, $attachments, $repliesTo)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = PostChatMessageArguments(
       chatId: chatId,
       text: text,
@@ -382,7 +388,8 @@ mixin ChatGraphQlMixin {
   /// a member of the specified [Chat] already.
   Future<ChatEventsVersionedMixin?> addChatMember(
       ChatId chatId, UserId userId) async {
-    Log.debug('addChatMember($chatId, $userId)', 'ChatGraphQlMixin');
+    Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
+
     final variables = AddChatMemberArguments(chatId: chatId, userId: userId);
     var result = await client.mutate(
       MutationOptions(
@@ -417,8 +424,11 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [User] is
   /// not a member of the specified [Chat] already.
   Future<ChatEventsVersionedMixin?> removeChatMember(
-      ChatId chatId, UserId userId) async {
-    Log.debug('removeChatMember($chatId, $userId)', 'ChatGraphQlMixin');
+    ChatId chatId,
+    UserId userId,
+  ) async {
+    Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
+
     RemoveChatMemberArguments variables =
         RemoveChatMemberArguments(chatId: chatId, userId: userId);
     var result = await client.mutate(
@@ -457,7 +467,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
   /// already hidden by the authenticated [MyUser].
   Future<ChatEventsVersionedMixin?> hideChat(ChatId chatId) async {
-    Log.debug('hideChat($chatId)', 'ChatGraphQlMixin');
+    Log.debug('hideChat($chatId)', '$runtimeType');
+
     HideChatArguments variables = HideChatArguments(chatId: chatId);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -504,7 +515,8 @@ mixin ChatGraphQlMixin {
     ChatId chatId,
     ChatItemId untilId,
   ) async {
-    Log.debug('readChat($chatId, $untilId)', 'ChatGraphQlMixin');
+    Log.debug('readChat($chatId, $untilId)', '$runtimeType');
+
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -566,8 +578,9 @@ mixin ChatGraphQlMixin {
   }) {
     Log.debug(
       'recentChatsTopEvents($count, $noFavorite, $withOngoingCalls)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = RecentChatsTopEventsArguments(
       count: count,
       noFavorite: noFavorite,
@@ -642,7 +655,8 @@ mixin ChatGraphQlMixin {
     ChatVersion? ver,
     FutureOr<ChatVersion?> Function() onVer,
   ) {
-    Log.debug('chatEvents($id, $ver, onVer)', 'ChatGraphQlMixin');
+    Log.debug('chatEvents($id, $ver, onVer)', '$runtimeType');
+
     final variables = ChatEventsArguments(id: id, ver: ver);
     return client.subscribe(
       SubscriptionOptions(
@@ -677,7 +691,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [ChatItem]
   /// is hidden by the authenticated [MyUser] already.
   Future<ChatEventsVersionedMixin?> hideChatItem(ChatItemId id) async {
-    Log.debug('hideChatItem($id)', 'ChatGraphQlMixin');
+    Log.debug('hideChatItem($id)', '$runtimeType');
+
     HideChatItemArguments variables = HideChatItemArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -717,7 +732,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified
   /// [ChatMessage] is deleted already.
   Future<ChatEventsVersionedMixin?> deleteChatMessage(ChatItemId id) async {
-    Log.debug('deleteChatMessage($id)', 'ChatGraphQlMixin');
+    Log.debug('deleteChatMessage($id)', '$runtimeType');
+
     DeleteChatMessageArguments variables = DeleteChatMessageArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -758,7 +774,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified
   /// [ChatForward] is deleted already.
   Future<ChatEventsVersionedMixin?> deleteChatForward(ChatItemId id) async {
-    Log.debug('deleteChatForward($id)', 'ChatGraphQlMixin');
+    Log.debug('deleteChatForward($id)', '$runtimeType');
+
     DeleteChatForwardArguments variables = DeleteChatForwardArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -797,8 +814,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'uploadAttachment($attachment, onSendProgress)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = UploadAttachmentArguments(file: null);
     final query = MutationOptions(
       operationName: 'UploadAttachment',
@@ -870,7 +888,8 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> createChatDirectLink(
       ChatDirectLinkSlug slug,
       {ChatId? groupId}) async {
-    Log.debug('createChatDirectLink($slug, $groupId)', 'ChatGraphQlMixin');
+    Log.debug('createChatDirectLink($slug, $groupId)', '$runtimeType');
+
     final variables =
         CreateChatDirectLinkArguments(slug: slug, groupId: groupId);
     final QueryResult result = await client.mutate(
@@ -906,7 +925,8 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> deleteChatDirectLink({
     ChatId? groupId,
   }) async {
-    Log.debug('deleteChatDirectLink($groupId)', 'ChatGraphQlMixin');
+    Log.debug('deleteChatDirectLink($groupId)', '$runtimeType');
+
     final variables = DeleteChatDirectLinkArguments(groupId: groupId);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -944,7 +964,8 @@ mixin ChatGraphQlMixin {
   /// the [Chat]-dialog by the specified [ChatDirectLink].
   Future<UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk>
       useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', 'ChatGraphQlMixin');
+    Log.debug('useChatDirectLink($slug)', '$runtimeType');
+
     final variables = UseChatDirectLinkArguments(slug: slug);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -994,7 +1015,8 @@ mixin ChatGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization)
   Stream<QueryResult> keepTyping(ChatId id) {
-    Log.debug('keepTyping($id)', 'ChatGraphQlMixin');
+    Log.debug('keepTyping($id)', '$runtimeType');
+
     final variables = KeepTypingArguments(chatId: id);
     return client.subscribe(
       SubscriptionOptions(
@@ -1034,8 +1056,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'editChatMessage($id, $text, $attachments, $repliesTo)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = EditChatMessageArguments(
       id: id,
       text: text,
@@ -1091,8 +1114,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'forwardChatItems($from, $to, $items, $text, $attachments)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = ForwardChatItemsArguments(
       from: from,
       to: to,
@@ -1147,7 +1171,8 @@ mixin ChatGraphQlMixin {
     ChatId id,
     Muting? mute,
   ) async {
-    Log.debug('toggleChatMute($id, $mute)', 'ChatGraphQlMixin');
+    Log.debug('toggleChatMute($id, $mute)', '$runtimeType');
+
     final variables = ToggleChatMuteArguments(id: id, mute: mute);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1173,7 +1198,8 @@ mixin ChatGraphQlMixin {
   ///
   /// Mandatory.
   Future<GetAttachments$Query> attachments(ChatItemId id) async {
-    Log.debug('attachments($id)', 'ChatGraphQlMixin');
+    Log.debug('attachments($id)', '$runtimeType');
+
     final variables = GetAttachmentsArguments(id: id);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -1213,8 +1239,9 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug(
       'updateChatAvatar($id, $file, onSendProgress)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = UpdateChatAvatarArguments(chatId: id, file: null);
     final query = MutationOptions(
       operationName: 'UpdateChatAvatar',
@@ -1294,8 +1321,9 @@ mixin ChatGraphQlMixin {
   ) async {
     Log.debug(
       'favoriteChat($id, $position)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = FavoriteChatArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1329,7 +1357,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
   /// not in the favorites list already.
   Future<ChatEventsVersionedMixin?> unfavoriteChat(ChatId id) async {
-    Log.debug('unfavoriteChat($id)', 'ChatGraphQlMixin');
+    Log.debug('unfavoriteChat($id)', '$runtimeType');
+
     final variables = UnfavoriteChatArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1400,8 +1429,9 @@ mixin ChatGraphQlMixin {
   ) {
     Log.debug(
       'favoriteChatsEvents(FavoriteChatsListVersion)',
-      'ChatGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = FavoriteChatsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
@@ -1434,7 +1464,8 @@ mixin ChatGraphQlMixin {
     ChatId id,
     ChatItemId untilId,
   ) async {
-    Log.debug('clearChat($id, $untilId)', 'ChatGraphQlMixin');
+    Log.debug('clearChat($id, $untilId)', '$runtimeType');
+
     final ClearChatArguments variables =
         ClearChatArguments(id: id, untilId: untilId);
     final QueryResult result = await client.mutate(
@@ -1465,7 +1496,8 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op if the [Chat]-monolog for the authenticated [MyUser]
   /// exists already, and returns it.
   Future<ChatMixin> createMonologChat(ChatName? name) async {
-    Log.debug('createMonologChat($name)', 'ChatGraphQlMixin');
+    Log.debug('createMonologChat($name)', '$runtimeType');
+
     final variables = CreateMonologChatArguments(name: name);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -1491,7 +1523,8 @@ mixin ChatGraphQlMixin {
   /// Query returns `null` when no [Chat]-monolog exists for the authenticated
   /// [MyUser].
   Future<ChatMixin?> getMonolog() async {
-    Log.debug('getMonolog()', 'ChatGraphQlMixin');
+    Log.debug('getMonolog()', '$runtimeType');
+
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'GetMonolog',

@@ -71,7 +71,7 @@ class ChatService extends DisposableService {
 
   @override
   void onInit() {
-    Log.debug('onInit()', 'ChatService');
+    Log.debug('onInit()', '$runtimeType');
 
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
@@ -83,20 +83,20 @@ class ChatService extends DisposableService {
     List<UserId> memberIds, {
     ChatName? name,
   }) async {
-    Log.debug('createGroupChat($memberIds, $name)', 'ChatService');
+    Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
 
     return await _chatRepository.createGroupChat(memberIds, name: name);
   }
 
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> get(ChatId id) async {
-    Log.debug('get($id)', 'ChatService');
+    Log.debug('get($id)', '$runtimeType');
     return await _chatRepository.get(id);
   }
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() async {
-    Log.debug('next()', 'ChatService');
+    Log.debug('next()', '$runtimeType');
     return await _chatRepository.next();
   }
 
@@ -106,7 +106,7 @@ class ChatService extends DisposableService {
   ///
   /// Only [Chat]-groups can be named or renamed.
   Future<void> renameChat(ChatId id, ChatName? name) async {
-    Log.debug('renameChat($id, $name)', 'ChatService');
+    Log.debug('renameChat($id, $name)', '$runtimeType');
     await _chatRepository.renameChat(id, name);
   }
 
@@ -126,7 +126,7 @@ class ChatService extends DisposableService {
   }) {
     Log.debug(
       'sendChatMessage($chatId, $text, $attachments, $repliesTo)',
-      'ChatService',
+      '$runtimeType',
     );
 
     if (text?.val.isNotEmpty != true &&
@@ -162,13 +162,14 @@ class ChatService extends DisposableService {
 
   /// Resends the specified [item].
   Future<void> resendChatItem(ChatItem item) async {
-    Log.debug('resendChatItem($item)', 'ChatService');
+    Log.debug('resendChatItem($item)', '$runtimeType');
     await _chatRepository.resendChatItem(item);
   }
 
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id) {
-    Log.debug('hideChat($id)', 'ChatService');
+    Log.debug('hideChat($id)', '$runtimeType');
+
     final Chat? chat = chats[id]?.chat.value;
     if (chat != null) {
       router.removeWhere((e) => chat.isRoute(e, me));
@@ -180,14 +181,15 @@ class ChatService extends DisposableService {
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated
   /// [MyUser].
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
-    Log.debug('addChatMember($chatId, $userId)', 'ChatService');
+    Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
     await _chatRepository.addChatMember(chatId, userId);
   }
 
   /// Removes an [User] from a [Chat]-group by the authority of the
   /// authenticated [MyUser].
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
-    Log.debug('removeChatMember($chatId, $userId)', 'ChatService');
+    Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
+
     RxChat? chat;
 
     if (userId == me) {
@@ -222,7 +224,7 @@ class ChatService extends DisposableService {
   /// new [ChatItem]s appeared in the Chat's UI and directly influences the
   /// [Chat.unreadCount] value.
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
-    Log.debug('readChat($chatId, $untilId)', 'ChatService');
+    Log.debug('readChat($chatId, $untilId)', '$runtimeType');
     await _chatRepository.readChat(chatId, untilId);
   }
 
@@ -231,13 +233,14 @@ class ChatService extends DisposableService {
     ChatMessage item, {
     ChatMessageTextInput? text,
   }) async {
-    Log.debug('editChatMessage($item, $text)', 'ChatService');
+    Log.debug('editChatMessage($item, $text)', '$runtimeType');
     await _chatRepository.editChatMessage(item, text: text);
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteChatItem(ChatItem item) async {
-    Log.debug('deleteChatItem($item)', 'ChatService');
+    Log.debug('deleteChatItem($item)', '$runtimeType');
+
     if (item is! ChatMessage && item is! ChatForward) {
       throw UnimplementedError('Deletion of $item is not implemented.');
     }
@@ -273,7 +276,7 @@ class ChatService extends DisposableService {
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {
-    Log.debug('hideChatItem($item)', 'ChatService');
+    Log.debug('hideChatItem($item)', '$runtimeType');
     await _chatRepository.hideChatItem(item.chatId, item.id);
   }
 
@@ -281,7 +284,7 @@ class ChatService extends DisposableService {
   /// the authenticated [MyUser] for a later use in the [sendChatMessage]
   /// method.
   Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
-    Log.debug('uploadAttachment($attachment)', 'ChatService');
+    Log.debug('uploadAttachment($attachment)', '$runtimeType');
     return await _chatRepository.uploadAttachment(attachment);
   }
 
@@ -290,20 +293,20 @@ class ChatService extends DisposableService {
   /// any).
   Future<void> createChatDirectLink(
       ChatId chatId, ChatDirectLinkSlug slug) async {
-    Log.debug('createChatDirectLink($chatId, $slug)', 'ChatService');
+    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
     await _chatRepository.createChatDirectLink(chatId, slug);
   }
 
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
   Future<void> deleteChatDirectLink(ChatId chatId) async {
-    Log.debug('deleteChatDirectLink($chatId)', 'ChatService');
+    Log.debug('deleteChatDirectLink($chatId)', '$runtimeType');
     await _chatRepository.deleteChatDirectLink(chatId);
   }
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   Stream<dynamic> keepTyping(ChatId chatId) {
-    Log.debug('keepTyping($chatId)', 'ChatService');
+    Log.debug('keepTyping($chatId)', '$runtimeType');
     return _chatRepository.keepTyping(chatId);
   }
 
@@ -324,8 +327,9 @@ class ChatService extends DisposableService {
   }) {
     Log.debug(
       'forwardChatItems($from, $to, $items, $text, $attachments)',
-      'ChatService',
+      '$runtimeType',
     );
+
     if (text != null) {
       text = ChatMessageText(text.val.trim());
     }
@@ -346,7 +350,8 @@ class ChatService extends DisposableService {
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateChatAvatar($id, $file, onSendProgress)', 'ChatService');
+    Log.debug('updateChatAvatar($id, $file, onSendProgress)', '$runtimeType');
+
     await _chatRepository.updateChatAvatar(
       id,
       file: file,
@@ -357,7 +362,7 @@ class ChatService extends DisposableService {
   /// Mutes or unmutes the specified [Chat] for the authenticated [MyUser].
   /// Overrides an existing mute even if it's longer.
   Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
-    Log.debug('toggleChatMute($id, $mute)', 'ChatService');
+    Log.debug('toggleChatMute($id, $mute)', '$runtimeType');
     await _chatRepository.toggleChatMute(id, mute);
   }
 
@@ -366,7 +371,8 @@ class ChatService extends DisposableService {
   ///
   /// If [userId] is [me], then removes the specified [Chat] from the [chats].
   Future<void> _onMemberRemoved(ChatId id, UserId userId) async {
-    Log.debug('_onMemberRemoved($id, $userId)', 'ChatService');
+    Log.debug('_onMemberRemoved($id, $userId)', '$runtimeType');
+
     if (userId == me) {
       if (router.route.startsWith('${Routes.chats}/$id')) {
         router.home();
@@ -378,14 +384,14 @@ class ChatService extends DisposableService {
   /// Marks the specified [Chat] as favorited for the authenticated [MyUser] and
   /// sets its [position] in the favorites list.
   Future<void> favoriteChat(ChatId id, [ChatFavoritePosition? position]) async {
-    Log.debug('favoriteChat($id, $position)', 'ChatService');
+    Log.debug('favoriteChat($id, $position)', '$runtimeType');
     await _chatRepository.favoriteChat(id, position);
   }
 
   /// Removes the specified [Chat] from the favorites list of the authenticated
   /// [MyUser].
   Future<void> unfavoriteChat(ChatId id) async {
-    Log.debug('unfavoriteChat($id)', 'ChatService');
+    Log.debug('unfavoriteChat($id)', '$runtimeType');
     await _chatRepository.unfavoriteChat(id);
   }
 
@@ -395,7 +401,7 @@ class ChatService extends DisposableService {
   /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
-    Log.debug('clearChat($id, $untilId)', 'ChatService');
+    Log.debug('clearChat($id, $untilId)', '$runtimeType');
     await _chatRepository.clearChat(id, untilId);
   }
 }

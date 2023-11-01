@@ -33,19 +33,20 @@ class WindowPreferencesHiveProvider
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'WindowPreferencesHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(WindowPreferencesAdapter());
   }
 
   /// Returns the stored [WindowPreferences] from [Hive].
   WindowPreferences? get() {
-    Log.debug('get()', 'WindowPreferencesHiveProvider');
+    Log.debug('get()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Stores the new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
-    Log.debug('set($size, $position)', 'WindowPreferencesHiveProvider');
+    Log.debug('set($size, $position)', '$runtimeType');
+
     final WindowPreferences? stored = get();
     putSafe(
       0,

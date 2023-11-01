@@ -1152,7 +1152,7 @@ class OngoingCall {
     });
 
     _room!.onConnectionLoss((e) async {
-      Log.debug('onConnectionLoss', 'CALL');
+      Log.debug('onConnectionLoss', '$runtimeType');
 
       if (connectionLost.isFalse) {
         connectionLost.value = true;
@@ -1166,7 +1166,7 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.debug('onNewConnection', 'CALL');
+      Log.debug('onNewConnection', '$runtimeType');
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1195,14 +1195,14 @@ class OngoingCall {
       }
 
       conn.onClose(() {
-        Log.debug('onClose', 'CALL');
+        Log.debug('onClose', '$runtimeType');
         members.remove(id)?.dispose();
       });
 
       conn.onRemoteTrackAdded((track) async {
         Log.debug(
           'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
-          'CALL',
+          '$runtimeType',
         );
 
         final Track t = Track(track);
@@ -1227,7 +1227,7 @@ class OngoingCall {
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
             'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
-            'CALL',
+            '$runtimeType',
           );
 
           t.direction.value = d;
@@ -1258,7 +1258,7 @@ class OngoingCall {
         track.onStopped(() {
           Log.debug(
             'onStopped ${track.kind()}-${track.mediaSourceKind()}',
-            'CALL',
+            '$runtimeType',
           );
 
           member?.tracks.remove(t..dispose());
@@ -1482,9 +1482,12 @@ class OngoingCall {
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     me.isConnected.value = false;
 
-    Log.info('Joining the room...', 'CALL');
+    Log.info('Joining the room...', '$runtimeType');
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
-      Log.info('Closing the previous one and connecting to the new', 'CALL');
+      Log.info(
+        'Closing the previous one and connecting to the new',
+        '$runtimeType',
+      );
       _closeRoom();
       _initRoom();
     }
@@ -1492,11 +1495,14 @@ class OngoingCall {
     try {
       await _room?.join('$link?token=$creds');
     } on RpcClientException catch (e) {
-      Log.error('Joining the room failed due to: ${e.message()}');
+      Log.error(
+        'Joining the room failed due to: ${e.message()}',
+        '$runtimeType',
+      );
       rethrow;
     }
 
-    Log.info('Room joined!', 'CALL');
+    Log.info('Room joined!', '$runtimeType');
 
     me.isConnected.value = true;
   }

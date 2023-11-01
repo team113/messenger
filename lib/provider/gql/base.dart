@@ -57,19 +57,19 @@ class GraphQlProviderBase {
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() async {
-    Log.debug('reconnect()', 'GraphQlProviderBase');
-    _client.reconnect();
+    Log.debug('reconnect()', '$runtimeType');
+    await _client.reconnect();
   }
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() {
-    Log.debug('disconnect()', 'GraphQlProviderBase');
+    Log.debug('disconnect()', '$runtimeType');
     _client.disconnect();
   }
 
   /// Clears the cache attached to the client.
   void clearCache() {
-    Log.debug('clearCache()', 'GraphQlProviderBase');
+    Log.debug('clearCache()', '$runtimeType');
     _client.clearCache();
   }
 }

@@ -69,7 +69,7 @@ class CallService extends DisposableService {
   }) async {
     Log.debug(
       'call($chatId, $withAudio, $withVideo, $withScreen)',
-      'CallService',
+      '$runtimeType',
     );
 
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
@@ -111,7 +111,7 @@ class CallService extends DisposableService {
   }) async {
     Log.debug(
       'join($chatId, $withAudio, $withVideo, $withScreen)',
-      'CallService',
+      '$runtimeType',
     );
 
     if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
@@ -158,7 +158,7 @@ class CallService extends DisposableService {
 
   /// Leaves or declines an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
-    Log.debug('leave($chatId, $deviceId)', 'CallService');
+    Log.debug('leave($chatId, $deviceId)', '$runtimeType');
 
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
@@ -181,7 +181,7 @@ class CallService extends DisposableService {
 
   /// Declines an [OngoingCall] identified by the given [chatId].
   Future<void> decline(ChatId chatId) async {
-    Log.debug('decline($chatId)', 'CallService');
+    Log.debug('decline($chatId)', '$runtimeType');
 
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
@@ -208,7 +208,7 @@ class CallService extends DisposableService {
   }) {
     Log.debug(
       'addStored($stored, $withAudio, $withVideo, $withScreen)',
-      'CallService',
+      '$runtimeType',
     );
 
     return _callsRepo.addStored(
@@ -221,14 +221,15 @@ class CallService extends DisposableService {
 
   /// Removes an [OngoingCall] identified by the given [chatId].
   void remove(ChatId chatId) {
-    Log.debug('remove($chatId)', 'CallService');
+    Log.debug('remove($chatId)', '$runtimeType');
     _callsRepo.remove(chatId);
   }
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].
   Future<void> toggleHand(ChatId chatId, bool raised) async {
-    Log.debug('toggleHand($chatId, $raised)', 'CallService');
+    Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
+
     final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.toggleHand(chatId, raised);
@@ -238,7 +239,8 @@ class CallService extends DisposableService {
   /// Redials a [User] who left or declined the ongoing [ChatCall] in the
   /// specified [Chat]-group by the authenticated [MyUser].
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
-    Log.debug('redialChatCallMember($chatId, $memberId)', 'CallService');
+    Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
+
     if (_callsRepo.contains(chatId)) {
       await _callsRepo.redialChatCallMember(chatId, memberId);
     }
@@ -250,7 +252,8 @@ class CallService extends DisposableService {
   /// If the specified [User] participates in the [ChatCall] from multiple
   /// devices simultaneously, then removes all the devices at once.
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
-    Log.debug('removeChatCallMember($chatId, $userId)', 'CallService');
+    Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
+
     if (_callsRepo.contains(chatId)) {
       await _callsRepo.removeChatCallMember(chatId, userId);
     }
@@ -265,7 +268,7 @@ class CallService extends DisposableService {
   }) async {
     Log.debug(
       'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
-      'CallService',
+      '$runtimeType',
     );
 
     final Rx<OngoingCall>? call = _callsRepo[chatId];
@@ -284,7 +287,7 @@ class CallService extends DisposableService {
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
   Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId) {
-    Log.debug('heartbeat($id, $deviceId)', 'CallService');
+    Log.debug('heartbeat($id, $deviceId)', '$runtimeType');
     return _callsRepo.heartbeat(id, deviceId);
   }
 
@@ -298,7 +301,7 @@ class CallService extends DisposableService {
   }) {
     Log.debug(
       'moveCall($chatId, $newChatId, $callId, $newCallId)',
-      'CallService',
+      '$runtimeType',
     );
 
     final Rx<OngoingCall>? call = _callsRepo[chatId];
@@ -314,20 +317,20 @@ class CallService extends DisposableService {
   /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
   /// specified [OngoingCall].
   void transferCredentials(ChatId chatId, ChatItemId callId) {
-    Log.debug('transferCredentials($chatId, $callId)', 'CallService');
+    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
     _callsRepo.transferCredentials(chatId, callId);
   }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatItemId id) async {
-    Log.debug('removeCredentials($id)', 'CallService');
+    Log.debug('removeCredentials($id)', '$runtimeType');
     await _callsRepo.removeCredentials(id);
   }
 
   /// Returns a [RxChat] by the provided [id].
   Future<RxChat?> getChat(ChatId id) async {
-    Log.debug('getChat($id)', 'CallService');
+    Log.debug('getChat($id)', '$runtimeType');
     return await _chatService.get(id);
   }
 }

@@ -94,14 +94,16 @@ class CallRepository extends DisposableInterface
 
   @override
   void onInit() {
-    Log.debug('onInit()', 'CallRepository');
+    Log.debug('onInit()', '$runtimeType');
+
     _subscribe(3);
     super.onInit();
   }
 
   @override
   void onClose() {
-    Log.debug('onClose()', 'CallRepository');
+    Log.debug('onClose()', '$runtimeType');
+
     _events?.cancel();
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
@@ -113,7 +115,8 @@ class CallRepository extends DisposableInterface
 
   @override
   Rx<OngoingCall>? add(ChatCall call) {
-    Log.debug('add($call)', 'CallRepository');
+    Log.debug('add($call)', '$runtimeType');
+
     Rx<OngoingCall>? ongoing = calls[call.chatId];
 
     // If we're already in this call or call already exists, then ignore it.
@@ -153,8 +156,9 @@ class CallRepository extends DisposableInterface
   }) {
     Log.debug(
       'addStored($stored, $withAudio, $withVideo, $withScreen)',
-      'CallRepository',
+      '$runtimeType',
     );
+
     Rx<OngoingCall>? ongoing = calls[stored.chatId];
 
     if (ongoing == null) {
@@ -184,13 +188,14 @@ class CallRepository extends DisposableInterface
 
   @override
   void move(ChatId chatId, ChatId newChatId) {
-    Log.debug('move($chatId, $newChatId)', 'CallRepository');
+    Log.debug('move($chatId, $newChatId)', '$runtimeType');
     calls.move(chatId, newChatId);
   }
 
   @override
   Rx<OngoingCall>? remove(ChatId chatId) {
-    Log.debug('remove($chatId)', 'CallRepository');
+    Log.debug('remove($chatId)', '$runtimeType');
+
     Rx<OngoingCall>? call = calls.remove(chatId);
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
@@ -200,7 +205,7 @@ class CallRepository extends DisposableInterface
 
   @override
   bool contains(ChatId chatId) {
-    Log.debug('contains($chatId)', 'CallRepository');
+    Log.debug('contains($chatId)', '$runtimeType');
     return calls.containsKey(chatId);
   }
 
@@ -213,8 +218,9 @@ class CallRepository extends DisposableInterface
   }) async {
     Log.debug(
       'start($chatId, $withAudio, $withVideo, $withScreen)',
-      'CallRepository',
+      '$runtimeType',
     );
+
     // TODO: Call should be displayed right away.
     if (chatId.isLocal && ensureRemoteDialog != null) {
       chatId = (await ensureRemoteDialog!.call(chatId))!.id;
@@ -270,8 +276,9 @@ class CallRepository extends DisposableInterface
   }) async {
     Log.debug(
       'join($chatId, $callId, $withAudio, $withVideo, $withScreen)',
-      'CallRepository',
+      '$runtimeType',
     );
+
     Rx<OngoingCall>? ongoing = calls[chatId];
 
     if (ongoing == null ||
@@ -328,26 +335,28 @@ class CallRepository extends DisposableInterface
 
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
-    Log.debug('leave($chatId, $deviceId)', 'CallRepository');
+    Log.debug('leave($chatId, $deviceId)', '$runtimeType');
     await _graphQlProvider.leaveChatCall(chatId, deviceId);
   }
 
   @override
   Future<void> decline(ChatId chatId) async {
-    Log.debug('decline($chatId)', 'CallRepository');
+    Log.debug('decline($chatId)', '$runtimeType');
+
     await _graphQlProvider.declineChatCall(chatId);
     calls.remove(chatId);
   }
 
   @override
   Future<void> toggleHand(ChatId chatId, bool raised) async {
-    Log.debug('toggleHand($chatId, $raised)', 'CallRepository');
-    _graphQlProvider.toggleChatCallHand(chatId, raised);
+    Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
+    await _graphQlProvider.toggleChatCallHand(chatId, raised);
   }
 
   @override
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
-    Log.debug('redialChatCallMember($chatId, $memberId)', 'CallRepository');
+    Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
+
     final Rx<OngoingCall>? ongoing = calls[chatId];
     final CallMemberId id = CallMemberId(memberId, null);
 
@@ -367,7 +376,7 @@ class CallRepository extends DisposableInterface
 
   @override
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
-    Log.debug('removeChatCallMember($chatId, $userId)', 'CallRepository');
+    Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
     // TODO: Implement optimism, if possible.
     await _graphQlProvider.removeChatCallMember(chatId, userId);
   }
@@ -380,9 +389,9 @@ class CallRepository extends DisposableInterface
   ) async {
     Log.debug(
       'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
-      'CallRepository',
+      '$runtimeType',
     );
-    _graphQlProvider.transformDialogCallIntoGroupCall(
+    await _graphQlProvider.transformDialogCallIntoGroupCall(
       chatId,
       additionalMemberIds,
       groupName,
@@ -391,7 +400,8 @@ class CallRepository extends DisposableInterface
 
   @override
   ChatCallCredentials generateCredentials(ChatId id) {
-    Log.debug('generateCredentials($id)', 'CallRepository');
+    Log.debug('generateCredentials($id)', '$runtimeType');
+
     ChatCallCredentials? creds = _credentials[id];
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
@@ -403,7 +413,8 @@ class CallRepository extends DisposableInterface
 
   @override
   void transferCredentials(ChatId chatId, ChatItemId callId) {
-    Log.debug('transferCredentials($chatId, $callId)', 'CallRepository');
+    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
+
     ChatCallCredentials? creds = _credentials[chatId];
     if (creds != null) {
       _credentialsProvider.put(callId, creds);
@@ -413,7 +424,8 @@ class CallRepository extends DisposableInterface
 
   @override
   ChatCallCredentials getCredentials(ChatItemId id) {
-    Log.debug('getCredentials($id)', 'CallRepository');
+    Log.debug('getCredentials($id)', '$runtimeType');
+
     ChatCallCredentials? creds = _credentialsProvider.get(id);
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
@@ -425,7 +437,8 @@ class CallRepository extends DisposableInterface
 
   @override
   void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
-    Log.debug('moveCredentials($callId, $newCallId)', 'CallRepository');
+    Log.debug('moveCredentials($callId, $newCallId)', '$runtimeType');
+
     ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
       _credentialsProvider.remove(callId);
@@ -435,7 +448,7 @@ class CallRepository extends DisposableInterface
 
   @override
   Future<void> removeCredentials(ChatItemId id) {
-    Log.debug('removeCredentials($id)', 'CallRepository');
+    Log.debug('removeCredentials($id)', '$runtimeType');
     return _credentialsProvider.remove(id);
   }
 
@@ -444,7 +457,8 @@ class CallRepository extends DisposableInterface
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
-    Log.debug('heartbeat($id, $deviceId)', 'CallRepository');
+    Log.debug('heartbeat($id, $deviceId)', '$runtimeType');
+
     return _graphQlProvider
         .callEvents(id, deviceId)
         .asyncExpand((event) async* {
@@ -472,7 +486,8 @@ class CallRepository extends DisposableInterface
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
   Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) {
-    Log.debug('_incomingEvents($count)', 'CallRepository');
+    Log.debug('_incomingEvents($count)', '$runtimeType');
+
     return _graphQlProvider
         .incomingCallsTopEvents(count)
         .asyncExpand((event) async* {
@@ -505,7 +520,8 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    Log.debug('_callEvent($e)', 'CallRepository');
+    Log.debug('_callEvent($e)', '$runtimeType');
+
     if (e.$$typename == 'EventChatCallFinished') {
       var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
       for (var m in node.call.members) {
@@ -659,7 +675,8 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].
   ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
-    Log.debug('_chatCall($m)', 'CallRepository');
+    Log.debug('_chatCall($m)', '$runtimeType');
+
     for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
         var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
@@ -683,7 +700,8 @@ class CallRepository extends DisposableInterface
 
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) {
-    Log.debug('_subscribe($count)', 'CallRepository');
+    Log.debug('_subscribe($count)', '$runtimeType');
+
     _events?.cancel();
     _events = _incomingEvents(count).listen(
       (e) async {

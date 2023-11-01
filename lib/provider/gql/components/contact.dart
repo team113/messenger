@@ -58,8 +58,9 @@ mixin ContactGraphQlMixin {
   }) async {
     Log.debug(
       'chatContacts($first, $after, $last, $before, $noFavorite)',
-      'ContactGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = ContactsArguments(
       first: first,
       last: last,
@@ -103,7 +104,8 @@ mixin ContactGraphQlMixin {
     required UserName name,
     List<ChatContactRecord>? records,
   }) async {
-    Log.debug('createChatContact($name, $records)', 'ContactGraphQlMixin');
+    Log.debug('createChatContact($name, $records)', '$runtimeType');
+
     final variables = CreateChatContactArguments(name: name, records: records);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -138,7 +140,8 @@ mixin ContactGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
   /// [ChatContact] doesn't exist already.
   Future<DeleteChatContact$Mutation> deleteChatContact(ChatContactId id) async {
-    Log.debug('deleteChatContact($id)', 'ContactGraphQlMixin');
+    Log.debug('deleteChatContact($id)', '$runtimeType');
+
     final variables = DeleteChatContactArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -202,7 +205,8 @@ mixin ContactGraphQlMixin {
   /// client side is expected to handle all the events idempotently considering
   /// the `ChatContact.ver`.
   Stream<QueryResult> contactsEvents(ChatContactsListVersion? Function() ver) {
-    Log.debug('contactsEvents(ChatContactsListVersion)', 'ContactGraphQlMixin');
+    Log.debug('contactsEvents(ChatContactsListVersion)', '$runtimeType');
+
     final variables = ContactsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
@@ -234,7 +238,8 @@ mixin ContactGraphQlMixin {
     ChatContactId id,
     UserName name,
   ) async {
-    Log.debug('changeContactName($id, $name)', 'ContactGraphQlMixin');
+    Log.debug('changeContactName($id, $name)', '$runtimeType');
+
     final variables = UpdateChatContactNameArguments(id: id, name: name);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -275,7 +280,8 @@ mixin ContactGraphQlMixin {
     ChatContactId id,
     ChatContactFavoritePosition position,
   ) async {
-    Log.debug('favoriteChatContact($id, $position)', 'ContactGraphQlMixin');
+    Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
+
     final variables = FavoriteChatContactArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -311,7 +317,8 @@ mixin ContactGraphQlMixin {
   Future<ChatContactEventsVersionedMixin?> unfavoriteChatContact(
     ChatContactId id,
   ) async {
-    Log.debug('unfavoriteChatContact($id)', 'ContactGraphQlMixin');
+    Log.debug('unfavoriteChatContact($id)', '$runtimeType');
+
     final variables = UnfavoriteChatContactArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -375,8 +382,9 @@ mixin ContactGraphQlMixin {
   }) async {
     Log.debug(
       'searchChatContacts($name, $email, $phone, $first, $after, $last, $before)',
-      'ContactGraphQlMixin',
+      '$runtimeType',
     );
+
     final variables = SearchChatContactsArguments(
       name: name,
       email: email,

@@ -77,7 +77,7 @@ mixin CallGraphQlMixin {
   }) async {
     Log.debug(
       'incomingCalls($first, $after, $last, $before)',
-      'CallGraphQlMixin',
+      '$runtimeType',
     );
 
     final variables = IncomingCallsArguments(
@@ -143,7 +143,7 @@ mixin CallGraphQlMixin {
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
-    Log.debug('callEvents($id, $deviceId)', 'CallGraphQlMixin');
+    Log.debug('callEvents($id, $deviceId)', '$runtimeType');
 
     final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
@@ -195,7 +195,7 @@ mixin CallGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Stream<QueryResult> incomingCallsTopEvents(int count) {
-    Log.debug('incomingCallsTopEvents($count)', 'CallGraphQlMixin');
+    Log.debug('incomingCallsTopEvents($count)', '$runtimeType');
 
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
@@ -235,7 +235,7 @@ mixin CallGraphQlMixin {
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
-    Log.debug('startChatCall($chatId, $creds)', 'CallGraphQlMixin');
+    Log.debug('startChatCall($chatId, $creds)', '$runtimeType');
 
     final variables = StartCallArguments(
       chatId: chatId,
@@ -284,7 +284,7 @@ mixin CallGraphQlMixin {
   /// [MyUser] joined the current [ChatCall] already (is a member of it).
   Future<JoinCall$Mutation$JoinChatCall$JoinChatCallOk> joinChatCall(
       ChatId chatId, ChatCallCredentials creds) async {
-    Log.debug('joinChatCall($chatId, $creds)', 'CallGraphQlMixin');
+    Log.debug('joinChatCall($chatId, $creds)', '$runtimeType');
 
     final variables = JoinCallArguments(chatId: chatId, creds: creds);
     final QueryResult result = await client.query(
@@ -326,7 +326,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     ChatCallDeviceId deviceId,
   ) async {
-    Log.debug('leaveChatCall($chatId, $deviceId)', 'CallGraphQlMixin');
+    Log.debug('leaveChatCall($chatId, $deviceId)', '$runtimeType');
 
     final variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
     final QueryResult result = await client.query(
@@ -366,7 +366,7 @@ mixin CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if there is no current
   /// [ChatCall], or it is declined by the authenticated [MyUser] already.
   Future<ChatEventsVersionedMixin?> declineChatCall(ChatId chatId) async {
-    Log.debug('declineChatCall($chatId)', 'CallGraphQlMixin');
+    Log.debug('declineChatCall($chatId)', '$runtimeType');
 
     final variables = DeclineCallArguments(chatId: chatId);
     final QueryResult result = await client.query(
@@ -412,7 +412,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     bool raised,
   ) async {
-    Log.debug('toggleChatCallHand($chatId, $raised)', 'CallGraphQlMixin');
+    Log.debug('toggleChatCallHand($chatId, $raised)', '$runtimeType');
 
     final variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
     final QueryResult result = await client.mutate(
@@ -457,7 +457,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     UserId memberId,
   ) async {
-    Log.debug('redialChatCallMember($chatId, $memberId)', 'CallGraphQlMixin');
+    Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
 
     final variables = RedialChatCallMemberArguments(
       chatId: chatId,
@@ -514,7 +514,7 @@ mixin CallGraphQlMixin {
   ) async {
     Log.debug(
       'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
-      'CallGraphQlMixin',
+      '$runtimeType',
     );
 
     final variables = TransformDialogCallIntoGroupCallArguments(
@@ -565,7 +565,7 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     UserId userId,
   ) async {
-    Log.debug('removeChatCallMember($chatId, $userId)', 'CallGraphQlMixin');
+    Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
 
     final variables = RemoveChatCallMemberArguments(
       chatId: chatId,

@@ -35,7 +35,7 @@ class ChatCallCredentialsHiveProvider
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'ChatCallCredentialsHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ChatCallCredentialsAdapter());
   }
 
@@ -44,19 +44,19 @@ class ChatCallCredentialsHiveProvider
 
   /// Puts the provided [ChatCallCredentials] to [Hive].
   Future<void> put(ChatItemId id, ChatCallCredentials creds) async {
-    Log.debug('put($id, $creds)', 'ChatCallCredentialsHiveProvider');
-    putSafe(id.val, creds);
+    Log.debug('put($id, $creds)', '$runtimeType');
+    await putSafe(id.val, creds);
   }
 
   /// Returns a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
   ChatCallCredentials? get(ChatItemId id) {
-    Log.debug('get($id)', 'ChatCallCredentialsHiveProvider');
+    Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   /// Removes a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
   Future<void> remove(ChatItemId id) async {
-    Log.debug('remove($id)', 'ChatCallCredentialsHiveProvider');
-    deleteSafe(id.val);
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
   }
 }

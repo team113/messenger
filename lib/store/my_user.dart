@@ -105,7 +105,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
   }) async {
-    Log.debug('init(onUserDeleted, onPasswordUpdated)', 'MyUserRepository');
+    Log.debug('init(onUserDeleted, onPasswordUpdated)', '$runtimeType');
+
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
@@ -151,7 +152,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   void dispose() {
-    Log.debug('dispose()', 'MyUserRepository');
+    Log.debug('dispose()', '$runtimeType');
+
     _localSubscription?.cancel();
     _blocklistSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
@@ -161,13 +163,14 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> clearCache() async {
-    Log.debug('clearCache()', 'MyUserRepository');
-    _myUserLocal.clear();
+    Log.debug('clearCache()', '$runtimeType');
+    await _myUserLocal.clear();
   }
 
   @override
   Future<void> updateUserName(UserName? name) async {
-    Log.debug('updateUserName($name)', 'MyUserRepository');
+    Log.debug('updateUserName($name)', '$runtimeType');
+
     final UserName? oldName = myUser.value?.name;
 
     myUser.update((u) => u?.name = name);
@@ -182,7 +185,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> updateUserStatus(UserTextStatus? status) async {
-    Log.debug('updateUserStatus($status)', 'MyUserRepository');
+    Log.debug('updateUserStatus($status)', '$runtimeType');
+
     final UserTextStatus? oldStatus = myUser.value?.status;
 
     myUser.update((u) => u?.status = status);
@@ -197,7 +201,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> updateUserLogin(UserLogin login) async {
-    Log.debug('updateUserLogin($login)', 'MyUserRepository');
+    Log.debug('updateUserLogin($login)', '$runtimeType');
+
     final UserLogin? oldLogin = myUser.value?.login;
 
     myUser.update((u) => u?.login = login);
@@ -212,7 +217,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> updateUserPresence(Presence presence) async {
-    Log.debug('updateUserPresence($presence)', 'MyUserRepository');
+    Log.debug('updateUserPresence($presence)', '$runtimeType');
+
     final Presence? oldPresence = myUser.value?.presence;
 
     myUser.update((u) => u?.presence = presence);
@@ -232,20 +238,21 @@ class MyUserRepository implements AbstractMyUserRepository {
   ) async {
     Log.debug(
       'updateUserPassword($oldPassword, $newPassword)',
-      'MyUserRepository',
+      '$runtimeType',
     );
-    _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+    await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
   }
 
   @override
   Future<void> deleteMyUser() async {
-    Log.debug('deleteMyUser()', 'MyUserRepository');
-    _graphQlProvider.deleteMyUser();
+    Log.debug('deleteMyUser()', '$runtimeType');
+    await _graphQlProvider.deleteMyUser();
   }
 
   @override
   Future<void> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', 'MyUserRepository');
+    Log.debug('deleteUserEmail($email)', '$runtimeType');
+
     if (myUser.value?.emails.unconfirmed == email) {
       final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
@@ -278,7 +285,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', 'MyUserRepository');
+    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+
     if (myUser.value?.phones.unconfirmed == phone) {
       final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
@@ -311,7 +319,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> addUserEmail(UserEmail email) async {
-    Log.debug('addUserEmail($email)', 'MyUserRepository');
+    Log.debug('addUserEmail($email)', '$runtimeType');
+
     final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
     myUser.update((u) => u?.emails.unconfirmed = email);
@@ -326,7 +335,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', 'MyUserRepository');
+    Log.debug('addUserPhone($phone)', '$runtimeType');
+
     final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
     myUser.update((u) => u?.phones.unconfirmed = phone);
@@ -341,7 +351,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> confirmEmailCode(ConfirmationCode code) async {
-    Log.debug('confirmEmailCode($code)', 'MyUserRepository');
+    Log.debug('confirmEmailCode($code)', '$runtimeType');
+
     final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
     await _graphQlProvider.confirmEmailCode(code);
@@ -359,7 +370,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
-    Log.debug('confirmPhoneCode($code)', 'MyUserRepository');
+    Log.debug('confirmPhoneCode($code)', '$runtimeType');
+
     final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
     await _graphQlProvider.confirmPhoneCode(code);
@@ -377,19 +389,20 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> resendEmail() async {
-    Log.debug('resendEmail()', 'MyUserRepository');
-    _graphQlProvider.resendEmail();
+    Log.debug('resendEmail()', '$runtimeType');
+    await _graphQlProvider.resendEmail();
   }
 
   @override
   Future<void> resendPhone() async {
-    Log.debug('resendPhone()', 'MyUserRepository');
-    _graphQlProvider.resendPhone();
+    Log.debug('resendPhone()', '$runtimeType');
+    await _graphQlProvider.resendPhone();
   }
 
   @override
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('createChatDirectLink($slug)', 'MyUserRepository');
+    Log.debug('createChatDirectLink($slug)', '$runtimeType');
+
     final ChatDirectLink? link = myUser.value?.chatDirectLink;
 
     myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
@@ -404,7 +417,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> deleteChatDirectLink() async {
-    Log.debug('deleteChatDirectLink()', 'MyUserRepository');
+    Log.debug('deleteChatDirectLink()', '$runtimeType');
+
     final ChatDirectLink? link = myUser.value?.chatDirectLink;
 
     myUser.update((u) => u?.chatDirectLink = null);
@@ -422,7 +436,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateAvatar($file, onSendProgress)', 'MyUserRepository');
+    Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
+
     dio.MultipartFile? upload;
 
     if (file != null) {
@@ -475,7 +490,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> toggleMute(MuteDuration? mute) async {
-    Log.debug('toggleMute($mute)', 'MyUserRepository');
+    Log.debug('toggleMute($mute)', '$runtimeType');
+
     final MuteDuration? muted = myUser.value?.muted;
 
     final Muting? muting = mute == null
@@ -497,7 +513,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateCallCover($file, onSendProgress)', 'MyUserRepository');
+    Log.debug('updateCallCover($file, onSendProgress)', '$runtimeType');
+
     dio.MultipartFile? upload;
 
     if (file != null) {
@@ -550,7 +567,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> refresh() async {
-    Log.debug('refresh()', 'MyUserRepository');
+    Log.debug('refresh()', '$runtimeType');
+
     final response = await _graphQlProvider.getMyUser();
 
     if (response.myUser != null) {
@@ -562,7 +580,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   //       loading on demand.
   /// Fetches __all__ blacklisted [User]s from the remote.
   Future<List<HiveUser>> _fetchBlocklist() async {
-    Log.debug('_fetchBlocklist()', 'MyUserRepository');
+    Log.debug('_fetchBlocklist()', '$runtimeType');
+
     final query = await _graphQlProvider.getBlocklist(first: 120);
     final users = query.edges.map((e) => e.node.user.toHive()).toList();
     users.forEach(_userRepo.put);
@@ -572,7 +591,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
-    Log.debug('_initLocalSubscription()', 'MyUserRepository');
+    Log.debug('_initLocalSubscription()', '$runtimeType');
+
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
@@ -591,7 +611,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
   Future<void> _initBlacklistSubscription() async {
-    Log.debug('_initBlacklistSubscription()', 'MyUserRepository');
+    Log.debug('_initBlacklistSubscription()', '$runtimeType');
+
     _blocklistSubscription = StreamIterator(_blocklistLocal.boxEvents);
     while (await _blocklistSubscription!.moveNext()) {
       final BoxEvent event = _blocklistSubscription!.current;
@@ -612,7 +633,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [_myUserRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    Log.debug('_initRemoteSubscription()', 'MyUserRepository');
+    Log.debug('_initRemoteSubscription()', '$runtimeType');
+
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription =
         StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
@@ -621,7 +643,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
   void _initKeepOnlineSubscription() {
-    Log.debug('_initKeepOnlineSubscription()', 'MyUserRepository');
+    Log.debug('_initKeepOnlineSubscription()', '$runtimeType');
+
     _keepOnlineSubscription?.cancel();
     _keepOnlineSubscription = _graphQlProvider.keepOnline().listen(
       (_) {
@@ -635,7 +658,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Saves the provided [user] in [Hive].
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
-    Log.debug('_setMyUser($user, $ignoreVersion)', 'MyUserRepository');
+    Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
+
     if (user.ver > _myUserLocal.myUser?.ver || ignoreVersion) {
       _myUserLocal.set(user);
     }
@@ -643,7 +667,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    Log.debug('_myUserRemoteEvent($versioned)', 'MyUserRepository');
+    Log.debug('_myUserRemoteEvent($versioned)', '$runtimeType');
+
     var userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
@@ -840,7 +865,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   Stream<MyUserEventsVersioned> _myUserRemoteEvents(
     MyUserVersion? Function() ver,
   ) {
-    Log.debug('_myUserRemoteEvents(ver)', 'MyUserRepository');
+    Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
+
     return _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
@@ -862,7 +888,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].
   MyUserEvent _myUserEvent(MyUserEventsVersionedMixin$Events e) {
-    Log.debug('_myUserEvent($e)', 'MyUserRepository');
+    Log.debug('_myUserEvent($e)', '$runtimeType');
+
     if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name);

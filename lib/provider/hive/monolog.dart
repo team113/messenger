@@ -32,19 +32,19 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', 'MonologHiveProvider');
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Returns the stored [ChatId] from [Hive].
   ChatId? get() {
-    Log.debug('get()', 'MonologHiveProvider');
+    Log.debug('get()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Saves the provided [ChatId] to [Hive].
   Future<void> set(ChatId id) async {
-    Log.debug('set($id)', 'MonologHiveProvider');
-    putSafe(0, id);
+    Log.debug('set($id)', '$runtimeType');
+    await putSafe(0, id);
   }
 }
