@@ -133,6 +133,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           attachment as ImageAttachment,
           fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
+          minWidth: 75,
           height: widget.height ??
               max(
                 100,
