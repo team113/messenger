@@ -204,7 +204,6 @@ class ChatService extends DisposableService {
     ChatMessageRepliesInput? repliesTo,
   }) async {
     if (text?.changed.val.trim() == item.text?.val.trim()) {
-      print('Text is the same');
       text = null;
     } else if (text != null) {
       text = ChatMessageTextInput(ChatMessageText(text.changed.val.trim()));
