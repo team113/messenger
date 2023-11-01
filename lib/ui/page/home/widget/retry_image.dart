@@ -317,7 +317,7 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (widget.thumbhash != null && _imageInitialized == false) {
+    if (widget.thumbhash != null && !_imageInitialized) {
       Widget thumbhash = Image(
         image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
         key: const Key('Thumbhash'),
@@ -347,7 +347,9 @@ class _RetryImageState extends State<RetryImage> {
                 child: SafeAnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
                   child: KeyedSubtree(
-                      key: Key('Image_${widget.url}'), child: child),
+                    key: Key('Image_${widget.url}'),
+                    child: child,
+                  ),
                 ),
               ),
             ),
