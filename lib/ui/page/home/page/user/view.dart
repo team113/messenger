@@ -119,10 +119,19 @@ class UserView extends StatelessWidget {
                           child: const SvgIcon(SvgIcons.chatAudioCall),
                         ),
                         // const SizedBox(width: 28),
-                        AnimatedButton(
-                          onPressed: () {},
-                          child: const SvgIcon(SvgIcons.quickMute),
-                        ),
+                        Obx(() {
+                          final bool muted =
+                              c.user?.dialog.value?.chat.value.muted != null;
+
+                          return AnimatedButton(
+                            onPressed: muted ? c.unmuteChat : c.muteChat,
+                            child: SvgIcon(
+                              muted
+                                  ? SvgIcons.notificationsOff
+                                  : SvgIcons.notificationsOn,
+                            ),
+                          );
+                        }),
                         // const SizedBox(width: 28),
                       ],
                     ),

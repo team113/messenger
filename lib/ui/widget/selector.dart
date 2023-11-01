@@ -239,6 +239,8 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (buttonBox?.size.height ?? 0),
           );
 
+          print(buttonBox?.size);
+
           right = constraints.maxWidth - 100 - offset.dx;
           top = offset.dy - widget.margin.bottom;
         } else {

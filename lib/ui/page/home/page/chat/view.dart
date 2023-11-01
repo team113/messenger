@@ -62,6 +62,7 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/paid_notification.dart';
+import 'widget/square_button.dart';
 import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
@@ -249,7 +250,7 @@ class _ChatViewState extends State<ChatView>
                           const SizedBox(width: 10),
                         ],
                       ),
-                      padding: const EdgeInsets.only(left: 4, right: 20),
+                      padding: const EdgeInsets.only(left: 4, right: 0),
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
@@ -261,16 +262,16 @@ class _ChatViewState extends State<ChatView>
 
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
-                              AnimatedButton(
-                                onPressed: () => c.call(true),
-                                child: const SvgIcon(SvgIcons.chatVideoCall),
-                              ),
-                              const SizedBox(width: 28),
-                              AnimatedButton(
-                                key: const Key('AudioCall'),
-                                onPressed: () => c.call(false),
-                                child: const SvgIcon(SvgIcons.chatAudioCall),
-                              ),
+                              // AnimatedButton(
+                              //   onPressed: () => c.call(true),
+                              //   child: const SvgIcon(SvgIcons.chatVideoCall),
+                              // ),
+                              // const SizedBox(width: 28),
+                              // AnimatedButton(
+                              //   key: const Key('AudioCall'),
+                              //   onPressed: () => c.call(false),
+                              //   child: const SvgIcon(SvgIcons.chatAudioCall),
+                              // ),
                             ];
                           } else {
                             final Widget child;
@@ -338,6 +339,48 @@ class _ChatViewState extends State<ChatView>
                                   ),
                                 ),
                               ...children,
+                              // const SizedBox(width: 28 - 8),
+                              AnimatedButton(
+                                child: Obx(() {
+                                  final bool muted =
+                                      c.chat?.chat.value.muted != null;
+
+                                  return ContextMenuRegion(
+                                    selector: c.moreKey,
+                                    alignment: Alignment.topRight,
+                                    enablePrimaryTap: true,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 10,
+                                    ),
+                                    actions: [
+                                      ContextMenuButton(
+                                        label: muted
+                                            ? 'btn_unmute_chat'.l10n
+                                            : 'btn_mute_chat'.l10n,
+                                        onPressed:
+                                            muted ? c.unmuteChat : c.muteChat,
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_unmute_chat'.l10n,
+                                      ),
+                                    ],
+                                    child: Container(
+                                      padding: const EdgeInsets.only(
+                                        left: 10,
+                                        right: 0,
+                                      ),
+                                      key: c.moreKey,
+                                      height: double.infinity,
+                                      child: const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(10, 0, 21, 0),
+                                        child: SvgIcon(SvgIcons.more),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
                             ],
                           );
                         }),
@@ -674,6 +717,24 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               ],
                             ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 12,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SquareButton(
+                                SvgIcons.chatAudioCall,
+                                onPressed: () => c.call(false),
+                              ),
+                              const SizedBox(height: 8),
+                              SquareButton(
+                                SvgIcons.chatVideoCall,
+                                onPressed: () => c.call(true),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -1174,6 +1235,23 @@ class _ChatViewState extends State<ChatView>
             }),
           ),
         ],
+      );
+    } else if (element is InfoElement) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: style.systemMessageBorder,
+          color: style.systemMessageColor,
+        ),
+        child: Center(
+          child: Text(
+            'Lorem ipsum dolor sit ame',
+            style: style.systemMessageStyle,
+          ),
+        ),
       );
     }
 

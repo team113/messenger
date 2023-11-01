@@ -353,7 +353,9 @@ class ChatsTabView extends StatelessWidget {
                                   alignment: Alignment.topRight,
                                   enablePrimaryTap: true,
                                   margin: const EdgeInsets.only(
-                                      bottom: 4, right: 0),
+                                    bottom: 4,
+                                    right: 0,
+                                  ),
                                   actions: [
                                     ContextMenuButton(
                                       label: 'btn_create_group'.l10n,

@@ -1251,4 +1251,28 @@ class SvgIcons {
     width: 24.28,
     height: 23.09,
   );
+
+  static const SvgData notificationsOn = SvgData(
+    'assets/icons/notifications_on.svg',
+    width: 21.2,
+    height: 24,
+  );
+
+  static const SvgData notificationsOff = SvgData(
+    'assets/icons/notifications_off.svg',
+    width: 24.6,
+    height: 25,
+  );
+
+  static const SvgData chatVideoCallFilled = SvgData(
+    'assets/icons/chat_video_call_filled.svg',
+    width: 27.71,
+    height: 19,
+  );
+
+  static const SvgData chatAudioCallFilled = SvgData(
+    'assets/icons/chat_audio_call_filled.svg',
+    width: 21,
+    height: 21,
+  );
 }

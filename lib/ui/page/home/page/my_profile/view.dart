@@ -504,11 +504,13 @@ Widget _emails(BuildContext context, MyProfileController c) {
                 PlatformUtils.copy(text: e.val);
                 MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => _deleteEmail(c, context, e),
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
                 offset: const Offset(0, -5),
-                child: const SvgIcon(SvgIcons.delete),
+                child: AnimatedButton(
+                  onPressed: () => _deleteEmail(c, context, e),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
               ),
               subtitle: RichText(
                 text: TextSpan(
@@ -580,16 +582,18 @@ Widget _emails(BuildContext context, MyProfileController c) {
             hint: 'label_verify_email'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
+              child: AnimatedButton(
+                onPressed: () => _deleteEmail(
+                  c,
+                  context,
+                  c.myUser.value!.emails.unconfirmed!,
+                ),
+                child: const SvgIcon(SvgIcons.delete),
+              ),
             ),
             onPressed: () => AddEmailView.show(
               context,
               email: c.myUser.value!.emails.unconfirmed!,
-            ),
-            onTrailingPressed: () => _deleteEmail(
-              c,
-              context,
-              c.myUser.value!.emails.unconfirmed!,
             ),
             style:
                 style.fonts.titleMedium.copyWith(color: style.colors.primary),
@@ -663,13 +667,15 @@ Widget _phones(BuildContext context, MyProfileController c) {
               trailing: Transform.translate(
                 key: const Key('DeletePhone'),
                 offset: const Offset(0, -5),
-                child: const SvgIcon(SvgIcons.delete),
+                child: AnimatedButton(
+                  onPressed: () => _deletePhone(c, context, e),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
               ),
               onPressed: () {
                 PlatformUtils.copy(text: e.val);
                 MessagePopup.success('label_copied'.l10n);
               },
-              onTrailingPressed: () => _deletePhone(c, context, e),
               subtitle: RichText(
                 text: TextSpan(
                   children: [
@@ -740,16 +746,18 @@ Widget _phones(BuildContext context, MyProfileController c) {
             hint: 'label_verify_number'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
+              child: AnimatedButton(
+                onPressed: () => _deletePhone(
+                  c,
+                  context,
+                  c.myUser.value!.phones.unconfirmed!,
+                ),
+                child: const SvgIcon(SvgIcons.delete),
+              ),
             ),
             onPressed: () => AddPhoneView.show(
               context,
               phone: c.myUser.value!.phones.unconfirmed!,
-            ),
-            onTrailingPressed: () => _deletePhone(
-              c,
-              context,
-              c.myUser.value!.phones.unconfirmed!,
             ),
             style: style.fonts.titleMediumSecondary,
           ),

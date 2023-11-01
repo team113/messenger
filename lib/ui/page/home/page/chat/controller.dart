@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/my_user.dart';
@@ -62,6 +63,7 @@ import '/provider/gql/exceptions.dart'
         HideChatItemException,
         PostChatMessageException,
         ReadChatException,
+        ToggleChatMuteException,
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
@@ -236,6 +238,8 @@ class ChatController extends GetxController {
   final RxBool allowPinnedHiding = RxBool(false);
   final RxList<ChatItem> pinned = RxList();
   final RxInt displayPinned = RxInt(0);
+
+  final GlobalKey moreKey = GlobalKey();
 
   void pin(ChatItem item) {
     pinned.add(item);
@@ -762,6 +766,9 @@ class ChatController extends GetxController {
       for (Attachment e in draft?.attachments ?? []) {
         send.attachments.add(MapEntry(GlobalKey(), e));
       }
+
+      // final InfoElement info = InfoElement();
+      // elements[info.id] = InfoElement();
 
       paid = chat!.members.values.any((e) =>
               e.user.value.name?.val == 'alex1' ||
@@ -1345,6 +1352,30 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Highlights the item with the provided [index].
   Future<void> _highlight(int index) async {
     highlightIndex.value = index;
@@ -1763,6 +1794,11 @@ class FeeElement extends ListElement {
       : super(ListElementId(PreciseDateTime.now(), ChatItemId('$fromMe')));
 
   final bool fromMe;
+}
+
+class InfoElement extends ListElement {
+  InfoElement()
+      : super(ListElementId(PreciseDateTime.now(), const ChatItemId('0')));
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
