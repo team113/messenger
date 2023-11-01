@@ -184,7 +184,7 @@ jobs:
 
       - run: make flutter.pub
 
-        if: ${{ matrix.platform != 'windows' }}
+        if: ${{ matrix.platform == 'windows' }}
       - run: |
           pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                 "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
@@ -194,7 +194,7 @@ jobs:
             echo LOG_LEVEL="debug" >> .env
           fi
 
-        if: ${{ matrix.platform == 'windows' }}
+        if: ${{ matrix.platform != 'windows' }}
       - run: |
           pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                 "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
