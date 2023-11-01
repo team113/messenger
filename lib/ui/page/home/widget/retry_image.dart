@@ -47,8 +47,7 @@ class RetryImage extends StatefulWidget {
     this.fit,
     this.height,
     this.width,
-    this.imageHeight,
-    this.imageWidth,
+    this.imageAspectRatio,
     this.borderRadius,
     this.onForbidden,
     this.filter,
@@ -81,6 +80,11 @@ class RetryImage extends StatefulWidget {
       image = attachment.big;
     }
 
+    double? imageAspectRatio;
+    if (image.width != null && image.height != null) {
+      imageAspectRatio = image.width! / image.height!;
+    }
+
     return RetryImage(
       image.url,
       checksum: image.checksum,
@@ -88,8 +92,7 @@ class RetryImage extends StatefulWidget {
       fit: fit,
       height: height,
       width: width,
-      imageHeight: image.height,
-      imageWidth: image.width,
+      imageAspectRatio: imageAspectRatio,
       borderRadius: borderRadius,
       onForbidden: onForbidden,
       filter: filter,
@@ -121,11 +124,10 @@ class RetryImage extends StatefulWidget {
   /// Width of this [RetryImage].
   final double? width;
 
-  /// Width of an image to display.
-  final int? imageWidth;
-
-  /// Height of an image to display.
-  final int? imageHeight;
+  /// Aspect ratio of an image to display.
+  ///
+  /// Used to show [thumbhash] with right aspect ratio.
+  final double? imageAspectRatio;
 
   /// [ImageFilter] to apply to this [RetryImage].
   final ImageFilter? filter;
@@ -326,11 +328,9 @@ class _RetryImageState extends State<RetryImage> {
         fit: BoxFit.cover,
       );
 
-      if (widget.imageHeight != null &&
-          widget.imageWidth != null &&
-          widget.fit == BoxFit.contain) {
+      if (widget.imageAspectRatio != null && widget.fit == BoxFit.contain) {
         thumbhash = AspectRatio(
-          aspectRatio: widget.imageWidth! / widget.imageHeight!,
+          aspectRatio: widget.imageAspectRatio!,
           child: thumbhash,
         );
       }
