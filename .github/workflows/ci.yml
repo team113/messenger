@@ -191,6 +191,7 @@ jobs:
 
           if [[ $pr_title == *"[debug]"* ]]; then
             echo LOG_LEVEL="debug" >> .env
+          fi
 
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}'
