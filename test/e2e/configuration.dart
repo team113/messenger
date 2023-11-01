@@ -52,6 +52,7 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/chats_availability.dart';
 import 'steps/contact.dart';
 import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
@@ -128,6 +129,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
+        chatsAvailability,
         checkCopyText,
         contact,
         contactIsFavorite,
@@ -179,7 +181,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
-        seeRemoteChats,
         seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,

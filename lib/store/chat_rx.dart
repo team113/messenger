@@ -317,7 +317,9 @@ class HiveRxChat extends RxChat {
             final HiveChat? chatEntity = await _chatLocal.get(id);
             final ChatItem? firstItem = page.edges.firstOrNull?.value;
 
-            if (chatEntity != null && chatEntity.value.firstItem != firstItem) {
+            if (chatEntity != null &&
+                firstItem != null &&
+                chatEntity.value.firstItem != firstItem) {
               chatEntity.value.firstItem = firstItem;
               _chatLocal.put(chatEntity);
             }

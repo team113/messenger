@@ -33,13 +33,16 @@ Feature: Chats pagination
     Given I am Alice
     And Alice has 16 groups
     And I see 16 chats
+    And chats fetched are indeed remote
     And I do not have Internet
 
     When I restart app
     Then I see 15 chats
+    And chats fetched are indeed local
 
     When I scroll `Chats` to bottom
     Then I see 16 chats
+    And chats fetched are indeed local
 
     When I have Internet without delay
-    Then I see chats fetched from remote
+    Then chats fetched are indeed remote
