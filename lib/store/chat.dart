@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -145,7 +146,7 @@ class ChatRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<RecentChatsEvent>? _remoteSubscription;
 
-  /// [DateTime] when the [_remoteSubscription] initializing has been started.
+  /// [DateTime] when the [_remoteSubscription] initializing has started.
   DateTime? _subscribedAt;
 
   /// [_favoriteChatsEvents] subscription.
@@ -196,6 +197,10 @@ class ChatRepository extends DisposableInterface
       _pagination?.nextLoading ??
       RxBool(false);
 
+  /// Indicates whether this [ChatRepository] uses a remote pagination.
+  @visibleForTesting
+  bool get isRemote => _localPagination == null && _pagination != null;
+
   @override
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
@@ -218,14 +223,14 @@ class ChatRepository extends DisposableInterface
           : (id: stored.id, isHidden: stored.isHidden),
     );
 
-    _chatLocal.valuesSafe.then((v) {
-      for (var chat in v) {
-        print('stored ${chat.value.id} ${chat.value.kind}');
-        if (!chats.containsKey(chat.value.id)) {
-          put(chat);
-        }
-      }
-    });
+    // _chatLocal.valuesSafe.then((v) {
+    //   for (var chat in v) {
+    //     print('stored ${chat.value.id} ${chat.value.kind}');
+    //     if (!chats.containsKey(chat.value.id)) {
+    //       put(chat);
+    //     }
+    //   }
+    // });
 
     status.value = RxStatus.loading();
 
@@ -295,8 +300,8 @@ class ChatRepository extends DisposableInterface
 
       await Future.delayed(1.milliseconds);
 
-      if (paginated.isNotEmpty) {
-        status.value = RxStatus.success();
+      if (paginated.isNotEmpty && !status.value.isSuccess) {
+        status.value = RxStatus.loadingMore();
       }
     }
   }
@@ -320,10 +325,12 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> next() async {
-    await (_localPagination?.next ?? _pagination?.next)?.call();
+    if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
+      await (_localPagination?.next ?? _pagination?.next)?.call();
 
-    if (_pagination?.hasNext.value == false) {
-      _initMonolog();
+      if (_pagination?.hasNext.value == false) {
+        _initMonolog();
+      }
     }
   }
 
@@ -1338,6 +1345,11 @@ class ChatRepository extends DisposableInterface
   }) async {
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
+
+    // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+    chat.value.firstItem ??= saved?.chat.value.firstItem;
+
+    // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null && !ignoreVersion) {
       if (saved.ver >= chat.ver) {
         if (pagination) {
@@ -1363,12 +1375,18 @@ class ChatRepository extends DisposableInterface
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
     if (!WebUtils.isPopup) {
-      final HiveChat? saved = await _chatLocal.get(chatId);
+      HiveChat? saved;
+
+      // If version is ignored, there's no need to retrieve the stored chat.
+      if (!ignoreVersion) {
+        saved = await _chatLocal.get(chatId);
+      }
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-      chat.value.firstItem ??= saved?.value.firstItem;
+      chat.value.firstItem ??=
+          saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-      if (saved == null || saved.ver < chat.ver || ignoreVersion) {
+      if (saved == null || saved.ver < chat.ver) {
         _recentLocal.put(chat.value.updatedAt, chatId);
         await _chatLocal.put(chat);
       }
@@ -1570,7 +1588,6 @@ class ChatRepository extends DisposableInterface
       ),
     ]);
 
-    // await Future.delayed(Duration(seconds: 60));
     await _pagination!.around();
 
     _paginationSubscription?.cancel();
@@ -1598,11 +1615,13 @@ class ChatRepository extends DisposableInterface
 
     // Add the received in [CombinedPagination.around] items to the
     // [paginated].
-    _pagination?.items.forEach((e) => _putEntry(
-          ChatData(e, null, null),
-          pagination: true,
-          ignoreVersion: true,
-        ));
+    _pagination?.items.forEach(
+      (e) => _putEntry(
+        ChatData(e, null, null),
+        pagination: true,
+        ignoreVersion: true,
+      ),
+    );
 
     if (_pagination?.hasNext.value == false) {
       await _initMonolog();
@@ -1933,6 +1952,8 @@ class ChatRepository extends DisposableInterface
   Future<void> _initMonolog() async {
     print('[_initMonolog] ${chats[monolog.value.id]}');
     if (monolog.value.id.isLocal && paginated[monolog.value.id] == null) {
+      // TODO: Monolog will be always fetched by pagination, so `getMonolog` can
+      //       be omitted.
       final ChatMixin? query = await _graphQlProvider.getMonolog();
       if (query == null) {
         await _createLocalDialog(me);
