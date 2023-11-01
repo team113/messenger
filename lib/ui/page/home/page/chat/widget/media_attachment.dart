@@ -132,7 +132,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         child = RetryImage.attachment(
           attachment as ImageAttachment,
           fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
-          width: widget.width ?? max(100, file.width?.toDouble() ?? 550),
+          width: widget.width,
           height: widget.height ??
               max(
                 100,
