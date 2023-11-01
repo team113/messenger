@@ -203,10 +203,12 @@ class ChatService extends DisposableService {
     ChatMessageAttachmentsInput? attachments,
     ChatMessageRepliesInput? repliesTo,
   }) async {
-    if (text?.changed.val.trim() == item.text?.val.trim()) {
+    if (text?.changed?.val.trim() == item.text?.val.trim()) {
       text = null;
     } else if (text != null) {
-      text = ChatMessageTextInput(ChatMessageText(text.changed.val.trim()));
+      text = ChatMessageTextInput(
+        text.changed == null ? null : ChatMessageText(text.changed!.val.trim()),
+      );
     }
 
     if (item.attachments

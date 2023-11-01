@@ -574,11 +574,7 @@ class ChatRepository extends DisposableInterface
 
       await _graphQlProvider.editChatMessage(
         message.id,
-        text: text == null
-            ? null
-            : ChatMessageTextInput(
-                kw$new: text.changed.val.isNotEmpty ? text.changed : null,
-              ),
+        text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
         attachments: attachments == null
             ? null
             : ChatMessageAttachmentsInput(
