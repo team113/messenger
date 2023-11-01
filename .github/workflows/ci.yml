@@ -195,13 +195,14 @@ jobs:
         if: ${{ matrix.platform != 'windows' }}
 
       - run: |
-          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
-                jq -r .title)
+          $pr_title = Invoke-RestMethod -Uri `
+                      "https://api.github.com/repos/$env:GITHUB_REPOSITORY/pulls/$env:GITHUB_EVENT_NUMBER" `
+                      -Headers @{"Authorization"="Bearer $env:GITHUB_TOKEN"} | `
+                      Select-Object -ExpandProperty title
 
-          if %pr_title:~0,7% == "[debug]" (
-            echo LOG_LEVEL="debug" >> .env
-          )
+          if ($pr_title.Substring(0, 7) -eq "[debug]") {
+            Add-Content -Path .env -Value "LOG_LEVEL=debug"
+          }
         if: ${{ matrix.platform == 'windows' }}
 
       - run: make flutter.build platform=${{ matrix.platform }}
