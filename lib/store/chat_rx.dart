@@ -1093,7 +1093,8 @@ class HiveRxChat extends RxChat {
               final item = await get(event.itemId);
               if (item != null) {
                 final message = item.value as ChatMessage;
-                message.text = event.text ?? message.text;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
                 message.attachments = event.attachments ?? message.attachments;
                 message.repliesTo = event.quotes ?? message.repliesTo;
                 put(item);
@@ -1101,7 +1102,8 @@ class HiveRxChat extends RxChat {
 
               if (chatEntity.value.lastItem?.id == event.itemId) {
                 final message = chatEntity.value.lastItem as ChatMessage;
-                message.text = event.text ?? message.text;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
                 message.attachments = event.attachments ?? message.attachments;
                 message.repliesTo = event.quotes ?? message.repliesTo;
               }

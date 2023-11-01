@@ -524,41 +524,21 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
-          ChatMessageText? text;
-          if (edit.value?.field.text.trim() != item.text?.val) {
-            text = ChatMessageText(edit.value!.field.text.trim());
-          }
-
-          List<Attachment>? attachments;
-          if (!item.attachments
-              .map((e) => e.id)
-              .sameAs(edit.value?.attachments.map((e) => e.value.id))) {
-            attachments = edit.value!.attachments.map((e) => e.value).toList();
-          }
-
-          List<ChatItemId>? repliesTo;
-          if (!item.repliesTo
-              .map((e) => e.original?.id)
-              .sameAs(edit.value?.replied.map((e) => e.id))) {
-            repliesTo = edit.value!.replied.map((e) => e.id).toList();
-          }
-
-          if (text == null && attachments == null && repliesTo == null) {
-            edit.value?.onClose();
-            edit.value = null;
-          } else if (edit.value!.field.text.trim().isNotEmpty ||
+          if (edit.value!.field.text.trim().isNotEmpty ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              _chatService.editChatMessage(
+              await _chatService.editChatMessage(
                 item,
-                text: text == null ? null : ChatMessageTextInput(text),
-                attachments: attachments == null
-                    ? null
-                    : ChatMessageAttachmentsInput(attachments),
-                repliesTo: repliesTo == null
-                    ? null
-                    : ChatMessageRepliesInput(repliesTo),
+                text: ChatMessageTextInput(
+                  ChatMessageText(edit.value!.field.text),
+                ),
+                attachments: ChatMessageAttachmentsInput(
+                  edit.value!.attachments.map((e) => e.value).toList(),
+                ),
+                repliesTo: ChatMessageRepliesInput(
+                  edit.value!.replied.map((e) => e.id).toList(),
+                ),
               );
 
               closeEditing();
@@ -1731,22 +1711,4 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
-}
-
-/// Extension adding an ability to compare equality of two [List]s.
-extension CompareListsExtension<T> on Iterable<T> {
-  /// Indicates whether the provided [list] is the same as this.
-  bool sameAs(Iterable<T>? list) {
-    if (list == null || list.length != length) {
-      return false;
-    }
-
-    for (int i = 0; i < length; i++) {
-      if (list.elementAt(i) != elementAt(i)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 }

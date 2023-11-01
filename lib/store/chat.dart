@@ -1158,7 +1158,7 @@ class ChatRepository extends DisposableInterface
       return EventChatItemEdited(
         e.chatId,
         node.itemId,
-        node.text?.changed,
+        node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
         node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
       );

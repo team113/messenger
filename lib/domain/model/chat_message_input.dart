@@ -23,8 +23,6 @@ class ChatMessageTextInput {
   const ChatMessageTextInput(this.changed);
 
   /// New [ChatMessageText].
-  ///
-  /// `null` means that the previous [ChatMessageText] should be deleted.
   final ChatMessageText changed;
 }
 
