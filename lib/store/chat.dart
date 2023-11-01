@@ -531,7 +531,7 @@ class ChatRepository extends DisposableInterface
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
       item?.update((c) {
-        (c as ChatMessage).text = text?.changed ?? previousText;
+        (c as ChatMessage).text = text != null ? text.changed : previousText;
         c.attachments = attachments?.changed ?? previousAttachments!;
         c.repliesTo = repliesTo?.changed
                 .map(

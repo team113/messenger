@@ -207,7 +207,9 @@ class ChatService extends DisposableService {
       text = null;
     } else if (text != null) {
       text = ChatMessageTextInput(
-        text.changed == null ? null : ChatMessageText(text.changed!.val.trim()),
+        text.changed == null || text.changed!.val.trim().isEmpty
+            ? null
+            : ChatMessageText(text.changed!.val.trim()),
       );
     }
 
