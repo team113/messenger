@@ -332,8 +332,8 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key,
-        isFirst: (e) => chat.value.firstItem?.id == e.value.id,
-        isLast: (e) => chat.value.lastItem?.id == e.value.id,
+        isFirst: (e) => id.isLocal || chat.value.firstItem?.id == e.value.id,
+        isLast: (e) => id.isLocal || chat.value.lastItem?.id == e.value.id,
         strategy: PaginationStrategy.fromEnd,
       ),
     );
@@ -374,10 +374,8 @@ class HiveRxChat extends RxChat {
     }
 
     await _pagination.init(item);
-
-    if (id.isLocal) {
-      _pagination.hasNext.value = false;
-      _pagination.hasPrevious.value = false;
+    if (_pagination.items.isNotEmpty) {
+      status.value = RxStatus.success();
     }
   }
 
@@ -443,7 +441,9 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> around() async {
-    if (id.isLocal || status.value.isSuccess) {
+    if (id.isLocal ||
+        status.value.isSuccess ||
+        (hasNext.isFalse && hasPrevious.isFalse)) {
       return;
     }
 
