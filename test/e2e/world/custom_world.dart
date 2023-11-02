@@ -113,7 +113,6 @@ class Call {
 
   /// Disposes this [Call].
   Future<void> dispose() async {
-    print('_________________________dispose');
     if (_room != null) {
       try {
         _jason?.closeRoom(_room!);
@@ -163,14 +162,14 @@ class Call {
               print('________________________room!.join 2');
               await _room!.join('${node.joinLink}?token=$creds');
               print('________________________room!.join 2 completed');
-            } else if (e.$$typename == 'ChatCall') {
-              var call = e as CallEvents$Subscription$ChatCallEvents$ChatCall;
-              if (call.joinLink != null) {
-                print('________________________room!.join 3');
-                await _room!.join('${call.joinLink}?token=$creds');
-                print('________________________room!.join 3 completed');
-              }
             }
+          }
+        } else if (events.$$typename == 'ChatCall') {
+          var call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
+          if (call.joinLink != null) {
+            print('________________________room!.join 3');
+            await _room!.join('${call.joinLink}?token=$creds');
+            print('________________________room!.join 3 completed');
           }
         }
       },
