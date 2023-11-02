@@ -23,7 +23,7 @@ import 'package:messenger/routes.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the [Chat]-dialog page with the provided [TestUser].
+/// Routes the [router] to the [Chat] page with the provided [TestUser].
 ///
 /// Examples:
 /// - Given I am in chat with Bob
@@ -31,7 +31,12 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
   (TestUser user, context) async {
     final CustomUser customUser = context.world.sessions[user.name]!;
-    router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
+    router.chat(
+      [
+        ...customUser.dialogs.values,
+        ...customUser.groups.values,
+      ].first,
+    );
 
     await context.world.appDriver.waitUntil(
       () async {

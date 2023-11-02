@@ -25,6 +25,7 @@ import '../raised_hand.dart';
 import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/user.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -75,6 +76,7 @@ class ParticipantWidget extends StatelessWidget {
 
     return Obx(() {
       bool hasVideo = participant.video.value?.renderer.value != null;
+      final UserId? userId = participant.user.value?.id;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
@@ -87,6 +89,9 @@ class ParticipantWidget extends StatelessWidget {
       }
 
       return Stack(
+        key: participant.member.isConnected.isTrue && userId != null
+            ? Key('Participant_$userId')
+            : null,
         children: [
           if (!hasVideo) ...background(),
           SafeAnimatedSwitcher(
@@ -117,7 +122,7 @@ class ParticipantWidget extends StatelessWidget {
           Obx(() {
             final Widget child;
 
-            if (participant.member.isConnected.value) {
+            if (participant.member.isConnected.isTrue) {
               child = Container();
             } else if (participant.member.isDialing.isTrue) {
               child = Container(

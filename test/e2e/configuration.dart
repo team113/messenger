@@ -34,11 +34,13 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/chat.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
+import 'parameters/hand_status.dart';
 import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
@@ -48,6 +50,7 @@ import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
+import 'steps/add_user_to_call.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
@@ -58,8 +61,7 @@ import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
-import 'steps/has_dialog.dart';
-import 'steps/has_group.dart';
+import 'steps/has_chat.dart';
 import 'steps/in_chat_with.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
@@ -103,6 +105,8 @@ import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
+import 'steps/calls.dart';
+import 'steps/user_hand.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -111,10 +115,12 @@ import 'steps/wait_until_attachment_status.dart';
 import 'steps/wait_until_chat.dart';
 import 'steps/wait_until_contact.dart';
 import 'steps/wait_until_file_status.dart';
+import 'steps/wait_until_in_call.dart';
 import 'steps/wait_until_message.dart';
 import 'steps/wait_until_message_status.dart';
 import 'steps/wait_until_text.dart';
 import 'steps/wait_until_text_within.dart';
+import 'steps/wait_until_user_hand.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
@@ -122,6 +128,7 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        addsUserToCall,
         attachFile,
         cancelFileDownload,
         changeChatAvatar,
@@ -137,9 +144,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         dragContactDown,
         fillField,
         fillFieldN,
+        fillFieldWithUser,
         goToUserPage,
-        hasDialogWithMe,
-        hasGroups,
+        hasDialog,
+        hasGroupNamed,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -158,6 +166,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         popupWindows,
+        raiseHand,
         restartApp,
         returnToPreviousPage,
         rightClickWidget,
@@ -199,12 +208,20 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilChatExists,
         untilContactExists,
         untilMessageExists,
+        untilMyUserHand,
         untilTextExists,
         untilTextExistsWithin,
+        untilUserHand,
+        untilUserInCallExists,
         updateAppVersion,
         updateAvatar,
         updateName,
         user,
+        userDeclineCall,
+        userEndCall,
+        userJoinCall,
+        userStartCallInDialog,
+        userStartCallInGroup,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
@@ -229,11 +246,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
+        ChatTypeParameter(),
         AvailabilityStatusParameter(),
         DownloadStatusParameter(),
         EnabledParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
+        HandStatusParameter(),
         ImageFetchStatusParameter(),
         IterableAmountParameter(),
         MutedStatusParameter(),

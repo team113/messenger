@@ -41,7 +41,8 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
             .edges
             .firstWhereOrNull((e) =>
                 e.node.kind == ChatKind.dialog &&
-                e.node.members.nodes.any((m) => m.user.id == context.world.me));
+                e.node.members.nodes
+                    .any((m) => m.user.id == context.world.me!.userId));
         return dialog != null;
       });
     } finally {
@@ -67,7 +68,8 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
         .edges
         .firstWhereOrNull((e) =>
             e.node.kind == ChatKind.dialog &&
-            e.node.members.nodes.any((m) => m.user.id == context.world.me));
+            e.node.members.nodes
+                .any((m) => m.user.id == context.world.me!.userId));
     provider.disconnect();
     assert(dialog == null, true);
   },

@@ -800,8 +800,8 @@ class RecentChatTile extends StatelessWidget {
             builder: (_) {
               return RectangularCallButton(
                 key: isActive
-                    ? const Key('JoinCallButton')
-                    : const Key('DropCallButton'),
+                    ? const Key('DropCallButton')
+                    : const Key('JoinCallButton'),
                 isActive: isActive,
                 onPressed: isActive ? onDrop : onJoin,
                 at: chat.ongoingCall!.at.val,

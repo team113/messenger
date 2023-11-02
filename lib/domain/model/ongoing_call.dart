@@ -26,6 +26,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/repository/call.dart';
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
@@ -221,9 +222,6 @@ class OngoingCall {
   /// not.
   final RxBool isRemoteVideoEnabled = RxBool(true);
 
-  /// Returns a [Stream] of the [CallNotification]s.
-  Stream<CallNotification> get notifications => _notifications.stream;
-
   /// Reactive map of [CallMember]s of this [OngoingCall].
   final RxObsMap<CallMemberId, CallMember> members =
       RxObsMap<CallMemberId, CallMember>();
@@ -285,7 +283,7 @@ class OngoingCall {
   /// the [displays].
   StreamSubscription? _displaysSubscription;
 
-  /// [ChatItemId] of this [OngoingCall].
+  /// Returns the [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
   /// Returns the [CallMember] of the currently authorized [MyUser].
@@ -297,15 +295,18 @@ class OngoingCall {
   /// [User] that started this [OngoingCall].
   User? get caller => call.value?.author;
 
-  /// Indicator whether this [OngoingCall] is intended to start with video.
+  /// Indicates whether this [OngoingCall] is intended to start with video.
   ///
   /// Used to determine incoming [OngoingCall] type.
   bool? get withVideo => call.value?.withVideo;
 
-  /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
-  /// started (after ringing had been finished).
+  /// Returns the [PreciseDateTime] when the actual conversation in this
+  /// [ChatCall] was started (after ringing had been finished).
   PreciseDateTime? get conversationStartedAt =>
       call.value?.conversationStartedAt;
+
+  /// Returns a [Stream] of the [CallNotification]s.
+  Stream<CallNotification> get notifications => _notifications.stream;
 
   /// Indicates whether this [OngoingCall] is active.
   bool get isActive => (state.value == OngoingCallState.active ||

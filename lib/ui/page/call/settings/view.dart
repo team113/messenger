@@ -57,6 +57,7 @@ class CallSettingsView extends StatelessWidget {
     );
 
     return GetBuilder(
+      key: const Key('CallSettings'),
       init: CallSettingsController(
         _call,
         Get.find(),

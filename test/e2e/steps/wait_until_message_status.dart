@@ -45,7 +45,10 @@ final StepDefinitionGeneric waitUntilMessageStatus =
 
         final RxChat? chat =
             Get.find<ChatService>().chats.values.firstWhereOrNull(
-                  (e) => e.chat.value.isRoute(router.route, context.world.me),
+                  (e) => e.chat.value.isRoute(
+                    router.route,
+                    context.world.me!.userId,
+                  ),
                 );
 
         final ChatMessage? message = chat?.messages

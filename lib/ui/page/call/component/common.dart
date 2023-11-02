@@ -66,6 +66,7 @@ class MoreButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return CallButtonWidget(
+      key: const Key('More'),
       hint: hint,
       asset: 'more',
       hinted: hinted,
@@ -167,6 +168,7 @@ class HandButton extends CallButton {
   Widget build({bool hinted = true}) {
     return Obx(() {
       return CallButtonWidget(
+        key: Key('Hand${c.me.isHandRaised.value ? 'Down' : 'Up'}'),
         hint: hint,
         asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
         hinted: hinted,
@@ -186,6 +188,7 @@ class SettingsButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return CallButtonWidget(
+      key: const Key('Settings'),
       hint: hint,
       asset: 'settings_small',
       hinted: hinted,
@@ -204,6 +207,7 @@ class ParticipantsButton extends CallButton {
   @override
   Widget build({bool hinted = true}) {
     return CallButtonWidget(
+      key: const Key('Participants'),
       hint: hint,
       asset: 'add_user_small',
       hinted: hinted,
@@ -271,6 +275,7 @@ class AcceptAudioButton extends CallButton {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
+      key: const Key('AcceptCallAudio'),
       hint: hint,
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
@@ -327,6 +332,7 @@ class DeclineButton extends CallButton {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
+      key: const Key('DeclineCall'),
       hint: hint,
       asset: 'call_end',
       color: style.colors.decline,
@@ -334,27 +340,6 @@ class DeclineButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       onPressed: c.decline,
-    );
-  }
-}
-
-/// [RoundFloatingButton] dropping a call.
-class DropButton extends CallButton {
-  const DropButton(CallController c) : super(c);
-
-  @override
-  String get hint => 'btn_call_end'.l10n;
-
-  @override
-  Widget build({bool hinted = true}) {
-    final style = Theme.of(router.context!).style;
-
-    return CallButtonWidget(
-      hint: hint,
-      asset: 'call_end',
-      color: style.colors.decline,
-      hinted: hinted,
-      onPressed: c.drop,
     );
   }
 }
@@ -371,6 +356,7 @@ class CancelButton extends CallButton {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
+      key: const Key('CancelCall'),
       hint: hint,
       asset: 'call_end',
       color: style.colors.decline,
@@ -396,6 +382,7 @@ class EndCallButton extends CallButton {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
+      key: const Key('EndCall'),
       asset: 'call_end',
       hint: hint,
       color: style.colors.decline,

@@ -1,5 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
-//                       <https://github.com/team113>
+// Copyright © 2022 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,33 +14,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: constant_identifier_names
-
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
 
-/// [User]s available in a [UsersParameter].
-enum TestUser {
-  Alice,
-  Bob,
-  Charlie,
-  Dave,
-}
+/// [ChatType]es available in a [ChatTypeParameter].
+enum ChatType { dialog, group }
 
-/// [CustomParameter] of [TestUser]s representing an [User] of a test.
-class UsersParameter extends CustomParameter<TestUser> {
-  UsersParameter()
+/// [CustomParameter] representing a [Chat] type.
+class ChatTypeParameter extends CustomParameter<ChatType> {
+  ChatTypeParameter()
       : super(
-          'user',
+          'chat',
           RegExp(
-            '(${TestUser.values.map((e) => e.name).join('|')}|me)',
-            caseSensitive: true,
+            '(${ChatType.values.map((e) => e.name).join('|')})',
+            caseSensitive: false,
           ),
-          (c) {
-            if (c == 'me') {
-              return TestUser.Alice;
-            }
-
-            return TestUser.values.firstWhere((e) => e.name == c);
-          },
+          (c) => ChatType.values.firstWhere((e) => e.name == c),
         );
 }

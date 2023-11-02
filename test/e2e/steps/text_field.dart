@@ -18,13 +18,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
-import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -34,9 +35,34 @@ import '../world/custom_world.dart';
 /// - Then I fill `NameField` field with "Woody Johnson"
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
-  _fillField,
+  (key, text, context) => _fillField(
+    context.world.appDriver.findBy(key.name, FindType.key),
+    text,
+    context,
+  ),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the provided user's id into the users search field.
+///
+/// Examples:
+/// - Then I fill users search field with user Bob
+/// - Then I fill users search field with user Charlie
+StepDefinitionGeneric fillFieldWithUser = then1<TestUser, CustomWorld>(
+  'I fill users search field with user {user}',
+  (user, context) async {
+    final finder = context.world.appDriver.findByDescendant(
+      context.world.appDriver.findBy('SearchView', FindType.key),
+      context.world.appDriver.findBy(TextField, FindType.type),
+    );
+
+    await _fillField(
+      finder,
+      context.world.sessions[user.name]!.userNum.val,
+      context,
+    );
+  },
 );
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -45,7 +71,11 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 /// - Then I fill `MessageField` field with 8192 "A" symbols
 StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
   'I fill {key} field with {int} {string} symbol(s)?',
-  (key, quantity, text, context) => _fillField(key, text * quantity, context),
+  (key, quantity, text, context) => _fillField(
+    context.world.appDriver.findBy(key.name, FindType.key),
+    text * quantity,
+    context,
+  ),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
 );
@@ -62,7 +92,11 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
       throw ArgumentError('Nothing to fill, clipboard contains no text.');
     }
 
-    await _fillField(key, context.world.clipboard!.text!, context);
+    await _fillField(
+      context.world.appDriver.findBy(key.name, FindType.key),
+      context.world.clipboard!.text!,
+      context,
+    );
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
@@ -110,24 +144,30 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
 
 /// Enters the given [text] into the widget with the provided [WidgetKey].
 Future<void> _fillField(
-  WidgetKey key,
+  Finder finder,
   String text,
   StepContext<FlutterWorld> context,
 ) async {
-  await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+  await context.world.appDriver.waitUntil(
+    () async {
+      await context.world.appDriver.waitForAppToSettle();
 
-  await context.world.appDriver.scrollIntoView(finder);
-  await context.world.appDriver.waitForAppToSettle();
-  await context.world.appDriver
-      .tap(finder, timeout: context.configuration.timeout);
-  await context.world.appDriver.waitForAppToSettle();
+      if (await context.world.appDriver.isPresent(finder)) {
+        await context.world.appDriver.scrollIntoView(finder);
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver
+            .tap(finder, timeout: context.configuration.timeout);
+        await context.world.appDriver.waitForAppToSettle();
 
-  final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
-  await context.world.appDriver.scrollIntoView(finder2);
-  await context.world.appDriver.enterText(finder2, text);
+        await context.world.appDriver.enterText(finder, text);
+        await context.world.appDriver.waitForAppToSettle();
 
-  await context.world.appDriver.waitForAppToSettle();
+        FocusManager.instance.primaryFocus?.unfocus();
+        return true;
+      }
 
-  FocusManager.instance.primaryFocus?.unfocus();
+      return false;
+    },
+    timeout: const Duration(seconds: 30),
+  );
 }

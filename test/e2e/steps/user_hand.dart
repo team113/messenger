@@ -15,28 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../parameters/hand_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Creates a [Chat]-dialog of the provided [User] with the authenticated
-/// [MyUser].
+/// Raises or lowers hand by the provided [TestUser] in active call.
 ///
 /// Examples:
-/// - Given Bob has dialog with me.
-final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
-  '{user} has dialog with me',
-  (TestUser user, context) async {
-    final AuthService authService = Get.find();
+/// - When Bob raises hand
+/// - When Bob lowers hand
+final StepDefinitionGeneric raiseHand =
+    when2<TestUser, HandStatus, CustomWorld>(
+  '{user} {hand} hand',
+  (user, handStatus, context) async {
+    CustomUser customUser = context.world.sessions[user.name]!;
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
-    var chat =
-        await provider.createDialogChat(authService.credentials.value!.userId);
-    context.world.sessions[user.name]?.dialog = chat.id;
+    provider.token = customUser.token;
+
+    await provider.toggleChatCallHand(
+      customUser.call!.chatId,
+      handStatus == HandStatus.raise,
+    );
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

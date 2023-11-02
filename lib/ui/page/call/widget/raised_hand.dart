@@ -32,6 +32,7 @@ class RaisedHand extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return AnimatedOpacity(
+      key: raised ? const Key('RaisedHand') : null,
       duration: const Duration(milliseconds: 150),
       opacity: raised ? 1 : 0,
       child: CircleAvatar(

@@ -15,33 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-// ignore_for_file: constant_identifier_names
-
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
-/// [User]s available in a [UsersParameter].
-enum TestUser {
-  Alice,
-  Bob,
-  Charlie,
-  Dave,
-}
+import '../parameters/users.dart';
+import '../world/custom_world.dart';
 
-/// [CustomParameter] of [TestUser]s representing an [User] of a test.
-class UsersParameter extends CustomParameter<TestUser> {
-  UsersParameter()
-      : super(
-          'user',
-          RegExp(
-            '(${TestUser.values.map((e) => e.name).join('|')}|me)',
-            caseSensitive: true,
-          ),
-          (c) {
-            if (c == 'me') {
-              return TestUser.Alice;
-            }
+/// Adds the provided [TestUser] to the group where active call placed.
+///
+/// Examples:
+/// - When Bob adds Alice to group call
+final StepDefinitionGeneric addsUserToCall =
+    when2<TestUser, TestUser, CustomWorld>(
+  '{user} adds {user} to group call',
+  (TestUser user, TestUser addUser, context) async {
+    CustomUser customUser = context.world.sessions[user.name]!;
+    final provider = GraphQlProvider();
+    provider.token = customUser.token;
 
-            return TestUser.values.firstWhere((e) => e.name == c);
-          },
-        );
-}
+    await provider.addChatMember(
+      customUser.call!.chatId,
+      context.world.sessions[addUser.name]!.userId,
+    );
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);

@@ -27,7 +27,7 @@ import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
-/// their [Chat]-dialog with the provided text.
+/// their [Chat] with the provided text.
 ///
 /// Examples:
 /// - Bob sends "Hello, Alice!" message to me
@@ -39,7 +39,10 @@ final StepDefinitionGeneric sendsMessageToMe =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
     await provider.postChatMessage(
-      context.world.sessions[user.name]!.dialog!,
+      [
+        ...context.world.sessions[user.name]!.dialogs.values,
+        ...context.world.sessions[user.name]!.groups.values,
+      ].first,
       text: ChatMessageText(msg),
     );
     provider.disconnect();
@@ -65,7 +68,10 @@ final StepDefinitionGeneric sendsMessageWithException =
 
     try {
       await provider.postChatMessage(
-        context.world.sessions[user.name]!.dialog!,
+        [
+          ...context.world.sessions[user.name]!.dialogs.values,
+          ...context.world.sessions[user.name]!.groups.values,
+        ].first,
         text: const ChatMessageText('111'),
       );
     } catch (e) {
