@@ -61,7 +61,7 @@ import '../mock/route_information_provider.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
-  Config.clsid = '';
+  Config.clsid = 'clsid';
   await L10n.init();
 
   Hive.init('./test/.temp_hive/auth_widget');

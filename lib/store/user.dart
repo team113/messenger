@@ -158,6 +158,7 @@ class UserRepository extends DisposableInterface
     return searchResult;
   }
 
+  // TODO: Should return [FutureOr<RxUser?>].
   @override
   Future<RxUser?> get(UserId id) {
     RxUser? user = users[id];

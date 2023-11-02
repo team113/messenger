@@ -1099,12 +1099,22 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.itemEdited:
               event as EventChatItemEdited;
-              final message = await get(event.itemId);
-              if (message != null) {
-                // TODO: Properly account editing, as this will change the text
-                //       always, which is inappropriate.
-                (message.value as ChatMessage).text = event.text;
-                put(message);
+              final item = await get(event.itemId);
+              if (item != null) {
+                final message = item.value as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo = event.quotes ?? message.repliesTo;
+                put(item);
+              }
+
+              if (chatEntity.value.lastItem?.id == event.itemId) {
+                final message = chatEntity.value.lastItem as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo = event.quotes ?? message.repliesTo;
               }
               break;
 

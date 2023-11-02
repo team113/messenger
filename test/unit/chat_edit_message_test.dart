@@ -323,6 +323,8 @@ void main() async {
       throwsA(isA<EditChatMessageException>()),
     );
 
+    await Future.delayed(Duration.zero);
+
     verify(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),

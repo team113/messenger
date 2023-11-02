@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
@@ -28,7 +29,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' hide ChatItemQuoteInput, ChatMessageTextInput;
+import '/api/backend/schema.dart'
+    hide
+        ChatItemQuoteInput,
+        ChatMessageTextInput,
+        ChatMessageAttachmentsInput,
+        ChatMessageRepliesInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -333,6 +339,10 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     send = MessageFieldController(
       _chatService,
       _userService,
@@ -369,7 +379,7 @@ class ChatController extends GetxController {
                   text: send.field.text.trim().isEmpty
                       ? null
                       : ChatMessageText(send.field.text.trim()),
-                  repliesTo: send.replied.reversed.toList(),
+                  repliesTo: send.replied.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
                 .then((_) => AudioUtils.once(
@@ -441,6 +451,10 @@ class ChatController extends GetxController {
       chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
     }
 
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -510,28 +524,24 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
-          if (edit.value?.field.text == item.text?.val) {
-            edit.value?.onClose();
-            edit.value = null;
-          } else if (edit.value!.field.text.isNotEmpty ||
-              item.attachments.isNotEmpty) {
-            ChatMessageText? text;
-            if (edit.value!.field.text.isNotEmpty) {
-              text = ChatMessageText(edit.value!.field.text);
-            }
-
+          if (edit.value!.field.text.trim().isNotEmpty ||
+              edit.value!.attachments.isNotEmpty ||
+              edit.value!.replied.isNotEmpty) {
             try {
               await _chatService.editChatMessage(
                 item,
-                text: text == null ? null : ChatMessageTextInput(text),
+                text: ChatMessageTextInput(
+                  ChatMessageText(edit.value!.field.text),
+                ),
+                attachments: ChatMessageAttachmentsInput(
+                  edit.value!.attachments.map((e) => e.value).toList(),
+                ),
+                repliesTo: ChatMessageRepliesInput(
+                  edit.value!.replied.map((e) => e.id).toList(),
+                ),
               );
 
-              edit.value?.onClose();
-              edit.value = null;
-
-              _typingSubscription?.cancel();
-              _typingSubscription = null;
-              _typingTimer?.cancel();
+              closeEditing();
 
               if (send.field.isEmpty.isFalse) {
                 send.field.focus.requestFocus();
@@ -542,12 +552,13 @@ class ChatController extends GetxController {
               MessagePopup.error(e);
               rethrow;
             }
+          } else {
+            MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
           }
         },
         onChanged: () {
           if (edit.value?.edited.value == null) {
-            edit.value?.onClose();
-            edit.value = null;
+            closeEditing();
           }
         },
       );
@@ -555,6 +566,12 @@ class ChatController extends GetxController {
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
     }
+  }
+
+  /// Closes the [edit]ing if any.
+  void closeEditing() {
+    edit.value?.onClose();
+    edit.value = null;
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
@@ -951,7 +968,14 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) {
+    final RxUser? user = _userService.users[id];
+    if (user != null) {
+      return user;
+    }
+
+    return _userService.get(id);
+  }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -1432,6 +1456,20 @@ class ChatController extends GetxController {
         _scrollToLastRead();
       }
     });
+  }
+
+  /// Invokes [closeEditing], if [edit]ing.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (edit.value != null) {
+      closeEditing();
+      return true;
+    }
+
+    return false;
   }
 }
 
