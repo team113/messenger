@@ -262,7 +262,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
-err_blacklisted = User is in blacklist
+err_blacklisted = You've been added to the blocklist of this user
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
@@ -304,6 +304,8 @@ err_network = Connection to the server refused
 err_no_filename = File should have a name
 err_no_text_and_no_attachment =
     Either text or at least one attachment should be specified
+err_no_text_no_attachment_and_reply =
+    Either text or at least one attachment or reply should be specified
 err_no_unconfirmed_email = No unconfirmed Emails were found
 err_no_unconfirmed_phone = No unconfirmed phone numbers were found
 err_not_author = Not an author
@@ -692,14 +694,16 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
-label_introduction_description =
-    Password is not set. Access to an account without a password is retained for one year from the time the account was created or until:
+label_introduction_description1 =
+    Access to a one-time account is maintained for one year or until:
 
-        • You will not delete user data from the application (browser);
+         • you delete cookies / cache;
 
-        • You will not press the "Logout" button.
+         • you click the button "Sign out".
 
-    In order not to lose access to your account, set a password.
+     To save access to your account, please set a password, e-mail or phone number in the{" "}
+label_introduction_description2 = settings
+label_introduction_description3 = .
 label_kb = {$amount} KB
 label_language = Language
 label_language_entry = {$code}, {$name}
@@ -722,6 +726,7 @@ label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
+label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
@@ -760,6 +765,7 @@ label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_offline = offline
+label_one_time_account_created = One-time account created
 label_online = online
 label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.

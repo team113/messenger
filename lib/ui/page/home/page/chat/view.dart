@@ -124,7 +124,7 @@ class _ChatViewState extends State<ChatView>
           final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup || chat.isMonolog) {
-              router.chatInfo(widget.id, push: true);
+              router.chatInfo(chat.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members
@@ -636,13 +636,15 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
+      final FutureOr<RxUser?> user = c.getUser(e.value.author.id);
+
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.author.id),
+          future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
@@ -659,17 +661,19 @@ class _ChatViewState extends State<ChatView>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
                         m.memberId != e.value.author.id),
-                user: snapshot.data,
+                user: snapshot.data ?? (user is RxUser? ? user : null),
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
                 onHide: () => c.hideChatItem(e.value),
                 onDelete: () => c.deleteMessage(e.value),
                 onReply: () {
-                  if (c.send.replied.any((i) => i.id == e.value.id)) {
-                    c.send.replied.removeWhere((i) => i.id == e.value.id);
+                  MessageFieldController field = c.edit.value ?? c.send;
+
+                  if (field.replied.any((i) => i.id == e.value.id)) {
+                    field.replied.removeWhere((i) => i.id == e.value.id);
                   } else {
-                    c.send.replied.insert(0, e.value);
+                    field.replied.add(e.value);
                   }
                 },
                 onCopy: (text) {
@@ -700,14 +704,16 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is ChatForwardElement) {
+      final FutureOr<RxUser?> user = c.getUser(element.authorId);
+
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(element.authorId),
-          builder: (_, u) => Obx(() {
+          future: user is Future<RxUser?> ? user : null,
+          builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
@@ -725,7 +731,7 @@ class _ChatViewState extends State<ChatView>
                         m.at == element.forwards.last.value.at &&
                         m.memberId != c.me &&
                         m.memberId != element.authorId),
-                user: u.data,
+                user: snapshot.data ?? (user is RxUser? ? user : null),
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -756,26 +762,28 @@ class _ChatViewState extends State<ChatView>
                   await Future.wait(futures);
                 },
                 onReply: () {
+                  final MessageFieldController field = c.edit.value ?? c.send;
+
                   if (element.forwards.any((e) =>
-                          c.send.replied.any((i) => i.id == e.value.id)) ||
-                      c.send.replied
+                          field.replied.any((i) => i.id == e.value.id)) ||
+                      field.replied
                           .any((i) => i.id == element.note.value?.value.id)) {
                     for (Rx<ChatItem> e in element.forwards) {
-                      c.send.replied.removeWhere((i) => i.id == e.value.id);
+                      field.replied.removeWhere((i) => i.id == e.value.id);
                     }
 
                     if (element.note.value != null) {
-                      c.send.replied.removeWhere(
+                      field.replied.removeWhere(
                         (i) => i.id == element.note.value!.value.id,
                       );
                     }
                   } else {
                     if (element.note.value != null) {
-                      c.send.replied.insert(0, element.note.value!.value);
+                      field.replied.add(element.note.value!.value);
                     }
 
                     for (Rx<ChatItem> e in element.forwards) {
-                      c.send.replied.insert(0, e.value);
+                      field.replied.add(e.value);
                     }
                   }
                 },
@@ -885,8 +893,8 @@ class _ChatViewState extends State<ChatView>
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
+          onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
           onItemPressed: (id) => c.animateTo(id),
-          canAttach: false,
         );
       }
 

@@ -59,9 +59,9 @@ final StepDefinitionGeneric hasGroups = given2<TestUser, int, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    await Future.wait(
-      List.generate(count, (_) => provider.createGroupChat([])),
-    );
+    for (int i = 0; i < count; i++) {
+      await provider.createGroupChat([]);
+    }
 
     provider.disconnect();
   },

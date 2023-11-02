@@ -20,6 +20,7 @@ import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
+import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import '../configuration.dart';
@@ -93,6 +94,10 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
         text = (widget as CopyableTextField).state.controller.text;
         break;
 
+      case UserNumCopyable:
+        text = (widget as UserNumCopyable).num.toString();
+        break;
+
       default:
         throw ArgumentError('Nothing to copy from ${widget.runtimeType}.');
     }
@@ -109,20 +114,28 @@ Future<void> _fillField(
   String text,
   StepContext<FlutterWorld> context,
 ) async {
-  await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+  await context.world.appDriver.waitUntil(() async {
+    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-  await context.world.appDriver.scrollIntoView(finder);
-  await context.world.appDriver.waitForAppToSettle();
-  await context.world.appDriver
-      .tap(finder, timeout: context.configuration.timeout);
-  await context.world.appDriver.waitForAppToSettle();
+    if (await context.world.appDriver.isPresent(finder)) {
+      await context.world.appDriver.waitForAppToSettle();
 
-  final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
-  await context.world.appDriver.scrollIntoView(finder2);
-  await context.world.appDriver.enterText(finder2, text);
+      await context.world.appDriver.scrollIntoView(finder);
+      await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver
+          .tap(finder, timeout: context.configuration.timeout);
+      await context.world.appDriver.waitForAppToSettle();
 
-  await context.world.appDriver.waitForAppToSettle();
+      final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
+      await context.world.appDriver.scrollIntoView(finder2);
+      await context.world.appDriver.enterText(finder2, text);
 
-  FocusManager.instance.primaryFocus?.unfocus();
+      await context.world.appDriver.waitForAppToSettle();
+
+      FocusManager.instance.primaryFocus?.unfocus();
+      return true;
+    }
+
+    return false;
+  });
 }

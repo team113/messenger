@@ -59,6 +59,39 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
   },
 );
 
+/// Scrolls the provided [Scrollable] to bottom.
+///
+/// Examples:
+/// - Then I scroll `Menu` to bottom
+final StepDefinitionGeneric<CustomWorld> scrollToBottom =
+    then1<WidgetKey, CustomWorld>(
+  RegExp(r'I scroll {key} to bottom'),
+  (WidgetKey list, StepContext<CustomWorld> context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    Finder scrollable = find.descendant(
+      of: find.byKey(Key(list.name)),
+      matching: find.byWidgetPredicate((widget) {
+        // TODO: Find a proper way to differentiate [Scrollable]s from
+        //       [TextField]s:
+        //       https://github.com/flutter/flutter/issues/76981
+        if (widget is Scrollable) {
+          return widget.restorationId == null;
+        }
+        return false;
+      }),
+    );
+
+    final ScrollableState state = context.world.appDriver.nativeDriver
+        .state(scrollable) as ScrollableState;
+    final ScrollPosition position = state.position;
+
+    position.jumpTo(position.maxScrollExtent);
+
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);
+
 /// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
 /// replacement.
 extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>

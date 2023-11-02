@@ -262,7 +262,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
-err_blacklisted = Пользователь в чёрном списке
+err_blacklisted = Пользователь добавил Вас в чёрный список
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
@@ -305,6 +305,8 @@ err_network = Ошибка подключения к серверу
 err_no_filename = Файл должен иметь имя
 err_no_text_and_no_attachment =
     Сообщение должно иметь текст или прикрепления
+err_no_text_no_attachment_and_reply =
+    Сообщение должно иметь текст, прикрепление или цитату
 err_no_unconfirmed_email = Нет неподтверждённых Email адресов
 err_no_unconfirmed_phone = Нет неподтверждённых номеров телефонов
 err_not_author = Не автор
@@ -718,14 +720,16 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
-label_introduction_description =
-    Пароль не задан. Доступ к аккаунту без пароля сохраняется в течение одного года с момента создания аккаунта или пока:
+label_introduction_description1 =
+    Доступ к одноразовому аккаунту сохраняется в течение одного года или пока:
 
-        • Вы не удалите пользовательские данные из приложения (браузера);
+        • Вы не удалите куки / кэш;
 
         • Вы не нажмёте кнопку "Выйти".
 
-    Чтобы не потерять доступ к аккаунту, задайте пароль.
+    Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
+label_introduction_description2 = настройках
+label_introduction_description3 = {" "}задайте пароль, e-mail или номер телефона.
 label_kb = {$amount} КБ
 label_language = Язык
 label_language_entry = {$code}, {$name}
@@ -748,6 +752,7 @@ label_media_section_hint = Аудио и видео устройства
 label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
+label_message_editing = Редактирование сообщения
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
 label_microphone_changed = Микрофон был изменён на {$microphone}
 label_monolog_created = Чат создан
@@ -789,6 +794,7 @@ label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_offline = офлайн
+label_one_time_account_created = Одноразовый аккаунт создан
 label_online = онлайн
 label_open_calls_in_app = Отображать звонки в окне приложения.
 label_open_calls_in_window = Отображать звонки в отдельном окне.

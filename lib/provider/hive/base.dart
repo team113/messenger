@@ -18,8 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart'
-    show mustCallSuper, protected, visibleForTesting;
+import 'package:flutter/foundation.dart' show mustCallSuper, protected;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -150,6 +149,14 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
       await _box.delete(key);
     }
   }
+
+  /// Exception-safe wrapper for [BoxBase.deleteAt] deleting a value by the
+  /// given [index] from the [box].
+  Future<void> deleteAtSafe(int index) async {
+    if (_isReady && _box.isOpen) {
+      await box.deleteAt(index);
+    }
+  }
 }
 
 /// Base class for data providers backed by [Hive] using [LazyBox].
@@ -197,10 +204,6 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
     return [];
   }
-
-  /// Indicates whether the [_mutex] is locked.
-  @visibleForTesting
-  bool get isLocked => _mutex.isLocked;
 
   @protected
   void registerAdapters();

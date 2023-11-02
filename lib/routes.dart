@@ -51,6 +51,7 @@ import 'provider/hive/draft.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
+import 'provider/hive/recent_chat.dart';
 import 'provider/hive/user.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
@@ -455,6 +456,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
+                deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
@@ -499,6 +501,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
+                  Get.find(),
                   Get.find(),
                   callRepository,
                   Get.find(),
@@ -563,6 +566,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
+              deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
@@ -628,6 +632,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
               Get.find(),
+              Get.find(),
               callRepository,
               Get.find(),
               userRepository,
@@ -689,6 +694,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             return deps;
           },
+          signedUp: router.arguments?['signedUp'] as bool? ?? false,
         ),
       ));
     } else if (_state.route.startsWith(Routes.work)) {
@@ -784,7 +790,10 @@ extension RouteLinks on RouterState {
   void auth() => go(Routes.auth);
 
   /// Changes router location to the [Routes.home] page.
-  void home() => go(Routes.home);
+  void home({bool? signedUp}) {
+    go(Routes.home);
+    arguments = {'signedUp': signedUp};
+  }
 
   /// Changes router location to the [Routes.me] page.
   void me() => go(Routes.me);
