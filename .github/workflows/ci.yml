@@ -185,26 +185,26 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: |
-          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
-                jq -r .title)
-
-          if [[ $pr_title == *"[debug]"* ]]; then
-            echo LOG_LEVEL="debug" >> .env
-          fi
-        if: ${{ matrix.platform != 'windows' }}
-
-      - run: |
-          $pr_title = Invoke-RestMethod -Uri `
-                      "https://api.github.com/repos/$env:GITHUB_REPOSITORY/pulls/$env:GITHUB_EVENT_NUMBER" `
-                      -Headers @{"Authorization"="Bearer $env:GITHUB_TOKEN"} | `
-                      Select-Object -ExpandProperty title
-
-          if ($pr_title.Substring(0, 7) -eq "[debug]") {
-            Add-Content -Path .env -Value "LOG_LEVEL=debug"
-          }
-        if: ${{ matrix.platform == 'windows' }}
+#      - run: |
+#          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+#                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
+#                jq -r .title)
+#
+#          if [[ $pr_title == *"[debug]"* ]]; then
+#            echo LOG_LEVEL="debug" >> .env
+#          fi
+#        if: ${{ matrix.platform != 'windows' }}
+#
+#      - run: |
+#          $pr_title = Invoke-RestMethod -Uri `
+#                      "https://api.github.com/repos/$env:GITHUB_REPOSITORY/pulls/$env:GITHUB_EVENT_NUMBER" `
+#                      -Headers @{"Authorization"="Bearer $env:GITHUB_TOKEN"} | `
+#                      Select-Object -ExpandProperty title
+#
+#          if ($pr_title.Substring(0, 7) -eq "[debug]") {
+#            Add-Content -Path .env -Value "LOG_LEVEL=debug"
+#          }
+#        if: ${{ matrix.platform == 'windows' }}
 
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}'
@@ -214,8 +214,8 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}
-                            SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
+#                            SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
@@ -356,6 +356,8 @@ jobs:
   test-e2e:
     name: test (E2E)
     runs-on: ubuntu-latest
+    env:
+      SOCAPP_LOG_LEVEL: debug
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
