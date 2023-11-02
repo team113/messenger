@@ -185,27 +185,6 @@ jobs:
 
       - run: make flutter.pub
 
-#      - run: |
-#          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-#                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
-#                jq -r .title)
-#
-#          if [[ $pr_title == *"[debug]"* ]]; then
-#            echo LOG_LEVEL="debug" >> .env
-#          fi
-#        if: ${{ matrix.platform != 'windows' }}
-#
-#      - run: |
-#          $pr_title = Invoke-RestMethod -Uri `
-#                      "https://api.github.com/repos/$env:GITHUB_REPOSITORY/pulls/$env:GITHUB_EVENT_NUMBER" `
-#                      -Headers @{"Authorization"="Bearer $env:GITHUB_TOKEN"} | `
-#                      Select-Object -ExpandProperty title
-#
-#          if ($pr_title.Substring(0, 7) -eq "[debug]") {
-#            Add-Content -Path .env -Value "LOG_LEVEL=debug"
-#          }
-#        if: ${{ matrix.platform == 'windows' }}
-
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}'
         if: ${{ matrix.platform == 'web' }}
@@ -215,7 +194,6 @@ jobs:
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
-#                            SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
@@ -356,8 +334,6 @@ jobs:
   test-e2e:
     name: test (E2E)
     runs-on: ubuntu-latest
-    env:
-      SOCAPP_LOG_LEVEL: debug
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
@@ -389,6 +365,15 @@ jobs:
 
       - run: mkdir build/
 
+      - run: |
+          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
+                jq -r .title)
+
+          if [[ $pr_title == *"[debug]"* ]]; then
+            echo LOG_LEVEL="debug" >> $GITHUB_ENV
+          fi
+
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
@@ -399,8 +384,9 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}
         env:
+          SOCAPP_LOG_LEVEL: ${{ env.LOG_LEVEL }}
           OMIT: |
             [
               ":INFO:CONSOLE\\(50652\\)] ",
