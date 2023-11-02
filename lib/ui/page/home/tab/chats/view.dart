@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -36,6 +37,7 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -151,17 +153,19 @@ class ChatsTabView extends StatelessWidget {
                         synchronization = const SizedBox.shrink();
                       }
 
-                      child = Column(
-                        key: const Key('2'),
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('label_chats'.l10n),
-                          AnimatedSizeAndFade(
-                            sizeDuration: const Duration(milliseconds: 300),
-                            fadeDuration: const Duration(milliseconds: 300),
-                            child: synchronization,
-                          ),
-                        ],
+                      child = AllowOverflow(
+                        child: Column(
+                          key: const Key('2'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('label_chats'.l10n),
+                            AnimatedSizeAndFade(
+                              sizeDuration: const Duration(milliseconds: 300),
+                              fadeDuration: const Duration(milliseconds: 300),
+                              child: synchronization,
+                            ),
+                          ],
+                        ),
                       );
                     }
 
@@ -941,9 +945,13 @@ class ChatsTabView extends StatelessWidget {
                                           );
                                         }),
                                         if (c.hasNext.isTrue)
-                                          const Center(
+                                          Center(
                                             child: CustomProgressIndicator(
-                                              key: Key('ChatsLoading'),
+                                              key: const Key('ChatsLoading'),
+                                              value: Config
+                                                      .disableInfiniteAnimations
+                                                  ? 0
+                                                  : null,
                                             ),
                                           ),
                                       ],

@@ -50,6 +50,13 @@ class CombinedPagination<T, K> {
   Stream<MapChangeNotification<K, T>> get changes =>
       StreamGroup.merge(paginations.map((e) => e.p.items.changes));
 
+  /// Disposes this [CombinedPagination].
+  void dispose() {
+    for (final p in paginations.map((e) => e.p)) {
+      p.dispose();
+    }
+  }
+
   /// Resets the [paginations] to its initial state.
   Future<void> clear() async {
     for (final p in paginations.map((e) => e.p)) {
@@ -61,7 +68,7 @@ class CombinedPagination<T, K> {
   Future<void> around() async {
     for (final p in paginations.map((e) => e.p)) {
       await p.around();
-      if (items.isNotEmpty) {
+      if (p.hasNext.isTrue) {
         break;
       } else {
         continue;
