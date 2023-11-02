@@ -67,7 +67,7 @@ Feature: Chat messages have correct sending status
     And I tap `Send` button
     Then I wait until status of "123" message is error
 
-    Given I have Internet with delay of 6 seconds
+    Given I have Internet with delay of 4 seconds
     When I restart app
     And I am in chat with Bob
     Then I wait until status of "123" message is error

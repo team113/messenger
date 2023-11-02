@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Display message field while loading. ([#662], [#634])
         - Display small images smaller. ([#688], [#653])
+        - Message attachments and replies editing. ([#671], [#557])
     - Disabled larger fonts accessibility setting temporary. ([#679])
     - Home page:
         - Redesigned introduction modal. ([#668], [#633])
@@ -33,6 +34,7 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Save button displaying when login field is empty. ([#672], [#575])
 
+[#557]: /../../issues/557
 [#575]: /../../issues/575
 [#615]: /../../issues/615
 [#634]: /../../issues/634
@@ -41,6 +43,7 @@ All user visible changes to this project will be documented in this file. This p
 [#662]: /../../pull/662
 [#663]: /../../pull/663
 [#668]: /../../pull/668
+[#671]: /../../pull/671
 [#672]: /../../pull/672
 [#679]: /../../pull/679
 [#688]: /../../pull/688

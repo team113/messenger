@@ -34,6 +34,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
@@ -45,7 +46,10 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, UploadAttachmentException;
+    show
+        ConnectionException,
+        EditChatMessageException,
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
@@ -511,28 +515,82 @@ class ChatRepository extends DisposableInterface
   Future<void> editChatMessage(
     ChatMessage message, {
     model.ChatMessageTextInput? text,
+    model.ChatMessageAttachmentsInput? attachments,
+    model.ChatMessageRepliesInput? repliesTo,
   }) async {
     final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
 
-    ChatMessageText? previous;
+    ChatMessageText? previousText;
+    List<Attachment>? previousAttachments;
+    List<ChatItemQuote>? previousReplies;
     if (item?.value is ChatMessage) {
-      previous = (item?.value as ChatMessage).text;
+      previousText = (item?.value as ChatMessage).text;
+      previousAttachments = (item?.value as ChatMessage).attachments;
+      previousReplies = (item?.value as ChatMessage).repliesTo;
 
-      if (text != null) {
-        item?.update((c) => (c as ChatMessage?)?.text = text.changed);
-      }
+      item?.update((c) {
+        (c as ChatMessage).text = text != null ? text.changed : previousText;
+        c.attachments = attachments?.changed ?? previousAttachments!;
+        c.repliesTo = repliesTo?.changed
+                .map(
+                  (e) => c.repliesTo.firstWhereOrNull(
+                    (a) => a.original?.id == e,
+                  ),
+                )
+                .whereNotNull()
+                .toList() ??
+            previousReplies!;
+      });
     }
 
+    List<Future>? uploads = attachments?.changed
+        .mapIndexed((i, e) {
+          if (e is LocalAttachment) {
+            return e.upload.value?.future.then(
+              (a) {
+                attachments.changed[i] = a;
+                (item?.value as ChatMessage).attachments[i] = a;
+              },
+              onError: (_) {
+                // No-op, as failed upload attempts are handled below.
+              },
+            );
+          }
+        })
+        .whereNotNull()
+        .toList();
+
+    await Future.wait(uploads ?? []);
+
     try {
+      if (attachments?.changed.whereType<LocalAttachment>().isNotEmpty ==
+          true) {
+        throw const ConnectionException(EditChatMessageException(
+          EditChatMessageErrorCode.unknownAttachment,
+        ));
+      }
+
       await _graphQlProvider.editChatMessage(
         message.id,
         text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
+        attachments: attachments == null
+            ? null
+            : ChatMessageAttachmentsInput(
+                kw$new: attachments.changed.map((e) => e.id).toList(),
+              ),
+        repliesTo: repliesTo == null
+            ? null
+            : ChatMessageRepliesInput(kw$new: repliesTo.changed),
       );
     } catch (_) {
       if (item?.value is ChatMessage) {
-        item?.update((c) => (c as ChatMessage?)?.text = previous);
+        item?.update((c) {
+          (c as ChatMessage).text = previousText;
+          c.attachments = previousAttachments ?? [];
+          c.repliesTo = previousReplies ?? [];
+        });
       }
 
       rethrow;
@@ -1096,7 +1154,7 @@ class ChatRepository extends DisposableInterface
       return EventChatItemEdited(
         e.chatId,
         node.itemId,
-        node.text?.changed,
+        node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
         node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
       );
