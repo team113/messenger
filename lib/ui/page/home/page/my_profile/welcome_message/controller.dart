@@ -85,6 +85,7 @@ class WelcomeMessageController extends GetxController {
       _chatService,
       _userService,
       null,
+      _settingsRepo,
       text: message.value?.text?.val,
       attachments: message.value?.attachments ?? [],
       onSubmit: ({bool onlyDonation = false}) async {

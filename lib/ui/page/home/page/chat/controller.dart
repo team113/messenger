@@ -391,6 +391,9 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
 
+  MediaButtonsPosition? get mediaButtons =>
+      settings.value?.mediaButtonsPosition;
+
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
       listController.hasClients && listController.position.pixels < 500;
@@ -407,7 +410,9 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       _myUserService,
+      _settingsRepository,
       onChanged: updateDraft,
+      onCall: call,
       onSubmit: ({bool onlyDonation = false}) async {
         if (paidAccepted.value) {
           paidDisclaimerDismissed.value = true;
@@ -665,6 +670,7 @@ class ChatController extends GetxController {
         _chatService,
         _userService,
         _myUserService,
+        _settingsRepository,
         text: item.text?.val,
         onSubmit: ({bool onlyDonation = false}) async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;

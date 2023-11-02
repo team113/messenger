@@ -67,6 +67,7 @@ class MessageFieldView extends StatelessWidget {
     this.constraints,
     this.disabled = false,
     this.background,
+    this.onCall,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -89,6 +90,8 @@ class MessageFieldView extends StatelessWidget {
 
   /// Callback, called when a [ChatItem] being a reply or edited is pressed.
   final Future<void> Function(ChatItemId id)? onItemPressed;
+
+  final void Function(bool)? onCall;
 
   /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
@@ -144,7 +147,9 @@ class MessageFieldView extends StatelessWidget {
             Get.find(),
             Get.find(),
             Get.find(),
+            Get.find(),
             canSend: canSend,
+            onCall: onCall,
           ),
       global: false,
       builder: (MessageFieldController c) {

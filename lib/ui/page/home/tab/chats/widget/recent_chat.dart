@@ -177,15 +177,15 @@ class RecentChatTile extends StatelessWidget {
         titleBuilder: (t) {
           return Row(
             children: [
+              Flexible(child: t),
               if (chat.muted != null) ...[
-                // const SizedBox(width: 5),
+                const SizedBox(width: 5),
                 SvgIcon(
                   inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
                   key: Key('MuteIndicator_${chat.id}'),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 5),
               ],
-              Flexible(child: t),
             ],
           );
         },

@@ -461,7 +461,7 @@ class _WidgetsViewState extends State<WidgetsView> {
       ),
       _headline(
         child: MessageFieldView(
-          controller: MessageFieldController(null, null, null),
+          controller: MessageFieldController(null, null, null, null),
         ),
       ),
       _headline(

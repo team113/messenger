@@ -41,6 +41,7 @@ class ApplicationSettings extends HiveObject {
     this.balanceTabEnabled = true,
     this.partnerTabEnabled = true,
     this.pinnedActions = const [],
+    this.mediaButtonsPosition,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -106,4 +107,28 @@ class ApplicationSettings extends HiveObject {
 
   @HiveField(14)
   bool partnerTabEnabled;
+
+  @HiveField(16)
+  MediaButtonsPosition? mediaButtonsPosition;
+}
+
+@HiveType(typeId: ModelTypeId.mediaButtonsPosition)
+enum MediaButtonsPosition {
+  // @HiveField(5)
+  // automatic,
+
+  @HiveField(0)
+  appBar,
+
+  @HiveField(1)
+  contextMenu,
+
+  @HiveField(2)
+  top,
+
+  @HiveField(3)
+  bottom,
+
+  @HiveField(4)
+  more,
 }

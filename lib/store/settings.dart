@@ -178,6 +178,10 @@ class SettingsRepository extends DisposableInterface
   Future<void> setPartnerTabEnabled(bool enabled) =>
       _settingsLocal.setPartnerTabEnabled(enabled);
 
+        @override
+  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
+      _settingsLocal.setMediaButtonsPosition(position);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);

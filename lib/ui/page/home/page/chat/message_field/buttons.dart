@@ -243,3 +243,41 @@ class SendButton extends ChatButton {
   @override
   SvgData get assetMini => SvgIcons.smileSmall;
 }
+
+class AudioCallButton extends ChatButton {
+  AudioCallButton(super.c);
+
+  @override
+  String get hint => 'Аудио звонок';
+
+  @override
+  void Function(bool)? get onPressed => (b) => c.onCall?.call(false);
+
+  @override
+  SvgData get asset => SvgIcons.chatAudioCall;
+
+  @override
+  Offset get offset => const Offset(0, 0);
+
+  @override
+  SvgData get assetMini => SvgIcons.chatAudioCall;
+}
+
+class VideoCallButton extends ChatButton {
+  VideoCallButton(super.c);
+
+  @override
+  String get hint => 'Видео звонок';
+
+  @override
+  void Function(bool)? get onPressed => (b) => c.onCall?.call(true);
+
+  @override
+  SvgData get asset => SvgIcons.chatVideoCall;
+
+  @override
+  Offset get offset => const Offset(0, 0);
+
+  @override
+  SvgData get assetMini => SvgIcons.chatVideoCall;
+}

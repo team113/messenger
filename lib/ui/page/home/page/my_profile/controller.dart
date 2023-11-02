@@ -488,6 +488,7 @@ class MyProfileController extends GetxController {
       _chatService,
       null,
       null,
+      _settingsRepo,
       onSubmit: ({bool onlyDonation = false}) async {
         welcome.value = ChatMessage(
           welcome.value?.id ?? ChatItemId.local(),

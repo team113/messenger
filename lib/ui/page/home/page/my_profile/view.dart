@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -74,6 +75,7 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
+import 'media_buttons_switch/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'paid_list/view.dart';
@@ -999,6 +1001,41 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
+            style: style.fonts.titleMediumPrimary,
+          );
+        }),
+      ),
+      const SizedBox(height: 16),
+      Paddings.dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 21.0),
+            child: Text(
+              'Отображать кнопки аудио и видео звонка'.l10n,
+              style: style.systemMessageStyle.copyWith(
+                color: style.colors.secondary,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: switch (c.settings.value?.mediaButtonsPosition) {
+              MediaButtonsPosition.appBar => 'В верхней панели',
+              MediaButtonsPosition.contextMenu => 'В контекстном меню',
+              MediaButtonsPosition.top => 'В теле сверху',
+              MediaButtonsPosition.bottom => 'В теле снизу',
+              MediaButtonsPosition.more => 'В поле сообщения',
+              null => context.isNarrow ? 'В теле сверху' : 'В верхней панели',
+            },
+            maxLines: null,
+            onPressed: () => MediaButtonsSwitchView.show(context),
             style: style.fonts.titleMediumPrimary,
           );
         }),

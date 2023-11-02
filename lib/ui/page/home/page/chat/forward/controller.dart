@@ -103,6 +103,7 @@ class ChatForwardController extends GetxController {
       _chatService,
       _userService,
       null,
+      _settingsRepository,
       text: text,
       quotes: quotes,
       attachments: attachments,

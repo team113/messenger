@@ -32,6 +32,7 @@ class ApplicationSettingsHiveProvider
   @override
   void registerAdapters() {
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
+    Hive.maybeRegisterAdapter(MediaButtonsPositionAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -130,5 +131,11 @@ class ApplicationSettingsHiveProvider
   Future<void> setPartnerTabEnabled(bool enabled) => putSafe(
         0,
         (box.get(0) ?? ApplicationSettings())..partnerTabEnabled = enabled,
+      );
+
+  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
+      putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..mediaButtonsPosition = position,
       );
 }

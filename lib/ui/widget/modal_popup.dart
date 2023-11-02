@@ -162,6 +162,7 @@ class ModalPopupHeader extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (onBack != null)
             WidgetButton(

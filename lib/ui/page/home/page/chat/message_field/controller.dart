@@ -24,7 +24,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
 
@@ -52,9 +54,11 @@ class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
     this._userService,
-    this._myUserService, {
+    this._myUserService,
+    this._settingsRepository, {
     this.onSubmit,
     this.onChanged,
+    this.onCall,
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
@@ -174,6 +178,8 @@ class MessageFieldController extends GetxController {
   /// Indicator whether forwarding mode is enabled.
   final RxBool forwarding = RxBool(false);
 
+  final void Function(bool)? onCall;
+
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
@@ -192,6 +198,10 @@ class MessageFieldController extends GetxController {
     VideoMessageButton(this),
     DonateButton(this),
     StickerButton(this),
+    if (settings?.value?.mediaButtonsPosition == MediaButtonsPosition.more) ...[
+      AudioCallButton(this),
+      VideoCallButton(this),
+    ],
   ]);
 
   late final RxList<ChatButton> buttons = RxList([
@@ -227,6 +237,11 @@ class MessageFieldController extends GetxController {
   UserId? get me => _chatService?.me;
 
   Rx<MyUser?> get myUser => _myUserService?.myUser ?? Rx(null);
+
+  final AbstractSettingsRepository? _settingsRepository;
+
+  Rx<ApplicationSettings?>? get settings =>
+      _settingsRepository?.applicationSettings;
 
   @override
   void onInit() {

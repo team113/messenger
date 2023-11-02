@@ -93,6 +93,7 @@ class WelcomeMessageController extends GetxController {
       _chatService,
       _userService,
       null,
+      _settingsRepo,
       text: text,
       attachments: attachments,
       onSubmit: ({bool onlyDonation = false}) async {

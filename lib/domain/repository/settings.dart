@@ -101,4 +101,6 @@ abstract class AbstractSettingsRepository {
 
   Future<void> setBalanceTabEnabled(bool enabled);
   Future<void> setPartnerTabEnabled(bool enabled);
+
+  Future<void> setMediaButtonsPosition(MediaButtonsPosition position);
 }

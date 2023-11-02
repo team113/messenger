@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_call.dart';
 import 'package:messenger/domain/model/chat_item_quote.dart';
@@ -55,6 +56,8 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'get_paid/controller.dart';
+import 'get_paid/view.dart';
 import 'message_field/controller.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
@@ -180,590 +183,673 @@ class _ChatViewState extends State<ChatView>
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Stack(
                 children: [
-                  Scaffold(
-                    resizeToAvoidBottomInset: true,
-                    appBar: CustomAppBar(
-                      title: Row(
-                        children: [
-                          Material(
-                            elevation: 6,
-                            type: MaterialType.circle,
-                            shadowColor: style.colors.onBackgroundOpacity27,
-                            color: style.colors.onPrimary,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              onTap: onDetailsTap,
-                              child: Center(
-                                child: AvatarWidget.fromRxChat(
-                                  c.chat,
-                                  radius: 17,
+                  LayoutBuilder(builder: (context, constraints) {
+                    final bool narrow =
+                        context.isNarrow || constraints.maxWidth < 500;
+
+                    return Scaffold(
+                      resizeToAvoidBottomInset: true,
+                      appBar: CustomAppBar(
+                        title: Row(
+                          children: [
+                            Material(
+                              elevation: 6,
+                              type: MaterialType.circle,
+                              shadowColor: style.colors.onBackgroundOpacity27,
+                              color: style.colors.onPrimary,
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: onDetailsTap,
+                                child: Center(
+                                  child: AvatarWidget.fromRxChat(
+                                    c.chat,
+                                    radius: 17,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: InkWell(
-                              splashFactory: NoSplash.splashFactory,
-                              hoverColor: style.colors.transparent,
-                              highlightColor: style.colors.transparent,
-                              onTap: onDetailsTap,
-                              child: DefaultTextStyle.merge(
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Obx(() {
-                                      return Row(
-                                        children: [
-                                          Obx(() {
-                                            if (c.chat?.chat.value.muted ==
-                                                null) {
-                                              return const SizedBox();
-                                            }
-
-                                            return const Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 8),
-                                              child: SvgIcon(SvgIcons.muted),
-                                            );
-                                          }),
-                                          Flexible(
-                                            child: Text(
-                                              c.chat!.title.value,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: InkWell(
+                                splashFactory: NoSplash.splashFactory,
+                                hoverColor: style.colors.transparent,
+                                highlightColor: style.colors.transparent,
+                                onTap: onDetailsTap,
+                                child: DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Obx(() {
+                                        return Row(
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                c.chat!.title.value,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                    if (!isMonolog && c.chat != null)
-                                      ChatSubtitle(c.chat!, c.me),
-                                  ],
+                                            Obx(() {
+                                              if (c.chat?.chat.value.muted ==
+                                                  null) {
+                                                return const SizedBox();
+                                              }
+
+                                              return const Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 5),
+                                                child: SvgIcon(SvgIcons.muted),
+                                              );
+                                            }),
+                                          ],
+                                        );
+                                      }),
+                                      if (!isMonolog && c.chat != null)
+                                        ChatSubtitle(c.chat!, c.me),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
-                      padding: const EdgeInsets.only(left: 4, right: 0),
-                      leading: const [StyledBackButton()],
-                      actions: [
-                        Obx(() {
-                          if (c.chat?.blacklisted == true) {
-                            return const SizedBox.shrink();
-                          }
-
-                          final List<Widget> children;
-
-                          if (c.chat!.chat.value.ongoingCall == null) {
-                            children = [
-                              // AnimatedButton(
-                              //   onPressed: () => c.call(true),
-                              //   child: const SvgIcon(SvgIcons.chatVideoCall),
-                              // ),
-                              // const SizedBox(width: 28),
-                              // AnimatedButton(
-                              //   key: const Key('AudioCall'),
-                              //   onPressed: () => c.call(false),
-                              //   child: const SvgIcon(SvgIcons.chatAudioCall),
-                              // ),
-                            ];
-                          } else {
-                            final Widget child;
-
-                            if (c.inCall) {
-                              child = Container(
-                                key: const Key('Drop'),
-                                height: 32,
-                                width: 32,
-                                decoration: BoxDecoration(
-                                  color: style.colors.dangerColor,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Center(
-                                  child: SvgIcon(SvgIcons.callEnd),
-                                ),
-                              );
-                            } else {
-                              child = Container(
-                                key: const Key('Join'),
-                                height: 32,
-                                width: 32,
-                                decoration: BoxDecoration(
-                                  color: style.colors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Center(
-                                  child: SvgIcon(SvgIcons.callStart),
-                                ),
-                              );
+                            const SizedBox(width: 10),
+                          ],
+                        ),
+                        padding: const EdgeInsets.only(left: 4, right: 0),
+                        leading: const [StyledBackButton()],
+                        actions: [
+                          Obx(() {
+                            if (c.chat?.blacklisted == true) {
+                              return const SizedBox.shrink();
                             }
 
-                            children = [
-                              AnimatedButton(
-                                key: const Key('ActiveCallButton'),
-                                onPressed: c.inCall ? c.dropCall : c.joinCall,
-                                child: SafeAnimatedSwitcher(
-                                  duration: 300.milliseconds,
-                                  child: child,
-                                ),
-                              ),
-                            ];
-                          }
+                            final List<Widget> children;
 
-                          return Row(
-                            children: [
-                              if (c.paid)
-                                AnimatedOpacity(
-                                  opacity:
-                                      c.paidDisclaimerDismissed.value ? 1 : 0,
-                                  duration: 300.milliseconds,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 25),
-                                    child: WidgetButton(
-                                      onPressed: () {
-                                        c.paidDisclaimerDismissed.value = false;
-                                        c.paidDisclaimer.value = true;
-                                      },
-                                      child: const SvgImage.asset(
-                                        'assets/icons/g_coin.svg',
-                                        width: 24,
-                                        height: 24,
+                            if (c.chat!.chat.value.ongoingCall == null) {
+                              children = [
+                                if ((c.mediaButtons == null && !narrow) ||
+                                    c.mediaButtons ==
+                                        MediaButtonsPosition.appBar) ...[
+                                  AnimatedButton(
+                                    onPressed: () => c.call(true),
+                                    child:
+                                        const SvgIcon(SvgIcons.chatVideoCall),
+                                  ),
+                                  const SizedBox(width: 28),
+                                  AnimatedButton(
+                                    key: const Key('AudioCall'),
+                                    onPressed: () => c.call(false),
+                                    child:
+                                        const SvgIcon(SvgIcons.chatAudioCall),
+                                  ),
+                                  const SizedBox(width: 10),
+                                ],
+                              ];
+                            } else {
+                              final Widget child;
+
+                              if (c.inCall) {
+                                child = Container(
+                                  key: const Key('Drop'),
+                                  height: 32,
+                                  width: 32,
+                                  decoration: BoxDecoration(
+                                    color: style.colors.dangerColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: SvgIcon(SvgIcons.callEnd),
+                                  ),
+                                );
+                              } else {
+                                child = Container(
+                                  key: const Key('Join'),
+                                  height: 32,
+                                  width: 32,
+                                  decoration: BoxDecoration(
+                                    color: style.colors.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: SvgIcon(SvgIcons.callStart),
+                                  ),
+                                );
+                              }
+
+                              children = [
+                                AnimatedButton(
+                                  key: const Key('ActiveCallButton'),
+                                  onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 300.milliseconds,
+                                    child: child,
+                                  ),
+                                ),
+                              ];
+                            }
+
+                            return Row(
+                              children: [
+                                if (c.paid)
+                                  AnimatedOpacity(
+                                    opacity:
+                                        c.paidDisclaimerDismissed.value ? 1 : 0,
+                                    duration: 300.milliseconds,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 25),
+                                      child: WidgetButton(
+                                        onPressed: () {
+                                          c.paidDisclaimerDismissed.value =
+                                              false;
+                                          c.paidDisclaimer.value = true;
+                                        },
+                                        child: const SvgImage.asset(
+                                          'assets/icons/g_coin.svg',
+                                          width: 24,
+                                          height: 24,
+                                        ),
                                       ),
                                     ),
                                   ),
+                                ...children,
+                                // const SizedBox(width: 28 - 8),
+                                AnimatedButton(
+                                  child: Obx(() {
+                                    final bool muted =
+                                        c.chat?.chat.value.muted != null;
+
+                                    return ContextMenuRegion(
+                                      selector: c.moreKey,
+                                      alignment: Alignment.topRight,
+                                      enablePrimaryTap: true,
+                                      margin: const EdgeInsets.only(
+                                        bottom: 4,
+                                        right: 10,
+                                      ),
+                                      actions: [
+                                        if (c.mediaButtons ==
+                                            MediaButtonsPosition
+                                                .contextMenu) ...[
+                                          ContextMenuButton(
+                                            label: 'btn_audio_call'.l10n,
+                                            onPressed: () => c.call(false),
+                                          ),
+                                          ContextMenuButton(
+                                            label: 'btn_video_call'.l10n,
+                                            onPressed: () => c.call(true),
+                                          ),
+                                        ],
+                                        if (c.chat?.chat.value.isDialog ==
+                                            true) ...[
+                                          ContextMenuButton(
+                                            label: 'btn_set_price'.l10n,
+                                            onPressed: () => GetPaidView.show(
+                                              context,
+                                              mode: GetPaidMode.user,
+                                              user: c.chat!.members.values
+                                                  .firstWhere(
+                                                (e) => e.id != c.me,
+                                              ),
+                                            ),
+                                            trailing:
+                                                const Icon(Icons.paid_outlined),
+                                          ),
+                                          ContextMenuButton(
+                                            label: 'btn_add_to_contacts'.l10n,
+                                          ),
+                                        ],
+                                        ContextMenuButton(
+                                          label: 'btn_add_to_favorites'.l10n,
+                                        ),
+                                        ContextMenuButton(
+                                          label: muted
+                                              ? PlatformUtils.isMobile
+                                                  ? 'btn_unmute'.l10n
+                                                  : 'btn_unmute_chat'.l10n
+                                              : PlatformUtils.isMobile
+                                                  ? 'btn_mute'.l10n
+                                                  : 'btn_mute_chat'.l10n,
+                                          onPressed:
+                                              muted ? c.unmuteChat : c.muteChat,
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'btn_clear_history'.l10n,
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'btn_block'.l10n,
+                                        ),
+                                      ],
+                                      child: Container(
+                                        padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 0,
+                                        ),
+                                        key: c.moreKey,
+                                        height: double.infinity,
+                                        child: const Padding(
+                                          padding:
+                                              EdgeInsets.fromLTRB(10, 0, 21, 0),
+                                          child: SvgIcon(SvgIcons.more),
+                                        ),
+                                      ),
+                                    );
+                                  }),
                                 ),
-                              ...children,
-                              // const SizedBox(width: 28 - 8),
-                              AnimatedButton(
-                                child: Obx(() {
-                                  final bool muted =
-                                      c.chat?.chat.value.muted != null;
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                      body: Stack(
+                        children: [
+                          Listener(
+                            onPointerSignal:
+                                c.settings.value?.timelineEnabled == true
+                                    ? (s) {
+                                        if (s is PointerScrollEvent) {
+                                          if ((s.scrollDelta.dy.abs() < 3 &&
+                                                  s.scrollDelta.dx.abs() > 3) ||
+                                              c.isHorizontalScroll.value) {
+                                            double value = _animation.value +
+                                                s.scrollDelta.dx / 100;
+                                            _animation.value =
+                                                value.clamp(0, 1);
 
-                                  return ContextMenuRegion(
-                                    selector: c.moreKey,
-                                    alignment: Alignment.topRight,
-                                    enablePrimaryTap: true,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 10,
-                                    ),
-                                    actions: [
-                                      ContextMenuButton(
-                                        label: muted
-                                            ? 'btn_unmute_chat'.l10n
-                                            : 'btn_mute_chat'.l10n,
-                                        onPressed:
-                                            muted ? c.unmuteChat : c.muteChat,
-                                      ),
-                                      ContextMenuButton(
-                                        label: 'btn_unmute_chat'.l10n,
-                                      ),
-                                    ],
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 0,
-                                      ),
-                                      key: c.moreKey,
-                                      height: double.infinity,
-                                      child: const Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(10, 0, 21, 0),
-                                        child: SvgIcon(SvgIcons.more),
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ],
-                          );
-                        }),
-                      ],
-                    ),
-                    body: Stack(
-                      children: [
-                        Listener(
-                          onPointerSignal:
-                              c.settings.value?.timelineEnabled == true
-                                  ? (s) {
-                                      if (s is PointerScrollEvent) {
-                                        if ((s.scrollDelta.dy.abs() < 3 &&
-                                                s.scrollDelta.dx.abs() > 3) ||
-                                            c.isHorizontalScroll.value) {
-                                          double value = _animation.value +
-                                              s.scrollDelta.dx / 100;
-                                          _animation.value = value.clamp(0, 1);
-
-                                          if (_animation.value == 0 ||
-                                              _animation.value == 1) {
-                                            _resetHorizontalScroll(
-                                                c, 10.milliseconds);
-                                          } else {
-                                            _resetHorizontalScroll(c);
+                                            if (_animation.value == 0 ||
+                                                _animation.value == 1) {
+                                              _resetHorizontalScroll(
+                                                  c, 10.milliseconds);
+                                            } else {
+                                              _resetHorizontalScroll(c);
+                                            }
                                           }
                                         }
                                       }
-                                    }
-                                  : null,
-                          onPointerPanZoomUpdate: (s) {
-                            if (c.scrollOffset.dx.abs() < 7 &&
-                                c.scrollOffset.dy.abs() < 7) {
-                              c.scrollOffset = c.scrollOffset.translate(
-                                s.panDelta.dx.abs(),
-                                s.panDelta.dy.abs(),
-                              );
-                            }
-                          },
-                          onPointerMove: (d) {
-                            if (c.scrollOffset.dx.abs() < 7 &&
-                                c.scrollOffset.dy.abs() < 7) {
-                              c.scrollOffset = c.scrollOffset.translate(
-                                d.delta.dx.abs(),
-                                d.delta.dy.abs(),
-                              );
-                            }
-                          },
-                          onPointerUp: (_) => c.scrollOffset = Offset.zero,
-                          onPointerCancel: (_) => c.scrollOffset = Offset.zero,
-                          child: RawGestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            gestures: {
-                              if (c.isSelecting.isFalse)
-                                AllowMultipleHorizontalDragGestureRecognizer:
-                                    GestureRecognizerFactoryWithHandlers<
-                                        AllowMultipleHorizontalDragGestureRecognizer>(
-                                  () =>
-                                      AllowMultipleHorizontalDragGestureRecognizer(),
-                                  (AllowMultipleHorizontalDragGestureRecognizer
-                                      instance) {
-                                    if (c.settings.value?.timelineEnabled ==
-                                        true) {
-                                      instance.onUpdate = (d) {
-                                        if (!c.isItemDragged.value &&
-                                            c.scrollOffset.dy.abs() < 7 &&
-                                            c.scrollOffset.dx.abs() > 7 &&
-                                            c.isSelecting.isFalse) {
-                                          double value = (_animation.value -
-                                                  d.delta.dx / 100)
-                                              .clamp(0, 1);
-
-                                          if (_animation.value != 1 &&
-                                                  value == 1 ||
-                                              _animation.value != 0 &&
-                                                  value == 0) {
-                                            HapticFeedback.selectionClick();
-                                          }
-
-                                          _animation.value = value.clamp(0, 1);
-                                        }
-                                      };
-
-                                      instance.onEnd = (d) async {
-                                        c.scrollOffset = Offset.zero;
-                                        if (!c.isItemDragged.value &&
-                                            _animation.value != 1 &&
-                                            _animation.value != 0) {
-                                          if (_animation.value >= 0.5) {
-                                            await _animation.forward();
-                                            HapticFeedback.selectionClick();
-                                          } else {
-                                            await _animation.reverse();
-                                            HapticFeedback.selectionClick();
-                                          }
-                                        }
-                                      };
-                                    }
-                                  },
-                                )
+                                    : null,
+                            onPointerPanZoomUpdate: (s) {
+                              if (c.scrollOffset.dx.abs() < 7 &&
+                                  c.scrollOffset.dy.abs() < 7) {
+                                c.scrollOffset = c.scrollOffset.translate(
+                                  s.panDelta.dx.abs(),
+                                  s.panDelta.dy.abs(),
+                                );
+                              }
                             },
-                            child: Column(
-                              children: [
-                                Obx(() {
-                                  return AnimatedSizeAndFade.showHide(
-                                    fadeDuration: 250.milliseconds,
-                                    sizeDuration: 250.milliseconds,
-                                    show: c.pinned.isNotEmpty,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: ContextMenuRegion(
-                                            actions: [
-                                              ContextMenuButton(
-                                                key: const Key('Unpin'),
-                                                label: PlatformUtils.isMobile
-                                                    ? 'btn_unpin'.l10n
-                                                    : 'btn_unpin_message'.l10n,
-                                                trailing: const SvgImage.asset(
-                                                  'assets/icons/send_small.svg',
-                                                  width: 18.37,
-                                                  height: 16,
+                            onPointerMove: (d) {
+                              if (c.scrollOffset.dx.abs() < 7 &&
+                                  c.scrollOffset.dy.abs() < 7) {
+                                c.scrollOffset = c.scrollOffset.translate(
+                                  d.delta.dx.abs(),
+                                  d.delta.dy.abs(),
+                                );
+                              }
+                            },
+                            onPointerUp: (_) => c.scrollOffset = Offset.zero,
+                            onPointerCancel: (_) =>
+                                c.scrollOffset = Offset.zero,
+                            child: RawGestureDetector(
+                              behavior: HitTestBehavior.translucent,
+                              gestures: {
+                                if (c.isSelecting.isFalse)
+                                  AllowMultipleHorizontalDragGestureRecognizer:
+                                      GestureRecognizerFactoryWithHandlers<
+                                          AllowMultipleHorizontalDragGestureRecognizer>(
+                                    () =>
+                                        AllowMultipleHorizontalDragGestureRecognizer(),
+                                    (AllowMultipleHorizontalDragGestureRecognizer
+                                        instance) {
+                                      if (c.settings.value?.timelineEnabled ==
+                                          true) {
+                                        instance.onUpdate = (d) {
+                                          if (!c.isItemDragged.value &&
+                                              c.scrollOffset.dy.abs() < 7 &&
+                                              c.scrollOffset.dx.abs() > 7 &&
+                                              c.isSelecting.isFalse) {
+                                            double value = (_animation.value -
+                                                    d.delta.dx / 100)
+                                                .clamp(0, 1);
+
+                                            if (_animation.value != 1 &&
+                                                    value == 1 ||
+                                                _animation.value != 0 &&
+                                                    value == 0) {
+                                              HapticFeedback.selectionClick();
+                                            }
+
+                                            _animation.value =
+                                                value.clamp(0, 1);
+                                          }
+                                        };
+
+                                        instance.onEnd = (d) async {
+                                          c.scrollOffset = Offset.zero;
+                                          if (!c.isItemDragged.value &&
+                                              _animation.value != 1 &&
+                                              _animation.value != 0) {
+                                            if (_animation.value >= 0.5) {
+                                              await _animation.forward();
+                                              HapticFeedback.selectionClick();
+                                            } else {
+                                              await _animation.reverse();
+                                              HapticFeedback.selectionClick();
+                                            }
+                                          }
+                                        };
+                                      }
+                                    },
+                                  )
+                              },
+                              child: Column(
+                                children: [
+                                  Obx(() {
+                                    return AnimatedSizeAndFade.showHide(
+                                      fadeDuration: 250.milliseconds,
+                                      sizeDuration: 250.milliseconds,
+                                      show: c.pinned.isNotEmpty,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: ContextMenuRegion(
+                                              actions: [
+                                                ContextMenuButton(
+                                                  key: const Key('Unpin'),
+                                                  label: PlatformUtils.isMobile
+                                                      ? 'btn_unpin'.l10n
+                                                      : 'btn_unpin_message'
+                                                          .l10n,
+                                                  trailing:
+                                                      const SvgImage.asset(
+                                                    'assets/icons/send_small.svg',
+                                                    width: 18.37,
+                                                    height: 16,
+                                                  ),
+                                                  onPressed: c.unpin,
                                                 ),
-                                                onPressed: c.unpin,
-                                              ),
-                                            ],
-                                            child: WidgetButton(
-                                              onPressed: () {
-                                                double? offset = c.visible[c
-                                                    .pinned[
-                                                        c.displayPinned.value]
-                                                    .id];
-
-                                                if (offset != null) {
-                                                  bool next = offset < 50 ||
-                                                      c.listController.position
-                                                              .pixels ==
-                                                          c
-                                                              .listController
-                                                              .position
-                                                              .maxScrollExtent;
-
-                                                  if (next) {
-                                                    c.displayPinned.value += 1;
-                                                    if (c.displayPinned.value >=
-                                                        c.pinned.length) {
-                                                      c.displayPinned.value = 0;
-                                                    }
-                                                  }
-                                                }
-
-                                                c.animateTo(
-                                                  c
+                                              ],
+                                              child: WidgetButton(
+                                                onPressed: () {
+                                                  double? offset = c.visible[c
                                                       .pinned[
                                                           c.displayPinned.value]
-                                                      .id,
-                                                );
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                  left: 6,
-                                                  right: 6,
-                                                  top: 6,
-                                                ),
-                                                child: MouseRegion(
-                                                  onEnter: (_) => c
-                                                      .hoveredPinned
-                                                      .value = true,
-                                                  onExit: (_) => c.hoveredPinned
-                                                      .value = false,
-                                                  opaque: false,
-                                                  child: Container(
-                                                    width: double.infinity,
-                                                    height: 60,
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(
-                                                      8,
-                                                      0,
-                                                      0,
-                                                      8,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      boxShadow: const [
-                                                        CustomBoxShadow(
-                                                          blurRadius: 8,
-                                                          color: Color(
-                                                            0x22000000,
+                                                      .id];
+
+                                                  if (offset != null) {
+                                                    bool next = offset < 50 ||
+                                                        c
+                                                                .listController
+                                                                .position
+                                                                .pixels ==
+                                                            c
+                                                                .listController
+                                                                .position
+                                                                .maxScrollExtent;
+
+                                                    if (next) {
+                                                      c.displayPinned.value +=
+                                                          1;
+                                                      if (c.displayPinned
+                                                              .value >=
+                                                          c.pinned.length) {
+                                                        c.displayPinned.value =
+                                                            0;
+                                                      }
+                                                    }
+                                                  }
+
+                                                  c.animateTo(
+                                                    c
+                                                        .pinned[c.displayPinned
+                                                            .value]
+                                                        .id,
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 6,
+                                                    right: 6,
+                                                    top: 6,
+                                                  ),
+                                                  child: MouseRegion(
+                                                    onEnter: (_) => c
+                                                        .hoveredPinned
+                                                        .value = true,
+                                                    onExit: (_) => c
+                                                        .hoveredPinned
+                                                        .value = false,
+                                                    opaque: false,
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      height: 60,
+                                                      padding: const EdgeInsets
+                                                          .fromLTRB(
+                                                        8,
+                                                        0,
+                                                        0,
+                                                        8,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        boxShadow: const [
+                                                          CustomBoxShadow(
+                                                            blurRadius: 8,
+                                                            color: Color(
+                                                              0x22000000,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
-                                                      borderRadius:
-                                                          style.cardRadius,
-                                                      border: style
-                                                          .systemMessageBorder,
-                                                      color: Colors.white,
-                                                    ),
-                                                    child: LayoutBuilder(
-                                                      builder: (context,
-                                                          constraints) {
-                                                        return _pinned(
-                                                          c,
-                                                          constraints,
-                                                        );
-                                                      },
+                                                        ],
+                                                        borderRadius:
+                                                            style.cardRadius,
+                                                        border: style
+                                                            .systemMessageBorder,
+                                                        color: Colors.white,
+                                                      ),
+                                                      child: LayoutBuilder(
+                                                        builder: (context,
+                                                            constraints) {
+                                                          return _pinned(
+                                                            c,
+                                                            constraints,
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                                Expanded(
-                                  child: Stack(
-                                    children: [
-                                      // Required for the [Stack] to take [Scaffold]'s
-                                      // size.
-                                      IgnorePointer(
-                                        child: ContextMenuInterceptor(
-                                            child: Container()),
+                                        ],
                                       ),
-                                      Obx(() {
-                                        final Widget child = FlutterListView(
-                                          key: const Key('MessagesList'),
-                                          controller: c.listController,
-                                          physics: c.isHorizontalScroll
-                                                      .isTrue ||
-                                                  (PlatformUtils.isDesktop &&
-                                                      c.isItemDragged.isTrue)
-                                              ? const NeverScrollableScrollPhysics()
-                                              : const BouncingScrollPhysics(),
-                                          reverse: true,
-                                          delegate: FlutterListViewDelegate(
-                                            (context, i) =>
-                                                _listElement(context, c, i),
-                                            childCount:
-                                                // ignore: invalid_use_of_protected_member
-                                                c.elements.value.length,
-                                            stickyAtTailer: true,
-                                            keepPosition: true,
-                                            keepPositionOffset: c.active.isTrue
-                                                ? c.keepPositionOffset.value
-                                                : 1,
-                                            onItemKey: (i) => c.elements.values
-                                                .elementAt(i)
-                                                .id
-                                                .toString(),
-                                            onItemSticky: (i) =>
-                                                c.elements.values.elementAt(i)
-                                                    is DateTimeElement,
-                                            initIndex: c.initIndex,
-                                            initOffset: c.initOffset,
-                                            initOffsetBasedOnBottom: false,
-                                            disableCacheItems:
-                                                kDebugMode ? true : false,
-                                          ),
-                                        );
-
-                                        if (PlatformUtils.isMobile) {
-                                          if (!PlatformUtils.isWeb) {
-                                            return Scrollbar(
-                                              controller: c.listController,
-                                              child: child,
-                                            );
-                                          } else {
-                                            return child;
-                                          }
-                                        }
-
-                                        return SelectionArea(
-                                          onSelectionChanged: (a) =>
-                                              c.selection.value = a,
-                                          contextMenuBuilder: (_, __) =>
-                                              const SizedBox(),
-                                          selectionControls:
-                                              EmptyTextSelectionControls(),
+                                    );
+                                  }),
+                                  Expanded(
+                                    child: Stack(
+                                      children: [
+                                        // Required for the [Stack] to take [Scaffold]'s
+                                        // size.
+                                        IgnorePointer(
                                           child: ContextMenuInterceptor(
-                                            child: child,
-                                          ),
-                                        );
-                                      }),
-                                      Obx(() {
-                                        if ((c.chat?.status.value.isSuccess ==
-                                                    true ||
-                                                c.chat?.status.value.isEmpty ==
-                                                    true) &&
-                                            c.chat?.messages.isEmpty == true) {
-                                          return Center(
-                                            child: Container(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 12,
-                                                vertical: 8,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                border:
-                                                    style.systemMessageBorder,
-                                                color: style.systemMessageColor,
-                                              ),
-                                              child: Text(
-                                                key: const Key('NoMessages'),
-                                                isMonolog
-                                                    ? 'label_chat_monolog_description'
-                                                        .l10n
-                                                    : 'label_no_messages'.l10n,
-                                                textAlign: TextAlign.center,
-                                                style: style.fonts.labelMedium,
-                                              ),
+                                              child: Container()),
+                                        ),
+                                        Obx(() {
+                                          final Widget child = FlutterListView(
+                                            key: const Key('MessagesList'),
+                                            controller: c.listController,
+                                            physics: c.isHorizontalScroll
+                                                        .isTrue ||
+                                                    (PlatformUtils.isDesktop &&
+                                                        c.isItemDragged.isTrue)
+                                                ? const NeverScrollableScrollPhysics()
+                                                : const BouncingScrollPhysics(),
+                                            reverse: true,
+                                            delegate: FlutterListViewDelegate(
+                                              (context, i) =>
+                                                  _listElement(context, c, i),
+                                              childCount:
+                                                  // ignore: invalid_use_of_protected_member
+                                                  c.elements.value.length,
+                                              stickyAtTailer: true,
+                                              keepPosition: true,
+                                              keepPositionOffset: c
+                                                      .active.isTrue
+                                                  ? c.keepPositionOffset.value
+                                                  : 1,
+                                              onItemKey: (i) => c
+                                                  .elements.values
+                                                  .elementAt(i)
+                                                  .id
+                                                  .toString(),
+                                              onItemSticky: (i) =>
+                                                  c.elements.values.elementAt(i)
+                                                      is DateTimeElement,
+                                              initIndex: c.initIndex,
+                                              initOffset: c.initOffset,
+                                              initOffsetBasedOnBottom: false,
+                                              disableCacheItems:
+                                                  kDebugMode ? true : false,
                                             ),
                                           );
-                                        }
 
-                                        if (c.chat?.status.value.isLoading !=
-                                            false) {
-                                          return Center(
-                                            child: CustomProgressIndicator
-                                                .primary(),
+                                          if (PlatformUtils.isMobile) {
+                                            if (!PlatformUtils.isWeb) {
+                                              return Scrollbar(
+                                                controller: c.listController,
+                                                child: child,
+                                              );
+                                            } else {
+                                              return child;
+                                            }
+                                          }
+
+                                          return SelectionArea(
+                                            onSelectionChanged: (a) =>
+                                                c.selection.value = a,
+                                            contextMenuBuilder: (_, __) =>
+                                                const SizedBox(),
+                                            selectionControls:
+                                                EmptyTextSelectionControls(),
+                                            child: ContextMenuInterceptor(
+                                              child: child,
+                                            ),
                                           );
-                                        }
+                                        }),
+                                        Obx(() {
+                                          if ((c.chat?.status.value.isSuccess ==
+                                                      true ||
+                                                  c.chat?.status.value
+                                                          .isEmpty ==
+                                                      true) &&
+                                              c.chat?.messages.isEmpty ==
+                                                  true) {
+                                            return Center(
+                                              child: Container(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 8,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                  border:
+                                                      style.systemMessageBorder,
+                                                  color:
+                                                      style.systemMessageColor,
+                                                ),
+                                                child: Text(
+                                                  key: const Key('NoMessages'),
+                                                  isMonolog
+                                                      ? 'label_chat_monolog_description'
+                                                          .l10n
+                                                      : 'label_no_messages'
+                                                          .l10n,
+                                                  textAlign: TextAlign.center,
+                                                  style:
+                                                      style.fonts.labelMedium,
+                                                ),
+                                              ),
+                                            );
+                                          }
 
-                                        return const SizedBox();
-                                      }),
-                                    ],
+                                          if (c.chat?.status.value.isLoading !=
+                                              false) {
+                                            return Center(
+                                              child: CustomProgressIndicator
+                                                  .primary(),
+                                            );
+                                          }
+
+                                          return const SizedBox();
+                                        }),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 12,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SquareButton(
-                                SvgIcons.chatAudioCall,
-                                onPressed: () => c.call(false),
+                          if ((c.mediaButtons == null && narrow) ||
+                              c.mediaButtons == MediaButtonsPosition.top ||
+                              c.mediaButtons == MediaButtonsPosition.bottom)
+                            Positioned(
+                              top: c.mediaButtons == MediaButtonsPosition.top
+                                  ? 8
+                                  : null,
+                              bottom:
+                                  c.mediaButtons == MediaButtonsPosition.bottom
+                                      ? 8
+                                      : null,
+                              right: 12,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SquareButton(
+                                    SvgIcons.chatAudioCall,
+                                    onPressed: () => c.call(false),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  SquareButton(
+                                    SvgIcons.chatVideoCall,
+                                    onPressed: () => c.call(true),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              SquareButton(
-                                SvgIcons.chatVideoCall,
-                                onPressed: () => c.call(true),
-                              ),
-                            ],
+                            ),
+                        ],
+                      ),
+                      floatingActionButton: Obx(() {
+                        return SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: AnimatedSwitcher(
+                            duration: 200.milliseconds,
+                            child: c.canGoBack.isTrue
+                                ? FloatingActionButton.small(
+                                    onPressed: c.animateToBack,
+                                    child: const Icon(Icons.arrow_upward),
+                                  )
+                                : c.canGoDown.isTrue
+                                    ? FloatingActionButton.small(
+                                        onPressed: c.animateToBottom,
+                                        child: const Icon(Icons.arrow_downward),
+                                      )
+                                    : const SizedBox(),
                           ),
-                        ),
-                      ],
-                    ),
-                    floatingActionButton: Obx(() {
-                      return SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: AnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: c.canGoBack.isTrue
-                              ? FloatingActionButton.small(
-                                  onPressed: c.animateToBack,
-                                  child: const Icon(Icons.arrow_upward),
-                                )
-                              : c.canGoDown.isTrue
-                                  ? FloatingActionButton.small(
-                                      onPressed: c.animateToBottom,
-                                      child: const Icon(Icons.arrow_downward),
-                                    )
-                                  : const SizedBox(),
-                        ),
-                      );
-                    }),
-                    bottomNavigationBar: Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: _bottomBar(c),
-                    ),
-                  ),
+                        );
+                      }),
+                      bottomNavigationBar: Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: _bottomBar(c),
+                      ),
+                    );
+                  }),
                   IgnorePointer(
                     child: Obx(() {
                       return SafeAnimatedSwitcher(
