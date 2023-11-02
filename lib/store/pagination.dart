@@ -88,12 +88,16 @@ class Pagination<T, C, K> {
   /// query.
   final CancelToken _cancelToken = CancelToken();
 
+  /// Indicator whether this [Pagination] has been disposed.
+  bool _disposed = false;
+
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
   /// Disposes this [Pagination].
   void dispose() {
     _cancelToken.cancel();
+    _disposed = true;
   }
 
   /// Resets this [Pagination] to its initial state.
@@ -109,6 +113,10 @@ class Pagination<T, C, K> {
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {
+    if (_disposed) {
+      return Future.value();
+    }
+
     return _guard.protect(() async {
       try {
         final Page<T, C>? page =
@@ -144,10 +152,14 @@ class Pagination<T, C, K> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final bool locked = _guard.isLocked;
 
     return _guard.protect(() async {
-      if (locked) {
+      if (locked || _disposed) {
         return;
       }
 
@@ -187,10 +199,14 @@ class Pagination<T, C, K> {
 
   /// Fetches a next page of the [items].
   Future<void> next() async {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final bool locked = _nextGuard.isLocked;
 
     return _nextGuard.protect(() async {
-      if (locked) {
+      if (locked || _disposed) {
         return;
       }
 
@@ -233,10 +249,14 @@ class Pagination<T, C, K> {
 
   /// Fetches a previous page of the [items].
   Future<void> previous() async {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final bool locked = _previousGuard.isLocked;
 
     return _previousGuard.protect(() async {
-      if (locked) {
+      if (locked || _disposed) {
         return;
       }
 
@@ -281,6 +301,10 @@ class Pagination<T, C, K> {
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
   Future<void> put(T item, {bool ignoreBounds = false}) async {
+    if (_disposed) {
+      return;
+    }
+
     Log.print('put($item)', 'Pagination');
 
     Future<void> put() async {
@@ -316,6 +340,10 @@ class Pagination<T, C, K> {
 
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
+    if (_disposed) {
+      return Future.value();
+    }
+
     items.remove(key);
     return provider.remove(key);
   }
