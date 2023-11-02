@@ -102,23 +102,29 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
     Finder scrollable, {
     double dy = 100,
   }) async {
-    final double height = nativeDriver.view.display.size.height;
+    final WidgetTester tester = (nativeDriver as WidgetTester);
 
-    for (int i = 0; i < 100; ++i) {
-      // If [finder] is present and it's within our view, then break the loop.
-      if (await isPresent(finder) &&
-          nativeDriver.getCenter(finder).dy <= height - dy) {
-        break;
+    final double height =
+        (tester.view.physicalSize / tester.view.devicePixelRatio).height;
+
+    for (int i = 0; i < 500; ++i) {
+      final ScrollableState state = tester.state(scrollable) as ScrollableState;
+      final ScrollPosition position = state.position;
+
+      if (await isPresent(finder)) {
+        await Scrollable.ensureVisible(finder.evaluate().single);
+
+        // If [finder] is present and it's within our view, then break the loop.
+        if (tester.getCenter(finder.first).dy <= height - dy ||
+            position.pixels >= position.maxScrollExtent) {
+          break;
+        }
       }
 
       // Or otherwise keep on scrolling the [scrollable].
-      final ScrollableState state =
-          nativeDriver.state(scrollable) as ScrollableState;
-      final ScrollPosition position = state.position;
-
       position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
 
-      await nativeDriver.pump();
+      await tester.pump();
     }
   }
 }
