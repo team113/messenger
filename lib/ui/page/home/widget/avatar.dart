@@ -44,6 +44,7 @@ class AvatarWidget extends StatelessWidget {
   const AvatarWidget({
     super.key,
     this.avatar,
+    this.child,
     this.radius,
     this.maxRadius,
     this.minRadius,
@@ -306,6 +307,13 @@ class AvatarWidget extends StatelessWidget {
   /// [Avatar] to display.
   final Avatar? avatar;
 
+  /// [Widget] to display inside this [AvatarWidget].
+  ///
+  /// No-op, if [avatar] is specified.
+  ///
+  /// Intended to be used on the [Routes.style] page only.
+  final Widget? child;
+
   /// Size of the avatar, expressed as the radius (half the diameter).
   ///
   /// If [radius] is specified, then neither [minRadius] nor [maxRadius] may be
@@ -460,30 +468,31 @@ class AvatarWidget extends StatelessWidget {
                     ),
               ),
             ),
-            if (avatar != null)
+            if (avatar != null || child != null)
               Positioned.fill(
                 child: ClipOval(
-                  child: RetryImage(
-                    maxWidth > 250
-                        ? avatar!.full.url
-                        : maxWidth > 100
-                            ? avatar!.big.url
-                            : maxWidth > 46
-                                ? avatar!.medium.url
-                                : avatar!.small.url,
-                    checksum: maxWidth > 250
-                        ? avatar!.full.checksum
-                        : maxWidth > 100
-                            ? avatar!.big.checksum
-                            : maxWidth > 46
-                                ? avatar!.medium.checksum
-                                : avatar!.small.checksum,
-                    fit: BoxFit.cover,
-                    height: double.infinity,
-                    width: double.infinity,
-                    displayProgress: false,
-                    onForbidden: onForbidden,
-                  ),
+                  child: child ??
+                      RetryImage(
+                        maxWidth > 250
+                            ? avatar!.full.url
+                            : maxWidth > 100
+                                ? avatar!.big.url
+                                : maxWidth > 46
+                                    ? avatar!.medium.url
+                                    : avatar!.small.url,
+                        checksum: maxWidth > 250
+                            ? avatar!.full.checksum
+                            : maxWidth > 100
+                                ? avatar!.big.checksum
+                                : maxWidth > 46
+                                    ? avatar!.medium.checksum
+                                    : avatar!.small.checksum,
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                        width: double.infinity,
+                        displayProgress: false,
+                        onForbidden: onForbidden,
+                      ),
                 ),
               ),
           ],

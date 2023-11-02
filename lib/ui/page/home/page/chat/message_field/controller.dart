@@ -186,13 +186,13 @@ class MessageFieldController extends GetxController {
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// [Chat]s service uploading the [attachments].
-  final ChatService _chatService;
+  final ChatService? _chatService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
+  final UserService? _userService;
 
   /// [AbstractSettingsRepository], used to get the [buttons] value.
-  final AbstractSettingsRepository _settingsRepository;
+  final AbstractSettingsRepository? _settingsRepository;
 
   /// [Worker] reacting on the [replied] changes.
   Worker? _repliesWorker;
@@ -215,7 +215,7 @@ class MessageFieldController extends GetxController {
   OverlayEntry? _moreEntry;
 
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _chatService.me;
+  UserId? get me => _chatService?.me;
 
   @override
   void onInit() {
@@ -235,11 +235,11 @@ class MessageFieldController extends GetxController {
     }
 
     buttons = RxList(
-      toButtons(_settingsRepository.applicationSettings.value?.pinnedActions),
+      toButtons(_settingsRepository?.applicationSettings.value?.pinnedActions),
     );
 
     _buttonsWorker = ever(buttons, (List<ChatButton> list) {
-      _settingsRepository.setPinnedActions(
+      _settingsRepository?.setPinnedActions(
         list.map((e) => e.runtimeType.toString()).toList(),
       );
     });
@@ -300,7 +300,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  Future<RxUser?> getUser(UserId id) async => _userService?.get(id);
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
@@ -386,12 +386,12 @@ class MessageFieldController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < maxAttachmentSize) {
+    if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        Attachment uploaded = await _chatService!.uploadAttachment(attachment);
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {

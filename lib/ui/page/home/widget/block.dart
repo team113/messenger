@@ -28,9 +28,15 @@ class Block extends StatelessWidget {
     this.title,
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.expanded,
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.children = const [],
+    this.unconstrained = false,
+    this.color,
+    this.headlineColor,
+    this.headline,
+    this.expanded = const [],
+    this.fade = false,
+    this.margin,
   });
 
   /// Optional header of this [Block].
@@ -42,11 +48,13 @@ class Block extends StatelessWidget {
   /// [CrossAxisAlignment] to apply to the [children].
   final CrossAxisAlignment crossAxisAlignment;
 
+  final List<Widget> expanded;
+
   /// Indicator whether this [Block] should occupy the whole space, if `true`,
   /// or be fixed width otherwise.
   ///
   /// If not specified, then [MobileExtensionOnContext.isNarrow] is used.
-  final bool? expanded;
+  final bool? unconstrained;
 
   /// Padding to apply to the [children].
   final EdgeInsets padding;
@@ -54,44 +62,171 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
+  final String? headline;
+
+  final Color? color;
+  final Color? headlineColor;
+
+  final bool fade;
+  final double? margin;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final InputBorder border = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: style.primaryBorder.top.color,
+        // color: style.colors.secondary,
+        width: style.primaryBorder.top.width,
+      ),
+      borderRadius: BorderRadius.circular(15),
+    );
 
     return HighlightedContainer(
       highlight: highlight == true,
       child: Center(
         child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          decoration: BoxDecoration(
-            border: style.primaryBorder,
-            color: style.messageColor,
-            borderRadius: BorderRadius.circular(15),
+          padding: EdgeInsets.fromLTRB(
+            8,
+            margin ?? (headline == null ? 4 : 32),
+            8,
+            4,
           ),
-          constraints: (expanded ?? context.isNarrow)
+
+          constraints: (unconstrained ?? context.isNarrow)
               ? null
               : const BoxConstraints(maxWidth: 400),
-          padding: padding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: crossAxisAlignment,
-            children: [
-              if (title != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                      child: Text(
-                        title!,
-                        style: style.fonts.big.regular.onBackground,
-                      ),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: color ?? style.messageColor,
+              focusedBorder: border,
+              errorBorder: border,
+              enabledBorder: border,
+              disabledBorder: border,
+              focusedErrorBorder: border,
+              contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              border: border,
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: padding,
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.topCenter,
+                    curve: Curves.easeInOut,
+                    child: Column(
+                      children: [
+                        Column(
+                          crossAxisAlignment: crossAxisAlignment,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (title != null)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                                child: Center(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    child: Text(
+                                      title!,
+                                      textAlign: TextAlign.center,
+                                      style: style.fonts.big.regular.onBackground,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ...children,
+                          ],
+                        ),
+                        IgnorePointer(
+                          child: AnimatedSwitcher(
+                            switchInCurve: Curves.easeInOut,
+                            switchOutCurve: Curves.easeInOut,
+                            duration: const Duration(milliseconds: 300),
+                            layoutBuilder: (current, previous) {
+                              List<Widget> children = previous;
+
+                              if (current != null) {
+                                if (previous.isEmpty) {
+                                  children = [current];
+                                } else {
+                                  children = [
+                                    Positioned(
+                                      left: 0.0,
+                                      right: 0.0,
+                                      child: Container(child: previous[0]),
+                                    ),
+                                    current,
+                                  ];
+                                }
+                              }
+
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.topCenter,
+                                children: children,
+                              );
+                            },
+                            child: Column(
+                              key: Key('${expanded.length}'),
+                              crossAxisAlignment: crossAxisAlignment,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  color: style.colors.transparent,
+                                ),
+                                ...expanded,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ...children,
-            ],
+                if (headline != null)
+                  Positioned(
+                    child: Text(
+                      headline!,
+                      style: style.fonts.small.regular.secondaryHighlightDarkest.copyWith(
+                        color: headlineColor,
+                      ),
+                    ),
+                  ),
+                if (fade)
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        const Spacer(),
+                        Container(
+                          width: double.infinity,
+                          height: 100,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: [0, 0.7, 0.9, 1],
+                              colors: [
+                                Color(0x00FFFFFF),
+                                Color(0xFFFFFFFF),
+                                Color(0xFFFFFFFF),
+                                Color(0xFFFFFFFF),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
