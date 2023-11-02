@@ -179,31 +179,7 @@ class MessageFieldView extends StatelessWidget {
 
         Widget? previews;
 
-        if (c.edited.value != null) {
-          previews = SingleChildScrollView(
-            controller: c.scrollController,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              child: Dismissible(
-                key: Key('${c.edited.value?.id}'),
-                direction: DismissDirection.horizontal,
-                onDismissed: (_) => c.edited.value = null,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: WidgetButton(
-                    onPressed: () => onItemPressed?.call(c.edited.value!.id),
-                    child: _buildPreview(
-                      context,
-                      c.edited.value!,
-                      c,
-                      onClose: () => c.edited.value = null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (c.quotes.isNotEmpty) {
+        if (c.quotes.isNotEmpty) {
           previews = ReorderableListView(
             scrollController: c.scrollController,
             shrinkWrap: true,
@@ -324,7 +300,6 @@ class MessageFieldView extends StatelessWidget {
                 child: child,
               );
             },
-            reverse: true,
             padding: const EdgeInsets.symmetric(horizontal: 1),
             children: c.replied.map((e) {
               return ReorderableDragStartListener(
@@ -368,12 +343,29 @@ class MessageFieldView extends StatelessWidget {
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
-                padding: c.replied.isNotEmpty || c.attachments.isNotEmpty
+                padding: c.replied.isNotEmpty ||
+                        c.attachments.isNotEmpty ||
+                        c.edited.value != null
                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                     : EdgeInsets.zero,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (c.edited.value != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: WidgetButton(
+                          onPressed: () =>
+                              onItemPressed?.call(c.edited.value!.id),
+                          child: _buildPreview(
+                            context,
+                            c.edited.value!,
+                            c,
+                            onClose: () => c.edited.value = null,
+                            edited: true,
+                          ),
+                        ),
+                      ),
                     if (previews != null)
                       ConstrainedBox(
                         constraints: this.constraints ??
@@ -775,10 +767,40 @@ class MessageFieldView extends StatelessWidget {
     ChatItem item,
     MessageFieldController c, {
     void Function()? onClose,
+    bool edited = false,
   }) {
     final style = Theme.of(context).style;
 
     final bool fromMe = item.author.id == c.me;
+
+    if (edited) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                'label_message_editing'.l10n,
+                style: style.fonts.medium.regular.primary,
+              ),
+            ),
+            AnimatedButton(
+              key: const Key('CancelEditButton'),
+              onPressed: onClose,
+              child: Text(
+                'btn_cancel'.l10n,
+                style: style.fonts.small.regular.primary,
+              ),
+            )
+          ],
+        ),
+      );
+    }
 
     Widget? content;
     final List<Widget> additional = [];
@@ -902,93 +924,52 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    final Widget expanded;
+    final Widget expanded = FutureBuilder<RxUser?>(
+      future: c.getUser(item.author.id),
+      builder: (context, snapshot) {
+        final Color color = snapshot.data?.user.value.id == c.me
+            ? style.colors.primary
+            : style.colors.userColors[
+                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                    style.colors.userColors.length];
 
-    if (c.edited.value != null) {
-      expanded = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(width: 12),
-          const SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(width: 2, color: style.colors.primary),
-                ),
-              ),
-              margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              padding: const EdgeInsets.only(left: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'label_edit'.l10n,
-                    style: style.fonts.medium.regular.primary,
-                  ),
-                  if (content != null) ...[
-                    const SizedBox(height: 2),
-                    DefaultTextStyle.merge(maxLines: 1, child: content),
-                  ],
-                  if (additional.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(children: additional),
-                  ],
-                ],
-              ),
-            ),
+        return Container(
+          key: Key('Reply_${c.replied.indexOf(item)}'),
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(width: 2, color: color)),
           ),
-        ],
-      );
-    } else {
-      expanded = FutureBuilder<RxUser?>(
-        future: c.getUser(item.author.id),
-        builder: (context, snapshot) {
-          final Color color = snapshot.data?.user.value.id == c.me
-              ? style.colors.primary
-              : style.colors.userColors[
-                  (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      style.colors.userColors.length];
-
-          return Container(
-            key: Key('Reply_${c.replied.indexOf(item)}'),
-            decoration: BoxDecoration(
-              border: Border(left: BorderSide(width: 2, color: color)),
-            ),
-            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            padding: const EdgeInsets.only(left: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                snapshot.data != null
-                    ? Obx(() {
-                        return Text(
-                          snapshot.data!.user.value.name?.val ??
-                              snapshot.data!.user.value.num.toString(),
-                          style: style.fonts.medium.regular.onBackground
-                              .copyWith(color: color),
-                        );
-                      })
-                    : Text(
-                        'dot'.l10n * 3,
-                        style: style.fonts.medium.regular.primary,
-                      ),
-                if (content != null) ...[
-                  const SizedBox(height: 2),
-                  DefaultTextStyle.merge(maxLines: 1, child: content),
-                ],
-                if (additional.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(children: additional),
-                ],
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.only(left: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              snapshot.data != null
+                  ? Obx(() {
+                      return Text(
+                        snapshot.data!.user.value.name?.val ??
+                            snapshot.data!.user.value.num.toString(),
+                        style: style.fonts.medium.regular.onBackground
+                            .copyWith(color: color),
+                      );
+                    })
+                  : Text(
+                      'dot'.l10n * 3,
+                      style: style.fonts.medium.regular.primary,
+                    ),
+              if (content != null) ...[
+                const SizedBox(height: 2),
+                DefaultTextStyle.merge(maxLines: 1, child: content),
               ],
-            ),
-          );
-        },
-      );
-    }
+              if (additional.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Row(children: additional),
+              ],
+            ],
+          ),
+        );
+      },
+    );
 
     return MouseRegion(
       opaque: false,
