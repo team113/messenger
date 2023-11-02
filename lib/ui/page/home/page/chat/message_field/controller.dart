@@ -118,7 +118,21 @@ class MessageFieldController extends GetxController {
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
-    _editedWorker ??= ever(edited, (_) => onChanged?.call());
+    _editedWorker ??= ever(edited, (item) {
+      if (item != null) {
+        field.text = item.text?.val ?? '';
+        this.attachments.value =
+            item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
+        replied.value =
+            item.repliesTo.map((e) => e.original).whereNotNull().toList();
+      } else {
+        field.text = '';
+        this.attachments.clear();
+        replied.clear();
+      }
+
+      onChanged?.call();
+    });
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.
@@ -141,7 +155,7 @@ class MessageFieldController extends GetxController {
   late final RxList<ChatItemQuoteInput> quotes;
 
   /// [ChatItem] being edited.
-  final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
+  final Rx<ChatMessage?> edited = Rx<ChatMessage?>(null);
 
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);

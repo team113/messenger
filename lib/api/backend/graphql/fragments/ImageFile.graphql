@@ -21,4 +21,5 @@ fragment ImageFile on ImageFile {
     size
     width
     height
+    thumbhash
 }

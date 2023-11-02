@@ -262,7 +262,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
-err_blacklisted = User is in blacklist
+err_blacklisted = You've been added to the blocklist of this user
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
@@ -304,6 +304,8 @@ err_network = Connection to the server refused
 err_no_filename = File should have a name
 err_no_text_and_no_attachment =
     Either text or at least one attachment should be specified
+err_no_text_no_attachment_and_reply =
+    Either text or at least one attachment or reply should be specified
 err_no_unconfirmed_email = No unconfirmed Emails were found
 err_no_unconfirmed_phone = No unconfirmed phone numbers were found
 err_not_author = Not an author
@@ -724,6 +726,7 @@ label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
+label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created

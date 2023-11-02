@@ -329,8 +329,8 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key,
-        isFirst: (e) => chat.value.firstItem?.id == e.value.id,
-        isLast: (e) => chat.value.lastItem?.id == e.value.id,
+        isFirst: (e) => id.isLocal || chat.value.firstItem?.id == e.value.id,
+        isLast: (e) => id.isLocal || chat.value.lastItem?.id == e.value.id,
         strategy: PaginationStrategy.fromEnd,
       ),
     );
@@ -371,10 +371,8 @@ class HiveRxChat extends RxChat {
     }
 
     await _pagination.init(item);
-
-    if (id.isLocal) {
-      _pagination.hasNext.value = false;
-      _pagination.hasPrevious.value = false;
+    if (_pagination.items.isNotEmpty) {
+      status.value = RxStatus.success();
     }
   }
 
@@ -447,8 +445,10 @@ class HiveRxChat extends RxChat {
   @override
   Future<void> around() async {
     Log.debug('around()', '$runtimeType Chat - ${title.value}');
-
-    if (id.isLocal || status.value.isSuccess) {
+    
+    if (id.isLocal ||
+        status.value.isSuccess ||
+        (hasNext.isFalse && hasPrevious.isFalse)) {
       return;
     }
 
@@ -1162,12 +1162,22 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.itemEdited:
               event as EventChatItemEdited;
-              final message = await get(event.itemId);
-              if (message != null) {
-                // TODO: Properly account editing, as this will change the text
-                //       always, which is inappropriate.
-                (message.value as ChatMessage).text = event.text;
-                put(message);
+              final item = await get(event.itemId);
+              if (item != null) {
+                final message = item.value as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo = event.quotes ?? message.repliesTo;
+                put(item);
+              }
+
+              if (chatEntity.value.lastItem?.id == event.itemId) {
+                final message = chatEntity.value.lastItem as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo = event.quotes ?? message.repliesTo;
               }
               break;
 

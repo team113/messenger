@@ -301,7 +301,7 @@ class EventChatItemEdited extends ChatEvent {
   final ChatItemId itemId;
 
   /// Edited [ChatItem]'s text.
-  final ChatMessageText? text;
+  final EditedMessageText? text;
 
   /// Edited [Attachment]s of the [ChatItem].
   final List<Attachment>? attachments;
@@ -541,4 +541,14 @@ class EventChatCallConversationStarted extends ChatEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.callConversationStarted;
+}
+
+/// Edited [ChatMessageText].
+class EditedMessageText {
+  const EditedMessageText(this.newText);
+
+  /// New [ChatMessageText].
+  ///
+  /// `null` means that the previous [ChatMessageText] should be deleted.
+  final ChatMessageText? newText;
 }

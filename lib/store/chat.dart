@@ -34,6 +34,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
@@ -45,7 +46,10 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, UploadAttachmentException;
+    show
+        ConnectionException,
+        EditChatMessageException,
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
@@ -552,6 +556,8 @@ class ChatRepository extends DisposableInterface
   Future<void> editChatMessage(
     ChatMessage message, {
     model.ChatMessageTextInput? text,
+    model.ChatMessageAttachmentsInput? attachments,
+    model.ChatMessageRepliesInput? repliesTo,
   }) async {
     Log.debug(
       'editChatMessage($message, $text)',
@@ -562,23 +568,75 @@ class ChatRepository extends DisposableInterface
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
 
-    ChatMessageText? previous;
+    ChatMessageText? previousText;
+    List<Attachment>? previousAttachments;
+    List<ChatItemQuote>? previousReplies;
     if (item?.value is ChatMessage) {
-      previous = (item?.value as ChatMessage).text;
+      previousText = (item?.value as ChatMessage).text;
+      previousAttachments = (item?.value as ChatMessage).attachments;
+      previousReplies = (item?.value as ChatMessage).repliesTo;
 
-      if (text != null) {
-        item?.update((c) => (c as ChatMessage?)?.text = text.changed);
-      }
+      item?.update((c) {
+        (c as ChatMessage).text = text != null ? text.changed : previousText;
+        c.attachments = attachments?.changed ?? previousAttachments!;
+        c.repliesTo = repliesTo?.changed
+                .map(
+                  (e) => c.repliesTo.firstWhereOrNull(
+                    (a) => a.original?.id == e,
+                  ),
+                )
+                .whereNotNull()
+                .toList() ??
+            previousReplies!;
+      });
     }
 
+    List<Future>? uploads = attachments?.changed
+        .mapIndexed((i, e) {
+          if (e is LocalAttachment) {
+            return e.upload.value?.future.then(
+              (a) {
+                attachments.changed[i] = a;
+                (item?.value as ChatMessage).attachments[i] = a;
+              },
+              onError: (_) {
+                // No-op, as failed upload attempts are handled below.
+              },
+            );
+          }
+        })
+        .whereNotNull()
+        .toList();
+
+    await Future.wait(uploads ?? []);
+
     try {
+      if (attachments?.changed.whereType<LocalAttachment>().isNotEmpty ==
+          true) {
+        throw const ConnectionException(EditChatMessageException(
+          EditChatMessageErrorCode.unknownAttachment,
+        ));
+      }
+
       await _graphQlProvider.editChatMessage(
         message.id,
         text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
+        attachments: attachments == null
+            ? null
+            : ChatMessageAttachmentsInput(
+                kw$new: attachments.changed.map((e) => e.id).toList(),
+              ),
+        repliesTo: repliesTo == null
+            ? null
+            : ChatMessageRepliesInput(kw$new: repliesTo.changed),
       );
     } catch (_) {
       if (item?.value is ChatMessage) {
-        item?.update((c) => (c as ChatMessage?)?.text = previous);
+        item?.update((c) {
+          (c as ChatMessage).text = previousText;
+          c.attachments = previousAttachments ?? [];
+          c.repliesTo = previousReplies ?? [];
+        });
       }
 
       rethrow;
@@ -1200,7 +1258,7 @@ class ChatRepository extends DisposableInterface
       return EventChatItemEdited(
         e.chatId,
         node.itemId,
-        node.text?.changed,
+        node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
         node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
       );
@@ -1329,7 +1387,11 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
-  Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
+  Future<HiveRxChat> put(
+    HiveChat chat, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     Log.debug('put($chat, $pagination)', '$runtimeType');
 
     // [pagination] is `true`, if the [chat] is received from [Pagination],
@@ -1350,7 +1412,7 @@ class ChatRepository extends DisposableInterface
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
       chat.value.firstItem ??= saved?.value.firstItem;
 
-      if (saved == null || saved.ver < chat.ver) {
+      if (saved == null || saved.ver < chat.ver || ignoreVersion) {
         await _chatLocal.put(chat);
       }
     }
@@ -1544,7 +1606,7 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
+          _putEntry(chatData, pagination: true, ignoreVersion: true);
           break;
 
         case OperationKind.removed:
@@ -1656,9 +1718,13 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Puts the provided [data] to [Hive].
-  Future<HiveRxChat> _putEntry(ChatData data, {bool pagination = false}) async {
+  Future<HiveRxChat> _putEntry(
+    ChatData data, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     Log.debug('_putEntry($data, $pagination)', '$runtimeType');
-
+    
     Mutex? mutex = _putEntryGuards[data.chat.value.id];
 
     if (mutex == null) {
@@ -1701,7 +1767,11 @@ class ChatRepository extends DisposableInterface
         }
       }
 
-      entry = await put(data.chat, pagination: pagination);
+      entry = await put(
+        data.chat,
+        pagination: pagination,
+        ignoreVersion: ignoreVersion,
+      );
 
       for (var item in [
         if (data.lastItem != null) data.lastItem!,

@@ -232,9 +232,47 @@ class ChatService extends DisposableService {
   Future<void> editChatMessage(
     ChatMessage item, {
     ChatMessageTextInput? text,
+    ChatMessageAttachmentsInput? attachments,
+    ChatMessageRepliesInput? repliesTo,
   }) async {
     Log.debug('editChatMessage($item, $text)', '$runtimeType');
-    await _chatRepository.editChatMessage(item, text: text);
+    
+    if (text?.changed?.val.trim() == item.text?.val.trim()) {
+      text = null;
+    } else if (text != null) {
+      text = ChatMessageTextInput(
+        text.changed?.val.trim().isEmpty != false
+            ? null
+            : ChatMessageText(text.changed!.val.trim()),
+      );
+    }
+
+    if (item.attachments
+        .map((e) => e.id)
+        .sameAs(attachments?.changed.map((e) => e.id))) {
+      attachments = null;
+    }
+
+    if (item.repliesTo
+        .map((e) => e.original?.id)
+        .sameAs(repliesTo?.changed.map((e) => e))) {
+      repliesTo = null;
+    }
+
+    if ((text?.changed ?? item.text)?.val.isEmpty != false &&
+        (attachments?.changed ?? item.attachments).isEmpty &&
+        (repliesTo?.changed ?? item.repliesTo).isNotEmpty) {
+      text = const ChatMessageTextInput(ChatMessageText(' '));
+    }
+
+    if (text != null || attachments != null || repliesTo != null) {
+      return _chatRepository.editChatMessage(
+        item,
+        text: text,
+        attachments: attachments,
+        repliesTo: repliesTo,
+      );
+    }
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
@@ -422,5 +460,23 @@ extension ChatIsRoute on Chat {
         route.startsWith('${Routes.chats}/${ChatId.local(me)}');
 
     return byId || byUser || byMonolog;
+  }
+}
+
+/// Extension adding an ability to compare equality of two [List]s.
+extension CompareListsExtension<T> on Iterable<T> {
+  /// Indicates whether the provided [list] is the same as this.
+  bool sameAs(Iterable<T>? list) {
+    if (list == null || list.length != length) {
+      return false;
+    }
+
+    for (int i = 0; i < length; i++) {
+      if (list.elementAt(i) != elementAt(i)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

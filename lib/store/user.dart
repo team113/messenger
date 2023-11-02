@@ -168,6 +168,7 @@ class UserRepository extends DisposableInterface
     return searchResult;
   }
 
+  // TODO: Should return [FutureOr<RxUser?>].
   @override
   Future<RxUser?> get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
