@@ -225,7 +225,6 @@ class ChatItemWidget extends StatefulWidget {
       attachment = MediaAttachment(
         key: key,
         attachment: e,
-        height: 300,
         width: filled ? double.infinity : null,
         autoLoad: autoLoad,
         onError: onError,

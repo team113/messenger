@@ -47,6 +47,7 @@ class RetryImage extends StatefulWidget {
     this.fit,
     this.height,
     this.width,
+    this.minWidth,
     this.aspectRatio,
     this.borderRadius,
     this.onForbidden,
@@ -63,6 +64,7 @@ class RetryImage extends StatefulWidget {
     BoxFit? fit,
     double? height,
     double? width,
+    double? minWidth,
     BorderRadius? borderRadius,
     Future<void> Function()? onForbidden,
     ImageFilter? filter,
@@ -92,6 +94,7 @@ class RetryImage extends StatefulWidget {
       fit: fit,
       height: height,
       width: width,
+      minWidth: minWidth,
       aspectRatio: aspectRatio,
       borderRadius: borderRadius,
       onForbidden: onForbidden,
@@ -123,6 +126,9 @@ class RetryImage extends StatefulWidget {
 
   /// Width of this [RetryImage].
   final double? width;
+
+  /// Minimal width of this [RetryImage].
+  final double? minWidth;
 
   /// Aspect ratio of an image to display.
   ///
@@ -209,7 +215,7 @@ class _RetryImageState extends State<RetryImage> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Widget child;
+    Widget child;
 
     if (_image != null) {
       Widget image;
@@ -357,11 +363,14 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    return KeyedSubtree(
-      key: Key('Image_${widget.url}'),
-      child: SafeAnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        child: child,
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: widget.minWidth ?? 0),
+      child: KeyedSubtree(
+        key: Key('Image_${widget.url}'),
+        child: SafeAnimatedSwitcher(
+          duration: const Duration(milliseconds: 150),
+          child: child,
+        ),
       ),
     );
   }

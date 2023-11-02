@@ -19,6 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned typography tab. ([#663], [#615])
     - Chat page:
         - Display message field while loading. ([#662], [#634])
+        - Display small images smaller. ([#688], [#653])
     - Disabled larger fonts accessibility setting temporary. ([#679])
     - Home page:
         - Redesigned introduction modal. ([#668], [#633])
@@ -32,15 +33,17 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Save button displaying when login field is empty. ([#672], [#575])
 
+[#575]: /../../issues/575
 [#615]: /../../issues/615
 [#634]: /../../issues/634
-[#575]: /../../issues/575
 [#633]: /../../issues/633
+[#653]: /../../issues/653
 [#662]: /../../pull/662
 [#663]: /../../pull/663
 [#668]: /../../pull/668
 [#672]: /../../pull/672
 [#679]: /../../pull/679
+[#688]: /../../pull/688
 
 
 
