@@ -43,12 +43,12 @@ class RetryImage extends StatefulWidget {
     this.url, {
     super.key,
     this.checksum,
-    this.fallbackUrl,
-    this.fallbackChecksum,
+    this.thumbhash,
     this.fit,
     this.height,
     this.width,
     this.minWidth,
+    this.aspectRatio,
     this.borderRadius,
     this.onForbidden,
     this.filter,
@@ -72,25 +72,30 @@ class RetryImage extends StatefulWidget {
     bool autoLoad = true,
     bool displayProgress = true,
   }) {
-    final StorageFile image;
+    final ImageFile image;
 
     final StorageFile original = attachment.original;
     if (original.checksum != null &&
         CacheWorker.instance.exists(original.checksum!)) {
-      image = original;
+      image = original as ImageFile;
     } else {
       image = attachment.big;
+    }
+
+    double? aspectRatio;
+    if (image.width != null && image.height != null) {
+      aspectRatio = image.width! / image.height!;
     }
 
     return RetryImage(
       image.url,
       checksum: image.checksum,
-      fallbackUrl: attachment.small.url,
-      fallbackChecksum: attachment.small.checksum,
+      thumbhash: image.thumbhash ?? attachment.big.thumbhash,
       fit: fit,
       height: height,
       width: width,
       minWidth: minWidth,
+      aspectRatio: aspectRatio,
       borderRadius: borderRadius,
       onForbidden: onForbidden,
       filter: filter,
@@ -106,11 +111,8 @@ class RetryImage extends StatefulWidget {
   /// SHA-256 checksum of the image to display.
   final String? checksum;
 
-  /// URL of a fallback image to display.
-  final String? fallbackUrl;
-
-  /// SHA-256 checksum of the fallback image to display.
-  final String? fallbackChecksum;
+  /// [ThumbHash] of this [RetryImage].
+  final ThumbHash? thumbhash;
 
   /// Callback, called when loading an image from the provided [url] fails with
   /// a forbidden network error.
@@ -127,6 +129,12 @@ class RetryImage extends StatefulWidget {
 
   /// Minimal width of this [RetryImage].
   final double? minWidth;
+
+  /// Aspect ratio of an image to display.
+  ///
+  /// Used to display [thumbhash] with the correct aspect ratio, as it loses
+  /// precision.
+  final double? aspectRatio;
 
   /// [ImageFilter] to apply to this [RetryImage].
   final ImageFilter? filter;
@@ -154,17 +162,14 @@ class _RetryImageState extends State<RetryImage> {
   /// Byte data of the fetched image.
   Uint8List? _image;
 
-  /// Byte data of the fetched fallback image.
-  Uint8List? _fallback;
+  /// Indicator whether the [_image] has been initialized.
+  bool _imageInitialized = false;
 
   /// Image fetching progress.
   double _progress = 0;
 
   /// [CancelToken] canceling the [_loadImage] operation.
   CancelToken _cancelToken = CancelToken();
-
-  /// [CancelToken] canceling the [_loadFallback] operation.
-  CancelToken _fallbackToken = CancelToken();
 
   /// Indicator whether image fetching has been canceled.
   bool _canceled = false;
@@ -174,8 +179,6 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void initState() {
-    _loadFallback();
-
     if (widget.autoLoad) {
       _loadImage();
     } else {
@@ -183,7 +186,7 @@ class _RetryImageState extends State<RetryImage> {
     }
 
     // We're expecting a checksum to properly fetch the image from the cache.
-    if (widget.checksum == null && widget.fallbackChecksum == null) {
+    if (widget.checksum == null) {
       widget.onForbidden?.call();
     }
 
@@ -192,12 +195,6 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.fallbackUrl != widget.fallbackUrl) {
-      _fallbackToken.cancel();
-      _fallbackToken = CancelToken();
-      _loadFallback();
-    }
-
     if (oldWidget.url != widget.url ||
         (!oldWidget.autoLoad && widget.autoLoad)) {
       _cancelToken.cancel();
@@ -211,7 +208,6 @@ class _RetryImageState extends State<RetryImage> {
   @override
   void dispose() {
     _cancelToken.cancel();
-    _fallbackToken.cancel();
     super.dispose();
   }
 
@@ -238,6 +234,20 @@ class _RetryImageState extends State<RetryImage> {
           height: widget.height,
           width: widget.width,
           fit: widget.fit,
+          frameBuilder: (_, child, frame, ____) {
+            if (frame != null && _imageInitialized == false) {
+              Future.delayed(
+                Duration.zero,
+                () {
+                  if (context.mounted) {
+                    setState(() => _imageInitialized = true);
+                  }
+                },
+              );
+            }
+
+            return child;
+          },
         );
       }
 
@@ -316,44 +326,40 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (widget.fallbackUrl != null && _image == null) {
-      child = Stack(
-        alignment: Alignment.center,
-        children: [
-          SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            child: _fallback == null
-                ? SizedBox(width: 200, height: widget.height)
-                : ClipRect(
-                    child: ImageFiltered(
-                      imageFilter: ImageFilter.blur(
-                        sigmaX: 15,
-                        sigmaY: 15,
-                        tileMode: TileMode.clamp,
-                      ),
-                      child: Transform.scale(
-                        scale: 1.2,
-                        child: Image.memory(
-                          _fallback!,
-                          key: const Key('Fallback'),
-                          height: widget.height,
-                          width: widget.width,
-                          fit: widget.fit,
-                        ),
-                      ),
-                    ),
+    if (widget.thumbhash != null && !_imageInitialized) {
+      Widget thumbhash = Image(
+        image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
+        key: const Key('Thumbhash'),
+        height: widget.height,
+        width: widget.width,
+        fit: BoxFit.cover,
+      );
+
+      if (widget.aspectRatio != null && widget.fit == BoxFit.contain) {
+        thumbhash =
+            AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
+      }
+
+      return SizedBox(
+        height: widget.height,
+        width: widget.width,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            thumbhash,
+            Positioned.fill(
+              child: Center(
+                child: SafeAnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: KeyedSubtree(
+                    key: Key('Image_${widget.url}'),
+                    child: child,
                   ),
-          ),
-          Positioned.fill(
-            child: Center(
-              child: SafeAnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                child:
-                    KeyedSubtree(key: Key('Image_${widget.url}'), child: child),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -367,32 +373,6 @@ class _RetryImageState extends State<RetryImage> {
         ),
       ),
     );
-  }
-
-  /// Loads the [_fallback] from the provided URL.
-  FutureOr<void> _loadFallback() async {
-    if (widget.fallbackUrl == null) {
-      return;
-    }
-
-    final FutureOr<CacheEntry> result = CacheWorker.instance.get(
-      url: widget.fallbackUrl!,
-      checksum: widget.fallbackChecksum,
-      cancelToken: _fallbackToken,
-      onForbidden: () async {
-        await widget.onForbidden?.call();
-      },
-    );
-
-    if (result is CacheEntry) {
-      _fallback = result.bytes ?? _fallback;
-    } else {
-      _fallback = (await result).bytes ?? _fallback;
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   /// Loads the [_image] from the provided URL.

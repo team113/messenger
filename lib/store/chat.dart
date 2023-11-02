@@ -1283,7 +1283,11 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
-  Future<HiveRxChat> put(HiveChat chat, {bool pagination = false}) async {
+  Future<HiveRxChat> put(
+    HiveChat chat, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
@@ -1302,7 +1306,7 @@ class ChatRepository extends DisposableInterface
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
       chat.value.firstItem ??= saved?.value.firstItem;
 
-      if (saved == null || saved.ver < chat.ver) {
+      if (saved == null || saved.ver < chat.ver || ignoreVersion) {
         await _chatLocal.put(chat);
       }
     }
@@ -1486,7 +1490,7 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true);
+          _putEntry(chatData, pagination: true, ignoreVersion: true);
           break;
 
         case OperationKind.removed:
@@ -1585,7 +1589,11 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Puts the provided [data] to [Hive].
-  Future<HiveRxChat> _putEntry(ChatData data, {bool pagination = false}) async {
+  Future<HiveRxChat> _putEntry(
+    ChatData data, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
     Mutex? mutex = _putEntryGuards[data.chat.value.id];
 
     if (mutex == null) {
@@ -1628,7 +1636,11 @@ class ChatRepository extends DisposableInterface
         }
       }
 
-      entry = await put(data.chat, pagination: pagination);
+      entry = await put(
+        data.chat,
+        pagination: pagination,
+        ignoreVersion: ignoreVersion,
+      );
 
       for (var item in [
         if (data.lastItem != null) data.lastItem!,
