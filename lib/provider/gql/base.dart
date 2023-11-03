@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
@@ -237,13 +238,65 @@ class GraphQlClient {
   /// Clears the cache attached to the [client].
   void clearCache() => _client?.cache.store.reset();
 
+  final List<Function> _queue = [];
+  Mutex? _subscribesMutex;
+  Timer? _subscribesTimer;
+  int _subscribes = 0;
+
+  FutureOr<T> _limited<T>(FutureOr<T> Function() callback) async {
+    // Start the [Timer] as soon as any operation is executed.
+    _subscribesTimer ??= Timer.periodic(const Duration(seconds: 1), (t) {
+      // Reduce the available slots by 5 every second.
+      _subscribes = max(0, _subscribes - 5);
+
+      print('[gql][$_subscribes] timer: second passed');
+
+      // If all the slots are available, then cancel the [Timer].
+      if (_subscribes <= 0) {
+        print('[gql][$_subscribes] timer: release mutex');
+        if (_subscribesMutex?.isLocked != false) {
+          _subscribesMutex?.release();
+          _subscribesMutex = null;
+        }
+
+        t.cancel();
+        _subscribesTimer?.cancel();
+        _subscribesTimer = null;
+      }
+    });
+
+    if (_subscribesMutex == null && _subscribes >= 5) {
+      print('[gql][$_subscribes] create mutex');
+      _subscribesMutex = Mutex();
+      await _subscribesMutex?.acquire();
+    }
+
+    ++_subscribes;
+    print('[gql][$_subscribes] ++, waiting');
+
+    // Wait for [_subscribesMutex] to become available, if not `null`.
+    await _subscribesMutex?.protect(() async {});
+
+    try {
+      final result = callback();
+      if (result is T) {
+        return result;
+      }
+
+      return await result;
+    } finally {
+      --_subscribes;
+      print('[gql][$_subscribes] -- done');
+    }
+  }
+
   /// Subscribes to a GraphQL subscription according to the [options] specified
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
   Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
-    var stream = (await client).subscribe(options);
-
+    final stream =
+        await _limited(() async => (await client).subscribe(options));
     final connection = SubscriptionConnection(
       stream.expand((event) {
         Object? e = GraphQlProviderExceptions.parse(event);
