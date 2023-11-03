@@ -214,27 +214,25 @@ jobs:
       #     security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
       #     security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k password build.keychain
 
-      - name: Configure Firebase Cloud Messaging
+      - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
         run: |
+          set -ex
           npm install -g firebase-tools
           dart pub global activate flutterfire_cli
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > \
-                ${{ runner.temp }}/service_account.json
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' \
+          > ${{ runner.temp }}/service_account.json
 
           make fcm.conf project-id=${{ secrets.FCM_PROJECT_ID }} \
                         platforms="android,ios,web" \
-                        web-app-id=${{ secrets.FCM_WEB_APP_ID }} \
+                        web-id=${{ secrets.FCM_WEB_APP_ID }} \
                         bundle-id=${{ secrets.FCM_BUNDLE_ID }}
-        if: ${{ matrix.platform == 'ios' ||
-                matrix.platform == 'apk' ||
-                matrix.platform == 'appbundle' ||
-                matrix.platform == 'web' }}
+        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
 
-      - name: Configure Firebase Cloud Messaging service worker
-        run: echo '${{ secrets.GOOGLE_SERVICES_JS }}' >
-                   web/firebase-messaging-sw.js
+      - name: Configure FCM (Firebase Cloud Messaging) service worker
+        run: echo '${{ secrets.GOOGLE_SERVICES_JS }}'
+             > web/firebase-messaging-sw.js
         if: ${{ matrix.platform == 'web' }}
 
       # - name: Fetch Mac App Development certificates
@@ -278,9 +276,7 @@ jobs:
       #   if: ${{ matrix.platform == 'macos' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'windows' }}
+        if: ${{ contains('linux macos windows', matrix.platform) }}
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -329,20 +325,16 @@ jobs:
         with:
           custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'linux'
+          directory: ${{ (matrix.platform == 'ios'
+                          && 'build/ios/iphoneos/dist')
+                      || (matrix.platform == 'linux'
                           && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
-                      || (matrix.platform == 'ios'
-                          && 'build/ios/iphoneos/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
-        if: ${{ matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'ios'
-             || matrix.platform == 'web'
-             || matrix.platform == 'windows' }}
+        if: ${{ contains('ios linux macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
@@ -410,15 +402,15 @@ jobs:
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
+          name: build-ios-${{ github.run_number }}
+          path: build/web/artifacts/
+      - uses: actions/download-artifact@v3
+        with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
           name: build-macos-${{ github.run_number }}
-          path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-ios-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v3
         with:
