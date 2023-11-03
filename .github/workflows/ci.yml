@@ -365,6 +365,9 @@ jobs:
 
       - run: mkdir build/
 
+      - name: Debug GitHub Event
+        run: cat $GITHUB_EVENT_PATH
+
       - name: Check Commit Message
         id: check_commit
         run: |
