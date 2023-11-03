@@ -366,20 +366,15 @@ jobs:
       - run: mkdir build/
 
       - name: Check Commit Message
-        id: check_commit
         run: |
           PR_NUMBER=${GITHUB_REF#refs/pull/}
           PR_NUMBER=${PR_NUMBER%%/*}
           MESSAGE=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits" | jq -r ".[-1].commit.message")
           if [[ $MESSAGE == *"[debug]"* ]]; then
-            echo "::set-output name=debug::1"
+            echo "LOG_LEVEL=debug" >> $GITHUB_ENV
           else
-            echo "::set-output name=debug::0"
+            echo "LOG_LEVEL=info" >> $GITHUB_ENV
           fi
-
-      - name: Set Environment Variable
-        if: steps.check_commit.outputs.debug == '1'
-        run: echo "LOG_LEVEL=debug" >> $GITHUB_ENV
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
@@ -393,7 +388,6 @@ jobs:
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}
         env:
-          SOCAPP_LOG_LEVEL: ${{ env.LOG_LEVEL }}
           OMIT: |
             [
               ":INFO:CONSOLE\\(50652\\)] ",
