@@ -223,10 +223,10 @@ jobs:
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > \
                 ${{ runner.temp }}/service_account.json
 
-          make firebase.configure project-id=${{ secrets.FCM_PROJECT_ID }} \
-                                  platforms="android,ios,web" \
-                                  web-app-id=${{ secrets.FCM_WEB_APP_ID }} \
-                                  bundle-id=${{ secrets.FCM_BUNDLE_ID }}
+          make fcm.conf project-id=${{ secrets.FCM_PROJECT_ID }} \
+                        platforms="android,ios,web" \
+                        web-app-id=${{ secrets.FCM_WEB_APP_ID }} \
+                        bundle-id=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ matrix.platform == 'ios' ||
                 matrix.platform == 'apk' ||
                 matrix.platform == 'appbundle' ||
