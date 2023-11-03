@@ -365,14 +365,19 @@ jobs:
 
       - run: mkdir build/
 
-      - run: |
-          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$GITHUB_EVENT_NUMBER" | \
-                jq -r .title)
-
-          if [[ $pr_title == *"[debug]"* ]]; then
-            echo LOG_LEVEL="debug" >> $GITHUB_ENV
+      - name: Check Commit Message
+        id: check_commit
+        run: |
+          MESSAGE=$(jq -r .commits[0].message $GITHUB_EVENT_PATH)
+          if [[ $MESSAGE == *"[debug]"* ]]; then
+            echo "::set-output name=debug::1"
+          else
+            echo "::set-output name=debug::0"
           fi
+
+      - name: Set Environment Variable
+        if: steps.check_commit.outputs.debug == '1'
+        run: echo "LOG_LEVEL=debug" >> $GITHUB_ENV
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
