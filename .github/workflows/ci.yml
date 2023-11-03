@@ -365,13 +365,11 @@ jobs:
 
       - run: mkdir build/
 
-      - name: Debug GitHub Event
-        run: cat $GITHUB_EVENT_PATH
-
       - name: Check Commit Message
         id: check_commit
         run: |
-          MESSAGE=$(jq -r .commits[0].message $GITHUB_EVENT_PATH)
+          PR_NUMBER=${GITHUB_REF#refs/pull/}
+          MESSAGE=$(curl -s 'https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits' | jq -r '.[-1].commit.message')
           echo "Current commit message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "::set-output name=debug::1"
