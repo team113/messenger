@@ -57,7 +57,7 @@ class TypographyView extends StatelessWidget {
         const SizedBox(height: CustomAppBar.height),
         Block(
           title: 'Font families',
-          unconstrained: true,
+          expanded: true,
           children: families
               .map((e) => FontFamily(weight: e.$1, name: e.$2, asset: e.$3))
               .toList(),
@@ -66,7 +66,7 @@ class TypographyView extends StatelessWidget {
           return Block(
             title:
                 '${size.key.capitalizeFirst} (${size.value.values.first.values.first.fontSize} pt)',
-            unconstrained: true,
+            expanded: true,
             children: size.value.entries
                 .map((weight) {
                   return weight.value.entries.map((color) {

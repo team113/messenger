@@ -87,7 +87,7 @@ class ColorsView extends StatelessWidget {
         const SizedBox(height: CustomAppBar.height),
         Block(
           title: 'Colors',
-          unconstrained: true,
+          expanded: true,
           padding: const EdgeInsets.only(top: 16),
           children: [
             ColorSchemaWidget(colors, inverted: inverted),
@@ -96,7 +96,7 @@ class ColorsView extends StatelessWidget {
         ),
         Block(
           title: 'Avatars',
-          unconstrained: true,
+          expanded: true,
           padding: const EdgeInsets.only(top: 16),
           children: [
             ColorSchemaWidget(avatars, inverted: inverted),

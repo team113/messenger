@@ -484,7 +484,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   DescriptionChild(
                     show: c.isPanelOpen.value,
                     description: 'btn_call_end_desc'.l10n,
-                    child: DropButton(c).build(),
+                    child: EndCallButton(c).build(),
                   ),
                 ),
               ],

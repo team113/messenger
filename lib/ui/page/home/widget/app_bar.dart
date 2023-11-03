@@ -67,12 +67,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final double top = MediaQuery.of(context).padding.top;
+    double top = 0;
+    if (withTop) {
+      top = MediaQuery.of(context).padding.top;
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (withTop && top != 0)
+        if (top != 0)
           Container(
             height: top,
             width: double.infinity,

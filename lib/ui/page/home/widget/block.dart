@@ -30,15 +30,18 @@ class Block extends StatelessWidget {
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.children = const [],
-    this.unconstrained = false,
+    this.expanded = false,
     this.color,
     this.headlineColor,
     this.headline,
-    this.margin,
+    this.topMargin,
   });
 
   /// Optional header of this [Block].
   final String? title;
+
+  /// Optional headline of this [Block].
+  final String? headline;
 
   /// Indicator whether this [Block] should be highlighted.
   final bool highlight;
@@ -50,7 +53,7 @@ class Block extends StatelessWidget {
   /// or be fixed width otherwise.
   ///
   /// If not specified, then [MobileExtensionOnContext.isNarrow] is used.
-  final bool? unconstrained;
+  final bool? expanded;
 
   /// Padding to apply to the [children].
   final EdgeInsets padding;
@@ -58,16 +61,14 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
-  /// Headline of this [Block].
-  final String? headline;
-
   /// Optional [Color] of the [headline].
   final Color? headlineColor;
 
   /// Optional background [Color] of this [Block].
   final Color? color;
 
-  final double? margin;
+  /// Optional top margin of this [Block].
+  final double? topMargin;
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +88,11 @@ class Block extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.fromLTRB(
             8,
-            margin ?? (headline == null ? 4 : 32),
+            topMargin ?? 4,
             8,
             4,
           ),
-          constraints: (unconstrained ?? context.isNarrow)
+          constraints: (expanded ?? context.isNarrow)
               ? null
               : const BoxConstraints(maxWidth: 400),
           child: InputDecorator(
@@ -111,34 +112,29 @@ class Block extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: padding,
-                  child: AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    alignment: Alignment.topCenter,
-                    curve: Curves.easeInOut,
-                    child: Column(
-                      crossAxisAlignment: crossAxisAlignment,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (title != null)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                child: Text(
-                                  title!,
-                                  textAlign: TextAlign.center,
-                                  style: style.fonts.big.regular.onBackground,
-                                ),
+                  child: Column(
+                    crossAxisAlignment: crossAxisAlignment,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (title != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              child: Text(
+                                title!,
+                                textAlign: TextAlign.center,
+                                style: style.fonts.big.regular.onBackground,
                               ),
                             ),
                           ),
-                        ...children,
-                      ],
-                    ),
+                        ),
+                      ...children,
+                    ],
                   ),
                 ),
                 if (headline != null)

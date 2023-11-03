@@ -338,27 +338,6 @@ class DeclineButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] dropping a call.
-class DropButton extends CallButton {
-  const DropButton(CallController c) : super(c);
-
-  @override
-  String get hint => 'btn_call_end'.l10n;
-
-  @override
-  Widget build({bool hinted = true}) {
-    final style = Theme.of(router.context!).style;
-
-    return CallButtonWidget(
-      hint: hint,
-      asset: 'call_end',
-      color: style.colors.decline,
-      hinted: hinted,
-      onPressed: c.drop,
-    );
-  }
-}
-
 /// [RoundFloatingButton] canceling an outgoing call.
 class CancelButton extends CallButton {
   const CancelButton(CallController c) : super(c);

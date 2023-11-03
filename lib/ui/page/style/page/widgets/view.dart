@@ -131,7 +131,7 @@ class WidgetsView extends StatelessWidget {
         ..._tiles(context),
         ..._system(context),
         ..._navigation(context),
-        _sounds(context),
+        ..._sounds(context),
       ],
     );
   }
@@ -143,6 +143,7 @@ class WidgetsView extends StatelessWidget {
     Widget? subtitle,
     Color? color,
     Color? headlineColor,
+    EdgeInsets padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     bool top = true,
     bool bottom = true,
   }) {
@@ -150,7 +151,8 @@ class WidgetsView extends StatelessWidget {
       color: color,
       headline: title ?? child.runtimeType.toString(),
       headlineColor: headlineColor,
-      margin: top ? null : 4,
+      topMargin: top ? 32 : null,
+      padding: padding,
       children: [
         if (top) const SizedBox(height: 16),
         SelectionContainer.disabled(child: child),
@@ -173,6 +175,7 @@ class WidgetsView extends StatelessWidget {
     return Block(
       padding: EdgeInsets.zero,
       color: color,
+      topMargin: 32,
       children: [
         ...children.mapIndexed((i, e) {
           return [
@@ -406,263 +409,271 @@ class WidgetsView extends StatelessWidget {
     }
 
     return [
-      Block(
+      _headline(
+        title: 'TimeLabelWidget',
         color: style.colors.onBackgroundOpacity7,
-        headline: 'TimeLabelWidget',
-        children: [
-          TimeLabelWidget(
-            DateTime.now().subtract(const Duration(minutes: 10)),
-          ),
-          TimeLabelWidget(
-            DateTime.now().subtract(const Duration(days: 1)),
-          ),
-          TimeLabelWidget(
-            DateTime.now().subtract(const Duration(days: 7)),
-          ),
-          TimeLabelWidget(
-            DateTime.now().subtract(const Duration(days: 64)),
-          ),
-          TimeLabelWidget(
-            DateTime.now().subtract(const Duration(days: 365 * 4)),
-          )
-        ],
+        child: Column(
+          children: [
+            TimeLabelWidget(
+              DateTime.now().subtract(const Duration(minutes: 10)),
+            ),
+            TimeLabelWidget(
+              DateTime.now().subtract(const Duration(days: 1)),
+            ),
+            TimeLabelWidget(
+              DateTime.now().subtract(const Duration(days: 7)),
+            ),
+            TimeLabelWidget(
+              DateTime.now().subtract(const Duration(days: 64)),
+            ),
+            TimeLabelWidget(
+              DateTime.now().subtract(const Duration(days: 365 * 4)),
+            )
+          ],
+        ),
       ),
-      Block(
+      _headline(
+        title: 'UnreadLabel',
         color: style.colors.onBackgroundOpacity7,
-        headline: 'UnreadLabel',
-        children: const [UnreadLabel(123)],
+        child: const Column(
+          children: [UnreadLabel(123)],
+        ),
       ),
-      Block(
-        color: style.colors.onBackgroundOpacity7,
-        padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-        headline: 'ChatItemWidget',
-        children: [
-          chatItem(
-            message(
-              status: SendingStatus.sending,
-              text: 'Sending message...',
-            ),
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(status: SendingStatus.error, text: 'Error'),
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(status: SendingStatus.sent, text: 'Sent message'),
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(status: SendingStatus.sent, text: 'Delivered message'),
-            kind: ChatKind.dialog,
-            delivered: true,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(status: SendingStatus.sent, text: 'Read message'),
-            kind: ChatKind.dialog,
-            read: true,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: 'Received message',
-              fromMe: false,
-            ),
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-
-          // Replies.
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: 'Sent reply',
-              fromMe: true,
-              repliesTo: [
-                ChatMessageQuote(
-                  author: const UserId('me'),
-                  at: PreciseDateTime.now(),
-                  text: const ChatMessageText('Replied message'),
-                )
-              ],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: 'Received reply',
-              fromMe: false,
-              repliesTo: [
-                ChatMessageQuote(
-                  author: const UserId('me'),
-                  at: PreciseDateTime.now(),
-                  text: const ChatMessageText('Replied message'),
-                )
-              ],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-
-          // Image attachments.
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: null,
-              fromMe: true,
-              attachments: ['image'],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: null,
-              fromMe: false,
-              attachments: ['image'],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-
-          // File attachments.
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: 'Message with file attachment',
-              fromMe: true,
-              attachments: ['file'],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: null,
-              fromMe: false,
-              attachments: ['file'],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-
-          // Images attachments.
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              fromMe: true,
-              attachments: [
-                'file',
-                'file',
-                'image',
-                'image',
-                'image',
-                'image',
-                'image'
-              ],
-              text: 'Message with file and image attachments',
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            message(
-              status: SendingStatus.sent,
-              text: null,
-              fromMe: false,
-              attachments: ['file', 'file', 'image', 'image', 'image'],
-            ),
-            read: true,
-            kind: ChatKind.dialog,
-          ),
-          const SizedBox(height: 8),
-
-          // Info.
-          const SizedBox(height: 8),
-          chatItem(info(action: const ChatInfoActionCreated(null))),
-          const SizedBox(height: 8),
-          chatItem(
-            info(
-              action: ChatInfoActionMemberAdded(
-                User(
-                  const UserId('me'),
-                  UserNum('1234123412341234'),
-                  name: UserName('added'),
-                ),
-                null,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          chatItem(
-            info(
-              fromMe: false,
-              action: ChatInfoActionMemberAdded(
-                User(
-                  const UserId('me'),
-                  UserNum('1234123412341234'),
-                  name: UserName('User'),
-                ),
-                null,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Call.
-          chatItem(call(withVideo: true), read: true),
-          const SizedBox(height: 8),
-          chatItem(call(withVideo: true, fromMe: false), read: true),
-          const SizedBox(height: 8),
-          chatItem(call(started: true), read: true),
-          const SizedBox(height: 8),
-          chatItem(call(started: true, fromMe: false), read: true),
-          const SizedBox(height: 8),
-          chatItem(call(finishReasonIndex: 2, started: true), read: true),
-          const SizedBox(height: 8),
-          chatItem(
-            call(finishReasonIndex: 2, started: true, fromMe: false),
-            read: true,
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-      Block(
+      _headline(
+        title: 'ChatItemWidget',
         padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
         color: style.colors.onBackgroundOpacity7,
-        headline: 'ChatForwardWidget',
-        children: [
-          const SizedBox(height: 32),
-          chatForward(
-            [message(text: 'Forwarded message')],
-            read: true,
-            note: message(text: 'Comment'),
-          ),
-          const SizedBox(height: 8),
-          chatForward(
-            [message(text: 'Forwarded message')],
-            read: true,
-            fromMe: false,
-            note: message(text: 'Comment'),
-          ),
-          const SizedBox(height: 32),
-        ],
+        child: Column(
+          children: [
+            chatItem(
+              message(
+                status: SendingStatus.sending,
+                text: 'Sending message...',
+              ),
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(status: SendingStatus.error, text: 'Error'),
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(status: SendingStatus.sent, text: 'Sent message'),
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(status: SendingStatus.sent, text: 'Delivered message'),
+              kind: ChatKind.dialog,
+              delivered: true,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(status: SendingStatus.sent, text: 'Read message'),
+              kind: ChatKind.dialog,
+              read: true,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: 'Received message',
+                fromMe: false,
+              ),
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // Replies.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: 'Sent reply',
+                fromMe: true,
+                repliesTo: [
+                  ChatMessageQuote(
+                    author: const UserId('me'),
+                    at: PreciseDateTime.now(),
+                    text: const ChatMessageText('Replied message'),
+                  )
+                ],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: 'Received reply',
+                fromMe: false,
+                repliesTo: [
+                  ChatMessageQuote(
+                    author: const UserId('me'),
+                    at: PreciseDateTime.now(),
+                    text: const ChatMessageText('Replied message'),
+                  )
+                ],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // Image attachments.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: true,
+                attachments: ['image'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: false,
+                attachments: ['image'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // File attachments.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: 'Message with file attachment',
+                fromMe: true,
+                attachments: ['file'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: false,
+                attachments: ['file'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // Images attachments.
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                fromMe: true,
+                attachments: [
+                  'file',
+                  'file',
+                  'image',
+                  'image',
+                  'image',
+                  'image',
+                  'image'
+                ],
+                text: 'Message with file and image attachments',
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              message(
+                status: SendingStatus.sent,
+                text: null,
+                fromMe: false,
+                attachments: ['file', 'file', 'image', 'image', 'image'],
+              ),
+              read: true,
+              kind: ChatKind.dialog,
+            ),
+            const SizedBox(height: 8),
+
+            // Info.
+            const SizedBox(height: 8),
+            chatItem(info(action: const ChatInfoActionCreated(null))),
+            const SizedBox(height: 8),
+            chatItem(
+              info(
+                action: ChatInfoActionMemberAdded(
+                  User(
+                    const UserId('me'),
+                    UserNum('1234123412341234'),
+                    name: UserName('added'),
+                  ),
+                  null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            chatItem(
+              info(
+                fromMe: false,
+                action: ChatInfoActionMemberAdded(
+                  User(
+                    const UserId('me'),
+                    UserNum('1234123412341234'),
+                    name: UserName('User'),
+                  ),
+                  null,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Call.
+            chatItem(call(withVideo: true), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(withVideo: true, fromMe: false), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(started: true), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(started: true, fromMe: false), read: true),
+            const SizedBox(height: 8),
+            chatItem(call(finishReasonIndex: 2, started: true), read: true),
+            const SizedBox(height: 8),
+            chatItem(
+              call(finishReasonIndex: 2, started: true, fromMe: false),
+              read: true,
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+      _headline(
+        title: 'ChatForwardWidget',
+        padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+        color: style.colors.onBackgroundOpacity7,
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            chatForward(
+              [message(text: 'Forwarded message')],
+              read: true,
+              note: message(text: 'Comment'),
+            ),
+            const SizedBox(height: 8),
+            chatForward(
+              [message(text: 'Forwarded message')],
+              read: true,
+              fromMe: false,
+              note: message(text: 'Comment'),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     ];
   }
@@ -1399,22 +1410,20 @@ class WidgetsView extends StatelessWidget {
   /// Returns contents of the system section.
   List<Widget> _system(BuildContext context) {
     return [
-      const Block(
-        headline: 'UnreadCounter',
-        children: [
-          SizedBox(
-            child: Wrap(
-              spacing: 4,
-              runSpacing: 4,
-              children: [
-                UnreadCounter(1),
-                UnreadCounter(10),
-                UnreadCounter(90),
-                UnreadCounter(100)
-              ],
-            ),
+      _headline(
+        title: 'UnreadCounter',
+        child: const SizedBox(
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              UnreadCounter(1),
+              UnreadCounter(10),
+              UnreadCounter(90),
+              UnreadCounter(100)
+            ],
           ),
-        ],
+        ),
       ),
     ];
   }
@@ -1658,7 +1667,7 @@ class WidgetsView extends StatelessWidget {
   }
 
   /// Returns contents of the sounds section.
-  Widget _sounds(BuildContext context) {
+  List<Widget> _sounds(BuildContext context) {
     final List<({String title, bool once})> sounds = [
       (title: 'incoming_call', once: false),
       (title: 'incoming_call_web', once: false),
@@ -1669,16 +1678,16 @@ class WidgetsView extends StatelessWidget {
       (title: 'pop', once: true),
     ];
 
-    return Block(
-      headline: 'Sounds',
-      children: [
-        BuilderWrap(
+    return [
+      _headline(
+        title: 'Sounds',
+        child: BuilderWrap(
           sounds,
           (e) => PlayableAsset(e.title, once: e.once),
           dense: true,
         ),
-      ],
-    );
+      ),
+    ];
   }
 }
 

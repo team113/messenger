@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
+import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
@@ -215,15 +216,17 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               height: size.height,
               child: Transform.translate(
                 offset: Offset(0, -size.height - 2),
-                child: UnconstrainedBox(
-                  child: Text(
-                    widget.hint!,
-                    textAlign: TextAlign.center,
-                    style: style.fonts.small.regular.onPrimary.copyWith(
-                      shadows: [
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                      ],
+                child: AllowOverflow(
+                  child: UnconstrainedBox(
+                    child: Text(
+                      widget.hint!,
+                      textAlign: TextAlign.center,
+                      style: style.fonts.small.regular.onPrimary.copyWith(
+                        shadows: [
+                          Shadow(blurRadius: 6, color: style.colors.onBackground),
+                          Shadow(blurRadius: 6, color: style.colors.onBackground),
+                        ],
+                      ),
                     ),
                   ),
                 ),
