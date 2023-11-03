@@ -285,7 +285,7 @@ else
 		--web-renderer html --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart \
-		--dart-define=$(SOCAPP_LOG_LEVEL)
+		--dart-define=SOCAPP_LOG_LEVEL=$(SOCAPP_LOG_LEVEL)
 endif
 ifeq ($(start-app),yes)
 	@make docker.down
