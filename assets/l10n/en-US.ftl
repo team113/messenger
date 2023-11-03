@@ -704,7 +704,12 @@ label_introduction_description1 =
      To save access to your account, please set a password, e-mail or phone number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
-label_kb = {$amount} KB
+label_b = B
+label_kb = KB
+label_mb = MB
+label_gb = GB
+label_tb = TB
+label_pb = PB
 label_language = Language
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
