@@ -776,7 +776,7 @@ class HiveRxChat extends RxChat {
   /// [newChat].
   Future<void> updateChat(HiveChat newChat) async {
     Log.debug('updateChat($newChat)', '$runtimeType Chat - ${title.value}');
-    
+
     if (chat.value.id != newChat.value.id) {
       chat.value = newChat.value;
       ver = newChat.ver;
@@ -878,7 +878,7 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields({Chat? previous}) async {
-    Log.debug('_updateFields('$previous')', '$runtimeType Chat - ${title.value}');
+    Log.debug('_updateFields($previous)', '$runtimeType Chat - ${title.value}');
 
     if (chat.value.name != null) {
       _updateTitle();

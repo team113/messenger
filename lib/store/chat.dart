@@ -300,8 +300,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> next() async {
-    Log.debug('next()', '$runtimeType');  
-  
+    Log.debug('next()', '$runtimeType');
+
     if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
       await (_localPagination?.next ?? _pagination?.next)?.call();
 
@@ -1472,7 +1472,7 @@ class ChatRepository extends DisposableInterface
     bool ignoreVersion = false,
   }) async {
     Log.debug('put($chat, $pagination)', '$runtimeType');
-    
+
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
 
@@ -1616,7 +1616,7 @@ class ChatRepository extends DisposableInterface
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     Log.debug('_initRemoteSubscription()', '$runtimeType');
-    
+
     _subscribedAt = DateTime.now();
 
     _remoteSubscription?.close(immediate: true);
@@ -1868,8 +1868,8 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool ignoreVersion = false,
   }) async {
-    Log.debug('_putEntry($data, $pagination, $ignoredVersion)', '$runtimeType');
-    
+    Log.debug('_putEntry($data, $pagination, $ignoreVersion)', '$runtimeType');
+
     final ChatId chatId = data.chat.value.id;
 
     Mutex? mutex = _putEntryGuards[chatId];
@@ -2111,8 +2111,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [monolog], fetching it from remote, if none is known.
   Future<void> _initMonolog() async {
-    Log.debug('_initMonolog()', '$runtimeType');  
-  
+    Log.debug('_initMonolog()', '$runtimeType');
+
     if (monolog.isLocal && paginated[monolog] == null) {
       // TODO: Monolog will be always fetched by pagination, so `getMonolog` can
       //       be omitted.
