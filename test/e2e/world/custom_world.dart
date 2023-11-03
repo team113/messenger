@@ -45,7 +45,7 @@ class CustomUser {
   CustomUser(this.credentials, this.userNum);
 
   /// [Credentials] of this [CustomUser].
-  final Credentials credentials;
+  Credentials credentials;
 
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;

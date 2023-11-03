@@ -59,6 +59,39 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
   },
 );
 
+/// Scrolls the provided [Scrollable] to bottom.
+///
+/// Examples:
+/// - Then I scroll `Menu` to bottom
+final StepDefinitionGeneric<CustomWorld> scrollToBottom =
+    then1<WidgetKey, CustomWorld>(
+  RegExp(r'I scroll {key} to bottom'),
+  (WidgetKey list, StepContext<CustomWorld> context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    Finder scrollable = find.descendant(
+      of: find.byKey(Key(list.name)),
+      matching: find.byWidgetPredicate((widget) {
+        // TODO: Find a proper way to differentiate [Scrollable]s from
+        //       [TextField]s:
+        //       https://github.com/flutter/flutter/issues/76981
+        if (widget is Scrollable) {
+          return widget.restorationId == null;
+        }
+        return false;
+      }),
+    );
+
+    final ScrollableState state = context.world.appDriver.nativeDriver
+        .state(scrollable) as ScrollableState;
+    final ScrollPosition position = state.position;
+
+    position.jumpTo(position.maxScrollExtent);
+
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);
+
 /// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
 /// replacement.
 extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
@@ -69,23 +102,29 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
     Finder scrollable, {
     double dy = 100,
   }) async {
-    final double height = nativeDriver.view.display.size.height;
+    final WidgetTester tester = (nativeDriver as WidgetTester);
 
-    for (int i = 0; i < 100; ++i) {
-      // If [finder] is present and it's within our view, then break the loop.
-      if (await isPresent(finder) &&
-          nativeDriver.getCenter(finder).dy <= height - dy) {
-        break;
+    final double height =
+        (tester.view.physicalSize / tester.view.devicePixelRatio).height;
+
+    for (int i = 0; i < 500; ++i) {
+      final ScrollableState state = tester.state(scrollable) as ScrollableState;
+      final ScrollPosition position = state.position;
+
+      if (await isPresent(finder)) {
+        await Scrollable.ensureVisible(finder.evaluate().single);
+
+        // If [finder] is present and it's within our view, then break the loop.
+        if (tester.getCenter(finder.first).dy <= height - dy ||
+            position.pixels >= position.maxScrollExtent) {
+          break;
+        }
       }
 
       // Or otherwise keep on scrolling the [scrollable].
-      final ScrollableState state =
-          nativeDriver.state(scrollable) as ScrollableState;
-      final ScrollPosition position = state.position;
-
       position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
 
-      await nativeDriver.pump();
+      await tester.pump();
     }
   }
 }

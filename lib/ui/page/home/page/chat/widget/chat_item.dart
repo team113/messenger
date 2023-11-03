@@ -225,10 +225,10 @@ class ChatItemWidget extends StatefulWidget {
       attachment = MediaAttachment(
         key: key,
         attachment: e,
-        height: 300,
         width: filled ? double.infinity : null,
         autoLoad: autoLoad,
         onError: onError,
+        fit: !filled ? BoxFit.contain : null,
       );
 
       if (!isLocal) {
@@ -1190,6 +1190,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 : RetryImage(
                     image.medium.url,
                     checksum: image.medium.checksum,
+                    thumbhash: image.medium.thumbhash,
                     onForbidden: widget.onAttachmentError,
                     fit: BoxFit.cover,
                     width: double.infinity,

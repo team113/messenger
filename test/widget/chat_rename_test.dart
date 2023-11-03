@@ -47,6 +47,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
+import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
@@ -190,6 +191,8 @@ void main() async {
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var recentChatProvider = RecentChatHiveProvider();
+  await recentChatProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -331,6 +334,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -347,6 +351,12 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
+
+    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    //       should be done in a more strict way.
+    for (int i = 0; i < 20; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     var field = find.byKey(const Key('RenameChatField'));

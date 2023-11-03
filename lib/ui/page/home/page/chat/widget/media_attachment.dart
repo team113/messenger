@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -119,7 +120,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 attachment.file.bytes.value!,
                 fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
-                height: widget.height,
+                height: widget.height ??
+                    max(100, min(dimensions?.height ?? 300, 300)),
               );
             }
           }
@@ -132,7 +134,12 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           attachment as ImageAttachment,
           fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
-          height: widget.height,
+          minWidth: 75,
+          height: widget.height ??
+              max(
+                100,
+                min(file.height?.toDouble() ?? 300, 300),
+              ),
           onForbidden: widget.onError,
           cancelable: true,
           autoLoad: widget.autoLoad,

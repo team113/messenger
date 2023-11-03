@@ -209,12 +209,15 @@ class NativeFile {
       //
       // Throws an error, if decoding fails.
       if (isImage && bytes.value != null) {
-        final decoded = await instantiateImageCodec(bytes.value!);
-        final frame = await decoded.getNextFrame();
-        dimensions.value = Size(
-          frame.image.width.toDouble(),
-          frame.image.height.toDouble(),
-        );
+        // TODO: Validate SVGs and retrieve its width and height.
+        if (!isSvg) {
+          final decoded = await instantiateImageCodec(bytes.value!);
+          final frame = await decoded.getNextFrame();
+          dimensions.value = Size(
+            frame.image.width.toDouble(),
+            frame.image.height.toDouble(),
+          );
+        }
       }
 
       return bytes.value;
