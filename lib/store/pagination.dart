@@ -189,7 +189,10 @@ class Pagination<T, C, K> {
         endCursor = page?.info.endCursor;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.debug('around(item: $item, cursor: $cursor)... done', '$runtimeType');
+        Log.debug(
+          'around(item: $item, cursor: $cursor)... done',
+          '$runtimeType',
+        );
       } catch (e) {
         if (e is! OperationCanceledException) {
           rethrow;
@@ -342,7 +345,7 @@ class Pagination<T, C, K> {
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
     Log.debug('remove($K)', '$runtimeType');
-    
+
     if (_disposed) {
       return Future.value();
     }

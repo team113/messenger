@@ -253,7 +253,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       'updateUserPassword(oldPassword, newPassword)',
       '$runtimeType',
     );
-    
+
     final bool? hasPassword = myUser.value?.hasPassword;
 
     myUser.update((u) => u?.hasPassword = true);
