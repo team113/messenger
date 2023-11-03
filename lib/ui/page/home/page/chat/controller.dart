@@ -289,9 +289,6 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
-  /// Worker capturing any [status] changes.
-  Worker? _statusWorker;
-
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
@@ -304,6 +301,10 @@ class ChatController extends GetxController {
 
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
+
+  /// Indicator whether the [_loadMessages] is already invoked during the
+  /// current frame.
+  bool _messagesAreLoading = false;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -431,7 +432,6 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
-    _statusWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _onActivityChanged?.cancel();
@@ -960,7 +960,10 @@ class ChatController extends GetxController {
       }
     }
 
-    _ensureScrollable();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _ensureScrollable();
+    });
+
     _ignorePositionChanges = false;
   }
 
@@ -1227,6 +1230,10 @@ class ChatController extends GetxController {
 
     _stickyTimer?.cancel();
     _stickyTimer = Timer(const Duration(seconds: 2), () {
+      if (isClosed) {
+        return;
+      }
+
       if (stickyIndex.value != null) {
         final double? offset =
             listController.sliverController.getItemOffset(stickyIndex.value!);
@@ -1244,6 +1251,10 @@ class ChatController extends GetxController {
 
   /// Ensures the [ChatView] is scrollable.
   Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
     if (hasNext.isTrue || hasPrevious.isTrue) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
@@ -1267,9 +1278,21 @@ class ChatController extends GetxController {
 
   /// Loads next and previous pages of the [RxChat.messages].
   void _loadMessages() async {
-    if (!_ignorePositionChanges && status.value.isSuccess) {
-      _loadNextPage();
-      _loadPreviousPage();
+    if (!_messagesAreLoading) {
+      _messagesAreLoading = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (isClosed) {
+          return;
+        }
+
+        _messagesAreLoading = false;
+
+        if (!_ignorePositionChanges && status.value.isSuccess) {
+          _loadNextPage();
+          _loadPreviousPage();
+        }
+      });
     }
   }
 
@@ -1287,9 +1310,13 @@ class ChatController extends GetxController {
 
       await chat!.next();
 
-      final double offset = listController.position.pixels;
+      double? offset;
+      if (listController.hasClients) {
+        offset = listController.position.pixels;
+      }
+
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (offset < loaderHeight) {
+        if (offset != null && offset < loaderHeight) {
           listController.jumpTo(
             listController.position.pixels - (loaderHeight + 28),
           );

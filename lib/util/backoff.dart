@@ -33,7 +33,7 @@ class Backoff {
   /// Returns result of the provided [callback] using the exponential backoff
   /// algorithm on any errors.
   static Future<T> run<T>(
-    Future<T> Function() callback, [
+    FutureOr<T> Function() callback, [
     CancelToken? cancelToken,
   ]) async {
     final CancelableOperation operation = CancelableOperation.fromFuture(

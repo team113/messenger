@@ -18,6 +18,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
@@ -29,6 +30,7 @@ import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
@@ -47,6 +49,7 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
+    Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
     Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
@@ -85,6 +88,12 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
+    Hive.maybeRegisterAdapter(UserAvatarAdapter());
+    Hive.maybeRegisterAdapter(UserCallCoverAdapter());
+    Hive.maybeRegisterAdapter(UserIdAdapter());
+    Hive.maybeRegisterAdapter(UserNameAdapter());
+    Hive.maybeRegisterAdapter(UserNumAdapter());
+    Hive.maybeRegisterAdapter(UserTextStatusAdapter());
   }
 
   /// Returns a list of [ChatMessage]s from [Hive].

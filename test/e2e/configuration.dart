@@ -52,6 +52,7 @@ import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/chats_availability.dart';
 import 'steps/contact.dart';
 import 'steps/contact_is_favorite.dart';
 import 'steps/download_file.dart';
@@ -78,6 +79,7 @@ import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
+import 'steps/see_chats.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
 import 'steps/see_draft.dart';
@@ -127,6 +129,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         changeChatAvatar,
         chatIsFavorite,
         chatIsMuted,
+        chatsAvailability,
         checkCopyText,
         contact,
         contactIsFavorite,
@@ -162,6 +165,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         returnToPreviousPage,
         rightClickWidget,
         scrollAndSee,
+        scrollToBottom,
         scrollUntilPresent,
         seeChatAsFavorite,
         seeChatAsMuted,
@@ -173,6 +177,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactAsFavorite,
         seeContactPosition,
         seeContactSelection,
+        seeCountChats,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
@@ -274,6 +279,16 @@ Future<CustomUser> createUser(
   await provider.updateUserName(UserName(user.name));
   if (password != null) {
     await provider.updateUserPassword(null, password);
+
+    final result = await provider.signIn(
+      password,
+      null,
+      customUser.userNum,
+      null,
+      null,
+      true,
+    );
+    world.sessions[user.name]?.credentials = result.toModel();
   }
   provider.disconnect();
 

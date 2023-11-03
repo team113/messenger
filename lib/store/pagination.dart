@@ -17,10 +17,12 @@
 
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'model/page_info.dart';
@@ -82,8 +84,21 @@ class Pagination<T, C, K> {
   /// [Mutex] guarding synchronized access to the [previous].
   final Mutex _previousGuard = Mutex();
 
+  /// [CancelToken] for cancelling [init], [around], [next] and [previous]
+  /// query.
+  final CancelToken _cancelToken = CancelToken();
+
+  /// Indicator whether this [Pagination] has been disposed.
+  bool _disposed = false;
+
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
+
+  /// Disposes this [Pagination].
+  void dispose() {
+    _cancelToken.cancel();
+    _disposed = true;
+  }
 
   /// Resets this [Pagination] to its initial state.
   Future<void> clear() {
@@ -99,27 +114,38 @@ class Pagination<T, C, K> {
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {
+    if (_disposed) {
+      return Future.value();
+    }
+
     return _guard.protect(() async {
-      final Page<T, C>? page = await provider.init(item, perPage);
-      Log.debug(
-        'init(item: $item)... \n'
-            '\tFetched ${page?.edges.length} items\n'
-            '\tstartCursor: ${page?.info.startCursor}\n'
-            '\tendCursor: ${page?.info.endCursor}\n'
-            '\thasPrevious: ${page?.info.hasPrevious}\n'
-            '\thasNext: ${page?.info.hasNext}',
-        '$runtimeType',
-      );
+      try {
+        final Page<T, C>? page =
+            await Backoff.run(() => provider.init(item, perPage), _cancelToken);
+        Log.debug(
+          'init(item: $item)... \n'
+              '\tFetched ${page?.edges.length} items\n'
+              '\tstartCursor: ${page?.info.startCursor}\n'
+              '\tendCursor: ${page?.info.endCursor}\n'
+              '\thasPrevious: ${page?.info.hasPrevious}\n'
+              '\thasNext: ${page?.info.hasNext}',
+          '$runtimeType',
+        );
 
-      for (var e in page?.edges ?? []) {
-        items[onKey(e)] = e;
+        for (var e in page?.edges ?? []) {
+          items[onKey(e)] = e;
+        }
+
+        startCursor = page?.info.startCursor;
+        endCursor = page?.info.endCursor;
+        hasNext.value = page?.info.hasNext ?? hasNext.value;
+        hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+        Log.debug('init(item: $item)... done', '$runtimeType');
+      } catch (e) {
+        if (e is! OperationCanceledException) {
+          rethrow;
+        }
       }
-
-      startCursor = page?.info.startCursor;
-      endCursor = page?.info.endCursor;
-      hasNext.value = page?.info.hasNext ?? hasNext.value;
-      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      Log.debug('init(item: $item)... done', '$runtimeType');
     });
   }
 
@@ -127,44 +153,61 @@ class Pagination<T, C, K> {
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<void> around({T? item, C? cursor}) {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final bool locked = _guard.isLocked;
 
     return _guard.protect(() async {
-      if (locked) {
+      if (locked || _disposed) {
         return;
       }
 
       Log.debug('around(item: $item, cursor: $cursor)...', '$runtimeType');
 
-      final Page<T, C>? page = await provider.around(item, cursor, perPage);
-      Log.debug(
-        'around(item: $item, cursor: $cursor)... \n'
-            '\tFetched ${page?.edges.length} items\n'
-            '\tstartCursor: ${page?.info.startCursor}\n'
-            '\tendCursor: ${page?.info.endCursor}\n'
-            '\thasPrevious: ${page?.info.hasPrevious}\n'
-            '\thasNext: ${page?.info.hasNext}',
-        '$runtimeType',
-      );
+      try {
+        final Page<T, C>? page = await Backoff.run(
+          () => provider.around(item, cursor, perPage),
+          _cancelToken,
+        );
+        Log.debug(
+          'around(item: $item, cursor: $cursor)... \n'
+              '\tFetched ${page?.edges.length} items\n'
+              '\tstartCursor: ${page?.info.startCursor}\n'
+              '\tendCursor: ${page?.info.endCursor}\n'
+              '\thasPrevious: ${page?.info.hasPrevious}\n'
+              '\thasNext: ${page?.info.hasNext}',
+          '$runtimeType',
+        );
 
-      for (var e in page?.edges ?? []) {
-        items[onKey(e)] = e;
+        for (var e in page?.edges ?? []) {
+          items[onKey(e)] = e;
+        }
+
+        startCursor = page?.info.startCursor;
+        endCursor = page?.info.endCursor;
+        hasNext.value = page?.info.hasNext ?? hasNext.value;
+        hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+        Log.debug('around(item: $item, cursor: $cursor)... done', '$runtimeType');
+      } catch (e) {
+        if (e is! OperationCanceledException) {
+          rethrow;
+        }
       }
-
-      startCursor = page?.info.startCursor;
-      endCursor = page?.info.endCursor;
-      hasNext.value = page?.info.hasNext ?? hasNext.value;
-      hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-      Log.debug('around(item: $item, cursor: $cursor)... done', '$runtimeType');
     });
   }
 
   /// Fetches a next page of the [items].
   Future<void> next() async {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final bool locked = _nextGuard.isLocked;
 
     return _nextGuard.protect(() async {
-      if (locked) {
+      if (locked || _disposed) {
         return;
       }
 
@@ -174,20 +217,28 @@ class Pagination<T, C, K> {
         nextLoading.value = true;
 
         if (items.isNotEmpty) {
-          final Page<T, C>? page =
-              await provider.after(items.last, endCursor, perPage);
-          Log.debug(
-            'next()... fetched ${page?.edges.length} items',
-            '$runtimeType',
-          );
+          try {
+            final Page<T, C>? page = await Backoff.run(
+              () => provider.after(items.last, endCursor, perPage),
+              _cancelToken,
+            );
+            Log.debug(
+              'next()... fetched ${page?.edges.length} items',
+              '$runtimeType',
+            );
 
-          for (var e in page?.edges ?? []) {
-            items[onKey(e)] = e;
+            for (var e in page?.edges ?? []) {
+              items[onKey(e)] = e;
+            }
+
+            endCursor = page?.info.endCursor ?? endCursor;
+            hasNext.value = page?.info.hasNext ?? hasNext.value;
+            Log.debug('next()... done', '$runtimeType');
+          } catch (e) {
+            if (e is! OperationCanceledException) {
+              rethrow;
+            }
           }
-
-          endCursor = page?.info.endCursor ?? endCursor;
-          hasNext.value = page?.info.hasNext ?? hasNext.value;
-          Log.debug('next()... done', '$runtimeType');
         } else {
           await around();
         }
@@ -199,10 +250,14 @@ class Pagination<T, C, K> {
 
   /// Fetches a previous page of the [items].
   Future<void> previous() async {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final bool locked = _previousGuard.isLocked;
 
     return _previousGuard.protect(() async {
-      if (locked) {
+      if (locked || _disposed) {
         return;
       }
 
@@ -212,20 +267,28 @@ class Pagination<T, C, K> {
         previousLoading.value = true;
 
         if (items.isNotEmpty) {
-          final Page<T, C>? page =
-              await provider.before(items.first, startCursor, perPage);
-          Log.debug(
-            'previous()... fetched ${page?.edges.length} items',
-            '$runtimeType',
-          );
+          try {
+            final Page<T, C>? page = await Backoff.run(
+              () => provider.before(items.first, startCursor, perPage),
+              _cancelToken,
+            );
+            Log.debug(
+              'previous()... fetched ${page?.edges.length} items',
+              '$runtimeType',
+            );
 
-          for (var e in page?.edges ?? []) {
-            items[onKey(e)] = e;
+            for (var e in page?.edges ?? []) {
+              items[onKey(e)] = e;
+            }
+
+            startCursor = page?.info.startCursor ?? startCursor;
+            hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
+            Log.debug('previous()... done', '$runtimeType');
+          } catch (e) {
+            if (e is! OperationCanceledException) {
+              rethrow;
+            }
           }
-
-          startCursor = page?.info.startCursor ?? startCursor;
-          hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-          Log.debug('previous()... done', '$runtimeType');
         } else {
           await around();
         }
@@ -239,6 +302,10 @@ class Pagination<T, C, K> {
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
   Future<void> put(T item, {bool ignoreBounds = false}) async {
+    if (_disposed) {
+      return;
+    }
+
     Log.debug('put($item)', '$runtimeType');
 
     Future<void> put() async {
@@ -275,6 +342,10 @@ class Pagination<T, C, K> {
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
     Log.debug('remove($K)', '$runtimeType');
+    
+    if (_disposed) {
+      return Future.value();
+    }
 
     items.remove(key);
     return provider.remove(key);

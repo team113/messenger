@@ -28,3 +28,21 @@ Feature: Chats pagination
     Given I have Internet with delay of 3 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
+
+  Scenario: Chats pagination migrates from local to remote
+    Given I am Alice
+    And Alice has 16 groups
+    And I see 16 chats
+    And chats fetched are indeed remote
+    And I do not have Internet
+
+    When I restart app
+    Then I see 15 chats
+    And chats fetched are indeed local
+
+    When I scroll `Chats` to bottom
+    Then I see 16 chats
+    And chats fetched are indeed local
+
+    When I have Internet without delay
+    Then chats fetched are indeed remote
