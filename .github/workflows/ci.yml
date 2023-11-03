@@ -369,6 +369,7 @@ jobs:
         id: check_commit
         run: |
           MESSAGE=$(jq -r .commits[0].message $GITHUB_EVENT_PATH)
+          echo "Current commit message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "::set-output name=debug::1"
           else
