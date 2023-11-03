@@ -1332,7 +1332,7 @@ class SvgIcons {
 
   static const SvgData addContact = SvgData(
     'assets/icons/add_contact.svg',
-    width: 19.38,
-    height: 18,
+    width: 21.01,
+    height: 19.43,
   );
 }
