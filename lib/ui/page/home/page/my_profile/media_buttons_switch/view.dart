@@ -52,7 +52,8 @@ class MediaButtonsSwitchView extends StatelessWidget {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(
-                  text: 'Отображать кнопки аудио и видео звонка'.l10n),
+                text: 'Отображать кнопки аудио и видео звонка'.l10n,
+              ),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView.separated(
@@ -81,6 +82,27 @@ class MediaButtonsSwitchView extends StatelessWidget {
                     });
                   },
                 ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: ModalPopup.padding(context),
+                child: Obx(() {
+                  final asset =
+                      switch (c.settings.value?.mediaButtonsPosition) {
+                    MediaButtonsPosition.appBar => 'context_menu',
+                    MediaButtonsPosition.contextMenu => 'context_menu',
+                    MediaButtonsPosition.top => 'context_menu',
+                    MediaButtonsPosition.bottom => 'context_menu',
+                    MediaButtonsPosition.more => 'context_menu',
+                    null => '',
+                  };
+
+                  return Image.asset(
+                    'assets/images/media_buttons/$asset.png',
+                    width: double.infinity,
+                    fit: BoxFit.fitWidth,
+                  );
+                }),
               ),
               const SizedBox(height: 16),
             ],

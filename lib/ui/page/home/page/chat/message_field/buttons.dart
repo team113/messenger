@@ -41,7 +41,7 @@ class AudioMessageButton extends ChatButton {
   AudioMessageButton(super.c);
 
   @override
-  String get hint => 'Аудио сообщение';
+  String get hint => 'btn_audio_message'.l10n;
 
   @override
   SvgData get asset => SvgIcons.audioMessage;
@@ -54,7 +54,7 @@ class VideoMessageButton extends ChatButton {
   VideoMessageButton(super.c);
 
   @override
-  String get hint => 'Видео сообщение';
+  String get hint => 'btn_video_message'.l10n;
 
   @override
   SvgData get asset => SvgIcons.videoMessage;
@@ -84,7 +84,7 @@ class AttachmentButton extends ChatButton {
       };
 
   @override
-  String get hint => 'Файл';
+  String get hint => 'btn_file'.l10n;
 
   @override
   SvgData get asset => SvgIcons.fileOutlined;
@@ -180,7 +180,7 @@ class DonateButton extends ChatButton {
   DonateButton(super.c);
 
   @override
-  String get hint => 'Подарок';
+  String get hint => 'btn_gift'.l10n;
 
   @override
   void Function(bool)? get onHovered => (bool hovered) {
@@ -222,7 +222,7 @@ class StickerButton extends ChatButton {
   StickerButton(super.c);
 
   @override
-  String get hint => 'Стикер';
+  String get hint => 'btn_sticker'.l10n;
 
   @override
   SvgData get asset => SvgIcons.smile;
@@ -238,7 +238,7 @@ class SendButton extends ChatButton {
   SendButton(super.c);
 
   @override
-  String get hint => 'Стикер';
+  String get hint => 'btn_sticker'.l10n;
 
   @override
   SvgData get asset => SvgIcons.smile;
@@ -251,7 +251,7 @@ class AudioCallButton extends ChatButton {
   AudioCallButton(super.c);
 
   @override
-  String get hint => 'Аудио звонок';
+  String get hint => 'btn_audio_call'.l10n;
 
   @override
   void Function(bool)? get onPressed => (b) => c.onCall?.call(false);
@@ -270,7 +270,7 @@ class VideoCallButton extends ChatButton {
   VideoCallButton(super.c);
 
   @override
-  String get hint => 'Видео звонок';
+  String get hint => 'btn_video_call'.l10n;
 
   @override
   void Function(bool)? get onPressed => (b) => c.onCall?.call(true);

@@ -1135,3 +1135,7 @@ btn_show = Показывать
 label_partnership = Партнёрство
 label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
+btn_sticker = Стикер
+btn_gift = Подарок
+btn_video_message = Видео сообщение
+btn_audio_message = Аудио сообщение

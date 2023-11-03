@@ -1103,3 +1103,7 @@ btn_show = Show
 label_partnership = Partnership
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
+btn_sticker = Sticker
+btn_gift = Gift
+btn_video_message = Video message
+btn_audio_message = Audio message
