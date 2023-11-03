@@ -236,7 +236,7 @@ class ChatService extends DisposableService {
     ChatMessageRepliesInput? repliesTo,
   }) async {
     Log.debug('editChatMessage($item, $text)', '$runtimeType');
-    
+
     if (text?.changed?.val.trim() == item.text?.val.trim()) {
       text = null;
     } else if (text != null) {

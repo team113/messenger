@@ -1724,7 +1724,7 @@ class ChatRepository extends DisposableInterface
     bool ignoreVersion = false,
   }) async {
     Log.debug('_putEntry($data, $pagination)', '$runtimeType');
-    
+
     Mutex? mutex = _putEntryGuards[data.chat.value.id];
 
     if (mutex == null) {

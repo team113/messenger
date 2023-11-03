@@ -445,7 +445,7 @@ class HiveRxChat extends RxChat {
   @override
   Future<void> around() async {
     Log.debug('around()', '$runtimeType Chat - ${title.value}');
-    
+
     if (id.isLocal ||
         status.value.isSuccess ||
         (hasNext.isFalse && hasPrevious.isFalse)) {
