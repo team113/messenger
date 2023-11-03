@@ -92,7 +92,7 @@ class _PlayableAssetState extends State<PlayableAsset> {
           children: [
             Text(
               '${widget.asset}.mp3',
-              style: style.fonts.bodyLarge,
+              style: style.fonts.medium.regular.onBackground,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -100,14 +100,14 @@ class _PlayableAssetState extends State<PlayableAsset> {
             // StyledCupertinoButton(
             //   padding: EdgeInsets.zero,
             //   label: '${widget.asset}.mp3',
-            //   style: style.fonts.bodyLargePrimary,
+            //   style: style.fonts.medium.regular.primary,
             //   onPressed: () {},
             // ),
             SelectionContainer.disabled(
               child: StyledCupertinoButton(
                 padding: EdgeInsets.zero,
                 label: 'Download',
-                style: style.fonts.labelSmallPrimary,
+                style: style.fonts.smaller.regular.primary,
                 onPressed: () async {
                   const String asset = 'head_0.svg';
                   final file = await PlatformUtils.saveTo(
@@ -125,7 +125,7 @@ class _PlayableAssetState extends State<PlayableAsset> {
     );
 
     // return DefaultTextStyle(
-    //   style: style.fonts.bodySmall,
+    //   style: style.fonts.small.regular.onBackground,
     //   child: Column(
     //     crossAxisAlignment: CrossAxisAlignment.start,
     //     children: [

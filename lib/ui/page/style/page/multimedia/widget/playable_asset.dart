@@ -57,7 +57,7 @@ class _PlayableAssetState extends State<PlayableAsset> {
     final style = Theme.of(context).style;
 
     return DefaultTextStyle(
-      style: style.fonts.bodySmall,
+      style: style.fonts.small.regular.onBackground,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

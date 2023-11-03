@@ -82,7 +82,7 @@ class BalanceProviderWidget extends StatelessWidget {
                               title,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: style.fonts.bodyLarge,
+                              style: style.fonts.medium.regular.onBackground,
                             ),
                           ),
                         ],

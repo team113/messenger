@@ -134,6 +134,8 @@ abstract class AbstractChatRepository {
   Future<void> editChatMessage(
     ChatMessage message, {
     ChatMessageTextInput? text,
+    ChatMessageAttachmentsInput? attachments,
+    ChatMessageRepliesInput? repliesTo,
   });
 
   /// Deletes the specified [ChatMessage] posted by the authenticated [MyUser].

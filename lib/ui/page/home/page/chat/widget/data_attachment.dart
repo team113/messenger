@@ -163,7 +163,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.check_circle,
               key: const Key('Sent'),
               size: 29,
-              color: style.colors.acceptAuxiliaryColor,
+              color: style.colors.acceptAuxiliary,
             );
             break;
 
@@ -172,7 +172,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 29,
-              color: style.colors.dangerColor,
+              color: style.colors.danger,
             );
             break;
         }
@@ -208,14 +208,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                           Flexible(
                             child: Text(
                               p.basenameWithoutExtension(e.filename),
-                              style: style.fonts.bodyLarge,
+                              style: style.fonts.medium.regular.onBackground,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
                             p.extension(e.filename),
-                            style: style.fonts.bodyLarge,
+                            style: style.fonts.medium.regular.onBackground,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -233,7 +233,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             }),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: style.fonts.headlineSmallSecondary,
+                            style: style.fonts.small.regular.secondary,
                           ),
                         ],
                       ),

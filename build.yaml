@@ -213,6 +213,12 @@ targets:
                 name: SessionVersion
                 imports:
                   - "package:messenger/store/model/session_data.dart"
+            - graphql_type: ThumbHash
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/thumbhash.dart"
+              dart_type:
+                name: ThumbHash
+                imports:
+                  - "package:messenger/domain/model/file.dart"
             - graphql_type: Upload
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/upload.dart"
               dart_type:

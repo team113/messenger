@@ -239,14 +239,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
             return Stack(
               children: [
                 video,
-                // Offstage(child: video),
-                Center(
-                  child: Container(
-                    color: Colors.red,
-                    padding: const EdgeInsets.all(16),
-                    child: const CustomProgressIndicator.big(),
-                  ),
-                )
+                const Center(child: CustomProgressIndicator.big())
               ],
             );
           }
@@ -335,10 +328,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                           if (widget.muted) const SizedBox(width: 1),
                           if (widget.muted)
                             const SvgIcon(SvgIcons.microphoneOffSmall),
-                          // const SvgImage.asset(
-                          //   'assets/icons/microphone_off_small.svg',
-                          //   width: 11,
-                          // ),
                           Flexible(
                             child: AnimatedSize(
                               duration: const Duration(milliseconds: 200),
@@ -350,7 +339,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                       child: Text(
                                         widget.label!,
                                         style:
-                                            style.fonts.headlineSmallOnPrimary,
+                                            style.fonts.small.regular.onPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),

@@ -52,7 +52,13 @@ import 'widget/wallet.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {Key? key}) : super(key: key);
+  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  ///
+  /// Should also mean that sign up operation just has been occurred.
+  final bool signedUp;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -86,9 +92,6 @@ class _HomeViewState extends State<HomeView> {
     _deps?.dispose();
   }
 
-  /// Called when a dependency of this [State] object changes.
-  ///
-  /// Used to get the [Router] widget from context.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -107,9 +110,9 @@ class _HomeViewState extends State<HomeView> {
         backgroundColor: PlatformUtils.isWeb
             ? style.colors.transparent
             : style.colors.onPrimary,
-        body: Stack(
+        body: const Stack(
           children: [
-            const SvgImage.asset(
+            SvgImage.asset(
               'assets/images/background_light.svg',
               width: double.infinity,
               height: double.infinity,
@@ -128,26 +131,27 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         Get.find(),
+        signedUp: widget.signedUp,
       ),
       builder: (HomeController c) {
-        /// Claim priority of the "Back" button dispatcher.
+        // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
         if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
-        /// Side bar uses a little trick to be responsive:
-        ///
-        /// 1. On mobile, side bar is full-width and the navigator's first page
-        ///    is transparent, both visually and tactile. As soon as a new page
-        ///    populates the route stack, it becomes reactive to touches.
-        ///    Navigator is drawn above the side bar in this case.
-        ///
-        /// 2. On desktop/tablet side bar is always shown and occupies the space
-        ///    determined by the `sideBarWidth` value.
-        ///    Navigator is drawn under the side bar (so the page animation is
-        ///    correct).
+        // Side bar uses a little trick to be responsive:
+        //
+        // 1. On mobile, side bar is full-width and the navigator's first page
+        //    is transparent, both visually and tactile. As soon as a new page
+        //    populates the route stack, it becomes reactive to touches.
+        //    Navigator is drawn above the side bar in this case.
+        //
+        // 2. On desktop/tablet side bar is always shown and occupies the space
+        //    determined by the `sideBarWidth` value.
+        //    Navigator is drawn under the side bar (so the page animation is
+        //    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
           opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
@@ -356,13 +360,12 @@ class _HomeViewState extends State<HomeView> {
                                 ),
                               ),
                               CustomNavigationBarItem(
-                                key: const Key('ChatsButton'),
                                 badge: c.unreadChatsCount.value == 0
                                     ? null
                                     : '${c.unreadChatsCount.value}',
                                 badgeColor: c.myUser.value?.muted != null
                                     ? style.colors.secondaryHighlightDarkest
-                                    : style.colors.dangerColor,
+                                    : style.colors.danger,
                                 onPressed: () {
                                   if (Get.isRegistered<
                                       ChatsContactsTabController>()) {
@@ -372,6 +375,7 @@ class _HomeViewState extends State<HomeView> {
                                   }
                                 },
                                 child: ContextMenuRegion(
+                                  key: const Key('ChatsButton'),
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
                                   margin: const EdgeInsets.only(bottom: 4),
@@ -407,27 +411,17 @@ class _HomeViewState extends State<HomeView> {
                                       );
                                     }
 
-                                    return AnimatedSwitcher(
+                                    return SafeAnimatedSwitcher(
                                       key: c.chatsKey,
                                       duration: 200.milliseconds,
-                                      layoutBuilder: (current, previous) =>
-                                          Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          if (previous.isNotEmpty)
-                                            previous.first,
-                                          if (current != null) current,
-                                        ],
-                                      ),
                                       child: child,
                                     );
                                   }),
                                 ),
                               ),
                               CustomNavigationBarItem(
-                                key: const Key('MenuButton'),
-                                onPressed: context.isNarrow ? null : router.me,
                                 child: ContextMenuRegion(
+                                  key: const Key('MenuButton'),
                                   selector: c.profileKey,
                                   alignment: Alignment.bottomRight,
                                   margin: const EdgeInsets.only(bottom: 4),
@@ -440,9 +434,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.green,
+                                          color: style.colors.acceptAuxiliary,
                                         ),
                                       ),
                                     ),
@@ -454,9 +448,9 @@ class _HomeViewState extends State<HomeView> {
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.orange,
+                                          color: style.colors.warning,
                                         ),
                                       ),
                                     ),
@@ -524,7 +518,7 @@ class _HomeViewState extends State<HomeView> {
         // Navigator should be drawn under or above the [sideBar] for the
         // animations to look correctly.
         //
-        // [SizedBox]s are required for the [sideBar] to keep its state.
+        // [SizedBox]es are required for the [sideBar] to keep its state.
         // Otherwise, [Stack] widget will be updated, which will lead its
         // children to be updated as well.
         return CallOverlayView(
@@ -538,7 +532,7 @@ class _HomeViewState extends State<HomeView> {
                   sideBar,
                   SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
-                  Scaffold(
+                  const Scaffold(
                     body: Center(child: CustomProgressIndicator.primary()),
                   )
               ],

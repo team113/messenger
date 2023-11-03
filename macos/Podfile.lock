@@ -109,8 +109,6 @@ PODS:
     - FlutterMacOS
   - PromisesObjC (2.3.1)
   - ReachabilitySwift (5.0.0)
-  - rive_common (0.0.1):
-    - FlutterMacOS
   - screen_brightness_macos (0.1.0):
     - FlutterMacOS
   - screen_retriever (0.0.1):
@@ -154,7 +152,6 @@ DEPENDENCIES:
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - pdfx (from `Flutter/ephemeral/.symlinks/plugins/pdfx/macos`)
-  - rive_common (from `Flutter/ephemeral/.symlinks/plugins/rive_common/macos`)
   - screen_brightness_macos (from `Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
@@ -221,8 +218,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   pdfx:
     :path: Flutter/ephemeral/.symlinks/plugins/pdfx/macos
-  rive_common:
-    :path: Flutter/ephemeral/.symlinks/plugins/rive_common/macos
   screen_brightness_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos
   screen_retriever:
@@ -273,7 +268,6 @@ SPEC CHECKSUMS:
   pdfx: d1c406047b02acc54fe98495ae24b04fe9b4f024
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  rive_common: acedcab7802c0ece4b0d838b71d7deb637e1309a
   screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
   Sentry: e3203780941722a1fcfee99e351de14244c7f806

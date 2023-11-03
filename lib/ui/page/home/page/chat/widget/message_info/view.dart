@@ -86,7 +86,7 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: style.fonts.bodySmall,
+                        style: style.fonts.small.regular.onBackground,
                       ),
                       const SizedBox(width: 8),
                       const SvgIcon(SvgIcons.copySmall),
@@ -121,7 +121,7 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.fonts.bodyLarge,
+                          style: style.fonts.medium.regular.onBackground,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
@@ -184,7 +184,7 @@ class MessageInfo extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   'label_nothing_found'.l10n,
-                                  style: style.fonts.labelMedium,
+                                  style: style.fonts.small.regular.onBackground,
                                 ),
                               ),
                             )
@@ -205,7 +205,7 @@ class MessageInfo extends StatelessWidget {
                                     'label_read_at'.l10nfmt({
                                       'date': time.yMdHm,
                                     }),
-                                    style: style.fonts.bodySmallSecondary,
+                                    style: style.fonts.small.regular.secondary,
                                   ),
                                 ],
                               );

@@ -97,7 +97,7 @@ class WorkTabView extends StatelessWidget {
                 //     Text(
                 //       // '\$${c.balance.value / 100}',
                 //       'Вывести деньги',
-                //       style: style.fonts.bodySmallSecondary,
+                //       style: style.fonts.small.regular.secondary,
                 //     )
                 //   ],
                 //   onPressed: () async {
@@ -114,13 +114,13 @@ class WorkTabView extends StatelessWidget {
                 //         children: [
                 //           TextSpan(
                 //             text: 'Новых транзакций: ',
-                //             style: style.fonts.bodySmall
+                //             style: style.fonts.small.regular.onBackground
                 //                 .copyWith(color: style.colors.secondary),
                 //           ),
                 //           TextSpan(
                 //             text: '4',
-                //             style: style.fonts.bodySmall
-                //                 .copyWith(color: style.colors.dangerColor),
+                //             style: style.fonts.small.regular.onBackground
+                //                 .copyWith(color: style.colors.danger),
                 //           ),
                 //         ],
                 //       ),

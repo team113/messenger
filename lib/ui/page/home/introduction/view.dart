@@ -24,17 +24,19 @@ import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/widget/sharable.dart';
+import '/ui/page/home/widget/num.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -43,11 +45,23 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class IntroductionView extends StatelessWidget {
-  const IntroductionView({Key? key}) : super(key: key);
+  const IntroductionView({
+    super.key,
+    this.initial = IntroductionViewStage.oneTime,
+  });
+
+  /// Initial [IntroductionViewStage] to display.
+  final IntroductionViewStage initial;
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const IntroductionView());
+  static Future<T?> show<T>(
+    BuildContext context, {
+    IntroductionViewStage initial = IntroductionViewStage.oneTime,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: IntroductionView(initial: initial),
+    );
   }
 
   @override
@@ -56,31 +70,9 @@ class IntroductionView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('IntroductionView'),
-      init: IntroductionController(Get.find()),
+      init: IntroductionController(Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
-          List<Widget> numId() {
-            return [
-              const SizedBox(height: 25),
-              if (PlatformUtils.isMobile)
-                SharableTextField(
-                  key: const Key('NumCopyable'),
-                  text: c.num.text,
-                  label: 'label_num'.l10n,
-                  share: 'Gapopa ID: ${c.myUser.value?.num}',
-                  style: style.fonts.headlineMedium,
-                )
-              else
-                CopyableTextField(
-                  key: const Key('NumCopyable'),
-                  state: c.num,
-                  label: 'label_num'.l10n,
-                  style: style.fonts.headlineMedium,
-                ),
-              const SizedBox(height: 25),
-            ];
-          }
-
           final Widget header;
           final List<Widget> children;
 
@@ -90,22 +82,8 @@ class IntroductionView extends StatelessWidget {
 
               children = [
                 const SizedBox(height: 25),
-                if (PlatformUtils.isMobile)
-                  SharableTextField(
-                    text: c.num.text,
-                    label: 'label_num'.l10n,
-                    share: 'Gapopa ID: ${c.myUser.value?.num}',
-                    style: style.fonts.headlineMedium,
-                  )
-                else
-                  CopyableTextField(
-                    state: c.num,
-                    label: 'label_num'.l10n,
-                    style: style.fonts.headlineMedium,
-                  ),
+                _num(c, context),
                 const SizedBox(height: 25),
-                // _emails(c, context),
-                // _phones(c, context),
                 _link(c, context),
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
@@ -113,9 +91,7 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_ok'.l10n,
-                    style: style.fonts.bodyMedium.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
+                    style: style.fonts.normal.regular.onPrimary,
                   ),
                   onPressed: Navigator.of(context).pop,
                   color: style.colors.primary,
@@ -123,184 +99,15 @@ class IntroductionView extends StatelessWidget {
               ];
               break;
 
-            case IntroductionViewStage.validate:
-              header = ModalPopupHeader(text: 'label_account_created'.l10n);
-
-              children = [
-                ...numId(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Obx(() {
-                    return Text(
-                      c.resent.value
-                          ? 'label_add_email_confirmation_sent_again'.l10n
-                          : 'label_add_email_confirmation_sent'.l10n,
-                      style: style.fonts.bodyMedium.copyWith(
-                        color: style.colors.secondary,
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
-                  style: style.fonts.headlineMedium,
-                  treatErrorAsStatus: false,
-                  formatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('Resend'),
-                          maxWidth: double.infinity,
-                          title: Text(
-                            c.resendEmailTimeout.value == 0
-                                ? 'label_resend'.l10n
-                                : 'label_resend_timeout'.l10nfmt(
-                                    {'timeout': c.resendEmailTimeout.value},
-                                  ),
-                            style: style.fonts.bodyMedium.copyWith(
-                              color: c.resendEmailTimeout.value == 0
-                                  ? style.colors.onPrimary
-                                  : style.colors.onBackground,
-                            ),
-                          ),
-                          onPressed: c.resendEmailTimeout.value == 0
-                              ? c.resendEmail
-                              : null,
-                          color: style.colors.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('Proceed'),
-                          maxWidth: double.infinity,
-                          title: Text(
-                            'btn_proceed'.l10n,
-                            style: style.fonts.bodyMedium.copyWith(
-                              color: c.emailCode.isEmpty.value
-                                  ? style.colors.onBackground
-                                  : style.colors.onPrimary,
-                            ),
-                          ),
-                          onPressed: c.emailCode.isEmpty.value
-                              ? null
-                              : c.emailCode.submit,
-                          color: style.colors.primary,
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ];
-
-            case IntroductionViewStage.password:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = null,
-                text: 'label_one_time_account_created'.l10n,
-              );
-
-              children = [
-                ...numId(),
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    'btn_set_password'.l10n,
-                    style: style.fonts.headlineMedium,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  style: style.fonts.headlineMedium,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ReactiveTextField(
-                  key: const Key('RepeatPasswordField'),
-                  state: c.repeat,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeat.value,
-                  style: style.fonts.bodyMedium,
-                  onSuffixPressed: c.obscureRepeat.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureRepeat.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                OutlinedRoundedButton(
-                  key: const Key('ChangePasswordButton'),
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: style.fonts.bodyMedium.copyWith(
-                      color: c.password.isEmpty.value || c.repeat.isEmpty.value
-                          ? style.colors.onBackground
-                          : style.colors.onPrimary,
-                    ),
-                  ),
-                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
-                      ? null
-                      : c.setPassword,
-                  color: style.colors.primary,
-                ),
-              ];
-              break;
-
-            case IntroductionViewStage.success:
+            case IntroductionViewStage.oneTime:
               header = ModalPopupHeader(
                 text: 'label_one_time_account_created'.l10n,
               );
 
               children = [
-                ...numId(),
-                Text(
-                  'label_password_set'.l10n,
-                  style: style.fonts.bodyMedium.copyWith(
-                    color: style.colors.secondary,
-                  ),
-                ),
                 const SizedBox(height: 25),
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('CloseButton'),
-                    maxWidth: double.infinity,
-                    title: Text(
-                      'btn_close'.l10n,
-                      style: style.fonts.bodyMedium.copyWith(
-                        color: style.colors.onPrimary,
-                      ),
-                    ),
-                    onPressed: Navigator.of(context).pop,
-                    color: style.colors.primary,
-                  ),
-                ),
-              ];
-              break;
-
-            default:
-              header = ModalPopupHeader(
-                text: 'label_one_time_account_created'.l10n,
-              );
-
-              children = [
-                ...numId(),
+                _num(c, context),
+                const SizedBox(height: 25),
                 _link(c, context),
                 const SizedBox(height: 25),
                 Text.rich(
@@ -308,12 +115,11 @@ class IntroductionView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'label_introduction_description1'.l10n,
-                        style: style.fonts.titleLarge,
+                        style: style.fonts.medium.regular.onBackground,
                       ),
                       TextSpan(
                         text: 'label_introduction_description2'.l10n,
-                        style: style.fonts.titleLarge
-                            .copyWith(color: style.colors.primary),
+                        style: style.fonts.medium.regular.primary,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             Navigator.of(context).pop();
@@ -322,7 +128,7 @@ class IntroductionView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_introduction_description3'.l10n,
-                        style: style.fonts.titleLarge,
+                        style: style.fonts.medium.regular.onBackground,
                       ),
                     ],
                   ),
@@ -333,9 +139,7 @@ class IntroductionView extends StatelessWidget {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_ok'.l10n,
-                    style: style.fonts.bodyMedium.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
+                    style: style.fonts.normal.regular.onPrimary,
                   ),
                   onPressed: Navigator.of(context).pop,
                   color: style.colors.primary,
@@ -368,127 +172,37 @@ class IntroductionView extends StatelessWidget {
     );
   }
 
-  Widget _emails(IntroductionController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final Iterable<UserEmail> emails = [
-      ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
-      c.myUser.value?.emails.unconfirmed,
-    ].whereNotNull();
-
-    if (emails.isEmpty) {
-      return const SizedBox();
-    }
-
-    final List<Widget> widgets = [];
-
-    for (var e in emails) {
-      widgets.add(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (PlatformUtils.isMobile)
-              SharableTextField(
-                text: e.val,
-                label: 'label_email'.l10n,
-                style: style.fonts.headlineMedium,
-              )
-            else
-              CopyableTextField(
-                state: TextFieldState(text: e.val, editable: false),
-                label: 'label_email'.l10n,
-                style: style.fonts.headlineMedium,
-              ),
-          ],
-        ),
+  /// Builds the [UserNumCopyable].
+  Widget _num(IntroductionController c, BuildContext context) {
+    return Obx(() {
+      return UserNumCopyable(
+        c.myUser.value?.num,
+        key: const Key('NumCopyable'),
+        share: PlatformUtils.isMobile,
       );
-      widgets.add(const SizedBox(height: 10));
-    }
-
-    return Column(children: [...widgets, const SizedBox(height: 25)]);
+    });
   }
 
-  Widget _phones(IntroductionController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final Iterable<UserPhone> phones = [
-      ...c.myUser.value?.phones.confirmed ?? <UserPhone>[],
-      c.myUser.value?.phones.unconfirmed,
-    ].whereNotNull();
-
-    if (phones.isEmpty) {
-      return const SizedBox();
-    }
-
-    final List<Widget> widgets = [];
-
-    for (var e in phones) {
-      widgets.add(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (PlatformUtils.isMobile)
-              SharableTextField(
-                text: e.val,
-                label: 'label_phone_number'.l10n,
-                style: style.fonts.headlineMedium,
-              )
-            else
-              CopyableTextField(
-                state: TextFieldState(text: e.val, editable: false),
-                label: 'label_phone_number'.l10n,
-                style: style.fonts.headlineMedium,
-              ),
-          ],
-        ),
-      );
-      widgets.add(const SizedBox(height: 10));
-    }
-
-    return Column(children: [...widgets, const SizedBox(height: 15)]);
-  }
-
+  /// Builds the [ChatDirectLink] visual representation field.
   Widget _link(IntroductionController c, BuildContext context) {
-    final style = Theme.of(context).style;
+    Future<void> copy() async {
+      if (PlatformUtils.isMobile) {
+        Share.share(c.link.text);
+      } else {
+        PlatformUtils.copy(text: c.link.text);
+        MessagePopup.success('label_copied'.l10n);
+      }
+
+      await c.createLink();
+    }
 
     return ReactiveTextField(
-      key: const Key('LinkField'),
-      state: TextFieldState(
-        text:
-            '${Config.origin.replaceFirst('https://', '').replaceFirst('http://', '')}${Routes.chatDirectLink}/${c.link.text}',
-        editable: false,
-      ),
-      style: style.fonts.bodyMedium,
-      onSuffixPressed: () async {
-        await c.copyLink(
-          onSuccess: () async {
-            final link =
-                '${Config.origin}${Routes.chatDirectLink}/${c.link.text}';
-
-            if (PlatformUtils.isMobile) {
-              await Share.share(link);
-            } else {
-              PlatformUtils.copy(text: link);
-              MessagePopup.success('label_copied'.l10n);
-            }
-          },
-        );
-      },
+      state: c.link,
+      onSuffixPressed: copy,
+      selectable: c.myUser.value?.chatDirectLink != null,
       trailing: PlatformUtils.isMobile
-          ? Transform.translate(
-              offset: const Offset(0, -4),
-              child: Icon(
-                Icons.ios_share_rounded,
-                color: style.colors.primary,
-                size: 21,
-              ),
-            )
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.copy),
-            ),
+          ? const SvgIcon(SvgIcons.shareThick)
+          : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
     );
   }

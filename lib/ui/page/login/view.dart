@@ -110,7 +110,7 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
-                  text: 'btn_sign_up'.l10n,
+                  title: 'btn_sign_up'.l10n,
                   icon: const SvgIcon(SvgIcons.register),
                   onPressed: () {
                     c.stage.value = LoginViewStage.signUp;
@@ -119,7 +119,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'btn_sign_in'.l10n,
+                  title: 'btn_sign_in'.l10n,
                   icon: const SvgIcon(SvgIcons.enter),
                   onPressed: () {
                     c.stage.value = LoginViewStage.signIn;
@@ -128,7 +128,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'btn_one_time_account'.l10n,
+                  title: 'btn_one_time_account'.l10n,
                   dense: true,
                   icon: const SvgIcon(SvgIcons.oneTime),
                   onPressed: () {
@@ -160,7 +160,7 @@ class LoginView extends StatelessWidget {
                     'text': c.credential?.user?.email ??
                         c.credential?.user?.phoneNumber,
                   }),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -191,7 +191,7 @@ class LoginView extends StatelessWidget {
                     'text': c.credential?.user?.email ??
                         c.credential?.user?.phoneNumber,
                   }),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 ContactTile(
@@ -210,7 +210,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5),
                       child: Text(
                         'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
+                        style: style.fonts.small.regular.onBackground.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -247,7 +247,7 @@ class LoginView extends StatelessWidget {
                   child: Text(
                     'label_waiting_response_from'
                         .l10nfmt({'from': provider.$1}),
-                    style: style.fonts.titleLarge,
+                    style: style.fonts.medium.regular.onBackground,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -264,7 +264,7 @@ class LoginView extends StatelessWidget {
                 // const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -297,19 +297,19 @@ class LoginView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'label_sign_in_code_sent1'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
                       TextSpan(
                         text: c.login.text,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: style.colors.onBackground,
                         ),
                       ),
                       TextSpan(
                         text: 'label_sign_in_code_sent2'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -345,7 +345,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -375,7 +375,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -407,7 +407,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: style.fonts.titleLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     color: style.colors.secondary,
                   ),
                 ),
@@ -463,9 +463,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_phone_already_occupied'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 ContactTile(
@@ -484,7 +484,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5),
                       child: Text(
                         'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
+                        style: style.fonts.small.regular.onBackground.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -512,9 +512,9 @@ class LoginView extends StatelessWidget {
                     'text': c.phone.phone?.international,
                   }).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -522,7 +522,7 @@ class LoginView extends StatelessWidget {
                     c.resendPhoneTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
+                    style: style.fonts.medium.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -535,7 +535,7 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendPhoneTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: enabled ? style.colors.primary : null,
                       ),
                     ),
@@ -585,10 +585,10 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
+                              : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
                       onPressed: enabled ? c.phone.submit : null,
@@ -612,9 +612,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_email_already_occupied'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 ContactTile(
@@ -633,7 +633,7 @@ class LoginView extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5),
                       child: Text(
                         'Gapopa ID: 1234 1234 1234 1234',
-                        style: style.fonts.labelMedium.copyWith(
+                        style: style.fonts.small.regular.onBackground.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -660,9 +660,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -670,7 +670,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
+                    style: style.fonts.medium.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -683,7 +683,7 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: enabled ? style.colors.primary : null,
                       ),
                     ),
@@ -728,7 +728,7 @@ class LoginView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',
-                  style: style.fonts.bodyMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
@@ -739,10 +739,10 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
+                              : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
                       onPressed: enabled ? c.email.submit : null,
@@ -764,14 +764,14 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
-                  text: 'btn_email'.l10n,
+                  title: 'btn_email'.l10n,
                   icon: const SvgIcon(SvgIcons.email),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'btn_phone_number'.l10n,
+                  title: 'btn_phone_number'.l10n,
                   icon: const SvgIcon(SvgIcons.phone),
                   padding: const EdgeInsets.only(left: 2),
                   onPressed: () =>
@@ -779,21 +779,21 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'Google'.l10n,
+                  title: 'Google'.l10n,
                   icon: const SvgIcon(SvgIcons.google),
                   padding: const EdgeInsets.only(left: 1),
                   onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'Apple'.l10n,
+                  title: 'Apple'.l10n,
                   icon: const SvgIcon(SvgIcons.apple),
                   padding: const EdgeInsets.only(left: 1.5, bottom: 1),
                   onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'GitHub'.l10n,
+                  title: 'GitHub'.l10n,
                   icon: const SvgIcon(SvgIcons.github),
                   onPressed: c.continueWithGitHub,
                 ),
@@ -829,7 +829,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_one_time_code_sent_description'.l10n,
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -858,8 +858,8 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_in_phone_already_occupied'.l10nfmt({
                     'text': c.phone.phone?.international
-                  }).parseLinks([], style.fonts.titleLargePrimary),
-                  style: style.fonts.titleLarge,
+                  }).parseLinks([], style.fonts.medium.regular.primary),
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -879,8 +879,8 @@ class LoginView extends StatelessWidget {
                 Text.rich(
                   'label_sign_up_code_phone_sent'.l10nfmt({
                     'text': c.phone.phone?.international,
-                  }).parseLinks([], style.fonts.titleLargePrimary),
-                  style: style.fonts.titleLarge,
+                  }).parseLinks([], style.fonts.medium.regular.primary),
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -888,7 +888,7 @@ class LoginView extends StatelessWidget {
                     c.resendPhoneTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
+                    style: style.fonts.medium.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -901,7 +901,7 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendPhoneTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: enabled ? style.colors.primary : null,
                       ),
                     ),
@@ -951,10 +951,10 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
+                              : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
                       onPressed: enabled ? c.phone.submit : null,
@@ -978,9 +978,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_in_email_already_occupied'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -1001,9 +1001,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.titleLargePrimary,
+                    style.fonts.medium.regular.primary,
                   ),
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -1011,7 +1011,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.titleLarge,
+                    style: style.fonts.medium.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -1024,7 +1024,7 @@ class LoginView extends StatelessWidget {
                           ? 'btn_resend_code'.l10n
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: style.fonts.titleLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: enabled ? style.colors.primary : null,
                       ),
                     ),
@@ -1069,7 +1069,7 @@ class LoginView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',
-                  style: style.fonts.bodyMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 25),
@@ -1080,10 +1080,10 @@ class LoginView extends StatelessWidget {
                     return OutlinedRoundedButton(
                       title: Text(
                         'btn_proceed'.l10n,
-                        style: style.fonts.titleLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
                               ? style.colors.onPrimary
-                              : style.fonts.titleLarge.color,
+                              : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
                       onPressed: enabled ? c.email.submit : null,
@@ -1156,7 +1156,7 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
-                  text: 'btn_password'.l10n,
+                  title: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
                   icon: const SvgIcon(SvgIcons.password),
@@ -1164,7 +1164,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'btn_email'.l10n,
+                  title: 'btn_email'.l10n,
                   icon: const SvgIcon(SvgIcons.email),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithEmail,
@@ -1173,13 +1173,13 @@ class LoginView extends StatelessWidget {
                 SignButton(
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPhone,
-                  text: 'btn_phone_number'.l10n,
+                  title: 'btn_phone_number'.l10n,
                   icon: const SvgIcon(SvgIcons.phone),
                   padding: const EdgeInsets.only(left: 2),
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'btn_qr_code'.l10n,
+                  title: 'btn_qr_code'.l10n,
                   onPressed: () => c.stage.value = PlatformUtils.isMobile
                       ? LoginViewStage.signInWithQrShow
                       : LoginViewStage.signInWithQrScan,
@@ -1188,21 +1188,21 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'Google',
+                  title: 'Google',
                   icon: const SvgIcon(SvgIcons.google),
                   padding: const EdgeInsets.only(left: 1),
                   onPressed: c.continueWithGoogle,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'Apple',
+                  title: 'Apple',
                   icon: const SvgIcon(SvgIcons.apple),
                   padding: const EdgeInsets.only(left: 1.5, bottom: 1),
                   onPressed: c.continueWithApple,
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  text: 'GitHub',
+                  title: 'GitHub',
                   icon: const SvgIcon(SvgIcons.github),
                   onPressed: c.continueWithGitHub,
                 ),

@@ -23,6 +23,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/util/message_popup.dart';
 import 'animated_button.dart';
+import 'animated_switcher.dart';
 import 'svg/svg.dart';
 
 /// Styled [ContactTile] representing the provided [RxUser] as a member of some
@@ -70,14 +71,14 @@ class MemberTile extends StatelessWidget {
       trailing: [
         if (inCall != null) ...[
           const SizedBox(width: 8),
-          AnimatedSwitcher(
+          SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Material(
               key: Key(inCall == true ? 'InCall' : 'NotInCall'),
               color: inCall == true
                   ? onCall == null
                       ? style.colors.primaryHighlightLightest
-                      : style.colors.dangerColor
+                      : style.colors.danger
                   : style.colors.primary,
               type: MaterialType.circle,
               child: InkWell(
@@ -109,7 +110,7 @@ class MemberTile extends StatelessWidget {
                   TextSpan(
                     text: user.user.value.name?.val ??
                         user.user.value.num.toString(),
-                    style: style.fonts.labelLarge,
+                    style: style.fonts.normal.regular.onBackground,
                   ),
                   TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                 ],
@@ -121,7 +122,10 @@ class MemberTile extends StatelessWidget {
             }
           },
           child: canLeave
-              ? Text('btn_leave'.l10n, style: style.fonts.labelLargePrimary)
+              ? Text(
+                  'btn_leave'.l10n,
+                  style: style.fonts.normal.regular.primary,
+                )
               : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
         ),
         const SizedBox(width: 6),

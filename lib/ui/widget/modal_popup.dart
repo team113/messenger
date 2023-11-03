@@ -179,7 +179,7 @@ class ModalPopupHeader extends StatelessWidget {
           else if (text != null)
             Expanded(
               child: Center(
-                child: Text(text!, style: style.fonts.headlineMedium),
+                child: Text(text!, style: style.fonts.big.regular.onBackground),
               ),
             )
           else
@@ -190,7 +190,6 @@ class ModalPopupHeader extends StatelessWidget {
               onPressed: onClose ?? Navigator.of(context).pop,
               child: const Padding(
                 padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
-                // child: Icon(Icons.close, size: 18, color: style.colors.primary),
                 child: SvgIcon(SvgIcons.closeSmallPrimary),
               ),
             )

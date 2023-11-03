@@ -78,7 +78,9 @@ class CameraSwitchController extends GetxController {
   @override
   void onClose() {
     renderer.value?.dispose();
+    renderer.value = null;
     _localTrack?.free();
+    _localTrack = null;
     _cameraWorker?.dispose();
     _devicesSubscription?.cancel();
     super.onClose();
@@ -96,7 +98,9 @@ class CameraSwitchController extends GetxController {
     }
 
     renderer.value?.dispose();
+    renderer.value = null;
     _localTrack?.free();
+    _localTrack = null;
 
     String? camera = this.camera.value;
 

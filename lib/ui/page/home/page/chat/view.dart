@@ -297,7 +297,7 @@ class _ChatViewState extends State<ChatView>
                                   height: 32,
                                   width: 32,
                                   decoration: BoxDecoration(
-                                    color: style.colors.dangerColor,
+                                    color: style.colors.danger,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Center(
@@ -771,8 +771,8 @@ class _ChatViewState extends State<ChatView>
                                                       : 'label_no_messages'
                                                           .l10n,
                                                   textAlign: TextAlign.center,
-                                                  style:
-                                                      style.fonts.labelMedium,
+                                                  style: style.fonts.small
+                                                      .regular.onBackground,
                                                 ),
                                               ),
                                             );
@@ -964,13 +964,15 @@ class _ChatViewState extends State<ChatView>
         throw Exception('Unreachable');
       }
 
+      final FutureOr<RxUser?> user = c.getUser(e.value.author.id);
+
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(e.value.author.id),
+          future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
@@ -988,7 +990,7 @@ class _ChatViewState extends State<ChatView>
                         m.at == e.value.at &&
                         m.memberId != c.me &&
                         m.memberId != e.value.author.id),
-                user: snapshot.data,
+                user: snapshot.data ?? (user is RxUser? ? user : null),
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -1039,14 +1041,16 @@ class _ChatViewState extends State<ChatView>
         ),
       );
     } else if (element is ChatForwardElement) {
+      final FutureOr<RxUser?> user = c.getUser(element.authorId);
+
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureBuilder<RxUser?>(
-          future: c.getUser(element.authorId),
-          builder: (_, u) => Obx(() {
+          future: user is Future<RxUser?> ? user : null,
+          builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
               highlight: c.highlightIndex.value == i,
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
@@ -1065,7 +1069,7 @@ class _ChatViewState extends State<ChatView>
                         m.at == element.forwards.last.value.at &&
                         m.memberId != c.me &&
                         m.memberId != element.authorId),
-                user: u.data,
+                user: snapshot.data ?? (user is RxUser? ? user : null),
                 getUser: c.getUser,
                 animation: _animation,
                 timestamp: c.settings.value?.timelineEnabled != true,
@@ -1307,7 +1311,9 @@ class _ChatViewState extends State<ChatView>
                                   12,
                                   10,
                                 ),
-                                child: Text(text, style: style.fonts.bodyLarge),
+                                child: Text(text,
+                                    style: style
+                                        .fonts.medium.regular.onBackground),
                               ),
                             ],
                           ),
@@ -1549,7 +1555,7 @@ class _ChatViewState extends State<ChatView>
                     // WidgetSpan(child: Opacity(opacity: 1, child: pin)),
                   ],
                 ),
-                style: style.fonts.bodyLarge,
+                style: style.fonts.medium.regular.onBackground,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1562,7 +1568,7 @@ class _ChatViewState extends State<ChatView>
           Expanded(
             child: Text(
               'Call',
-              style: style.fonts.bodyLarge,
+              style: style.fonts.medium.regular.onBackground,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1593,7 +1599,7 @@ class _ChatViewState extends State<ChatView>
                   children: [
                     TextSpan(
                       text: 'label_forwarded_message'.l10n,
-                      style: style.fonts.bodyLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
@@ -1602,7 +1608,7 @@ class _ChatViewState extends State<ChatView>
                     if (quote.text != null) TextSpan(text: quote.text!.val),
                   ],
                 ),
-                style: style.fonts.bodyLarge,
+                style: style.fonts.medium.regular.onBackground,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1613,7 +1619,7 @@ class _ChatViewState extends State<ChatView>
             Expanded(
               child: Text(
                 'Forwarded message',
-                style: style.fonts.bodyLarge,
+                style: style.fonts.medium.regular.onBackground,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

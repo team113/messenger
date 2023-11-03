@@ -74,11 +74,11 @@ class ColorsView extends StatelessWidget {
       (style.colors.acceptLightest, 'acceptLightest'),
       (style.colors.acceptLighter, 'acceptLighter'),
       (style.colors.acceptLight, 'acceptLight'),
-      (style.colors.acceptAuxiliaryColor, 'acceptAuxiliaryColor'),
-      (style.colors.acceptColor, 'acceptColor'),
-      (style.colors.dangerColor, 'dangerColor'),
-      (style.colors.declineColor, 'declineColor'),
-      (style.colors.warningColor, 'warningColor'),
+      (style.colors.acceptAuxiliary, 'acceptAuxiliary'),
+      (style.colors.accept, 'accept'),
+      (style.colors.danger, 'danger'),
+      (style.colors.decline, 'decline'),
+      (style.colors.warning, 'warning'),
     ];
 
     final Iterable<(Color, String?)> avatars = style.colors.userColors
@@ -90,7 +90,7 @@ class ColorsView extends StatelessWidget {
         const SizedBox(height: CustomAppBar.height),
         Block(
           title: 'Colors',
-          unconstrained: true,
+          expanded: true,
           padding: const EdgeInsets.only(top: 16),
           children: [
             ColorSchemaWidget(colors, inverted: inverted),
@@ -99,7 +99,7 @@ class ColorsView extends StatelessWidget {
         ),
         Block(
           title: 'Avatars',
-          unconstrained: true,
+          expanded: true,
           padding: const EdgeInsets.only(top: 16),
           children: [
             ColorSchemaWidget(avatars, inverted: inverted),

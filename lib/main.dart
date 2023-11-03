@@ -65,7 +65,6 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-
   MediaKit.ensureInitialized();
 
   // Initializes and runs the [App].
@@ -140,7 +139,7 @@ Future<void> main() async {
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
-      options.release = '${Pubspec.name}@${Pubspec.version}',
+      options.release = '${Pubspec.name}@${Config.version ?? Pubspec.version}',
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,

@@ -53,14 +53,14 @@ class UnreadCounter extends StatelessWidget {
             ? inverted
                 ? style.colors.onPrimary
                 : style.colors.secondaryHighlightDarkest
-            : style.colors.dangerColor,
+            : style.colors.danger,
       ),
       alignment: Alignment.center,
       child: Text(
         count > 99 ? '99${'plus'.l10n}' : '$count',
         style: dimmed && inverted
-            ? style.fonts.displayTinySecondary
-            : style.fonts.displayTinyOnPrimary,
+            ? style.fonts.smaller.bold.secondary
+            : style.fonts.smaller.bold.onPrimary,
         maxLines: 1,
         overflow: TextOverflow.clip,
         textAlign: TextAlign.center,

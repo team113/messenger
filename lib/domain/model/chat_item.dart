@@ -84,7 +84,7 @@ class ChatMessage extends ChatItem {
 
   /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
-  final List<ChatItemQuote> repliesTo;
+  List<ChatItemQuote> repliesTo;
 
   /// Text of this [ChatMessage].
   @HiveField(6)
@@ -96,7 +96,7 @@ class ChatMessage extends ChatItem {
 
   /// [Attachment]s of this [ChatMessage].
   @HiveField(8)
-  final List<Attachment> attachments;
+  List<Attachment> attachments;
 
   int? get donate {
     final index = text?.val.lastIndexOf('?donate=');

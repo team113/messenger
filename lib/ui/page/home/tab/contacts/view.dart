@@ -97,7 +97,7 @@ class ContactsTabView extends StatelessWidget {
                         filled: false,
                         dense: true,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        style: style.fonts.bodyLarge,
+                        style: style.fonts.medium.regular.onBackground,
                         onChanged: () => c.search.value?.query.value =
                             c.search.value?.search.text ?? '',
                       ),
@@ -115,7 +115,7 @@ class ContactsTabView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         'label_synchronization'.l10n,
-                        style: style.fonts.labelMedium.copyWith(
+                        style: style.fonts.small.regular.onBackground.copyWith(
                           color: style.colors.secondary,
                         ),
                       ),
@@ -376,7 +376,8 @@ class ContactsTabView extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   element.category.name.capitalizeFirst!,
-                                  style: style.fonts.labelLarge,
+                                  style:
+                                      style.fonts.normal.regular.onBackground,
                                 ),
                               ),
                             ),
@@ -405,7 +406,7 @@ class ContactsTabView extends StatelessWidget {
                     key: const Key('NothingFound'),
                     child: Text(
                       'label_nothing_found'.l10n,
-                      style: style.fonts.labelMedium,
+                      style: style.fonts.small.regular.onBackground,
                     ),
                   ),
                 );
@@ -692,7 +693,7 @@ class ContactsTabView extends StatelessWidget {
               if (subtitle != null) {
                 return Text(
                   subtitle,
-                  style: style.fonts.labelMedium.copyWith(
+                  style: style.fonts.small.regular.onBackground.copyWith(
                     color: inverted
                         ? style.colors.onPrimary
                         : style.colors.secondary,
@@ -787,7 +788,7 @@ class ContactsTabView extends StatelessWidget {
                   'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
-                  style: style.fonts.titleLarge,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
                 onPressed: c.toggleSelecting,
                 shadows: shadows,
@@ -806,7 +807,7 @@ class ContactsTabView extends StatelessWidget {
                         .l10nfmt({'count': c.selectedContacts.length}),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: style.fonts.titleLarge.copyWith(
+                    style: style.fonts.medium.regular.onBackground.copyWith(
                       color: c.selectedContacts.isEmpty
                           ? style.colors.onBackground
                           : style.colors.onPrimary,
@@ -840,7 +841,8 @@ class ContactsTabView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-            text: contact.contact.value.name.val, style: style.fonts.bodySmall),
+            text: contact.contact.value.name.val,
+            style: style.fonts.small.regular.onBackground),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );

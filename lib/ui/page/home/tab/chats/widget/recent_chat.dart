@@ -195,8 +195,8 @@ class RecentChatTile extends StatelessWidget {
             Text(
               chat.updatedAt.val.toLocal().short,
               style: inverted
-                  ? style.fonts.labelLargeOnPrimary
-                  : style.fonts.labelLargeSecondary,
+                  ? style.fonts.normal.regular.onPrimary
+                  : style.fonts.normal.regular.secondary,
             ),
         ],
         subtitle: [
@@ -308,7 +308,7 @@ class RecentChatTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     if (blocked) {
-      return Text('Blocked', style: style.fonts.bodyMediumSecondary);
+      return Text('Blocked', style: style.fonts.normal.regular.secondary);
     }
 
     return Obx(() {
@@ -331,8 +331,8 @@ class RecentChatTile extends StatelessWidget {
                 Text(
                   'label_typing'.l10n,
                   style: inverted
-                      ? style.fonts.labelMediumOnPrimary
-                      : style.fonts.labelMediumPrimary,
+                      ? style.fonts.small.regular.onPrimary
+                      : style.fonts.small.regular.primary,
                 ),
                 const SizedBox(width: 2),
                 Padding(
@@ -354,8 +354,8 @@ class RecentChatTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: inverted
-                          ? style.fonts.labelMediumOnPrimary
-                          : style.fonts.labelMediumPrimary,
+                          ? style.fonts.small.regular.onPrimary
+                          : style.fonts.small.regular.primary,
                     ),
                   ),
                   const SizedBox(width: 2),
@@ -673,8 +673,8 @@ class RecentChatTile extends StatelessWidget {
 
       return DefaultTextStyle(
         style: inverted
-            ? style.fonts.bodyMediumOnPrimary
-            : style.fonts.bodyMediumSecondary,
+            ? style.fonts.normal.regular.onPrimary
+            : style.fonts.normal.regular.secondary,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
         child: Row(children: subtitle),
@@ -879,7 +879,7 @@ class RecentChatTile extends StatelessWidget {
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(20),
-            color: displayed ? style.colors.dangerColor : style.colors.primary,
+            color: displayed ? style.colors.danger : style.colors.primary,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
               onTap: displayed ? onDrop : onJoin,
@@ -902,7 +902,7 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: style.fonts.bodyMediumOnPrimary,
+                          style: style.fonts.normal.regular.onPrimary,
                         ).fixedDigits();
                       },
                     )
@@ -934,12 +934,12 @@ class RecentChatTile extends StatelessWidget {
       'label_delete_chat'.l10n,
       // description: [
       //   TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-      //   TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
+      //   TextSpan(text: rxChat.title.value, style: style.fonts.normal.regular.onBackground),
       //   TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       // ],
       description: [
         TextSpan(text: 'label_to_restore_chat_use_search'.l10n),
-        // TextSpan(text: rxChat.title.value, style: style.fonts.bodyMedium),
+        // TextSpan(text: rxChat.title.value, style: style.fonts.normal.regular.onBackground),
         // TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
       ],
       additional: [

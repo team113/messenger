@@ -188,7 +188,7 @@ class UserView extends StatelessWidget {
                 //               if (subtitle.isNotEmpty)
                 //                 Text(
                 //                   subtitle,
-                //                   style: style.fonts.bodySmallSecondary,
+                //                   style: style.fonts.small.regular.secondary,
                 //                 )
                 //             ],
                 //           );
@@ -251,7 +251,7 @@ class UserView extends StatelessWidget {
 
                     subtitle = Text(
                       buffer.toString(),
-                      style: style.fonts.bodySmallSecondary,
+                      style: style.fonts.small.regular.secondary,
                     );
                   }
 
@@ -269,7 +269,7 @@ class UserView extends StatelessWidget {
                       children: [
                         Text(
                           '${c.user!.user.value.name ?? c.user!.user.value.num}',
-                          style: style.fonts.headlineMedium,
+                          style: style.fonts.big.regular.onBackground,
                         ),
                         if (subtitle != null) ...[
                           const SizedBox(height: 4),
@@ -654,7 +654,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
@@ -676,7 +676,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
       ],
@@ -698,7 +698,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
       ],
@@ -720,7 +720,7 @@ class UserView extends StatelessWidget {
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.labelLarge,
+          style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
       ],

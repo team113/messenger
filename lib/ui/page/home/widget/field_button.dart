@@ -110,7 +110,8 @@ class _FieldButtonState extends State<FieldButton> {
             color: style.colors.onPrimary,
             disabled: style.colors.onPrimary,
             onPressed: widget.onPressed,
-            style: (widget.style ?? style.fonts.titleLarge).copyWith(
+            style: (widget.style ?? style.fonts.medium.regular.onBackground)
+                .copyWith(
               color: widget.onPressed == null
                   ? style.colors.onBackgroundOpacity40
                   : style.colors.onBackground,

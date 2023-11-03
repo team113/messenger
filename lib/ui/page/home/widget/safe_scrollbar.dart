@@ -81,7 +81,7 @@ class SafeScrollbar extends StatelessWidget {
     );
 
     return MediaQuery(
-      data: MediaQuery.of(router.context!).copyWith(
+      data: MediaQuery.of(router.context ?? context).copyWith(
         padding: padding.copyWith(
           top: (margin?.top ?? 0) + (top ? CustomAppBar.height - 5 : 0),
           bottom:

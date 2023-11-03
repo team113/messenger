@@ -196,7 +196,7 @@ class _WidgetsViewState extends State<WidgetsView> {
         },
         child: Text(
           'Download',
-          style: style.fonts.labelSmallPrimary,
+          style: style.fonts.smaller.regular.primary,
         ),
       ),
     );
@@ -245,7 +245,7 @@ class _WidgetsViewState extends State<WidgetsView> {
               alignment: Alignment.centerLeft,
               child: Text(
                 e.$1,
-                style: style.fonts.headlineSmall.copyWith(
+                style: style.fonts.small.regular.onBackground.copyWith(
                   color: style.colors.secondaryHighlightDarkest,
                 ),
               ),
@@ -415,11 +415,11 @@ class _WidgetsViewState extends State<WidgetsView> {
                   children: [
                     TextSpan(
                       text: 'Subtitle with: '.l10n,
-                      style: style.fonts.labelMediumSecondary,
+                      style: style.fonts.small.regular.secondary,
                     ),
                     TextSpan(
                       text: 'clickable.',
-                      style: style.fonts.labelMediumPrimary,
+                      style: style.fonts.small.regular.primary,
                       recognizer: TapGestureRecognizer()..onTap = () {},
                     ),
                   ],
@@ -485,7 +485,7 @@ class _WidgetsViewState extends State<WidgetsView> {
                     filled: false,
                     dense: true,
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    style: style.fonts.bodyLarge,
+                    style: style.fonts.medium.regular.onBackground,
                     onChanged: () {},
                   ),
                 ),
@@ -516,7 +516,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           key: const Key('SearchTextField'),
           state: TextFieldState(),
           label: 'label_search'.l10n,
-          style: style.fonts.titleMedium,
+          style: style.fonts.normal.regular.onBackground,
           onChanged: () {},
         ),
       ),
@@ -632,11 +632,11 @@ class _WidgetsViewState extends State<WidgetsView> {
       ),
       _headlines(
         children: [
-          ('SignButton', SignButton(onPressed: () {}, text: 'Label')),
+          ('SignButton', SignButton(onPressed: () {}, title: 'Label')),
           (
             'SignButton(asset)',
             SignButton(
-              text: 'E-mail',
+              title: 'E-mail',
               icon: const SvgIcon(SvgIcons.email),
               onPressed: () {},
             ),
@@ -654,7 +654,7 @@ class _WidgetsViewState extends State<WidgetsView> {
             StyledCupertinoButton(
               onPressed: () {},
               label: 'Clickable text',
-              style: style.fonts.labelLargePrimary,
+              style: style.fonts.normal.regular.primary,
             ),
           ),
         ],

@@ -300,7 +300,7 @@ class AcceptAudioButton extends CallButton {
       hint: hint,
       asset: expanded ? 'audio_call_start' : 'audio_call',
       assetWidth: expanded ? 29 : 24,
-      color: style.colors.acceptColor,
+      color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -329,7 +329,7 @@ class AcceptVideoButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       asset: 'video_on',
-      color: style.colors.acceptColor,
+      color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -355,7 +355,7 @@ class DeclineButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       icon: SvgIcons.callEndBig,
-      color: style.colors.declineColor,
+      color: style.colors.decline,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -378,7 +378,7 @@ class DropButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       icon: SvgIcons.callEndBig,
-      color: style.colors.declineColor,
+      color: style.colors.decline,
       hinted: hinted,
       onPressed: c.drop,
     );
@@ -399,7 +399,7 @@ class CancelButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       icon: SvgIcons.callEndBig,
-      color: style.colors.declineColor,
+      color: style.colors.decline,
       hinted: hinted,
       withBlur: blur,
       onPressed: c.drop,
@@ -424,7 +424,7 @@ class EndCallButton extends CallButton {
     return CallButtonWidget(
       icon: SvgIcons.callEndBig,
       hint: hint,
-      color: style.colors.declineColor,
+      color: style.colors.decline,
       hinted: hinted,
       onPressed: c.drop,
     );

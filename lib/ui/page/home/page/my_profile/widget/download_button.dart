@@ -82,7 +82,8 @@ class DownloadButton extends StatelessWidget {
                 height: height,
               ),
             ),
-      style: style.fonts.titleMedium.copyWith(color: style.colors.primary),
+      style: style.fonts.normal.regular.onBackground
+          .copyWith(color: style.colors.primary),
     );
   }
 }
@@ -90,13 +91,13 @@ class DownloadButton extends StatelessWidget {
 class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,
-    this.text = '',
+    this.title = '',
     this.onPressed,
     this.style,
     this.prefix,
   });
 
-  final String text;
+  final String title;
   final TextStyle? style;
   final void Function()? onPressed;
   final Widget? prefix;
@@ -107,7 +108,7 @@ class PrefixButton extends StatelessWidget {
       alignment: Alignment.centerLeft,
       children: [
         FieldButton(
-          text: text,
+          text: title,
           maxLines: null,
           style: style,
           onPressed: onPressed,

@@ -650,8 +650,8 @@ class SvgIcons {
 
   static const SvgData takeVideoSmall = SvgData(
     'assets/icons/take_video_small.svg',
-    width: 25.72,
-    height: 20,
+    width: 23,
+    height: 20.59,
   );
 
   static const SvgData gallery = SvgData(

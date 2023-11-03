@@ -161,7 +161,7 @@ class WelcomeMessageView extends StatelessWidget {
                                 ),
                             ],
                           ),
-                          style: style.fonts.bodyLarge,
+                          style: style.fonts.medium.regular.onBackground,
                         ),
                       ),
                     if (files.isNotEmpty)

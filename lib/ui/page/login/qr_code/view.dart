@@ -61,22 +61,22 @@ class QrCodeView extends StatelessWidget {
             if (c.scanning.value) ...[
               Text(
                 'label_scan_qr_code_to_sign_in1'.l10n,
-                style: style.fonts.titleLarge,
+                style: style.fonts.medium.regular.onBackground,
               ),
               const SizedBox(height: 8),
               Text(
                 path ?? 'label_scan_qr_code_to_sign_in2'.l10n,
-                style: style.fonts.labelMediumSecondary,
+                style: style.fonts.small.regular.secondary,
               ),
             ] else ...[
               Text(
                 'label_show_qr_code_to_sign_in1'.l10n,
-                style: style.fonts.titleLarge,
+                style: style.fonts.medium.regular.onBackground,
               ),
               const SizedBox(height: 8),
               Text(
                 path ?? 'label_show_qr_code_to_sign_in2'.l10n,
-                style: style.fonts.labelMediumSecondary,
+                style: style.fonts.small.regular.secondary,
               ),
             ],
             const SizedBox(height: 25),
@@ -126,7 +126,8 @@ class QrCodeView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text('label_or'.l10n, style: style.fonts.headlineSmall),
+                Text('label_or'.l10n,
+                    style: style.fonts.small.regular.onBackground),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Container(
@@ -140,7 +141,7 @@ class QrCodeView extends StatelessWidget {
             ),
             const SizedBox(height: 25 / 2),
             SignButton(
-              text: c.scanning.value
+              title: c.scanning.value
                   ? 'btn_scan_qr_code'.l10n
                   : 'btn_show_qr_code'.l10n,
               icon: const SvgIcon(SvgIcons.qrCode),

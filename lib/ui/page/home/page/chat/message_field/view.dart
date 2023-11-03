@@ -561,7 +561,7 @@ class MessageFieldView extends StatelessWidget {
                     filled: false,
                     dense: true,
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    style: style.fonts.bodyLarge,
+                    style: style.fonts.medium.regular.onBackground,
                     type: TextInputType.multiline,
                     textInputAction: TextInputAction.newline,
                   ),
@@ -869,7 +869,7 @@ class MessageFieldView extends StatelessWidget {
                                 child: Center(
                                   child: Icon(
                                     Icons.error,
-                                    color: style.colors.dangerColor,
+                                    color: style.colors.danger,
                                   ),
                                 ),
                               )
@@ -949,7 +949,7 @@ class MessageFieldView extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Редактирование сообщения'.l10n,
-                  style: style.fonts.bodyLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
@@ -959,7 +959,7 @@ class MessageFieldView extends StatelessWidget {
                 onPressed: onClose,
                 child: Text(
                   'Cancel',
-                  style: style.fonts.bodyLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     fontSize: 13,
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -1016,7 +1016,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: style.fonts.bodyLarge,
+          style: style.fonts.medium.regular.onBackground,
         );
       }
     } else if (item is ChatCall) {
@@ -1057,7 +1057,9 @@ class MessageFieldView extends StatelessWidget {
                     height: 15,
                   ),
           ),
-          Flexible(child: Text(title, style: style.fonts.bodyLarge)),
+          Flexible(
+              child:
+                  Text(title, style: style.fonts.medium.regular.onBackground)),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -1066,7 +1068,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.fonts.bodyLarge.copyWith(
+                style: style.fonts.medium.regular.onBackground.copyWith(
                   color: style.colors.secondary,
                   fontSize: 13,
                 ),
@@ -1077,13 +1079,15 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content =
-          Text('label_forwarded_message'.l10n, style: style.fonts.bodyLarge);
+      content = Text('label_forwarded_message'.l10n,
+          style: style.fonts.medium.regular.onBackground);
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: style.fonts.bodyLarge);
+      content = Text(item.action.toString(),
+          style: style.fonts.medium.regular.onBackground);
     } else {
-      content = Text('err_unknown'.l10n, style: style.fonts.bodyLarge);
+      content = Text('err_unknown'.l10n,
+          style: style.fonts.medium.regular.onBackground);
     }
 
     final Widget expanded;
@@ -1109,7 +1113,7 @@ class MessageFieldView extends StatelessWidget {
                 children: [
                   Text(
                     'label_edit'.l10n,
-                    style: style.fonts.bodyLarge
+                    style: style.fonts.medium.regular.onBackground
                         .copyWith(color: style.colors.primary),
                   ),
                   if (content != null) ...[
@@ -1152,12 +1156,13 @@ class MessageFieldView extends StatelessWidget {
                         return Text(
                           snapshot.data!.user.value.name?.val ??
                               snapshot.data!.user.value.num.toString(),
-                          style: style.fonts.bodyLarge.copyWith(color: color),
+                          style: style.fonts.medium.regular.onBackground
+                              .copyWith(color: color),
                         );
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.fonts.bodyLarge.copyWith(
+                        style: style.fonts.medium.regular.onBackground.copyWith(
                           color: style.colors.primary,
                         ),
                       ),

@@ -19,7 +19,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/routes.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -33,28 +32,28 @@ class CustomProgressIndicator extends StatelessWidget {
         blur = true,
         backgroundColor = null,
         valueColor = null,
-        color = null,
+        primary = false,
         strokeWidth = 2.0;
 
+  /// Constructs a [CustomProgressIndicator] with a `primary` style.
+  const CustomProgressIndicator.primary({super.key, this.value})
+      : size = 40,
+        padding = const EdgeInsets.all(4),
+        blur = false,
+        backgroundColor = null,
+        valueColor = null,
+        primary = true,
+        strokeWidth = 2;
+
+  /// Constructs a [CustomProgressIndicator] with a `big` style.
   const CustomProgressIndicator.big({super.key, this.value})
       : size = 64,
         padding = const EdgeInsets.all(6),
         blur = true,
         backgroundColor = null,
         valueColor = null,
-        color = null,
+        primary = false,
         strokeWidth = 2.0;
-
-  CustomProgressIndicator.primary({super.key, this.value})
-      : size = 40,
-        padding = const EdgeInsets.all(4),
-        blur = false,
-        backgroundColor = null,
-        valueColor = null,
-        color = router.context == null
-            ? const Color(0xFF63B4FF)
-            : Theme.of(router.context!).style.colors.primary,
-        strokeWidth = 2;
 
   /// Value of this [CustomProgressIndicator].
   final double? value;
@@ -62,8 +61,9 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Background [Color] of this [CustomProgressIndicator].
   final Color? backgroundColor;
 
-  /// [Color] of this [CustomProgressIndicator].
-  final Color? color;
+  /// Indicator whether this [CustomProgressIndicator] is primary, meaning
+  /// [Palette.primary] should be used.
+  final bool primary;
 
   /// [Animation] animating the [color] of this [CustomProgressIndicator].
   final Animation<Color?>? valueColor;
@@ -94,7 +94,9 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color: color ?? style.colors.secondaryHighlightDarkest,
+          color: primary
+              ? style.colors.primary
+              : style.colors.secondaryHighlightDarkest,
           backgroundColor:
               backgroundColor ?? style.colors.secondaryHighlightDark,
           valueColor: valueColor,

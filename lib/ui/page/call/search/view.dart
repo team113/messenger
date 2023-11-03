@@ -118,7 +118,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: style.fonts.titleMedium,
+                    style: style.fonts.normal.regular.onBackground,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -259,8 +259,8 @@ class SearchView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: enabled
-                            ? style.fonts.titleLargeOnPrimary
-                            : style.fonts.titleLarge,
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,

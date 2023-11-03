@@ -197,13 +197,13 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: (isMouseOver && !isMobile
-                        ? style.fonts.titleMediumOnPrimary
-                        : style.fonts.titleMedium)
+                style: (isMouseOver && !context.isMobile
+                        ? style.fonts.normal.regular.onPrimary
+                        : style.fonts.normal.regular.onBackground)
                     .copyWith(
-                  fontSize: isMobile
-                      ? style.fonts.bodyLarge.fontSize
-                      : style.fonts.bodySmall.fontSize,
+                  fontSize: context.isMobile
+                      ? style.fonts.medium.regular.onBackground.fontSize
+                      : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
               if ((isMobile || widget.showTrailing) &&

@@ -207,9 +207,9 @@ class _MenuButtonState extends State<_MenuButton> {
                     onChanged: () => setState(() {}),
                     formatters: [FilteringTextInputFormatter.digitsOnly],
                     // prefixText: 'G',
-                    style: style.fonts.bodyLarge,
+                    style: style.fonts.medium.regular.onBackground,
                     withTrailing: false,
-                    prefixStyle: style.fonts.bodyLarge
+                    prefixStyle: style.fonts.medium.regular.onBackground
                         .copyWith(color: style.colors.primary),
                   ),
                 ),
@@ -289,7 +289,7 @@ class _MenuButtonState extends State<_MenuButton> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 child: Text(
                   '${widget.button} ¤',
-                  style: style.fonts.titleLarge.copyWith(
+                  style: style.fonts.medium.regular.onBackground.copyWith(
                     color: style.colors.primary,
                   ),
                 ),

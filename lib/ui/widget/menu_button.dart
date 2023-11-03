@@ -88,7 +88,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.logout => 'label_end_session'.l10n,
         },
         leading = switch (tab) {
-           ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
+          ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
           ProfileTab.background => const SvgIcon(SvgIcons.menuBackground),
           ProfileTab.blocklist => const SvgIcon(SvgIcons.menuBlocklist),
           ProfileTab.calls => const SvgIcon(SvgIcons.menuCalls),
@@ -200,8 +200,8 @@ class MenuButton extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: inverted
-                                  ? style.fonts.headlineLargeOnPrimary
-                                  : style.fonts.headlineLarge,
+                                  ? style.fonts.big.regular.onPrimary
+                                  : style.fonts.big.regular.onBackground,
                               child: Text(title!),
                             ),
                           if (title != null && subtitle != null)
@@ -211,8 +211,8 @@ class MenuButton extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: inverted
-                                  ? style.fonts.labelMediumOnPrimary
-                                  : style.fonts.labelMedium,
+                                  ? style.fonts.small.regular.onPrimary
+                                  : style.fonts.small.regular.onBackground,
                               child: Text(subtitle!),
                             ),
                         ],

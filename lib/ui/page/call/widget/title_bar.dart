@@ -88,7 +88,7 @@ class TitleBar extends StatelessWidget {
                       Flexible(
                         child: Text(
                           title,
-                          style: style.fonts.labelMediumOnPrimary,
+                          style: style.fonts.small.regular.onPrimary,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

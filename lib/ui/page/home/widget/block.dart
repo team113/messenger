@@ -28,10 +28,9 @@ class Block extends StatelessWidget {
     this.title,
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.children = const [],
-    this.expanded = const [],
+    this.expanded,
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
-    this.unconstrained = false,
+    this.children = const [],
     this.headline,
     this.headlineColor,
     this.underline,
@@ -49,13 +48,11 @@ class Block extends StatelessWidget {
   /// [CrossAxisAlignment] to apply to the [children].
   final CrossAxisAlignment crossAxisAlignment;
 
-  final List<Widget> expanded;
-
   /// Indicator whether this [Block] should occupy the whole space, if `true`,
   /// or be fixed width otherwise.
   ///
   /// If not specified, then [MobileExtensionOnContext.isNarrow] is used.
-  final bool? unconstrained;
+  final bool? expanded;
 
   /// Padding to apply to the [children].
   final EdgeInsets padding;
@@ -96,7 +93,7 @@ class Block extends StatelessWidget {
             4,
           ),
 
-          constraints: (unconstrained ?? context.isNarrow)
+          constraints: (expanded ?? context.isNarrow)
               ? null
               : const BoxConstraints(maxWidth: 400),
           // constraints: (context.isNarrow || unconstrained)
@@ -126,8 +123,8 @@ class Block extends StatelessWidget {
                     child: Column(
                       children: [
                         Column(
-                          crossAxisAlignment: crossAxisAlignment,
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: crossAxisAlignment,
                           children: [
                             if (title != null)
                               Padding(
@@ -141,7 +138,8 @@ class Block extends StatelessWidget {
                                     child: Text(
                                       title!,
                                       textAlign: TextAlign.center,
-                                      style: style.fonts.headlineMedium,
+                                      style:
+                                          style.fonts.big.regular.onBackground,
                                     ),
                                   ),
                                 ),
@@ -178,18 +176,18 @@ class Block extends StatelessWidget {
                                 children: children,
                               );
                             },
-                            child: Column(
-                              key: Key('${expanded.length}'),
-                              crossAxisAlignment: crossAxisAlignment,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  color: style.colors.transparent,
-                                ),
-                                ...expanded,
-                              ],
-                            ),
+                            // child: Column(
+                            //   key: Key('${expanded.length}'),
+                            //   crossAxisAlignment: crossAxisAlignment,
+                            //   mainAxisSize: MainAxisSize.min,
+                            //   children: [
+                            //     Container(
+                            //       width: double.infinity,
+                            //       color: style.colors.transparent,
+                            //     ),
+                            //     ...expanded,
+                            //   ],
+                            // ),
                           ),
                         ),
                       ],
@@ -200,7 +198,7 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(
                       headline!,
-                      style: style.fonts.headlineSmall.copyWith(
+                      style: style.fonts.small.regular.onBackground.copyWith(
                         color: headlineColor ??
                             style.colors.secondaryHighlightDarkest,
                       ),

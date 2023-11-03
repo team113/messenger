@@ -63,7 +63,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: style.fonts.titleMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgIcon(
@@ -78,7 +78,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   state: c.repeat,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
-                  style: style.fonts.titleMedium,
+                  style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgIcon(
@@ -93,8 +93,8 @@ class ConfirmLogoutView extends StatelessWidget {
                   title: Text(
                     'btn_proceed'.l10n,
                     style: c.password.isEmpty.value || c.repeat.isEmpty.value
-                        ? style.fonts.bodyMedium
-                        : style.fonts.bodyMediumOnPrimary,
+                        ? style.fonts.normal.regular.onBackground
+                        : style.fonts.normal.regular.onPrimary,
                   ),
                   onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
                       ? null
@@ -110,7 +110,7 @@ class ConfirmLogoutView extends StatelessWidget {
               children = [
                 Text(
                   'label_password_set'.l10n,
-                  style: style.fonts.labelLargeSecondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -119,7 +119,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_close'.l10n,
-                      style: style.fonts.bodyMediumOnPrimary,
+                      style: style.fonts.normal.regular.onPrimary,
                     ),
                     onPressed: Navigator.of(context).pop,
                     color: style.colors.primary,
@@ -135,13 +135,13 @@ class ConfirmLogoutView extends StatelessWidget {
                 Center(
                   child: RichText(
                     text: TextSpan(
-                      style: style.fonts.titleLargeSecondary,
+                      style: style.fonts.medium.regular.secondary,
                       children: [
                         TextSpan(
                           text: 'alert_are_you_sure_want_to_log_out1'.l10n,
                         ),
                         TextSpan(
-                          style: style.fonts.titleLarge,
+                          style: style.fonts.medium.regular.onBackground,
                           text: c.myUser.value?.name?.val ??
                               c.myUser.value?.num.toString() ??
                               '',
@@ -157,7 +157,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 if (!c.hasPassword.value) ...[
                   RichText(
                     text: TextSpan(
-                      style: style.fonts.titleLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: style.colors.secondary,
                       ),
                       children: [
@@ -174,7 +174,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 if (c.myUser.value?.emails.confirmed.isNotEmpty != true) ...[
                   RichText(
                     text: TextSpan(
-                      style: style.fonts.titleLarge.copyWith(
+                      style: style.fonts.medium.regular.onBackground.copyWith(
                         color: style.colors.secondary,
                       ),
                       children: [
@@ -194,7 +194,7 @@ class ConfirmLogoutView extends StatelessWidget {
                     maxWidth: double.infinity,
                     title: Text(
                       'btn_logout'.l10n,
-                      style: style.fonts.titleLargeOnPrimary,
+                      style: style.fonts.medium.regular.onPrimary,
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
                     color: style.colors.primary,
@@ -208,7 +208,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_logout'.l10n,
-                            style: style.fonts.bodyMedium,
+                            style: style.fonts.normal.regular.onBackground,
                           ),
                           onPressed: () => Navigator.of(context).pop(true),
                           color: style.colors.secondaryHighlight,
@@ -221,7 +221,7 @@ class ConfirmLogoutView extends StatelessWidget {
                           maxWidth: double.infinity,
                           title: Text(
                             'btn_set_password'.l10n,
-                            style: style.fonts.bodyMediumOnPrimary,
+                            style: style.fonts.normal.regular.onPrimary,
                           ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
@@ -239,10 +239,10 @@ class ConfirmLogoutView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
+              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,
-                key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
                 shrinkWrap: true,
                 children: [
                   header,

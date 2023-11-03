@@ -438,7 +438,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       _state.overlay = navigatorKey.currentState?.overlay;
     });
 
-    await setNewRoutePath(configuration);
+    if (_state.routes.isEmpty) {
+      await setNewRoutePath(configuration);
+    }
   }
 
   @override
@@ -869,7 +871,10 @@ extension RouteLinks on RouterState {
   void auth() => go(Routes.auth);
 
   /// Changes router location to the [Routes.home] page.
-  void home() => go(Routes.home);
+  void home({bool? signedUp}) {
+    go(Routes.home);
+    arguments = {'signedUp': signedUp};
+  }
 
   /// Changes router location to the [Routes.me] page.
   void me({bool push = false}) => push ? this.push(Routes.me) : go(Routes.me);
@@ -884,11 +889,7 @@ extension RouteLinks on RouterState {
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void user(UserId id, {bool push = false, bool scrollToPaid = false}) {
-    if (push) {
-      this.push('${Routes.user}/$id');
-    } else {
-      go('${Routes.user}/$id');
-    }
+    (push ? this.push : go)('${Routes.user}/$id');
 
     if (scrollToPaid) {
       arguments = {'scrollToPaid': scrollToPaid};
@@ -902,14 +903,11 @@ extension RouteLinks on RouterState {
     ChatId id, {
     bool push = false,
     ChatItemId? itemId,
+
     // TODO: Remove when backend supports welcome messages.
     ChatMessageText? welcome,
   }) {
-    if (push) {
-      this.push('${Routes.chats}/$id');
-    } else {
-      go('${Routes.chats}/$id');
-    }
+    (push ? this.push : go)('${Routes.chats}/$id');
 
     arguments = {'itemId': itemId, 'welcome': welcome};
   }

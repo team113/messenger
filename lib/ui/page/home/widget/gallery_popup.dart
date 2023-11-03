@@ -31,6 +31,7 @@ import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -56,7 +57,10 @@ class GalleryItem {
     required this.link,
     required this.name,
     required this.size,
+    this.width,
+    this.height,
     this.checksum,
+    this.thumbhash,
     this.isVideo = false,
     this.onError,
   });
@@ -66,14 +70,20 @@ class GalleryItem {
     String link,
     String name, {
     int? size,
+    int? width,
+    int? height,
     String? checksum,
+    ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
         size: size,
+        width: width,
+        height: height,
         checksum: checksum,
+        thumbhash: thumbhash,
         isVideo: false,
         onError: onError,
       );
@@ -104,11 +114,20 @@ class GalleryItem {
   /// SHA-256 checksum of the file this [GalleryItem] represents.
   final String? checksum;
 
+  /// [ThumbHash] of the image this [GalleryItem] represents.
+  final ThumbHash? thumbhash;
+
   /// Name of the file this [GalleryItem] represents.
   final String name;
 
   /// Size in bytes of the file this [GalleryItem] represents.
   final int? size;
+
+  /// Width of the image this [GalleryItem] represents.
+  final int? width;
+
+  /// Height of the image this [GalleryItem] represents.
+  final int? height;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
   final FutureOr<void> Function()? onError;
@@ -327,7 +346,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     Future.delayed(Duration.zero, _displayControls);
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack);
     }
 
@@ -343,7 +362,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       _exitFullscreen();
     }
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -525,7 +544,10 @@ class _GalleryPopupState extends State<GalleryPopup>
                       )
                     : RetryImage(
                         e.link,
+                        width: e.width?.toDouble(),
+                        height: e.height?.toDouble(),
                         checksum: e.checksum,
+                        thumbhash: e.thumbhash,
                         onForbidden: e.onError,
                       ),
               ),
@@ -625,13 +647,13 @@ class _GalleryPopupState extends State<GalleryPopup>
                         constraints:
                             const BoxConstraints(minWidth: 1, minHeight: 1),
                         child: PlatformUtils.isWeb
-                            ? WebImage(
-                                e.link,
-                                onForbidden: e.onError,
-                              )
+                            ? WebImage(e.link, onForbidden: e.onError)
                             : RetryImage(
                                 e.link,
+                                width: e.width?.toDouble(),
+                                height: e.height?.toDouble(),
                                 checksum: e.checksum,
+                                thumbhash: e.thumbhash,
                                 onForbidden: e.onError,
                               ),
                       ),
@@ -812,10 +834,6 @@ class _GalleryPopupState extends State<GalleryPopup>
                       icon: _isFullscreen.value
                           ? SvgIcons.fullscreenExit
                           : SvgIcons.fullscreenEnter,
-                      // assetWidth: 22,
-                      // asset: _isFullscreen.value
-                      //     ? 'fullscreen_exit_white'
-                      //     : 'fullscreen_enter_white',
                     ),
                   ),
                 ),

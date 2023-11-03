@@ -118,7 +118,8 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: widget.maxLines,
-                                style: style.fonts.headlineLarge.copyWith(
+                                style: style.fonts.big.regular.onBackground
+                                    .copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
@@ -133,7 +134,8 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle.merge(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: style.fonts.labelMedium.copyWith(
+                                style: style.fonts.small.regular.onBackground
+                                    .copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,
@@ -144,7 +146,8 @@ class _MenuButtonState extends State<MenuButton> {
                               DefaultTextStyle.merge(
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: style.fonts.labelMedium.copyWith(
+                                style: style.fonts.small.regular.onBackground
+                                    .copyWith(
                                   color: widget.inverted
                                       ? style.colors.onPrimary
                                       : style.colors.onBackground,

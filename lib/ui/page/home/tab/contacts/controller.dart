@@ -51,7 +51,7 @@ import '/util/platform_utils.dart';
 
 export 'view.dart';
 
-/// Controller of the `HomeTab.contacts` tab.
+/// Controller of the [HomeTab.contacts] tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatService,
@@ -94,6 +94,7 @@ class ContactsTabController extends GetxController {
     Timer(2.seconds, () => fetching.value = null),
   );
 
+  /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to create a dialog [Chat].
@@ -147,7 +148,7 @@ class ContactsTabController extends GetxController {
     _initUsersUpdates();
 
     HardwareKeyboard.instance.addHandler(_escapeListener);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -166,7 +167,7 @@ class ContactsTabController extends GetxController {
     _userWorkers.forEach((_, v) => v.dispose());
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
@@ -242,9 +243,9 @@ class ContactsTabController extends GetxController {
     double position;
 
     if (to <= 0) {
-      position = favorites.first.contact.value.favoritePosition!.val / 2;
+      position = favorites.first.contact.value.favoritePosition!.val * 2;
     } else if (to >= favorites.length) {
-      position = favorites.last.contact.value.favoritePosition!.val * 2;
+      position = favorites.last.contact.value.favoritePosition!.val / 2;
     } else {
       position = (favorites[to].contact.value.favoritePosition!.val +
               favorites[to - 1].contact.value.favoritePosition!.val) /
@@ -464,8 +465,8 @@ class ContactsTabController extends GetxController {
   /// Sorts the [favorites] by the [ChatContact.favoritePosition].
   void _sortFavorites() {
     favorites.sort(
-      (a, b) => a.contact.value.favoritePosition!
-          .compareTo(b.contact.value.favoritePosition!),
+      (a, b) => b.contact.value.favoritePosition!
+          .compareTo(a.contact.value.favoritePosition!),
     );
   }
 

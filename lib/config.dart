@@ -104,9 +104,9 @@ class Config {
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
-  /// - default values;
   /// - compile-time environment variables;
-  /// - bundled configuration file (`conf.toml`).
+  /// - bundled configuration file (`conf.toml`);
+  /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     Map<String, dynamic> document =

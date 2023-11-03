@@ -121,20 +121,20 @@ class CallWorker extends DisposableService {
       WakelockPlus.enable().onError((_, __) => false);
     }
 
-    _lifecycleWorker = ever(router.lifecycle, (e) async {
-      if (e.inForeground) {
-        if (PlatformUtils.isAndroid) {
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+      _lifecycleWorker = ever(router.lifecycle, (e) async {
+        if (e.inForeground) {
           _callKeep.endAllCalls();
-        }
 
-        _callService.calls.forEach((id, call) {
-          if (_answeredCalls.contains(id) && !call.value.isActive) {
-            _callService.join(id, withVideo: false);
-            _answeredCalls.remove(id);
-          }
-        });
-      }
-    });
+          _callService.calls.forEach((id, call) {
+            if (_answeredCalls.contains(id) && !call.value.isActive) {
+              _callService.join(id, withVideo: false);
+              _answeredCalls.remove(id);
+            }
+          });
+        }
+      });
+    }
 
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {

@@ -83,8 +83,8 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: style.fonts.titleSmallOnPrimary.copyWith(
-                    fontSize: (style.fonts.titleSmall.fontSize! *
+                  style: style.fonts.normal.bold.onPrimary.copyWith(
+                    fontSize: (style.fonts.normal.bold.onPrimary.fontSize! *
                             constraints.biggest.shortestSide /
                             100)
                         .clamp(15, 108),
@@ -101,6 +101,7 @@ class CallCoverWidget extends StatelessWidget {
             cover!.full.url,
             key: Key(cover!.full.url),
             checksum: cover!.full.checksum,
+            thumbhash: cover!.full.thumbhash,
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

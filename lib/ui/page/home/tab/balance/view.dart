@@ -129,7 +129,8 @@ class BalanceTabView extends StatelessWidget {
                                     header: Center(
                                       child: Text(
                                         'What is  ¤ (Gapopa coin)?',
-                                        style: style.fonts.headlineMedium,
+                                        style: style
+                                            .fonts.big.regular.onBackground,
                                       ),
                                     ),
                                   ),
@@ -143,7 +144,8 @@ class BalanceTabView extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         ' ¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n ¤100 = €1.00',
-                                        style: style.fonts.labelLarge,
+                                        style: style
+                                            .fonts.normal.regular.onBackground,
                                       ),
                                     ),
                                   ),

@@ -114,7 +114,7 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.fonts.labelMediumSecondary,
+      style: style.fonts.small.regular.secondary,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
@@ -157,7 +157,7 @@ class SwipeableStatus extends StatelessWidget {
               //   color: isRead
               //       ? style.colors.primary
               //       : isError
-              //           ? style.colors.dangerColor
+              //           ? style.colors.danger
               //           : style.colors.secondary,
               //   size: 12,
               // ),

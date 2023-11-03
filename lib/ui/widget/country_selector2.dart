@@ -153,12 +153,14 @@ class CountrySelectorState extends State<CountrySelector> {
                                             )
                                             ?.replaceAll(RegExp(r'\s+'), ' ') ??
                                         country.name,
-                                    style: style.fonts.titleLarge,
+                                    style:
+                                        style.fonts.medium.regular.onBackground,
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     '+${country.phoneCode}',
-                                    style: style.fonts.labelMedium,
+                                    style:
+                                        style.fonts.small.regular.onBackground,
                                   ),
                                 ],
                               ),
@@ -198,7 +200,7 @@ class _SearchFieldState extends State<SearchField> {
       key: const Key('SearchTextField'),
       state: search,
       label: 'label_search'.l10n,
-      style: style.fonts.titleMedium,
+      style: style.fonts.normal.regular.onBackground,
       onChanged: () => widget.onChanged?.call(search.text),
     );
   }

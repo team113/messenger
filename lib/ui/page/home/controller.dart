@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/partner.dart';
@@ -31,12 +30,15 @@ import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
+import '/util/message_popup.dart';
+import 'introduction/controller.dart';
 
 export 'view.dart';
 
@@ -47,8 +49,13 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings,
     this._balanceService,
-    this._partnerService,
-  );
+    this._partnerService, {
+    this.signedUp = false,
+  });
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  final bool signedUp;
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -274,15 +281,20 @@ class HomeController extends GetxController {
   }
 
   /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
-  Future<void> _displayIntroduction(MyUser myUser) async {
-    if (!myUser.hasPassword && !router.directLink && !router.noIntroduction) {
-      router.signUp = router.signUp ||
-          myUser.emails.confirmed.isNotEmpty == true ||
-          myUser.emails.unconfirmed != null ||
-          myUser.phones.confirmed.isNotEmpty == true ||
-          myUser.phones.unconfirmed != null;
-      await IntroductionView.show(router.context!);
-      _settings.setShowIntroduction(false);
+  void _displayIntroduction(MyUser myUser) {
+    IntroductionViewStage? stage;
+
+    if (!myUser.hasPassword &&
+        myUser.emails.confirmed.isEmpty &&
+        myUser.phones.confirmed.isEmpty) {
+      stage = IntroductionViewStage.oneTime;
+    } else if (signedUp) {
+      stage = IntroductionViewStage.signUp;
+    }
+
+    if (stage != null) {
+      IntroductionView.show(router.context!, initial: stage)
+          .then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);
     }

@@ -505,7 +505,7 @@ class _PublicViewState extends State<PublicView>
                             filled: false,
                             dense: true,
                             padding: const EdgeInsets.symmetric(vertical: 8),
-                            style: style.fonts.bodyLarge,
+                            style: style.fonts.medium.regular.onBackground,
                             type: TextInputType.multiline,
                             textInputAction: TextInputAction.newline,
                           ),

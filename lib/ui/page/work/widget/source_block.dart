@@ -45,7 +45,7 @@ class SourceCodeBlock extends StatelessWidget {
                 await launchUrlString(link);
               }
             },
-        child: Text(label, style: style.fonts.bodyMediumPrimary),
+        child: Text(label, style: style.fonts.normal.regular.primary),
       );
     }
 
@@ -64,12 +64,12 @@ class SourceCodeBlock extends StatelessWidget {
               onPressed: () => router.style(push: true),
             ),
             const SizedBox(width: 4),
-            Text('(', style: style.fonts.bodyMedium),
+            Text('(', style: style.fonts.normal.regular.onBackground),
             button(
               label: 'открыть отдельно',
               link: '${Config.origin}${Routes.style}',
             ),
-            Text(')', style: style.fonts.bodyMedium),
+            Text(')', style: style.fonts.normal.regular.onBackground),
           ],
         ),
         button(

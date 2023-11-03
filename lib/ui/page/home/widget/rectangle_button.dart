@@ -16,11 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/selected_dot.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/selected_dot.dart';
 
 /// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
@@ -28,11 +28,11 @@ class RectangleButton extends StatelessWidget {
     super.key,
     this.selected = false,
     this.onPressed,
-    this.tappable = false,
     required this.label,
     this.trailingColor,
     this.trailing,
     this.radio = false,
+    this.tappable = false,
   });
 
   /// Label of this [RectangleButton].
@@ -42,11 +42,13 @@ class RectangleButton extends StatelessWidget {
   /// [Icons.check] should be displayed in a trailing.
   final bool selected;
 
+  /// Indicator whether this [RectangleButton] is radio button.
+  final bool radio;
+
   /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
 
   final bool tappable;
-  final bool radio;
 
   /// [Color] of the trailing background, when [selected] is `true`.
   final Color? trailingColor;
@@ -75,8 +77,8 @@ class RectangleButton extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: selected && !radio
-                      ? style.fonts.labelLargeOnPrimary
-                      : style.fonts.labelLarge,
+                      ? style.fonts.normal.regular.onPrimary
+                      : style.fonts.normal.regular.onBackground,
                 ),
               ),
               const SizedBox(width: 12),
@@ -96,7 +98,6 @@ class RectangleButton extends StatelessWidget {
                                 child: Icon(
                                   Icons.check,
                                   color: style.colors.onPrimary,
-                                  // color: style.colors.primary,
                                   size: 12,
                                 ),
                               )

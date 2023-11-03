@@ -88,7 +88,7 @@ class CallTitle extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: style.fonts.displayLargeOnPrimary,
+            style: style.fonts.largest.bold.onPrimary,
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
@@ -112,7 +112,7 @@ class CallTitle extends StatelessWidget {
                   if (withDots) const SizedBox(width: 13),
                   Text(
                     state!,
-                    style: style.fonts.headlineMediumOnPrimary,
+                    style: style.fonts.big.regular.onPrimary,
                   ),
                   if (withDots) const AnimatedDots(),
                 ],

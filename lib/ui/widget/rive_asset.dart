@@ -15,75 +15,74 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart';
-import 'package:rive/rive.dart';
+// import 'package:flutter/material.dart';
 
-class RiveAsset extends StatefulWidget {
-  const RiveAsset(
-    this.asset, {
-    super.key,
-    this.width,
-    this.height,
-    this.pushed = false,
-  });
+// class RiveAsset extends StatefulWidget {
+//   const RiveAsset(
+//     this.asset, {
+//     super.key,
+//     this.width,
+//     this.height,
+//     this.pushed = false,
+//   });
 
-  final String asset;
-  final double? width;
-  final double? height;
-  final bool pushed;
+//   final String asset;
+//   final double? width;
+//   final double? height;
+//   final bool pushed;
 
-  @override
-  State<RiveAsset> createState() => _RiveAssetState();
-}
+//   @override
+//   State<RiveAsset> createState() => _RiveAssetState();
+// }
 
-class _RiveAssetState extends State<RiveAsset> {
-  StateMachineController? _controller;
-  SMIBool? _hover;
-  // SMIBool? _pushed;
-  // SMITrigger? _click;
+// class _RiveAssetState extends State<RiveAsset> {
+//   StateMachineController? _controller;
+//   SMIBool? _hover;
+//   // SMIBool? _pushed;
+//   // SMITrigger? _click;
 
-  @override
-  void didUpdateWidget(RiveAsset oldWidget) {
-    setState(() => _hover?.change(widget.pushed));
-    print('${widget.pushed} ${_hover?.value}');
-    super.didUpdateWidget(oldWidget);
-  }
+//   @override
+//   void didUpdateWidget(RiveAsset oldWidget) {
+//     setState(() => _hover?.change(widget.pushed));
+//     print('${widget.pushed} ${_hover?.value}');
+//     super.didUpdateWidget(oldWidget);
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hover?.change(true)),
-      onExit:
-          widget.pushed ? null : (_) => setState(() => _hover?.change(false)),
-      child: Listener(
-        // onPointerDown: (_) => setState(() => _click?.fire()),
-        child: SizedBox(
-          width: widget.width,
-          height: widget.height,
-          child: IgnorePointer(
-            ignoring: false,
-            child: RiveAnimation.asset(
-              widget.asset,
-              fit: BoxFit.contain,
-              onInit: (a) {
-                _controller = StateMachineController.fromArtboard(
-                  a,
-                  a.stateMachines.first.name,
-                );
-                a.addController(_controller!);
+//   @override
+//   Widget build(BuildContext context) {
+//     return MouseRegion(
+//       onEnter: (_) => setState(() => _hover?.change(true)),
+//       onExit:
+//           widget.pushed ? null : (_) => setState(() => _hover?.change(false)),
+//       child: Listener(
+//         // onPointerDown: (_) => setState(() => _click?.fire()),
+//         child: SizedBox(
+//           width: widget.width,
+//           height: widget.height,
+//           child: IgnorePointer(
+//             ignoring: false,
+//             child: RiveAnimation.asset(
+//               widget.asset,
+//               fit: BoxFit.contain,
+//               onInit: (a) {
+//                 _controller = StateMachineController.fromArtboard(
+//                   a,
+//                   a.stateMachines.first.name,
+//                 );
+//                 a.addController(_controller!);
 
-                print('inputs: ${_controller?.inputs.map((e) => e.name)}');
+//                 print('inputs: ${_controller?.inputs.map((e) => e.name)}');
 
-                _hover = _controller?.findInput<bool>('HOVER') as SMIBool?;
-                // _click = _controller?.findInput<bool>('PUSH') as SMITrigger?;
-                // _pushed = _controller?.findInput<bool>('PUSH') as SMIBool?;
+//                 _hover = _controller?.findInput<bool>('HOVER') as SMIBool?;
+//                 // _click = _controller?.findInput<bool>('PUSH') as SMITrigger?;
+//                 // _pushed = _controller?.findInput<bool>('PUSH') as SMIBool?;
 
-                setState(() {});
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//                 setState(() {});
+//               },
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

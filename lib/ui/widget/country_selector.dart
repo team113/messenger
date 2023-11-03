@@ -188,11 +188,13 @@ class CountrySelectorState extends State<CountrySelector> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(country.name,
-                                      style: style.fonts.titleLarge),
+                                      style: style
+                                          .fonts.medium.regular.onBackground),
                                   const SizedBox(height: 2),
                                   Text(
                                     country.displayCountryCode,
-                                    style: style.fonts.labelMedium,
+                                    style:
+                                        style.fonts.small.regular.onBackground,
                                   ),
                                 ],
                               ),
@@ -232,7 +234,7 @@ class _SearchFieldState extends State<SearchField> {
       key: const Key('SearchTextField'),
       state: search,
       label: 'label_search'.l10n,
-      style: style.fonts.titleMedium,
+      style: style.fonts.normal.regular.onBackground,
       onChanged: () => widget.onChanged?.call(search.text),
     );
 
@@ -252,7 +254,7 @@ class _SearchFieldState extends State<SearchField> {
     //           filled: false,
     //           dense: true,
     //           padding: const EdgeInsets.symmetric(vertical: 8),
-    //           style: style.fonts.bodyLarge,
+    //           style: style.fonts.medium.regular.onBackground,
     //           onChanged: () => widget.onChanged?.call(search.text),
     //         ),
     //       ),

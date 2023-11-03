@@ -60,7 +60,7 @@ class ReactivePhoneField extends StatelessWidget {
                         ? Theme.of(context)
                             .inputDecorationTheme
                             .floatingLabelStyle
-                            ?.copyWith(color: style.colors.dangerColor)
+                            ?.copyWith(color: style.colors.danger)
                         : state.isFocused.value
                             ? Theme.of(context)
                                 .inputDecorationTheme
@@ -88,7 +88,7 @@ class ReactivePhoneField extends StatelessWidget {
               showFlagInInput: true,
               validator: PhoneValidator.compose([PhoneValidator.valid()]),
               autovalidateMode: AutovalidateMode.disabled,
-              countryCodeStyle: style.fonts.titleMedium,
+              countryCodeStyle: style.fonts.normal.regular.onBackground,
               onSaved: (p) => print('saved $p'),
               onSubmitted: (s) => state.submit(),
               onChanged: (s) {
@@ -110,8 +110,8 @@ class ReactivePhoneField extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
                       child: Text(
                         state.error.value ?? '',
-                        style: style.fonts.labelMedium.copyWith(
-                          color: style.colors.dangerColor,
+                        style: style.fonts.small.regular.onBackground.copyWith(
+                          color: style.colors.danger,
                         ),
                       ),
                     ),

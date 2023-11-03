@@ -162,7 +162,7 @@ class _WidgetsViewState extends State<IconsView> {
                       height: 32,
                       width: 32,
                       decoration: BoxDecoration(
-                        color: style.colors.dangerColor,
+                        color: style.colors.danger,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
@@ -203,7 +203,7 @@ class _WidgetsViewState extends State<IconsView> {
                       height: 22,
                       width: 22,
                       decoration: BoxDecoration(
-                        color: style.colors.dangerColor,
+                        color: style.colors.danger,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
@@ -376,21 +376,21 @@ class _WidgetsViewState extends State<IconsView> {
             children: [
               SignButton(
                 icon: const SvgIcon(SvgIcons.register),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.register.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.enter),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.enter.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.oneTime),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.oneTime.asset),
               ),
@@ -399,35 +399,35 @@ class _WidgetsViewState extends State<IconsView> {
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.email),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.email.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.phone),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.phone.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.password),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.password.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.qrCode),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.qrCode.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.google),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.google.asset),
               ),
@@ -435,49 +435,49 @@ class _WidgetsViewState extends State<IconsView> {
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.github),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.github.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.apple),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.apple.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.windows),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.windows.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.linux),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.linux.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.appStore),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.appStore.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.googlePlay),
-                text: '',
+                title: '',
                 onPressed: () =>
                     c.icon.value = IconDetails(SvgIcons.googlePlay.asset),
               ),
               const SizedBox(height: 8),
               SignButton(
                   icon: const SvgIcon(SvgIcons.android),
-                  text: '',
+                  title: '',
                   onPressed: () =>
                       c.icon.value = IconDetails(SvgIcons.android.asset)),
             ],
@@ -1676,8 +1676,8 @@ class _WidgetsViewState extends State<IconsView> {
                                 Text(
                                   '$asset',
                                   style: invert
-                                      ? style.fonts.labelLargeOnPrimary
-                                      : style.fonts.labelLarge,
+                                      ? style.fonts.normal.regular.onPrimary
+                                      : style.fonts.normal.regular.onBackground,
                                 ),
                               ],
                             ),
@@ -1694,7 +1694,7 @@ class _WidgetsViewState extends State<IconsView> {
                                   MessagePopup.success('$asset downloaded');
                                 }
                               },
-                              style: style.fonts.labelMediumPrimary,
+                              style: style.fonts.small.regular.primary,
                             ),
                           ),
                         ],

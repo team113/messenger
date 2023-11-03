@@ -111,24 +111,25 @@ class FrontendWorkView extends StatelessWidget {
                           TextSpan(
                             text:
                                 'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Flutter, Вы можете воспользоваться нашей ',
-                            style: style.fonts.bodyMedium,
+                            style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
                             text: 'корпоративной песочницей.',
-                            style: style.fonts.bodyMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://github.com/team113/flutter-incubator',
                                   ),
                           ),
                           TextSpan(
-                            text:
-                                '\n\nКроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице ',
-                            style: style.fonts.bodyMedium,
+                            text: '\n'
+                                '\n'
+                                'Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице ',
+                            style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
                             text: 'Freelance.',
-                            style: style.fonts.bodyMediumPrimary,
+                            style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => router.work(WorkTab.freelance),
                           ),
@@ -149,7 +150,7 @@ class FrontendWorkView extends StatelessWidget {
                               await LoginView.show(
                                 context,
                                 initial: LoginViewStage.signUpOrSignIn,
-                                onSuccess: () async => await c.useLink(),
+                                onSuccess: c.useLink,
                               );
                             }
                           },

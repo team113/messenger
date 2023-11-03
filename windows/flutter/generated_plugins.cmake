@@ -13,7 +13,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   pasteboard
   pdfx
   permission_handler_windows
-  rive_common
   screen_brightness_windows
   screen_retriever
   sentry_flutter

@@ -66,7 +66,7 @@ class MenuTabView extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: style.colors.acceptAuxiliaryColor,
+                      color: style.colors.acceptAuxiliary,
                     ),
                   ),
                 ),
@@ -79,7 +79,7 @@ class MenuTabView extends StatelessWidget {
                     height: 10,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: style.colors.warningColor,
+                      color: style.colors.warning,
                     ),
                   ),
                 ),
@@ -115,15 +115,13 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.toString() ??
                                   'dot'.l10n * 3,
-                              style: style.fonts.headlineMedium,
+                              style: style.fonts.big.regular.onBackground,
                             ),
                             Obx(() {
                               return Text(
                                 c.myUser.value?.status?.val ??
                                     'label_online'.l10n,
-                                style: style.fonts.labelMedium.copyWith(
-                                  color: style.colors.secondary,
-                                ),
+                                style: style.fonts.small.regular.secondary,
                               );
                             }),
                           ],

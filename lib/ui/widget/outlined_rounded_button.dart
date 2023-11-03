@@ -149,7 +149,8 @@ class OutlinedRoundedButton extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: this.style ?? style.fonts.titleLarge,
+                    style:
+                        this.style ?? style.fonts.medium.regular.onBackground,
                     child: Center(
                       child: Padding(
                         padding: leading == null
@@ -164,7 +165,7 @@ class OutlinedRoundedButton extends StatelessWidget {
                               const SizedBox(height: 1 * 0.7),
                             if (subtitle != null)
                               DefaultTextStyle.merge(
-                                style: style.fonts.labelMedium,
+                                style: style.fonts.small.regular.onBackground,
                                 child: subtitle!,
                               ),
                           ],
@@ -201,7 +202,7 @@ class OutlinedRoundedButton extends StatelessWidget {
             //       maxLines: 2,
             //       overflow: TextOverflow.ellipsis,
             //       textAlign: TextAlign.center,
-            //       style: this.style ?? style.fonts.titleLarge,
+            //       style: this.style ?? style.fonts.medium.regular.onBackground,
             //       child: Center(
             //         child: Padding(
             //           padding: leading == null
@@ -215,7 +216,7 @@ class OutlinedRoundedButton extends StatelessWidget {
             //               if (subtitle != null) const SizedBox(height: 1 * 0.7),
             //               if (subtitle != null)
             //                 DefaultTextStyle.merge(
-            //                   style: style.fonts.labelLarge,
+            //                   style: style.fonts.normal.regular.onBackground,
             //                   child: subtitle!,
             //                 ),
             //             ],

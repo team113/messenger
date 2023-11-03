@@ -33,7 +33,7 @@ class ProjectBlock extends StatelessWidget {
       children: [
         Text(
           'Messenger',
-          style: style.fonts.displayMediumSecondary,
+          style: style.fonts.larger.regular.secondary,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
@@ -41,7 +41,7 @@ class ProjectBlock extends StatelessWidget {
         const SizedBox(height: 1.6),
         Text(
           'by Gapopa',
-          style: style.fonts.titleLargeSecondary,
+          style: style.fonts.medium.regular.secondary,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,

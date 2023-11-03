@@ -234,8 +234,21 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserPassword(
     UserPassword? oldPassword,
     UserPassword newPassword,
-  ) =>
-      _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+  ) async {
+    final bool? hasPassword = myUser.value?.hasPassword;
+
+    myUser.update((u) => u?.hasPassword = true);
+
+    try {
+      await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+    } catch (_) {
+      if (hasPassword != null) {
+        myUser.update((u) => u?.hasPassword = hasPassword);
+      }
+
+      rethrow;
+    }
+  }
 
   @override
   Future<void> deleteMyUser() => _graphQlProvider.deleteMyUser();

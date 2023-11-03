@@ -47,10 +47,10 @@ class _ExpandableBlockState extends State<ExpandableBlock> {
           //   ),
           // ),
           fade: !_expanded,
-          expanded: [
-            ..._expanded ? widget.children.skip(widget.take).toList() : [],
-            const SizedBox(height: 32)
-          ],
+          // expanded: [
+          //   ..._expanded ? widget.children.skip(widget.take).toList() : [],
+          //   const SizedBox(height: 32)
+          // ],
           children: [
             const SizedBox(height: 32),
             ...(widget.preview ?? (widget.children.take(widget.take).toList())),

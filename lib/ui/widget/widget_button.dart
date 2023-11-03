@@ -22,13 +22,14 @@ import '/themes.dart';
 /// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
-    Key? key,
+    super.key,
     required this.child,
     this.behavior,
     this.onPressed,
     this.onDown,
     this.onUp,
-  }) : super(key: key);
+    this.onLongPress,
+  });
 
   /// [Widget] to press.
   final Widget child;
@@ -38,6 +39,9 @@ class WidgetButton extends StatelessWidget {
 
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
+
+  /// Callback, called when the [child] is long-pressed.
+  final void Function()? onLongPress;
 
   final void Function(TapDownDetails)? onDown;
   final void Function(TapUpDetails)? onUp;
@@ -50,6 +54,7 @@ class WidgetButton extends StatelessWidget {
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        onLongPress: onLongPress,
         onTapDown: onDown,
         onTapUp: onUp,
         behavior: behavior,

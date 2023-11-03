@@ -199,11 +199,9 @@ class ContactTile extends StatelessWidget {
                                       : 'btn_your_profile'.l10n),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: style.fonts.headlineLarge.copyWith(
-                                color: selected
-                                    ? style.colors.onPrimary
-                                    : style.colors.onBackground,
-                              ),
+                              style: selected
+                                  ? style.fonts.big.regular.onPrimary
+                                  : style.fonts.big.regular.onBackground,
                             ),
                           ),
                         ],

@@ -59,7 +59,7 @@ class SubtitleContainer extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
-            color: inverted ? const Color(0xFF1F3C5D) : Colors.white,
+            color: inverted ? const Color(0xFF1F3C5D) : const Color(0xFFFFFFFF),
             borderRadius: BorderRadius.circular(12),
           ),
           child: child,

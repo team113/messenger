@@ -121,7 +121,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
               offset: const Offset(0, -1),
               child: const SvgIcon(SvgIcons.copy),
             ),
-      style: style.fonts.titleMedium,
+      style: style.fonts.normal.regular.onBackground,
     );
   }
 }

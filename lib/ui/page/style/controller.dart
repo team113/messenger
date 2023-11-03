@@ -23,12 +23,6 @@ enum StyleTab { colors, typography, widgets, icons }
 
 /// Controller of a [StyleView].
 class StyleController extends GetxController {
-  /// Indicator whether the [StyleView] should be compact, meaning minimal
-  /// [Padding]s.
-  ///
-  /// Intended for the [StyleView] to be used as a reference.
-  final RxBool dense = RxBool(true);
-
   /// Indicator whether the [Color]s of the [StyleView] should be inverted.
   ///
   /// Meant to be used as a light/dart theme switch.

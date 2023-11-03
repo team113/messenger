@@ -89,7 +89,7 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
           child: AnimatedDefaultTextStyle(
             curve: Curves.ease,
             duration: const Duration(milliseconds: 100),
-            style: (widget.style ?? style.fonts.labelMediumSecondary),
+            style: (widget.style ?? style.fonts.small.regular.secondary),
             child: Opacity(
               opacity: _clicked
                   ? 0.5

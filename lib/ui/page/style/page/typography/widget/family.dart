@@ -15,56 +15,75 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import '/config.dart';
 import '/themes.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
-/// [FontWeight] visual representation.
+/// [Column] describing visually a font family of the provided [weight].
 class FontFamily extends StatelessWidget {
-  const FontFamily(
-    this.family, {
+  const FontFamily({
     super.key,
-    this.inverted = false,
-    this.dense = false,
+    required this.weight,
+    required this.name,
+    required this.asset,
   });
 
-  /// [FontWeight] along with its title to display.
-  final (FontWeight, String) family;
+  /// [FontWeight] of the family to describe.
+  final FontWeight weight;
 
-  /// Indicator whether this [FontFamily] should have its colors
-  /// inverted.
-  final bool inverted;
+  /// Name of this [FontFamily].
+  final String name;
 
-  /// Indicator whether this [FontFamily] should be dense, meaning no
-  /// [Padding]s.
-  final bool dense;
+  /// Asset name of this [FontFamily].
+  final String asset;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return DefaultTextStyle(
-      style: style.fonts.displayLarge.copyWith(
-        color: inverted ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
-        fontWeight: family.$1,
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: dense ? 0 : 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Flexible(
-              child: Text(
-                'ABCDEFGHIJKLMNOPQRSTUVWXYZ\n'
-                'abcdefghijklmnopqrstuvwxyz\n'
-                '1234567890 _-–—.,:;!?()[]{}|©=+£€\$&%№«»“”˚*',
-              ),
-            ),
-            Text(family.$2),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'G, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style.fonts.largest.regular.onBackground
+              .copyWith(fontWeight: weight),
         ),
-      ),
+        const SizedBox(height: 4),
+        WidgetButton(
+          onPressed: () async {
+            String? to;
+
+            try {
+              to = await FilePicker.platform.saveFile(
+                fileName: asset,
+                type: FileType.image,
+                lockParentWindow: true,
+              );
+            } on UnimplementedError catch (_) {
+              // No-op.
+            }
+
+            await PlatformUtils.download(
+              '${Config.origin}/assets/assets/fonts/$asset',
+              asset,
+              null,
+              path: to,
+            );
+
+            MessagePopup.success('$asset downloaded');
+          },
+          child: Text(name, style: style.fonts.smaller.regular.primary),
+        ),
+        const SizedBox(height: 12),
+      ],
     );
   }
 }

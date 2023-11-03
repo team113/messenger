@@ -41,6 +41,10 @@ FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d '"'))
 
+FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
+FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
+FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
+
 
 
 
@@ -64,6 +68,9 @@ down: docker.down
 
 
 e2e: test.e2e
+
+
+fcm: fcm.conf
 
 
 fmt: flutter.fmt
@@ -775,6 +782,31 @@ endif
 
 
 
+#####################
+# Firebase commands #
+#####################
+
+# Configure FCM (Firebase Cloud Messaging).
+#
+# Usage:
+#	make fcm.conf [project-id=($(FCM_PROJECT_ID)|<project-id>)]
+#	              [platforms=android,ios,macos,web|<platforms>]
+#	              [web-id=($(FCM_WEB_ID)|<web-id>)]
+#	              [bundle-id=($(FCM_BUNDLE_ID)|<bundle-id>)]
+
+fcm.conf:
+	flutterfire configure -y \
+		--project=$(or $(project-id),$(FCM_PROJECT)) \
+		--platforms=$(strip $(or $(platforms),\
+		                    android$(comma)ios$(comma)macos$(comma)web)) \
+		--ios-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--macos-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--android-package-name=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--web-app-id=$(or $(web-id),$(FCM_WEB))
+
+
+
+
 ################
 # Git commands #
 ################
@@ -796,41 +828,17 @@ endif
 
 
 
-#####################
-# Firebase commands #
-#####################
-
-# Configure Firebase Cloud Messaging.
-#
-# Usage:
-#	make firebase.configure [project-id=<project-id>]
-#	                        [platforms=android,ios,macos,web|<platforms>]
-#	                        [web-app-id=<web-app-id>]
-#	                        [bundle-id=<bundle-id>]
-
-firebase.configure:
-	flutterfire configure -y --project=$(project-id) \
-	                         --platforms=$(or $(platforms),\
-	                        	android$(comma)ios$(comma)macos$(comma)web) \
-	                         --ios-bundle-id=$(bundle-id) \
-	                         --macos-bundle-id=$(bundle-id) \
-	                         --android-package-name=$(bundle-id) \
-	                         --web-app-id=$(web-app-id)
-
-
-
-
 ##################
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs down e2e fmt gen lint release run test up \
+.PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
-        firebase.configure \
+        fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \

@@ -187,8 +187,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                               child: Text(
                                 p.basenameWithoutExtension(e.filename),
                                 // style: const TextStyle(fontSize: 15),
-                                style: style
-                                    .fonts.bodyLarge, //.copyWith(fontSize: 15),
+                                style: style.fonts.medium.regular.onBackground,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -196,8 +195,7 @@ class _DownloadableFileState extends State<DownloadableFile> {
                             Text(
                               p.extension(e.filename),
                               // style: const TextStyle(fontSize: 15),
-                              style: style
-                                  .fonts.bodyLarge, //.copyWith(fontSize: 15),
+                              style: style.fonts.medium.regular.onBackground,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -212,7 +210,8 @@ class _DownloadableFileState extends State<DownloadableFile> {
                           }),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: style.fonts.bodyLarge.copyWith(
+                          style:
+                              style.fonts.medium.regular.onBackground.copyWith(
                             // style: TextStyle(
                             fontSize: 13,
                             color: const Color(0xFF888888),

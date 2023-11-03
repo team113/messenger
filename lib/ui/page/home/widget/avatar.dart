@@ -442,8 +442,8 @@ class _AvatarWidgetState extends State<AvatarWidget> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: widget.isAway
-                  ? style.colors.warningColor
-                  : style.colors.acceptAuxiliaryColor,
+                  ? style.colors.warning
+                  : style.colors.acceptAuxiliary,
             ),
           ),
         ),
@@ -470,10 +470,10 @@ class _AvatarWidgetState extends State<AvatarWidget> {
                     SelectionContainer.disabled(
                       child: Text(
                         (widget.title ?? '??').initials(),
-                        style: style.fonts.titleSmall.copyWith(
-                          fontSize: style.fonts.bodyMedium.fontSize! *
-                              (maxWidth / 40.0),
-                          color: style.colors.onPrimary,
+                        style: style.fonts.normal.bold.onPrimary.copyWith(
+                          fontSize:
+                              style.fonts.normal.bold.onPrimary.fontSize! *
+                                  (maxWidth / 40.0),
                         ),
 
                         // Disable the accessibility size settings for this [Text].
