@@ -369,6 +369,7 @@ jobs:
         id: check_commit
         run: |
           PR_NUMBER=${GITHUB_REF#refs/pull/}
+          echo "Current PR number: $PR_NUMBER"
           MESSAGE=$(curl -s 'https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits' | jq -r '.[-1].commit.message')
           echo "Current commit message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
