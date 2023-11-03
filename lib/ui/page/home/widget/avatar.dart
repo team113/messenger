@@ -480,16 +480,17 @@ class AvatarWidget extends StatelessWidget {
             if (avatar != null || child != null)
               Positioned.fill(
                 child: ClipOval(
-                  child: child ?? RetryImage(
-                    image!.url,
-                    checksum: image.checksum,
-                    thumbhash: image.thumbhash,
-                    fit: BoxFit.cover,
-                    height: double.infinity,
-                    width: double.infinity,
-                    displayProgress: false,
-                    onForbidden: onForbidden,
-                  ),
+                  child: child ??
+                      RetryImage(
+                        image!.url,
+                        checksum: image.checksum,
+                        thumbhash: image.thumbhash,
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                        width: double.infinity,
+                        displayProgress: false,
+                        onForbidden: onForbidden,
+                      ),
                 ),
               ),
           ],
