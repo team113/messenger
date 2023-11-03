@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/file_size.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
@@ -28,6 +27,7 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
+import '/util/file_size.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
