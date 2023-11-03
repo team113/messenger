@@ -34,8 +34,6 @@ class Block extends StatelessWidget {
     this.color,
     this.headlineColor,
     this.headline,
-    this.expanded = const [],
-    this.fade = false,
     this.margin,
   });
 
@@ -47,8 +45,6 @@ class Block extends StatelessWidget {
 
   /// [CrossAxisAlignment] to apply to the [children].
   final CrossAxisAlignment crossAxisAlignment;
-
-  final List<Widget> expanded;
 
   /// Indicator whether this [Block] should occupy the whole space, if `true`,
   /// or be fixed width otherwise.
@@ -62,12 +58,15 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
+  /// Headline of this [Block].
   final String? headline;
 
-  final Color? color;
+  /// Optional [Color] of the [headline].
   final Color? headlineColor;
 
-  final bool fade;
+  /// Optional background [Color] of this [Block].
+  final Color? color;
+
   final double? margin;
 
   @override
@@ -77,7 +76,6 @@ class Block extends StatelessWidget {
     final InputBorder border = OutlineInputBorder(
       borderSide: BorderSide(
         color: style.primaryBorder.top.color,
-        // color: style.colors.secondary,
         width: style.primaryBorder.top.width,
       ),
       borderRadius: BorderRadius.circular(15),
@@ -93,7 +91,6 @@ class Block extends StatelessWidget {
             8,
             4,
           ),
-
           constraints: (unconstrained ?? context.isNarrow)
               ? null
               : const BoxConstraints(maxWidth: 400),
@@ -119,74 +116,27 @@ class Block extends StatelessWidget {
                     alignment: Alignment.topCenter,
                     curve: Curves.easeInOut,
                     child: Column(
+                      crossAxisAlignment: crossAxisAlignment,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Column(
-                          crossAxisAlignment: crossAxisAlignment,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (title != null)
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    child: Text(
-                                      title!,
-                                      textAlign: TextAlign.center,
-                                      style: style.fonts.big.regular.onBackground,
-                                    ),
-                                  ),
+                        if (title != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  title!,
+                                  textAlign: TextAlign.center,
+                                  style: style.fonts.big.regular.onBackground,
                                 ),
                               ),
-                            ...children,
-                          ],
-                        ),
-                        IgnorePointer(
-                          child: AnimatedSwitcher(
-                            switchInCurve: Curves.easeInOut,
-                            switchOutCurve: Curves.easeInOut,
-                            duration: const Duration(milliseconds: 300),
-                            layoutBuilder: (current, previous) {
-                              List<Widget> children = previous;
-
-                              if (current != null) {
-                                if (previous.isEmpty) {
-                                  children = [current];
-                                } else {
-                                  children = [
-                                    Positioned(
-                                      left: 0.0,
-                                      right: 0.0,
-                                      child: Container(child: previous[0]),
-                                    ),
-                                    current,
-                                  ];
-                                }
-                              }
-
-                              return Stack(
-                                clipBehavior: Clip.none,
-                                alignment: Alignment.topCenter,
-                                children: children,
-                              );
-                            },
-                            child: Column(
-                              key: Key('${expanded.length}'),
-                              crossAxisAlignment: crossAxisAlignment,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  color: style.colors.transparent,
-                                ),
-                                ...expanded,
-                              ],
                             ),
                           ),
-                        ),
+                        ...children,
                       ],
                     ),
                   ),
@@ -195,34 +145,10 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(
                       headline!,
-                      style: style.fonts.small.regular.secondaryHighlightDarkest.copyWith(
+                      style: style.fonts.small.regular.secondaryHighlightDarkest
+                          .copyWith(
                         color: headlineColor,
                       ),
-                    ),
-                  ),
-                if (fade)
-                  Positioned.fill(
-                    child: Column(
-                      children: [
-                        const Spacer(),
-                        Container(
-                          width: double.infinity,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              stops: [0, 0.7, 0.9, 1],
-                              colors: [
-                                Color(0x00FFFFFF),
-                                Color(0xFFFFFFFF),
-                                Color(0xFFFFFFFF),
-                                Color(0xFFFFFFFF),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
               ],
