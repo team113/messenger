@@ -66,10 +66,12 @@ import '/provider/gql/exceptions.dart'
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
+        FavoriteChatException,
         HideChatItemException,
         PostChatMessageException,
         ReadChatException,
         ToggleChatMuteException,
+        UnfavoriteChatException,
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
@@ -1395,6 +1397,30 @@ class ChatController extends GetxController {
     try {
       await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
     } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    try {
+      await _chatService.favoriteChat(chat?.id ?? id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    try {
+      await _chatService.unfavoriteChat(chat?.id ?? id);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

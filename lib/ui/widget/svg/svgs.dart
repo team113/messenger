@@ -644,14 +644,14 @@ class SvgIcons {
 
   static const SvgData takeVideo = SvgData(
     'assets/icons/take_video.svg',
-    width: 23,
-    height: 23.66,
+    width: 27.97,
+    height: 25,
   );
 
   static const SvgData takeVideoSmall = SvgData(
     'assets/icons/take_video_small.svg',
-    width: 23,
-    height: 20.59,
+    width: 25.72,
+    height: 23,
   );
 
   static const SvgData gallery = SvgData(
@@ -1274,5 +1274,65 @@ class SvgIcons {
     'assets/icons/chat_audio_call_filled.svg',
     width: 21,
     height: 21,
+  );
+
+  static const SvgData coin = SvgData(
+    'assets/icons/coin.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData makeAudioCall = SvgData(
+    'assets/icons/make_audio_call.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData makeVideoCall = SvgData(
+    'assets/icons/make_video_call.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData favoriteSmall = SvgData(
+    'assets/icons/favorite_small.svg',
+    width: 20.57,
+    height: 19.57,
+  );
+
+  static const SvgData unfavoriteSmall = SvgData(
+    'assets/icons/unfavorite_small.svg',
+    width: 20.57,
+    height: 19.57,
+  );
+
+  static const SvgData muteSmall = SvgData(
+    'assets/icons/mute_small.svg',
+    width: 18.2,
+    height: 18.5,
+  );
+
+  static const SvgData unmuteSmall = SvgData(
+    'assets/icons/unmute_small.svg',
+    width: 18.2,
+    height: 18.5,
+  );
+
+  static const SvgData block = SvgData(
+    'assets/icons/block.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData cleanHistory = SvgData(
+    'assets/icons/clean_history.svg',
+    width: 17.21,
+    height: 18,
+  );
+
+  static const SvgData addContact = SvgData(
+    'assets/icons/add_contact.svg',
+    width: 19.38,
+    height: 18,
   );
 }

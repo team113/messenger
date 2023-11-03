@@ -361,6 +361,13 @@ class _ChatViewState extends State<ChatView>
                                     final bool muted =
                                         c.chat?.chat.value.muted != null;
 
+                                    final bool favorite =
+                                        c.chat?.chat.value.favoritePosition !=
+                                            null;
+
+                                    // final bool contact =
+                                    //     c.chat?.chat.value.isDialog == true && c.chat?.members.values.firstWhereOrNull((e) => e.id != c.me)?.user.value.;
+
                                     return ContextMenuRegion(
                                       selector: c.moreKey,
                                       alignment: Alignment.topRight,
@@ -376,10 +383,19 @@ class _ChatViewState extends State<ChatView>
                                           ContextMenuButton(
                                             label: 'btn_audio_call'.l10n,
                                             onPressed: () => c.call(false),
+                                            trailing: const SvgIcon(
+                                              SvgIcons.makeAudioCall,
+                                            ),
                                           ),
                                           ContextMenuButton(
                                             label: 'btn_video_call'.l10n,
                                             onPressed: () => c.call(true),
+                                            trailing: Transform.translate(
+                                              offset: const Offset(2, 0),
+                                              child: const SvgIcon(
+                                                SvgIcons.makeVideoCall,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                         if (c.chat?.chat.value.isDialog ==
@@ -394,15 +410,29 @@ class _ChatViewState extends State<ChatView>
                                                 (e) => e.id != c.me,
                                               ),
                                             ),
-                                            trailing:
-                                                const Icon(Icons.paid_outlined),
+                                            trailing: const SvgIcon(
+                                              SvgIcons.coin,
+                                            ),
                                           ),
                                           ContextMenuButton(
                                             label: 'btn_add_to_contacts'.l10n,
+                                            trailing: const SvgIcon(
+                                              SvgIcons.addContact,
+                                            ),
                                           ),
                                         ],
                                         ContextMenuButton(
-                                          label: 'btn_add_to_favorites'.l10n,
+                                          label: favorite
+                                              ? 'btn_delete_from_favorites'.l10n
+                                              : 'btn_add_to_favorites'.l10n,
+                                          onPressed: favorite
+                                              ? c.unfavoriteChat
+                                              : c.favoriteChat,
+                                          trailing: SvgIcon(
+                                            favorite
+                                                ? SvgIcons.favoriteSmall
+                                                : SvgIcons.unfavoriteSmall,
+                                          ),
                                         ),
                                         ContextMenuButton(
                                           label: muted
@@ -414,12 +444,22 @@ class _ChatViewState extends State<ChatView>
                                                   : 'btn_mute_chat'.l10n,
                                           onPressed:
                                               muted ? c.unmuteChat : c.muteChat,
+                                          trailing: SvgIcon(
+                                            muted
+                                                ? SvgIcons.unmuteSmall
+                                                : SvgIcons.muteSmall,
+                                          ),
                                         ),
                                         ContextMenuButton(
                                           label: 'btn_clear_history'.l10n,
+                                          trailing: const SvgIcon(
+                                            SvgIcons.cleanHistory,
+                                          ),
                                         ),
                                         ContextMenuButton(
                                           label: 'btn_block'.l10n,
+                                          trailing:
+                                              const SvgIcon(SvgIcons.block),
                                         ),
                                       ],
                                       child: Container(
@@ -780,7 +820,7 @@ class _ChatViewState extends State<ChatView>
 
                                           if (c.chat?.status.value.isLoading !=
                                               false) {
-                                            return Center(
+                                            return const Center(
                                               child: CustomProgressIndicator
                                                   .primary(),
                                             );
@@ -810,6 +850,7 @@ class _ChatViewState extends State<ChatView>
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  const SizedBox(height: 8),
                                   SquareButton(
                                     SvgIcons.chatAudioCall,
                                     onPressed: () => c.call(false),
@@ -819,6 +860,7 @@ class _ChatViewState extends State<ChatView>
                                     SvgIcons.chatVideoCall,
                                     onPressed: () => c.call(true),
                                   ),
+                                  const SizedBox(height: 8),
                                 ],
                               ),
                             ),

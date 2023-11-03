@@ -129,10 +129,13 @@ class TakeVideoButton extends ChatButton {
   SvgData get asset => SvgIcons.takeVideo;
 
   @override
+  Offset get offset => const Offset(0, -1.5);
+
+  @override
   SvgData get assetMini => SvgIcons.takeVideoSmall;
 
   @override
-  Offset get offsetMini => const Offset(3, 0);
+  Offset get offsetMini => const Offset(2, 0);
 }
 
 class GalleryButton extends ChatButton {
