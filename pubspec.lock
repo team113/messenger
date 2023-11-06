@@ -945,11 +945,10 @@ packages:
   log_me:
     dependency: "direct main"
     description:
-      path: "."
-      ref: bring-colors-to-web
-      resolved-ref: e67627f2ed036d3051347ebddce93e5a8867ccee
-      url: "https://github.com/lapuske/log_me.git"
-    source: git
+      name: log_me
+      sha256: "62c56d6c24f321ab019cd875d97c2d74c6524827a0138e68bd1fc20cdd953ab1"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.1.2"
   logging:
     dependency: transitive
