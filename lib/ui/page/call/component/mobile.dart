@@ -20,7 +20,6 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -29,6 +28,7 @@ import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
 import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/double_bounce_indicator.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
@@ -278,15 +278,9 @@ Widget mobileCall(CallController c, BuildContext context) {
             }),
 
             if (isOutgoing)
-              Padding(
-                padding: const EdgeInsets.all(21.0),
-                child: Center(
-                  child: SpinKitDoubleBounce(
-                    color: style.colors.secondaryHighlight,
-                    size: 66,
-                    duration: const Duration(milliseconds: 4500),
-                  ),
-                ),
+              const Padding(
+                padding: EdgeInsets.all(21.0),
+                child: Center(child: DoubleBounceLoadingIndicator()),
               ),
           ],
         );

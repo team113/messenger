@@ -80,7 +80,7 @@ class RoundFloatingButton extends StatefulWidget {
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
 
-  /// Optional [MouseCursor] of this [RoundFloatingButton].
+  /// Optional [MouseCursor] to display over this [RoundFloatingButton].
   final MouseCursor? mouseCursor;
 
   @override
@@ -168,7 +168,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     return widget.text == null
         ? button
         : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [

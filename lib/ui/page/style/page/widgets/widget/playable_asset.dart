@@ -116,51 +116,6 @@ class _PlayableAssetState extends State<PlayableAsset> {
         ),
       ],
     );
-
-    // return DefaultTextStyle(
-    //   style: style.fonts.bodySmall,
-    //   child: Column(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: [
-    //       Padding(
-    //         padding: const EdgeInsets.only(left: 4, bottom: 4),
-    //         child: WidgetButton(
-    //           onPressed: () {
-    //             Clipboard.setData(
-    //               ClipboardData(text: 'audio/${widget.asset}.mp3'),
-    //             );
-    //             MessagePopup.success('Path to the asset has been copied');
-    //           },
-    //           child: Text('${widget.asset}.mp3'),
-    //         ),
-    //       ),
-    //       Container(
-    //         height: 80,
-    //         width: 120,
-    //         decoration: BoxDecoration(
-    //           color: const Color(0xFFFFFFFF),
-    //           borderRadius: BorderRadius.circular(12),
-    //           border: Border.all(color: const Color(0xFF1F3C5D)),
-    //         ),
-    //         child: GestureDetector(
-    //           onTap: _audio != null ? _stopAudio : _playAudio,
-    //           child: Icon(
-    //             _audio != null
-    //                 ? Icons.pause_outlined
-    //                 : Icons.play_arrow_rounded,
-    //             size: 50,
-    //             color: const Color(0xFF1F3C5D),
-    //           ),
-    //         ),
-    //       ),
-    //       if (widget.subtitle != null)
-    //         Padding(
-    //           padding: const EdgeInsets.only(left: 4, top: 4),
-    //           child: Text(widget.subtitle!),
-    //         ),
-    //     ],
-    //   ),
-    // );
   }
 
   /// Plays the audio.

@@ -21,7 +21,6 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -31,6 +30,7 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/dock_decorator.dart';
+import '../widget/double_bounce_indicator.dart';
 import '../widget/drop_box.dart';
 import '../widget/drop_box_area.dart';
 import '../widget/hint.dart';
@@ -254,11 +254,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (!Config.disableInfiniteAnimations)
-                      SpinKitDoubleBounce(
-                        color: style.colors.secondaryHighlightDark,
-                        size: 100 / 1.5,
-                        duration: const Duration(milliseconds: 4500),
-                      ),
+                      const DoubleBounceLoadingIndicator(),
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,

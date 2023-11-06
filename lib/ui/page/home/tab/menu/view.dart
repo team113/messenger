@@ -93,7 +93,7 @@ class MenuTabView extends StatelessWidget {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
                           key: c.profileKey,
-                          radius: 17,
+                          radius: AvatarRadius.medium,
                         );
                       }),
                     ),

@@ -28,13 +28,14 @@ class Block extends StatelessWidget {
     this.title,
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.expanded,
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.children = const [],
-    this.expanded = false,
     this.color,
     this.headlineColor,
     this.headline,
     this.topMargin,
+    this.maxWidth,
   });
 
   /// Optional header of this [Block].
@@ -70,6 +71,9 @@ class Block extends StatelessWidget {
   /// Optional top margin of this [Block].
   final double? topMargin;
 
+  /// Optional max width of this [Block].
+  final double? maxWidth;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -94,7 +98,7 @@ class Block extends StatelessWidget {
           ),
           constraints: (expanded ?? context.isNarrow)
               ? null
-              : const BoxConstraints(maxWidth: 400),
+              : BoxConstraints(maxWidth: maxWidth ?? 400),
           child: InputDecorator(
             decoration: InputDecoration(
               filled: true,

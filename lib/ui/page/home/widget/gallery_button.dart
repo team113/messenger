@@ -43,7 +43,7 @@ class GalleryButton extends StatelessWidget {
   /// Callback, called when this [GalleryButton] is pressed.
   final void Function()? onPressed;
 
-  /// Optional [MouseCursor] of this [RoundFloatingButton].
+  /// Optional [MouseCursor] to display over this [GalleryButton].
   final MouseCursor? mouseCursor;
 
   @override

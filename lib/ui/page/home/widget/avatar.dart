@@ -37,6 +37,40 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
+/// Possible radiuses of an [AvatarWidget].
+enum AvatarRadius {
+  smallest,
+  smaller,
+  small,
+  medium,
+  big,
+  large,
+  larger,
+  largest;
+
+  /// Converts this [AvatarRadius] to a [double].
+  double toDouble() {
+    switch (this) {
+      case AvatarRadius.smallest:
+        return 8;
+      case AvatarRadius.smaller:
+        return 10;
+      case AvatarRadius.small:
+        return 15;
+      case AvatarRadius.medium:
+        return 17;
+      case AvatarRadius.big:
+        return 20;
+      case AvatarRadius.large:
+        return 30;
+      case AvatarRadius.larger:
+        return 32;
+      case AvatarRadius.largest:
+        return 100;
+    }
+  }
+}
+
 /// Widget to build an [Avatar].
 ///
 /// Displays a colored [BoxDecoration] with initials based on a [title] if
@@ -47,8 +81,6 @@ class AvatarWidget extends StatelessWidget {
     this.avatar,
     this.child,
     this.radius,
-    this.maxRadius,
-    this.minRadius,
     this.title,
     this.color,
     this.opacity = 1,
@@ -63,9 +95,7 @@ class AvatarWidget extends StatelessWidget {
     ChatContact? contact, {
     Key? key,
     Avatar? avatar,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -76,8 +106,6 @@ class AvatarWidget extends StatelessWidget {
             ? contact?.name.val.sum()
             : contact?.users.first.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -86,9 +114,7 @@ class AvatarWidget extends StatelessWidget {
     RxChatContact? contact, {
     Key? key,
     Avatar? avatar,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
   }) {
@@ -98,8 +124,6 @@ class AvatarWidget extends StatelessWidget {
         contact?.contact.value,
         avatar: avatar,
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     }
@@ -117,8 +141,6 @@ class AvatarWidget extends StatelessWidget {
             ? contact.contact.value.name.val.sum()
             : contact.user.value?.user.value.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     });
@@ -128,9 +150,7 @@ class AvatarWidget extends StatelessWidget {
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
@@ -143,8 +163,6 @@ class AvatarWidget extends StatelessWidget {
         title: myUser?.name?.val ?? myUser?.num.val,
         color: myUser?.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
         onForbidden: onForbidden,
       );
@@ -153,9 +171,7 @@ class AvatarWidget extends StatelessWidget {
   factory AvatarWidget.fromUser(
     User? user, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -164,8 +180,6 @@ class AvatarWidget extends StatelessWidget {
         title: user?.name?.val ?? user?.num.val,
         color: user?.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -173,9 +187,7 @@ class AvatarWidget extends StatelessWidget {
   static Widget fromRxUser(
     RxUser? user, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
   }) {
@@ -184,8 +196,6 @@ class AvatarWidget extends StatelessWidget {
         user?.user.value,
         key: key,
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     }
@@ -199,8 +209,6 @@ class AvatarWidget extends StatelessWidget {
         title: user.user.value.name?.val ?? user.user.value.num.val,
         color: user.user.value.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       ),
     );
@@ -211,9 +219,7 @@ class AvatarWidget extends StatelessWidget {
     Chat? chat,
     UserId? me, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -229,8 +235,6 @@ class AvatarWidget extends StatelessWidget {
         avatar: chat?.avatar,
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -241,9 +245,7 @@ class AvatarWidget extends StatelessWidget {
     Avatar? avatar,
     UserId? me, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -252,8 +254,6 @@ class AvatarWidget extends StatelessWidget {
         title: title,
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -261,17 +261,13 @@ class AvatarWidget extends StatelessWidget {
   static Widget fromRxChat(
     RxChat? chat, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) {
     if (chat == null) {
       return AvatarWidget(
         key: key,
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     }
@@ -282,8 +278,6 @@ class AvatarWidget extends StatelessWidget {
           chat.chat.value,
           chat.me,
           radius: radius,
-          maxRadius: maxRadius,
-          minRadius: minRadius,
           opacity: opacity,
         );
       }
@@ -298,8 +292,6 @@ class AvatarWidget extends StatelessWidget {
         title: chat.title.value,
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     });
@@ -317,29 +309,8 @@ class AvatarWidget extends StatelessWidget {
 
   /// Size of the avatar, expressed as the radius (half the diameter).
   ///
-  /// If [radius] is specified, then neither [minRadius] nor [maxRadius] may be
-  /// specified. Specifying [radius] is equivalent to specifying a [minRadius]
-  /// and [maxRadius], both with the value of [radius].
-  ///
-  /// If neither [minRadius] nor [maxRadius] are specified, defaults to 20
-  /// logical pixels.
-  final double? radius;
-
-  /// The maximum size of the avatar, expressed as the radius (half the
-  /// diameter).
-  ///
-  /// If [maxRadius] is specified, then [radius] must not also be specified.
-  ///
-  /// Defaults to [double.infinity].
-  final double? maxRadius;
-
-  /// The minimum size of the avatar, expressed as the radius (half the
-  /// diameter).
-  ///
-  /// If [minRadius] is specified, then [radius] must not also be specified.
-  ///
-  /// Defaults to zero.
-  final double? minRadius;
+  /// Defaults is [AvatarRadius.big].
+  final AvatarRadius? radius;
 
   /// Optional title of an avatar to display.
   final String? title;
@@ -368,18 +339,18 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
-    if (radius == null && minRadius == null && maxRadius == null) {
-      return 40;
+    if (radius == null) {
+      return AvatarRadius.big.toDouble() * 2;
     }
-    return 2.0 * (radius ?? minRadius ?? 20);
+    return 2.0 * radius!.toDouble();
   }
 
   /// Returns maximum diameter of the avatar.
   double get _maxDiameter {
-    if (radius == null && minRadius == null && maxRadius == null) {
-      return 40;
+    if (radius == null) {
+      return AvatarRadius.big.toDouble() * 2;
     }
-    return 2.0 * (radius ?? maxRadius ?? 40);
+    return 2.0 * radius!.toDouble();
   }
 
   @override

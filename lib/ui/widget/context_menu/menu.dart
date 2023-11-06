@@ -25,20 +25,23 @@ class ContextMenu extends StatelessWidget {
   const ContextMenu({
     super.key,
     required this.actions,
-    this.enlarge,
+    this.mobile,
   });
 
   /// List of [Widget]s to display in this [ContextMenu].
   final List<Widget> actions;
 
-  /// Indicator whether this [ContextMenu] should takes all remain space.
-  final bool? enlarge;
+  /// Indicator whether this [ContextMenuButton] should builds with mobile
+  /// style.
+  ///
+  /// Intended to be used only on style page.
+  final bool? mobile;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool isMobile = enlarge ?? context.isMobile;
+    final bool isMobile = mobile ?? context.isMobile;
 
     final List<Widget> widgets = [];
 
@@ -121,7 +124,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.leading,
     this.trailing,
     this.showTrailing = false,
-    this.enlarge,
+    this.mobile,
     this.onPressed,
   });
 
@@ -139,8 +142,11 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// On mobile platforms the provided [trailing] is always displayed.
   final bool showTrailing;
 
-  /// Indicator whether this [ContextMenuButton] should takes all remain space.
-  final bool? enlarge;
+  /// Indicator whether this [ContextMenuButton] should builds with mobile
+  /// style.
+  ///
+  /// Intended to be used only on style page.
+  final bool? mobile;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -158,7 +164,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool isMobile = widget.enlarge ?? context.isMobile;
+    final bool isMobile = widget.mobile ?? context.isMobile;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),

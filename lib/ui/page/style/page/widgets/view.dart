@@ -18,7 +18,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
@@ -51,6 +50,7 @@ import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/chat_info_card.dart';
 import '/ui/page/call/widget/dock.dart';
 import '/ui/page/call/widget/dock_decorator.dart';
+import '/ui/page/call/widget/double_bounce_indicator.dart';
 import '/ui/page/call/widget/drop_box.dart';
 import '/ui/page/call/widget/launchpad.dart';
 import '/ui/page/call/widget/raised_hand.dart';
@@ -81,6 +81,7 @@ import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/gallery_button.dart';
+import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
@@ -147,6 +148,7 @@ class WidgetsView extends StatelessWidget {
       headline: title ?? child.runtimeType.toString(),
       headlineColor: headlineColor,
       topMargin: top ? 32 : null,
+      maxWidth: 450,
       padding: padding,
       children: [
         if (top) const SizedBox(height: 16),
@@ -171,6 +173,7 @@ class WidgetsView extends StatelessWidget {
       padding: EdgeInsets.zero,
       color: color,
       topMargin: 32,
+      maxWidth: 450,
       children: [
         ...children.mapIndexed((i, e) {
           return [
@@ -675,18 +678,10 @@ class WidgetsView extends StatelessWidget {
 
   /// Returns contents of the animations section.
   List<Widget> _animations(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return [
       _headline(
-        title: 'SpinKitDoubleBounce',
-        child: SizedBox(
-          child: SpinKitDoubleBounce(
-            color: style.colors.secondaryHighlightDark,
-            size: 100 / 1.5,
-            duration: const Duration(milliseconds: 4500),
-          ),
-        ),
+        title: 'DoubleBounceLoadingIndicator',
+        child: const SizedBox(child: DoubleBounceLoadingIndicator()),
       ),
       _headline(
         title: 'AnimatedTyping',
@@ -721,9 +716,9 @@ class WidgetsView extends StatelessWidget {
 
   /// Returns contents of the avatars section.
   List<Widget> _avatars(BuildContext context) {
-    ({String label, Widget widget}) avatars(String title, double radius) {
+    ({String label, Widget widget}) avatars(String title, AvatarRadius radius) {
       return (
-        label: 'AvatarWidget(radius: ${radius.toStringAsFixed(0)})',
+        label: 'AvatarWidget(radius: ${radius.toDouble().toStringAsFixed(0)})',
         widget: Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -740,17 +735,11 @@ class WidgetsView extends StatelessWidget {
 
     return [
       _headlines(
-        children: [
-          avatars('01', 100),
-          avatars('02', 32),
-          avatars('03', 30),
-          avatars('04', 20),
-          avatars('05', 17),
-          avatars('06', 16),
-          avatars('07', 13),
-          avatars('08', 10),
-          avatars('09', 8),
-        ],
+        children: AvatarRadius.values.reversed
+            .mapIndexed(
+              (i, e) => avatars(i.toString().padLeft(2, '0'), e),
+            )
+            .toList(),
       ),
     ];
   }
@@ -1187,51 +1176,27 @@ class WidgetsView extends StatelessWidget {
         children: [
           (
             label: 'DownloadButton.windows',
-            widget: const DownloadButton(
-              asset: 'windows',
-              title: 'Windows',
-              link: '',
-            ),
+            widget: const DownloadButton.windows(),
           ),
           (
             label: 'DownloadButton.macos',
-            widget: const DownloadButton(
-              asset: 'apple',
-              title: 'macOS',
-              link: '',
-            ),
+            widget: const DownloadButton.macos(),
           ),
           (
             label: 'DownloadButton.linux',
-            widget: const DownloadButton(
-              asset: 'linux',
-              title: 'Linux',
-              link: '',
-            ),
+            widget: const DownloadButton.linux(),
           ),
           (
             label: 'DownloadButton.appStore',
-            widget: const DownloadButton(
-              asset: 'app_store',
-              title: 'App Store',
-              link: '',
-            ),
+            widget: const DownloadButton.appStore(),
           ),
           (
             label: 'DownloadButton.googlePlay',
-            widget: const DownloadButton(
-              asset: 'google',
-              title: 'Google Play',
-              link: '',
-            ),
+            widget: const DownloadButton.googlePlay(),
           ),
           (
             label: 'DownloadButton.android',
-            widget: const DownloadButton(
-              asset: 'android',
-              title: 'Android',
-              link: '',
-            ),
+            widget: const DownloadButton.android(),
           ),
         ],
       ),
@@ -1315,12 +1280,12 @@ class WidgetsView extends StatelessWidget {
           (
             label: 'ContextMenu(mobile)',
             widget: const ContextMenu(
-              enlarge: true,
+              mobile: true,
               actions: [
-                ContextMenuButton(label: 'Action 1', enlarge: true),
-                ContextMenuButton(label: 'Action 2', enlarge: true),
-                ContextMenuButton(label: 'Action 3', enlarge: true),
-                ContextMenuButton(label: 'Action 4', enlarge: true),
+                ContextMenuButton(label: 'Action 1', mobile: true),
+                ContextMenuButton(label: 'Action 2', mobile: true),
+                ContextMenuButton(label: 'Action 3', mobile: true),
+                ContextMenuButton(label: 'Action 4', mobile: true),
               ],
             ),
           ),
@@ -1375,59 +1340,48 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headlines(
-        color: Color.alphaBlend(
-          style.sidebarColor,
-          style.colors.onBackgroundOpacity7,
-        ),
-        children: [
-          (
-            label: 'ContactTile',
-            widget: ContactTile(
-              myUser: MyUser(
-                id: const UserId('123'),
-                num: UserNum('1234123412341234'),
-                emails: MyUserEmails(confirmed: []),
-                phones: MyUserPhones(confirmed: []),
-                presenceIndex: 0,
-                online: true,
-              ),
-              onTap: () {},
-            ),
+      Builder(builder: (context) {
+        final MyUser myUser = MyUser(
+          id: const UserId('123'),
+          num: UserNum('1234123412341234'),
+          emails: MyUserEmails(confirmed: []),
+          phones: MyUserPhones(confirmed: []),
+          presenceIndex: 0,
+          online: true,
+        );
+        return _headlines(
+          color: Color.alphaBlend(
+            style.sidebarColor,
+            style.colors.onBackgroundOpacity7,
           ),
-          (
-            label: 'ContactTile(selected)',
-            widget: ContactTile(
-              myUser: MyUser(
-                id: const UserId('123'),
-                num: UserNum('1234123412341234'),
-                emails: MyUserEmails(confirmed: []),
-                phones: MyUserPhones(confirmed: []),
-                presenceIndex: 0,
-                online: true,
+          children: [
+            (
+              label: 'ContactTile',
+              widget: ContactTile(
+                myUser: myUser,
+                onTap: () {},
               ),
-              onTap: () {},
-              selected: true,
             ),
-          ),
-          (
-            label: 'ContactTile(trailing)',
-            widget: ContactTile(
-              myUser: MyUser(
-                id: const UserId('123'),
-                num: UserNum('1234123412341234'),
-                emails: MyUserEmails(confirmed: []),
-                phones: MyUserPhones(confirmed: []),
-                presenceIndex: 0,
-                online: true,
+            (
+              label: 'ContactTile(selected)',
+              widget: ContactTile(
+                myUser: myUser,
+                onTap: () {},
+                selected: true,
               ),
-              onTap: () {},
-              selected: false,
-              trailing: const [SelectedDot(selected: false, size: 20)],
             ),
-          ),
-        ],
-      ),
+            (
+              label: 'ContactTile(trailing)',
+              widget: ContactTile(
+                myUser: myUser,
+                onTap: () {},
+                selected: false,
+                trailing: const [SelectedDot(selected: false, size: 20)],
+              ),
+            ),
+          ],
+        );
+      }),
     ];
   }
 
@@ -1542,6 +1496,9 @@ class WidgetsView extends StatelessWidget {
               child: Center(
                 child: CallButtonWidget(
                   asset: 'more',
+                  hint: 'Hint',
+                  expanded: true,
+                  big: true,
                   onPressed: () {},
                 ),
               ),
@@ -1581,7 +1538,9 @@ class WidgetsView extends StatelessWidget {
                     ),
                   ),
                 ),
-                const CustomNavigationBarItem(child: AvatarWidget(radius: 16)),
+                const CustomNavigationBarItem(
+                  child: AvatarWidget(radius: AvatarRadius.small),
+                ),
               ],
             );
           },
@@ -1592,7 +1551,7 @@ class WidgetsView extends StatelessWidget {
       _headlines(
         children: [
           (
-            label: 'AnimatedParticipant',
+            label: 'AnimatedParticipant(loading)',
             widget: SizedBox(
               width: 300,
               height: 300,
@@ -1621,7 +1580,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'AnimatedParticipant',
+            label: 'AnimatedParticipant(muted)',
             widget: SizedBox(
               width: 300,
               height: 300,
@@ -1665,20 +1624,35 @@ class WidgetsView extends StatelessWidget {
           child: DropBox(),
         ),
       ),
-      _headline(
-        title: 'ReorderableFit',
-        child: SizedBox(
-          width: 400,
-          height: 400,
-          child: ReorderableFit(
-            children: List.generate(5, (i) => i),
-            itemBuilder: (i) => Container(
-              color: Colors.primaries[i],
-              child: Center(child: Text('$i')),
+      Builder(builder: (context) {
+        GlobalKey key = GlobalKey();
+
+        return _headline(
+          title: 'ReorderableFit',
+          child: SizedBox(
+            key: key,
+            width: 400,
+            height: 400,
+            child: ReorderableFit(
+              children: List.generate(5, (i) => i),
+              itemBuilder: (i) => Container(
+                color: Colors.primaries[i],
+                child: Center(child: Text('$i')),
+              ),
+              onOffset: () {
+                if (key.globalPaintBounds != null) {
+                  return Offset(
+                    -key.globalPaintBounds!.left,
+                    -key.globalPaintBounds!.top,
+                  );
+                }
+
+                return Offset.zero;
+              },
             ),
           ),
-        ),
-      ),
+        );
+      }),
       _headline(child: const BackgroundPreview(null)),
       _headline(
         child: BigAvatarWidget.myUser(
