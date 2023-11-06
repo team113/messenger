@@ -62,14 +62,14 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(
-          color: style.colors.secondaryHighlightDarkest,
-          width: 0.5,
-        ),
+        // border: Border.all(
+        //   color: style.colors.secondaryHighlightDarkest,
+        //   width: 0.5,
+        // ),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.colors.onBackgroundOpacity20,
+            color: style.colors.onBackgroundOpacity27,
             blurStyle: BlurStyle.outer,
           )
         ],
@@ -81,9 +81,9 @@ class ContextMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!isMobile) const SizedBox(height: 6),
+              if (!isMobile) const SizedBox(height: 4),
               ...widgets,
-              if (!isMobile) const SizedBox(height: 6),
+              if (!isMobile) const SizedBox(height: 4),
             ],
           ),
         ),
@@ -172,10 +172,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           padding: isMobile
               ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
               : const EdgeInsets.fromLTRB(11, 6, 11, 6),
-          margin: isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
+          margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius:
+                isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
             color: isMouseOver
                 ? isMobile
                     ? style.contextMenuHoveredColor

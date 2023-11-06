@@ -443,7 +443,10 @@ class SpeakerButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
+        // asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
+        icon: c.isRemoteAudioEnabled.value
+            ? SvgIcons.callIncomingAudioOn
+            : SvgIcons.callIncomingAudioOff,
         hinted: hinted,
         withBlur: blur,
         onPressed: c.toggleSpeaker,

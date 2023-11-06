@@ -156,6 +156,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                           trailing: e.video.value?.renderer.value != null
                               ? const Icon(Icons.videocam)
                               : const Icon(Icons.videocam_off),
+                          // trailing: SvgIcon(
+                          //   e.video.value?.renderer.value != null
+                          //       ? SvgIcons.callVideoOn
+                          //       : SvgIcons.callVideoOff,
+                          // ),
                         ),
                       if (e.audio.value?.direction.value.isEmitting ?? false)
                         ContextMenuButton(
@@ -184,6 +189,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                         trailing: c.videoState.value.isEnabled
                             ? const Icon(Icons.videocam)
                             : const Icon(Icons.videocam_off),
+                        // trailing: SvgIcon(
+                        //   e.video.value?.renderer.value != null
+                        //       ? SvgIcons.callIncomingVideoOn
+                        //       : SvgIcons.callIncomingVideoOn,
+                        // ),
                       ),
                       ContextMenuButton(
                         label: c.audioState.value.isEnabled

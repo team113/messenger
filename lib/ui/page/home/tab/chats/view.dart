@@ -361,11 +361,13 @@ class ChatsTabView extends StatelessWidget {
                                     ContextMenuButton(
                                       label: 'btn_create_group'.l10n,
                                       onPressed: c.startGroupCreating,
+                                      trailing: const SvgIcon(SvgIcons.group),
                                     ),
                                     ContextMenuButton(
                                       key: const Key('SelectChatButton'),
                                       label: 'btn_select_and_delete'.l10n,
                                       onPressed: c.toggleSelecting,
+                                      trailing: const SvgIcon(SvgIcons.select),
                                     ),
                                     if (c.monolog.value.isHidden)
                                       ContextMenuButton(
@@ -604,6 +606,7 @@ class ChatsTabView extends StatelessWidget {
                                       myUser: c.myUser.value,
                                       blocked: chat.blacklisted,
                                       getUser: c.getUser,
+                                      onCall: (video) => c.call(chat.id, video),
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
                                       inCall: () => c.containsCall(chat.id),

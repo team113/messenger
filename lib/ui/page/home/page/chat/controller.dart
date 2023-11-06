@@ -1428,6 +1428,12 @@ class ChatController extends GetxController {
     }
   }
 
+  final RxBool inContacts = RxBool(false);
+
+  Future<void> addToContacts() async => inContacts.toggle();
+
+  Future<void> removeFromContacts() async => inContacts.toggle();
+
   /// Highlights the item with the provided [index].
   Future<void> _highlight(int index) async {
     highlightIndex.value = index;

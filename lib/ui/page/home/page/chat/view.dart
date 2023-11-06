@@ -365,8 +365,7 @@ class _ChatViewState extends State<ChatView>
                                         c.chat?.chat.value.favoritePosition !=
                                             null;
 
-                                    // final bool contact =
-                                    //     c.chat?.chat.value.isDialog == true && c.chat?.members.values.firstWhereOrNull((e) => e.id != c.me)?.user.value.;
+                                    final bool contact = c.inContacts.value;
 
                                     return ContextMenuRegion(
                                       selector: c.moreKey,
@@ -415,9 +414,17 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                           ),
                                           ContextMenuButton(
-                                            label: 'btn_add_to_contacts'.l10n,
-                                            trailing: const SvgIcon(
-                                              SvgIcons.addContact,
+                                            label: contact
+                                                ? 'btn_delete_from_contacts'
+                                                    .l10n
+                                                : 'btn_add_to_contacts'.l10n,
+                                            onPressed: contact
+                                                ? c.removeFromContacts
+                                                : c.addToContacts,
+                                            trailing: SvgIcon(
+                                              contact
+                                                  ? SvgIcons.deleteContact
+                                                  : SvgIcons.addContact,
                                             ),
                                           ),
                                         ],

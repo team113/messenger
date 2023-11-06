@@ -1030,7 +1030,7 @@ label_open_calls_in = Display calls
 label_donates = Donates
 label_donates_preferences = Donates preferences
 label_take_photo = Take photo
-label_take_video = Take video
+label_take_video = Record video
 fcm_dialog_donate = {$donate} G gift
 fcm_group_donate =
     {$userName ->

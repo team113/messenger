@@ -1060,7 +1060,7 @@ label_open_calls_in = Отображать звонки
 label_donates = Донаты
 label_donates_preferences = Настройки донатов
 label_take_photo = Сделать фото
-label_take_video = Сделать видео
+label_take_video = Записать видео
 fcm_dialog_donate = {$donate} G подарок
 fcm_group_donate =
     {$userName ->

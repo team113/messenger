@@ -195,9 +195,10 @@ class Themes {
           cardRadius: BorderRadius.circular(14),
           cardSelectedBorder:
               Border.all(color: colors.primaryHighlightShiny, width: 0.5),
-          contextMenuBackgroundColor: colors.secondaryHighlight,
+          // contextMenuBackgroundColor: colors.secondaryHighlight,
+          contextMenuBackgroundColor: colors.onPrimary,
           contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
-          contextMenuRadius: BorderRadius.circular(10),
+          contextMenuRadius: BorderRadius.circular(11),
           linkStyle: textStyle.copyWith(color: colors.primary),
           messageColor: colors.onPrimary,
           primaryBorder: Border.all(

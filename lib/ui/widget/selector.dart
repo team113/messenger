@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
-import 'context_menu/menu.dart';
 
 /// Dropdown selecting the provided [items].
 ///
@@ -317,8 +316,10 @@ class _SelectorState<T> extends State<Selector<T>> {
                   decoration: BoxDecoration(
                     color: style.contextMenuBackgroundColor,
                     borderRadius: style.contextMenuRadius,
-                    border:
-                        Border.all(color: style.colors.secondary, width: 0.5),
+                    // border: Border.all(
+                    //   color: style.colors.secondaryHighlightDarkest,
+                    //   width: 0.5,
+                    // ),
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 12,

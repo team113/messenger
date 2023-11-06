@@ -643,15 +643,15 @@ class SvgIcons {
   );
 
   static const SvgData takeVideo = SvgData(
-    'assets/icons/take_video.svg',
-    width: 27.97,
-    height: 25,
+    'assets/icons/record_video.svg',
+    width: 27.77,
+    height: 24.65,
   );
 
   static const SvgData takeVideoSmall = SvgData(
-    'assets/icons/take_video_small.svg',
-    width: 25.72,
-    height: 23,
+    'assets/icons/record_video_small.svg',
+    width: 25.52,
+    height: 22.65,
   );
 
   static const SvgData gallery = SvgData(
@@ -1334,5 +1334,35 @@ class SvgIcons {
     'assets/icons/add_contact.svg',
     width: 21.01,
     height: 19.43,
+  );
+
+  static const SvgData deleteContact = SvgData(
+    'assets/icons/delete_contact.svg',
+    width: 21.01,
+    height: 19.43,
+  );
+
+  static const SvgData group = SvgData(
+    'assets/icons/group.svg',
+    width: 21.29,
+    height: 18,
+  );
+
+  static const SvgData select = SvgData(
+    'assets/icons/select.svg',
+    width: 19.5,
+    height: 18,
+  );
+
+  static const SvgData sortAbcSmall = SvgData(
+    'assets/icons/sort_abc_small.svg',
+    width: 19.75,
+    height: 16.08,
+  );
+
+  static const SvgData sortTimeSmall = SvgData(
+    'assets/icons/sort_time_small.svg',
+    width: 25.23,
+    height: 17.75,
   );
 }

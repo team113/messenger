@@ -223,11 +223,17 @@ class ContactsTabView extends StatelessWidget {
                                   ? 'label_sort_by_visit'.l10n
                                   : 'label_sort_by_name'.l10n,
                               onPressed: c.toggleSorting,
+                              trailing: SvgIcon(
+                                c.sortByName
+                                    ? SvgIcons.sortAbcSmall
+                                    : SvgIcons.sortTimeSmall,
+                              ),
                             ),
                             ContextMenuButton(
                               key: const Key('SelectChatButton'),
                               label: 'btn_select_and_delete'.l10n,
                               onPressed: c.toggleSelecting,
+                              trailing: const SvgIcon(SvgIcons.select),
                               // trailing: const Icon(Icons.select_all),
                             ),
                           ],
@@ -653,36 +659,18 @@ class ContactsTabView extends StatelessWidget {
                   label: 'btn_delete_from_favorites'.l10n,
                   onPressed: () =>
                       c.unfavoriteContact(contact.contact.value.id),
-                  trailing: const Icon(Icons.star_border),
+                  trailing: const SvgIcon(SvgIcons.favoriteSmall),
                 )
               : ContextMenuButton(
                   key: const Key('FavoriteContactButton'),
                   label: 'btn_add_to_favorites'.l10n,
                   onPressed: () => c.favoriteContact(contact.contact.value.id),
-                  trailing: const Icon(Icons.star),
+                  trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
                 ),
           ContextMenuButton(
             label: 'btn_delete_contact'.l10n,
             onPressed: () => _removeFromContacts(c, context, contact),
-            trailing: const Icon(Icons.delete),
-          ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            label: c.sortByName
-                ? 'label_sort_by_visit'.l10n
-                : 'label_sort_by_name'.l10n,
-            onPressed: c.toggleSorting,
-            trailing: SvgIcon(
-              c.sortByName ? SvgIcons.sortAbc : SvgIcons.sortTime,
-              key: Key('SortBy${c.sortByName ? 'Abc' : 'Time'}'),
-            ),
-          ),
-          const ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('SelectContactButton'),
-            label: 'btn_select'.l10n,
-            onPressed: c.toggleSelecting,
-            trailing: const Icon(Icons.select_all),
+            trailing: const SvgIcon(SvgIcons.deleteThick),
           ),
         ],
         subtitle: [

@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/domain/model/attachment.dart';
@@ -42,14 +41,12 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
-import 'rectangular_call_button.dart';
 import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -65,6 +62,7 @@ class RecentChatTile extends StatelessWidget {
     this.trailing,
     this.getUser,
     this.inCall,
+    this.onCall,
     this.onLeave,
     this.onHide,
     this.onDrop,
@@ -108,6 +106,8 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called to check whether this device of the currently
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
   final bool Function()? inCall;
+
+  final void Function(bool)? onCall;
 
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
@@ -241,6 +241,19 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         actions: [
+          ContextMenuButton(
+            label: 'btn_audio_call'.l10n,
+            onPressed: () => onCall?.call(false),
+            trailing: const SvgIcon(SvgIcons.makeAudioCall),
+          ),
+          ContextMenuButton(
+            label: 'btn_video_call'.l10n,
+            onPressed: () => onCall?.call(true),
+            trailing: Transform.translate(
+              offset: const Offset(2, 0),
+              child: const SvgIcon(SvgIcons.makeVideoCall),
+            ),
+          ),
           if (chat.isDialog)
             ContextMenuButton(
               label: 'btn_set_price'.l10n,
@@ -249,21 +262,21 @@ class RecentChatTile extends StatelessWidget {
                 mode: GetPaidMode.user,
                 user: rxChat.members.values.firstWhere((e) => e.id != me),
               ),
-              trailing: const Icon(Icons.paid_outlined),
+              trailing: const SvgIcon(SvgIcons.coin),
             ),
           if (chat.favoritePosition != null && onUnfavorite != null)
             ContextMenuButton(
               key: const Key('UnfavoriteChatButton'),
               label: 'btn_delete_from_favorites'.l10n,
               onPressed: onUnfavorite,
-              trailing: const Icon(Icons.star_border),
+              trailing: const SvgIcon(SvgIcons.favoriteSmall),
             ),
           if (chat.favoritePosition == null && onFavorite != null)
             ContextMenuButton(
               key: const Key('FavoriteChatButton'),
               label: 'btn_add_to_favorites'.l10n,
               onPressed: onFavorite,
-              trailing: const Icon(Icons.star),
+              trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
             ),
           if (chat.muted == null && onMute != null)
             ContextMenuButton(
@@ -272,7 +285,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_mute'.l10n
                   : 'btn_mute_chat'.l10n,
               onPressed: onMute,
-              trailing: const Icon(Icons.notifications_off),
+              trailing: const SvgIcon(SvgIcons.muteSmall),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
@@ -281,7 +294,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_unmute'.l10n
                   : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
-              trailing: const Icon(Icons.notifications),
+              trailing: const SvgIcon(SvgIcons.unmuteSmall),
             ),
           if (onHide != null)
             ContextMenuButton(
@@ -290,7 +303,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_delete'.l10n
                   : 'btn_delete_chat'.l10n,
               onPressed: () => _hideChat(context),
-              trailing: const Icon(Icons.delete),
+              trailing: const SvgIcon(SvgIcons.deleteThick),
             ),
         ],
         active: active || isRoute,
