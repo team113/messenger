@@ -33,8 +33,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -46,6 +44,7 @@ import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'gallery_button.dart';
 
 /// Item in a [GalleryPopup].
 ///
@@ -708,24 +707,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                       width: 60 + 16,
                       height: double.infinity,
                       child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: style.colors.onSecondaryOpacity50,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_left_rounded,
-                                color: left
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
-                              ),
+                        child: GalleryButton(
+                          mouseCursor: left ? SystemMouseCursors.click : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 1),
+                            child: Icon(
+                              Icons.keyboard_arrow_left_rounded,
+                              color: left
+                                  ? style.colors.onPrimary
+                                  : style.colors.secondary,
+                              size: 36,
                             ),
                           ),
                         ),
@@ -761,24 +752,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                       width: 60 + 16,
                       height: double.infinity,
                       child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: style.colors.onSecondaryOpacity50,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_right_rounded,
-                                color: right
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
-                              ),
+                        child: GalleryButton(
+                          mouseCursor: right ? SystemMouseCursors.click : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 1),
+                            child: Icon(
+                              Icons.keyboard_arrow_right_rounded,
+                              color: right
+                                  ? style.colors.onPrimary
+                                  : style.colors.secondary,
+                              size: 36,
                             ),
                           ),
                         ),
@@ -799,18 +782,12 @@ class _GalleryPopupState extends State<GalleryPopup>
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
                 opacity: (_displayClose || _showControls) ? 1 : 0,
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: style.colors.onSecondaryOpacity50,
-                    onPressed: _dismiss,
-                    withBlur: true,
-                    child: Icon(
-                      Icons.close_rounded,
-                      color: style.colors.onPrimary,
-                      size: 28,
-                    ),
+                child: GalleryButton(
+                  onPressed: _dismiss,
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: style.colors.onPrimary,
+                    size: 28,
                   ),
                 ),
               ),
@@ -827,18 +804,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 250),
                   opacity: (_displayFullscreen || _showControls) ? 1 : 0,
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
-                      onPressed: _toggleFullscreen,
-                      withBlur: true,
-                      assetWidth: 22,
-                      asset: _isFullscreen.value
-                          ? 'fullscreen_exit_white'
-                          : 'fullscreen_enter_white',
-                    ),
+                  child: GalleryButton(
+                    onPressed: _toggleFullscreen,
+                    assetWidth: 22,
+                    asset: _isFullscreen.value
+                        ? 'fullscreen_exit_white'
+                        : 'fullscreen_enter_white',
                   ),
                 ),
               ),
@@ -898,19 +869,13 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: style.colors.onSecondaryOpacity50,
-                    onPressed: () {
-                      widget.onTrashPressed?.call(_page);
-                      _dismiss();
-                    },
-                    withBlur: true,
-                    assetWidth: 27.21,
-                    asset: 'delete',
-                  ),
+                child: GalleryButton(
+                  onPressed: () {
+                    widget.onTrashPressed?.call(_page);
+                    _dismiss();
+                  },
+                  assetWidth: 27.21,
+                  asset: 'delete',
                 ),
               ),
             ),

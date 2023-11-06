@@ -18,46 +18,50 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/call/widget/round_button.dart';
 
-/// [Widget] displaying its [child] with the provided [description].
-class DescriptionChild extends StatelessWidget {
-  const DescriptionChild({
+/// [RoundFloatingButton] styled for gallery.
+class GalleryButton extends StatelessWidget {
+  const GalleryButton({
     super.key,
-    this.show = true,
-    this.description,
-    required this.child,
+    this.child,
+    this.asset,
+    this.assetWidth = 60,
+    this.onPressed,
+    this.mouseCursor,
   });
 
-  /// [Widget] displayed along with the description.
-  final Widget child;
+  /// Optional [Widget] to replace the default [SvgImage.asset].
+  final Widget? child;
 
-  /// Description of the [child].
-  final String? description;
+  /// Name of the asset to place into this [GalleryButton].
+  final String? asset;
 
-  /// Indicator whether the [description] should be showed.
-  final bool show;
+  /// Width of the [asset].
+  final double assetWidth;
+
+  /// Callback, called when this [GalleryButton] is pressed.
+  final void Function()? onPressed;
+
+  /// Optional [MouseCursor] of this [RoundFloatingButton].
+  final MouseCursor? mouseCursor;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        child,
-        const SizedBox(height: 6),
-        if (description != null)
-          DefaultTextStyle(
-            style: style.fonts.small.regular.onPrimary,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            child: AnimatedOpacity(
-              opacity: show ? 1 : 0,
-              duration: const Duration(milliseconds: 200),
-              child: Text(description!),
-            ),
-          ),
-      ],
+    return SizedBox(
+      width: 60,
+      height: 60,
+      child: RoundFloatingButton(
+        color: style.colors.onSecondaryOpacity50,
+        onPressed: onPressed,
+        mouseCursor: mouseCursor,
+        withBlur: true,
+        assetWidth: assetWidth,
+        asset: asset,
+        child: child,
+      ),
     );
   }
 }

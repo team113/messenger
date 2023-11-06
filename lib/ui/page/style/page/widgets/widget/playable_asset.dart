@@ -27,7 +27,7 @@ import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Playable [asset] with optional [subtitle] to put underneath the player.
+/// Playable [asset] with the player.
 class PlayableAsset extends StatefulWidget {
   const PlayableAsset(this.asset, {super.key, this.once = true});
 

@@ -35,11 +35,13 @@ class RoundFloatingButton extends StatefulWidget {
     this.assetWidth = 60,
     this.onPressed,
     this.text,
+    this.showText = true,
     this.color,
     this.hint,
     this.withBlur = false,
     this.style,
     this.border,
+    this.mouseCursor,
     this.child,
   });
 
@@ -50,6 +52,9 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Text under the button.
   final String? text;
+
+  /// Indicator whether the [text] should be showed
+  final bool showText;
 
   /// Text that will show above the button on a hover.
   final String? hint;
@@ -74,6 +79,9 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
+
+  /// Optional [MouseCursor] of this [RoundFloatingButton].
+  final MouseCursor? mouseCursor;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -120,6 +128,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
           type: MaterialType.circle,
           child: InkWell(
             borderRadius: BorderRadius.circular(60),
+            mouseCursor: widget.mouseCursor,
             onHover: widget.hint != null
                 ? (b) {
                     if (b) {
@@ -165,11 +174,15 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
             children: [
               button,
               const SizedBox(height: 5),
-              Text(
-                widget.text!,
-                textAlign: TextAlign.center,
-                style: widget.style ?? style.fonts.small.regular.onPrimary,
-                maxLines: 2,
+              AnimatedOpacity(
+                opacity: widget.showText ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  widget.text!,
+                  textAlign: TextAlign.center,
+                  style: widget.style ?? style.fonts.small.regular.onPrimary,
+                  maxLines: 2,
+                ),
               ),
             ],
           );
@@ -223,8 +236,14 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                       textAlign: TextAlign.center,
                       style: style.fonts.small.regular.onPrimary.copyWith(
                         shadows: [
-                          Shadow(blurRadius: 6, color: style.colors.onBackground),
-                          Shadow(blurRadius: 6, color: style.colors.onBackground),
+                          Shadow(
+                            blurRadius: 6,
+                            color: style.colors.onBackground,
+                          ),
+                          Shadow(
+                            blurRadius: 6,
+                            color: style.colors.onBackground,
+                          ),
                         ],
                       ),
                     ),

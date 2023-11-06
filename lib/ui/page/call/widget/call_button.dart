@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 
+import '/ui/page/call/controller.dart';
 import 'round_button.dart';
 
 /// [RoundFloatingButton] optionally displaying its [hint] according to the
@@ -34,13 +35,20 @@ class CallButtonWidget extends StatelessWidget {
     this.withBlur = false,
     this.color,
     this.border,
-  });
+    this.isMobile = false,
+    bool big = false,
+  }) : size = isMobile
+            ? null
+            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
   /// Asset to display.
   final String? asset;
 
   /// Width of the [asset].
   final double assetWidth;
+
+  /// Size of this [CallButtonWidget].
+  final double? size;
 
   /// Callback, called when this [CallButtonWidget] is pressed.
   final void Function()? onPressed;
@@ -58,6 +66,9 @@ class CallButtonWidget extends StatelessWidget {
   /// Indicator whether background should be blurred.
   final bool withBlur;
 
+  /// Indicator whether this [CallButtonWidget] should builds with mobile style.
+  final bool isMobile;
+
   /// Background color of this [CallButtonWidget].
   final Color? color;
 
@@ -68,15 +79,19 @@ class CallButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return RoundFloatingButton(
-      asset: asset,
-      assetWidth: assetWidth,
-      color: color ?? style.colors.onSecondaryOpacity50,
-      hint: !expanded && hinted ? hint : null,
-      text: expanded ? hint : null,
-      withBlur: withBlur,
-      border: border,
-      onPressed: onPressed,
+    return SizedBox.square(
+      dimension: size,
+      child: RoundFloatingButton(
+        asset: asset,
+        assetWidth: assetWidth,
+        color: color ?? style.colors.onSecondaryOpacity50,
+        hint: !expanded && hinted ? hint : null,
+        text: expanded || isMobile ? hint : null,
+        showText: expanded,
+        withBlur: withBlur,
+        border: border,
+        onPressed: onPressed,
+      ),
     );
   }
 }

@@ -80,6 +80,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/gallery_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
@@ -106,12 +107,6 @@ import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 import 'widget/cat.dart';
 import 'widget/playable_asset.dart';
-
-// TODO:
-// - ReactiveLoginField
-// - ReactiveLinkField
-// - BigAvatarWidget
-// - etc...
 
 /// Widgets view of the [Routes.style] page.
 class WidgetsView extends StatelessWidget {
@@ -1123,37 +1118,66 @@ class WidgetsView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: 60,
-              height: 60,
-              child: CallButtonWidget(
-                color: style.colors.onSecondaryOpacity50,
-                onPressed: () {},
-                withBlur: true,
-                asset: 'fullscreen_enter_white',
-                assetWidth: 22,
+            CallButtonWidget(
+              color: style.colors.onSecondaryOpacity50,
+              onPressed: () {},
+              withBlur: true,
+              big: true,
+              asset: 'fullscreen_enter_white',
+              assetWidth: 22,
+            ),
+            const SizedBox(width: 32),
+            CallButtonWidget(
+              onPressed: () {},
+              hint: 'Hint'.l10n,
+              asset: 'screen_share_on'.l10n,
+              hinted: true,
+              expanded: true,
+              big: true,
+            ),
+            const SizedBox(width: 32),
+            CallButtonWidget(
+              hint: 'Hint'.l10n,
+              asset: 'screen_share_on'.l10n,
+              hinted: true,
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
+      _headline(
+        title: 'GalleryButton',
+        color: style.colors.primaryAuxiliaryOpacity25,
+        headlineColor: style.colors.onPrimary,
+        bottom: false,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GalleryButton(
+              onPressed: () {},
+              child: Icon(
+                Icons.close_rounded,
+                color: style.colors.onPrimary,
+                size: 28,
               ),
             ),
             const SizedBox(width: 32),
-            SizedBox(
-              width: 100,
-              height: 82,
-              child: CallButtonWidget(
-                onPressed: () {},
-                hint: 'Hint'.l10n,
-                asset: 'screen_share_on'.l10n,
-                hinted: true,
-                expanded: true,
-              ),
+            GalleryButton(
+              onPressed: () {},
+              assetWidth: 22,
+              asset: 'fullscreen_enter_white',
             ),
             const SizedBox(width: 32),
-            SizedBox.square(
-              dimension: CallController.buttonSize,
-              child: CallButtonWidget(
-                hint: 'Hint'.l10n,
-                asset: 'screen_share_on'.l10n,
-                hinted: true,
-                onPressed: () {},
+            GalleryButton(
+              onPressed: () {},
+              child: Padding(
+                padding: const EdgeInsets.only(left: 1),
+                child: Icon(
+                  Icons.keyboard_arrow_right_rounded,
+                  color: style.colors.onPrimary,
+                  size: 36,
+                ),
               ),
             ),
           ],
