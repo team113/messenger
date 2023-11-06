@@ -57,6 +57,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_digits.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
@@ -1744,6 +1745,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
+                            if (copyable == null)
+                              ContextMenuButton(
+                                label: 'btn_download'.l10n,
+                                trailing: const Icon(Icons.download),
+                                onPressed: () {
+                                  _saveToGallery(widget.onGallery!().last);
+                                },
+                              ),
                           ],
                           if (item.status.value == SendingStatus.error) ...[
                             ContextMenuButton(
@@ -1804,6 +1813,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
       ),
     );
+  }
+
+  /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  Future<void> _saveToGallery(GalleryAttachment item) async {
+    try {
+      try {
+        await PlatformUtils.saveToGallery(
+          item.attachment.original.url,
+          item.attachment.filename,
+          checksum: item.attachment.original.checksum,
+        );
+      } catch (_) {
+        print('caught something');
+      }
+
+      if (mounted) {
+        MessagePopup.success(item.attachment.isDownloading
+            ? 'label_video_saved_to_gallery'.l10n
+            : 'label_image_saved_to_gallery'.l10n);
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
   }
 
   /// Builds a [MessageTimestamp] of the provided [item].
