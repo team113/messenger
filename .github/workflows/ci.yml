@@ -154,7 +154,6 @@ jobs:
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -ex
           npm install -g firebase-tools
