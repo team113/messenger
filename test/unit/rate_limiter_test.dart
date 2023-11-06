@@ -99,6 +99,26 @@ void main() async {
 
     await Future.delayed(per);
     expect(limiter.queue.length, 0);
+
+    // Next bunch should be executing a long period of time.
+    finished.clear();
+    futures.clear();
+    for (var i = 0; i < requests * 2; ++i) {
+      futures.add(limiter.execute(
+        () async {
+          await Future.delayed(per * 5);
+          return i;
+        },
+      )..then((v) => finished.add(v)));
+    }
+
+    // Wait for [RateLimiter.execute]s to process.
+    await Future.wait(futures.take(requests));
+
+    // Every request should be completed, despite multiple [per] being awaited.
+    expect(limiter.queue.length, 0);
+    expect(finished.length, 5);
+    expect(finished, List.generate(requests, (i) => i));
   });
 
   test('RateLimiter correctly clears itself', () async {
