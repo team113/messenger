@@ -40,6 +40,7 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
 import 'provider/gql/graphql.dart';
+import '/provider/hive/favorite_chat.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
@@ -457,6 +458,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
+                deps.put(FavoriteChatHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
@@ -501,6 +503,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
+                  Get.find(),
                   Get.find(),
                   Get.find(),
                   callRepository,
@@ -567,6 +570,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
+              deps.put(FavoriteChatHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
@@ -631,6 +635,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             deps.put<AbstractCallRepository>(callRepository);
             ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
+              Get.find(),
               Get.find(),
               Get.find(),
               callRepository,

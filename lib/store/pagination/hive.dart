@@ -77,7 +77,15 @@ class HivePageProvider<T extends Object, C, K>
     final Iterable<K> ordered = orderBy(_provider.keys);
 
     if (ordered.isEmpty) {
-      return null;
+      return Page(
+        [],
+        PageInfo(
+          startCursor: null,
+          endCursor: null,
+          hasPrevious: false,
+          hasNext: false,
+        ),
+      );
     }
 
     Iterable<dynamic>? keys;

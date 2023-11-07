@@ -45,6 +45,7 @@ import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
+import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
@@ -196,6 +197,8 @@ void main() async {
   await monologProvider.init();
   var recentChatProvider = RecentChatHiveProvider();
   await recentChatProvider.init();
+  var favoriteChatProvider = FavoriteChatHiveProvider();
+  await favoriteChatProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -341,6 +344,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
