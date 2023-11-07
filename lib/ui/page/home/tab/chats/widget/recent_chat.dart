@@ -735,8 +735,6 @@ class RecentChatTile extends StatelessWidget {
 
   /// Builds a [ChatItem.status] visual representation.
   Widget _status(BuildContext context, bool inverted) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -746,30 +744,46 @@ class RecentChatTile extends StatelessWidget {
         final bool isSent = item.status.value == SendingStatus.sent;
         final bool isRead =
             chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
+        final bool isHalfRead = chat.members.any((e) {
+          if (e.user.id == me) {
+            return false;
+          }
+          final LastChatRead? read =
+              chat.lastReads.firstWhereOrNull((m) => m.memberId == e.user.id);
+          return read != null && read.at.isBefore(item.at);
+        });
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
 
         return Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: Icon(
-            isRead || isDelivered
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? inverted
-                    ? style.colors.onPrimary
-                    : style.colors.primary
-                : isError
-                    ? style.colors.danger
-                    : inverted
-                        ? style.colors.onPrimary
-                        : style.colors.secondary,
-            size: 16,
+          child: SizedBox(
+            height: 16,
+            width: 16,
+            child: SvgImage.asset(
+              isRead
+                  ? isHalfRead
+                      ? inverted
+                          ? 'assets/icons/half_read_white.svg'
+                          : 'assets/icons/half_read.svg'
+                      : inverted
+                          ? 'assets/icons/read_white.svg'
+                          : 'assets/icons/read.svg'
+                  : isDelivered
+                      ? inverted
+                          ? 'assets/icons/delivered_white.svg'
+                          : 'assets/icons/delivered.svg'
+                      : isSending
+                          ? isError
+                              ? 'assets/icons/error.svg'
+                              : inverted
+                                  ? 'assets/icons/sending_white.svg'
+                                  : 'assets/icons/sending.svg'
+                          : inverted
+                              ? 'assets/icons/sent_white.svg'
+                              : 'assets/icons/sent.svg',
+            ),
           ),
         );
       }
