@@ -36,7 +36,7 @@ class Dock<T extends Object> extends StatefulWidget {
     required this.itemBuilder,
     this.onReorder,
     this.itemWidth = 48,
-    this.dragDelta = 6,
+    this.dragDelta,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
@@ -54,7 +54,7 @@ class Dock<T extends Object> extends StatefulWidget {
 
   /// Distance to travel in order for the panning to be recognized as a drag
   /// gesture.
-  final double dragDelta;
+  final double? dragDelta;
 
   /// Callback, called when the [items] are reordered.
   final Function(List<T>)? onReorder;
@@ -549,12 +549,12 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
     super.onDragEnd,
     super.onDraggableCanceled,
     super.onDragCompleted,
-    this.dragDelta = 6,
+    this.dragDelta,
   });
 
   /// Distance to travel in order for the panning to be recognized as a drag
   /// gesture.
-  final double dragDelta;
+  final double? dragDelta;
 
   @override
   MultiDragGestureRecognizer createRecognizer(
@@ -579,12 +579,12 @@ class _ImmediateDelayedMultiDragGestureRecognizer
     extends MultiDragGestureRecognizer {
   _ImmediateDelayedMultiDragGestureRecognizer({
     super.debugOwner,
-    required this.dragDelta,
+    this.dragDelta,
   });
 
   /// Distance to travel in order for the panning to be recognized as a drag
   /// gesture.
-  final double dragDelta;
+  final double? dragDelta;
 
   @override
   MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
@@ -605,16 +605,18 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
     super.initialPosition,
     super.kind,
     super.deviceGestureSettings, {
-    required this.dragDelta,
+    this.dragDelta,
   });
 
   /// Distance to travel in order for the panning to be recognized as a drag
   /// gesture.
-  final double dragDelta;
+  ///
+  /// Defaults to 6.
+  final double? dragDelta;
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > dragDelta) {
+    if (pendingDelta!.distance > (dragDelta ?? 6)) {
       resolve(GestureDisposition.accepted);
     }
   }
