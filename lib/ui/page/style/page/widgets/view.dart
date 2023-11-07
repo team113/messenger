@@ -259,6 +259,10 @@ class WidgetsView extends StatelessWidget {
       List<String> attachments = const [],
       List<ChatItemQuote> repliesTo = const [],
     }) {
+      NativeFile image =
+          NativeFile(name: 'Image', size: 2, bytes: CatImage.bytes)..readFile();
+      image.dimensions.value = CatImage.size;
+
       return ChatMessage(
         ChatItemId.local(),
         ChatId.local(const UserId('me')),
@@ -274,7 +278,7 @@ class WidgetsView extends StatelessWidget {
             );
           } else {
             return LocalAttachment(
-              NativeFile(name: 'Image', size: 2, bytes: CatImage.bytes),
+              image,
               status: SendingStatus.sent,
             );
           }

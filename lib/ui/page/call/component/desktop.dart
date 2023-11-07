@@ -439,34 +439,30 @@ Widget desktopCall(CallController c, BuildContext context) {
                   onWillAccept: (CallButton? a) =>
                       a?.c == c && a?.isRemovable == true,
                   children: c.panel.map((e) {
-                    return Column(
-                      children: [
-                        DelayedDraggable(
-                          feedback: Transform.translate(
-                            offset: const Offset(
-                              CallController.buttonSize / 2 * -1,
-                              CallController.buttonSize / 2 * -1,
-                            ),
-                            child: e.build(),
-                          ),
-                          data: e,
-                          onDragStarted: () {
-                            c.showDragAndDropButtonsHint = false;
-                            c.draggedButton.value = e;
-                          },
-                          onDragCompleted: () => c.draggedButton.value = null,
-                          onDragEnd: (_) => c.draggedButton.value = null,
-                          onDraggableCanceled: (_, __) =>
-                              c.draggedButton.value = null,
-                          maxSimultaneousDrags: e.isRemovable ? null : 0,
-                          dragAnchorStrategy: pointerDragAnchorStrategy,
-                          child: e.build(
-                            hinted: false,
-                            big: true,
-                            expanded: true,
-                          ),
+                    return DelayedDraggable(
+                      feedback: Transform.translate(
+                        offset: const Offset(
+                          CallController.buttonSize / 2 * -1,
+                          CallController.buttonSize / 2 * -1,
                         ),
-                      ],
+                        child: e.build(),
+                      ),
+                      data: e,
+                      onDragStarted: () {
+                        c.showDragAndDropButtonsHint = false;
+                        c.draggedButton.value = e;
+                      },
+                      onDragCompleted: () => c.draggedButton.value = null,
+                      onDragEnd: (_) => c.draggedButton.value = null,
+                      onDraggableCanceled: (_, __) =>
+                          c.draggedButton.value = null,
+                      maxSimultaneousDrags: e.isRemovable ? null : 0,
+                      dragAnchorStrategy: pointerDragAnchorStrategy,
+                      child: e.build(
+                        hinted: false,
+                        big: true,
+                        expanded: true,
+                      ),
                     );
                   }).toList(),
                 ),

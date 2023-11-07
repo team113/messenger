@@ -56,6 +56,10 @@ class NativeFile {
         }
       }
     }
+
+    if(bytes != null) {
+      determineDimension();
+    }
   }
 
   /// Constructs a [NativeFile] from a [PlatformFile].
@@ -205,23 +209,28 @@ class NativeFile {
         _readStream = null;
       }
 
-      // Decode the file, if it [isImage].
-      //
-      // Throws an error, if decoding fails.
-      if (isImage && bytes.value != null) {
-        // TODO: Validate SVGs and retrieve its width and height.
-        if (!isSvg) {
-          final decoded = await instantiateImageCodec(bytes.value!);
-          final frame = await decoded.getNextFrame();
-          dimensions.value = Size(
-            frame.image.width.toDouble(),
-            frame.image.height.toDouble(),
-          );
-        }
-      }
+      await determineDimension();
 
       return bytes.value;
     });
+  }
+
+  /// Determines the [dimensions].
+  Future<void> determineDimension() async {
+    // Decode the file, if it [isImage].
+    //
+    // Throws an error, if decoding fails.
+    if (dimensions.value == null && isImage && bytes.value != null) {
+      // TODO: Validate SVGs and retrieve its width and height.
+      if (!isSvg) {
+        final decoded = await instantiateImageCodec(bytes.value!);
+        final frame = await decoded.getNextFrame();
+        dimensions.value = Size(
+          frame.image.width.toDouble(),
+          frame.image.height.toDouble(),
+        );
+      }
+    }
   }
 
   /// Constructs a [Stream] from the [bytes].

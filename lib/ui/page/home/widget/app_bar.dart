@@ -53,7 +53,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
 
-  /// Indicator whether this [CustomAppBar] should have a [SafeArea]s top
+  /// Indicator whether this [CustomAppBar] should have a [SafeArea]'s top
   /// padding.
   final bool withTop;
 

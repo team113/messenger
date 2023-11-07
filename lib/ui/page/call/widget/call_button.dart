@@ -87,6 +87,7 @@ class CallButtonWidget extends StatelessWidget {
         color: color ?? style.colors.onSecondaryOpacity50,
         hint: !expanded && hinted ? hint : null,
         text: expanded || isMobile ? hint : null,
+        style: isMobile ? null : style.fonts.smaller.regular.onPrimary,
         showText: expanded,
         withBlur: withBlur,
         border: border,

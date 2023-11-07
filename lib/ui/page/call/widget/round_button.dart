@@ -173,14 +173,16 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
             children: [
               button,
               const SizedBox(height: 5),
-              AnimatedOpacity(
-                opacity: widget.showText ? 1 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Text(
-                  widget.text!,
-                  textAlign: TextAlign.center,
-                  style: widget.style ?? style.fonts.small.regular.onPrimary,
-                  maxLines: 2,
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: widget.showText ? 1 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    widget.text!,
+                    textAlign: TextAlign.center,
+                    style: widget.style ?? style.fonts.small.regular.onPrimary,
+                    maxLines: 2,
+                  ),
                 ),
               ),
             ],

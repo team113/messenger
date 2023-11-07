@@ -403,10 +403,16 @@ class _RetryImageState extends State<RetryImage> {
     _isSvg = false;
     if (_image != null) {
       _isSvg = _image!.length >= 4 &&
-          _image![0] == 60 &&
-          _image![1] == 115 &&
-          _image![2] == 118 &&
-          _image![3] == 103;
+              _image![0] == 60 &&
+              _image![1] == 115 &&
+              _image![2] == 118 &&
+              _image![3] == 103 ||
+          _image!.length >= 5 &&
+              _image![0] == 60 &&
+              _image![1] == 63 &&
+              _image![2] == 120 &&
+              _image![3] == 109 &&
+              _image![4] == 108;
     }
 
     if (mounted) {
