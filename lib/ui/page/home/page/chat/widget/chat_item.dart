@@ -26,7 +26,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -58,6 +57,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
@@ -389,6 +389,24 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     } else {
       return chat.isReadBy(widget.item.value, widget.me);
     }
+  }
+
+  /// Indicates whether this [ChatItem] was read by any [User].
+  bool get _isHalfRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    return chat.members.any((e) {
+      if (e.user.id == widget.me) {
+        return false;
+      }
+
+      final LastChatRead? read =
+          chat.lastReads.firstWhereOrNull((m) => m.memberId == e.user.id);
+      return read != null && read.at.isBefore(widget.item.value.at);
+    });
   }
 
   /// Returns the [UserId] of [User] posted this [ChatItem].
@@ -1500,6 +1518,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isDelivered:
           isSent && widget.chat.value?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && _isRead,
+      isHalfRead: _isHalfRead,
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(item.at.val.toLocal().hm),
@@ -1817,6 +1836,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           at: item.at,
           status: _fromMe ? item.status.value : null,
           read: _isRead || isMonolog,
+          halfRead: _isHalfRead,
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,
