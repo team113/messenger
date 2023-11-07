@@ -2057,10 +2057,10 @@ class FoldedWidget extends StatelessWidget {
                     .darken(0.1),
                 borderRadius:
                     const BorderRadius.only(bottomLeft: Radius.circular(4)),
-                boxShadow: const [
+                boxShadow: [
                   CustomBoxShadow(
-                    color: Color(0xFFC0C0C0),
-                    blurStyle: BlurStyle.outer,
+                    color: const Color(0xFFC0C0C0),
+                    blurStyle: BlurStyle.outer.workaround,
                     blurRadius: 4,
                   ),
                 ],

@@ -1356,13 +1356,79 @@ class SvgIcons {
 
   static const SvgData sortAbcSmall = SvgData(
     'assets/icons/sort_abc_small.svg',
-    width: 19.75,
-    height: 16.08,
+    width: 20.36,
+    height: 16.75,
   );
 
   static const SvgData sortTimeSmall = SvgData(
     'assets/icons/sort_time_small.svg',
-    width: 25.23,
-    height: 17.75,
+    width: 20.36,
+    height: 16.75,
+  );
+
+  static const SvgData centerVideo = SvgData(
+    'assets/icons/center_video.svg',
+    width: 22.5,
+    height: 20.85,
+  );
+
+  static const SvgData uncenterVideo = SvgData(
+    'assets/icons/uncenter_video.svg',
+    width: 22.5,
+    height: 20.85,
+  );
+
+  static const SvgData incomingVideoOff = SvgData(
+    'assets/icons/incoming_video_off_small.svg',
+    width: 22.5,
+    height: 20.85,
+  );
+
+  static const SvgData incomingVideoOn = SvgData(
+    'assets/icons/incoming_video_on_small.svg',
+    width: 22.5,
+    height: 20.85,
+  );
+
+  static const SvgData incomingAudioOn = SvgData(
+    'assets/icons/incoming_audio_on.svg',
+    width: 20.39,
+    height: 18,
+  );
+
+  static const SvgData incomingAudioOff = SvgData(
+    'assets/icons/incoming_audio_off.svg',
+    width: 20.39,
+    height: 18,
+  );
+
+  static const SvgData cameraOn = SvgData(
+    'assets/icons/camera_on.svg',
+    width: 22.92,
+    height: 18.5,
+  );
+
+  static const SvgData cameraOff = SvgData(
+    'assets/icons/camera_off.svg',
+    width: 22.92,
+    height: 18.5,
+  );
+
+  static const SvgData micOff = SvgData(
+    'assets/icons/mic_off.svg',
+    width: 18.2,
+    height: 19,
+  );
+
+  static const SvgData micOn = SvgData(
+    'assets/icons/mic_on.svg',
+    width: 18.2,
+    height: 19,
+  );
+
+  static const SvgData removeFromCall = SvgData(
+    'assets/icons/remove_from_call.svg',
+    width: 21.36,
+    height: 20.51,
   );
 }

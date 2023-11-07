@@ -185,7 +185,7 @@ class DonateWidget extends StatelessWidget {
           BoxShadow(
             blurRadius: 12,
             color: style.colors.onBackgroundOpacity20,
-            blurStyle: BlurStyle.outer,
+            blurStyle: BlurStyle.outer.workaround,
           )
         ],
       ),

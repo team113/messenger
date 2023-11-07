@@ -549,6 +549,7 @@ class TextFieldState extends ReactiveFieldState {
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
+      print('[listener] ${this.focus.hasFocus}');
 
       if (onChanged != null) {
         if (controller.text != _previousText &&
@@ -659,5 +660,6 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    focus.unfocus();
   }
 }

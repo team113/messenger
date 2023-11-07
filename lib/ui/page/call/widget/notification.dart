@@ -88,7 +88,7 @@ class CallNotificationWidget extends StatelessWidget {
           CustomBoxShadow(
             color: style.colors.onBackgroundOpacity20,
             blurRadius: 8,
-            blurStyle: BlurStyle.outer,
+            blurStyle: BlurStyle.outer.workaround,
           )
         ],
       ),

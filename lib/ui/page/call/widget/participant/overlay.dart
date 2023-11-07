@@ -157,7 +157,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
               CustomBoxShadow(
                 color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
-                blurStyle: BlurStyle.outer,
+                blurStyle: BlurStyle.outer.workaround,
               )
             ],
           ),

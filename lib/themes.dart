@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
+import 'util/platform_utils.dart';
+
 part 'themes.g.dart';
 
 /// Application themes constants.
@@ -1116,4 +1118,16 @@ extension HexColor on Color {
       '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+}
+
+extension BlurStylePlatformExtension on BlurStyle {
+  BlurStyle get workaround {
+    // TODO: Wait for flutter/flutter#132839 to be fixed:
+    //       https://github.com/flutter/flutter/issues/132839
+    if (PlatformUtils.isIOS) {
+      return BlurStyle.normal;
+    }
+
+    return BlurStyle.outer;
+  }
 }

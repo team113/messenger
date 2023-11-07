@@ -1213,7 +1213,7 @@ class _WidgetsViewState extends State<IconsView> {
                     BoxShadow(
                       blurRadius: 12,
                       color: style.colors.onBackgroundOpacity20,
-                      blurStyle: BlurStyle.outer,
+                      blurStyle: BlurStyle.outer.workaround,
                     )
                   ],
                 ),
@@ -1343,7 +1343,7 @@ class _WidgetsViewState extends State<IconsView> {
                     CustomBoxShadow(
                       color: style.colors.onBackgroundOpacity13,
                       blurRadius: 8,
-                      blurStyle: BlurStyle.outer,
+                      blurStyle: BlurStyle.outer.workaround,
                     )
                   ],
                 ),
@@ -1633,7 +1633,7 @@ class _WidgetsViewState extends State<IconsView> {
                       CustomBoxShadow(
                         blurRadius: 8,
                         color: style.colors.onBackgroundOpacity13,
-                        blurStyle: BlurStyle.outer,
+                        blurStyle: BlurStyle.outer.workaround,
                       ),
                     ],
                   ),
@@ -1762,7 +1762,7 @@ Widget _navBar(BuildContext context, List<Widget> children) {
         CustomBoxShadow(
           blurRadius: 8,
           color: style.colors.onBackgroundOpacity13,
-          blurStyle: BlurStyle.outer,
+          blurStyle: BlurStyle.outer.workaround,
         ),
       ],
       borderRadius: style.cardRadius,

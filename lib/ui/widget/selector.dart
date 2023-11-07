@@ -324,7 +324,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                       BoxShadow(
                         blurRadius: 12,
                         color: style.colors.onBackgroundOpacity27,
-                        blurStyle: BlurStyle.outer,
+                        blurStyle: BlurStyle.outer.workaround,
                       )
                     ],
                   ),
