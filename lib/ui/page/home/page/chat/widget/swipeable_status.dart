@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
@@ -31,6 +32,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
+    this.isHalfRead = false,
     this.isSending = false,
     this.isError = false,
     this.status = true,
@@ -61,6 +63,9 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Indicator whether status is read.
   final bool isRead;
+
+  /// Indicator whether status is read by several members.
+  final bool isHalfRead;
 
   /// Indicator whether status is sending.
   final bool isSending;
@@ -125,20 +130,26 @@ class SwipeableStatus extends StatelessWidget {
           children: [
             if (status) ...[
               if (isSent || isDelivered || isRead || isSending || isError)
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? style.colors.primary
-                      : isError
-                          ? style.colors.danger
-                          : style.colors.secondary,
-                  size: 12,
+                SizedBox(
+                  height: 9,
+                  child: Center(
+                    child: SvgImage.asset(
+                      isRead
+                          ? isHalfRead
+                              ? 'assets/icons/half_read.svg'
+                              : 'assets/icons/read.svg'
+                          : isDelivered
+                              ? 'assets/icons/delivered.svg'
+                              : isSending
+                                  ? isError
+                                      ? 'assets/icons/error.svg'
+                                      : 'assets/icons/sending.svg'
+                                  : 'assets/icons/sent.svg',
+                      height: isRead || isDelivered || (!isSending && !isError)
+                          ? 9
+                          : 13,
+                    ),
+                  ),
                 ),
               const SizedBox(width: 3),
             ],

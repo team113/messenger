@@ -21,6 +21,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// [Row] displaying the provided [status] and [at] stylized to be a status of
 /// some [ChatItem].
@@ -31,6 +32,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.date = false,
     this.read = false,
+    this.halfRead = false,
     this.delivered = false,
     this.inverted = false,
     this.fontSize,
@@ -48,6 +50,11 @@ class MessageTimestamp extends StatelessWidget {
   /// Indicator whether this [MessageTimestamp] is considered to be read,
   /// meaning it should display an appropriate icon.
   final bool read;
+
+  /// Indicator whether this [MessageTimestamp] is considered to be read
+  /// by several members,
+  /// meaning it should display an appropriate icon.
+  final bool halfRead;
 
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
   /// meaning it should display an appropriate icon.
@@ -75,26 +82,30 @@ class MessageTimestamp extends StatelessWidget {
       children: [
         if (status != null &&
             (isSent || isDelivered || isRead || isSending || isError)) ...[
-          Icon(
-            (isRead || isDelivered)
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? style.colors.primary
-                : isError
-                    ? style.colors.danger
-                    : style.colors.secondary,
-            size: 12,
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                      ? 'Sending'
-                      : 'Sent',
+          SizedBox(
+            height: isRead || isDelivered || (!isSending && !isError) ? 9 : 13,
+            child: SvgImage.asset(
+              isRead
+                  ? halfRead
+                      ? inverted
+                          ? 'assets/icons/half_read_white.svg'
+                          : 'assets/icons/half_read.svg'
+                      : inverted
+                          ? 'assets/icons/read_white.svg'
+                          : 'assets/icons/read.svg'
+                  : isDelivered
+                      ? inverted
+                          ? 'assets/icons/delivered_white.svg'
+                          : 'assets/icons/delivered.svg'
+                      : isSending
+                          ? isError
+                              ? 'assets/icons/error.svg'
+                              : inverted
+                                  ? 'assets/icons/sending_white.svg'
+                                  : 'assets/icons/sending.svg'
+                          : inverted
+                              ? 'assets/icons/sent_white.svg'
+                              : 'assets/icons/sent.svg',
             ),
           ),
           const SizedBox(width: 3),
