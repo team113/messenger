@@ -1475,6 +1475,7 @@ class WidgetsView extends StatelessWidget {
                 child: Dock(
                   items: List.generate(5, (i) => i),
                   itemWidth: 48,
+                  dragDelta: 0,
                   onReorder: (buttons) {},
                   onDragStarted: (b) {},
                   onDragEnded: (_) {},

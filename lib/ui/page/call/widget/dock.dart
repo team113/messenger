@@ -36,6 +36,7 @@ class Dock<T extends Object> extends StatefulWidget {
     required this.itemBuilder,
     this.onReorder,
     this.itemWidth = 48,
+    this.dragDelta = 6,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
@@ -50,6 +51,10 @@ class Dock<T extends Object> extends StatefulWidget {
 
   /// Max width [itemBuilder] is allowed to build within.
   final double itemWidth;
+
+  /// Distance to travel in order for the panning to be recognized as a drag
+  /// gesture.
+  final double dragDelta;
 
   /// Callback, called when the [items] are reordered.
   final Function(List<T>)? onReorder;
@@ -192,6 +197,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   child: LayoutBuilder(builder: (c, constraints) {
                     return DelayedDraggable(
                       maxSimultaneousDrags: _entry == null ? 1 : 0,
+                      dragDelta: widget.dragDelta,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
                       feedback: Transform.translate(
                         offset: -Offset(
@@ -543,14 +549,21 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
     super.onDragEnd,
     super.onDraggableCanceled,
     super.onDragCompleted,
+    this.dragDelta = 6,
   });
+
+  /// Distance to travel in order for the panning to be recognized as a drag
+  /// gesture.
+  final double dragDelta;
 
   @override
   MultiDragGestureRecognizer createRecognizer(
     GestureMultiDragStartCallback onStart,
   ) {
-    return _ImmediateDelayedMultiDragGestureRecognizer(debugOwner: '$hashCode')
-      ..onStart = (Offset position) {
+    return _ImmediateDelayedMultiDragGestureRecognizer(
+      debugOwner: '$hashCode',
+      dragDelta: dragDelta,
+    )..onStart = (Offset position) {
         final Drag? result = onStart(position);
         if (result != null) {
           HapticFeedback.selectionClick();
@@ -564,7 +577,14 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
 /// threshold is reached.
 class _ImmediateDelayedMultiDragGestureRecognizer
     extends MultiDragGestureRecognizer {
-  _ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
+  _ImmediateDelayedMultiDragGestureRecognizer({
+    super.debugOwner,
+    required this.dragDelta,
+  });
+
+  /// Distance to travel in order for the panning to be recognized as a drag
+  /// gesture.
+  final double dragDelta;
 
   @override
   MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
@@ -572,6 +592,7 @@ class _ImmediateDelayedMultiDragGestureRecognizer
         event.position,
         event.kind,
         gestureSettings,
+        dragDelta: dragDelta,
       );
 
   @override
@@ -583,12 +604,17 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
   _ImmediateDelayedPointerState(
     super.initialPosition,
     super.kind,
-    super.deviceGestureSettings,
-  );
+    super.deviceGestureSettings, {
+    required this.dragDelta,
+  });
+
+  /// Distance to travel in order for the panning to be recognized as a drag
+  /// gesture.
+  final double dragDelta;
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > 6) {
+    if (pendingDelta!.distance > dragDelta) {
       resolve(GestureDisposition.accepted);
     }
   }
