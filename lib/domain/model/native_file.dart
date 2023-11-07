@@ -57,7 +57,7 @@ class NativeFile {
       }
     }
 
-    if(bytes != null) {
+    if (bytes != null) {
       determineDimension();
     }
   }
