@@ -6,6 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.12] · ????-??-??
+[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
+
+[Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
+
+### Changed
+
+- UI:
+    - Style page:
+        - Redesigned widgets tab. ([#695], [#632])
+
+
+[#632]: /../../issues/632
+[#695]: /../../pull/695
+
+
+
+
 ## [0.1.0-alpha.11] · 2023-11-02
 [0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
 
