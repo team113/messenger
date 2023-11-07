@@ -116,6 +116,7 @@ class WidgetsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      cacheExtent: 3000,
       children: [
         ..._images(context),
         ..._chat(context),
