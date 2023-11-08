@@ -103,8 +103,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/obs/rxlist.dart';
-import '/util/obs/rxmap.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import 'widget/cat.dart';
 import 'widget/playable_asset.dart';
@@ -198,7 +197,7 @@ class WidgetsView extends StatelessWidget {
     );
   }
 
-  /// Returns contents of the images section.
+  /// Returns the contents of the images section.
   List<Widget> _images(BuildContext context) {
     return [
       _headline(
@@ -249,7 +248,7 @@ class WidgetsView extends StatelessWidget {
     );
   }
 
-  /// Returns contents of the chat section.
+  /// Returns the contents of the chat section.
   List<Widget> _chat(BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -278,10 +277,7 @@ class WidgetsView extends StatelessWidget {
               filename: 'Document.pdf',
             );
           } else {
-            return LocalAttachment(
-              image,
-              status: SendingStatus.sent,
-            );
+            return LocalAttachment(image, status: SendingStatus.sent);
           }
         }).toList(),
         status: status,
@@ -289,10 +285,7 @@ class WidgetsView extends StatelessWidget {
       );
     }
 
-    ChatItem info({
-      bool fromMe = true,
-      required ChatInfoAction action,
-    }) {
+    ChatItem info(ChatInfoAction action, {bool fromMe = true}) {
       return ChatInfo(
         ChatItemId.local(),
         ChatId.local(const UserId('me')),
@@ -606,11 +599,11 @@ class WidgetsView extends StatelessWidget {
 
             // Info.
             const SizedBox(height: 8),
-            chatItem(info(action: const ChatInfoActionCreated(null))),
+            chatItem(info(const ChatInfoActionCreated(null))),
             const SizedBox(height: 8),
             chatItem(
               info(
-                action: ChatInfoActionMemberAdded(
+                ChatInfoActionMemberAdded(
                   User(
                     const UserId('me'),
                     UserNum('1234123412341234'),
@@ -623,8 +616,7 @@ class WidgetsView extends StatelessWidget {
             const SizedBox(height: 8),
             chatItem(
               info(
-                fromMe: false,
-                action: ChatInfoActionMemberAdded(
+                ChatInfoActionMemberAdded(
                   User(
                     const UserId('me'),
                     UserNum('1234123412341234'),
@@ -632,6 +624,7 @@ class WidgetsView extends StatelessWidget {
                   ),
                   null,
                 ),
+                fromMe: false,
               ),
             ),
             const SizedBox(height: 8),
@@ -681,7 +674,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the animations section.
+  /// Returns the contents of the animations section.
   List<Widget> _animations(BuildContext context) {
     return [
       _headline(
@@ -719,7 +712,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the avatars section.
+  /// Returns the contents of the avatars section.
   List<Widget> _avatars(BuildContext context) {
     ({String label, Widget widget}) avatars(String title, AvatarRadius radius) {
       return (
@@ -749,7 +742,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the fields section.
+  /// Returns the contents of the fields section.
   List<Widget> _fields(BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -916,7 +909,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the buttons section.
+  /// Returns the contents of the buttons section.
   List<Widget> _buttons(BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -1244,7 +1237,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the switches section.
+  /// Returns the contents of the switches section.
   List<Widget> _switches(BuildContext context) {
     return [
       _headline(
@@ -1263,7 +1256,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the tiles section.
+  /// Returns the contents of the tiles section.
   List<Widget> _tiles(BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -1390,7 +1383,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the system section.
+  /// Returns the contents of the system section.
   List<Widget> _system(BuildContext context) {
     return [
       _headline(
@@ -1411,7 +1404,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the navigation section.
+  /// Returns the contents of the navigation section.
   List<Widget> _navigation(BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -1670,7 +1663,7 @@ class WidgetsView extends StatelessWidget {
     ];
   }
 
-  /// Returns contents of the sounds section.
+  /// Returns the contents of the sounds section.
   List<Widget> _sounds(BuildContext context) {
     final List<({String title, bool once})> sounds = [
       (title: 'incoming_call', once: false),
@@ -1731,19 +1724,10 @@ class DummyRxChat extends RxChat {
   final Rx<Chat> chat;
 
   @override
-  Future<void> addMessage(ChatMessageText text) async {}
-
-  @override
-  Future<void> around() async {}
-
-  @override
   Rx<Avatar?> get avatar => Rx(null);
 
   @override
   UserCallCover? get callCover => null;
-
-  @override
-  int compareTo(RxChat other) => 0;
 
   @override
   Rx<ChatMessage?> get draft => Rx(null);
@@ -1770,29 +1754,13 @@ class DummyRxChat extends RxChat {
   RxObsList<Rx<ChatItem>> get messages => RxObsList();
 
   @override
-  Future<void> next() async {}
-
-  @override
   RxBool get nextLoading => RxBool(false);
-
-  @override
-  Future<void> previous() async {}
 
   @override
   RxBool get previousLoading => RxBool(false);
 
   @override
   RxList<LastChatRead> get reads => RxList();
-
-  @override
-  Future<void> remove(ChatItemId itemId) async {}
-
-  @override
-  void setDraft({
-    ChatMessageText? text,
-    List<Attachment> attachments = const [],
-    List<ChatItem> repliesTo = const [],
-  }) {}
 
   @override
   Rx<RxStatus> get status => Rx(RxStatus.empty());
@@ -1807,8 +1775,33 @@ class DummyRxChat extends RxChat {
   RxInt get unreadCount => RxInt(0);
 
   @override
+  Stream<void> get updates => const Stream.empty();
+
+  @override
   Future<void> updateAttachments(ChatItem item) async {}
 
   @override
-  Stream<void> get updates => const Stream.empty();
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  }) {}
+
+  @override
+  Future<void> next() async {}
+
+  @override
+  Future<void> previous() async {}
+
+  @override
+  Future<void> remove(ChatItemId itemId) async {}
+
+  @override
+  Future<void> addMessage(ChatMessageText text) async {}
+
+  @override
+  Future<void> around() async {}
+
+  @override
+  int compareTo(RxChat other) => 0;
 }
