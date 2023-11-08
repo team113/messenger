@@ -52,10 +52,10 @@ class HivePageProvider<T extends Object, C, K>
   final Iterable<K> Function(Iterable<K>) orderBy;
 
   /// Callback, called to indicate whether the provided [T] is the first.
-  final bool Function(T item)? isFirst;
+  final bool Function(T? item)? isFirst;
 
   /// Callback, called to indicate whether the provided [T] is the last.
-  final bool Function(T item)? isLast;
+  final bool Function(T? item)? isLast;
 
   /// [PaginationStrategy] of [around] invoke.
   final PaginationStrategy strategy;
@@ -82,8 +82,8 @@ class HivePageProvider<T extends Object, C, K>
         PageInfo(
           startCursor: null,
           endCursor: null,
-          hasPrevious: false,
-          hasNext: false,
+          hasPrevious: isFirst == null ? true : !isFirst!.call(null),
+          hasNext: isLast == null ? true : !isLast!.call(null),
         ),
       );
     }
