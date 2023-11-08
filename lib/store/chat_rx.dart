@@ -332,8 +332,10 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key,
-        isFirst: (e) => id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
-        isLast: (e) => id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
+        isFirst: (e) =>
+            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
+        isLast: (e) =>
+            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
         strategy: PaginationStrategy.fromEnd,
       ),
     );

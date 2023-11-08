@@ -118,7 +118,7 @@ class ChatRepository extends DisposableInterface
   /// storage.
   final RecentChatHiveProvider _recentLocal;
 
-  /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
+  /// [ChatId]s sorted by [PreciseDateTime] representing favorite [Chat]s [Hive]
   /// storage.
   final FavoriteChatHiveProvider _favoriteLocal;
 
