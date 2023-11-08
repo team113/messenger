@@ -50,6 +50,7 @@ import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
         EditChatMessageException,
+        StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
@@ -1900,7 +1901,24 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription = StreamQueue(
       _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
     );
-    await _favoriteChatsSubscription!.execute(_favoriteChatsEvent);
+    await _favoriteChatsSubscription!.execute(
+      _favoriteChatsEvent,
+      onError: (e) async {
+        if (e is StaleVersionException) {
+          status.value = RxStatus.loading();
+
+          for (var e in _favoriteLocal.values) {
+            await _chatLocal.remove(e);
+          }
+          await _favoriteLocal.clear();
+          await _pagination?.clear();
+
+          await _pagination?.around();
+
+          status.value = RxStatus.success();
+        }
+      },
+    );
   }
 
   /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
