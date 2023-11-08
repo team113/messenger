@@ -14,13 +14,15 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Always display online status on desktop. ([#702], [#681])
     - Style page:
         - Redesigned widgets tab. ([#695], [#632])
 
 
 [#632]: /../../issues/632
+[#681]: /../../issues/681
 [#695]: /../../pull/695
-
+[#702]: /../../pull/702
 
 
 
