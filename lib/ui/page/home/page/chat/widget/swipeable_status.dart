@@ -83,7 +83,7 @@ class SwipeableStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (animation == null) {
+    if (animation == null || animation?.value == 0) {
       return child;
     }
 

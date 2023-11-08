@@ -49,7 +49,7 @@ class UnblockButton extends StatelessWidget {
       child: WidgetButton(
         onPressed: onPressed,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 56),
+          constraints: const BoxConstraints(minHeight: 57),
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
             color: style.cardColor,

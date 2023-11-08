@@ -218,16 +218,21 @@ class ContactsTabView extends StatelessWidget {
                           selector: c.moreKey,
                           margin: const EdgeInsets.only(bottom: 4, right: 0),
                           actions: [
+                            // ContextMenuButton(
+                            //   label: c.sortByName
+                            //       ? 'label_sort_by_visit'.l10n
+                            //       : 'label_sort_by_name'.l10n,
+                            //   onPressed: c.toggleSorting,
+                            //   trailing: SvgIcon(
+                            //     c.sortByName
+                            //         ? SvgIcons.sortAbcSmall
+                            //         : SvgIcons.sortTimeSmall,
+                            //   ),
+                            // ),
                             ContextMenuButton(
-                              label: c.sortByName
-                                  ? 'label_sort_by_visit'.l10n
-                                  : 'label_sort_by_name'.l10n,
-                              onPressed: c.toggleSorting,
-                              trailing: SvgIcon(
-                                c.sortByName
-                                    ? SvgIcons.sortAbcSmall
-                                    : SvgIcons.sortTimeSmall,
-                              ),
+                              label: 'btn_create_group'.l10n,
+                              onPressed: () {},
+                              trailing: const SvgIcon(SvgIcons.group),
                             ),
                             ContextMenuButton(
                               key: const Key('SelectChatButton'),

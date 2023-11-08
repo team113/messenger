@@ -226,6 +226,7 @@ btn_save = Save
 btn_save_as = Save as
 btn_save_to_gallery = Save to gallery
 btn_select = Select
+btn_select_messages = Select messages
 btn_select_and_delete = Select and delete
 btn_send = Send
 btn_set_password = Set password

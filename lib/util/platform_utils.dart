@@ -607,14 +607,14 @@ extension MobileExtensionOnContext on BuildContext {
 /// Extension adding an ability to pop the current [ModalRoute].
 extension PopExtensionOnContext on BuildContext {
   /// Pops the [ModalRoute] from this [BuildContext], if any is active.
-  void popModal() {
+  void popModal([dynamic result]) {
     if (mounted) {
       final NavigatorState navigator = Navigator.of(this);
       final ModalRoute? modal = ModalRoute.of(this);
 
       if (modal?.isActive == true) {
         if (modal?.isCurrent == true) {
-          navigator.pop();
+          navigator.pop(result);
         } else {
           navigator.removeRoute(modal!);
         }

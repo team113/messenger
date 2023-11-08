@@ -385,12 +385,16 @@ class _HomeViewState extends State<HomeView> {
                                         key: const Key('UnmuteChatsButton'),
                                         label: 'btn_unmute_chats'.l10n,
                                         onPressed: () => c.toggleMute(true),
+                                        // trailing:
+                                        //     const SvgIcon(SvgIcons.muteSmall),
                                       )
                                     else
                                       ContextMenuButton(
                                         key: const Key('MuteChatsButton'),
                                         label: 'btn_mute_chats'.l10n,
                                         onPressed: () => c.toggleMute(false),
+                                        // trailing:
+                                        //     const SvgIcon(SvgIcons.unmuteSmall),
                                       ),
                                   ],
                                   child: Obx(() {

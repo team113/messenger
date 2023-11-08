@@ -97,6 +97,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    this.onSelect,
     this.onPin,
     this.paid = false,
     this.pinned = false,
@@ -172,6 +173,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+
+  final void Function()? onSelect;
 
   final void Function()? onPin;
   final bool pinned;
@@ -1890,6 +1894,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               },
                             ),
                           ],
+                          ContextMenuButton(
+                            label: PlatformUtils.isMobile
+                                ? 'btn_select'.l10n
+                                : 'btn_select_messages'.l10n,
+                            trailing: const SvgIcon(SvgIcons.select),
+                            onPressed: widget.onSelect,
+                          ),
                         ],
                         builder: PlatformUtils.isMobile
                             ? (menu) => child(menu, itemConstraints)

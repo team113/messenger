@@ -249,6 +249,10 @@ class ChatController extends GetxController {
 
   final GlobalKey moreKey = GlobalKey();
 
+  Worker? _selectingWorker;
+  final RxBool selecting = RxBool(false);
+  final RxList<ChatItem> selected = RxList();
+
   void pin(ChatItem item) {
     pinned.add(item);
     displayPinned.value = pinned.length - 1;
@@ -545,6 +549,12 @@ class ChatController extends GetxController {
       }
     });
 
+    _selectingWorker = ever(selecting, (bool value) {
+      if (!value) {
+        selected.clear();
+      }
+    });
+
     super.onInit();
   }
 
@@ -573,6 +583,7 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+    _selectingWorker?.dispose();
 
     send.onClose();
     edit.value?.onClose();

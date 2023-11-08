@@ -558,6 +558,12 @@ class SvgIcons {
     height: 22,
   );
 
+  static const SvgData forwardDisabled = SvgData(
+    'assets/icons/forward_disabled.svg',
+    width: 26,
+    height: 22,
+  );
+
   static const SvgData send = SvgData(
     'assets/icons/send.svg',
     width: 25.44,
@@ -1308,14 +1314,14 @@ class SvgIcons {
 
   static const SvgData muteSmall = SvgData(
     'assets/icons/mute_small.svg',
-    width: 18.2,
-    height: 18.5,
+    width: 19.68,
+    height: 20,
   );
 
   static const SvgData unmuteSmall = SvgData(
     'assets/icons/unmute_small.svg',
-    width: 18.2,
-    height: 18.5,
+    width: 19.68,
+    height: 20,
   );
 
   static const SvgData block = SvgData(
@@ -1430,5 +1436,17 @@ class SvgIcons {
     'assets/icons/remove_from_call.svg',
     width: 21.36,
     height: 20.51,
+  );
+
+  static const SvgData deleteBig = SvgData(
+    'assets/icons/delete_big.svg',
+    width: 23.01,
+    height: 22,
+  );
+
+  static const SvgData deleteBigDisabled = SvgData(
+    'assets/icons/delete_big_disabled.svg',
+    width: 23.01,
+    height: 22,
   );
 }

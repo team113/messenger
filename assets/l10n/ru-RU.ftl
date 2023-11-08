@@ -227,6 +227,7 @@ btn_save = Сохранить
 btn_save_as = Сохранить как
 btn_save_to_gallery = Сохранить в галерею
 btn_select = Выбрать
+btn_select_messages = Выбрать сообщения
 btn_select_and_delete = Выбрать и удалить
 btn_send = Отправить
 btn_set_password = Задать пароль

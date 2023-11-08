@@ -285,7 +285,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_mute'.l10n
                   : 'btn_mute_chat'.l10n,
               onPressed: onMute,
-              trailing: const SvgIcon(SvgIcons.muteSmall),
+              trailing: const SvgIcon(SvgIcons.unmuteSmall),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
@@ -294,7 +294,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_unmute'.l10n
                   : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
-              trailing: const SvgIcon(SvgIcons.unmuteSmall),
+              trailing: const SvgIcon(SvgIcons.muteSmall),
             ),
           if (onHide != null)
             ContextMenuButton(
