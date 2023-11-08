@@ -51,9 +51,8 @@ class MessageTimestamp extends StatelessWidget {
   /// meaning it should display an appropriate icon.
   final bool read;
 
-  /// Indicator whether this [MessageTimestamp] is considered to be read
-  /// by several members,
-  /// meaning it should display an appropriate icon.
+  /// Indicator whether this [MessageTimestamp] is considered to be read only
+  /// partially, meaning it should display an appropriate icon.
   final bool halfRead;
 
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
