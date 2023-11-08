@@ -1640,8 +1640,6 @@ class ChatRepository extends DisposableInterface
           _chatLocal,
           getCursor: (e) => e?.favoriteCursor,
           getKey: (e) => e.value.id,
-          isLast: (_) => true,
-          isFirst: (_) => true,
           orderBy: (_) => _favoriteLocal.values,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,
