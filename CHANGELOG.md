@@ -42,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
         - Display message field while loading. ([#662], [#634])
         - Display small images smaller. ([#688], [#653])
         - Message attachments and replies editing. ([#671], [#557])
+        - Display single mark as blue, if not the whole Chat-group read message. ([#703], [#666])
     - Disabled larger fonts accessibility setting temporary. ([#679])
     - Home page:
         - Redesigned introduction modal. ([#668], [#633])
@@ -63,11 +64,13 @@ All user visible changes to this project will be documented in this file. This p
 [#653]: /../../issues/653
 [#662]: /../../pull/662
 [#663]: /../../pull/663
+[#666]: /../../issues/666
 [#668]: /../../pull/668
 [#671]: /../../pull/671
 [#672]: /../../pull/672
 [#679]: /../../pull/679
 [#688]: /../../pull/688
+[#703]: /../../pull/703
 
 
 
