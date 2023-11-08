@@ -509,7 +509,7 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveToGallery(
+  Future<void> saveImageToGallery(
     String url,
     String name, {
     String? checksum,
@@ -520,6 +520,20 @@ class PlatformUtilsImpl {
       if (data != null) {
         ImageGallerySaver.saveImage(data, name: name);
       }
+    }
+  }
+
+  /// Downloads a video from the provided [url] and saves it to the gallery.
+  Future<void> saveVideoToGallery(
+    String url,
+    String name, {
+    String? checksum,
+  }) async {
+    if (isMobile && !isWeb) {
+      final Directory temp = await getTemporaryDirectory();
+      final String path = '${temp.path}/$name';
+      await (await dio).download(url, path);
+      ImageGallerySaver.saveFile(path, name: name);
     }
   }
 

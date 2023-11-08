@@ -173,6 +173,7 @@ btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_download = Download
+btn_download_all = Download all
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
@@ -875,6 +876,7 @@ label_video_call = Video call{$by ->
         *[other] {" "}by {$by}
     }
 label_video_downloaded = Video downloaded.
+label_video_downloading = Video downloading...
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_wait_seconds = Wait {$for} s

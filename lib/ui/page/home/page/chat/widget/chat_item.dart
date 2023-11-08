@@ -57,7 +57,6 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_digits.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
@@ -90,10 +89,13 @@ class ChatItemWidget extends StatefulWidget {
     this.onGallery,
     this.onRepliedTap,
     this.onResend,
+    this.onDownloadMedia,
     this.onDrag,
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    this.onSaveAs,
+    this.onSaveToGallery,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -135,6 +137,10 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a delete action of this [ChatItem] is triggered.
   final void Function()? onDelete;
 
+  /// Callback, called when a download action in [ContextMenu] of this
+  /// [ChatItem] is triggered.
+  final void Function(Attachment)? onDownloadMedia;
+
   /// Callback, called when a reply action of this [ChatItem] is triggered.
   final void Function()? onReply;
 
@@ -166,6 +172,14 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  /// Callback, called when a `save as` action in [ContextMenu] of this
+  /// [ChatItem] is triggered.
+  final void Function(Attachment)? onSaveAs;
+
+  /// Callback, called when a download action on mobile in [ContextMenu] of this
+  /// [ChatItem] is triggered.
+  final void Function(Attachment)? onSaveToGallery;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1624,6 +1638,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   );
 
+                  bool isCanSaved = false;
+                  List<Attachment> mediaAttachments = [];
+                  if (item is ChatMessage) {
+                    mediaAttachments = item.attachments
+                        .where((e) =>
+                            e is ImageAttachment ||
+                            (e is FileAttachment && e.isVideo))
+                        .toList();
+                    isCanSaved = mediaAttachments.isNotEmpty;
+                  }
+
                   return ConstrainedBox(
                     constraints: itemConstraints,
                     child: Material(
@@ -1745,12 +1770,32 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
-                            if (copyable == null)
+                            if (isCanSaved)
                               ContextMenuButton(
-                                label: 'btn_download'.l10n,
+                                label: mediaAttachments.length == 1
+                                    ? 'btn_download'.l10n
+                                    : 'btn_download_all'.l10n,
                                 trailing: const Icon(Icons.download),
                                 onPressed: () {
-                                  _saveToGallery(widget.onGallery!().last);
+                                  for (Attachment attachment
+                                      in mediaAttachments) {
+                                    if (PlatformUtils.isMobile) {
+                                      widget.onSaveToGallery?.call(attachment);
+                                    } else {
+                                      widget.onDownloadMedia?.call(attachment);
+                                    }
+                                  }
+                                },
+                              ),
+                            if (isCanSaved &&
+                                mediaAttachments.length == 1 &&
+                                !PlatformUtils.isMobile &&
+                                !PlatformUtils.isWeb)
+                              ContextMenuButton(
+                                label: 'btn_save_as'.l10n,
+                                trailing: const Icon(Icons.download),
+                                onPressed: () {
+                                  widget.onSaveAs?.call(mediaAttachments.first);
                                 },
                               ),
                           ],
@@ -1813,29 +1858,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
       ),
     );
-  }
-
-  /// Downloads the provided [GalleryItem] and saves it to the gallery.
-  Future<void> _saveToGallery(GalleryAttachment item) async {
-    try {
-      try {
-        await PlatformUtils.saveToGallery(
-          item.attachment.original.url,
-          item.attachment.filename,
-          checksum: item.attachment.original.checksum,
-        );
-      } catch (_) {
-        print('caught something');
-      }
-
-      if (mounted) {
-        MessagePopup.success(item.attachment.isDownloading
-            ? 'label_video_saved_to_gallery'.l10n
-            : 'label_image_saved_to_gallery'.l10n);
-      }
-    } catch (_) {
-      MessagePopup.error('err_could_not_download'.l10n);
-    }
   }
 
   /// Builds a [MessageTimestamp] of the provided [item].

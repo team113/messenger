@@ -173,6 +173,7 @@ btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
 btn_download = Скачать
+btn_download_all = Скачать всё
 btn_download_application = Скачать приложение
 btn_edit = Редактировать
 btn_email = E-mail
@@ -906,6 +907,7 @@ label_video_call = Видеозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_video_downloaded = Видео загружено.
+label_video_downloading = Видео загружается...
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
 label_wait_seconds = Подождите {$for} с

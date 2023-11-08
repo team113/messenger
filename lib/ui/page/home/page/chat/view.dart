@@ -691,8 +691,11 @@ class _ChatViewState extends State<ChatView>
                 onGallery: c.calculateGallery,
                 onResend: () => c.resendItem(e.value),
                 onEdit: () => c.editMessage(e.value),
+                onDownloadMedia: (a) => c.downloadMedia(a),
                 onDrag: (d) => c.isItemDragged.value = d,
                 onFileTap: (a) => c.download(e.value, a),
+                onSaveAs: (a) => c.saveAs(a),
+                onSaveToGallery: (a) => c.saveToGallery(a),
                 onAttachmentError: () async {
                   await c.chat?.updateAttachments(e.value);
                   await Future.delayed(Duration.zero);

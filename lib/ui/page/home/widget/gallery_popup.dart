@@ -1146,9 +1146,15 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
+    Future<void> Function(String, String, {String? checksum}) saveToGallery;
+    if (item.isVideo) {
+      saveToGallery = PlatformUtils.saveVideoToGallery;
+    } else {
+      saveToGallery = PlatformUtils.saveImageToGallery;
+    }
     try {
       try {
-        await PlatformUtils.saveToGallery(
+        await saveToGallery(
           item.link,
           item.name,
           checksum: item.checksum,
@@ -1156,7 +1162,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.saveToGallery(
+          await saveToGallery(
             item.link,
             item.name,
             checksum: item.checksum,
