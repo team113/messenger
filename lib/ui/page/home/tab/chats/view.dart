@@ -314,47 +314,52 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      return AnimatedOpacity(
-                        duration: 250.milliseconds,
-                        opacity: c.searching.value ||
-                                c.groupCreating.value ||
-                                c.selecting.value
-                            ? 0
-                            : 1,
-                        child: ContextMenuRegion(
-                          key: const Key('ChatsMenu'),
-                          selector: c.moreKey,
-                          alignment: Alignment.topRight,
-                          enablePrimaryTap: true,
-                          enableSecondaryTap: false,
-                          enableLongTap: false,
-                          margin: const EdgeInsets.only(bottom: 4, right: 0),
-                          actions: [
-                            ContextMenuButton(
-                              label: 'btn_create_group'.l10n,
-                              onPressed: c.startGroupCreating,
-                            ),
-                            ContextMenuButton(
-                              key: const Key('SelectChatsButton'),
-                              label: 'btn_select_and_delete'.l10n,
-                              onPressed: c.toggleSelecting,
-                            ),
-                          ],
-                          child: AnimatedButton(
-                            decorator: (child) {
-                              return Container(
-                                key: c.moreKey,
-                                padding: const EdgeInsets.only(
-                                  left: 12,
-                                  right: 18,
-                                ),
-                                height: double.infinity,
-                                child: child,
-                              );
-                            },
-                            child: Icon(
-                              Icons.more_vert,
-                              color: style.colors.primary,
+                      return IgnorePointer(
+                        ignoring: c.searching.value ||
+                            c.groupCreating.value ||
+                            c.selecting.value,
+                        child: AnimatedOpacity(
+                          duration: 250.milliseconds,
+                          opacity: c.searching.value ||
+                                  c.groupCreating.value ||
+                                  c.selecting.value
+                              ? 0
+                              : 1,
+                          child: ContextMenuRegion(
+                            key: const Key('ChatsMenu'),
+                            selector: c.moreKey,
+                            alignment: Alignment.topRight,
+                            enablePrimaryTap: true,
+                            enableSecondaryTap: false,
+                            enableLongTap: false,
+                            margin: const EdgeInsets.only(bottom: 4, right: 0),
+                            actions: [
+                              ContextMenuButton(
+                                label: 'btn_create_group'.l10n,
+                                onPressed: c.startGroupCreating,
+                              ),
+                              ContextMenuButton(
+                                key: const Key('SelectChatsButton'),
+                                label: 'btn_select_and_delete'.l10n,
+                                onPressed: c.toggleSelecting,
+                              ),
+                            ],
+                            child: AnimatedButton(
+                              decorator: (child) {
+                                return Container(
+                                  key: c.moreKey,
+                                  padding: const EdgeInsets.only(
+                                    left: 12,
+                                    right: 18,
+                                  ),
+                                  height: double.infinity,
+                                  child: child,
+                                );
+                              },
+                              child: Icon(
+                                Icons.more_vert,
+                                color: style.colors.primary,
+                              ),
                             ),
                           ),
                         ),
@@ -379,7 +384,8 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.contacts.isEmpty == true &&
                         c.search.value?.users.isEmpty == true) {
                       if (c.search.value?.searchStatus.value.isSuccess ==
-                          true) {
+                              true ||
+                          c.search.value?.searchStatus.value.isEmpty == true) {
                         center = Center(
                           key: UniqueKey(),
                           child: Text(

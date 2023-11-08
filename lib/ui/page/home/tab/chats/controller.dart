@@ -583,9 +583,9 @@ class ChatsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
-        categories: const [
+        categories: [
           SearchCategory.recent,
-          SearchCategory.chat,
+          if (groupCreating.isFalse) SearchCategory.chat,
           SearchCategory.contact,
           SearchCategory.user,
         ],
