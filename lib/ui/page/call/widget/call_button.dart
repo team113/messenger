@@ -16,8 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 import 'round_button.dart';
 
 /// [RoundFloatingButton] optionally displaying its [hint] according to the
@@ -25,8 +26,8 @@ import 'round_button.dart';
 class CallButtonWidget extends StatelessWidget {
   const CallButtonWidget({
     super.key,
-    required this.asset,
-    this.assetWidth = 60,
+    this.asset,
+    this.offset,
     this.onPressed,
     this.hint,
     this.hinted = true,
@@ -36,11 +37,11 @@ class CallButtonWidget extends StatelessWidget {
     this.border,
   });
 
-  /// Asset to display.
-  final String? asset;
+  /// [SvgData] to display.
+  final SvgData? asset;
 
-  /// Width of the [asset].
-  final double assetWidth;
+  /// [Offset] to apply to the [icon].
+  final Offset? offset;
 
   /// Callback, called when this [CallButtonWidget] is pressed.
   final void Function()? onPressed;
@@ -69,8 +70,8 @@ class CallButtonWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return RoundFloatingButton(
-      asset: asset,
-      assetWidth: assetWidth,
+      icon: asset,
+      offset: offset,
       color: color ?? style.colors.onSecondaryOpacity50,
       hint: !expanded && hinted ? hint : null,
       text: expanded ? hint : null,

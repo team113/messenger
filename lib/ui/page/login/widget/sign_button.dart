@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/svg/svg.dart';
 import 'prefix_button.dart';
 
 /// [PrefixButton] with an [asset] as a prefix.
@@ -26,9 +25,7 @@ class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
     required this.title,
-    required this.asset,
-    this.assetWidth = 20,
-    this.assetHeight = 20,
+    this.icon,
     this.padding = EdgeInsets.zero,
     this.onPressed,
   });
@@ -36,14 +33,8 @@ class SignButton extends StatelessWidget {
   /// Title of this [SignButton].
   final String title;
 
-  /// Asset to display as a [PrefixButton.prefix].
-  final String asset;
-
-  /// Width of the [asset].
-  final double assetWidth;
-
-  ///  Height of the [asset].
-  final double assetHeight;
+  /// Widget to display as a [PrefixButton.prefix].
+  final Widget? icon;
 
   /// Additional padding to apply to the [asset].
   final EdgeInsets padding;
@@ -62,14 +53,12 @@ class SignButton extends StatelessWidget {
             ? style.fonts.medium.regular.secondary
             : style.fonts.medium.regular.onBackground,
         onPressed: onPressed,
-        prefix: Padding(
-          padding: const EdgeInsets.only(left: 16).add(padding),
-          child: SvgImage.asset(
-            'assets/icons/$asset.svg',
-            width: assetWidth,
-            height: assetHeight,
-          ),
-        ),
+        prefix: icon == null
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(left: 16).add(padding),
+                child: icon,
+              ),
       ),
     );
   }

@@ -22,6 +22,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -92,7 +93,11 @@ class SharableTextField extends StatelessWidget {
                   prefix: leading,
                   state: state,
                   suffix: trailing == null ? Icons.ios_share : null,
-                  trailing: trailing,
+                  trailing: trailing ??
+                      Transform.translate(
+                        offset: const Offset(0, -1),
+                        child: const SvgIcon(SvgIcons.share),
+                      ),
                   label: label,
                   style: this.style,
                 ),

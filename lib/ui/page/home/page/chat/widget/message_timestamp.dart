@@ -21,6 +21,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// [Row] displaying the provided [status] and [at] stylized to be a status of
 /// some [ChatItem].
@@ -73,32 +74,6 @@ class MessageTimestamp extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
-          Icon(
-            (isRead || isDelivered)
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? style.colors.primary
-                : isError
-                    ? style.colors.danger
-                    : style.colors.secondary,
-            size: 12,
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                      ? 'Sending'
-                      : 'Sent',
-            ),
-          ),
-          const SizedBox(width: 3),
-        ],
         SelectionContainer.disabled(
           child: Text(
             date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
@@ -111,6 +86,32 @@ class MessageTimestamp extends StatelessWidget {
             ),
           ),
         ),
+        if (status != null &&
+            (isSent || isDelivered || isRead || isSending || isError)) ...[
+          const SizedBox(width: 3),
+          SizedBox(
+            width: 17,
+            child: SvgIcon(
+              isRead
+                  ? inverted
+                      ? SvgIcons.readWhite
+                      : SvgIcons.read
+                  : isDelivered
+                      ? inverted
+                          ? SvgIcons.deliveredWhite
+                          : SvgIcons.delivered
+                      : isSending
+                          ? isError
+                              ? SvgIcons.error
+                              : inverted
+                                  ? SvgIcons.sendingWhite
+                                  : SvgIcons.sending
+                          : inverted
+                              ? SvgIcons.sentWhite
+                              : SvgIcons.sent,
+            ),
+          ),
+        ],
       ],
     );
   }

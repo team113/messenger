@@ -33,8 +33,8 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
-import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/allow_overflow.dart';
@@ -90,7 +90,9 @@ class ChatsTabView extends StatelessWidget {
                 extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
-                  border: c.search.value != null || c.selecting.value
+                  border: (c.searching.value ||
+                          c.search.value?.search.isFocused.value == true ||
+                          c.search.value?.query.value.isNotEmpty == true)
                       ? Border.all(color: style.colors.primary, width: 2)
                       : null,
                   title: Obx(() {
@@ -133,8 +135,10 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.selecting.value) {
-                      child =
-                          Text('label_select_chats'.l10n, key: const Key('3'));
+                      child = Text(
+                        'btn_select_and_delete'.l10n,
+                        key: const Key('3'),
+                      );
                     } else {
                       final Widget synchronization;
 
@@ -242,16 +246,8 @@ class ChatsTabView extends StatelessWidget {
                           child: SafeAnimatedSwitcher(
                             duration: 250.milliseconds,
                             child: c.searching.value
-                                ? Icon(
-                                    key: const Key('ArrowBack'),
-                                    Icons.arrow_back_ios_new,
-                                    size: 20,
-                                    color: style.colors.primary,
-                                  )
-                                : const SvgImage.asset(
-                                    'assets/icons/search.svg',
-                                    width: 17.77,
-                                  ),
+                                ? const SvgIcon(SvgIcons.back)
+                                : const SvgIcon(SvgIcons.search),
                           ),
                         ),
                       );
@@ -263,18 +259,16 @@ class ChatsTabView extends StatelessWidget {
 
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
-                          child = const SvgImage.asset(
-                            'assets/icons/search_exit.svg',
+                          child = const SvgIcon(
+                            SvgIcons.searchExit,
                             key: Key('CloseSearch'),
-                            height: 11,
                           );
                         }
                       } else {
                         if (c.groupCreating.value || c.selecting.value) {
-                          child = const SvgImage.asset(
-                            'assets/icons/close_primary.svg',
+                          child = const SvgIcon(
+                            SvgIcons.searchExit,
                             key: Key('CloseGroupSearching'),
-                            height: 15,
                           );
                         }
                       }
@@ -349,13 +343,14 @@ class ChatsTabView extends StatelessWidget {
                                   right: 18,
                                 ),
                                 height: double.infinity,
-                                child: child,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                  child: child,
+                                ),
                               );
                             },
-                            child: Icon(
-                              Icons.more_vert,
-                              color: style.colors.primary,
-                            ),
+                            child: const SvgIcon(SvgIcons.more),
                           ),
                         ),
                       );
@@ -570,6 +565,7 @@ class ChatsTabView extends StatelessWidget {
                                       me: c.me,
                                       blocked: chat.blacklisted,
                                       getUser: c.getUser,
+                                      onCall: (video) => c.call(chat.id, video),
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
                                       inCall: () => c.containsCall(chat.id),
@@ -1068,18 +1064,16 @@ class ChatsTabView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10n,
       description: [
-        TextSpan(
-          text: 'alert_chats_will_be_deleted'
-              .l10nfmt({'count': c.selectedChats.length}),
-        ),
+        TextSpan(text: 'label_to_restore_chats_use_search'.l10n),
       ],
       additional: [
         const SizedBox(height: 21),
         StatefulBuilder(builder: (context, setState) {
-          return FieldButton(
-            text: 'btn_clear_history'.l10n,
+          return RectangleButton(
+            label: 'btn_clear_history'.l10n,
+            selected: clear,
+            radio: true,
             onPressed: () => setState(() => clear = !clear),
-            trailing: SelectedDot(selected: clear, size: 22, inverted: false),
           );
         })
       ],
