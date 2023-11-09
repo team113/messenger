@@ -1421,6 +1421,7 @@ class ChatRepository extends DisposableInterface
       }
 
       if (entry.chat.value.favoritePosition != chat.value.favoritePosition) {
+        entry.chat.value.favoritePosition = chat.value.favoritePosition;
         paginated.emit(
           MapChangeNotification.updated(chat.value.id, chat.value.id, entry),
         );
@@ -1642,6 +1643,7 @@ class ChatRepository extends DisposableInterface
           getCursor: (e) => e?.favoriteCursor,
           getKey: (e) => e.value.id,
           orderBy: (_) => _favoriteLocal.values,
+          isLast: (_) => true,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,
         ),
