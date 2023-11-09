@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -547,18 +548,29 @@ class ContactsTabView extends StatelessWidget {
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
-                              c.contacts.mapIndexed((i, e) {
-                                return AnimationConfiguration.staggeredList(
-                                  position: c.favorites.length + i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: _contact(context, e, c),
+                              [
+                                ...c.contacts.mapIndexed((i, e) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: c.favorites.length + i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: _contact(context, e, c),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                if (c.hasNext.isTrue)
+                                  Center(
+                                    child: CustomProgressIndicator(
+                                      key: const Key('ContactsLoading'),
+                                      value: Config.disableInfiniteAnimations
+                                          ? 0
+                                          : null,
                                     ),
                                   ),
-                                );
-                              }).toList(),
+                              ],
                             ),
                           ),
                         ),

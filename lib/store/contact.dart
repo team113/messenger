@@ -86,7 +86,7 @@ class ContactRepository extends DisposableInterface
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
-  /// [CombinedPagination] loading [contacts] with pagination.
+  /// [CombinedPagination] loading [contacts] and [favorites] with pagination.
   late final CombinedPagination<HiveChatContact, ChatContactId> _pagination;
 
   /// Subscription to the [_pagination] changes.
@@ -118,6 +118,7 @@ class ContactRepository extends DisposableInterface
   void onClose() {
     allContacts.forEach((_, v) => v.dispose());
     _localSubscription?.cancel();
+    _paginationSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
 
     super.onClose();
@@ -497,7 +498,6 @@ class ContactRepository extends DisposableInterface
       if (saved == null ||
           saved.ver < contact.ver ||
           contact.ver.internal == BigInt.zero) {
-
         await _contactLocal.put(contact);
       }
     }

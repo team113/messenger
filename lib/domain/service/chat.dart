@@ -61,7 +61,7 @@ class ChatService extends DisposableService {
   /// Indicates whether the [paginated] have next page.
   RxBool get hasNext => _chatRepository.hasNext;
 
-  /// Indicates whether the [paginated] have next page.
+  /// Indicator whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _chatRepository.nextLoading;
 
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated

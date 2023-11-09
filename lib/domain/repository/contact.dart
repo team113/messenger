@@ -41,10 +41,10 @@ abstract class AbstractContactRepository {
   /// [contacts] and [favorites].
   Rx<RxStatus> get status;
 
-  /// Indicates whether the [contacts] have next page.
+  /// Indicates whether the [contacts] or [favorites] have next page.
   RxBool get hasNext;
 
-  /// Indicator whether a next page of the [contacts] is loading.
+  /// Indicator whether a next page of the [contacts] or [favorites] is loading.
   RxBool get nextLoading;
 
   /// Returns a [ChatContact] by the provided [id].

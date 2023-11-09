@@ -26,7 +26,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
@@ -34,7 +33,6 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallIsInPopupException;
 import '/domain/repository/contact.dart';
-import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -48,6 +46,7 @@ import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import 'view.dart';
 
 export 'view.dart';
 
@@ -130,7 +129,7 @@ class ContactsTabController extends GetxController {
   /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
   Rx<RxStatus> get status => _contactService.status;
 
-  /// Indicates whether the [chats] have a next page.
+  /// Indicates whether the [favorites] or [contacts] have a next page.
   RxBool get hasNext => _contactService.hasNext;
 
   @override
@@ -415,7 +414,7 @@ class ContactsTabController extends GetxController {
   /// Sorts the [contacts] by their names.
   void _sortContacts() {
     contacts.sort((a, b) {
-        return a.contact.value.name.val.compareTo(b.contact.value.name.val);
+      return a.contact.value.name.val.compareTo(b.contact.value.name.val);
     });
   }
 
@@ -449,8 +448,8 @@ class ContactsTabController extends GetxController {
     return false;
   }
 
-  /// Requests the next page of [Chat]s based on the [ScrollController.position]
-  /// value.
+  /// Requests the next page of [ChatContact]s based on the
+  /// [ScrollController.position] value.
   void _scrollListener() {
     if (!_scrollIsInvoked) {
       _scrollIsInvoked = true;
@@ -469,7 +468,7 @@ class ContactsTabController extends GetxController {
     }
   }
 
-  /// Ensures the [ChatsTabView] is scrollable.
+  /// Ensures the [ContactsTabView] is scrollable.
   Future<void> _ensureScrollable() async {
     if (isClosed) {
       return;

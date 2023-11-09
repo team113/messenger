@@ -232,8 +232,8 @@ void main() async {
       before: null,
       after: null,
       last: null,
-    )).thenAnswer((_) =>
-        Future.value((Contacts$Query.fromJson(chatContactsData).chatContacts)));
+    )).thenAnswer(
+        (_) => Future.value((Contacts$Query.fromJson(chatContactsData))));
 
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => const Stream.empty(),

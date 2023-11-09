@@ -401,9 +401,10 @@ List<String?>?
 
 // FavoriteChatContactsCursor
 
-FavoriteChatContactsCursor fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
-        String v) =>
-    FavoriteChatContactsCursor(v);
+FavoriteChatContactsCursor
+    fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
+            String v) =>
+        FavoriteChatContactsCursor(v);
 String fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(
         FavoriteChatContactsCursor v) =>
     v.toString();
@@ -411,36 +412,43 @@ List<FavoriteChatContactsCursor>
     fromGraphQLListFavoriteChatContactsCursorToDartListFavoriteChatContactsCursor(
             List<Object?> v) =>
         v
-            .map((e) => fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
-                e as String))
+            .map((e) =>
+                fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
+                    e as String))
             .toList();
-List<String> fromDartListFavoriteChatContactsCursorToGraphQLListFavoriteChatContactsCursor(
-        List<FavoriteChatContactsCursor> v) =>
-    v
-        .map((e) => fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(e))
-        .toList();
+List<String>
+    fromDartListFavoriteChatContactsCursorToGraphQLListFavoriteChatContactsCursor(
+            List<FavoriteChatContactsCursor> v) =>
+        v
+            .map((e) =>
+                fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(
+                    e))
+            .toList();
 List<FavoriteChatContactsCursor>?
     fromGraphQLListNullableFavoriteChatContactsCursorToDartListNullableFavoriteChatContactsCursor(
             List<Object?>? v) =>
         v
-            ?.map((e) => fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
-                e as String))
+            ?.map((e) =>
+                fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
+                    e as String))
             .toList();
 List<String>?
     fromDartListNullableFavoriteChatContactsCursorToGraphQLListNullableFavoriteChatContactsCursor(
             List<FavoriteChatContactsCursor>? v) =>
         v
-            ?.map(
-                (e) => fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(e))
+            ?.map((e) =>
+                fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(
+                    e))
             .toList();
 
 FavoriteChatContactsCursor?
     fromGraphQLFavoriteChatContactsCursorNullableToDartFavoriteChatContactsCursorNullable(
             String? v) =>
         v == null ? null : FavoriteChatContactsCursor(v);
-String? fromDartFavoriteChatContactsCursorNullableToGraphQLFavoriteChatContactsCursorNullable(
-        FavoriteChatContactsCursor? v) =>
-    v?.toString();
+String?
+    fromDartFavoriteChatContactsCursorNullableToGraphQLFavoriteChatContactsCursorNullable(
+            FavoriteChatContactsCursor? v) =>
+        v?.toString();
 List<FavoriteChatContactsCursor?>
     fromGraphQLListFavoriteChatContactsCursorNullableToDartListFavoriteChatContactsCursorNullable(
             List<Object?> v) =>

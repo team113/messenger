@@ -145,7 +145,7 @@ void main() async {
     )).thenAnswer(
         (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
     when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
-      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts)),
     );
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 

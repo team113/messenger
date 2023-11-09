@@ -56,7 +56,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   }
 
   @override
-  Future<Contacts$Query$ChatContacts> chatContacts({
+  Future<Contacts$Query> chatContacts({
     int? first,
     ChatContactsCursor? after,
     int? last,
@@ -65,7 +65,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   }) async =>
       Contacts$Query.fromJson({
         'chatContacts': {'nodes': [], 'ver': '0'}
-      }).chatContacts;
+      });
 
   @override
   Future<RecentChats$Query> recentChats({
