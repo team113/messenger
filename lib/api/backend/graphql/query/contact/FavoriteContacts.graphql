@@ -15,19 +15,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-query Contacts(
+query FavoriteContacts(
     $first: Int
-    $after: ChatContactsCursor
+    $after: FavoriteChatContactsCursor
     $last: Int
-    $before: ChatContactsCursor
-    $noFavorite: Boolean
+    $before: FavoriteChatContactsCursor
 ) {
-    chatContacts(
+    favoriteChatContacts(
         first: $first
         after: $after
         last: $last
         before: $before
-        noFavorite: $noFavorite
     ) {
         edges {
             node {

@@ -27,18 +27,31 @@ import 'search.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
-  /// Returns reactive observable map of [ChatContact]s.
+  /// Returns reactive map of [ChatContact]s in the current pagination view.
   RxObsMap<ChatContactId, RxChatContact> get contacts;
 
-  /// Returns reactive map of favorite [ChatContact]s.
+  /// Returns reactive map of favorite [ChatContact]s in the current pagination
+  /// view.
   RxObsMap<ChatContactId, RxChatContact> get favorites;
+
+  /// Returns reactive map of all [RxChatContact]s stored.
+  RxObsMap<ChatContactId, RxChatContact> get allContacts;
 
   /// Returns the initialization [RxStatus] of this repository and its
   /// [contacts] and [favorites].
   Rx<RxStatus> get status;
 
+  /// Indicates whether the [contacts] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [contacts] is loading.
+  RxBool get nextLoading;
+
   /// Returns a [ChatContact] by the provided [id].
   RxChatContact? get(ChatContactId id);
+
+  /// Fetches the next [contacts] page.
+  Future<void> next();
 
   /// Clears the stored [contacts].
   Future<void> clearCache();

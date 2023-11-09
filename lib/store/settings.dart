@@ -136,10 +136,6 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setShowDragAndDropButtonsHint(show);
 
   @override
-  Future<void> setSortContactsByName(bool enabled) =>
-      _settingsLocal.setSortContactsByName(enabled);
-
-  @override
   Future<void> setLoadImages(bool enabled) =>
       _settingsLocal.setLoadImages(enabled);
 

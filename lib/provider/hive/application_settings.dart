@@ -79,13 +79,6 @@ class ApplicationSettingsHiveProvider
           ..showDragAndDropButtonsHint = show,
       );
 
-  /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
-  /// to [Hive].
-  Future<void> setSortContactsByName(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
-      );
-
   /// Stores a new [enabled] value of [ApplicationSettings.loadImages]
   /// to [Hive].
   Future<void> setLoadImages(bool enabled) => putSafe(

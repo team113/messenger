@@ -36,6 +36,12 @@ class ContactService extends DisposableService {
   /// Returns the [RxStatus] of the [contacts] and [favorites] initialization.
   Rx<RxStatus> get status => _contactRepository.status;
 
+  /// Indicates whether the [contacts] have next page.
+  RxBool get hasNext => _contactRepository.hasNext;
+
+  /// Indicates whether the [contacts] have next page.
+  RxBool get nextLoading => _contactRepository.nextLoading;
+
   /// Returns the current reactive observable map of [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get contacts =>
       _contactRepository.contacts;
@@ -43,6 +49,9 @@ class ContactService extends DisposableService {
   /// Returns the current reactive map of favorite [ChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get favorites =>
       _contactRepository.favorites;
+
+  /// Fetches the next [contacts] page.
+  FutureOr<void> next() => _contactRepository.next();
 
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) => _contactRepository

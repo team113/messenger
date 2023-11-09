@@ -67,7 +67,6 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
       ),
       builder: (ContactsTabController c) => Obx(() {
         return Scaffold(
@@ -199,12 +198,6 @@ class ContactsTabView extends StatelessWidget {
                         selector: c.moreKey,
                         margin: const EdgeInsets.only(bottom: 4, right: 0),
                         actions: [
-                          ContextMenuButton(
-                            label: c.sortByName
-                                ? 'label_sort_by_visit'.l10n
-                                : 'label_sort_by_name'.l10n,
-                            onPressed: c.toggleSorting,
-                          ),
                           ContextMenuButton(
                             key: const Key('SelectContactsButton'),
                             label: 'btn_select_and_delete'.l10n,

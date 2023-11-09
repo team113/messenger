@@ -40,3 +40,9 @@ class ChatContactsListVersion extends Version {
 class ChatContactsCursor extends NewType<String> {
   ChatContactsCursor(String val) : super(val);
 }
+
+/// Cursor used for favorite [ChatContact]s pagination.
+@HiveType(typeId: ModelTypeId.favoriteChatContactsCursor)
+class FavoriteChatContactsCursor extends NewType<String> {
+  FavoriteChatContactsCursor(super.val);
+}
