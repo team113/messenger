@@ -85,6 +85,9 @@ class WebStoredCall {
               User(
                 UserId(data['call']['author']['id']),
                 UserNum(data['call']['author']['num']),
+                name: data['call']['author']['name'] == null
+                    ? null
+                    : UserName(data['call']['author']['name']),
               ),
               PreciseDateTime.parse(data['call']['at']),
               members: (data['call']['members'] as List<dynamic>)
@@ -146,6 +149,7 @@ class WebStoredCall {
               'author': {
                 'id': call!.author.id.val,
                 'num': call!.author.num.val,
+                'name': call!.author.name?.val,
               },
               'members': call!.members
                   .map((e) => {
