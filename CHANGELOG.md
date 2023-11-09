@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Display message field while loading. ([#662], [#634])
         - Display small images smaller. ([#688], [#653])
         - Message attachments and replies editing. ([#671], [#557])
+        - Download and Save as option from context menu ([#697], [#654]) 
     - Disabled larger fonts accessibility setting temporary. ([#679])
     - Home page:
         - Redesigned introduction modal. ([#668], [#633])
@@ -40,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 [#634]: /../../issues/634
 [#633]: /../../issues/633
 [#653]: /../../issues/653
+[#654]: /../../issues/654
 [#662]: /../../pull/662
 [#663]: /../../pull/663
 [#668]: /../../pull/668
@@ -47,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
 [#672]: /../../pull/672
 [#679]: /../../pull/679
 [#688]: /../../pull/688
+[#697]: /../../pull/697
 
 
 
