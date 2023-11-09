@@ -89,6 +89,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onAttachmentError,
     this.onSelecting,
     this.onPin,
+    this.onSelect,
     this.pinned = false,
     this.paid = false,
   });
@@ -164,6 +165,8 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  final void Function()? onSelect;
 
   final void Function()? onPin;
   final bool pinned;
@@ -1215,6 +1218,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ],
                                 );
                               },
+                            ),
+                            ContextMenuButton(
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_select'.l10n
+                                  : 'btn_select_messages'.l10n,
+                              trailing: const SvgIcon(SvgIcons.select),
+                              onPressed: widget.onSelect,
                             ),
                           ],
                           builder: PlatformUtils.isMobile

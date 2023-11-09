@@ -1032,10 +1032,10 @@ Widget _chats(BuildContext context, MyProfileController c) {
             text: switch (c.settings.value?.mediaButtonsPosition) {
               MediaButtonsPosition.appBar => 'В верхней панели',
               MediaButtonsPosition.contextMenu => 'В контекстном меню',
-              MediaButtonsPosition.top => 'В теле сверху',
-              MediaButtonsPosition.bottom => 'В теле снизу',
+              MediaButtonsPosition.top => 'В чате сверху',
+              MediaButtonsPosition.bottom => 'В чате снизу',
               MediaButtonsPosition.more => 'В поле сообщения',
-              null => context.isNarrow ? 'В теле сверху' : 'В верхней панели',
+              null => 'В верхней панели',
             },
             maxLines: null,
             onPressed: () => MediaButtonsSwitchView.show(context),

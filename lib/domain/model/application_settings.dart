@@ -41,7 +41,7 @@ class ApplicationSettings extends HiveObject {
     this.balanceTabEnabled = true,
     this.partnerTabEnabled = true,
     this.pinnedActions = const [],
-    this.mediaButtonsPosition,
+    this.mediaButtonsPosition = MediaButtonsPosition.appBar,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the

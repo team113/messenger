@@ -1120,10 +1120,10 @@ extension HexColor on Color {
       '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
 }
 
+// TODO: Remove, when flutter/flutter#132839 is fixed:
+//       https://github.com/flutter/flutter/issues/132839
 extension BlurStylePlatformExtension on BlurStyle {
   BlurStyle get workaround {
-    // TODO: Wait for flutter/flutter#132839 to be fixed:
-    //       https://github.com/flutter/flutter/issues/132839
     if (PlatformUtils.isIOS) {
       return BlurStyle.normal;
     }

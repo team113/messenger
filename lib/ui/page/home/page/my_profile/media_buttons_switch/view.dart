@@ -67,8 +67,10 @@ class MediaButtonsSwitchView extends StatelessWidget {
 
                     return Obx(() {
                       return RectangleButton(
-                        selected:
-                            position == c.settings.value?.mediaButtonsPosition,
+                        selected: position ==
+                                c.settings.value?.mediaButtonsPosition ||
+                            (c.settings.value?.mediaButtonsPosition == null &&
+                                position == MediaButtonsPosition.appBar),
                         onPressed: () => c.setMediaButtonsPosition(position),
                         label: switch (position) {
                           MediaButtonsPosition.appBar => 'В верхней панели',
@@ -89,18 +91,25 @@ class MediaButtonsSwitchView extends StatelessWidget {
                 child: Obx(() {
                   final asset =
                       switch (c.settings.value?.mediaButtonsPosition) {
-                    MediaButtonsPosition.appBar => 'context_menu',
+                    MediaButtonsPosition.appBar => 'app_bar',
                     MediaButtonsPosition.contextMenu => 'context_menu',
-                    MediaButtonsPosition.top => 'context_menu',
-                    MediaButtonsPosition.bottom => 'context_menu',
-                    MediaButtonsPosition.more => 'context_menu',
-                    null => '',
+                    MediaButtonsPosition.top => 'top',
+                    MediaButtonsPosition.bottom => 'bottom',
+                    MediaButtonsPosition.more => 'more',
+                    null => 'app_bar',
                   };
 
-                  return Image.asset(
-                    'assets/images/media_buttons/$asset.png',
-                    width: double.infinity,
-                    fit: BoxFit.fitWidth,
+                  return AspectRatio(
+                    aspectRatio: 680 / 314,
+                    child: AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: Image.asset(
+                        'assets/images/media_buttons/$asset.png',
+                        key: Key(asset),
+                        width: double.infinity,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
                   );
                 }),
               ),

@@ -33,6 +33,10 @@ class MessageFieldMore extends StatelessWidget {
       for (int i = 0; i < c.panel.length; ++i) {
         final e = c.panel.elementAt(i);
 
+        if (e.hidden) {
+          continue;
+        }
+
         widgets.add(
           Obx(() {
             final bool contains = c.buttons.contains(e);

@@ -213,6 +213,8 @@ class MessageFieldController extends GetxController {
   final RxBool canPin = RxBool(true);
   final RxnInt donation = RxnInt(null);
 
+  final RxBool hasCall = RxBool(false);
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
@@ -277,6 +279,20 @@ class MessageFieldController extends GetxController {
     //     _moreEntry = null;
     //   }
     // });
+
+    void updateButtons(bool to) {
+      for (var b in buttons.whereType<VideoCallButton>()) {
+        b.hidden = hasCall.value;
+      }
+
+      for (var b in buttons.whereType<AudioCallButton>()) {
+        b.ongoing = hasCall.value;
+      }
+
+      refresh();
+    }
+
+    ever(hasCall, updateButtons);
 
     super.onInit();
   }

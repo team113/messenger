@@ -54,7 +54,7 @@ import 'more.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
-  const MessageFieldView({
+  MessageFieldView({
     super.key,
     this.controller,
     this.onChanged,
@@ -68,6 +68,7 @@ class MessageFieldView extends StatelessWidget {
     this.disabled = false,
     this.background,
     this.onCall,
+    this.hasCall = false,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -100,6 +101,8 @@ class MessageFieldView extends StatelessWidget {
   final BoxConstraints? constraints;
 
   final bool disabled;
+
+  final bool hasCall;
 
   final Color? background;
 
@@ -574,8 +577,10 @@ class MessageFieldView extends StatelessWidget {
                 return const SizedBox();
               }
 
-              int take = c.buttons.length;
-              if (constraints.maxWidth - 160 < 50 * c.buttons.length) {
+              final buttons = c.buttons.where((p0) => p0.hidden == false);
+
+              int take = buttons.length;
+              if (constraints.maxWidth - 160 < 50 * buttons.length) {
                 take = ((constraints.maxWidth - 160) / 50).round();
               }
 
@@ -584,7 +589,7 @@ class MessageFieldView extends StatelessWidget {
               final int total = ((constraints.maxWidth - 160) / 50).round();
 
               SchedulerBinding.instance.addPostFrameCallback((_) {
-                c.canPin.value = c.buttons.length < total;
+                c.canPin.value = buttons.length < total;
               });
 
               final bool sendable = !c.field.isEmpty.value ||
@@ -593,9 +598,9 @@ class MessageFieldView extends StatelessWidget {
                   c.donation.value != null;
 
               return Wrap(
-                children: c.buttons
+                children: buttons
                     .take(!sendable ? take : 1)
-                    .skip(sendable || c.buttons.length == 1 ? 0 : 1)
+                    .skip(sendable || buttons.length == 1 ? 0 : 1)
                     .toList()
                     .reversed
                     .mapIndexed((i, e) {

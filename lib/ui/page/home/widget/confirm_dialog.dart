@@ -183,7 +183,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             key: const Key('Proceed'),
             title: widget.label ?? 'btn_proceed'.l10n,
             onPressed: () {
-              Navigator.of(context).pop(_variant.onProceed?.call());
+              _variant.onProceed?.call();
+              Navigator.of(context).pop(true);
             },
           ),
         ),

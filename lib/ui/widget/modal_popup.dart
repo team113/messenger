@@ -161,41 +161,44 @@ class ModalPopupHeader extends StatelessWidget {
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (onBack != null)
-            WidgetButton(
-              onPressed: onBack,
-              child: const Padding(
-                padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
-                child: SvgIcon(SvgIcons.backSmall),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-          if (header != null)
-            Expanded(child: header!)
-          else if (text != null)
-            Expanded(
-              child: Center(
-                child: Text(text!, style: style.fonts.big.regular.onBackground),
-              ),
-            )
-          else
-            const Spacer(),
-          if (!context.isMobile || close)
-            WidgetButton(
-              key: const Key('CloseButton'),
-              onPressed: onClose ?? Navigator.of(context).pop,
-              child: const Padding(
-                padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
-                child: SvgIcon(SvgIcons.closeSmallPrimary),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-        ],
+      child: Center(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (onBack != null)
+              WidgetButton(
+                onPressed: onBack,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  child: SvgIcon(SvgIcons.backSmall),
+                ),
+              )
+            else
+              const SizedBox(width: 40),
+            if (header != null)
+              Expanded(child: header!)
+            else if (text != null)
+              Expanded(
+                child: Center(
+                  child:
+                      Text(text!, style: style.fonts.big.regular.onBackground),
+                ),
+              )
+            else
+              const Spacer(),
+            if (!context.isMobile || close)
+              WidgetButton(
+                key: const Key('CloseButton'),
+                onPressed: onClose ?? Navigator.of(context).pop,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  child: SvgIcon(SvgIcons.closeSmallPrimary),
+                ),
+              )
+            else
+              const SizedBox(width: 40),
+          ],
+        ),
       ),
     );
   }

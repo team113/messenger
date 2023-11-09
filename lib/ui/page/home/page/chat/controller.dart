@@ -251,7 +251,7 @@ class ChatController extends GetxController {
 
   Worker? _selectingWorker;
   final RxBool selecting = RxBool(false);
-  final RxList<ChatItem> selected = RxList();
+  final RxList<ListElement> selected = RxList();
 
   void pin(ChatItem item) {
     pinned.add(item);
@@ -406,6 +406,30 @@ class ChatController extends GetxController {
   MediaButtonsPosition? get mediaButtons =>
       settings.value?.mediaButtonsPosition;
 
+  List<ChatItem> get selectedAsItems {
+    final List<ChatItem> items = [];
+
+    for (var e in selected) {
+      if (e is ChatMessageElement) {
+        items.add(e.item.value);
+      } else if (e is ChatCallElement) {
+        items.add(e.item.value);
+      } else if (e is ChatInfoElement) {
+        items.add(e.item.value);
+      } else if (e is ChatForwardElement) {
+        if (e.note.value != null) {
+          items.add(e.note.value!.value);
+        }
+
+        for (var f in e.forwards) {
+          items.add(f.value);
+        }
+      }
+    }
+
+    return items;
+  }
+
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
       listController.hasClients && listController.position.pixels < 500;
@@ -539,6 +563,8 @@ class ChatController extends GetxController {
         }
       },
     );
+
+    send.hasCall.value = inCall;
 
     PlatformUtils.isActive.then((value) => active.value = value);
     _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
@@ -1011,6 +1037,8 @@ class ChatController extends GetxController {
           WebUtils.replaceState(id.val, e.id.val);
           id = e.id;
         }
+
+        send.hasCall.value = e.ongoingCall != null;
       });
 
       listController.sliverController.onPaintItemPositionsCallback =

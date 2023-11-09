@@ -15,6 +15,8 @@ abstract class ChatButton {
 
   final GlobalKey key = GlobalKey();
 
+  bool get hidden => false;
+
   /// Returns a text-represented hint for this [CallButton].
   String get hint;
 
@@ -253,24 +255,29 @@ class SendButton extends ChatButton {
 class AudioCallButton extends ChatButton {
   AudioCallButton(super.c);
 
+  bool ongoing = false;
+
   @override
-  String get hint => 'btn_audio_call'.l10n;
+  String get hint => ongoing ? 'btn_join_call'.l10n : 'btn_audio_call'.l10n;
 
   @override
   void Function(bool)? get onPressed => (b) => c.onCall?.call(false);
 
   @override
-  SvgData get asset => SvgIcons.chatAudioCall;
+  SvgData get asset => ongoing ? SvgIcons.download : SvgIcons.chatAudioCall;
 
   @override
   Offset get offset => const Offset(0, 0);
 
   @override
-  SvgData get assetMini => SvgIcons.chatAudioCall;
+  SvgData get assetMini => ongoing ? SvgIcons.download : SvgIcons.chatAudioCall;
 }
 
 class VideoCallButton extends ChatButton {
   VideoCallButton(super.c);
+
+  @override
+  bool hidden = false;
 
   @override
   String get hint => 'btn_video_call'.l10n;
