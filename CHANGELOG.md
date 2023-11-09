@@ -16,8 +16,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Always display online status on desktop. ([#702], [#681])
 
+### Fixed
+
+- Web:
+    - Invalid caller name in popup calls. ([#711])
+
 [#681]: /../../issues/681
 [#702]: /../../pull/702
+[#711]: /../../pull/711
 
 
 
