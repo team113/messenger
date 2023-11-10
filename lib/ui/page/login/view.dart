@@ -195,7 +195,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text.toLowerCase()}).parseLinks(
+                      .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
                     style.fonts.medium.regular.primary,
                   ),
