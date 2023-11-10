@@ -121,6 +121,32 @@ void main() async {
     }
   };
 
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var favoriteChatContacts = {
+    'favoriteChatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
   var blacklist = {
     'edges': [],
     'pageInfo': {
@@ -301,6 +327,22 @@ void main() async {
     )).thenAnswer(
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
+
+    when(graphQlProvider.chatContacts(
+      first: anyNamed('first'),
+      noFavorite: true,
+      before: null,
+      after: null,
+      last: null,
+    )).thenAnswer((_) => Future.value((Contacts$Query.fromJson(chatContacts))));
+
+    when(graphQlProvider.favoriteChatContacts(
+      first: anyNamed('first'),
+      before: null,
+      after: null,
+      last: null,
+    )).thenAnswer((_) =>
+        Future.value((FavoriteContacts$Query.fromJson(favoriteChatContacts))));
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);

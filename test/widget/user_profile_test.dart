@@ -126,8 +126,30 @@ void main() async {
     'ver': '1'
   };
 
-  var chatContactsData = {
-    'chatContacts': {'nodes': [], 'ver': '0'}
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var favoriteChatContacts = {
+    'favoriteChatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
   };
 
   var blacklist = {
@@ -227,13 +249,20 @@ void main() async {
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.chatContacts(
-      first: 120,
-      noFavorite: false,
+      first: anyNamed('first'),
+      noFavorite: true,
       before: null,
       after: null,
       last: null,
-    )).thenAnswer(
-        (_) => Future.value((Contacts$Query.fromJson(chatContactsData))));
+    )).thenAnswer((_) => Future.value((Contacts$Query.fromJson(chatContacts))));
+
+    when(graphQlProvider.favoriteChatContacts(
+      first: anyNamed('first'),
+      before: null,
+      after: null,
+      last: null,
+    )).thenAnswer((_) =>
+        Future.value((FavoriteContacts$Query.fromJson(favoriteChatContacts))));
 
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => const Stream.empty(),
