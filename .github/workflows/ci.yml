@@ -49,7 +49,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: echo $(git log --format=$s -1)
       - run: make copyright check=yes
 
   # dartanalyze:
@@ -143,6 +142,8 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
+
+      - run: echo "$(git log --format=$s -1)"
 
       - run: sudo apt-get update -y
         if: ${{ matrix.platform == 'linux' }}
