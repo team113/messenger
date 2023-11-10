@@ -49,6 +49,34 @@ final StepDefinitionGeneric haveGroupNamed =
     ..timeout = const Duration(minutes: 5),
 );
 
+/// Creates a [Chat]-group with the provided several [User] and the
+/// authenticated [MyUser].
+///
+/// Examples:
+/// - Given I have "Name" group with several users: Bob and Charlie.
+final StepDefinitionGeneric haveGroupWithSeveralNamed =
+    given3<String, TestUser, TestUser, CustomWorld>(
+  'I have {string} group with several users: {user} and {user}',
+  (String name, TestUser user, TestUser secondUser, context) async {
+    final AuthService authService = Get.find();
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    var chat = await provider.createGroupChat(
+      [
+        authService.credentials.value!.userId,
+        context.world.sessions[secondUser.name]!.userId
+      ],
+      name: ChatName(name),
+    );
+
+    context.world.groups[name] = chat.id;
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
 /// Creates the specified amount of [Chat]-groups for the provided [TestUser].
 ///
 /// Examples:
