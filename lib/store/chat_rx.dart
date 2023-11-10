@@ -1027,7 +1027,15 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.chat:
         var node = event as ChatEventsChat;
-        _chatRepository.put(node.chat, ignoreVersion: true);
+        final HiveChat? chatEntity = await _chatLocal.get(id);
+        if(chatEntity != null) {
+          chatEntity.value = node.chat.value;
+          chatEntity.ver = node.chat.ver;
+          _chatRepository.put(chatEntity, ignoreVersion: true);
+        } else {
+          _chatRepository.put(node.chat, ignoreVersion: true);
+        }
+
         _lastReadItemCursor = node.chat.lastReadItemCursor;
         break;
 
