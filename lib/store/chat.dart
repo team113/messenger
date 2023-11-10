@@ -1909,11 +1909,8 @@ class ChatRepository extends DisposableInterface
         if (e is StaleVersionException) {
           status.value = RxStatus.loading();
 
-          for (var e in _favoriteLocal.values) {
-            await _chatLocal.remove(e);
-          }
-          await _favoriteLocal.clear();
           await _pagination?.clear();
+          await _favoriteLocal.clear();
 
           await _pagination?.around();
 
