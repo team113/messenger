@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'svg.dart';
 
+/// Data of a SVG to display in [SvgImage].
 class SvgData {
   const SvgData(
     this.asset, {
@@ -9,15 +10,24 @@ class SvgData {
     this.height,
   });
 
+  /// Asset of the SVG.
   final String asset;
+
+  /// Width of the SVG.
   final double? width;
+
+  /// Height of the SVG.
   final double? height;
 }
 
+/// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
   const SvgIcon(this.data, {super.key, this.height});
 
+  /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional height to display [data] of.
   final double? height;
 
   @override
@@ -26,6 +36,7 @@ class SvgIcon extends StatelessWidget {
   }
 }
 
+/// [SvgData]s of the SVG icons available.
 class SvgIcons {
   static const SvgData chat = SvgData(
     'assets/icons/chat.svg',
@@ -472,7 +483,7 @@ class SvgIcons {
   );
 
   static const SvgData menuMedia = SvgData(
-    'assets/icons/menu_media2.svg',
+    'assets/icons/menu_media.svg',
     width: 32,
     height: 32,
   );
@@ -691,7 +702,7 @@ class SvgIcons {
   );
 
   static const SvgData smileSmall = SvgData(
-    'assets/icons/smile_mini.svg',
+    'assets/icons/smile_small.svg',
     width: 21,
     height: 21,
   );

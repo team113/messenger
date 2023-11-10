@@ -1061,10 +1061,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_forward'.l10n
                                   : 'btn_forward_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/forward.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.forward),
                               onPressed: () async {
                                 final List<ChatItemQuoteInput> quotes = [];
 

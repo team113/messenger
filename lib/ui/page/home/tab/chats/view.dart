@@ -756,6 +756,7 @@ class ChatsTabView extends StatelessWidget {
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
                                     : null,
+                                onCall: (video) => c.call(e.id, video),
                                 enableContextMenu: !c.selecting.value,
                                 trailing: c.selecting.value
                                     ? [

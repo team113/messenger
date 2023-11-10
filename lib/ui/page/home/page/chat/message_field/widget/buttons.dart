@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Button in a [MessageFieldView].
@@ -32,13 +33,13 @@ abstract class ChatButton {
   String get hint;
 
   /// Asset name of this [ChatButton].
-  String get asset;
+  SvgData get asset;
 
   /// Asset offset of this [ChatButton].
   Offset get offset => Offset.zero;
 
   /// Asset name of this [ChatButton] in mini mode.
-  String? get assetMini => null;
+  SvgData? get assetMini => null;
 
   /// Asset offset of this [ChatButton] in mini mode.
   Offset get offsetMini => Offset.zero;
@@ -59,10 +60,10 @@ class AudioMessageButton extends ChatButton {
   String get hint => 'btn_audio_message'.l10n;
 
   @override
-  String get asset => 'audio_message';
+  SvgData get asset => SvgIcons.audioMessage;
 
   @override
-  String get assetMini => 'audio_message_mini';
+  SvgData get assetMini => SvgIcons.audioMessageSmall;
 }
 
 /// [ChatButton] recording a video massage.
@@ -73,10 +74,10 @@ class VideoMessageButton extends ChatButton {
   String get hint => 'btn_video_message'.l10n;
 
   @override
-  String get asset => 'video_message';
+  SvgData get asset => SvgIcons.videoMessage;
 
   @override
-  String get assetMini => 'video_message_mini';
+  SvgData get assetMini => SvgIcons.videoMessageSmall;
 }
 
 /// [ChatButton] attaching a file.
@@ -87,10 +88,10 @@ class AttachmentButton extends ChatButton {
   String get hint => 'btn_file'.l10n;
 
   @override
-  String get asset => 'file_outlined';
+  SvgData get asset => SvgIcons.fileOutlined;
 
   @override
-  String get assetMini => 'file_outlined_mini';
+  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
 }
 
 /// [ChatButton] taking a photo.
@@ -102,10 +103,13 @@ class TakePhotoButton extends ChatButton {
       PlatformUtils.isAndroid ? 'btn_take_photo'.l10n : 'btn_camera'.l10n;
 
   @override
-  String get asset => 'take_photo';
+  SvgData get asset =>
+      PlatformUtils.isAndroid ? SvgIcons.takePhoto : SvgIcons.takeVideo;
 
   @override
-  String get assetMini => 'take_photo_mini';
+  SvgData get assetMini => PlatformUtils.isAndroid
+      ? SvgIcons.takePhotoSmall
+      : SvgIcons.takeVideoSmall;
 }
 
 /// [ChatButton] taking a video.
@@ -116,13 +120,16 @@ class TakeVideoButton extends ChatButton {
   String get hint => 'btn_take_video'.l10n;
 
   @override
-  String get asset => 'take_video';
+  SvgData get asset => SvgIcons.takeVideo;
 
   @override
-  String get assetMini => 'take_video_mini';
+  Offset get offset => const Offset(0, -1.5);
 
   @override
-  Offset get offsetMini => const Offset(3, 0);
+  SvgData get assetMini => SvgIcons.takeVideoSmall;
+
+  @override
+  Offset get offsetMini => const Offset(2, 0);
 }
 
 /// [ChatButton] opening a gallery.
@@ -133,10 +140,10 @@ class GalleryButton extends ChatButton {
   String get hint => 'btn_gallery'.l10n;
 
   @override
-  String get asset => 'gallery_outlined';
+  SvgData get asset => SvgIcons.gallery;
 
   @override
-  String get assetMini => 'gallery_outlined_mini';
+  SvgData get assetMini => SvgIcons.gallerySmall;
 }
 
 /// [ChatButton] making a gift.
@@ -147,13 +154,13 @@ class DonateButton extends ChatButton {
   String get hint => 'btn_gift'.l10n;
 
   @override
-  String get asset => 'donate';
+  SvgData get asset => SvgIcons.gift;
 
   @override
   Offset get offset => const Offset(0, -1);
 
   @override
-  String get assetMini => 'donate_mini';
+  SvgData get assetMini => SvgIcons.giftSmall;
 }
 
 /// [ChatButton] attaching a file.
@@ -164,10 +171,10 @@ class FileButton extends ChatButton {
   String get hint => 'btn_file'.l10n;
 
   @override
-  String get asset => 'file_outlined';
+  SvgData get asset => SvgIcons.fileOutlined;
 
   @override
-  String get assetMini => 'file_outlined_mini';
+  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
 }
 
 /// [ChatButton] opening the stickers.
@@ -178,11 +185,11 @@ class StickerButton extends ChatButton {
   String get hint => 'btn_sticker'.l10n;
 
   @override
-  String get asset => 'smile';
+  SvgData get asset => SvgIcons.smile;
 
   @override
   Offset get offset => const Offset(0, -1);
 
   @override
-  String get assetMini => 'smile_mini';
+  SvgData get assetMini => SvgIcons.smileSmall;
 }

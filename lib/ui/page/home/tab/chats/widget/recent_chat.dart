@@ -154,6 +154,7 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        dimmed: blocked,
         status: [
           _status(context, inverted),
           if (!chat.id.isLocalWith(me))

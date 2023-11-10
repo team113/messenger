@@ -147,26 +147,29 @@ class MenuTabView extends StatelessWidget {
                   final bool inverted = tab == router.profileSection.value &&
                       router.route == Routes.me;
 
-                  return MenuButton.tab(
-                    tab,
-                    key: key,
-                    inverted: inverted,
-                    onPressed: switch (tab) {
-                      ProfileTab.logout => () async {
-                          if (await c.confirmLogout()) {
-                            router.go(await c.logout());
-                            router.tab = HomeTab.chats;
-                          }
-                        },
-                      (_) => () {
-                          if (router.profileSection.value == tab) {
-                            router.profileSection.refresh();
-                          } else {
-                            router.profileSection.value = tab;
-                          }
-                          router.me();
-                        },
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: MenuButton.tab(
+                      tab,
+                      key: key,
+                      inverted: inverted,
+                      onPressed: switch (tab) {
+                        ProfileTab.logout => () async {
+                            if (await c.confirmLogout()) {
+                              router.go(await c.logout());
+                              router.tab = HomeTab.chats;
+                            }
+                          },
+                        (_) => () {
+                            if (router.profileSection.value == tab) {
+                              router.profileSection.refresh();
+                            } else {
+                              router.profileSection.value = tab;
+                            }
+                            router.me();
+                          },
+                      },
+                    ),
                   );
                 });
               },
