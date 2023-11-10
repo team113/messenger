@@ -365,6 +365,7 @@ jobs:
       - run: mkdir build/
 
       - name: Check Commit Message
+        uses: actions/checkout@v3
         run: |
           MESSAGE=${{ github.event.head_commit.message }}
           echo "Message: $MESSAGE"
