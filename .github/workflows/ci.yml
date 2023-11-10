@@ -366,7 +366,8 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          MESSAGE=${{ github.event.head_commit.message }}
+          LAST_COMMIT_HASH=$(git rev-list --first-parent -1 HEAD)
+          MESSAGE=$(git log --format=%s -n 1 $LAST_COMMIT_HASH)
           echo "Message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
