@@ -19,15 +19,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 
-import '../../controller.dart';
-import '../call_cover.dart';
-import '../raised_hand.dart';
-import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
+import '../../controller.dart';
+import '../call_cover.dart';
+import '../raised_hand.dart';
+import '../video_view.dart';
 
 /// [Participant] visual representation.
 class ParticipantWidget extends StatelessWidget {
@@ -74,7 +74,8 @@ class ParticipantWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      bool hasVideo = participant.video.value?.renderer.value != null;
+      bool hasVideo = participant.video.value?.renderer.value != null &&
+          participant.member.isVideoEnabled.value;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {

@@ -200,8 +200,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           children: [
             Offstage(child: video),
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            if (widget.framelessBuilder == null)
-              const Center(child: CustomProgressIndicator.big())
+            const Center(child: CustomProgressIndicator.big())
           ],
         );
       }
