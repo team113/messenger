@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -176,7 +177,9 @@ class Config {
               ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
               : document['log']?['level'] != null
                   ? e.name == document['log']['level']
-                  : e.name == 'info',
+                  : kDebugMode || kProfileMode
+                      ? e.name == 'debug'
+                      : e.name == 'info',
         ) ??
         me.LogLevel.info;
 
