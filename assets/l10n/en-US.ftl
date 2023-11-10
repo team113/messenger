@@ -30,6 +30,8 @@ alert_chat_will_be_cleared1 = Chat{" "}
 alert_chat_will_be_cleared2 = {" "}will be cleared.
 alert_chat_will_be_hidden1 = Chat{" "}
 alert_chat_will_be_hidden2 = {" "}will be hidden.
+
+    To restore the chat, please, use the search.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
 alert_contact_will_be_removed2 = {" "}will be deleted.
@@ -849,6 +851,8 @@ label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
 label_timeline_style = Timeline style
+label_to_restore_chat_use_search = To restore the chat, please, use the search.
+label_to_restore_chats_use_search = To restore the chats, please, use the search.
 label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed

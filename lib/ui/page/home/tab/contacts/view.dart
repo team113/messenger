@@ -208,7 +208,11 @@ class ContactsTabView extends StatelessWidget {
                                 ? 'label_sort_by_visit'.l10n
                                 : 'label_sort_by_name'.l10n,
                             onPressed: c.toggleSorting,
-                            trailing: const SvgIcon(SvgIcons.group),
+                            trailing: SvgIcon(
+                              c.sortByName
+                                  ? SvgIcons.sortAbcSmall
+                                  : SvgIcons.sortTimeSmall,
+                            ),
                           ),
                           ContextMenuButton(
                             key: const Key('SelectContactsButton'),

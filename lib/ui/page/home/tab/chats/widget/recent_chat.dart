@@ -155,6 +155,16 @@ class RecentChatTile extends StatelessWidget {
       return ChatTile(
         chat: rxChat,
         dimmed: blocked,
+        title: chat.muted != null
+            ? [
+                const SizedBox(width: 5),
+                SvgIcon(
+                  inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                  key: Key('MuteIndicator_${chat.id}'),
+                ),
+                const SizedBox(width: 5),
+              ]
+            : [],
         status: [
           _status(context, inverted),
           if (!chat.id.isLocalWith(me))
@@ -233,7 +243,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_mute'.l10n
                   : 'btn_mute_chat'.l10n,
               onPressed: onMute,
-              trailing: const SvgIcon(SvgIcons.notificationsOff),
+              trailing: const SvgIcon(SvgIcons.unmuteSmall),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
@@ -242,7 +252,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_unmute'.l10n
                   : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
-              trailing: const SvgIcon(SvgIcons.notificationsOn),
+              trailing: const SvgIcon(SvgIcons.muteSmall),
             ),
           if (onHide != null)
             ContextMenuButton(

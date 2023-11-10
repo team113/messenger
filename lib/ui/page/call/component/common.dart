@@ -281,9 +281,8 @@ class AcceptAudioButton extends CallButton {
 
     return CallButtonWidget(
       hint: hint,
-      asset: expanded
-          ? SvgIcons.chatAudioCallFilled
-          : SvgIcons.chatAudioCallFilled,
+      asset:
+          expanded ? SvgIcons.acceptAudioCall : SvgIcons.acceptAudioCallSmall,
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,

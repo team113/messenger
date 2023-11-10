@@ -105,7 +105,7 @@ class ChatInfoView extends StatelessWidget {
                               ),
                               if (c.chat?.chat.value.muted != null) ...[
                                 const SizedBox(width: 5),
-                                const SvgIcon(SvgIcons.mutedSmall),
+                                const SvgIcon(SvgIcons.muted),
                               ]
                             ],
                           ),

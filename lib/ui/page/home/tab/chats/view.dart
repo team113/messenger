@@ -327,11 +327,13 @@ class ChatsTabView extends StatelessWidget {
                             ContextMenuButton(
                               label: 'btn_create_group'.l10n,
                               onPressed: c.startGroupCreating,
+                              trailing: const SvgIcon(SvgIcons.group),
                             ),
                             ContextMenuButton(
                               key: const Key('SelectChatsButton'),
                               label: 'btn_select_and_delete'.l10n,
                               onPressed: c.toggleSelecting,
+                              trailing: const SvgIcon(SvgIcons.select),
                             ),
                           ],
                           child: AnimatedButton(
@@ -1074,6 +1076,7 @@ class ChatsTabView extends StatelessWidget {
             label: 'btn_clear_history'.l10n,
             selected: clear,
             radio: true,
+            lockWhenSelected: false,
             onPressed: () => setState(() => clear = !clear),
           );
         })

@@ -30,6 +30,8 @@ alert_chat_will_be_cleared1 = Чат{" "}
 alert_chat_will_be_cleared2 = {" "}будет очищен.
 alert_chat_will_be_hidden1 = Чат{" "}
 alert_chat_will_be_hidden2 = {" "}будет скрыт.
+
+    Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
 alert_contact_will_be_removed1 = Контакт{" "}
 alert_contact_will_be_removed2 = {" "}будет удалён.
@@ -880,6 +882,8 @@ label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
 label_timeline_style = Стиль метки времени
+label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
+label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
 label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
