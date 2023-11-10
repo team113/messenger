@@ -39,7 +39,7 @@ class ContactService extends DisposableService {
   /// Indicates whether the [contacts] or [favorites] have next page.
   RxBool get hasNext => _contactRepository.hasNext;
 
-  /// Indicator whether a next page of the [contacts] or [favorites] is loading.
+  /// Indicates whether a next page of the [contacts] or [favorites] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
   /// Returns the current reactive observable map of [ChatContact]s.

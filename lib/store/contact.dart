@@ -125,9 +125,7 @@ class ContactRepository extends DisposableInterface
   }
 
   @override
-  Future<void> next() async {
-    await _pagination.next();
-  }
+  Future<void> next() => _pagination.next();
 
   @override
   Future<void> clearCache() => _contactLocal.clear();
@@ -495,6 +493,7 @@ class ContactRepository extends DisposableInterface
         saved = await _contactLocal.get(contactId);
       }
 
+      // TODO: Version should not be zero at all.
       if (saved == null ||
           saved.ver < contact.ver ||
           contact.ver.internal == BigInt.zero) {
@@ -520,27 +519,18 @@ class ContactRepository extends DisposableInterface
     if (pagination) {
       if (contact.value.favoritePosition == null) {
         favorites.remove(contactId);
-        HiveRxChatContact? entry = contacts[contactId];
-        if (entry == null) {
-          contacts[contactId] = HiveRxChatContact(_userRepo, contact)..init();
-        } else {
-          entry.contact.value = contact.value;
-          contacts.emit(
-            MapChangeNotification.updated(entry.id, entry.id, entry),
-          );
-        }
+
+        contacts[contactId] ??= entry;
+        contacts.emit(
+          MapChangeNotification.updated(entry.id, entry.id, entry),
+        );
       } else {
         contacts.remove(contactId);
-        HiveRxChatContact? entry = favorites[contactId];
-        if (entry == null) {
-          favorites[contactId] = HiveRxChatContact(_userRepo, contact)..init();
-        } else {
-          entry.contact.value = contact.value;
-          entry.contact.refresh();
-          favorites.emit(
-            MapChangeNotification.updated(entry.id, entry.id, entry),
-          );
-        }
+
+        favorites[contactId] ??= entry;
+        favorites.emit(
+          MapChangeNotification.updated(entry.id, entry.id, entry),
+        );
       }
     }
   }

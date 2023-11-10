@@ -52,7 +52,7 @@ abstract class AbstractChatRepository {
   /// Indicates whether the [paginated] have next page.
   RxBool get hasNext;
 
-  /// Indicator whether a next page of the [paginated] is loading.
+  /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading;
 
   /// Initializes this repository.
@@ -256,13 +256,13 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether the [messages] have next page.
   RxBool get hasNext;
 
-  /// Indicator whether a next page of the [messages] is loading.
+  /// Indicates whether a next page of the [messages] is loading.
   RxBool get nextLoading;
 
   /// Indicates whether the [messages] have previous page.
   RxBool get hasPrevious;
 
-  /// Indicator whether a previous page of the [messages] is loading.
+  /// Indicates whether a previous page of the [messages] is loading.
   RxBool get previousLoading;
 
   /// [LastChatRead]s of this [chat].
