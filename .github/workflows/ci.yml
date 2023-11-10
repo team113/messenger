@@ -51,7 +51,7 @@ jobs:
 
       - name: Debug1
         run: |
-          echo "${{ github.event.workflow_run.head_commit.message }}"
+          echo "${{ github.event.workflow_run }}"
 
       - run: |
           MESSAGE=${{ github.event.head_commit.message }}
