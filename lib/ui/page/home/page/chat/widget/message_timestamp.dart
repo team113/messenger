@@ -90,6 +90,13 @@ class MessageTimestamp extends StatelessWidget {
             (isSent || isDelivered || isRead || isSending || isError)) ...[
           const SizedBox(width: 3),
           SizedBox(
+            key: Key(
+              isError
+                  ? 'Error'
+                  : isSending
+                      ? 'Sending'
+                      : 'Sent',
+            ),
             width: 17,
             child: SvgIcon(
               isRead
