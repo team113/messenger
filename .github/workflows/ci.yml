@@ -48,16 +48,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Debug1
-        run: |
-          echo "$(git log -1 --format=%B)"
-
-      - run: |
-          MESSAGE=${{ github.event.head_commit.message }}
-          echo "Message: $MESSAGE"
 
       - run: make copyright check=yes
 
@@ -345,6 +335,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -376,7 +368,7 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          MESSAGE=${{ github.event.head_commit.message }}
+          MESSAGE=$(git log -1 --format=%B)
           echo "Message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
