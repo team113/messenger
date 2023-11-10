@@ -49,8 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: MESSAGE=$(git log --format=$s -1)
-      - run: echo "$MESSAGE"
+      - run: |
+        MESSAGE=$(git log --format=$s -1)
+        echo "$MESSAGE"
 
       - run: make copyright check=yes
 
