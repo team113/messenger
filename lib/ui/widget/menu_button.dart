@@ -105,8 +105,8 @@ class MenuButton extends StatelessWidget {
                 ProfileTab.language => const Key('Language'),
                 ProfileTab.blocklist => const Key('Blocklist'),
                 ProfileTab.download => const Key('Download'),
-                ProfileTab.danger => const Key('Danger'),
-                ProfileTab.logout => const Key('Logout'),
+                ProfileTab.danger => const Key('DangerZone'),
+                ProfileTab.logout => const Key('LogoutButton'),
               },
         );
 

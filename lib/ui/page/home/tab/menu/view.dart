@@ -143,6 +143,24 @@ class MenuTabView extends StatelessWidget {
               itemBuilder: (context, i) {
                 final ProfileTab tab = ProfileTab.values[i];
 
+                switch (tab) {
+                  case ProfileTab.calls:
+                    if (PlatformUtils.isMobile) {
+                      return const SizedBox();
+                    }
+                    break;
+
+                  case ProfileTab.media:
+                    if (PlatformUtils.isMobile) {
+                      return const SizedBox();
+                    }
+                    break;
+
+                  default:
+                    // No-op.
+                    break;
+                }
+
                 return Obx(() {
                   final bool inverted = tab == router.profileSection.value &&
                       router.route == Routes.me;
