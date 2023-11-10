@@ -20,9 +20,13 @@ All user visible changes to this project will be documented in this file. This p
 
 - Web:
     - Invalid caller name in popup calls. ([#711])
+- UI:
+    - Infinity loader on member with disabled video. ([#707], [#700])
 
 [#681]: /../../issues/681
 [#702]: /../../pull/702
+[#700]: /../../issues/700
+[#707]: /../../pull/707
 [#711]: /../../pull/711
 
 
