@@ -159,10 +159,7 @@ class ContactsTabView extends StatelessWidget {
                               SvgIcons.closePrimary,
                               key: Key('CloseGroupSearching'),
                             )
-                      : const SvgIcon(
-                          SvgIcons.chatsSwitch,
-                          key: Key('Chats'),
-                        );
+                      : null;
                 }
 
                 return Row(
