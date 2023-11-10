@@ -368,6 +368,7 @@ jobs:
         run: |
           MESSAGE=$(git show --format=%B -s ${{ github.event.pull_request.head.sha }})
           echo "Message: $MESSAGE"
+          echo "${{ github.event.pull_request.head.sha.message }}"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
           else
