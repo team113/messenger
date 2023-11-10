@@ -366,7 +366,7 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          MESSAGE=$( git log --pretty=%s -1)
+          MESSAGE=$( git log --format=%s -1)
           echo "Message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
