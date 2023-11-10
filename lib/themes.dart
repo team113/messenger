@@ -1092,7 +1092,7 @@ extension HexColor on Color {
 /// Extension adding workaround of [BlurStyle.outer] rendered incorrectly on
 /// iOS.
 extension BlurStylePlatformExtension on BlurStyle {
-  /// Returns the [BlurStyle.outer], if not [PlatformUtils.isIOS], or
+  /// Returns the [BlurStyle.outer], if not [PlatformUtilsImpl.isIOS], or
   /// [BlurStyle.normal] otherwise.
   BlurStyle get workaround {
     if (PlatformUtils.isIOS) {
