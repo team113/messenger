@@ -368,7 +368,7 @@ jobs:
         uses: actions/checkout@v3
         run: |
           MESSAGE=${{ github.event.head_commit.message }}
-          echo "Message: $MESSAGE"
+          echo "Message:  $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
           else
