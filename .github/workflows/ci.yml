@@ -366,7 +366,7 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          MESSAGE=$(git log --first-parent)
+          MESSAGE=$(git show --format=%B -s ${{ github.event.pull_request.head.sha }})
           echo "Message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
