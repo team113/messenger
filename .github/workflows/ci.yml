@@ -51,7 +51,7 @@ jobs:
 
       - name: Debug
         run: |
-          echo "Event: ${{ toJson(github.event) }}"
+          echo "Event: ${{ toJson(github.event.head_commit) }}"
 
       - run: |
           MESSAGE=${{ github.event.head_commit.message }}
