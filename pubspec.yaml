@@ -54,6 +54,7 @@ dependencies:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
   js: ^0.6.5
+  log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.8.3-dev+rev.1f3fc1eb3978066c078c90651f1d3e1418094a1b
   medea_jason: ^0.4.0
@@ -96,7 +97,6 @@ dependencies:
   win_toast: ^0.3.0
   window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
-  log_me: ^0.1.2
 
 dev_dependencies:
   artemis: ^7.13.0-beta.2

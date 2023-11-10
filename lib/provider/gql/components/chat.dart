@@ -860,7 +860,7 @@ mixin ChatGraphQlMixin {
         );
       }
 
-      Log.error('Failed with response: ${e.response}', 'UploadAttachment');
+      Log.error('Failed to upload attachment: ${e.response}', '$runtimeType');
 
       rethrow;
     }

@@ -193,7 +193,7 @@ class HiveRxChat extends RxChat {
 
   @override
   UserCallCover? get callCover {
-    Log.debug('get callCover', '$runtimeType Chat - ${title.value}');
+    Log.debug('get callCover', '$runtimeType ${chat.value.id}');
 
     UserCallCover? callCover;
 
@@ -221,7 +221,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Rx<ChatItem>? get firstUnread {
-    Log.debug('get firstUnread', '$runtimeType Chat - ${title.value}');
+    Log.debug('get firstUnread', '$runtimeType ${chat.value.id}');
 
     if (chat.value.unreadCount != 0) {
       PreciseDateTime? myRead =
@@ -241,8 +241,6 @@ class HiveRxChat extends RxChat {
 
   @override
   ChatItem? get lastItem {
-    Log.debug('get lastItem', '$runtimeType Chat - ${title.value}');
-
     ChatItem? item = chat.value.lastItem;
     if (messages.isNotEmpty) {
       final ChatItem last = messages.last.value;
@@ -262,7 +260,7 @@ class HiveRxChat extends RxChat {
 
   /// Initializes this [HiveRxChat].
   Future<void> init() async {
-    Log.debug('init()', '$runtimeType Chat - ${title.value}');
+    Log.debug('init()', '$runtimeType ${chat.value.id}');
 
     if (status.value.isSuccess) {
       return Future.value();
@@ -390,7 +388,7 @@ class HiveRxChat extends RxChat {
 
   /// Disposes this [HiveRxChat].
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType Chat - ${title.value}');
+    Log.debug('dispose()', '$runtimeType ${chat.value.id}');
 
     status.value = RxStatus.loading();
     messages.clear();
@@ -420,7 +418,7 @@ class HiveRxChat extends RxChat {
   }) {
     Log.debug(
       'setDraft($text, $attachments, $repliesTo)',
-      '$runtimeType Chat - ${title.value}',
+      '$runtimeType ${chat.value.id}',
     );
 
     ChatMessage? draft = _draftLocal.get(id);
@@ -457,7 +455,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> around() async {
-    Log.debug('around()', '$runtimeType Chat - ${title.value}');
+    Log.debug('around()', '$runtimeType ${chat.value.id}');
 
     if (id.isLocal ||
         status.value.isSuccess ||
@@ -483,7 +481,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> next() async {
-    Log.debug('next()', '$runtimeType Chat - ${title.value}');
+    Log.debug('next()', '$runtimeType ${chat.value.id}');
 
     status.value = RxStatus.loadingMore();
     await _pagination.next();
@@ -494,7 +492,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> previous() async {
-    Log.debug('previous()', '$runtimeType Chat - ${title.value}');
+    Log.debug('previous()', '$runtimeType ${chat.value.id}');
 
     status.value = RxStatus.loadingMore();
     await _pagination.previous();
@@ -507,7 +505,7 @@ class HiveRxChat extends RxChat {
   Future<void> updateAttachments(ChatItem item) async {
     Log.debug(
       'updateAttachments($item)',
-      '$runtimeType Chat - ${title.value}',
+      '$runtimeType ${chat.value.id}',
     );
 
     if (item.id.isLocal) {
@@ -537,7 +535,7 @@ class HiveRxChat extends RxChat {
   /// Marks this [RxChat] as read until the provided [ChatItem] for the
   /// authenticated [MyUser],
   Future<void> read(ChatItemId untilId) async {
-    Log.debug('read($untilId)', '$runtimeType Chat - ${title.value}');
+    Log.debug('read($untilId)', '$runtimeType ${chat.value.id}');
 
     int firstUnreadIndex = 0;
 
@@ -600,7 +598,7 @@ class HiveRxChat extends RxChat {
   }) async {
     Log.debug(
       'postChatMessage($existingId, $existingDateTime, $text, $attachments, $repliesTo)',
-      '$runtimeType Chat - ${title.value}',
+      '$runtimeType ${chat.value.id}',
     );
 
     HiveChatMessage message = HiveChatMessage.sending(
@@ -704,13 +702,13 @@ class HiveRxChat extends RxChat {
 
   /// Adds the provided [item] to [Pagination] and [Hive].
   Future<void> put(HiveChatItem item) async {
-    Log.debug('put($item)', '$runtimeType Chat - ${title.value}');
+    Log.debug('put($item)', '$runtimeType ${chat.value.id}');
     await _pagination.put(item);
   }
 
   @override
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) async {
-    Log.debug('remove($itemId, $key)', '$runtimeType Chat - ${title.value}');
+    Log.debug('remove($itemId, $key)', '$runtimeType ${chat.value.id}');
 
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
@@ -741,7 +739,7 @@ class HiveRxChat extends RxChat {
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
   Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) async {
-    Log.debug('get($itemId, $key)', '$runtimeType Chat - ${title.value}');
+    Log.debug('get($itemId, $key)', '$runtimeType ${chat.value.id}');
 
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
@@ -754,7 +752,7 @@ class HiveRxChat extends RxChat {
 
   /// Recalculates the [reads] to represent the actual [messages].
   void updateReads() {
-    Log.debug('updateReads()', '$runtimeType Chat - ${title.value}');
+    Log.debug('updateReads()', '$runtimeType ${chat.value.id}');
 
     for (LastChatRead e in chat.value.lastReads) {
       final PreciseDateTime? at = _lastReadAt(e.at);
@@ -775,7 +773,7 @@ class HiveRxChat extends RxChat {
   /// Updates the [chat] and [chat]-related resources with the provided
   /// [newChat].
   Future<void> updateChat(HiveChat newChat) async {
-    Log.debug('updateChat($newChat)', '$runtimeType Chat - ${title.value}');
+    Log.debug('updateChat($newChat)', '$runtimeType ${chat.value.id}');
 
     if (chat.value.id != newChat.value.id) {
       chat.value = newChat.value;
@@ -816,14 +814,14 @@ class HiveRxChat extends RxChat {
 
   /// Clears the [_pagination].
   Future<void> clear() async {
-    Log.debug('clear()', '$runtimeType Chat - ${title.value}');
+    Log.debug('clear()', '$runtimeType ${chat.value.id}');
     await _pagination.clear();
   }
 
   // TODO: Remove when backend supports welcome messages.
   @override
   Future<void> addMessage(ChatMessageText text) async {
-    Log.debug('addMessage($text)', '$runtimeType Chat - ${title.value}');
+    Log.debug('addMessage($text)', '$runtimeType ${chat.value.id}');
 
     await put(
       HiveChatMessage(
@@ -848,7 +846,7 @@ class HiveRxChat extends RxChat {
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
   /// [FileAttachment]s, if any.
   void _add(ChatItem item) {
-    Log.debug('_add($item)', '$runtimeType Chat - ${title.value}');
+    Log.debug('_add($item)', '$runtimeType ${chat.value.id}');
 
     if (!PlatformUtils.isWeb) {
       if (item is ChatMessage) {
@@ -878,7 +876,7 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields({Chat? previous}) async {
-    Log.debug('_updateFields($previous)', '$runtimeType Chat - ${title.value}');
+    Log.debug('_updateFields($previous)', '$runtimeType ${chat.value.id}');
 
     if (chat.value.name != null) {
       _updateTitle();
@@ -947,7 +945,7 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [title].
   void _updateTitle([Iterable<User>? users]) {
-    Log.debug('_updateTitle($users)', '$runtimeType Chat - ${title.value}');
+    Log.debug('_updateTitle($users)', '$runtimeType ${chat.value.id}');
 
     title.value = chat.value.getTitle(
       users?.take(3) ?? members.values.take(3).map((e) => e.user.value),
@@ -957,7 +955,7 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [avatar].
   void _updateAvatar() {
-    Log.debug('_updateAvatar()', '$runtimeType Chat - ${title.value}');
+    Log.debug('_updateAvatar()', '$runtimeType ${chat.value.id}');
 
     RxUser? member;
 
@@ -984,7 +982,7 @@ class HiveRxChat extends RxChat {
 
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
-    Log.debug('_lastReadAt($at)', '$runtimeType Chat - ${title.value}');
+    Log.debug('_lastReadAt($at)', '$runtimeType ${chat.value.id}');
 
     final Rx<ChatItem>? message = messages
         .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at);
@@ -1000,10 +998,7 @@ class HiveRxChat extends RxChat {
 
   /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
   Future<void> _updateAttachments(ChatItem item) async {
-    Log.debug(
-      '_updateAttachments($item)',
-      '$runtimeType Chat - ${title.value}',
-    );
+    Log.debug('_updateAttachments($item)', '$runtimeType ${chat.value.id}');
 
     final HiveChatItem? stored = await get(item.id, key: item.key);
     if (stored != null) {
@@ -1058,10 +1053,7 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    Log.debug(
-      '_initRemoteSubscription()',
-      '$runtimeType Chat - ${title.value}',
-    );
+    Log.debug('_initRemoteSubscription()', '$runtimeType ${chat.value.id}');
 
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
@@ -1086,7 +1078,7 @@ class HiveRxChat extends RxChat {
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
   Future<void> _chatEvent(ChatEvents event) async {
-    Log.debug('_chatEvent($event)', '$runtimeType Chat - ${title.value}');
+    Log.debug('_chatEvent($event)', '$runtimeType ${chat.value.id}');
 
     switch (event.kind) {
       case ChatEventsKind.initialized:

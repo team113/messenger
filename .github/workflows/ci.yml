@@ -366,9 +366,8 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          PR_NUMBER=${GITHUB_REF#refs/pull/}
-          PR_NUMBER=${PR_NUMBER%%/*}
-          MESSAGE=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits" | jq -r ".[-1].commit.message")
+          MESSAGE=$( git log -1 --pretty=$s)
+          echo "$MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
           else
@@ -385,7 +384,8 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}
+          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+                dart-env='SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
         env:
           OMIT: |
             [

@@ -171,17 +171,14 @@ class Config {
 
     origin = url;
 
-    logLevel = const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
-        ? me.LogLevel.values.firstWhereOrNull(
-              (e) => e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL'),
-            ) ??
-            me.LogLevel.info
-        : document['log']?['level'] != null
-            ? me.LogLevel.values.firstWhereOrNull(
-                  (e) => e.name == document['log']?['level'],
-                ) ??
-                me.LogLevel.info
-            : me.LogLevel.info;
+    logLevel = me.LogLevel.values.firstWhereOrNull(
+          (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
+              ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
+              : document['log']?['level'] != null
+                  ? e.name == document['log']['level']
+                  : e.name == 'info',
+        ) ??
+        me.LogLevel.info;
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

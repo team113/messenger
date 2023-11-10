@@ -17,52 +17,34 @@
 
 import 'package:log_me/log_me.dart' as me;
 
-/// A class for performing logging at different levels.
+/// Class for performing logging at different levels.
 class Log {
-  /// Writes a fatal message to the log.
-  ///
-  /// [message] - the text of the fatal message.
-  /// [tag] - (optional) a tag for additional message identification.
+  /// Write a fatal [message] with [tag] to the log.
   static void fatal(String message, [String? tag]) {
     me.Log.fatal('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Writes an error message to the log.
-  ///
-  /// [message] - the text of the error message.
-  /// [tag] - (optional) a tag for additional message identification.
+  /// Write an error [message] with [tag] to the log.
   static void error(String message, [String? tag]) {
     me.Log.error('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Writes a warning message to the log.
-  ///
-  /// [message] - the text of the warning message.
-  /// [tag] - (optional) a tag for additional message identification.
+  /// Write a warning [message] with [tag] to the log.
   static void warning(String message, [String? tag]) {
     me.Log.warning('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Writes an information message to the log.
-  ///
-  /// [message] - the text of the information message.
-  /// [tag] - (optional) a tag for additional message identification.
+  /// Write an information [message] with [tag] to the log.
   static void info(String message, [String? tag]) {
     me.Log.info('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Writes a debug message to the log.
-  ///
-  /// [message] - the text of the debug message.
-  /// [tag] - (optional) a tag for additional message identification.
+  /// Write a debug [message] with [tag] to the log.
   static void debug(String message, [String? tag]) {
     me.Log.debug('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Writes a trace message to the log.
-  ///
-  /// [message] - the text of the trace message.
-  /// [tag] - (optional) a tag for additional message identification.
+  /// Write a trace [message] with [tag] to the log.
   static void trace(String message, [String? tag]) {
     me.Log.trace('${tag != null ? '[$tag]' : ''} $message');
   }

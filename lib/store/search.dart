@@ -94,6 +94,8 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
 
   @override
   void dispose() {
+    Log.debug('dispose()', '$runtimeType');
+
     _paginationSubscription?.cancel();
     pagination?.dispose();
   }

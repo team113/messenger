@@ -106,7 +106,7 @@ class MyUserService extends DisposableService {
     required UserPassword newPassword,
   }) async {
     Log.debug(
-      'updateUserPassword($oldPassword, $newPassword)',
+      'updateUserPassword(***, ***)',
       '$runtimeType',
     );
 

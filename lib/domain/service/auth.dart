@@ -247,7 +247,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, newPassword, $login, $num, $email, $phone)',
+      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
 
@@ -328,7 +328,7 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
   }) async {
-    Log.debug('signIn(password, $login, $num, $email, $phone)', '$runtimeType');
+    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {

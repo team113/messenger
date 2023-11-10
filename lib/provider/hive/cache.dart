@@ -38,10 +38,7 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
   }
 
   /// Returns the stored [CacheInfo] from [Hive].
-  CacheInfo get info {
-    Log.debug('get info', '$runtimeType');
-    return getSafe(0) ?? CacheInfo();
-  }
+  CacheInfo get info => getSafe(0) ?? CacheInfo();
 
   /// Updates the stored [CacheInfo] with the provided data.
   Future<void> set({

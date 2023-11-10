@@ -48,6 +48,7 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());

@@ -250,7 +250,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     UserPassword newPassword,
   ) async {
     Log.debug(
-      'updateUserPassword(oldPassword, newPassword)',
+      'updateUserPassword(***, ***)',
       '$runtimeType',
     );
 

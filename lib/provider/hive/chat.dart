@@ -52,6 +52,7 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatAvatarAdapter());

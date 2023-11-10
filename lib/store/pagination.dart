@@ -96,6 +96,8 @@ class Pagination<T, C, K> {
 
   /// Disposes this [Pagination].
   void dispose() {
+    Log.debug('dispose()', '$runtimeType');
+
     _cancelToken.cancel();
     _disposed = true;
   }

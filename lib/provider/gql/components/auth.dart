@@ -114,7 +114,7 @@ mixin AuthGraphQlMixin {
     bool remember,
   ) async {
     Log.debug(
-      'signIn(password, $login, $num, $email, $phone, $remember)',
+      'signIn(***, $login, $num, $email, $phone, $remember)',
       '$runtimeType',
     );
 

@@ -44,7 +44,7 @@ class HiveRxChatContact extends RxChatContact {
 
   /// Initializes this [HiveRxChatContact].
   void init() {
-    Log.debug('init()', '$runtimeType Contact - ${contact.value}');
+    Log.debug('init()', '$runtimeType ${contact.value.id}');
 
     _updateUser(contact.value);
     _worker = ever(contact, _updateUser);
@@ -52,13 +52,13 @@ class HiveRxChatContact extends RxChatContact {
 
   /// Disposes this [HiveRxChatContact].
   void dispose() {
-    Log.debug('dispose()', '$runtimeType Contact - ${contact.value}');
+    Log.debug('dispose()', '$runtimeType ${contact.value.id}');
     _worker.dispose();
   }
 
   /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
   void _updateUser(ChatContact c) async {
-    Log.debug('_updateUser($c)', '$runtimeType Contact - ${contact.value}');
+    Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');
 
     if (user.value?.id != c.users.firstOrNull?.id) {
       user.value =

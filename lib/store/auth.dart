@@ -45,6 +45,7 @@ class AuthRepository implements AbstractAuthRepository {
   @override
   set token(AccessToken? token) {
     Log.debug('token($token)', '$runtimeType');
+
     _graphQlProvider.token = token;
     if (token == null) {
       _graphQlProvider.disconnect();
@@ -55,7 +56,7 @@ class AuthRepository implements AbstractAuthRepository {
   set authExceptionHandler(
     Future<void> Function(AuthorizationException) handler,
   ) {
-    Log.debug('authExceptionHandler(handler)', '$runtimeType');
+    Log.debug('set authExceptionHandler(handler)', '$runtimeType');
     _graphQlProvider.authExceptionHandler = handler;
   }
 
@@ -82,7 +83,7 @@ class AuthRepository implements AbstractAuthRepository {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'signIn(password, $login, $num, $email, $phone)',
+      'signIn(***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
 
@@ -211,7 +212,7 @@ class AuthRepository implements AbstractAuthRepository {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, newPassword, $login, $num, $email, $phone)',
+      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
     await _graphQlProvider.resetUserPassword(
@@ -221,6 +222,7 @@ class AuthRepository implements AbstractAuthRepository {
   @override
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
+
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
   }

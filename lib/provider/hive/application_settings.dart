@@ -37,10 +37,7 @@ class ApplicationSettingsHiveProvider
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
-  ApplicationSettings? get settings {
-    Log.debug('get settings', '$runtimeType');
-    return getSafe(0);
-  }
+  ApplicationSettings? get settings => getSafe(0);
 
   /// Saves the provided [ApplicationSettings] in [Hive].
   Future<void> set(ApplicationSettings settings) async {

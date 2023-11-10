@@ -38,6 +38,7 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
     Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
