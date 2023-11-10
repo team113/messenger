@@ -27,6 +27,7 @@ class SquareButton extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return AnimatedButton(
+      enabled: onPressed != null,
       onPressed: onPressed,
       child: Container(
         decoration: BoxDecoration(

@@ -806,6 +806,8 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      send.hasCall.value = inCall;
+
       _chatSubscription = chat!.updates.listen((_) {});
 
       unreadMessages = chat!.chat.value.unreadCount;

@@ -140,6 +140,22 @@ class MessageFieldController extends GetxController {
 
       onChanged?.call();
     });
+
+    void updateButtons(bool to) {
+      final buttons = [...this.buttons, ...panel];
+
+      for (var b in buttons.whereType<VideoCallButton>()) {
+        b.enabled = !hasCall.value;
+      }
+
+      for (var b in buttons.whereType<AudioCallButton>()) {
+        b.enabled = !hasCall.value;
+      }
+
+      refresh();
+    }
+
+    ever(hasCall, updateButtons);
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.
@@ -279,20 +295,6 @@ class MessageFieldController extends GetxController {
     //     _moreEntry = null;
     //   }
     // });
-
-    void updateButtons(bool to) {
-      for (var b in buttons.whereType<VideoCallButton>()) {
-        b.hidden = hasCall.value;
-      }
-
-      for (var b in buttons.whereType<AudioCallButton>()) {
-        b.ongoing = hasCall.value;
-      }
-
-      refresh();
-    }
-
-    ever(hasCall, updateButtons);
 
     super.onInit();
   }

@@ -631,12 +631,6 @@ class MessageFieldView extends StatelessWidget {
                                       : AnimatedButton(
                                           key: sendKey ?? const Key('Send'),
                                           child: const SvgIcon(SvgIcons.send),
-                                          // child: SvgImage.asset(
-                                          //   'assets/icons/send${disabled ? '_disabled' : '2'}.svg',
-                                          //   key: sendKey ?? const Key('Send'),
-                                          //   width: 25.44,
-                                          //   height: 21.91,
-                                          // ),
                                         ),
                                 ),
                               ),
@@ -650,7 +644,7 @@ class MessageFieldView extends StatelessWidget {
                   }
 
                   return WidgetButton(
-                    onPressed: () => e.onPressed?.call(true),
+                    onPressed: e.enabled ? () => e.onPressed?.call(true) : null,
                     child: MouseRegion(
                       onEnter: (_) => e.onHovered?.call(true),
                       // onExit: (_) => e.onHovered?.call(false),
@@ -661,10 +655,15 @@ class MessageFieldView extends StatelessWidget {
                         height: 56,
                         child: Center(
                           child: AnimatedButton(
+                            enabled: e.enabled,
                             child: e.icon == null
                                 ? Transform.translate(
                                     offset: e.offset,
-                                    child: SvgIcon(e.asset),
+                                    child: SvgIcon(
+                                      e.enabled
+                                          ? e.asset
+                                          : (e.disabled ?? e.asset),
+                                    ),
                                   )
                                 : Icon(
                                     e.icon,

@@ -169,7 +169,7 @@ class _ChatViewState extends State<ChatView>
                 padding: EdgeInsets.only(left: 4, right: 20),
                 leading: [StyledBackButton()],
               ),
-              body: Center(child: CustomProgressIndicator.primary()),
+              body: const Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: _bottomBar(c),
@@ -178,6 +178,7 @@ class _ChatViewState extends State<ChatView>
           }
 
           final bool isMonolog = c.chat?.chat.value.isMonolog == true;
+          final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
           return CustomDropTarget(
             key: Key('ChatView_${widget.id}'),
@@ -403,18 +404,28 @@ class _ChatViewState extends State<ChatView>
                                                 .contextMenu) ...[
                                           ContextMenuButton(
                                             label: 'btn_audio_call'.l10n,
-                                            onPressed: () => c.call(false),
-                                            trailing: const SvgIcon(
-                                              SvgIcons.makeAudioCall,
+                                            onPressed: hasCall
+                                                ? null
+                                                : () => c.call(false),
+                                            trailing: SvgIcon(
+                                              hasCall
+                                                  ? SvgIcons
+                                                      .makeAudioCallDisabled
+                                                  : SvgIcons.makeAudioCall,
                                             ),
                                           ),
                                           ContextMenuButton(
                                             label: 'btn_video_call'.l10n,
-                                            onPressed: () => c.call(true),
+                                            onPressed: hasCall
+                                                ? null
+                                                : () => c.call(true),
                                             trailing: Transform.translate(
                                               offset: const Offset(2, 0),
-                                              child: const SvgIcon(
-                                                SvgIcons.makeVideoCall,
+                                              child: SvgIcon(
+                                                hasCall
+                                                    ? SvgIcons
+                                                        .makeVideoCallDisabled
+                                                    : SvgIcons.makeVideoCall,
                                               ),
                                             ),
                                           ),
@@ -484,22 +495,21 @@ class _ChatViewState extends State<ChatView>
                                           trailing: const SvgIcon(
                                             SvgIcons.cleanHistory,
                                           ),
+                                          onPressed: () {},
                                         ),
                                         ContextMenuButton(
                                           label: 'btn_block'.l10n,
                                           trailing:
                                               const SvgIcon(SvgIcons.block),
+                                          onPressed: () {},
                                         ),
                                         ContextMenuButton(
                                           label: PlatformUtils.isMobile
                                               ? 'btn_select'.l10n
                                               : 'btn_select_messages'.l10n,
                                           onPressed: c.selecting.toggle,
-                                          trailing: Transform.translate(
-                                            offset: const Offset(2, 0),
-                                            child: const SvgIcon(
-                                              SvgIcons.select,
-                                            ),
+                                          trailing: const SvgIcon(
+                                            SvgIcons.select,
                                           ),
                                         ),
                                       ],
@@ -901,13 +911,19 @@ class _ChatViewState extends State<ChatView>
                                 children: [
                                   const SizedBox(height: 8),
                                   SquareButton(
-                                    SvgIcons.chatAudioCall,
-                                    onPressed: () => c.call(false),
+                                    hasCall
+                                        ? SvgIcons.chatAudioCallDisabled
+                                        : SvgIcons.chatAudioCall,
+                                    onPressed:
+                                        hasCall ? null : () => c.call(false),
                                   ),
                                   const SizedBox(height: 8),
                                   SquareButton(
-                                    SvgIcons.chatVideoCall,
-                                    onPressed: () => c.call(true),
+                                    hasCall
+                                        ? SvgIcons.chatVideoCallDisabled
+                                        : SvgIcons.chatVideoCall,
+                                    onPressed:
+                                        hasCall ? null : () => c.call(true),
                                   ),
                                   const SizedBox(height: 8),
                                 ],

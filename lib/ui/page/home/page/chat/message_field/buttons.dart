@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '/l10n/l10n.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
 import 'donate.dart';
 import 'more.dart';
 
@@ -16,14 +15,17 @@ abstract class ChatButton {
   final GlobalKey key = GlobalKey();
 
   bool get hidden => false;
+  bool get enabled => onPressed != null;
 
   /// Returns a text-represented hint for this [CallButton].
   String get hint;
 
   SvgData get asset;
+  SvgData? get disabled => null;
   Offset get offset => Offset.zero;
 
-  SvgData? get assetMini;
+  SvgData? get assetMini => null;
+  SvgData? get disabledMini => null;
   Offset get offsetMini => Offset.zero;
 
   void Function(bool)? get onPressed => null;
@@ -43,6 +45,9 @@ class AudioMessageButton extends ChatButton {
   AudioMessageButton(super.c);
 
   @override
+  void Function(bool)? get onPressed => (_) {};
+
+  @override
   String get hint => 'btn_audio_message'.l10n;
 
   @override
@@ -54,6 +59,9 @@ class AudioMessageButton extends ChatButton {
 
 class VideoMessageButton extends ChatButton {
   VideoMessageButton(super.c);
+
+  @override
+  void Function(bool)? get onPressed => (_) {};
 
   @override
   String get hint => 'btn_video_message'.l10n;
@@ -227,6 +235,9 @@ class StickerButton extends ChatButton {
   StickerButton(super.c);
 
   @override
+  void Function(bool)? get onPressed => (_) {};
+
+  @override
   String get hint => 'btn_sticker'.l10n;
 
   @override
@@ -255,29 +266,27 @@ class SendButton extends ChatButton {
 class AudioCallButton extends ChatButton {
   AudioCallButton(super.c);
 
-  bool ongoing = false;
+  @override
+  bool enabled = true;
 
   @override
-  String get hint => ongoing ? 'btn_join_call'.l10n : 'btn_audio_call'.l10n;
+  String get hint => 'btn_audio_call'.l10n;
 
   @override
   void Function(bool)? get onPressed => (b) => c.onCall?.call(false);
 
   @override
-  SvgData get asset => ongoing ? SvgIcons.download : SvgIcons.chatAudioCall;
+  SvgData get asset => SvgIcons.chatAudioCall;
 
   @override
-  Offset get offset => const Offset(0, 0);
-
-  @override
-  SvgData get assetMini => ongoing ? SvgIcons.download : SvgIcons.chatAudioCall;
+  SvgData get disabled => SvgIcons.chatAudioCallDisabled;
 }
 
 class VideoCallButton extends ChatButton {
   VideoCallButton(super.c);
 
   @override
-  bool hidden = false;
+  bool enabled = true;
 
   @override
   String get hint => 'btn_video_call'.l10n;
@@ -289,8 +298,5 @@ class VideoCallButton extends ChatButton {
   SvgData get asset => SvgIcons.chatVideoCall;
 
   @override
-  Offset get offset => const Offset(0, 0);
-
-  @override
-  SvgData get assetMini => SvgIcons.chatVideoCall;
+  SvgData get disabled => SvgIcons.chatVideoCallDisabled;
 }

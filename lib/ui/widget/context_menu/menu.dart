@@ -177,7 +177,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           decoration: BoxDecoration(
             borderRadius:
                 isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
-            color: isMouseOver
+            color: isMouseOver && widget.onPressed != null
                 ? isMobile
                     ? style.contextMenuHoveredColor
                     : style.colors.primary
@@ -198,9 +198,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: (isMouseOver && !context.isMobile
-                        ? style.fonts.normal.regular.onPrimary
-                        : style.fonts.normal.regular.onBackground)
+                style: (widget.onPressed == null
+                        ? style.fonts.normal.regular.secondaryHighlightDarkest
+                        : (isMouseOver && !context.isMobile
+                            ? style.fonts.normal.regular.onPrimary
+                            : style.fonts.normal.regular.onBackground))
                     .copyWith(
                   fontSize: context.isMobile
                       ? style.fonts.medium.regular.onBackground.fontSize

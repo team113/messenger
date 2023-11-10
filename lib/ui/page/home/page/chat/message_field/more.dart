@@ -206,14 +206,17 @@ class _MenuButtonState extends State<_MenuButton> {
       child: WidgetButton(
         onDown: (_) => setState(() => _pressed = true),
         onUp: (_) => setState(() => _pressed = false),
-        onPressed: () {
-          widget.button.onPressed?.call(false);
-          widget.onPressed?.call();
-        },
+        onPressed: widget.button.enabled
+            ? () {
+                widget.button.onPressed?.call(false);
+                widget.onPressed?.call();
+              }
+            : null,
         child: Container(
           width: double.infinity,
-          color:
-              _hovered || _pressed ? style.colors.onBackgroundOpacity2 : null,
+          color: (_hovered || _pressed) && widget.button.enabled
+              ? style.colors.onBackgroundOpacity2
+              : null,
           constraints: const BoxConstraints(minHeight: 48),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -224,12 +227,18 @@ class _MenuButtonState extends State<_MenuButton> {
                 child: AnimatedScale(
                   key: _globalKey,
                   duration: const Duration(milliseconds: 100),
-                  scale: _hovered ? 1.05 : 1,
+                  scale: widget.button.enabled && _hovered ? 1.05 : 1,
                   child: widget.button.icon == null
                       ? Transform.translate(
                           offset: widget.button.offsetMini,
                           child: SvgIcon(
-                            widget.button.assetMini ?? widget.button.asset,
+                            widget.button.enabled
+                                ? (widget.button.assetMini ??
+                                    widget.button.asset)
+                                : (widget.button.disabledMini ??
+                                    widget.button.disabled ??
+                                    widget.button.assetMini ??
+                                    widget.button.asset),
                           ),
                         )
                       : Icon(
@@ -246,7 +255,9 @@ class _MenuButtonState extends State<_MenuButton> {
                   widget.button.hint,
                   style: TextStyle(
                     fontSize: 17,
-                    color: style.colors.primary,
+                    color: widget.button.enabled
+                        ? style.colors.primary
+                        : style.colors.secondaryHighlightDarkest,
                   ),
                 ),
               ),
