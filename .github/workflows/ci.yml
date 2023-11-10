@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: echo "$(git log --format=$s -1)"
+      - run: echo $(git log --format=$s -1)
       - run: make copyright check=yes
 
   # dartanalyze:
