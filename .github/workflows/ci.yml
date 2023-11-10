@@ -366,7 +366,7 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          MESSAGE=$(git log --first-parent -1 --pretty=%s $GITHUB_SHA)
+          MESSAGE=$(git log --format=%B -n 1 ${{ github.sha }})
           echo "Message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
@@ -384,7 +384,7 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes \
                 dart-env='SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
         env:
           OMIT: |
