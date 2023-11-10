@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'prefix_button.dart';
 
-/// [PrefixButton] with an [asset] as a prefix.
+/// [PrefixButton] with an [icon] as a prefix.
 class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
@@ -36,7 +36,7 @@ class SignButton extends StatelessWidget {
   /// Widget to display as a [PrefixButton.prefix].
   final Widget? icon;
 
-  /// Additional padding to apply to the [asset].
+  /// Additional padding to apply to the [icon].
   final EdgeInsets padding;
 
   /// Callback, called when this button is pressed.

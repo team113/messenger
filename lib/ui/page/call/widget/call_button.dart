@@ -40,7 +40,7 @@ class CallButtonWidget extends StatelessWidget {
   /// [SvgData] to display.
   final SvgData? asset;
 
-  /// [Offset] to apply to the [icon].
+  /// [Offset] to apply to the [asset].
   final Offset? offset;
 
   /// Callback, called when this [CallButtonWidget] is pressed.
