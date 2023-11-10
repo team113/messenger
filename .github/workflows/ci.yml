@@ -366,7 +366,7 @@ jobs:
 
       - name: Check Commit Message
         run: |
-          MESSAGE=$(git log --first-parent -1 --pretty=%B | sed -n '/^Merge/!p' | head -n 1)
+          MESSAGE=$(git log --first-parent -1 --pretty=%s $GITHUB_SHA)
           echo "Message: $MESSAGE"
           if [[ $MESSAGE == *"[debug]"* ]]; then
             echo "LOG_LEVEL=debug" >> $GITHUB_ENV
