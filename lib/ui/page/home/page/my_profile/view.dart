@@ -1030,11 +1030,14 @@ Widget _chats(BuildContext context, MyProfileController c) {
         Obx(() {
           return FieldButton(
             text: switch (c.settings.value?.mediaButtonsPosition) {
-              MediaButtonsPosition.appBar => 'В верхней панели',
-              MediaButtonsPosition.contextMenu => 'В контекстном меню',
-              MediaButtonsPosition.top => 'В чате сверху',
-              MediaButtonsPosition.bottom => 'В чате снизу',
-              MediaButtonsPosition.more => 'В поле сообщения',
+              MediaButtonsPosition.appBar =>
+                'label_media_buttons_in_app_bar'.l10n,
+              MediaButtonsPosition.contextMenu =>
+                'label_media_buttons_in_context_menu'.l10n,
+              MediaButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
+              MediaButtonsPosition.bottom =>
+                'label_media_buttons_in_bottom'.l10n,
+              MediaButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
               null => 'В верхней панели',
             },
             maxLines: null,

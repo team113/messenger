@@ -73,12 +73,16 @@ class MediaButtonsSwitchView extends StatelessWidget {
                                 position == MediaButtonsPosition.appBar),
                         onPressed: () => c.setMediaButtonsPosition(position),
                         label: switch (position) {
-                          MediaButtonsPosition.appBar => 'В верхней панели',
+                          MediaButtonsPosition.appBar =>
+                            'label_media_buttons_in_app_bar'.l10n,
                           MediaButtonsPosition.contextMenu =>
-                            'В контекстном меню',
-                          MediaButtonsPosition.top => 'В теле сверху',
-                          MediaButtonsPosition.bottom => 'В теле снизу',
-                          MediaButtonsPosition.more => 'В поле сообщения',
+                            'label_media_buttons_in_context_menu'.l10n,
+                          MediaButtonsPosition.top =>
+                            'label_media_buttons_in_top'.l10n,
+                          MediaButtonsPosition.bottom =>
+                            'label_media_buttons_in_bottom'.l10n,
+                          MediaButtonsPosition.more =>
+                            'label_media_buttons_in_more'.l10n,
                         },
                       );
                     });
