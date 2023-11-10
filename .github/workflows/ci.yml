@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Debug
+      - name: Debug1
         run: |
           echo "${{ github.event.commits[github.event.commits.length - 1].message }}"
 
