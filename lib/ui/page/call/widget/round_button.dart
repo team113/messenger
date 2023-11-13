@@ -41,7 +41,6 @@ class RoundFloatingButton extends StatefulWidget {
     this.withBlur = false,
     this.style,
     this.border,
-    this.mouseCursor,
     this.child,
   });
 
@@ -79,9 +78,6 @@ class RoundFloatingButton extends StatefulWidget {
 
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
-
-  /// Optional [MouseCursor] to display over this [RoundFloatingButton].
-  final MouseCursor? mouseCursor;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -128,7 +124,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
           type: MaterialType.circle,
           child: InkWell(
             borderRadius: BorderRadius.circular(60),
-            mouseCursor: widget.mouseCursor,
             onHover: widget.hint != null
                 ? (b) {
                     if (b) {

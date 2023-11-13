@@ -58,7 +58,7 @@ class NativeFile {
     }
 
     if (bytes != null) {
-      determineDimension();
+      _determineDimension();
     }
   }
 
@@ -209,14 +209,14 @@ class NativeFile {
         _readStream = null;
       }
 
-      await determineDimension();
+      await _determineDimension();
 
       return bytes.value;
     });
   }
 
   /// Determines the [dimensions].
-  Future<void> determineDimension() async {
+  Future<void> _determineDimension() async {
     // Decode the file, if it [isImage].
     //
     // Throws an error, if decoding fails.

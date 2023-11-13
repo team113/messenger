@@ -691,8 +691,8 @@ class _GalleryPopupState extends State<GalleryPopup>
                 opacity: (_displayLeft && left) || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: WidgetButton(
-                    onPressed: left
+                  child: Builder(builder: (context) {
+                    void Function()? onPressed = left
                         ? () {
                             node.requestFocus();
                             _pageController.animateToPage(
@@ -701,28 +701,32 @@ class _GalleryPopupState extends State<GalleryPopup>
                               duration: const Duration(milliseconds: 200),
                             );
                           }
-                        : null,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      width: 60 + 16,
-                      height: double.infinity,
-                      child: Center(
-                        child: GalleryButton(
-                          mouseCursor: left ? SystemMouseCursors.click : null,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 1),
-                            child: Icon(
-                              Icons.keyboard_arrow_left_rounded,
-                              color: left
-                                  ? style.colors.onPrimary
-                                  : style.colors.secondary,
-                              size: 36,
+                        : null;
+
+                    return WidgetButton(
+                      onPressed: onPressed,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        width: 60 + 16,
+                        height: double.infinity,
+                        child: Center(
+                          child: GalleryButton(
+                            onPressed: onPressed,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 1),
+                              child: Icon(
+                                Icons.keyboard_arrow_left_rounded,
+                                color: left
+                                    ? style.colors.onPrimary
+                                    : style.colors.secondary,
+                                size: 36,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ),
             ),
@@ -736,37 +740,43 @@ class _GalleryPopupState extends State<GalleryPopup>
                 opacity: (_displayRight && right) || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: WidgetButton(
-                    onPressed: right
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page + 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 8, right: 8),
-                      width: 60 + 16,
-                      height: double.infinity,
-                      child: Center(
-                        child: GalleryButton(
-                          mouseCursor: right ? SystemMouseCursors.click : null,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 1),
-                            child: Icon(
-                              Icons.keyboard_arrow_right_rounded,
-                              color: right
-                                  ? style.colors.onPrimary
-                                  : style.colors.secondary,
-                              size: 36,
+                  child: Builder(
+                    builder: (context) {
+                      void Function()? onPressed = right
+                          ? () {
+                        node.requestFocus();
+                        _pageController.animateToPage(
+                          _page + 1,
+                          curve: Curves.linear,
+                          duration: const Duration(milliseconds: 200),
+                        );
+                      }
+                          : null;
+
+                      return WidgetButton(
+                        onPressed: onPressed,
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 8, right: 8),
+                          width: 60 + 16,
+                          height: double.infinity,
+                          child: Center(
+                            child: GalleryButton(
+                              onPressed: onPressed,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 1),
+                                child: Icon(
+                                  Icons.keyboard_arrow_right_rounded,
+                                  color: right
+                                      ? style.colors.onPrimary
+                                      : style.colors.secondary,
+                                  size: 36,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    }
                   ),
                 ),
               ),

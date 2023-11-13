@@ -102,12 +102,11 @@ class _PlayableAssetState extends State<PlayableAsset> {
                 label: 'Download',
                 style: style.fonts.smaller.regular.primary,
                 onPressed: () async {
-                  const String asset = 'head_0.svg';
                   final file = await PlatformUtils.saveTo(
-                    '${Config.origin}/assets/assets/audio/$asset',
+                    '${Config.origin}/assets/assets/audio/${widget.asset}.mp3',
                   );
                   if (file != null) {
-                    MessagePopup.success('$asset downloaded');
+                    MessagePopup.success('${widget.asset}.mp3 downloaded');
                   }
                 },
               ),

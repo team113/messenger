@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
@@ -36,9 +35,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/model/user_call_cover.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -76,7 +72,6 @@ import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
-import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/direct_link.dart';
@@ -103,10 +98,12 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/obs/rxlist.dart';
-import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
+import 'common/dummy_chat.dart';
+import 'common/dummy_user.dart';
 import 'widget/cat.dart';
+import 'widget/headline.dart';
+import 'widget/headlines.dart';
 import 'widget/playable_asset.dart';
 
 /// Widgets view of the [Routes.style] page.
@@ -133,96 +130,31 @@ class WidgetsView extends StatelessWidget {
     );
   }
 
-  /// Returns the provided [child] wrapped by a [Block].
-  Widget _headline({
-    String? title,
-    required Widget child,
-    Widget? subtitle,
-    Color? color,
-    Color? headlineColor,
-    EdgeInsets padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
-    bool top = true,
-    bool bottom = true,
-  }) {
-    return Block(
-      color: color,
-      headline: title ?? child.runtimeType.toString(),
-      headlineColor: headlineColor,
-      topMargin: top ? 32 : null,
-      maxWidth: 450,
-      padding: padding,
-      children: [
-        if (top) const SizedBox(height: 16),
-        SelectionContainer.disabled(child: child),
-        if (bottom) ...[
-          const SizedBox(height: 8),
-          if (subtitle != null) SelectionContainer.disabled(child: subtitle),
-          const SizedBox(height: 8),
-        ],
-      ],
-    );
-  }
-
-  /// Returns the provided [children] wrapped by a [Block].
-  Widget _headlines({
-    Color? color,
-    required List<({String label, Widget widget})> children,
-  }) {
-    final style = Theme.of(router.context!).style;
-
-    return Block(
-      padding: EdgeInsets.zero,
-      color: color,
-      topMargin: 32,
-      maxWidth: 450,
-      children: [
-        ...children.mapIndexed((i, e) {
-          return [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                e.label,
-                style: style.fonts.small.regular.secondaryHighlightDarkest,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: SelectionContainer.disabled(child: e.widget),
-            ),
-            if (i != children.length - 1) const SizedBox(height: 32),
-          ];
-        }).flattened,
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-
   /// Returns contents of the images section.
   List<Widget> _images(BuildContext context) {
     return [
-      _headline(
-        child: const InteractiveLogo(),
+      Headline(
         subtitle: _downloadButton('head_0.svg', prefix: 'logo'),
         top: false,
+        child: const InteractiveLogo(),
       ),
-      _headline(
-        title: 'background_light.svg',
+      Headline(
+        headline: 'background_light.svg',
+        subtitle: _downloadButton('background_light'),
         child: const SvgImage.asset(
           'assets/images/background_light.svg',
           height: 300,
           fit: BoxFit.cover,
         ),
-        subtitle: _downloadButton('background_light'),
       ),
-      _headline(
-        title: 'background_dark.svg',
+      Headline(
+        headline: 'background_dark.svg',
+        subtitle: _downloadButton('background_dark'),
         child: const SvgImage.asset(
           'assets/images/background_dark.svg',
           height: 300,
           fit: BoxFit.cover,
         ),
-        subtitle: _downloadButton('background_dark'),
       ),
     ];
   }
@@ -261,7 +193,7 @@ class WidgetsView extends StatelessWidget {
       List<ChatItemQuote> repliesTo = const [],
     }) {
       NativeFile image =
-          NativeFile(name: 'Image', size: 2, bytes: CatImage.bytes)..readFile();
+          NativeFile(name: 'Image', size: 2, bytes: CatImage.bytes);
       image.dimensions.value = CatImage.size;
 
       return ChatMessage(
@@ -412,8 +344,8 @@ class WidgetsView extends StatelessWidget {
     }
 
     return [
-      _headline(
-        title: 'TimeLabelWidget',
+      Headline(
+        headline: 'TimeLabelWidget',
         color: style.colors.onBackgroundOpacity7,
         child: Column(
           children: [
@@ -435,15 +367,15 @@ class WidgetsView extends StatelessWidget {
           ],
         ),
       ),
-      _headline(
-        title: 'UnreadLabel',
+      Headline(
+        headline: 'UnreadLabel',
         color: style.colors.onBackgroundOpacity7,
         child: const Column(
           children: [UnreadLabel(123)],
         ),
       ),
-      _headline(
-        title: 'ChatItemWidget',
+      Headline(
+        headline: 'ChatItemWidget',
         padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
         color: style.colors.onBackgroundOpacity7,
         child: Column(
@@ -655,8 +587,8 @@ class WidgetsView extends StatelessWidget {
           ],
         ),
       ),
-      _headline(
-        title: 'ChatForwardWidget',
+      Headline(
+        headline: 'ChatForwardWidget',
         padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
         color: style.colors.onBackgroundOpacity7,
         child: Column(
@@ -684,33 +616,32 @@ class WidgetsView extends StatelessWidget {
   /// Returns contents of the animations section.
   List<Widget> _animations(BuildContext context) {
     return [
-      _headline(
-        title: 'DoubleBounceLoadingIndicator',
-        child: const SizedBox(child: DoubleBounceLoadingIndicator()),
+      const Headline(
+        headline: 'DoubleBounceLoadingIndicator',
+        child: SizedBox(child: DoubleBounceLoadingIndicator()),
       ),
-      _headline(
-        title: 'AnimatedTyping',
-        child: const SizedBox(
+      const Headline(
+        headline: 'AnimatedTyping',
+        child: SizedBox(
           height: 32,
           child: Center(child: AnimatedTyping()),
         ),
       ),
-      _headlines(
+      const Headlines(
         children: [
           (
-            label: 'CustomProgressIndicator',
-            widget:
-                const SizedBox(child: Center(child: CustomProgressIndicator()))
+            headline: 'CustomProgressIndicator',
+            widget: SizedBox(child: Center(child: CustomProgressIndicator()))
           ),
           (
-            label: 'CustomProgressIndicator.big',
-            widget: const SizedBox(
+            headline: 'CustomProgressIndicator.big',
+            widget: SizedBox(
               child: Center(child: CustomProgressIndicator.big()),
             )
           ),
           (
-            label: 'CustomProgressIndicator.primary',
-            widget: const SizedBox(
+            headline: 'CustomProgressIndicator.primary',
+            widget: SizedBox(
               child: Center(child: CustomProgressIndicator.primary()),
             )
           ),
@@ -721,9 +652,11 @@ class WidgetsView extends StatelessWidget {
 
   /// Returns contents of the avatars section.
   List<Widget> _avatars(BuildContext context) {
-    ({String label, Widget widget}) avatars(String title, AvatarRadius radius) {
+    ({String headline, Widget widget}) avatars(
+        String title, AvatarRadius radius) {
       return (
-        label: 'AvatarWidget(radius: ${radius.toDouble().toStringAsFixed(0)})',
+        headline:
+            'AvatarWidget(radius: ${radius.toDouble().toStringAsFixed(0)})',
         widget: Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -739,7 +672,7 @@ class WidgetsView extends StatelessWidget {
     }
 
     return [
-      _headlines(
+      Headlines(
         children: AvatarRadius.values.reversed
             .mapIndexed(
               (i, e) => avatars(i.toString().padLeft(2, '0'), e),
@@ -754,10 +687,10 @@ class WidgetsView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return [
-      _headlines(
+      Headlines(
         children: [
           (
-            label: 'ReactiveTextField',
+            headline: 'ReactiveTextField',
             widget: ReactiveTextField(
               state: TextFieldState(approvable: true),
               hint: 'Hint',
@@ -765,7 +698,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'ReactiveTextField(error)',
+            headline: 'ReactiveTextField(error)',
             widget: ReactiveTextField(
               state: TextFieldState(text: 'Text', error: 'Error text'),
               hint: 'Hint',
@@ -773,7 +706,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'ReactiveTextField(subtitle)',
+            headline: 'ReactiveTextField(subtitle)',
             widget: ReactiveTextField(
               key: const Key('LoginField'),
               state: TextFieldState(text: 'Text'),
@@ -806,7 +739,7 @@ class WidgetsView extends StatelessWidget {
             )
           ),
           (
-            label: 'ReactiveTextField(obscure)',
+            headline: 'ReactiveTextField(obscure)',
             widget: ObxValue(
               (b) {
                 return ReactiveTextField(
@@ -827,22 +760,22 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headline(
+      Headline(
         child: CopyableTextField(
           state: TextFieldState(text: 'Text to copy', editable: false),
           label: 'Label',
         ),
       ),
-      _headline(
+      Headline(
         child: SharableTextField(text: 'Text to share', label: 'Label'),
       ),
-      _headline(
+      Headline(
         child: MessageFieldView(
           controller: MessageFieldController(null, null, null),
         ),
       ),
-      _headline(
-        title: 'CustomAppBar(search)',
+      Headline(
+        headline: 'CustomAppBar(search)',
         child: SizedBox(
           height: 60,
           width: 400,
@@ -887,8 +820,8 @@ class WidgetsView extends StatelessWidget {
           ),
         ),
       ),
-      _headline(
-        title: 'ReactiveTextField(search)',
+      Headline(
+        headline: 'ReactiveTextField(search)',
         child: ReactiveTextField(
           key: const Key('SearchTextField'),
           state: TextFieldState(),
@@ -897,15 +830,15 @@ class WidgetsView extends StatelessWidget {
           onChanged: () {},
         ),
       ),
-      _headline(child: const UserLoginField(null)),
-      _headline(child: const UserNameField(null)),
-      _headline(child: const UserTextStatusField(null)),
-      _headline(child: const UserPresenceField(Presence.present, 'Online')),
-      _headline(
-        child: const UserStatusCopyable(UserTextStatus.unchecked('Status')),
+      const Headline(child: UserLoginField(null)),
+      const Headline(child: UserNameField(null)),
+      const Headline(child: UserTextStatusField(null)),
+      const Headline(child: UserPresenceField(Presence.present, 'Online')),
+      const Headline(
+        child: UserStatusCopyable(UserTextStatus.unchecked('Status')),
       ),
-      _headline(child: const DirectLinkField(null)),
-      _headline(
+      const Headline(child: DirectLinkField(null)),
+      Headline(
         child: BlocklistRecordWidget(
           BlocklistRecord(
             userId: const UserId('me'),
@@ -921,14 +854,14 @@ class WidgetsView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return [
-      _headlines(
+      Headlines(
         color: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
         children: [
           (
-            label: 'MenuButton',
+            headline: 'MenuButton',
             widget: MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
@@ -942,7 +875,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'MenuButton(inverted: true)',
+            headline: 'MenuButton(inverted: true)',
             widget: MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
@@ -957,21 +890,21 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headlines(
+      Headlines(
         color: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
         children: [
           (
-            label: 'OutlinedRoundedButton(title)',
+            headline: 'OutlinedRoundedButton(title)',
             widget: OutlinedRoundedButton(
               title: const Text('Title'),
               onPressed: () {},
             ),
           ),
           (
-            label: 'OutlinedRoundedButton(subtitle)',
+            headline: 'OutlinedRoundedButton(subtitle)',
             widget: OutlinedRoundedButton(
               subtitle: const Text('Subtitle'),
               onPressed: () {},
@@ -979,7 +912,7 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headline(
+      Headline(
         color: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
@@ -989,11 +922,11 @@ class WidgetsView extends StatelessWidget {
           child: const Text('Label'),
         ),
       ),
-      _headline(
-        title: 'PrimaryButton',
+      Headline(
+        headline: 'PrimaryButton',
         child: PrimaryButton(onPressed: () {}, title: 'PrimaryButton'),
       ),
-      _headline(
+      Headline(
         child: WidgetButton(
           onPressed: () {},
           child: Container(
@@ -1007,10 +940,10 @@ class WidgetsView extends StatelessWidget {
           ),
         ),
       ),
-      _headlines(
+      Headlines(
         children: [
           (
-            label: 'SignButton',
+            headline: 'SignButton',
             widget: SignButton(
               onPressed: () {},
               title: 'Label',
@@ -1019,15 +952,15 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headlines(
+      Headlines(
         children: [
           (
-            label: 'StyledCupertinoButton',
+            headline: 'StyledCupertinoButton',
             widget:
                 StyledCupertinoButton(onPressed: () {}, label: 'Clickable text')
           ),
           (
-            label: 'StyledCupertinoButton.primary',
+            headline: 'StyledCupertinoButton.primary',
             widget: StyledCupertinoButton(
               onPressed: () {},
               label: 'Clickable text',
@@ -1036,14 +969,14 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headlines(
+      Headlines(
         children: [
           (
-            label: 'RectangleButton',
+            headline: 'RectangleButton',
             widget: RectangleButton(onPressed: () {}, label: 'Label'),
           ),
           (
-            label: 'RectangleButton(selected: true)',
+            headline: 'RectangleButton(selected: true)',
             widget: RectangleButton(
               onPressed: () {},
               label: 'Label',
@@ -1051,7 +984,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'RectangleButton.radio',
+            headline: 'RectangleButton.radio',
             widget: RectangleButton(
               onPressed: () {},
               label: 'Label',
@@ -1059,7 +992,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'RectangleButton.radio(selected: true)',
+            headline: 'RectangleButton.radio(selected: true)',
             widget: RectangleButton(
               onPressed: () {},
               label: 'Label',
@@ -1069,8 +1002,8 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headline(
-        title: 'AnimatedButton',
+      Headline(
+        headline: 'AnimatedButton',
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1103,10 +1036,10 @@ class WidgetsView extends StatelessWidget {
           ],
         ),
       ),
-      _headline(
-        title: 'CallButtonWidget',
+      Headline(
+        headline: 'CallButtonWidget',
         color: style.colors.primaryAuxiliaryOpacity25,
-        headlineColor: style.colors.onPrimary,
+        headlineStyle: style.fonts.small.regular.onPrimary,
         bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1139,10 +1072,10 @@ class WidgetsView extends StatelessWidget {
           ],
         ),
       ),
-      _headline(
-        title: 'GalleryButton',
+      Headline(
+        headline: 'GalleryButton',
         color: style.colors.primaryAuxiliaryOpacity25,
-        headlineColor: style.colors.onPrimary,
+        headlineStyle: style.fonts.small.regular.onPrimary,
         bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1177,39 +1110,39 @@ class WidgetsView extends StatelessWidget {
           ],
         ),
       ),
-      _headlines(
+      const Headlines(
         children: [
           (
-            label: 'DownloadButton.windows',
-            widget: const DownloadButton.windows(),
+            headline: 'DownloadButton.windows',
+            widget: DownloadButton.windows(),
           ),
           (
-            label: 'DownloadButton.macos',
-            widget: const DownloadButton.macos(),
+            headline: 'DownloadButton.macos',
+            widget: DownloadButton.macos(),
           ),
           (
-            label: 'DownloadButton.linux',
-            widget: const DownloadButton.linux(),
+            headline: 'DownloadButton.linux',
+            widget: DownloadButton.linux(),
           ),
           (
-            label: 'DownloadButton.appStore',
-            widget: const DownloadButton.appStore(),
+            headline: 'DownloadButton.appStore',
+            widget: DownloadButton.appStore(),
           ),
           (
-            label: 'DownloadButton.googlePlay',
-            widget: const DownloadButton.googlePlay(),
+            headline: 'DownloadButton.googlePlay',
+            widget: DownloadButton.googlePlay(),
           ),
           (
-            label: 'DownloadButton.android',
-            widget: const DownloadButton.android(),
+            headline: 'DownloadButton.android',
+            widget: DownloadButton.android(),
           ),
         ],
       ),
-      _headline(child: StyledBackButton(onPressed: () {})),
-      _headlines(
+      Headline(child: StyledBackButton(onPressed: () {})),
+      Headlines(
         children: [
           (
-            label: 'FloatingActionButton(arrow_upward)',
+            headline: 'FloatingActionButton(arrow_upward)',
             widget: FloatingActionButton.small(
               heroTag: '1',
               onPressed: () {},
@@ -1217,7 +1150,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'FloatingActionButton(arrow_downward)',
+            headline: 'FloatingActionButton(arrow_downward)',
             widget: FloatingActionButton.small(
               heroTag: '2',
               onPressed: () {},
@@ -1226,8 +1159,8 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headline(child: UnblockButton(() {})),
-      _headlines(
+      Headline(child: UnblockButton(() {})),
+      Headlines(
         color: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
@@ -1235,7 +1168,7 @@ class WidgetsView extends StatelessWidget {
         children: WorkTab.values
             .map(
               (e) => (
-                label: 'VacancyWorkButton(${e.name})',
+                headline: 'VacancyWorkButton(${e.name})',
                 widget: VacancyWorkButton(e, onPressed: (_) {}),
               ),
             )
@@ -1247,8 +1180,8 @@ class WidgetsView extends StatelessWidget {
   /// Returns contents of the switches section.
   List<Widget> _switches(BuildContext context) {
     return [
-      _headline(
-        title: 'SwitchField',
+      Headline(
+        headline: 'SwitchField',
         child: ObxValue(
           (value) {
             return SwitchField(
@@ -1268,11 +1201,11 @@ class WidgetsView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return [
-      _headlines(
+      const Headlines(
         children: [
           (
-            label: 'ContextMenu(desktop)',
-            widget: const ContextMenu(
+            headline: 'ContextMenu(desktop)',
+            widget: ContextMenu(
               actions: [
                 ContextMenuButton(label: 'Action 1'),
                 ContextMenuButton(label: 'Action 2'),
@@ -1283,8 +1216,8 @@ class WidgetsView extends StatelessWidget {
             )
           ),
           (
-            label: 'ContextMenu(mobile)',
-            widget: const ContextMenu(
+            headline: 'ContextMenu(mobile)',
+            widget: ContextMenu(
               mobile: true,
               actions: [
                 ContextMenuButton(label: 'Action 1', mobile: true),
@@ -1296,18 +1229,18 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headlines(
+      Headlines(
         color: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
         children: [
           (
-            label: 'RecentChatTile',
+            headline: 'RecentChatTile',
             widget: RecentChatTile(DummyRxChat(), onTap: () {}),
           ),
           (
-            label: 'RecentChatTile(selected)',
+            headline: 'RecentChatTile(selected)',
             widget: RecentChatTile(
               DummyRxChat(),
               onTap: () {},
@@ -1315,7 +1248,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'RecentChatTile(trailing)',
+            headline: 'RecentChatTile(trailing)',
             widget: RecentChatTile(
               DummyRxChat(),
               onTap: () {},
@@ -1325,18 +1258,18 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headlines(
+      Headlines(
         color: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
         children: [
           (
-            label: 'ChatTile',
+            headline: 'ChatTile',
             widget: ChatTile(chat: DummyRxChat(), onTap: () {}),
           ),
           (
-            label: 'ChatTile(selected)',
+            headline: 'ChatTile(selected)',
             widget: ChatTile(
               chat: DummyRxChat(),
               onTap: () {},
@@ -1354,21 +1287,21 @@ class WidgetsView extends StatelessWidget {
           presenceIndex: 0,
           online: true,
         );
-        return _headlines(
+        return Headlines(
           color: Color.alphaBlend(
             style.sidebarColor,
             style.colors.onBackgroundOpacity7,
           ),
           children: [
             (
-              label: 'ContactTile',
+              headline: 'ContactTile',
               widget: ContactTile(
                 myUser: myUser,
                 onTap: () {},
               ),
             ),
             (
-              label: 'ContactTile(selected)',
+              headline: 'ContactTile(selected)',
               widget: ContactTile(
                 myUser: myUser,
                 onTap: () {},
@@ -1376,7 +1309,7 @@ class WidgetsView extends StatelessWidget {
               ),
             ),
             (
-              label: 'ContactTile(trailing)',
+              headline: 'ContactTile(trailing)',
               widget: ContactTile(
                 myUser: myUser,
                 onTap: () {},
@@ -1393,9 +1326,9 @@ class WidgetsView extends StatelessWidget {
   /// Returns contents of the system section.
   List<Widget> _system(BuildContext context) {
     return [
-      _headline(
-        title: 'UnreadCounter',
-        child: const SizedBox(
+      const Headline(
+        headline: 'UnreadCounter',
+        child: SizedBox(
           child: Wrap(
             spacing: 4,
             runSpacing: 4,
@@ -1416,10 +1349,10 @@ class WidgetsView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return [
-      _headlines(
+      Headlines(
         children: [
           (
-            label: 'CustomAppBar',
+            headline: 'CustomAppBar',
             widget: SizedBox(
               height: 60,
               child: CustomAppBar(
@@ -1431,7 +1364,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'CustomAppBar(leading, actions)',
+            headline: 'CustomAppBar(leading, actions)',
             widget: SizedBox(
               height: 60,
               child: CustomAppBar(
@@ -1464,8 +1397,8 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headline(
-        title: 'DockDecorator(Dock)',
+      Headline(
+        headline: 'DockDecorator(Dock)',
         child: SizedBox(
           height: 85,
           child: Column(
@@ -1491,7 +1424,7 @@ class WidgetsView extends StatelessWidget {
           ),
         ),
       ),
-      _headline(
+      Headline(
         child: Launchpad(
           onWillAccept: (_) => true,
           children: List.generate(
@@ -1512,8 +1445,8 @@ class WidgetsView extends StatelessWidget {
           ).toList(),
         ),
       ),
-      _headline(
-        title: 'CustomNavigationBar',
+      Headline(
+        headline: 'CustomNavigationBar',
         child: ObxValue(
           (p) {
             return CustomNavigationBar(
@@ -1553,11 +1486,11 @@ class WidgetsView extends StatelessWidget {
           RxInt(0),
         ),
       ),
-      _headline(child: const RaisedHand(true)),
-      _headlines(
+      const Headline(child: RaisedHand(true)),
+      Headlines(
         children: [
           (
-            label: 'AnimatedParticipant(loading)',
+            headline: 'AnimatedParticipant(loading)',
             widget: SizedBox(
               width: 300,
               height: 300,
@@ -1570,7 +1503,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'AnimatedParticipant',
+            headline: 'AnimatedParticipant',
             widget: SizedBox(
               width: 300,
               height: 300,
@@ -1586,7 +1519,7 @@ class WidgetsView extends StatelessWidget {
             ),
           ),
           (
-            label: 'AnimatedParticipant(muted)',
+            headline: 'AnimatedParticipant(muted)',
             widget: SizedBox(
               width: 300,
               height: 300,
@@ -1605,7 +1538,7 @@ class WidgetsView extends StatelessWidget {
           ),
         ],
       ),
-      _headline(
+      Headline(
         color: style.colors.backgroundAuxiliaryLight,
         child: const CallTitle(
           UserId('me'),
@@ -1613,7 +1546,7 @@ class WidgetsView extends StatelessWidget {
           state: 'State',
         ),
       ),
-      _headline(
+      Headline(
         child: ChatInfoCard(
           chat: DummyRxChat(),
           onTap: () {},
@@ -1622,9 +1555,9 @@ class WidgetsView extends StatelessWidget {
           trailing: 'Trailing',
         ),
       ),
-      _headline(
-        title: 'DropBox',
-        child: const SizedBox(
+      const Headline(
+        headline: 'DropBox',
+        child: SizedBox(
           width: 200,
           height: 200,
           child: DropBox(),
@@ -1633,8 +1566,8 @@ class WidgetsView extends StatelessWidget {
       Builder(builder: (context) {
         GlobalKey key = GlobalKey();
 
-        return _headline(
-          title: 'ReorderableFit',
+        return Headline(
+          headline: 'ReorderableFit',
           child: SizedBox(
             key: key,
             width: 400,
@@ -1659,8 +1592,8 @@ class WidgetsView extends StatelessWidget {
           ),
         );
       }),
-      _headline(child: const BackgroundPreview(null)),
-      _headline(
+      const Headline(child: BackgroundPreview(null)),
+      Headline(
         child: BigAvatarWidget.myUser(
           null,
           onDelete: () {},
@@ -1683,8 +1616,8 @@ class WidgetsView extends StatelessWidget {
     ];
 
     return [
-      _headline(
-        title: 'Sounds',
+      Headline(
+        headline: 'Sounds',
         child: BuilderWrap(
           sounds,
           (e) => PlayableAsset(e.title, once: e.once),
@@ -1693,122 +1626,4 @@ class WidgetsView extends StatelessWidget {
       ),
     ];
   }
-}
-
-/// A dummy implementation of [RxUser].
-///
-/// Used to show [RxUser] related [Widget]s.
-class DummyRxUser extends RxUser {
-  @override
-  Rx<RxChat?> get dialog => Rx(null);
-
-  @override
-  void listenUpdates() {}
-
-  @override
-  void stopUpdates() {}
-
-  @override
-  Rx<User> get user => Rx(
-        User(
-          const UserId('me'),
-          UserNum('1234123412341234'),
-          name: UserName('Participant'),
-        ),
-      );
-
-  @override
-  Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());
-}
-
-/// A dummy implementation of [RxChat].
-///
-/// Used to show [RxChat] related [Widget]s.
-class DummyRxChat extends RxChat {
-  DummyRxChat() : chat = Rx(Chat(ChatId.local(const UserId('me'))));
-
-  @override
-  final Rx<Chat> chat;
-
-  @override
-  Future<void> addMessage(ChatMessageText text) async {}
-
-  @override
-  Future<void> around() async {}
-
-  @override
-  Rx<Avatar?> get avatar => Rx(null);
-
-  @override
-  UserCallCover? get callCover => null;
-
-  @override
-  int compareTo(RxChat other) => 0;
-
-  @override
-  Rx<ChatMessage?> get draft => Rx(null);
-
-  @override
-  Rx<ChatItem>? get firstUnread => null;
-
-  @override
-  RxBool get hasNext => RxBool(false);
-
-  @override
-  RxBool get hasPrevious => RxBool(false);
-
-  @override
-  ChatItem? get lastItem => null;
-
-  @override
-  UserId? get me => null;
-
-  @override
-  RxObsMap<UserId, RxUser> get members => RxObsMap();
-
-  @override
-  RxObsList<Rx<ChatItem>> get messages => RxObsList();
-
-  @override
-  Future<void> next() async {}
-
-  @override
-  RxBool get nextLoading => RxBool(false);
-
-  @override
-  Future<void> previous() async {}
-
-  @override
-  RxBool get previousLoading => RxBool(false);
-
-  @override
-  RxList<LastChatRead> get reads => RxList();
-
-  @override
-  Future<void> remove(ChatItemId itemId) async {}
-
-  @override
-  void setDraft({
-    ChatMessageText? text,
-    List<Attachment> attachments = const [],
-    List<ChatItem> repliesTo = const [],
-  }) {}
-
-  @override
-  Rx<RxStatus> get status => Rx(RxStatus.empty());
-
-  @override
-  RxString get title => RxString('Title');
-
-  @override
-  RxList<User> get typingUsers => RxList();
-
-  @override
-  RxInt get unreadCount => RxInt(0);
-
-  @override
-  Future<void> updateAttachments(ChatItem item) async {}
-
-  @override
-  Stream<void> get updates => const Stream.empty();
 }

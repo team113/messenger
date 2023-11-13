@@ -28,7 +28,6 @@ class GalleryButton extends StatelessWidget {
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
-    this.mouseCursor,
   });
 
   /// Optional [Widget] to replace the default [SvgImage.asset].
@@ -43,9 +42,6 @@ class GalleryButton extends StatelessWidget {
   /// Callback, called when this [GalleryButton] is pressed.
   final void Function()? onPressed;
 
-  /// Optional [MouseCursor] to display over this [GalleryButton].
-  final MouseCursor? mouseCursor;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -56,7 +52,6 @@ class GalleryButton extends StatelessWidget {
       child: RoundFloatingButton(
         color: style.colors.onSecondaryOpacity50,
         onPressed: onPressed,
-        mouseCursor: mouseCursor,
         withBlur: true,
         assetWidth: assetWidth,
         asset: asset,
