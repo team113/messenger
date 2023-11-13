@@ -15,35 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
-import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
+import '../widget/headline.dart';
+import '/routes.dart';
+import '/ui/page/home/tab/chats/widget/unread_counter.dart';
 
-/// A dummy implementation of [RxUser].
-///
-/// Used to show [RxUser] related [Widget]s.
-class DummyRxUser extends RxUser {
-  @override
-  Rx<RxChat?> get dialog => Rx(null);
-
-  @override
-  void listenUpdates() {}
-
-  @override
-  void stopUpdates() {}
-
-  @override
-  Rx<User> get user => Rx(
-        User(
-          const UserId('me'),
-          UserNum('1234123412341234'),
-          name: UserName('Participant'),
+/// [Routes.style] system section.
+class SystemSection {
+  /// Returns the [Widget]s of this [SystemSection].
+  static List<Widget> build() {
+    return [
+      const Headline(
+        headline: 'UnreadCounter',
+        child: SizedBox(
+          child: Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              UnreadCounter(1),
+              UnreadCounter(10),
+              UnreadCounter(90),
+              UnreadCounter(100)
+            ],
+          ),
         ),
-      );
-
-  @override
-  Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());
+      ),
+    ];
+  }
 }

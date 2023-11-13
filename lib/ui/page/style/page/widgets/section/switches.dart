@@ -15,35 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
-import '/domain/repository/user.dart';
+import '../widget/headline.dart';
+import '/routes.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 
-/// A dummy implementation of [RxUser].
-///
-/// Used to show [RxUser] related [Widget]s.
-class DummyRxUser extends RxUser {
-  @override
-  Rx<RxChat?> get dialog => Rx(null);
-
-  @override
-  void listenUpdates() {}
-
-  @override
-  void stopUpdates() {}
-
-  @override
-  Rx<User> get user => Rx(
-        User(
-          const UserId('me'),
-          UserNum('1234123412341234'),
-          name: UserName('Participant'),
+/// [Routes.style] switches section.
+class SwitchesSection {
+  /// Returns the [Widget]s of this [SwitchesSection].
+  static List<Widget> build() {
+    return [
+      Headline(
+        headline: 'SwitchField',
+        child: ObxValue(
+          (value) {
+            return SwitchField(
+              text: 'Label',
+              value: value.value,
+              onChanged: (b) => value.value = b,
+            );
+          },
+          false.obs,
         ),
-      );
-
-  @override
-  Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());
+      ),
+    ];
+  }
 }
