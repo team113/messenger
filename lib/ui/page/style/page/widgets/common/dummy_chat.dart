@@ -38,19 +38,10 @@ class DummyRxChat extends RxChat {
   final Rx<Chat> chat;
 
   @override
-  Future<void> addMessage(ChatMessageText text) async {}
-
-  @override
-  Future<void> around() async {}
-
-  @override
   Rx<Avatar?> get avatar => Rx(null);
 
   @override
   UserCallCover? get callCover => null;
-
-  @override
-  int compareTo(RxChat other) => 0;
 
   @override
   Rx<ChatMessage?> get draft => Rx(null);
@@ -77,29 +68,13 @@ class DummyRxChat extends RxChat {
   RxObsList<Rx<ChatItem>> get messages => RxObsList();
 
   @override
-  Future<void> next() async {}
-
-  @override
   RxBool get nextLoading => RxBool(false);
-
-  @override
-  Future<void> previous() async {}
 
   @override
   RxBool get previousLoading => RxBool(false);
 
   @override
   RxList<LastChatRead> get reads => RxList();
-
-  @override
-  Future<void> remove(ChatItemId itemId) async {}
-
-  @override
-  void setDraft({
-    ChatMessageText? text,
-    List<Attachment> attachments = const [],
-    List<ChatItem> repliesTo = const [],
-  }) {}
 
   @override
   Rx<RxStatus> get status => Rx(RxStatus.empty());
@@ -114,8 +89,33 @@ class DummyRxChat extends RxChat {
   RxInt get unreadCount => RxInt(0);
 
   @override
+  Stream<void> get updates => const Stream.empty();
+
+  @override
   Future<void> updateAttachments(ChatItem item) async {}
 
   @override
-  Stream<void> get updates => const Stream.empty();
+  void setDraft({
+    ChatMessageText? text,
+    List<Attachment> attachments = const [],
+    List<ChatItem> repliesTo = const [],
+  }) {}
+
+  @override
+  Future<void> next() async {}
+
+  @override
+  Future<void> previous() async {}
+
+  @override
+  Future<void> remove(ChatItemId itemId) async {}
+
+  @override
+  Future<void> addMessage(ChatMessageText text) async {}
+
+  @override
+  Future<void> around() async {}
+
+  @override
+  int compareTo(RxChat other) => 0;
 }

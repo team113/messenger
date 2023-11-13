@@ -70,10 +70,7 @@ class ChatSection {
               filename: 'Document.pdf',
             );
           } else {
-            return LocalAttachment(
-              image,
-              status: SendingStatus.sent,
-            );
+            return LocalAttachment(image, status: SendingStatus.sent);
           }
         }).toList(),
         status: status,
@@ -81,9 +78,9 @@ class ChatSection {
       );
     }
 
-    ChatItem info({
+    ChatItem info(
+      ChatInfoAction action, {
       bool fromMe = true,
-      required ChatInfoAction action,
     }) {
       return ChatInfo(
         ChatItemId.local(),
@@ -398,11 +395,11 @@ class ChatSection {
 
             // Info.
             const SizedBox(height: 8),
-            chatItem(info(action: const ChatInfoActionCreated(null))),
+            chatItem(info(const ChatInfoActionCreated(null))),
             const SizedBox(height: 8),
             chatItem(
               info(
-                action: ChatInfoActionMemberAdded(
+                ChatInfoActionMemberAdded(
                   User(
                     const UserId('me'),
                     UserNum('1234123412341234'),
@@ -415,8 +412,7 @@ class ChatSection {
             const SizedBox(height: 8),
             chatItem(
               info(
-                fromMe: false,
-                action: ChatInfoActionMemberAdded(
+                ChatInfoActionMemberAdded(
                   User(
                     const UserId('me'),
                     UserNum('1234123412341234'),
@@ -424,6 +420,7 @@ class ChatSection {
                   ),
                   null,
                 ),
+                fromMe: false,
               ),
             ),
             const SizedBox(height: 8),
