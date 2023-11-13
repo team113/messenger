@@ -22,10 +22,10 @@ import 'package:flutter/material.dart';
 
 /// The cat mock image.
 ///
-/// Intended to by used only on style page.
+/// Intended to by used only on [Routes.style] page.
 class CatImage {
   /// [Size] of this [CatImage].
-  static Size size = const Size(800, 600);
+  static const Size size = Size(800, 600);
 
   /// Base 64 image data.
   static const String _catImage =

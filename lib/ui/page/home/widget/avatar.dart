@@ -51,26 +51,17 @@ enum AvatarRadius {
 
   /// Converts this [AvatarRadius] to a [double].
   double toDouble() {
-    switch (this) {
-      case AvatarRadius.smallest:
-        return 8;
-      case AvatarRadius.smaller:
-        return 10;
-      case AvatarRadius.small:
-        return 15;
-      case AvatarRadius.normal:
-        return 16;
-      case AvatarRadius.medium:
-        return 17;
-      case AvatarRadius.big:
-        return 20;
-      case AvatarRadius.large:
-        return 30;
-      case AvatarRadius.larger:
-        return 32;
-      case AvatarRadius.largest:
-        return 100;
-    }
+    return switch (this) {
+      AvatarRadius.smallest => 8,
+      AvatarRadius.smaller => 10,
+      AvatarRadius.small => 15,
+      AvatarRadius.normal => 16,
+      AvatarRadius.medium => 17,
+      AvatarRadius.big => 20,
+      AvatarRadius.large => 30,
+      AvatarRadius.larger => 32,
+      AvatarRadius.largest => 100,
+    };
   }
 }
 
