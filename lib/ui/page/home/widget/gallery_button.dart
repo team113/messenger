@@ -26,20 +26,12 @@ class GalleryButton extends StatelessWidget {
   const GalleryButton({
     super.key,
     this.child,
-    this.asset,
-    this.assetWidth = 60,
     this.icon,
     this.onPressed,
   });
 
   /// Optional [Widget] to replace the default [SvgImage.asset].
   final Widget? child;
-
-  /// Name of the asset to place into this [GalleryButton].
-  final String? asset;
-
-  /// Width of the [asset].
-  final double assetWidth;
 
   /// [SvgData] to display instead of [asset].
   final SvgData? icon;
@@ -58,8 +50,6 @@ class GalleryButton extends StatelessWidget {
         color: style.colors.onSecondaryOpacity50,
         onPressed: onPressed,
         withBlur: true,
-        assetWidth: assetWidth,
-        asset: asset,
         icon: icon,
         child: child,
       ),

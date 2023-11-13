@@ -140,7 +140,7 @@ class WidgetsView extends StatelessWidget {
       ),
       Headline(
         headline: 'background_light.svg',
-        subtitle: _downloadButton('background_light'),
+        subtitle: _downloadButton('background_light.svg'),
         child: const SvgImage.asset(
           'assets/images/background_light.svg',
           height: 300,
@@ -149,7 +149,7 @@ class WidgetsView extends StatelessWidget {
       ),
       Headline(
         headline: 'background_dark.svg',
-        subtitle: _downloadButton('background_dark'),
+        subtitle: _downloadButton('background_dark.svg'),
         child: const SvgImage.asset(
           'assets/images/background_dark.svg',
           height: 300,
@@ -1046,7 +1046,7 @@ class WidgetsView extends StatelessWidget {
       Headline(
         headline: 'CallButtonWidget',
         color: style.colors.primaryAuxiliaryOpacity25,
-        headlineStyle: style.fonts.small.regular.onPrimary,
+        invertHeadline: true,
         bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1081,7 +1081,7 @@ class WidgetsView extends StatelessWidget {
       Headline(
         headline: 'GalleryButton',
         color: style.colors.primaryAuxiliaryOpacity25,
-        headlineStyle: style.fonts.small.regular.onPrimary,
+        invertHeadline: true,
         bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1098,8 +1098,7 @@ class WidgetsView extends StatelessWidget {
             const SizedBox(width: 32),
             GalleryButton(
               onPressed: () {},
-              assetWidth: 22,
-              asset: 'fullscreen_enter_white',
+              icon: SvgIcons.fullscreenEnter,
             ),
             const SizedBox(width: 32),
             GalleryButton(
@@ -1421,7 +1420,7 @@ class WidgetsView extends StatelessWidget {
                   onLeave: (_) {},
                   onWillAccept: (d) => true,
                   itemBuilder: (i) => CallButtonWidget(
-                    asset: SvgIcons.more,
+                    asset: SvgIcons.callMore,
                     onPressed: () {},
                   ),
                 ),
@@ -1440,7 +1439,7 @@ class WidgetsView extends StatelessWidget {
               height: 100,
               child: Center(
                 child: CallButtonWidget(
-                  asset: SvgIcons.more,
+                  asset: SvgIcons.callMore,
                   hint: 'Hint',
                   expanded: true,
                   big: true,

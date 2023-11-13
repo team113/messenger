@@ -27,7 +27,7 @@ class Headline extends StatelessWidget {
     required this.child,
     this.subtitle,
     this.color,
-    this.headlineStyle,
+    this.invertHeadline = false,
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.top = true,
     this.bottom = true,
@@ -39,8 +39,8 @@ class Headline extends StatelessWidget {
   /// Optional header of this [Headline].
   final String? headline;
 
-  /// Optional [Color] of the [headline].
-  final TextStyle? headlineStyle;
+  /// Indicator whether the [headline] color should be inverted.
+  final bool invertHeadline;
 
   /// Optional subtitle of this [Headline].
   final Widget? subtitle;
@@ -62,7 +62,7 @@ class Headline extends StatelessWidget {
     return Block(
       color: color,
       headline: headline ?? child.runtimeType.toString(),
-      headlineStyle: headlineStyle,
+      invertHeadline: invertHeadline,
       topMargin: top ? 32 : null,
       maxWidth: 450,
       padding: padding,

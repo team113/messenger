@@ -32,7 +32,7 @@ class Block extends StatelessWidget {
     this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
     this.children = const [],
     this.color,
-    this.headlineStyle,
+    this.invertHeadline = false,
     this.headline,
     this.topMargin,
     this.maxWidth,
@@ -44,8 +44,8 @@ class Block extends StatelessWidget {
   /// Optional headline of this [Block].
   final String? headline;
 
-  /// Optional [Color] of the [headline].
-  final TextStyle? headlineStyle;
+  /// Indicator whether the [headline] color should be inverted.
+  final bool invertHeadline;
 
   /// Indicator whether this [Block] should be highlighted.
   final bool highlight;
@@ -145,8 +145,9 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(
                       headline!,
-                      style: headlineStyle ??
-                          style.fonts.small.regular.secondaryHighlightDarkest,
+                      style: invertHeadline
+                          ? style.fonts.small.regular.onPrimary
+                          : style.fonts.small.regular.secondaryHighlightDarkest,
                     ),
                   ),
               ],

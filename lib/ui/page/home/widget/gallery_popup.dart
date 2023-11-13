@@ -33,7 +33,6 @@ import 'package:photo_view/photo_view_gallery.dart';
 import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/retry_image.dart';
@@ -712,20 +711,17 @@ class _GalleryPopupState extends State<GalleryPopup>
                         width: 60 + 16,
                         height: double.infinity,
                         child: Center(
-                          child: ConditionalBackdropFilter(
-                            borderRadius: BorderRadius.circular(60),
-                            child: GalleryButton(
-                              onPressed: onPressed,
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 1),
-                                child: Center(
-                                  child: Transform.translate(
-                                    offset: const Offset(-1, 0),
-                                    child: SvgIcon(
-                                      left
-                                          ? SvgIcons.arrowLeft
-                                          : SvgIcons.arrowLeftDisabled,
-                                    ),
+                          child: GalleryButton(
+                            onPressed: onPressed,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 1),
+                              child: Center(
+                                child: Transform.translate(
+                                  offset: const Offset(-1, 0),
+                                  child: SvgIcon(
+                                    left
+                                        ? SvgIcons.arrowLeft
+                                        : SvgIcons.arrowLeftDisabled,
                                   ),
                                 ),
                               ),
@@ -767,20 +763,17 @@ class _GalleryPopupState extends State<GalleryPopup>
                         width: 60 + 16,
                         height: double.infinity,
                         child: Center(
-                          child: ConditionalBackdropFilter(
-                            borderRadius: BorderRadius.circular(60),
-                            child: GalleryButton(
-                              onPressed: onPressed,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 1),
-                                child: Center(
-                                  child: Transform.translate(
-                                    offset: const Offset(1, 0),
-                                    child: SvgIcon(
-                                      right
-                                          ? SvgIcons.arrowRight
-                                          : SvgIcons.arrowRightDisabled,
-                                    ),
+                          child: GalleryButton(
+                            onPressed: onPressed,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 1),
+                              child: Center(
+                                child: Transform.translate(
+                                  offset: const Offset(1, 0),
+                                  child: SvgIcon(
+                                    right
+                                        ? SvgIcons.arrowRight
+                                        : SvgIcons.arrowRightDisabled,
                                   ),
                                 ),
                               ),
@@ -895,8 +888,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                     widget.onTrashPressed?.call(_page);
                     _dismiss();
                   },
-                  assetWidth: 27.21,
-                  asset: 'delete',
+                  icon: SvgIcons.deleteBig,
                 ),
               ),
             ),
