@@ -29,6 +29,7 @@ import '/domain/model/session.dart';
 import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import '/util/rate_limiter.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
@@ -133,6 +134,16 @@ class GraphQlClient {
   /// Indicator whether the [_wsLink] is connected.
   bool _wsConnected = false;
 
+  /// [RateLimiter] limiting the [subscribe] requests to the backend per second.
+  final RateLimiter _subscriptionLimiter = RateLimiter(
+    per: const Duration(milliseconds: 500),
+  );
+
+  /// [RateLimiter] limiting the [query] requests to the backend per second.
+  final RateLimiter _queryLimiter = RateLimiter(
+    per: const Duration(milliseconds: 500),
+  );
+
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
     if (_client != null && _currentToken == token) {
@@ -157,8 +168,9 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? handleException,
   ]) =>
       _middleware(() async {
-        QueryResult result =
-            await (await client).query(options).timeout(timeout);
+        final QueryResult result = await _queryLimiter.execute(
+          () async => await (await client).query(options).timeout(timeout),
+        );
         GraphQlProviderExceptions.fire(result, handleException);
         return result;
       });
@@ -240,6 +252,8 @@ class GraphQlClient {
   /// Disconnects the [client] and disposes the connection.
   void disconnect() {
     _disposeWebSocket();
+    _queryLimiter.clear();
+    _subscriptionLimiter.clear();
     _client = null;
   }
 
@@ -251,7 +265,9 @@ class GraphQlClient {
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
   Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
-    var stream = (await client).subscribe(options);
+    final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
+      () async => (await client).subscribe(options),
+    );
 
     final connection = SubscriptionConnection(
       stream.expand((event) {

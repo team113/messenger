@@ -92,9 +92,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
-  /// Subscription to the [PlatformUtils.onActivityChanged] initializing and
+  /// Subscription to the [PlatformUtils.onFocusChanged] initializing and
   /// canceling the [_keepOnlineSubscription].
-  StreamSubscription? _onActivityChanged;
+  StreamSubscription? _onFocusChanged;
 
   /// [CancelToken] for cancelling the [_fetchBlocklist].
   final CancelToken _cancelToken = CancelToken();
@@ -121,20 +121,22 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initRemoteSubscription();
     _initBlacklistSubscription();
 
-    if (await PlatformUtils.isActive) {
+    if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
     }
 
-    _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
-      if (active) {
-        if (_keepOnlineSubscription == null) {
-          _initKeepOnlineSubscription();
+    if (!PlatformUtils.isDesktop) {
+      _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) {
+        if (focused) {
+          if (_keepOnlineSubscription == null) {
+            _initKeepOnlineSubscription();
+          }
+        } else {
+          _keepOnlineSubscription?.cancel();
+          _keepOnlineSubscription = null;
         }
-      } else {
-        _keepOnlineSubscription?.cancel();
-        _keepOnlineSubscription = null;
-      }
-    });
+      });
+    }
 
     if (!_blocklistLocal.isEmpty) {
       final List<RxUser?> users =
@@ -170,7 +172,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _blocklistSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
-    _onActivityChanged?.cancel();
+    _onFocusChanged?.cancel();
     _cancelToken.cancel();
   }
 
