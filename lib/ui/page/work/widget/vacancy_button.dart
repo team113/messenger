@@ -47,21 +47,12 @@ class VacancyWorkButton extends StatelessWidget {
           WorkTab.freelance => 'Flutter',
         },
         leading: switch (work) {
-          WorkTab.backend => SvgImage.asset(
-              'assets/icons/rust${selected ? '_white' : ''}.svg',
-              width: 32,
-              height: 32,
-            ),
-          WorkTab.frontend => SvgImage.asset(
-              'assets/icons/frontend${selected ? '_white' : ''}.svg',
-              width: 25.87,
-              height: 32,
-            ),
-          WorkTab.freelance => SvgImage.asset(
-              'assets/icons/freelance${selected ? '_white' : ''}.svg',
-              width: 32,
-              height: 32,
-            ),
+          WorkTab.backend =>
+            SvgIcon(selected ? SvgIcons.rustWhite : SvgIcons.rust),
+          WorkTab.frontend =>
+            SvgIcon(selected ? SvgIcons.frontendWhite : SvgIcons.frontend),
+          WorkTab.freelance =>
+            SvgIcon(selected ? SvgIcons.freelanceWhite : SvgIcons.freelance),
         },
         inverted: selected,
         onPressed: () => router.work(work),
