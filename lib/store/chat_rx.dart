@@ -70,8 +70,8 @@ class HiveRxChat extends RxChat {
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
-        // TODO: Always save version when problem with initial events will be
-        //       fixed.
+        // TODO: Don't ignore version, when all events are surely delivered by
+        //       subscribing to `chatEvents` with that version.
         ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
 
   @override

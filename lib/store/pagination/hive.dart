@@ -197,7 +197,7 @@ class HivePageProvider<T extends Object, C, K>
 
   @override
   Future<void> clear() async {
-    Iterable<K> ordered = orderBy(_provider.keys);
+    final Iterable<K> ordered = orderBy(_provider.keys);
     if (ordered.length != _provider.keys.length) {
       for (var e in ordered) {
         await _provider.remove(e);
