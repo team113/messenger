@@ -50,7 +50,9 @@ class ApplicationSettingsHiveProvider
   Future<void> setPopupsEnabled(bool enabled) async {
     Log.debug('setPopupsEnabled($enabled)', '$runtimeType');
     await putSafe(
-        0, (box.get(0) ?? ApplicationSettings())..enablePopups = enabled);
+      0,
+      (box.get(0) ?? ApplicationSettings())..enablePopups = enabled,
+    );
   }
 
   /// Stores a new [locale] value of [ApplicationSettings.locale] to [Hive].
@@ -64,7 +66,9 @@ class ApplicationSettingsHiveProvider
   Future<void> setShowIntroduction(bool show) async {
     Log.debug('setShowIntroduction($show)', '$runtimeType');
     await putSafe(
-        0, (box.get(0) ?? ApplicationSettings())..showIntroduction = show);
+      0,
+      (box.get(0) ?? ApplicationSettings())..showIntroduction = show,
+    );
   }
 
   /// Stores a new [width] value of [ApplicationSettings.sideBarWidth] to
@@ -72,7 +76,9 @@ class ApplicationSettingsHiveProvider
   Future<void> setSideBarWidth(double width) async {
     Log.debug('setSideBarWidth($width)', '$runtimeType');
     await putSafe(
-        0, (box.get(0) ?? ApplicationSettings())..sideBarWidth = width);
+      0,
+      (box.get(0) ?? ApplicationSettings())..sideBarWidth = width,
+    );
   }
 
   /// Stores a new [buttons] value of [ApplicationSettings.callButtons] to
@@ -80,7 +86,9 @@ class ApplicationSettingsHiveProvider
   Future<void> setCallButtons(List<String> buttons) async {
     Log.debug('setCallButtons($buttons)', '$runtimeType');
     await putSafe(
-        0, (box.get(0) ?? ApplicationSettings())..callButtons = buttons);
+      0,
+      (box.get(0) ?? ApplicationSettings())..callButtons = buttons,
+    );
   }
 
   /// Stores a new [show] value of
@@ -106,10 +114,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
   /// to [Hive].
   Future<void> setSortContactsByName(bool enabled) async {
-    Log.debug(
-      'setSortContactsByName($enabled)',
-      '$runtimeType',
-    );
+    Log.debug('setSortContactsByName($enabled)', '$runtimeType');
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,

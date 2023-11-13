@@ -19,7 +19,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
 
@@ -103,7 +102,7 @@ class Config {
     };
   }
 
-  /// Log level.
+  /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
 
   /// Initializes this [Config] by applying values from the following sources
@@ -172,16 +171,13 @@ class Config {
 
     origin = url;
 
-    logLevel = me.LogLevel.values.firstWhereOrNull(
-          (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
-              ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
-              : document['log']?['level'] != null
-                  ? e.name == document['log']['level']
-                  : kDebugMode || kProfileMode
-                      ? e.name == 'debug'
-                      : e.name == 'info',
-        ) ??
-        me.LogLevel.info;
+    logLevel = me.LogLevel.values.firstWhere(
+      (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
+          ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
+          : e.name == document['log']['level'],
+      orElse: () =>
+          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
+    );
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
@@ -241,6 +237,12 @@ class Config {
             userAgentVersion =
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+            if (remote['log']?['level'] != null) {
+              logLevel = me.LogLevel.values.firstWhere(
+                (e) => e.name == remote['log']?['level'],
+                orElse: () => logLevel,
+              );
+            }
             origin = url;
           }
         }

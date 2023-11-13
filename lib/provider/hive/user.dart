@@ -110,4 +110,7 @@ class HiveUser extends HiveObject {
   /// tracking state's actuality.
   @HiveField(2)
   MyUserVersion blacklistedVer;
+
+  @override
+  String toString() => '$runtimeType($value, $ver, $blacklistedVer)';
 }

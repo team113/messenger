@@ -105,10 +105,7 @@ class MyUserService extends DisposableService {
     UserPassword? oldPassword,
     required UserPassword newPassword,
   }) async {
-    Log.debug(
-      'updateUserPassword(***, ***)',
-      '$runtimeType',
-    );
+    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     _passwordChangeGuard.protect(() async {
       await _userRepo.updateUserPassword(oldPassword, newPassword);

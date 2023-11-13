@@ -251,10 +251,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     UserPassword? oldPassword,
     UserPassword newPassword,
   ) async {
-    Log.debug(
-      'updateUserPassword(***, ***)',
-      '$runtimeType',
-    );
+    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     final bool? hasPassword = myUser.value?.hasPassword;
 

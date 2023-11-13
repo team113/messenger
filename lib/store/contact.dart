@@ -286,11 +286,7 @@ class ContactRepository extends DisposableInterface
         perPage: 30,
         provider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) {
-            return searchByName(
-              name,
-              after: after,
-              first: first,
-            );
+            return searchByName(name, after: after, first: first);
           },
         ),
         onKey: (RxChatContact u) => u.id,
@@ -347,10 +343,7 @@ class ContactRepository extends DisposableInterface
     ChatContactsCursor? after,
     int? first,
   }) async {
-    Log.debug(
-      'searchByName($name, $after, $first)',
-      '$runtimeType',
-    );
+    Log.debug('searchByName($name, $after, $first)', '$runtimeType');
     return await _search(name: name, after: after, first: first);
   }
 
@@ -381,10 +374,7 @@ class ContactRepository extends DisposableInterface
     ChatContactsCursor? after,
     int? first,
   }) async {
-    Log.debug(
-      '_search($name, $email, $phone, $after, $first)',
-      '$runtimeType',
-    );
+    Log.debug('_search($name, $email, $phone, $after, $first)', '$runtimeType');
 
     const maxInt = 120;
     var query = await _graphQlProvider.searchChatContacts(
@@ -704,7 +694,7 @@ class ContactRepository extends DisposableInterface
   }
 
   /// Constructs a [ChatContactEvent] from the
-  /// [ChatContactEventsVersionedMixin$Event].
+  /// [ChatContactEventsVersionedMixin$Events].
   ChatContactEvent _contactEvent(ChatContactEventsVersionedMixin$Events e) {
     Log.debug('_contactEvent($e)', '$runtimeType');
 
@@ -763,11 +753,7 @@ class ContactRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatContactUserRemoved') {
       var node = e
           as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
-      return EventChatContactUserRemoved(
-        node.contactId,
-        node.at,
-        node.userId,
-      );
+      return EventChatContactUserRemoved(node.contactId, node.at, node.userId);
     } else {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');
     }

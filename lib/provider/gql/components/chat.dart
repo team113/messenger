@@ -47,6 +47,7 @@ mixin ChatGraphQlMixin {
   /// Mandatory.
   Future<GetChat$Query> getChat(ChatId id) async {
     Log.debug('getChat($id)', '$runtimeType');
+
     final variables = GetChatArguments(id: id);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -1319,10 +1320,7 @@ mixin ChatGraphQlMixin {
     ChatId id,
     ChatFavoritePosition position,
   ) async {
-    Log.debug(
-      'favoriteChat($id, $position)',
-      '$runtimeType',
-    );
+    Log.debug('favoriteChat($id, $position)', '$runtimeType');
 
     final variables = FavoriteChatArguments(id: id, pos: position);
     final QueryResult result = await client.mutate(

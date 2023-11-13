@@ -17,7 +17,7 @@
 
 import 'package:log_me/log_me.dart' as me;
 
-/// Class for performing logging at different levels.
+/// Utility logging messages to console.
 class Log {
   /// Write a fatal [message] with [tag] to the log.
   static void fatal(String message, [String? tag]) {

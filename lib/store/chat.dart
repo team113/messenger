@@ -2138,4 +2138,8 @@ class ChatData {
 
   /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
   final HiveChatItem? lastReadItem;
+
+  @override
+  String toString() =>
+      '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
 }

@@ -216,7 +216,13 @@ class AuthRepository implements AbstractAuthRepository {
       '$runtimeType',
     );
     await _graphQlProvider.resetUserPassword(
-        login, num, email, phone, code, newPassword);
+      login,
+      num,
+      email,
+      phone,
+      code,
+      newPassword,
+    );
   }
 
   @override

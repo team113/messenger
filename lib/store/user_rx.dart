@@ -86,12 +86,11 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    Log.debug('get dialog', '$runtimeType ${user.value.id}');
+    Log.debug('get dialog', '$runtimeType($id)');
 
-    final ChatId id = user.value.dialog;
-
+    final ChatId dialogId = user.value.dialog;
     if (_dialog.value == null) {
-      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
+      _userRepository.getChat?.call(dialogId).then((v) => _dialog.value = v);
     }
 
     return _dialog;
@@ -99,7 +98,7 @@ class HiveRxUser extends RxUser {
 
   /// Disposes this [HiveRxUser].
   void dispose() {
-    Log.debug('dispose()', '$runtimeType ${user.value.id}');
+    Log.debug('dispose()', '$runtimeType($id)');
 
     _lastSeenTimer?.cancel();
     _worker?.dispose();
@@ -107,7 +106,7 @@ class HiveRxUser extends RxUser {
 
   @override
   void listenUpdates() {
-    Log.debug('listenUpdates()', '$runtimeType ${user.value.id}');
+    Log.debug('listenUpdates()', '$runtimeType($id)');
 
     if (_listeners++ == 0) {
       _initRemoteSubscription();
@@ -116,7 +115,7 @@ class HiveRxUser extends RxUser {
 
   @override
   void stopUpdates() {
-    Log.debug('stopUpdates()', '$runtimeType ${user.value.id}');
+    Log.debug('stopUpdates()', '$runtimeType($id)');
 
     if (--_listeners == 0) {
       _remoteSubscription?.close(immediate: true);
@@ -126,7 +125,7 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    Log.debug('_initRemoteSubscription()', '$runtimeType ${user.value.id}');
+    Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
@@ -137,7 +136,7 @@ class HiveRxUser extends RxUser {
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
   Future<void> _userEvent(UserEvents events) async {
-    Log.debug('_userEvent($events)', '$runtimeType ${user.value.id}');
+    Log.debug('_userEvent($events)', '$runtimeType($id)');
 
     switch (events.kind) {
       case UserEventsKind.initialized:
@@ -257,7 +256,7 @@ class HiveRxUser extends RxUser {
   // TODO: Cover with unit tests.
   /// Starts the [_lastSeenTimer] refreshing the [lastSeen].
   void _runLastSeenTimer() {
-    Log.debug('_runLastSeenTimer()', '$runtimeType ${user.value.id}');
+    Log.debug('_runLastSeenTimer()', '$runtimeType($id)');
 
     _lastSeenTimer?.cancel();
     if (user.value.lastSeenAt == null) {

@@ -366,13 +366,11 @@ jobs:
 
       - run: mkdir build/
 
-      - name: Check Commit Message
+      - name: Retrieve commit message and hash
+        id: debug
         run: |
-          MESSAGE=$(git log -1 --format=%B)
-          if [[ $MESSAGE == *"[debug]"* ]]; then
-            echo "LOG_LEVEL=debug" >> $GITHUB_ENV
-          else
-            echo "LOG_LEVEL=info" >> $GITHUB_ENV
+          if [[ $(git log -1 --format=%B) == *"[debug]"* ]]; then
+            echo "LOG_LEVEL=debug" >> $GITHUB_OUTPUT
           fi
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
@@ -386,7 +384,7 @@ jobs:
                        --disable-dev-shm-usage \
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes \
-                dart-env='SOCAPP_LOG_LEVEL=${{ env.LOG_LEVEL }}'
+               dart-env='SOCAPP_LOG_LEVEL=${{ steps.debug.outputs.LOG_LEVEL }}'
         env:
           OMIT: |
             [

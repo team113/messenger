@@ -281,10 +281,7 @@ mixin UserGraphQlMixin {
     UserPassword? oldPassword,
     UserPassword newPassword,
   ) async {
-    Log.debug(
-      'updateUserPassword(***, ***)',
-      '$runtimeType',
-    );
+    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     final variables = UpdateUserPasswordArguments(
       old: oldPassword,
