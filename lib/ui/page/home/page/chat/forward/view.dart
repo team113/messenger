@@ -26,12 +26,13 @@ import '/domain/model/chat_item_quote_input.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -169,13 +170,9 @@ class ChatForwardView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                       color: style.colors.onBackgroundOpacity27,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: style.colors.onPrimary,
-                                      ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),
