@@ -305,19 +305,13 @@ class _RetryImageState extends State<RetryImage> {
                                 BoxShadow(
                                   color: style.colors.onBackgroundOpacity20,
                                   blurRadius: 8,
-                                  blurStyle: BlurStyle.outer,
+                                  blurStyle: BlurStyle.outer.workaround,
                                 ),
                               ],
                             ),
-                            child: const SvgImage.asset(
-                              'assets/icons/download.svg',
-                              height: 40,
-                            ),
+                            child: const SvgIcon(SvgIcons.download),
                           )
-                        : const SvgImage.asset(
-                            'assets/icons/close_primary.svg',
-                            height: 13,
-                          ),
+                        : const SvgIcon(SvgIcons.closePrimary),
                   ),
               ],
             ),

@@ -29,20 +29,12 @@ class DownloadButton extends StatelessWidget {
   const DownloadButton({
     super.key,
     this.asset,
-    this.width,
-    this.height,
     required this.title,
     this.link,
   });
 
   /// Asset to display as a prefix to this [DownloadButton].
-  final String? asset;
-
-  /// Width of the [asset].
-  final double? width;
-
-  /// Height of the [asset].
-  final double? height;
+  final SvgData? asset;
 
   /// Title of this [DownloadButton].
   final String title;
@@ -62,13 +54,7 @@ class DownloadButton extends StatelessWidget {
       prefix: asset == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: SvgImage.asset(
-                'assets/icons/$asset.svg',
-                width: width,
-                height: height,
-              ),
-            ),
+              padding: const EdgeInsets.only(left: 20), child: SvgIcon(asset!)),
       style: link == null
           ? style.fonts.normal.regular.onBackground
           : style.fonts.normal.regular.primary,
