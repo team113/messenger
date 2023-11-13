@@ -71,19 +71,20 @@ class LanguageSelectionView extends StatelessWidget {
 
                       return Obx(() {
                         return RectangleButton(
-                            key: Key('Language_${e.locale.languageCode}'),
-                            label: 'label_language_entry'.l10nfmt({
-                              'code': e.locale.languageCode.toUpperCase(),
-                              'name': e.name,
-                            }),
-                            selected: c.selected.value == e,
-                            onPressed: () async {
-                              c.selected.value = e;
+                          key: Key('Language_${e.locale.languageCode}'),
+                          label: 'label_language_entry'.l10nfmt({
+                            'code': e.locale.languageCode.toUpperCase(),
+                            'name': e.name,
+                          }),
+                          selected: c.selected.value == e,
+                          onPressed: () async {
+                            c.selected.value = e;
 
-                              if (c.selected.value != null) {
-                                await c.setLocalization(c.selected.value!);
-                              }
-                            });
+                            if (c.selected.value != null) {
+                              await c.setLocalization(c.selected.value!);
+                            }
+                          },
+                        );
                       });
                     },
                     separatorBuilder: (_, __) => const SizedBox(height: 8),

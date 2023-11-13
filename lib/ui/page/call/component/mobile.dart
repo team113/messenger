@@ -133,18 +133,20 @@ Widget mobileCall(CallController c, BuildContext context) {
 
                 return ContextMenuRegion(
                   actions: [
-                    if (center == e)
-                      ContextMenuButton(
-                        label: 'btn_call_uncenter'.l10n,
-                        onPressed: c.focusAll,
-                        trailing: const Icon(Icons.center_focus_weak),
-                      )
-                    else
-                      ContextMenuButton(
-                        label: 'btn_call_center'.l10n,
-                        onPressed: () => c.center(e),
-                        trailing: const Icon(Icons.center_focus_strong),
-                      ),
+                    if (c.primary.length + c.secondary.length > 1) ...[
+                      if (center == e)
+                        ContextMenuButton(
+                          label: 'btn_call_uncenter'.l10n,
+                          onPressed: c.focusAll,
+                          trailing: const SvgIcon(SvgIcons.uncenterVideo),
+                        )
+                      else
+                        ContextMenuButton(
+                          label: 'btn_call_center'.l10n,
+                          onPressed: () => c.center(e),
+                          trailing: const SvgIcon(SvgIcons.centerVideo),
+                        ),
+                    ],
                     if (e.member.id != c.me.id) ...[
                       if (e.video.value?.direction.value.isEmitting ?? false)
                         ContextMenuButton(
@@ -152,9 +154,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ? 'btn_call_disable_video'.l10n
                               : 'btn_call_enable_video'.l10n,
                           onPressed: () => c.toggleVideoEnabled(e),
-                          trailing: e.video.value?.renderer.value != null
-                              ? const Icon(Icons.videocam)
-                              : const Icon(Icons.videocam_off),
+                          trailing: SvgIcon(
+                            e.video.value?.renderer.value != null
+                                ? SvgIcons.incomingVideoOn
+                                : SvgIcons.incomingVideoOff,
+                          ),
                         ),
                       if (e.audio.value?.direction.value.isEmitting ?? false)
                         ContextMenuButton(
@@ -163,14 +167,16 @@ Widget mobileCall(CallController c, BuildContext context) {
                                   ? 'btn_call_disable_audio'.l10n
                                   : 'btn_call_enable_audio'.l10n,
                           onPressed: () => c.toggleAudioEnabled(e),
-                          trailing: e.video.value?.renderer.value != null
-                              ? const Icon(Icons.volume_up)
-                              : const Icon(Icons.volume_off),
+                          trailing: SvgIcon(
+                            e.audio.value?.renderer.value != null
+                                ? SvgIcons.incomingAudioOn
+                                : SvgIcons.incomingAudioOff,
+                          ),
                         ),
                       if (e.member.isDialing.isFalse)
                         ContextMenuButton(
                           label: 'btn_call_remove_participant'.l10n,
-                          trailing: const Icon(Icons.remove_circle),
+                          trailing: const SvgIcon(SvgIcons.removeFromCall),
                           onPressed: () =>
                               c.removeChatCallMember(e.member.id.userId),
                         ),
@@ -180,18 +186,22 @@ Widget mobileCall(CallController c, BuildContext context) {
                             ? 'btn_call_video_off'.l10n
                             : 'btn_call_video_on'.l10n,
                         onPressed: c.toggleVideo,
-                        trailing: c.videoState.value.isEnabled
-                            ? const Icon(Icons.videocam)
-                            : const Icon(Icons.videocam_off),
+                        trailing: SvgIcon(
+                          c.videoState.value.isEnabled
+                              ? SvgIcons.cameraOn
+                              : SvgIcons.cameraOff,
+                        ),
                       ),
                       ContextMenuButton(
                         label: c.audioState.value.isEnabled
                             ? 'btn_call_audio_off'.l10n
                             : 'btn_call_audio_on'.l10n,
                         onPressed: c.toggleAudio,
-                        trailing: e.video.value?.renderer.value != null
-                            ? const Icon(Icons.mic)
-                            : const Icon(Icons.mic_off),
+                        trailing: SvgIcon(
+                          c.audioState.value.isEnabled
+                              ? SvgIcons.micOn
+                              : SvgIcons.micOff,
+                        ),
                       ),
                     ],
                   ],

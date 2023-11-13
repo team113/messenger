@@ -136,9 +136,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 'label_typing'.l10n,
                 style: style.fonts.small.regular.primary,
               ),
-              const SizedBox(width: 3),
+              const SizedBox(width: 2),
               const Padding(
-                padding: EdgeInsets.only(bottom: 3),
+                padding: EdgeInsets.only(bottom: 4),
                 child: AnimatedTyping(),
               ),
             ],
@@ -161,9 +161,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 style: style.fonts.small.regular.primary,
               ),
             ),
-            const SizedBox(width: 3),
+            const SizedBox(width: 2),
             const Padding(
-              padding: EdgeInsets.only(bottom: 3),
+              padding: EdgeInsets.only(bottom: 4),
               child: AnimatedTyping(),
             ),
           ],
@@ -206,11 +206,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           return Row(
             children: [
               if (chat.muted != null) ...[
-                const SvgImage.asset(
-                  'assets/icons/muted_dark.svg',
-                  width: 19.99 * 0.6,
-                  height: 15 * 0.6,
-                ),
+                const SvgIcon(SvgIcons.mutedSmall),
                 const SizedBox(width: 5),
               ],
               Flexible(child: child),

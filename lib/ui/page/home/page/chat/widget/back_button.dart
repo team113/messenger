@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
@@ -31,18 +31,12 @@ class StyledBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     if (onPressed != null || ModalRoute.of(context)?.canPop == true) {
       return AnimatedButton(
         onPressed: onPressed ?? () => Navigator.maybePop(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Icon(
-            Icons.arrow_back_ios_rounded,
-            color: style.colors.primary,
-            size: 22,
-          ),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: SvgIcon(SvgIcons.back),
         ),
       );
     } else {

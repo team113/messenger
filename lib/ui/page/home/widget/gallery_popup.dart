@@ -33,12 +33,14 @@ import 'package:photo_view/photo_view_gallery.dart';
 import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
@@ -688,7 +690,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.centerLeft,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayLeft && left) || _showControls ? 1 : 0,
+                opacity: _displayLeft || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: Builder(builder: (context) {
@@ -710,16 +712,22 @@ class _GalleryPopupState extends State<GalleryPopup>
                         width: 60 + 16,
                         height: double.infinity,
                         child: Center(
-                          child: GalleryButton(
-                            onPressed: onPressed,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_left_rounded,
-                                color: left
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
+                          child: ConditionalBackdropFilter(
+                            borderRadius: BorderRadius.circular(60),
+                            child: GalleryButton(
+                              onPressed: onPressed,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 1),
+                                child: Center(
+                                  child: Transform.translate(
+                                    offset: const Offset(-1, 0),
+                                    child: SvgIcon(
+                                      left
+                                          ? SvgIcons.arrowLeft
+                                          : SvgIcons.arrowLeftDisabled,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -737,47 +745,51 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.centerRight,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayRight && right) || _showControls ? 1 : 0,
+                opacity: _displayRight || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: Builder(
-                    builder: (context) {
-                      void Function()? onPressed = right
-                          ? () {
-                        node.requestFocus();
-                        _pageController.animateToPage(
-                          _page + 1,
-                          curve: Curves.linear,
-                          duration: const Duration(milliseconds: 200),
-                        );
-                      }
-                          : null;
+                  child: Builder(builder: (context) {
+                    void Function()? onPressed = right
+                        ? () {
+                            node.requestFocus();
+                            _pageController.animateToPage(
+                              _page + 1,
+                              curve: Curves.linear,
+                              duration: const Duration(milliseconds: 200),
+                            );
+                          }
+                        : null;
 
-                      return WidgetButton(
-                        onPressed: onPressed,
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 8, right: 8),
-                          width: 60 + 16,
-                          height: double.infinity,
-                          child: Center(
+                    return WidgetButton(
+                      onPressed: onPressed,
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        width: 60 + 16,
+                        height: double.infinity,
+                        child: Center(
+                          child: ConditionalBackdropFilter(
+                            borderRadius: BorderRadius.circular(60),
                             child: GalleryButton(
                               onPressed: onPressed,
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 1),
-                                child: Icon(
-                                  Icons.keyboard_arrow_right_rounded,
-                                  color: right
-                                      ? style.colors.onPrimary
-                                      : style.colors.secondary,
-                                  size: 36,
+                                child: Center(
+                                  child: Transform.translate(
+                                    offset: const Offset(1, 0),
+                                    child: SvgIcon(
+                                      right
+                                          ? SvgIcons.arrowRight
+                                          : SvgIcons.arrowRightDisabled,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      );
-                    }
-                  ),
+                      ),
+                    );
+                  }),
                 ),
               ),
             ),
@@ -816,10 +828,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                   opacity: (_displayFullscreen || _showControls) ? 1 : 0,
                   child: GalleryButton(
                     onPressed: _toggleFullscreen,
-                    assetWidth: 22,
-                    asset: _isFullscreen.value
-                        ? 'fullscreen_exit_white'
-                        : 'fullscreen_enter_white',
+                    icon: _isFullscreen.value
+                        ? SvgIcons.fullscreenExit
+                        : SvgIcons.fullscreenEnter,
                   ),
                 ),
               ),

@@ -16,9 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
 import '/ui/page/call/controller.dart';
+import '/ui/widget/svg/svg.dart';
 import 'round_button.dart';
 
 /// [RoundFloatingButton] optionally displaying its [hint] according to the
@@ -26,8 +27,8 @@ import 'round_button.dart';
 class CallButtonWidget extends StatelessWidget {
   const CallButtonWidget({
     super.key,
-    required this.asset,
-    this.assetWidth = 60,
+    this.asset,
+    this.offset,
     this.onPressed,
     this.hint,
     this.hinted = true,
@@ -41,11 +42,11 @@ class CallButtonWidget extends StatelessWidget {
             ? null
             : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
-  /// Asset to display.
-  final String? asset;
+  /// [SvgData] to display.
+  final SvgData? asset;
 
-  /// Width of the [asset].
-  final double assetWidth;
+  /// [Offset] to apply to the [asset].
+  final Offset? offset;
 
   /// Size of this [CallButtonWidget].
   final double? size;
@@ -82,8 +83,8 @@ class CallButtonWidget extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: RoundFloatingButton(
-        asset: asset,
-        assetWidth: assetWidth,
+        icon: asset,
+        offset: offset,
         color: color ?? style.colors.onSecondaryOpacity50,
         hint: !expanded && hinted ? hint : null,
         text: expanded || isMobile ? hint : null,

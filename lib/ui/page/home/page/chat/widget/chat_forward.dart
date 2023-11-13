@@ -424,10 +424,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   children: [
                     Flexible(
                       child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                          right: 9,
-                        ),
+                        padding: const EdgeInsets.only(left: 12, right: 9),
                         child: SelectionText.rich(
                           TextSpan(
                             text: data?.user.value.name?.val ??
@@ -570,15 +567,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-                child: call?.withVideo == true
-                    ? SvgImage.asset(
-                        'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
-                        height: 13,
-                      )
-                    : SvgImage.asset(
-                        'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
-                        height: 15,
-                      ),
+                child: SvgIcon(
+                  call?.withVideo == true
+                      ? isMissed && !fromMe
+                          ? SvgIcons.callVideoMissed
+                          : SvgIcons.callVideo
+                      : isMissed && !fromMe
+                          ? SvgIcons.callAudioMissed
+                          : SvgIcons.callAudio,
+                ),
               ),
               Flexible(child: Text(title)),
               if (time != null) ...[
@@ -1056,10 +1053,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_copy'.l10n
                                     : 'btn_copy_text'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/copy_small.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.copy),
                                 onPressed: () => widget.onCopy
                                     ?.call(_selection?.plainText ?? copyable!),
                               ),
@@ -1079,10 +1073,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_forward'.l10n
                                   : 'btn_forward_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/forward.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.forward),
                               onPressed: () async {
                                 final List<ChatItemQuoteInput> quotes = [];
 

@@ -947,8 +947,15 @@ class WidgetsView extends StatelessWidget {
             widget: SignButton(
               onPressed: () {},
               title: 'Label',
-              asset: 'password',
             ),
+          ),
+          (
+          headline: 'SignButton(asset)',
+          widget: SignButton(
+            title: 'Password',
+            icon: const SvgIcon(SvgIcons.password),
+            onPressed: () {},
+          ),
           ),
         ],
       ),
@@ -1050,14 +1057,13 @@ class WidgetsView extends StatelessWidget {
               onPressed: () {},
               withBlur: true,
               big: true,
-              asset: 'fullscreen_enter_white',
-              assetWidth: 22,
+              asset: SvgIcons.fullscreenEnter,
             ),
             const SizedBox(width: 32),
             CallButtonWidget(
               onPressed: () {},
               hint: 'Hint'.l10n,
-              asset: 'screen_share_on'.l10n,
+              asset: SvgIcons.callScreenShareOn,
               hinted: true,
               expanded: true,
               big: true,
@@ -1065,7 +1071,7 @@ class WidgetsView extends StatelessWidget {
             const SizedBox(width: 32),
             CallButtonWidget(
               hint: 'Hint'.l10n,
-              asset: 'screen_share_on'.l10n,
+              asset: SvgIcons.callScreenShareOn,
               hinted: true,
               onPressed: () {},
             ),
@@ -1415,7 +1421,7 @@ class WidgetsView extends StatelessWidget {
                   onLeave: (_) {},
                   onWillAccept: (d) => true,
                   itemBuilder: (i) => CallButtonWidget(
-                    asset: 'more',
+                    asset: SvgIcons.more,
                     onPressed: () {},
                   ),
                 ),
@@ -1434,7 +1440,7 @@ class WidgetsView extends StatelessWidget {
               height: 100,
               child: Center(
                 child: CallButtonWidget(
-                  asset: 'more',
+                  asset: SvgIcons.more,
                   hint: 'Hint',
                   expanded: true,
                   big: true,

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/round_button.dart';
+import '/ui/widget/svg/svgs.dart';
 
 /// [RoundFloatingButton] styled for gallery.
 class GalleryButton extends StatelessWidget {
@@ -27,6 +28,7 @@ class GalleryButton extends StatelessWidget {
     this.child,
     this.asset,
     this.assetWidth = 60,
+    this.icon,
     this.onPressed,
   });
 
@@ -38,6 +40,9 @@ class GalleryButton extends StatelessWidget {
 
   /// Width of the [asset].
   final double assetWidth;
+
+  /// [SvgData] to display instead of [asset].
+  final SvgData? icon;
 
   /// Callback, called when this [GalleryButton] is pressed.
   final void Function()? onPressed;
@@ -55,6 +60,7 @@ class GalleryButton extends StatelessWidget {
         withBlur: true,
         assetWidth: assetWidth,
         asset: asset,
+        icon: icon,
         child: child,
       ),
     );

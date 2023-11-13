@@ -29,69 +29,49 @@ class DownloadButton extends StatelessWidget {
   const DownloadButton({
     super.key,
     this.asset,
-    this.width,
-    this.height,
     required this.title,
     this.link,
   });
 
   /// Constructs a [DownloadButton] for downloading the Windows application.
   const DownloadButton.windows({super.key})
-      : asset = 'windows',
-        width = 23.93,
-        height = 24,
+      : asset = SvgIcons.windows,
         title = 'Windows',
         link = 'messenger-windows.zip';
 
   /// Constructs a [DownloadButton] for downloading the macOS application.
   const DownloadButton.macos({super.key})
-      : asset = 'apple',
-        width = 21.07,
-        height = 27,
+      : asset = SvgIcons.apple,
         title = 'macOS',
         link = 'messenger-macos.zip';
 
   /// Constructs a [DownloadButton] for downloading the Linux application.
   const DownloadButton.linux({super.key})
-      : asset = 'linux',
-        width = 20.57,
-        height = 24,
+      : asset = SvgIcons.linux,
         title = 'Linux',
         link = 'messenger-linux.zip';
 
   /// Constructs a [DownloadButton] for downloading the iOS application.
   const DownloadButton.appStore({super.key})
-      : asset = 'app_store',
-        width = 23,
-        height = 23,
+      : asset = SvgIcons.appStore,
         title = 'App Store',
         link = 'messenger-ios.zip';
 
   /// Constructs a [DownloadButton] for downloading the Google Play Android
   /// application.
   const DownloadButton.googlePlay({super.key})
-      : asset = 'google',
-        width = 20.33,
-        height = 22.02,
+      : asset = SvgIcons.googlePlay,
         title = 'Google Play',
         link = 'messenger-android.apk';
 
   /// Constructs a [DownloadButton] for downloading the Android application.
   const DownloadButton.android({super.key})
-      : asset = 'android',
-        width = 20.99,
-        height = 25,
+      : asset = SvgIcons.android,
         title = 'Android',
         link = 'messenger-android.apk';
 
   /// Asset to display as a prefix to this [DownloadButton].
-  final String? asset;
-
-  /// Width of the [asset].
-  final double? width;
-
-  /// Height of the [asset].
-  final double? height;
+  final SvgData? asset;
 
   /// Title of this [DownloadButton].
   final String title;
@@ -111,13 +91,7 @@ class DownloadButton extends StatelessWidget {
       prefix: asset == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: SvgImage.asset(
-                'assets/icons/$asset.svg',
-                width: width,
-                height: height,
-              ),
-            ),
+              padding: const EdgeInsets.only(left: 20), child: SvgIcon(asset!)),
       style: link == null
           ? style.fonts.normal.regular.onBackground
           : style.fonts.normal.regular.primary,

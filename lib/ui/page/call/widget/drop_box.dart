@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 import 'animated_delayed_scale.dart';
 import 'conditional_backdrop.dart';
 
@@ -58,11 +59,9 @@ class DropBox extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.all(dense ? 10 : 16),
-                child: Icon(
-                  Icons.add_rounded,
-                  size: dense ? 35 : 50,
-                  color: style.colors.onPrimary,
-                ),
+                child: dense
+                    ? const SvgIcon(SvgIcons.addBig)
+                    : const SvgIcon(SvgIcons.addBigger),
               ),
             ),
           ),

@@ -26,6 +26,7 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Button in a [CallView].
 ///
@@ -67,7 +68,7 @@ class MoreButton extends CallButton {
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return CallButtonWidget(
       hint: hint,
-      asset: 'more',
+      asset: SvgIcons.callMore,
       hinted: hinted,
       expanded: expanded,
       big: big,
@@ -107,7 +108,7 @@ class VideoButton extends CallButton {
           c.videoState.value == LocalTrackState.enabling;
       return CallButtonWidget(
         hint: hint,
-        asset: 'video_${isVideo ? 'on' : 'off'}',
+        asset: isVideo ? SvgIcons.callVideoOn : SvgIcons.callVideoOff,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -149,7 +150,7 @@ class AudioButton extends CallButton {
           c.audioState.value == LocalTrackState.enabling;
       return CallButtonWidget(
         hint: hint,
-        asset: 'microphone_${isAudio ? 'on' : 'off'}',
+        asset: isAudio ? SvgIcons.callMicrophoneOn : SvgIcons.callMicrophoneOff,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
@@ -186,7 +187,8 @@ class ScreenButton extends CallButton {
           c.screenShareState.value == LocalTrackState.enabling;
       return CallButtonWidget(
         hint: hint,
-        asset: 'screen_share_${isScreen ? 'off' : 'on'}',
+        asset:
+            isScreen ? SvgIcons.callScreenShareOff : SvgIcons.callScreenShareOn,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -215,7 +217,9 @@ class HandButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
+        asset: c.me.isHandRaised.value
+            ? SvgIcons.callHandDown
+            : SvgIcons.callHandUp,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -237,7 +241,7 @@ class SettingsButton extends CallButton {
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return CallButtonWidget(
       hint: hint,
-      asset: 'settings_small',
+      asset: SvgIcons.callSettings,
       hinted: hinted,
       expanded: expanded,
       big: big,
@@ -259,7 +263,8 @@ class ParticipantsButton extends CallButton {
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return CallButtonWidget(
       hint: hint,
-      asset: 'add_user_small',
+      asset: SvgIcons.callParticipants,
+      offset: const Offset(2, 0),
       hinted: hinted,
       expanded: expanded,
       big: big,
@@ -287,7 +292,9 @@ class RemoteVideoButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
+        asset: c.isRemoteVideoEnabled.value
+            ? SvgIcons.callIncomingVideoOn
+            : SvgIcons.callIncomingVideoOff,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -316,7 +323,9 @@ class RemoteAudioButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
+        asset: c.isRemoteAudioEnabled.value
+            ? SvgIcons.callIncomingAudioOn
+            : SvgIcons.callIncomingAudioOff,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -343,8 +352,8 @@ class AcceptAudioButton extends CallButton {
 
     return CallButtonWidget(
       hint: hint,
-      asset: expanded ? 'audio_call_start' : 'audio_call',
-      assetWidth: expanded ? 29 : 24,
+      asset:
+          expanded ? SvgIcons.acceptAudioCall : SvgIcons.acceptAudioCallSmall,
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
@@ -375,7 +384,7 @@ class AcceptVideoButton extends CallButton {
 
     return CallButtonWidget(
       hint: hint,
-      asset: 'video_on',
+      asset: SvgIcons.callVideoOn,
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
@@ -403,7 +412,7 @@ class DeclineButton extends CallButton {
 
     return CallButtonWidget(
       hint: hint,
-      asset: 'call_end',
+      asset: SvgIcons.callEndBig,
       color: style.colors.decline,
       hinted: hinted,
       expanded: expanded,
@@ -433,7 +442,7 @@ class CancelButton extends CallButton {
 
     return CallButtonWidget(
       hint: hint,
-      asset: 'call_end',
+      asset: SvgIcons.callEndBig,
       color: style.colors.decline,
       hinted: hinted,
       expanded: expanded,
@@ -461,7 +470,7 @@ class EndCallButton extends CallButton {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
-      asset: 'call_end',
+      asset: SvgIcons.callEndBig,
       hint: hint,
       color: style.colors.decline,
       hinted: hinted,
@@ -492,7 +501,9 @@ class SpeakerButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
+        asset: c.isRemoteAudioEnabled.value
+            ? SvgIcons.callIncomingAudioOn
+            : SvgIcons.callIncomingAudioOff,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
@@ -523,8 +534,9 @@ class SwitchButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
-        assetWidth: 28,
+        asset: c.cameraSwitched.value
+            ? SvgIcons.callCameraFront
+            : SvgIcons.callCameraBack,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,

@@ -446,11 +446,7 @@ class MessageFieldView extends StatelessWidget {
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.bounceInOut,
                         scale: c.moreOpened.value ? 1.1 : 1,
-                        child: const SvgImage.asset(
-                          'assets/icons/chat_more.svg',
-                          height: 22,
-                          width: 22,
-                        ),
+                        child: const SvgIcon(SvgIcons.chatMore),
                       );
                     }),
                   ),
@@ -882,15 +878,15 @@ class MessageFieldView extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
-                    height: 13,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
-                    height: 15,
-                  ),
+            child: SvgIcon(
+              item.withVideo
+                  ? isMissed && !fromMe
+                      ? SvgIcons.callVideoMissed
+                      : SvgIcons.callVideo
+                  : isMissed && !fromMe
+                      ? SvgIcons.callAudioMissed
+                      : SvgIcons.callAudio,
+            ),
           ),
           Flexible(
             child: Text(title, style: style.fonts.medium.regular.onBackground),

@@ -96,11 +96,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(3, 0),
-              child: const SvgImage.asset(
-                'assets/icons/register.svg',
-                width: 23,
-                height: 23,
-              ),
+              child: const SvgIcon(SvgIcons.register),
             ),
             onPressed: () => LoginView.show(context),
           ),
@@ -112,11 +108,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
-              child: const SvgImage.asset(
-                'assets/icons/enter.svg',
-                width: 19.42,
-                height: 24,
-              ),
+              child: const SvgIcon(SvgIcons.enter),
             ),
             onPressed: () =>
                 LoginView.show(context, initial: LoginViewStage.signIn),
@@ -129,11 +121,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
-              child: const SvgImage.asset(
-                'assets/icons/one_time.svg',
-                width: 19.88,
-                height: 26,
-              ),
+              child: const SvgIcon(SvgIcons.oneTime),
             ),
             onPressed: c.register,
           ),

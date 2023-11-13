@@ -42,6 +42,7 @@ enum AvatarRadius {
   smallest,
   smaller,
   small,
+  normal,
   medium,
   big,
   large,
@@ -57,6 +58,8 @@ enum AvatarRadius {
         return 10;
       case AvatarRadius.small:
         return 15;
+      case AvatarRadius.normal:
+        return 16;
       case AvatarRadius.medium:
         return 17;
       case AvatarRadius.big:
@@ -226,10 +229,7 @@ class AvatarWidget extends StatelessWidget {
         key: key,
         label: LayoutBuilder(
           builder: (context, constraints) {
-            return SvgImage.asset(
-              'assets/icons/notes.svg',
-              height: constraints.maxWidth / 2,
-            );
+            return SvgIcon(SvgIcons.notes, height: constraints.maxWidth / 2);
           },
         ),
         avatar: chat?.avatar,

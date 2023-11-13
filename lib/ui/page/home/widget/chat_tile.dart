@@ -41,6 +41,7 @@ class ChatTile extends StatelessWidget {
     this.onTap,
     this.height = 94,
     this.darken = 0,
+    this.dimmed = false,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
@@ -87,6 +88,9 @@ class ChatTile extends StatelessWidget {
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
 
+  /// Indicator whether this [ChatTile] should have its background a bit dimmed.
+  final bool dimmed;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -103,7 +107,9 @@ class ChatTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: InkWellWithHover(
             selectedColor: style.colors.primary,
-            unselectedColor: style.cardColor.darken(darken),
+            unselectedColor: dimmed
+                ? style.colors.onPrimaryOpacity50
+                : style.cardColor.darken(darken),
             selected: selected,
             hoveredBorder:
                 selected ? style.cardSelectedBorder : style.cardHoveredBorder,

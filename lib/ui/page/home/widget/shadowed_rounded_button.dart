@@ -50,7 +50,7 @@ class ShadowedRoundedButton extends StatelessWidget {
         CustomBoxShadow(
           blurRadius: 8,
           color: style.colors.onBackgroundOpacity13,
-          blurStyle: BlurStyle.outer,
+          blurStyle: BlurStyle.outer.workaround,
         ),
       ],
     );
