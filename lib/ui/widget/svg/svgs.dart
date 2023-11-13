@@ -1474,4 +1474,10 @@ class SvgIcons {
     width: 23.01,
     height: 22,
   );
+
+  static const SvgData clearSearch = SvgData(
+    'assets/icons/clear_search.svg',
+    width: 21.8,
+    height: 16.8,
+  );
 }

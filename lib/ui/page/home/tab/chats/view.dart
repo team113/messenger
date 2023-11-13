@@ -279,7 +279,8 @@ class ChatsTabView extends StatelessWidget {
                         child = c.groupCreating.value || c.selecting.value
                             ? c.searching.value
                                 ? const SvgIcon(
-                                    SvgIcons.searchExit,
+                                    // SvgIcons.searchExit,
+                                    SvgIcons.clearSearch,
                                     key: Key('CloseGroupSearching'),
                                   )
                                 : const SvgIcon(
