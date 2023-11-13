@@ -253,7 +253,7 @@ class ChatsTabView extends StatelessWidget {
                               height: double.infinity,
                               child: Center(
                                 child: c.searching.value
-                                    ? const SvgIcon(SvgIcons.back)
+                                    ? const SvgIcon(SvgIcons.search)
                                     : const SvgIcon(SvgIcons.search),
                               ),
                             ),
@@ -269,11 +269,14 @@ class ChatsTabView extends StatelessWidget {
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
                           child = const SvgIcon(
-                            SvgIcons.searchExit,
+                            SvgIcons.clearSearch,
                             key: Key('CloseSearch'),
                           );
                         } else {
-                          child = null;
+                          child = const SvgIcon(
+                            SvgIcons.closePrimary,
+                            key: Key('CloseSearch'),
+                          );
                         }
                       } else {
                         child = c.groupCreating.value || c.selecting.value
@@ -299,52 +302,53 @@ class ChatsTabView extends StatelessWidget {
                       return Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (child != null)
-                            WidgetButton(
-                              key: c.searching.value
-                                  ? const Key('CloseSearchButton')
-                                  : null,
-                              onPressed: () {
-                                if (c.searching.value) {
-                                  if (c.search.value?.search.isEmpty.value ==
-                                      false) {
-                                    c.search.value?.search.clear();
-                                    c.search.value?.query.value = '';
-                                    c.search.value?.search.focus.requestFocus();
-                                  }
-                                } else if (c.selecting.value) {
-                                  c.toggleSelecting();
-                                } else if (c.groupCreating.value) {
-                                  c.closeGroupCreating();
+                          WidgetButton(
+                            key: c.searching.value
+                                ? const Key('CloseSearchButton')
+                                : null,
+                            onPressed: () {
+                              if (c.searching.value) {
+                                if (c.search.value?.search.isEmpty.value ==
+                                    false) {
+                                  c.search.value?.search.clear();
+                                  c.search.value?.query.value = '';
+                                  c.search.value?.search.focus.requestFocus();
                                 } else {
-                                  if (onSwitched != null) {
-                                    onSwitched?.call();
-                                  } else {
-                                    c.startGroupCreating();
-                                  }
+                                  c.closeSearch();
                                 }
-                              },
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                  left: 12,
-                                  right: !c.searching.value &&
-                                          !c.groupCreating.value &&
-                                          !c.selecting.value
-                                      ? 8
-                                      : 16,
-                                ),
-                                height: double.infinity,
-                                child: SizedBox(
-                                  width: 29.17,
-                                  child: AnimatedButton(
-                                    child: AnimatedSwitcher(
-                                      duration: 250.milliseconds,
-                                      child: child,
-                                    ),
+                              } else if (c.selecting.value) {
+                                c.toggleSelecting();
+                              } else if (c.groupCreating.value) {
+                                c.closeGroupCreating();
+                              } else {
+                                if (onSwitched != null) {
+                                  onSwitched?.call();
+                                } else {
+                                  c.startGroupCreating();
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                left: 12,
+                                right: !c.searching.value &&
+                                        !c.groupCreating.value &&
+                                        !c.selecting.value
+                                    ? 8
+                                    : 16,
+                              ),
+                              height: double.infinity,
+                              child: SizedBox(
+                                width: 29.17,
+                                child: AnimatedButton(
+                                  child: AnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
                                   ),
                                 ),
                               ),
                             ),
+                          ),
                           if (!c.searching.value &&
                               !c.groupCreating.value &&
                               !c.selecting.value)
@@ -516,7 +520,7 @@ class ChatsTabView extends StatelessWidget {
                                   break;
 
                                 case SearchCategory.user:
-                                  text = 'label_user'.l10n;
+                                  text = 'Global'.l10n;
                                   break;
 
                                 case SearchCategory.chat:
@@ -524,30 +528,50 @@ class ChatsTabView extends StatelessWidget {
                                   break;
                               }
 
-                              child = Center(
-                                child: Container(
-                                  margin: const EdgeInsets.fromLTRB(
-                                    10,
-                                    2,
-                                    10,
-                                    2,
-                                  ),
-                                  padding: const EdgeInsets.fromLTRB(
-                                    12,
-                                    10,
-                                    12,
-                                    6,
-                                  ),
-                                  width: double.infinity,
-                                  child: Center(
-                                    child: Text(
-                                      text,
-                                      style: style
-                                          .fonts.normal.regular.onBackground,
-                                    ),
+                              child = Container(
+                                width: double.infinity,
+                                margin: const EdgeInsets.fromLTRB(8, 24, 8, 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: style.systemMessageBorder,
+                                  color: style.systemMessageColor,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    text,
+                                    style: style.systemMessageStyle,
                                   ),
                                 ),
                               );
+
+                              // child = Center(
+                              //   child: Container(
+                              //     margin: const EdgeInsets.fromLTRB(
+                              //       10,
+                              //       2,
+                              //       10,
+                              //       2,
+                              //     ),
+                              //     padding: const EdgeInsets.fromLTRB(
+                              //       12,
+                              //       10,
+                              //       12,
+                              //       6,
+                              //     ),
+                              //     width: double.infinity,
+                              //     child: Center(
+                              //       child: Text(
+                              //         text,
+                              //         style: style
+                              //             .fonts.normal.regular.onBackground,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // );
                             } else {
                               child = const SizedBox();
                             }
@@ -632,22 +656,46 @@ class ChatsTabView extends StatelessWidget {
                                   onTap: () => c.openChat(user: element.user),
                                 );
                               } else if (element is DividerElement) {
-                                child = Center(
-                                  child: Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12, 10, 12, 6),
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text(
-                                        element.category.name.capitalizeFirst!,
-                                        style: style
-                                            .fonts.normal.regular.onBackground,
-                                      ),
+                                child = Container(
+                                  width: double.infinity,
+                                  margin:
+                                      const EdgeInsets.fromLTRB(8, 24, 8, 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: style.systemMessageBorder,
+                                    color: style.systemMessageColor,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      element.category.name.capitalizeFirst!,
+                                      style: style.systemMessageStyle,
                                     ),
                                   ),
                                 );
+                                // child = Center(
+                                //   child: Container(
+                                //     margin:
+                                //         const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                //     padding: const EdgeInsets.fromLTRB(
+                                //       12,
+                                //       10,
+                                //       12,
+                                //       6,
+                                //     ),
+                                //     width: double.infinity,
+                                //     child: Center(
+                                //       child: Text(
+                                //         element.category.name.capitalizeFirst!,
+                                //         style: style
+                                //             .fonts.normal.regular.onBackground,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // );
                               } else {
                                 child = const SizedBox();
                               }

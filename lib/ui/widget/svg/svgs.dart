@@ -1480,4 +1480,28 @@ class SvgIcons {
     width: 21.8,
     height: 16.8,
   );
+
+  static const SvgData deleteGallery = SvgData(
+    'assets/icons/delete_gallery.svg',
+    width: 28.22,
+    height: 27,
+  );
+
+  static const SvgData paidChat = SvgData(
+    'assets/icons/paid_chat.svg',
+    width: 21.06,
+    height: 21,
+  );
+
+  static const SvgData dollarWhite = SvgData(
+    'assets/icons/dollar.svg',
+    width: 8.55,
+    height: 14,
+  );
+
+  static const SvgData dollarGrey = SvgData(
+    'assets/icons/dollar_grey.svg',
+    width: 8.55,
+    height: 14,
+  );
 }

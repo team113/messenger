@@ -50,8 +50,14 @@ class User extends HiveObject {
     this.isBlocked,
     this.lastSeenAt,
   }) : _dialog = dialog {
-    messageCost = name?.val == 'alex2' || name?.val == 'kirey' ? 2 : 0;
-    callCost = name?.val == 'alex2' || name?.val == 'kirey' ? 1 : 0;
+    messageCost =
+        name?.val.toLowerCase() == 'alex2' || name?.val.toLowerCase() == 'kirey'
+            ? 2
+            : 0;
+    callCost =
+        name?.val.toLowerCase() == 'alex2' || name?.val.toLowerCase() == 'kirey'
+            ? 1
+            : 0;
   }
 
   /// Unique ID of this [User].

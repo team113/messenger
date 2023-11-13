@@ -1027,10 +1027,10 @@ class _WidgetsViewState extends State<WidgetsView> {
               spacing: 4,
               runSpacing: 4,
               children: [
-                UnreadCounter(1),
-                UnreadCounter(10),
-                UnreadCounter(90),
-                UnreadCounter(100)
+                UnreadCounter('1'),
+                UnreadCounter('10'),
+                UnreadCounter('90'),
+                UnreadCounter('100')
               ],
             ),
           ),

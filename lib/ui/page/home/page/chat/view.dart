@@ -339,27 +339,22 @@ class _ChatViewState extends State<ChatView>
 
                             return Row(
                               children: [
-                                if (c.paid)
+                                if (c.paid) ...[
                                   AnimatedOpacity(
                                     opacity:
                                         c.paidDisclaimerDismissed.value ? 1 : 0,
                                     duration: 300.milliseconds,
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 25),
-                                      child: WidgetButton(
-                                        onPressed: () {
-                                          c.paidDisclaimerDismissed.value =
-                                              false;
-                                          c.paidDisclaimer.value = true;
-                                        },
-                                        child: const SvgImage.asset(
-                                          'assets/icons/g_coin.svg',
-                                          width: 24,
-                                          height: 24,
-                                        ),
-                                      ),
+                                    child: WidgetButton(
+                                      onPressed: () {
+                                        c.paidDisclaimerDismissed.value = false;
+                                        c.paidDisclaimer.value = true;
+                                      },
+                                      child: const SvgIcon(SvgIcons.paidChat),
                                     ),
                                   ),
+                                  if (children.isNotEmpty)
+                                    const SizedBox(width: 25),
+                                ],
                                 ...children,
                                 // const SizedBox(width: 28 - 8),
                                 Obx(() {

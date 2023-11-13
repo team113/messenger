@@ -114,7 +114,7 @@ class MultimediaView extends StatelessWidget {
             child: Wrap(
               spacing: 4,
               runSpacing: 4,
-              children: List.generate(24, (i) => UnreadCounter(i + 1)),
+              children: List.generate(24, (i) => UnreadCounter('${i + 1}')),
             ),
           ),
           const SizedBox(height: 16),

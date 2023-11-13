@@ -333,8 +333,8 @@ class CallController extends GetxController {
   final MyUserService _myUserService;
 
   bool get income =>
-      _myUserService.myUser.value?.name?.val == 'kirey' ||
-      _myUserService.myUser.value?.name?.val == 'alex2';
+      _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirey' ||
+      _myUserService.myUser.value?.name?.val.toLowerCase() == 'alex2';
 
   /// [Timer] for updating [duration] of the call.
   ///

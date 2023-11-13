@@ -164,11 +164,11 @@ class RecentChatTile extends StatelessWidget {
       final bool inverted = selected || active || isRoute;
 
       final bool paid = rxChat.chat.value.isDialog &&
-          (myUser?.name?.val == 'alex2' ||
-              myUser?.name?.val == 'kirey' ||
+          (myUser?.name?.val.toLowerCase() == 'alex2' ||
+              myUser?.name?.val.toLowerCase() == 'kirey' ||
               rxChat.members.values.any((e) =>
-                  e.user.value.name?.val == 'kirey' ||
-                  e.user.value.name?.val == 'alex2'));
+                  e.user.value.name?.val.toLowerCase() == 'kirey' ||
+                  e.user.value.name?.val.toLowerCase() == 'alex2'));
 
       return ChatTile(
         chat: rxChat,
@@ -215,20 +215,18 @@ class RecentChatTile extends StatelessWidget {
                       inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
                     ),
                     const SizedBox(width: 5),
+                  ] else if (paid) ...[
+                    const SizedBox(width: 4),
+                    UnreadCounter('\$', inverted: inverted, dimmed: true),
+                    const SizedBox(width: 4),
                   ],
-                  // ] else if (chat.muted != null) ...[
-                  //   const SizedBox(width: 5),
-                  //   SvgIcon(
-                  //     inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                  //     key: Key('MuteIndicator_${chat.id}'),
-                  //   ),
-                  //   const SizedBox(width: 5),
-                  // ],
                   if (rxChat.unreadCount.value > 0) ...[
                     const SizedBox(width: 4),
                     UnreadCounter(
                       key: const Key('UnreadMessages'),
-                      rxChat.unreadCount.value,
+                      rxChat.unreadCount.value > 99
+                          ? '99${'plus'.l10n}'
+                          : '${rxChat.unreadCount.value}',
                       inverted: inverted,
                       dimmed: chat.muted != null,
                     ),
@@ -308,7 +306,7 @@ class RecentChatTile extends StatelessWidget {
         ],
         active: active || isRoute,
         selected: selected,
-        highlight: paid,
+        // paid: paid,
         enableContextMenu: enableContextMenu,
         onTap: onTap ?? () => router.chat(chat.id),
       );
@@ -321,7 +319,12 @@ class RecentChatTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     if (blocked) {
-      return Text('Blocked', style: style.fonts.normal.regular.secondary);
+      return Text(
+        'Blocked',
+        style: inverted
+            ? style.fonts.normal.regular.onPrimary
+            : style.fonts.normal.regular.secondary,
+      );
     }
 
     return Obx(() {
@@ -939,8 +942,6 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final style = Theme.of(context).style;
-
     bool clear = false;
 
     final bool? result = await MessagePopup.alert(

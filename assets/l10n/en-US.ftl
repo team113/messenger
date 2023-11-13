@@ -492,23 +492,23 @@ label_ago = { $years ->
                     [0] { $days ->
                             [0] { $hours ->
                                     [0] { $minutes ->
-                                            [0] just now
+                                            [0] Just now
                                             [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
                                         }
-                                    [1] an hour ago
+                                    [1] An hour ago
                                     *[other] {$hours} hours ago
                                 }
-                            [1] yesterday
+                            [1] Yesterday
                             *[other] {$days} days ago
                         }
-                    [1] a week ago
+                    [1] A week ago
                     *[other] {$weeks} weeks ago
                 }
-            [1] a month ago
+            [1] A month ago
             *[other] {$months} months ago
         }
-    [1] an year ago
+    [1] An year ago
     *[other] {$years} years ago
 }
 label_ago_date = { $years ->

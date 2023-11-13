@@ -49,6 +49,7 @@ class ChatTile extends StatefulWidget {
     this.enableContextMenu = true,
     this.folded = false,
     this.special = false,
+    this.paid = false,
     this.highlight = false,
     this.dimmed = false,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
@@ -105,9 +106,11 @@ class ChatTile extends StatefulWidget {
 
   final bool folded;
   final bool special;
-  final bool highlight;
+  final bool paid;
 
   final bool dimmed;
+
+  final bool highlight;
 
   @override
   State<ChatTile> createState() => _ChatTileState();

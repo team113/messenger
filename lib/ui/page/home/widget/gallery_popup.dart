@@ -904,8 +904,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                       _dismiss();
                     },
                     withBlur: true,
-                    assetWidth: 27.21,
-                    asset: 'delete',
+                    icon: SvgIcons.deleteGallery,
+                    // assetWidth: 27.21,
+                    // asset: 'delete',
                   ),
                 ),
               ),

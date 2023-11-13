@@ -831,12 +831,12 @@ class ChatController extends GetxController {
       // elements[info.id] = InfoElement();
 
       paid = chat!.members.values.any((e) =>
-              e.user.value.name?.val == 'alex1' ||
-              e.user.value.name?.val == 'Alex1' ||
-              e.user.value.name?.val == 'alex2' ||
-              e.user.value.name?.val == 'kirey') &&
+              e.user.value.name?.val.toLowerCase() == 'alex1' ||
+              e.user.value.name?.val.toLowerCase() == 'alex2' ||
+              e.user.value.name?.val.toLowerCase() == 'kirey') &&
           chat!.chat.value.isDialog;
       paidDisclaimer.value = paid;
+      refresh();
 
       // Adds the provided [ChatItem] to the [elements].
       void add(Rx<ChatItem> e) {

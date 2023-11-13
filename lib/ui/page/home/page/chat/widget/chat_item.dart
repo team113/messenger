@@ -174,7 +174,6 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
 
-
   final void Function()? onSelect;
 
   final void Function()? onPin;
@@ -1541,9 +1540,33 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
-                  return AvatarWidget.fromRxUser(data, radius: 10);
+                  return Tooltip(
+                    message: data.user.value.name?.val ??
+                        data.user.value.num.toString(),
+                    verticalOffset: 15,
+                    padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                    decoration: BoxDecoration(
+                      color: style.colors.secondaryOpacity40,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: AvatarWidget.fromRxUser(data, radius: 10),
+                  );
                 }
-                return AvatarWidget.fromUser(user, radius: 10);
+
+                return Tooltip(
+                  message: user?.name?.val ?? user?.num.toString(),
+                  // decoration: BoxDecoration(
+                  //   border: style.systemMessageBorder,
+                  //   color: style.systemMessageColor,
+                  // ),
+                  padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                  decoration: BoxDecoration(
+                    color: style.colors.secondaryOpacity40,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  verticalOffset: 15,
+                  child: AvatarWidget.fromUser(user, radius: 10),
+                );
               },
             ),
           ),
