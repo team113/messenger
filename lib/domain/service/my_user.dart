@@ -112,11 +112,7 @@ class MyUserService extends DisposableService {
 
     _passwordChangeGuard.protect(() async {
       await _userRepo.updateUserPassword(oldPassword, newPassword);
-
-      await _auth.signIn(
-        newPassword,
-        num: myUser.value?.num,
-      );
+      await _auth.signIn(newPassword, num: myUser.value?.num);
     });
   }
 
