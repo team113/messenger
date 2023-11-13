@@ -33,7 +33,7 @@ class GalleryButton extends StatelessWidget {
   /// Optional [Widget] to replace the default [SvgImage.asset].
   final Widget? child;
 
-  /// [SvgData] to display instead of [asset].
+  /// [SvgData] to display.
   final SvgData? icon;
 
   /// Callback, called when this [GalleryButton] is pressed.
