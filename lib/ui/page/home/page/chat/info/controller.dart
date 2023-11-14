@@ -224,6 +224,7 @@ class ChatInfoController extends GetxController {
       type: FileType.image,
       withReadStream: !PlatformUtils.isWeb,
       withData: PlatformUtils.isWeb,
+      lockParentWindow: true,
     );
 
     if (result != null) {

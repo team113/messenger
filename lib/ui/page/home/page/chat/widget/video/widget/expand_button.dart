@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Button-styled fullscreen [Icon].
 class ExpandButton extends StatelessWidget {
@@ -39,8 +39,6 @@ class ExpandButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -48,10 +46,10 @@ class ExpandButton extends StatelessWidget {
         child: SizedBox(
           height: height,
           child: Center(
-            child: Icon(
-              fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-              color: style.colors.onPrimary,
-              size: 21,
+            child: SvgIcon(
+              fullscreen
+                  ? SvgIcons.fullscreenExitSmall
+                  : SvgIcons.fullscreenEnterSmall,
             ),
           ),
         ),

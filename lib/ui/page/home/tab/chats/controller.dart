@@ -320,6 +320,19 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Starts an [OngoingCall] in the [Chat] identified by the provided [id].
+  Future<void> call(ChatId id, [bool withVideo = false]) async {
+    try {
+      await _callService.call(id, withVideo: withVideo);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    } on CallDoesNotExistException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
+
   /// Joins the call in the [Chat] identified by the provided [id] [withVideo]
   /// or without.
   Future<void> joinCall(ChatId id, {bool withVideo = false}) async {

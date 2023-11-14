@@ -139,11 +139,7 @@ class UserView extends StatelessWidget {
                     onPressed: c.openChat,
                     child: Transform.translate(
                       offset: const Offset(0, 1),
-                      child: const SvgImage.asset(
-                        'assets/icons/chat.svg',
-                        width: 20.12,
-                        height: 21.62,
-                      ),
+                      child: const SvgIcon(SvgIcons.chat),
                     ),
                   ),
                   Obx(() {
@@ -158,19 +154,13 @@ class UserView extends StatelessWidget {
                           const SizedBox(width: 28),
                           AnimatedButton(
                             onPressed: () => c.call(true),
-                            child: const SvgImage.asset(
-                              'assets/icons/chat_video_call.svg',
-                              height: 17,
-                            ),
+                            child: const SvgIcon(SvgIcons.chatVideoCall),
                           ),
                         ],
                         const SizedBox(width: 28),
                         AnimatedButton(
                           onPressed: () => c.call(false),
-                          child: const SvgImage.asset(
-                            'assets/icons/chat_audio_call.svg',
-                            height: 19,
-                          ),
+                          child: const SvgIcon(SvgIcons.chatAudioCall),
                         ),
                       ],
                     );
@@ -293,31 +283,19 @@ class UserView extends StatelessWidget {
 
             return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: isMuted
-                  ? const SvgImage.asset(
-                      'assets/icons/btn_mute.svg',
-                      width: 18.68,
-                      height: 15,
-                    )
-                  : const SvgImage.asset(
-                      'assets/icons/btn_unmute.svg',
-                      width: 17.86,
-                      height: 15,
-                    ),
+              trailing: SvgIcon(isMuted ? SvgIcons.mute : SvgIcons.unmute),
               onPressed: isMuted ? c.unmuteChat : c.muteChat,
             );
           }),
           ActionButton(
             text: 'btn_hide_chat'.l10n,
-            trailing:
-                const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing: const SvgIcon(SvgIcons.delete),
             onPressed: () => _hideChat(c, context),
           ),
           ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing:
-                const SvgImage.asset('assets/icons/delete.svg', height: 14),
+            trailing: const SvgIcon(SvgIcons.delete),
             onPressed: () => _clearChat(c, context),
           ),
         ],

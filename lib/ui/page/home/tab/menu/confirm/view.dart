@@ -66,9 +66,10 @@ class ConfirmLogoutView extends StatelessWidget {
                   style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -80,9 +81,10 @@ class ConfirmLogoutView extends StatelessWidget {
                   style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeat.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscureRepeat.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 25),

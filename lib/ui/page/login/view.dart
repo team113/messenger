@@ -154,9 +154,10 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscureNewPassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -167,9 +168,10 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscureRepeatPassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -193,7 +195,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text.toLowerCase()}).parseLinks(
+                      .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
                     style.fonts.medium.regular.primary,
                   ),
@@ -297,9 +299,7 @@ class LoginView extends StatelessWidget {
               children = [
                 SignButton(
                   title: 'btn_email'.l10n,
-                  asset: 'email',
-                  assetWidth: 21.93,
-                  assetHeight: 22.5,
+                  icon: const SvgIcon(SvgIcons.email),
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
@@ -328,9 +328,10 @@ class LoginView extends StatelessWidget {
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                    width: 17.07,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
                   ),
                   subtitle: WidgetButton(
                     onPressed: () {
@@ -380,9 +381,7 @@ class LoginView extends StatelessWidget {
                   title: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
-                  asset: 'password',
-                  assetWidth: 19,
-                  assetHeight: 21,
+                  icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),

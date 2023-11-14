@@ -49,12 +49,7 @@ class ActionButton extends StatelessWidget {
         onPressed: onPressed,
         text: text,
         style: style.fonts.normal.regular.primary,
-        trailing: trailing != null
-            ? Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(scale: 1.15, child: trailing),
-              )
-            : null,
+        trailing: trailing,
       ),
     );
   }

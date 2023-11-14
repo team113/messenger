@@ -637,5 +637,6 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    focus.unfocus();
   }
 }
