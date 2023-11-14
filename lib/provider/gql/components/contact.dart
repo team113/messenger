@@ -72,12 +72,12 @@ mixin ContactGraphQlMixin {
     return Contacts$Query.fromJson(result.data!);
   }
 
-  /// Returns favorited [ChatContact]s of the authenticated [MyUser] ordered by the
-  /// custom order of [MyUser]'s favorites list (using
+  /// Returns favorited [ChatContact]s of the authenticated [MyUser] ordered by
+  /// the custom order of [MyUser]'s favorites list (using
   /// [ChatContact.favoritePosition] field).
   ///
-  /// Use Mutation.favoriteChatContact to update the position of a [ChatContact]
-  /// in [MyUser]'s favorites list.
+  /// Use [favoriteChatContact] to update the position of a [ChatContact] in
+  /// [MyUser]'s favorites list.
   ///
   /// ### Authentication
   ///
@@ -86,9 +86,8 @@ mixin ContactGraphQlMixin {
   /// ### Sorting
   ///
   /// Returned [ChatContact]s are sorted in the order specified by the
-  /// authenticated [MyUser] in Mutation.favoriteChatContact descending
-  /// (starting from the highest [ChatContactFavoritePosition] and finishing at
-  /// the lowest).
+  /// authenticated [MyUser] in [favoriteChatContact] descending (starting from
+  /// the highest [ChatContactFavoritePosition] and finishing at the lowest).
   ///
   /// ### Pagination
   ///

@@ -347,7 +347,7 @@ class ContactRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initPagination() async {
-    Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
+    final Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
         favorites = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
@@ -363,8 +363,8 @@ class ContactRepository extends DisposableInterface
           b.value.favoritePosition!.compareTo(a.value.favoritePosition!),
     );
 
-    Pagination<HiveChatContact, ChatContactsCursor, ChatContactId> contacts =
-        Pagination(
+    final Pagination<HiveChatContact, ChatContactsCursor, ChatContactId>
+        contacts = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -473,7 +473,7 @@ class ContactRepository extends DisposableInterface
       }
     }
 
-    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // [pagination] is `true`, if the [contact] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
       await _pagination.put(contact);
@@ -539,8 +539,9 @@ class ContactRepository extends DisposableInterface
   Future<void> _initLocalSubscription() async {
     _localSubscription = StreamIterator(_contactLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      ChatContactId contactId = ChatContactId(event.key);
+      final BoxEvent event = _localSubscription!.current;
+      final ChatContactId contactId = ChatContactId(event.key);
+
       if (event.deleted) {
         allContacts.remove(contactId)?.dispose();
         favorites.remove(contactId);
@@ -733,7 +734,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      List<HiveUser> users = c.node.getHiveUsers();
+      final List<HiveUser> users = c.node.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -766,7 +767,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      List<HiveUser> users = c.node.getHiveUsers();
+      final List<HiveUser> users = c.node.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
