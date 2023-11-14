@@ -41,6 +41,7 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/favorite_chats_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -124,8 +125,8 @@ void main() async {
   await myUserProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var provider = SessionDataHiveProvider();
-  await provider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
@@ -147,10 +148,12 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
+  var favoriteChatsDataProvider = FavoriteChatsDataHiveProvider();
+  await favoriteChatsDataProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
-    provider.setCredentials(
+    sessionProvider.setCredentials(
       Credentials(
         Session(
           const AccessToken('token'),
@@ -189,7 +192,8 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    AuthService authService =
+        Get.put(AuthService(authRepository, sessionProvider));
     await authService.init();
 
     UserRepository userRepository =
@@ -221,7 +225,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        provider,
+        favoriteChatsDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -320,7 +324,8 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    AuthService authService =
+        Get.put(AuthService(authRepository, sessionProvider));
     await authService.init();
 
     UserRepository userRepository =
@@ -352,7 +357,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        provider,
+        favoriteChatsDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -394,7 +399,8 @@ void main() async {
     final graphQlProvider = _FakeGraphQlProvider();
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    AuthService authService =
+        Get.put(AuthService(authRepository, sessionProvider));
     await authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -426,7 +432,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        provider,
+        favoriteChatsDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

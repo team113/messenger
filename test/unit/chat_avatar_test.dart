@@ -37,6 +37,7 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/favorite_chats_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -106,6 +107,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
+  var favoriteChatsDataProvider = FavoriteChatsDataHiveProvider();
+  await favoriteChatsDataProvider.init();
 
   Get.put(myUserProvider);
   Get.put(userHiveProvider);
@@ -200,7 +203,7 @@ void main() async {
       callRepository,
       draftProvider,
       userRepository,
-      sessionProvider,
+      favoriteChatsDataProvider,
       monologProvider,
       me: const UserId('me'),
     );
@@ -292,7 +295,7 @@ void main() async {
       callRepository,
       draftProvider,
       userRepository,
-      sessionProvider,
+      favoriteChatsDataProvider,
       monologProvider,
       me: const UserId('me'),
     );

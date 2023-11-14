@@ -49,6 +49,7 @@ import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/draft.dart';
 import 'provider/hive/favorite_chat.dart';
+import 'provider/hive/favorite_chats_data.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
@@ -459,6 +460,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
+                deps.put(FavoriteChatsDataHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
@@ -571,6 +573,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
+              deps.put(FavoriteChatsDataHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
