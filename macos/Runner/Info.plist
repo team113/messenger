@@ -26,6 +26,8 @@
   <string>$(PRODUCT_COPYRIGHT)</string>
   <key>NSMainNibFile</key>
   <string>MainMenu</string>
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>We need add only access to save medias</string>
   <key>NSPrincipalClass</key>
   <string>NSApplication</string>
   <key>NSCameraUsageDescription</key>
