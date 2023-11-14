@@ -178,26 +178,63 @@ class RecentChatTile extends StatelessWidget {
           return Row(
             children: [
               Flexible(child: t),
-              if (chat.muted != null) ...[
-                const SizedBox(width: 5),
-                SvgIcon(
-                  inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                  key: Key('MuteIndicator_${chat.id}'),
-                ),
-                const SizedBox(width: 5),
-              ],
+              // if (chat.muted != null) ...[
+              //   const SizedBox(width: 5),
+              //   SvgIcon(
+              //     inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+              //     key: Key('MuteIndicator_${chat.id}'),
+              //   ),
+              //   const SizedBox(width: 5),
+              // ],
             ],
           );
         },
         status: [
-          _status(context, inverted),
-          if (!chat.id.isLocalWith(me))
-            Text(
-              chat.updatedAt.val.toLocal().short,
-              style: inverted
-                  ? style.fonts.normal.regular.onPrimary
-                  : style.fonts.normal.regular.secondary,
-            ),
+          const SizedBox(height: 28),
+          if (trailing == null) ...[
+            _ongoingCall(context),
+            if (blocked) ...[
+              const SizedBox(width: 5),
+              SvgIcon(
+                inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
+              ),
+              const SizedBox(width: 5),
+            ] else if (paid) ...[
+              const SizedBox(width: 4),
+              UnreadCounter(
+                '\$',
+                color: const Color(0xFF6FB876),
+                inverted: inverted,
+                dimmed: true,
+              ),
+              const SizedBox(width: 4),
+            ],
+            if (rxChat.unreadCount.value > 0) ...[
+              const SizedBox(width: 4),
+              UnreadCounter(
+                key: const Key('UnreadMessages'),
+                rxChat.unreadCount.value > 99
+                    ? '99${'plus'.l10n}'
+                    : '${rxChat.unreadCount.value}',
+                inverted: inverted,
+                dimmed: chat.muted != null,
+              ),
+            ] else ...[
+              if (chat.muted != null) ...[
+                const SizedBox(width: 5),
+                UnreadCounter(
+                  null,
+                  dimmed: true,
+                  inverted: inverted,
+                  icon: inverted ? SvgIcons.muted : SvgIcons.mutedWhite,
+                  key: Key('MuteIndicator_${chat.id}'),
+                ),
+                const SizedBox(width: 5),
+              ],
+              const SizedBox(key: Key('NoUnreadMessages')),
+            ],
+          ] else
+            ...trailing!,
         ],
         subtitle: [
           const SizedBox(height: 5),
@@ -207,33 +244,14 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context, selected, inverted)),
-                if (trailing == null) ...[
-                  _ongoingCall(context),
-                  if (blocked) ...[
-                    const SizedBox(width: 5),
-                    SvgIcon(
-                      inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
-                    ),
-                    const SizedBox(width: 5),
-                  ] else if (paid) ...[
-                    const SizedBox(width: 4),
-                    UnreadCounter('\$', inverted: inverted, dimmed: true),
-                    const SizedBox(width: 4),
-                  ],
-                  if (rxChat.unreadCount.value > 0) ...[
-                    const SizedBox(width: 4),
-                    UnreadCounter(
-                      key: const Key('UnreadMessages'),
-                      rxChat.unreadCount.value > 99
-                          ? '99${'plus'.l10n}'
-                          : '${rxChat.unreadCount.value}',
-                      inverted: inverted,
-                      dimmed: chat.muted != null,
-                    ),
-                  ] else
-                    const SizedBox(key: Key('NoUnreadMessages')),
-                ] else
-                  ...trailing!,
+                _status(context, inverted),
+                if (!chat.id.isLocalWith(me))
+                  Text(
+                    chat.updatedAt.val.toLocal().short,
+                    style: inverted
+                        ? style.fonts.normal.regular.onPrimary
+                        : style.fonts.normal.regular.secondary,
+                  ),
               ],
             ),
           ),

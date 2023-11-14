@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/svg/svgs.dart';
 
 import '/themes.dart';
 
@@ -24,12 +25,17 @@ class UnreadCounter extends StatelessWidget {
   const UnreadCounter(
     this.text, {
     super.key,
+    this.icon,
     this.dimmed = false,
     this.inverted = false,
+    this.color,
   });
 
   /// Count to display in this [UnreadCounter].
-  final String text;
+  final String? text;
+
+  final SvgData? icon;
+  final Color? color;
 
   /// Indicator whether this [UnreadCounter] should be dimmed, or bright
   /// otherwise.
@@ -51,19 +57,21 @@ class UnreadCounter extends StatelessWidget {
         color: dimmed
             ? inverted
                 ? style.colors.onPrimary
-                : style.colors.secondaryHighlightDarkest
+                : color ?? style.colors.secondaryHighlightDarkest
             : style.colors.danger,
       ),
       alignment: Alignment.center,
-      child: Text(
-        text,
-        style: dimmed && inverted
-            ? style.fonts.small.regular.secondary
-            : style.fonts.small.regular.onPrimary,
-        maxLines: 1,
-        overflow: TextOverflow.clip,
-        textAlign: TextAlign.center,
-      ),
+      child: icon == null
+          ? Text(
+              text ?? '',
+              style: dimmed && inverted
+                  ? style.fonts.small.regular.secondary
+                  : style.fonts.small.regular.onPrimary,
+              maxLines: 1,
+              overflow: TextOverflow.clip,
+              textAlign: TextAlign.center,
+            )
+          : SvgIcon(icon!, height: 13),
     );
   }
 }
