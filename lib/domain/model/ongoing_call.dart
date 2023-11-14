@@ -328,6 +328,8 @@ class OngoingCall {
   ///
   /// No-op if already initialized.
   Future<void> init() async {
+    Log.debug('init()', '$runtimeType');
+
     if (_background) {
       _background = false;
 
@@ -414,6 +416,8 @@ class OngoingCall {
   ///
   /// No-op if already [connected].
   void connect(CallService calls) {
+    Log.debug('connect($calls)', '$runtimeType');
+
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
@@ -703,6 +707,8 @@ class OngoingCall {
 
   /// Disposes the call and [Jason] client if it was previously initialized.
   Future<void> dispose() {
+    Log.debug('dispose()', '$runtimeType');
+
     _heartbeat?.cancel();
     _membersSubscription?.cancel();
     connected = false;
@@ -723,12 +729,18 @@ class OngoingCall {
   /// Leaves this [OngoingCall].
   ///
   /// Throws a [LeaveChatCallException].
-  Future<void> leave(CallService calls) => calls.leave(chatId.value, deviceId);
+  Future<void> leave(CallService calls) async {
+    Log.debug('leave($calls)', '$runtimeType');
+    await calls.leave(chatId.value, deviceId);
+  }
 
   /// Declines this [OngoingCall].
   ///
   /// Throws a [DeclineChatCallException].
-  Future<void> decline(CallService calls) => calls.decline(chatId.value);
+  Future<void> decline(CallService calls) async {
+    Log.debug('decline($calls)', '$runtimeType');
+    await calls.decline(chatId.value);
+  }
 
   /// Joins this [OngoingCall].
   ///
@@ -738,16 +750,23 @@ class OngoingCall {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
-  }) async =>
-      await calls.join(
-        chatId.value,
-        withAudio: withAudio,
-        withVideo: withVideo,
-        withScreen: withScreen,
-      );
+  }) async {
+    Log.debug(
+      'join($calls, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+    await calls.join(
+      chatId.value,
+      withAudio: withAudio,
+      withVideo: withVideo,
+      withScreen: withScreen,
+    );
+  }
 
   /// Enables/disables local screen-sharing stream based on [enabled].
   Future<void> setScreenShareEnabled(bool enabled, {String? deviceId}) async {
+    Log.debug('setScreenShareEnabled($enabled, $deviceId)', '$runtimeType');
+
     switch (screenShareState.value) {
       case LocalTrackState.disabled:
       case LocalTrackState.disabling:
@@ -803,6 +822,8 @@ class OngoingCall {
 
   /// Enables/disables local audio stream based on [enabled].
   Future<void> setAudioEnabled(bool enabled) async {
+    Log.debug('setAudioEnabled($enabled)', '$runtimeType');
+
     switch (audioState.value) {
       case LocalTrackState.disabled:
       case LocalTrackState.disabling:
@@ -862,6 +883,8 @@ class OngoingCall {
 
   /// Enables/disables local video stream based on [enabled].
   Future<void> setVideoEnabled(bool enabled) async {
+    Log.debug('setVideoEnabled($enabled)', '$runtimeType');
+
     switch (videoState.value) {
       case LocalTrackState.disabled:
       case LocalTrackState.disabling:
@@ -915,14 +938,18 @@ class OngoingCall {
   }
 
   /// Toggles local audio stream on and off.
-  Future<void> toggleAudio() =>
-      setAudioEnabled(audioState.value != LocalTrackState.enabled &&
-          audioState.value != LocalTrackState.enabling);
+  Future<void> toggleAudio() async {
+    Log.debug('toggleAudio()', '$runtimeType');
+    await setAudioEnabled(audioState.value != LocalTrackState.enabled &&
+        audioState.value != LocalTrackState.enabling);
+  }
 
   /// Toggles local video stream on and off.
-  Future<void> toggleVideo([bool? enabled]) =>
-      setVideoEnabled(videoState.value != LocalTrackState.enabled &&
-          videoState.value != LocalTrackState.enabling);
+  Future<void> toggleVideo([bool? enabled]) async {
+    Log.debug('toggleVideo($enabled)', '$runtimeType');
+    await setVideoEnabled(videoState.value != LocalTrackState.enabled &&
+        videoState.value != LocalTrackState.enabling);
+  }
 
   /// Populates [devices] with a list of [MediaDeviceDetails] objects
   /// representing available media input devices, such as microphones, cameras,
@@ -931,6 +958,8 @@ class OngoingCall {
     bool media = true,
     bool screen = true,
   }) async {
+    Log.debug('enumerateDevices($media, $screen)', '$runtimeType');
+
     try {
       if (media) {
         devices.value = await MediaUtils.enumerateDevices();
@@ -949,6 +978,8 @@ class OngoingCall {
   ///
   /// Does nothing if [deviceId] is already an ID of the [audioDevice].
   Future<void> setAudioDevice(String deviceId) async {
+    Log.debug('setAudioDevice($deviceId)', '$runtimeType');
+
     if ((audioDevice.value != null && deviceId != audioDevice.value) ||
         (audioDevice.value == null &&
             devices.audio().firstOrNull?.deviceId() != deviceId)) {
@@ -960,6 +991,8 @@ class OngoingCall {
   ///
   /// Does nothing if [deviceId] is already an ID of the [videoDevice].
   Future<void> setVideoDevice(String deviceId) async {
+    Log.debug('setVideoDevice($deviceId)', '$runtimeType');
+
     if ((videoDevice.value != null && deviceId != videoDevice.value) ||
         (videoDevice.value == null &&
             devices.video().firstOrNull?.deviceId() != deviceId)) {
@@ -971,6 +1004,8 @@ class OngoingCall {
   ///
   /// Does nothing if [deviceId] is already an ID of the [outputDevice].
   Future<void> setOutputDevice(String deviceId) async {
+    Log.debug('setOutputDevice($deviceId)', '$runtimeType');
+
     if (deviceId != outputDevice.value) {
       await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
       outputDevice.value = deviceId;
@@ -981,6 +1016,8 @@ class OngoingCall {
   ///
   /// No-op if [isRemoteAudioEnabled] is already [enabled].
   Future<void> setRemoteAudioEnabled(bool enabled) async {
+    Log.debug('setRemoteAudioEnabled($enabled)', '$runtimeType');
+
     try {
       final List<Future> futures = [];
 
@@ -1010,6 +1047,8 @@ class OngoingCall {
   ///
   /// No-op if [isRemoteVideoEnabled] is already [enabled].
   Future<void> setRemoteVideoEnabled(bool enabled) async {
+    Log.debug('setRemoteVideoEnabled($enabled)', '$runtimeType');
+
     try {
       final List<Future> futures = [];
 
@@ -1039,19 +1078,25 @@ class OngoingCall {
   }
 
   /// Toggles inbound audio in this [OngoingCall] on and off.
-  Future<void> toggleRemoteAudio() =>
-      setRemoteAudioEnabled(!isRemoteAudioEnabled.value);
+  Future<void> toggleRemoteAudio() async {
+    Log.debug('toggleRemoteAudio()', '$runtimeType');
+    await setRemoteAudioEnabled(!isRemoteAudioEnabled.value);
+  }
 
   /// Toggles inbound video in this [OngoingCall] on and off.
-  Future<void> toggleRemoteVideo() =>
-      setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
+  Future<void> toggleRemoteVideo() async {
+    Log.debug('toggleRemoteVideo()', '$runtimeType');
+    await setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
+  }
 
   /// Adds the provided [message] to the [notifications] stream as
   /// [ErrorNotification].
   ///
   /// Should (and intended to) be used as a notification measure.
-  void addError(String message) =>
-      _notifications.add(ErrorNotification(message: message));
+  void addError(String message) {
+    Log.debug('addError($message)', '$runtimeType');
+    _notifications.add(ErrorNotification(message: message));
+  }
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
@@ -1068,6 +1113,11 @@ class OngoingCall {
     String? screenDevice,
     FacingMode? facingMode,
   }) {
+    Log.debug(
+      '_mediaStreamSettings($audio, $video, $screen, $audioDevice, $videoDevice, $screenDevice, $facingMode)',
+      '$runtimeType',
+    );
+
     MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio) {
@@ -1097,6 +1147,8 @@ class OngoingCall {
 
   /// Initializes the [_room].
   void _initRoom() {
+    Log.debug('_initRoom()', '$runtimeType');
+
     _room = MediaUtils.jason!.initRoom();
 
     _room!.onFailedLocalMedia((e) async {
@@ -1293,6 +1345,8 @@ class OngoingCall {
 
   /// Raises/lowers a hand of the authorized [MyUser].
   Future<void> toggleHand(CallService service) {
+    Log.debug('toggleHand($service)', '$runtimeType');
+
     // Toggle the hands of all the devices of the authenticated [MyUser].
     for (MapEntry<CallMemberId, CallMember> m
         in members.entries.where((e) => e.key.userId == _me.userId)) {
@@ -1303,6 +1357,8 @@ class OngoingCall {
 
   /// Invokes a [CallService.toggleHand] method, toggling the hand of [me].
   Future<void> _toggleHand(CallService service) async {
+    Log.debug('_toggleHand($service)', '$runtimeType');
+
     if (!_toggleHandGuard.isLocked) {
       final CallMember me = members[_me]!;
 
@@ -1325,6 +1381,8 @@ class OngoingCall {
   ///
   /// This behaviour is required for [Jason] to correctly release its resources.
   Future<void> _initLocalMedia() async {
+    Log.debug('_initLocalMedia()', '$runtimeType');
+
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       await Permission.microphone.request();
       await Permission.camera.request();
@@ -1469,6 +1527,8 @@ class OngoingCall {
 
   /// Disposes the local media tracks.
   void _disposeLocalMedia() {
+    Log.debug('_disposeLocalMedia()', '$runtimeType');
+
     for (Track t in members[_me]?.tracks ?? []) {
       t.dispose();
     }
@@ -1480,6 +1540,8 @@ class OngoingCall {
   /// Re-initializes the [_room], if this [link] is different from the currently
   /// used [ChatCall.joinLink].
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
+    Log.debug('_joinRoom($link)', '$runtimeType');
+
     me.isConnected.value = false;
 
     Log.info('Joining the room...', '$runtimeType');
@@ -1509,6 +1571,8 @@ class OngoingCall {
 
   /// Closes the [_room] and releases the associated resources.
   void _closeRoom() {
+    Log.debug('_closeRoom()', '$runtimeType');
+
     if (_room != null) {
       try {
         MediaUtils.jason?.closeRoom(_room!);
@@ -1532,6 +1596,11 @@ class OngoingCall {
     String? videoDevice,
     String? screenDevice,
   }) async {
+    Log.debug(
+      '_updateSettings($audioDevice, $videoDevice, $screenDevice)',
+      '$runtimeType',
+    );
+
     if (audioDevice != null || videoDevice != null || screenDevice != null) {
       try {
         await _mediaSettingsGuard.acquire();
@@ -1574,6 +1643,8 @@ class OngoingCall {
     bool video = false,
     bool screen = false,
   }) async {
+    Log.debug('_updateTracks($audio, $video, $screen)', '$runtimeType');
+
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
       audio: hasAudio && audio
           ? AudioPreferences(device: audioDevice.value)
@@ -1597,6 +1668,8 @@ class OngoingCall {
   /// Adds the provided [track] to the local tracks and initializes video
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
+    Log.debug('_addLocalTrack($track)', '$runtimeType');
+
     track.onEnded(() {
       switch (track.kind()) {
         case MediaKind.audio:
@@ -1661,6 +1734,8 @@ class OngoingCall {
   /// Removes and stops the [LocalMediaTrack]s that match the [kind] and
   /// [source] from the local [CallMember].
   void _removeLocalTracks(MediaKind kind, MediaSourceKind source) {
+    Log.debug('_removeLocalTracks($kind, $source)', '$runtimeType');
+
     members[_me]?.tracks.removeWhere((t) {
       if (t.kind == kind && t.source == source) {
         t.dispose();
@@ -1675,6 +1750,8 @@ class OngoingCall {
   ///
   /// If the device is not found, then sets it to `null`.
   void _ensureCorrectDevices() {
+    Log.debug('_ensureCorrectDevices()', '$runtimeType');
+
     if (audioDevice.value != null &&
         devices.audio().none((d) => d.deviceId() == audioDevice.value)) {
       audioDevice.value = null;
@@ -1703,6 +1780,15 @@ class OngoingCall {
     List<MediaDeviceDetails> added = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
+    Log.debug(
+      '''_pickOutputDevice(
+            previous = $previous
+            added = $added
+            removed = $removed
+         )''',
+      '$runtimeType',
+    );
+
     MediaDeviceDetails? device;
 
     if (added.output().isNotEmpty) {
@@ -1727,6 +1813,15 @@ class OngoingCall {
     List<MediaDeviceDetails> added = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
+    Log.debug(
+      '''_pickAudioDevice(
+            previous = $previous
+            added = $added
+            removed = $removed
+    )''',
+      '$runtimeType',
+    );
+
     MediaDeviceDetails? device;
 
     if (added.audio().isNotEmpty) {
@@ -1749,6 +1844,14 @@ class OngoingCall {
     List<MediaDeviceDetails> previous = const [],
     List<MediaDeviceDetails> removed = const [],
   ]) {
+    Log.debug(
+      '''_pickVideoDevice(
+            previous = $previous
+            removed = $removed
+      )''',
+      '$runtimeType',
+    );
+
     if (removed.any((e) => e.deviceId() == videoDevice.value) ||
         (videoDevice.value == null &&
             removed.any((e) =>
@@ -1760,6 +1863,13 @@ class OngoingCall {
 
   /// Disables screen sharing, if the [screenDevice] is [removed].
   void _pickScreenDevice(List<MediaDisplayDetails> removed) {
+    Log.debug(
+      '''_pickScreenDevice(
+            removed = $removed
+      )''',
+      '$runtimeType',
+    );
+
     if (removed.any((e) => e.deviceId() == screenDevice.value)) {
       setScreenShareEnabled(false);
     }
