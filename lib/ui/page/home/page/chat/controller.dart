@@ -1185,71 +1185,83 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Downloads the provided [ImageAttachment] or [FileAttachment].
-  Future<void> downloadMedia(Attachment attachment, {String? to}) async {
+  /// Downloads the provided [attachments].
+  Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
     try {
-      await CacheWorker.instance
-          .download(
-            attachment.original.url,
-            attachment.filename,
-            attachment.original.size,
-            checksum: attachment.original.checksum,
-            to: to,
-          )
-          .future;
-
-      MessagePopup.success(
-        attachment is ImageAttachment
-            ? 'label_image_downloaded'.l10n
-            : 'label_video_downloaded'.l10n,
-      );
-    } catch (_) {
-      MessagePopup.error('err_could_not_download'.l10n);
-    }
-  }
-
-  /// Downloads the provided [ImageAttachment] or [FileAttachment] and saves it
-  /// to the gallery.
-  Future<void> saveToGallery(Attachment attachment) async {
-    Future<void> Function(String, String, {String? checksum}) saveToGallery;
-    if (attachment is FileAttachment) {
-      saveToGallery = PlatformUtils.saveVideoToGallery;
-    } else {
-      saveToGallery = PlatformUtils.saveImageToGallery;
-    }
-    try {
-      if (attachment is FileAttachment && attachment.isVideo) {
-        MessagePopup.success('label_video_downloading'.l10n);
+      for (Attachment attachment in attachments) {
+        if (attachment is! LocalAttachment) {
+          await CacheWorker.instance
+              .download(
+                attachment.original.url,
+                attachment.filename,
+                attachment.original.size,
+                checksum: attachment.original.checksum,
+                to: attachments.length > 1 && to != null
+                    ? '$to\\${attachment.filename}'
+                    : to,
+              )
+              .future;
+        }
       }
 
-      await saveToGallery(
-        attachment.original.url,
-        attachment.filename,
-        checksum: attachment.original.checksum,
-      );
-
       MessagePopup.success(
-        attachment is ImageAttachment
-            ? 'label_image_saved_to_gallery'.l10n
-            : 'label_video_saved_to_gallery'.l10n,
+        attachments.length > 1
+            ? 'label_files_downloaded'.l10n
+            : attachments.first is ImageAttachment
+                ? 'label_image_downloaded'.l10n
+                : 'label_video_downloaded'.l10n,
       );
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
     }
   }
 
-  /// Downloads the provided [ImageAttachment] or [FileAttachment] using
-  /// `save as` dialog.
-  Future<void> saveAs(Attachment attachment) async {
+  /// Saves the provided [attachments] to the gallery.
+  Future<void> saveToGallery(List<Attachment> attachments) async {
     try {
-      String? to = await FilePicker.platform.saveFile(
-        fileName: attachment.filename,
-        type: attachment is ImageAttachment ? FileType.image : FileType.video,
-        lockParentWindow: true,
+      for (Attachment attachment in attachments) {
+        if (attachment is! LocalAttachment) {
+          if (attachment is FileAttachment && attachment.isVideo) {
+            MessagePopup.success('label_video_downloading'.l10n);
+          }
+
+          await PlatformUtils.saveToGallery(
+            attachment.original.url,
+            attachment.filename,
+            checksum: attachment.original.checksum,
+            isVideo: attachment is FileAttachment,
+          );
+        }
+      }
+      MessagePopup.success(
+        attachments.length > 1
+            ? 'label_files_saved_to_gallery'.l10n
+            : attachments.first is ImageAttachment
+                ? 'label_image_saved_to_gallery'.l10n
+                : 'label_video_saved_to_gallery'.l10n,
       );
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+    }
+  }
+
+  /// Downloads the provided [attachments] using `save as` dialog.
+  Future<void> saveAs(List<Attachment> attachments) async {
+    try {
+      String? to = attachments.length > 1
+          ? await FilePicker.platform.getDirectoryPath(
+              lockParentWindow: true,
+            )
+          : await FilePicker.platform.saveFile(
+              fileName: attachments.first.filename,
+              type: attachments.first is ImageAttachment
+                  ? FileType.image
+                  : FileType.video,
+              lockParentWindow: true,
+            );
 
       if (to != null) {
-        downloadMedia(attachment, to: to);
+        await downloadMedia(attachments, to: to);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

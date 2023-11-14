@@ -139,7 +139,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a download action in [ContextMenu] of this
   /// [ChatItem] is triggered.
-  final void Function(Attachment)? onDownloadMedia;
+  final void Function(List<Attachment>)? onDownloadMedia;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
   final void Function()? onReply;
@@ -175,11 +175,11 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a `save as` action in [ContextMenu] of this
   /// [ChatItem] is triggered.
-  final void Function(Attachment)? onSaveAs;
+  final void Function(List<Attachment>)? onSaveAs;
 
   /// Callback, called when a download action on mobile in [ContextMenu] of this
   /// [ChatItem] is triggered.
-  final void Function(Attachment)? onSaveToGallery;
+  final void Function(List<Attachment>)? onSaveToGallery;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1422,9 +1422,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatItem item = widget.item.value;
 
+    List<Attachment> mediaAttachments = [];
+
     String? copyable;
     if (item is ChatMessage) {
       copyable = item.text?.val;
+      mediaAttachments = item.attachments
+          .where(
+              (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo))
+          .toList();
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
@@ -1638,17 +1644,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ),
                   );
 
-                  bool isCanSaved = false;
-                  List<Attachment> mediaAttachments = [];
-                  if (item is ChatMessage) {
-                    mediaAttachments = item.attachments
-                        .where((e) =>
-                            e is ImageAttachment ||
-                            (e is FileAttachment && e.isVideo))
-                        .toList();
-                    isCanSaved = mediaAttachments.isNotEmpty;
-                  }
-
                   return ConstrainedBox(
                     constraints: itemConstraints,
                     child: Material(
@@ -1770,32 +1765,48 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
-                            if (isCanSaved)
+                            if (mediaAttachments.isNotEmpty &&
+                                !PlatformUtils.isMobile)
                               ContextMenuButton(
+                                key: const Key('DownloadButton'),
                                 label: mediaAttachments.length == 1
                                     ? 'btn_download'.l10n
                                     : 'btn_download_all'.l10n,
                                 trailing: const Icon(Icons.download),
                                 onPressed: () {
-                                  for (Attachment attachment
-                                      in mediaAttachments) {
-                                    if (PlatformUtils.isMobile) {
-                                      widget.onSaveToGallery?.call(attachment);
-                                    } else {
-                                      widget.onDownloadMedia?.call(attachment);
-                                    }
-                                  }
+                                  widget.onDownloadMedia
+                                      ?.call(mediaAttachments);
                                 },
                               ),
-                            if (isCanSaved &&
-                                mediaAttachments.length == 1 &&
+                            if (mediaAttachments.isNotEmpty &&
+                                !PlatformUtils.isWeb &&
+                                !PlatformUtils.isLinux)
+                              ContextMenuButton(
+                                key: const Key('SaveToGalleryButton'),
+                                label: mediaAttachments.length == 1
+                                    ? PlatformUtils.isMobile
+                                        ? 'btn_save'.l10n
+                                        : 'btn_save_to_gallery'.l10n
+                                    : PlatformUtils.isMobile
+                                        ? 'btn_save_all'.l10n
+                                        : 'btn_save_to_gallery_all'.l10n,
+                                trailing: const Icon(Icons.download),
+                                onPressed: () {
+                                  widget.onSaveToGallery
+                                      ?.call(mediaAttachments);
+                                },
+                              ),
+                            if (mediaAttachments.isNotEmpty &&
                                 !PlatformUtils.isMobile &&
                                 !PlatformUtils.isWeb)
                               ContextMenuButton(
-                                label: 'btn_save_as'.l10n,
+                                key: const Key('SaveAsButton'),
+                                label: mediaAttachments.length == 1
+                                    ? 'btn_save_as'.l10n
+                                    : 'btn_save_as_all'.l10n,
                                 trailing: const Icon(Icons.download),
                                 onPressed: () {
-                                  widget.onSaveAs?.call(mediaAttachments.first);
+                                  widget.onSaveAs?.call(mediaAttachments);
                                 },
                               ),
                           ],

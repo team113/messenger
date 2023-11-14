@@ -22,8 +22,8 @@ import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:gal/gal.dart';
 import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -508,32 +508,23 @@ class PlatformUtilsImpl {
     return result;
   }
 
-  /// Downloads an image from the provided [url] and saves it to the gallery.
-  Future<void> saveImageToGallery(
+  /// Downloads a video or an image from the provided [url] and saves it to the
+  /// gallery.
+  Future<void> saveToGallery(
     String url,
     String name, {
+    required bool isVideo,
     String? checksum,
   }) async {
-    if (isMobile && !isWeb) {
-      Uint8List? data =
-          (await CacheWorker.instance.get(checksum: checksum, url: url)).bytes;
-      if (data != null) {
-        ImageGallerySaver.saveImage(data, name: name);
-      }
-    }
-  }
-
-  /// Downloads a video from the provided [url] and saves it to the gallery.
-  Future<void> saveVideoToGallery(
-    String url,
-    String name, {
-    String? checksum,
-  }) async {
-    if (isMobile && !isWeb) {
+    if (!isLinux && !isWeb) {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
       await (await dio).download(url, path);
-      ImageGallerySaver.saveFile(path, name: name);
+      if (isVideo) {
+        await Gal.putVideo(path);
+      } else {
+        await Gal.putImage(path);
+      }
     }
   }
 
