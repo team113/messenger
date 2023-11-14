@@ -119,7 +119,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                       BoxShadow(
                         color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
+                        blurStyle: BlurStyle.outer.workaround,
                       ),
                     ],
                   ),

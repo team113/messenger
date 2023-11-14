@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
 import 'widget_button.dart';
 
@@ -153,42 +154,42 @@ class ModalPopupHeader extends StatelessWidget {
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
-      child: Row(
-        children: [
-          if (onBack != null)
-            WidgetButton(
-              onPressed: onBack,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: style.colors.primary,
+      child: Center(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (onBack != null)
+              WidgetButton(
+                onPressed: onBack,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  child: SvgIcon(SvgIcons.backSmall),
                 ),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-          if (text != null)
-            Expanded(
-              child: Center(
-                child: Text(text!, style: style.fonts.big.regular.onBackground),
-              ),
-            )
-          else
-            const Spacer(),
-          if (!context.isMobile && close)
-            WidgetButton(
-              key: const Key('CloseButton'),
-              onPressed: Navigator.of(context).pop,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(Icons.close, size: 18, color: style.colors.primary),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-        ],
+              )
+            else
+              const SizedBox(width: 40),
+            if (text != null)
+              Expanded(
+                child: Center(
+                  child:
+                      Text(text!, style: style.fonts.big.regular.onBackground),
+                ),
+              )
+            else
+              const Spacer(),
+            if (!context.isMobile && close)
+              WidgetButton(
+                key: const Key('CloseButton'),
+                onPressed: Navigator.of(context).pop,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  child: SvgIcon(SvgIcons.closeSmallPrimary),
+                ),
+              )
+            else
+              const SizedBox(width: 40),
+          ],
+        ),
       ),
     );
   }

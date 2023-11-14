@@ -23,6 +23,9 @@ import 'package:flutter/material.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
     if (dart.library.html) 'src/web.dart';
+import 'svgs.dart';
+
+export 'svgs.dart';
 
 /// SVG images renderer.
 ///
@@ -91,6 +94,23 @@ class SvgImage extends StatelessWidget {
     this.excludeFromSemantics = false,
   })  : bytes = null,
         asset = null;
+
+  /// Instantiates a widget rendering an SVG picture from a [SvgData].
+  SvgImage.icon(
+    SvgData data, {
+    super.key,
+    this.alignment = Alignment.center,
+    this.fit = BoxFit.contain,
+    double? width,
+    double? height,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.excludeFromSemantics = false,
+  })  : asset = data.asset,
+        file = null,
+        bytes = null,
+        width = width ?? data.width,
+        height = height ?? data.height;
 
   /// Path to an asset containing an SVG image to display.
   final String? asset;
