@@ -84,7 +84,10 @@ final StepDefinitionGeneric hasFavoriteGroups =
 
     for (int i = 0; i < count; i++) {
       ChatMixin chat = await provider.createGroupChat([]);
-      await provider.favoriteChat(chat.id, ChatFavoritePosition((i + 1).toDouble()));
+      await provider.favoriteChat(
+        chat.id,
+        ChatFavoritePosition((i + 1).toDouble()),
+      );
     }
 
     provider.disconnect();
