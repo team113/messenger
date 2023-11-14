@@ -101,7 +101,7 @@ dev_dependencies:
   artemis: ^7.13.0-beta.2
   build: ^2.4.1
   build_runner: ^2.4.6
-  dartdoc: ^6.3.0
+  dartdoc: ^7.0.2
   flutter_driver:
     sdk: flutter
   flutter_gherkin:

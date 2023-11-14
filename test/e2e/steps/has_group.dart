@@ -17,6 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -61,6 +62,29 @@ final StepDefinitionGeneric hasGroups = given2<TestUser, int, CustomWorld>(
 
     for (int i = 0; i < count; i++) {
       await provider.createGroupChat([]);
+    }
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates the specified amount of favorite [Chat]-groups for the provided
+/// [TestUser].
+///
+/// Examples:
+/// - Given Alice has 5 favorite groups.
+final StepDefinitionGeneric hasFavoriteGroups =
+    given2<TestUser, int, CustomWorld>(
+  '{user} has {int} favorite groups',
+  (TestUser user, int count, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    for (int i = 0; i < count; i++) {
+      ChatMixin chat = await provider.createGroupChat([]);
+      await provider.favoriteChat(chat.id, ChatFavoritePosition((i + 1).toDouble()));
     }
 
     provider.disconnect();
