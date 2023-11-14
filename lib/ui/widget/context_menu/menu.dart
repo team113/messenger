@@ -54,15 +54,11 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(
-          color: style.colors.secondaryHighlightDarkest,
-          width: 0.5,
-        ),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.colors.onBackgroundOpacity20,
-            blurStyle: BlurStyle.outer,
+            color: style.colors.onBackgroundOpacity27,
+            blurStyle: BlurStyle.outer.workaround,
           )
         ],
       ),
@@ -73,9 +69,9 @@ class ContextMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!context.isMobile) const SizedBox(height: 6),
+              if (!context.isMobile) const SizedBox(height: 4),
               ...widgets,
-              if (!context.isMobile) const SizedBox(height: 6),
+              if (!context.isMobile) const SizedBox(height: 4),
             ],
           ),
         ),
@@ -158,12 +154,14 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         child: Container(
           padding: context.isMobile
               ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
-              : const EdgeInsets.fromLTRB(12, 6, 12, 6),
+              : const EdgeInsets.fromLTRB(11, 6, 11, 6),
           margin:
-              context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
+              context.isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
+            borderRadius: context.isMobile
+                ? style.contextMenuRadius
+                : BorderRadius.circular(7),
             color: isMouseOver
                 ? context.isMobile
                     ? style.contextMenuHoveredColor

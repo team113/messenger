@@ -29,10 +29,7 @@ class ChatButtonWidget extends StatelessWidget {
         onLongPress = null,
         icon = Transform.translate(
           offset: button.offset,
-          child: SvgImage.asset(
-            'assets/icons/${button.asset}.svg',
-            height: 22,
-          ),
+          child: SvgIcon(button.asset),
         );
 
   /// Constructs a send/forward [ChatButtonWidget].
@@ -41,11 +38,7 @@ class ChatButtonWidget extends StatelessWidget {
     bool forwarding = false,
     this.onPressed,
     this.onLongPress,
-  }) : icon = SvgImage.asset(
-          'assets/icons/${forwarding ? 'forward' : 'send'}.svg',
-          width: forwarding ? 26 : 25.44,
-          height: forwarding ? 22 : 21.91,
-        );
+  }) : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send);
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;

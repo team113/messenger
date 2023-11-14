@@ -102,13 +102,7 @@ class _WorkViewState extends State<WorkView> {
                             child: Center(child: child),
                           ),
                           onPressed: router.auth,
-                          child: const Center(
-                            child: SvgImage.asset(
-                              'assets/icons/home.svg',
-                              width: 21.8,
-                              height: 21.04,
-                            ),
-                          ),
+                          child: const Center(child: SvgIcon(SvgIcons.home)),
                         ),
                       ],
                       title: Text('label_work_with_us'.l10n),

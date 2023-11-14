@@ -36,9 +36,9 @@ class ChatMoreWidget extends StatefulWidget {
   })  : label = button.hint,
         icon = Transform.translate(
           offset: button.offsetMini,
-          child: SvgImage.asset(
-            'assets/icons/${button.assetMini ?? button.asset}${button.onPressed == null ? '_disabled' : ''}.svg',
-            height: 20,
+          child: Opacity(
+            opacity: button.onPressed == null ? 0.6 : 1,
+            child: SvgIcon(button.assetMini ?? button.asset),
           ),
         ) {
     this.onPressed = button.onPressed == null
@@ -122,20 +122,13 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                         child: AnimatedSwitcher(
                           duration: 100.milliseconds,
                           child: widget.pinned
-                              ? const SvgImage.asset(
-                                  'assets/icons/unpin.svg',
-                                  key: Key('Unpin'),
-                                  width: 15.5,
-                                  height: 17,
-                                )
-                              : Transform.translate(
-                                  offset: const Offset(0.5, 0),
-                                  child: SvgImage.asset(
-                                    'assets/icons/pin${widget.onPin == null || disabled ? '_disabled' : ''}.svg',
-                                    key: const Key('Pin'),
-                                    width: 9.65,
-                                    height: 17,
-                                  ),
+                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
+                              : Opacity(
+                                  key: const Key('Pin'),
+                                  opacity: widget.onPin == null || disabled
+                                      ? 0.6
+                                      : 1,
+                                  child: const SvgIcon(SvgIcons.pin),
                                 ),
                         ),
                       ),

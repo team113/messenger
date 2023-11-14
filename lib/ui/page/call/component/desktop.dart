@@ -1911,10 +1911,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       ),
                                       InkResponse(
                                         onTap: isAnyDrag ? null : c.focusAll,
-                                        child: const SvgImage.asset(
-                                          'assets/icons/close.svg',
-                                          height: 10.25,
-                                        ),
+                                        child:
+                                            const SvgIcon(SvgIcons.closeSmall),
                                       ),
                                       const SizedBox(width: 7),
                                     ],
@@ -1972,13 +1970,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                           ? style.colors.onBackgroundOpacity27
                                           : style.colors.onBackgroundOpacity50,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: style.colors.onPrimary,
-                                      ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),
