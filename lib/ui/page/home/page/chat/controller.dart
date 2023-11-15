@@ -27,6 +27,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:gal/gal.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart'
@@ -1167,7 +1168,7 @@ class ChatController extends GetxController {
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
-  Future<void> download(ChatItem item, FileAttachment attachment) async {
+  Future<void> downloadFile(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
     } else if (await attachment.open() == false) {
@@ -1186,9 +1187,10 @@ class ChatController extends GetxController {
   }
 
   /// Downloads the provided [attachments].
-  Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
+  Future<void> downloadImage(List<Attachment> attachments, {String? to}) async {
     try {
       for (Attachment attachment in attachments) {
+        // TODO: Implement [LocalAttachment] downloading.
         if (attachment is! LocalAttachment) {
           await CacheWorker.instance
               .download(
@@ -1197,7 +1199,7 @@ class ChatController extends GetxController {
                 attachment.original.size,
                 checksum: attachment.original.checksum,
                 to: attachments.length > 1 && to != null
-                    ? '$to\\${attachment.filename}'
+                    ? '$to/${attachment.filename}'
                     : to,
               )
               .future;
@@ -1211,15 +1213,24 @@ class ChatController extends GetxController {
                 ? 'label_image_downloaded'.l10n
                 : 'label_video_downloaded'.l10n,
       );
-    } catch (_) {
+    } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Saves the provided [attachments] to the gallery.
   Future<void> saveToGallery(List<Attachment> attachments) async {
+    if (!await Gal.hasAccess()) {
+      if (!await Gal.requestAccess()) {
+        MessagePopup.error('err_no_access_to_gallery'.l10n);
+        return;
+      }
+    }
+
     try {
       for (Attachment attachment in attachments) {
+        // TODO: Implement [LocalAttachment] downloading.
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
             MessagePopup.success('label_video_downloading'.l10n);
@@ -1233,6 +1244,7 @@ class ChatController extends GetxController {
           );
         }
       }
+
       MessagePopup.success(
         attachments.length > 1
             ? 'label_files_saved_to_gallery'.l10n
@@ -1240,18 +1252,28 @@ class ChatController extends GetxController {
                 ? 'label_image_saved_to_gallery'.l10n
                 : 'label_video_saved_to_gallery'.l10n,
       );
-    } catch (_) {
+    } on GalException catch (e) {
+      MessagePopup.error(switch (e.type) {
+        GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
+        GalExceptionType.notEnoughSpace => 'err_no_space_left_in_gallery'.l10n,
+        GalExceptionType.notSupportedFormat => 'err_unsupported_format'.l10n,
+        GalExceptionType.unexpected => 'err_could_not_download'.l10n,
+      });
+
+      if (e.type == GalExceptionType.unexpected) {
+        rethrow;
+      }
+    } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
-  /// Downloads the provided [attachments] using `save as` dialog.
-  Future<void> saveAs(List<Attachment> attachments) async {
+  /// Downloads the provided image [attachments] using `save as` dialog.
+  Future<void> downloadAs(List<Attachment> attachments) async {
     try {
       String? to = attachments.length > 1
-          ? await FilePicker.platform.getDirectoryPath(
-              lockParentWindow: true,
-            )
+          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
           : await FilePicker.platform.saveFile(
               fileName: attachments.first.filename,
               type: attachments.first is ImageAttachment
@@ -1261,10 +1283,11 @@ class ChatController extends GetxController {
             );
 
       if (to != null) {
-        await downloadMedia(attachments, to: to);
+        await downloadImage(attachments, to: to);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 

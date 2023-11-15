@@ -89,13 +89,13 @@ class ChatItemWidget extends StatefulWidget {
     this.onGallery,
     this.onRepliedTap,
     this.onResend,
-    this.onDownloadMedia,
     this.onDrag,
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
-    this.onSaveAs,
-    this.onSaveToGallery,
+    this.onDownload,
+    this.onDownloadAs,
+    this.onSave,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -137,10 +137,6 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a delete action of this [ChatItem] is triggered.
   final void Function()? onDelete;
 
-  /// Callback, called when a download action in [ContextMenu] of this
-  /// [ChatItem] is triggered.
-  final void Function(List<Attachment>)? onDownloadMedia;
-
   /// Callback, called when a reply action of this [ChatItem] is triggered.
   final void Function()? onReply;
 
@@ -173,13 +169,16 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
 
-  /// Callback, called when a `save as` action in [ContextMenu] of this
-  /// [ChatItem] is triggered.
-  final void Function(List<Attachment>)? onSaveAs;
+  /// Callback, called when a download action of this [ChatItem] is triggered.
+  final void Function(List<Attachment>)? onDownload;
 
-  /// Callback, called when a download action on mobile in [ContextMenu] of this
-  /// [ChatItem] is triggered.
-  final void Function(List<Attachment>)? onSaveToGallery;
+  /// Callback, called when a `download as` action of this [ChatItem] is
+  /// triggered.
+  final void Function(List<Attachment>)? onDownloadAs;
+
+  /// Callback, called when a save to gallery action of this [ChatItem] is
+  /// triggered.
+  final void Function(List<Attachment>)? onSave;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1422,15 +1421,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatItem item = widget.item.value;
 
-    List<Attachment> mediaAttachments = [];
+    final List<Attachment> media = [];
 
     String? copyable;
     if (item is ChatMessage) {
       copyable = item.text?.val;
-      mediaAttachments = item.attachments
-          .where(
-              (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo))
-          .toList();
+      media.addAll(item.attachments.where(
+        (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+      ));
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
@@ -1754,25 +1752,33 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
-                            if (mediaAttachments.isNotEmpty &&
-                                !PlatformUtils.isMobile)
+                            if (media.isNotEmpty && PlatformUtils.isDesktop)
                               ContextMenuButton(
                                 key: const Key('DownloadButton'),
-                                label: mediaAttachments.length == 1
+                                label: media.length == 1
                                     ? 'btn_download'.l10n
                                     : 'btn_download_all'.l10n,
                                 trailing: const Icon(Icons.download),
-                                onPressed: () {
-                                  widget.onDownloadMedia
-                                      ?.call(mediaAttachments);
-                                },
+                                onPressed: () => widget.onDownload?.call(media),
                               ),
-                            if (mediaAttachments.isNotEmpty &&
+                            if (media.isNotEmpty &&
+                                PlatformUtils.isDesktop &&
+                                !PlatformUtils.isWeb)
+                              ContextMenuButton(
+                                key: const Key('DownloadAsButton'),
+                                label: media.length == 1
+                                    ? 'btn_download_as'.l10n
+                                    : 'btn_download_as_all'.l10n,
+                                trailing: const Icon(Icons.download),
+                                onPressed: () =>
+                                    widget.onDownloadAs?.call(media),
+                              ),
+                            if (media.isNotEmpty &&
                                 !PlatformUtils.isWeb &&
                                 !PlatformUtils.isLinux)
                               ContextMenuButton(
-                                key: const Key('SaveToGalleryButton'),
-                                label: mediaAttachments.length == 1
+                                key: const Key('SaveButton'),
+                                label: media.length == 1
                                     ? PlatformUtils.isMobile
                                         ? 'btn_save'.l10n
                                         : 'btn_save_to_gallery'.l10n
@@ -1780,23 +1786,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         ? 'btn_save_all'.l10n
                                         : 'btn_save_to_gallery_all'.l10n,
                                 trailing: const Icon(Icons.download),
-                                onPressed: () {
-                                  widget.onSaveToGallery
-                                      ?.call(mediaAttachments);
-                                },
-                              ),
-                            if (mediaAttachments.isNotEmpty &&
-                                !PlatformUtils.isMobile &&
-                                !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('SaveAsButton'),
-                                label: mediaAttachments.length == 1
-                                    ? 'btn_save_as'.l10n
-                                    : 'btn_save_as_all'.l10n,
-                                trailing: const Icon(Icons.download),
-                                onPressed: () {
-                                  widget.onSaveAs?.call(mediaAttachments);
-                                },
+                                onPressed: () => widget.onSave?.call(media),
                               ),
                           ],
                           if (item.status.value == SendingStatus.error) ...[

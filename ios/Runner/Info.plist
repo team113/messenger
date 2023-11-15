@@ -51,7 +51,7 @@
   <key>UIViewControllerBasedStatusBarAppearance</key>
   <false/>
   <key>NSPhotoLibraryAddUsageDescription</key>
-  <string>We need add only access to save medias</string>
+  <string>We need access to your photos to save media</string>
   <key>NSPhotoLibraryUsageDescription</key>
   <string>We need access to your photos to save and upload them</string>
   <key>NSCameraUsageDescription</key>

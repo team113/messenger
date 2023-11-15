@@ -599,8 +599,8 @@ class _GalleryPopupState extends State<GalleryPopup>
               onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
-              label: 'btn_save_as'.l10n,
-              onPressed: () => _saveAs(widget.children[_page]),
+              label: 'btn_download_as'.l10n,
+              onPressed: () => _downloadAs(widget.children[_page]),
             ),
             ContextMenuButton(
               label: 'btn_info'.l10n,
@@ -1120,11 +1120,12 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] using `save as` dialog.
-  Future<void> _saveAs(GalleryItem item) async {
+  Future<void> _downloadAs(GalleryItem item) async {
     try {
       String? to = await FilePicker.platform.saveFile(
         fileName: item.name,
@@ -1137,6 +1138,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
@@ -1171,6 +1173,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
@@ -1197,6 +1200,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 

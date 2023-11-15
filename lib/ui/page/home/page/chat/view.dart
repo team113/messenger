@@ -673,16 +673,16 @@ class _ChatViewState extends State<ChatView>
                 onGallery: c.calculateGallery,
                 onResend: () => c.resendItem(e.value),
                 onEdit: () => c.editMessage(e.value),
-                onDownloadMedia: (a) => c.downloadMedia(a),
                 onDrag: (d) => c.isItemDragged.value = d,
-                onFileTap: (a) => c.download(e.value, a),
-                onSaveAs: (a) => c.saveAs(a),
-                onSaveToGallery: (a) => c.saveToGallery(a),
+                onFileTap: (a) => c.downloadFile(e.value, a),
                 onAttachmentError: () async {
                   await c.chat?.updateAttachments(e.value);
                   await Future.delayed(Duration.zero);
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
+                onDownload: c.downloadImage,
+                onDownloadAs: c.downloadAs,
+                onSave: c.saveToGallery,
               ),
             );
           }),
@@ -795,7 +795,7 @@ class _ChatViewState extends State<ChatView>
                     }
                   }
                 },
-                onFileTap: c.download,
+                onFileTap: c.downloadFile,
                 onAttachmentError: () async {
                   for (ChatItem item in [
                     element.note.value?.value,
