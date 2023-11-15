@@ -266,7 +266,7 @@ class CreateDialogException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case CreateDialogChatErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
       case CreateDialogChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case CreateDialogChatErrorCode.unknownUser:
@@ -299,7 +299,7 @@ class CreateGroupChatException
       case CreateGroupChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case CreateGroupChatErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
     }
   }
 }
@@ -343,7 +343,7 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case StartChatCallErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
       case StartChatCallErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
       case StartChatCallErrorCode.artemisUnknown:
@@ -592,7 +592,7 @@ class AddChatMemberException with LocalizedExceptionMixin implements Exception {
       case AddChatMemberErrorCode.unknownUser:
         return 'err_unknown_user'.l10n;
       case AddChatMemberErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
       case AddChatMemberErrorCode.notGroup:
         return 'err_not_group'.l10n;
       case AddChatMemberErrorCode.unknownChat:
@@ -640,7 +640,7 @@ class PostChatMessageException
   String toMessage() {
     switch (code) {
       case PostChatMessageErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
       case PostChatMessageErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
       case PostChatMessageErrorCode.wrongAttachmentsCount:
@@ -1079,7 +1079,7 @@ class UseChatDirectLinkException
       case UseChatDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case UseChatDirectLinkErrorCode.blocked:
-        return 'err_you_are_blacklisted'.l10n;
+        return 'err_you_are_blocked'.l10n;
       case UseChatDirectLinkErrorCode.unknownDirectLink:
         return 'err_unknown_chat_direct_link'.l10n;
     }
@@ -1231,7 +1231,7 @@ class TransformDialogCallIntoGroupCallException
   String toMessage() {
     switch (code) {
       case TransformDialogCallIntoGroupCallErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.notDialog:
         return 'err_not_dialog'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.noCall:
@@ -1264,7 +1264,7 @@ class ForwardChatItemsException
   String toMessage() {
     switch (code) {
       case ForwardChatItemsErrorCode.blocked:
-        return 'err_blacklisted'.l10n;
+        return 'err_blocked'.l10n;
       case ForwardChatItemsErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
       case ForwardChatItemsErrorCode.unknownChat:

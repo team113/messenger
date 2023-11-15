@@ -223,7 +223,7 @@ void main() async {
                 'num': '1234567890123456',
                 'mutualContactsCount': 0,
                 'isDeleted': false,
-                'isBlocked': {'blacklisted': false, 'ver': '0'},
+                'isBlocked': {'ver': '0'},
                 'presence': 'AWAY',
                 'ver': '0',
               },
@@ -360,8 +360,8 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
   var recentChatProvider = RecentChatHiveProvider();
@@ -436,7 +436,7 @@ void main() async {
     MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
+      blockedUsersProvider,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

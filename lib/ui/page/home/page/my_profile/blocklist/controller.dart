@@ -28,34 +28,34 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of a [BlacklistView].
-class BlacklistController extends GetxController {
-  BlacklistController(this._myUserService, this._userService, {this.pop});
+/// Controller of a [BlocklistView].
+class BlocklistController extends GetxController {
+  BlocklistController(this._myUserService, this._userService, {this.pop});
 
-  /// Callback, called when a [BlacklistView] this controller is bound to should
+  /// Callback, called when a [BlocklistView] this controller is bound to should
   /// be popped from the [Navigator].
   final void Function()? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [MyUserService] maintaining the blacklisted [User]s.
+  /// [MyUserService] maintaining the blocked [User]s.
   final MyUserService _myUserService;
 
-  /// [UserService] un-blacklisting the [User]s.
+  /// [UserService] un-blocking the [User]s.
   final UserService _userService;
 
-  /// [Worker] to react on the [blacklist] updates.
+  /// [Worker] to react on the [blocklist] updates.
   late final Worker _worker;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _myUserService.blacklist;
+  /// Returns [User]s blocked by the authenticated [MyUser].
+  RxMap<UserId, RxUser> get blocklist => _myUserService.blocklist;
 
   @override
   void onInit() {
     _worker = ever(
-      _myUserService.blacklist,
-      (List<RxUser> users) {
+      _myUserService.blocklist,
+      (Map<UserId, RxUser> users) {
         if (users.isEmpty) {
           pop?.call();
         }
@@ -71,9 +71,9 @@ class BlacklistController extends GetxController {
     super.onClose();
   }
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
+  /// Removes the [user] from the blocklist of the authenticated [MyUser].
   Future<void> unblock(RxUser user) async {
-    if (blacklist.length == 1) {
+    if (blocklist.length == 1) {
       pop?.call();
     }
 

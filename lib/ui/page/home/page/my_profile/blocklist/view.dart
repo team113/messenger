@@ -28,15 +28,15 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View displaying the blacklisted [User]s.
+/// View displaying the blocked [User]s.
 ///
 /// Intended to be displayed with the [show] method.
-class BlacklistView extends StatelessWidget {
-  const BlacklistView({super.key});
+class BlocklistView extends StatelessWidget {
+  const BlocklistView({super.key});
 
-  /// Displays a [BlacklistView] wrapped in a [ModalPopup].
+  /// Displays a [BlocklistView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const BlacklistView());
+    return ModalPopup.show(context: context, child: const BlocklistView());
   }
 
   @override
@@ -44,12 +44,12 @@ class BlacklistView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: BlacklistController(
+      init: BlocklistController(
         Get.find(),
         Get.find(),
         pop: context.popModal,
       ),
-      builder: (BlacklistController c) {
+      builder: (BlocklistController c) {
         return Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -57,10 +57,10 @@ class BlacklistView extends StatelessWidget {
               const SizedBox(height: 4),
               ModalPopupHeader(
                 text:
-                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
+                    'label_users_count'.l10nfmt({'count': c.blocklist.length}),
               ),
               const SizedBox(height: 4),
-              if (c.blacklist.isEmpty)
+              if (c.blocklist.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text('label_no_users'.l10n),
@@ -74,7 +74,7 @@ class BlacklistView extends StatelessWidget {
                       shrinkWrap: true,
                       padding: ModalPopup.padding(context),
                       itemBuilder: (context, i) {
-                        RxUser? user = c.blacklist[i];
+                        RxUser? user = c.blocklist.values.elementAt(i);
 
                         return ContactTile(
                           user: user,
@@ -102,7 +102,7 @@ class BlacklistView extends StatelessWidget {
                           ],
                         );
                       },
-                      itemCount: c.blacklist.length,
+                      itemCount: c.blocklist.length,
                     ),
                   ),
                 ),

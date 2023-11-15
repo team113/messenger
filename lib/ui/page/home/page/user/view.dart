@@ -228,7 +228,7 @@ class UserView extends StatelessWidget {
 
                 return Padding(
                   padding: Insets.dense.copyWith(top: 0),
-                  child: SafeArea(child: UnblockButton(c.unblacklist)),
+                  child: SafeArea(child: UnblockButton(c.unblock)),
                 );
               }),
             );
@@ -304,11 +304,11 @@ class UserView extends StatelessWidget {
             key: Key(c.isBlocked != null ? 'Unblock' : 'Block'),
             text: c.isBlocked != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
             onPressed: c.isBlocked != null
-                ? c.unblacklist
-                : () => _blacklistUser(c, context),
+                ? c.unblock
+                : () => _blockUser(c, context),
             trailing: Obx(() {
               final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
+              if (c.blocklistStatus.value.isEmpty) {
                 child = const SizedBox();
               } else {
                 child = const CustomProgressIndicator();
@@ -395,8 +395,8 @@ class UserView extends StatelessWidget {
     }
   }
 
-  /// Opens a confirmation popup blacklisting the [User].
-  Future<void> _blacklistUser(UserController c, BuildContext context) async {
+  /// Opens a confirmation popup blocking the [User].
+  Future<void> _blockUser(UserController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
@@ -417,7 +417,7 @@ class UserView extends StatelessWidget {
     );
 
     if (result == true) {
-      await c.blacklist();
+      await c.block();
     }
   }
 }

@@ -19,14 +19,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
+import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
@@ -42,12 +41,14 @@ import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
-import '/util/backoff.dart';
 import '/util/new_type.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
+import 'pagination.dart';
+import 'pagination/graphql.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
@@ -63,15 +64,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final Rx<MyUser?> myUser;
 
   @override
-  final RxList<RxUser> blacklist = RxList<RxUser>();
+  final RxMap<UserId, RxUser> blocklist = RxMap<UserId, RxUser>();
 
-  /// GraphQL's Endpoint provider.
+  /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
-  /// Blacklisted [User]s local [Hive] storage.
+  /// Blocked [User]s local [Hive] storage.
   final BlocklistHiveProvider _blocklistLocal;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
@@ -95,8 +96,11 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onFocusChanged;
 
-  /// [CancelToken] for cancelling the [_fetchBlocklist].
-  final CancelToken _cancelToken = CancelToken();
+  /// [Pagination] loading [blocklist] with pagination.
+  late final Pagination<HiveUser, BlocklistCursor, UserId> _blocklistPagination;
+
+  /// Subscription to the [Pagination.items] changes.
+  StreamSubscription? _paginationSubscription;
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -116,7 +120,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _initLocalSubscription();
     _initRemoteSubscription();
-    _initBlacklistSubscription();
+    _initLocalBlocklistSubscription();
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -135,30 +139,33 @@ class MyUserRepository implements AbstractMyUserRepository {
       });
     }
 
-    if (!_blocklistLocal.isEmpty) {
-      final List<RxUser?> users =
-          await Future.wait(_blocklistLocal.blocked.map(_userRepo.get));
-      blacklist.addAll(users.whereNotNull());
-    }
+    _blocklistPagination = Pagination(
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _fetchBlocklist(
+          after: after,
+          before: before,
+          first: first,
+          last: last,
+        ),
+      ),
+      onKey: (e) => e.value.id,
+    );
 
-    try {
-      final List<HiveUser> blacklisted =
-          await Backoff.run(_fetchBlocklist, _cancelToken);
+    _paginationSubscription =
+        _blocklistPagination.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _add(event.key!);
+          break;
 
-      for (UserId c in _blocklistLocal.blocked) {
-        if (blacklisted.none((e) => e.value.id == c)) {
-          _blocklistLocal.remove(c);
-        }
+        case OperationKind.removed:
+          remove(event.key!);
+          break;
       }
+    });
 
-      for (HiveUser c in blacklisted) {
-        _blocklistLocal.put(c.value.id);
-      }
-    } catch (e) {
-      if (e is! OperationCanceledException) {
-        rethrow;
-      }
-    }
+    _blocklistPagination.around();
   }
 
   @override
@@ -168,7 +175,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
     _onFocusChanged?.cancel();
-    _cancelToken.cancel();
+    _paginationSubscription?.cancel();
+    _blocklistPagination.dispose();
   }
 
   @override
@@ -550,15 +558,41 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  // TODO: Blocklist can be huge, so we should implement pagination and
-  //       loading on demand.
-  /// Fetches __all__ blacklisted [User]s from the remote.
-  Future<List<HiveUser>> _fetchBlocklist() async {
-    final query = await _graphQlProvider.getBlocklist(first: 120);
-    final users = query.edges.map((e) => e.node.user.toHive()).toList();
+  /// Adds the [User] with the specified [userId] to the [blocklist].
+  Future<void> _add(UserId userId) async {
+    final RxUser? user = blocklist[userId];
+    if (user == null) {
+      final RxUser? user = await _userRepo.get(userId);
+      if (user != null) {
+        blocklist[userId] = user;
+      }
+    }
+  }
+
+  /// Removes a [User] identified by the provided [id] from the [blocklist].
+  Future<void> remove(UserId userId) => _blocklistLocal.remove(userId);
+
+  /// Fetches blocked [User]s with pagination.
+  Future<Page<HiveUser, BlocklistCursor>> _fetchBlocklist({
+    int? first,
+    BlocklistCursor? after,
+    int? last,
+    BlocklistCursor? before,
+  }) async {
+    final query = await _graphQlProvider.getBlocklist(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+
+    final users = RxList(query.edges.map((e) => e.node.user.toHive()).toList());
     users.forEach(_userRepo.put);
 
-    return users;
+    return Page(
+      users,
+      query.pageInfo.toModel((c) => BlocklistCursor(c)),
+    );
   }
 
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
@@ -580,21 +614,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
-  Future<void> _initBlacklistSubscription() async {
+  Future<void> _initLocalBlocklistSubscription() async {
     _blocklistSubscription = StreamIterator(_blocklistLocal.boxEvents);
     while (await _blocklistSubscription!.moveNext()) {
       final BoxEvent event = _blocklistSubscription!.current;
+      final UserId userId = UserId(event.key);
       if (event.deleted) {
-        blacklist.removeWhere((e) => e.user.value.id.val == event.key);
+        blocklist.remove(userId);
       } else {
-        final RxUser? user =
-            blacklist.firstWhereOrNull((e) => e.user.value.id.val == event.key);
-        if (user == null) {
-          final RxUser? user = await _userRepo.get(UserId(event.key));
-          if (user != null) {
-            blacklist.add(user);
-          }
-        }
+        await _add(userId);
       }
     }
   }
@@ -808,12 +836,12 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.blocklistRecordAdded:
           event as EventBlocklistRecordAdded;
-          _blocklistLocal.put(event.user.value.id);
+          _blocklistPagination.put(event.user);
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:
           event as EventBlocklistRecordRemoved;
-          _blocklistLocal.remove(event.user.value.id);
+          remove(event.user.value.id);
           break;
       }
     }

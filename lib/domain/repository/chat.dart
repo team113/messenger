@@ -272,8 +272,8 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [RxChat].
   RxInt get unreadCount;
 
-  /// Indicates whether this [RxChat] is blacklisted or not.
-  bool get blacklisted =>
+  /// Indicates whether this [RxChat] is blocked or not.
+  bool get blocked =>
       chat.value.isDialog &&
       members.values
               .firstWhereOrNull((e) => e.id != me)

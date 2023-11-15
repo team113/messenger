@@ -29,8 +29,8 @@ abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist;
+  /// Returns [User]s blocked by the authenticated [MyUser].
+  RxMap<UserId, RxUser> get blocklist;
 
   /// Initializes the repository.
   ///

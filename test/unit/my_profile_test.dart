@@ -40,8 +40,8 @@ void main() async {
   await myUserProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -59,7 +59,7 @@ void main() async {
         MyUserRepository(
           graphQlProvider,
           myUserProvider,
-          blacklistedUsersProvider,
+          blockedUsersProvider,
           userRepository,
         ),
       ),
@@ -91,7 +91,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -126,6 +126,6 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
   }
 }

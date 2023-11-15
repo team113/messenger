@@ -1151,10 +1151,10 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Removes a [User] being a recipient of this [chat] from the blacklist.
+  /// Removes a [User] being a recipient of this [chat] from the blocklist.
   ///
   /// Only meaningful, if this [chat] is a dialog.
-  Future<void> unblacklist() async {
+  Future<void> unblock() async {
     if (chat?.chat.value.isDialog == true) {
       final RxUser? recipient =
           chat!.members.values.firstWhereOrNull((e) => e.id != me);

@@ -122,7 +122,7 @@ void main() async {
     'status': null,
     'isDeleted': false,
     'dialog': {'id': '004ac2ab-911e-4d67-8671-ebba02758807'},
-    'isBlocked': {'blacklisted': false, 'ver': '2'},
+    'isBlocked': {'ver': '2'},
     'ver': '1'
   };
 
@@ -185,8 +185,8 @@ void main() async {
   await backgroundProvider.init();
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
@@ -323,7 +323,7 @@ void main() async {
           'status': null,
           'isDeleted': false,
           'dialog': null,
-          'isBlocked': {'blacklisted': false, 'ver': '5'},
+          'isBlocked': {'ver': '5'},
           'ver': '4'
         },
       };
@@ -397,7 +397,7 @@ void main() async {
       MyUserRepository(
         graphQlProvider,
         myUserProvider,
-        blacklistedUsersProvider,
+        blockedUsersProvider,
         userRepository,
       ),
     );

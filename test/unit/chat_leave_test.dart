@@ -261,7 +261,6 @@ void main() async {
                       'mutualContactsCount': 0,
                       'isDeleted': false,
                       'isBlocked': {
-                        'blacklisted': false,
                         'ver': '0',
                       },
                     },
@@ -284,7 +283,6 @@ void main() async {
                         'mutualContactsCount': 0,
                         'isDeleted': false,
                         'isBlocked': {
-                          'blacklisted': false,
                           'ver': '0',
                         },
                       },

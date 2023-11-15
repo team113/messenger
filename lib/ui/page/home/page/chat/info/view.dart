@@ -426,7 +426,7 @@ class ChatInfoView extends StatelessWidget {
             ),
           ),
           ActionButton(
-            onPressed: () => _blacklistChat(c, context),
+            onPressed: () => _blocklistChat(c, context),
             text: 'btn_block'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -500,8 +500,8 @@ class ChatInfoView extends StatelessWidget {
     }
   }
 
-  /// Opens a confirmation popup blacklisting this [Chat].
-  Future<void> _blacklistChat(
+  /// Opens a confirmation popup blocking this [Chat].
+  Future<void> _blocklistChat(
     ChatInfoController c,
     BuildContext context,
   ) async {
@@ -520,7 +520,7 @@ class ChatInfoView extends StatelessWidget {
     );
 
     if (result == true) {
-      // TODO: Blacklist this [Chat].
+      // TODO: Block this [Chat].
     }
   }
 }

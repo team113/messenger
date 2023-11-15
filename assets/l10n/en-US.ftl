@@ -266,7 +266,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
-err_blacklisted = You've been added to the blocklist of this user
+err_blocked = You've been added to the blocklist of this user
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
@@ -356,7 +356,7 @@ err_you_already_add_this_email = Indicated E-mail has been added already.
 err_you_already_add_this_phone = Indicated phone has been added already.
 err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
-err_you_are_blacklisted = You are blacklisted
+err_you_are_blocked = You are blacklisted
 err_you_are_not_member = Not a member
 fcm_dialog_title = {$userName ->
         [x] {$userNum}
@@ -894,7 +894,7 @@ label_was_removed2 = {" "}left the group
 label_work_with_us = Work with us
 label_you = You
 label_you_were_added_to_group = You were added to the group
-label_your_blacklist = Your blacklist
+label_your_blocklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
 plus = +
 space = {" "}

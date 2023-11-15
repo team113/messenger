@@ -113,8 +113,8 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns the [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _myUserService.blacklist;
+  /// Returns the [User]s blocked by the authenticated [MyUser].
+  RxMap<UserId, RxUser> get blocklist => _myUserService.blocklist;
 
   @override
   void onInit() {

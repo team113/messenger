@@ -565,7 +565,7 @@ class ChatsTabView extends StatelessWidget {
                                       chat,
                                       key: Key('SearchChat_${chat.id}'),
                                       me: c.me,
-                                      blocked: chat.blacklisted,
+                                      blocked: chat.blocked,
                                       getUser: c.getUser,
                                       onCall: (video) => c.call(chat.id, video),
                                       onJoin: () => c.joinCall(chat.id),
@@ -722,7 +722,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? const Key('ChatMonolog')
                                     : Key('RecentChat_${e.id}'),
                                 me: c.me,
-                                blocked: e.blacklisted,
+                                blocked: e.blocked,
                                 selected: selected,
                                 getUser: c.getUser,
                                 avatarBuilder: c.selecting.value

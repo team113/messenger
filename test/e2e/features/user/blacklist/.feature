@@ -15,9 +15,9 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blacklist
+Feature: Blocklist
 
-  Scenario: Blacklisted user cannot send me a message
+  Scenario: Blocked user cannot send me a message
     Given I am Alice
     And user Bob
     And Bob has dialog with me
@@ -27,7 +27,7 @@ Feature: Blacklist
     And I scroll `UserScrollable` until `Block` is present
     And I tap `Block` button
     And I tap `Proceed` button
-    Then Bob sends message to me and receives blacklisted exception
+    Then Bob sends message to me and receives blocked exception
 
     When I scroll `UserScrollable` until `Unblock` is present
     And I tap `Unblock` button

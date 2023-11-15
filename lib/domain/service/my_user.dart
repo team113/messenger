@@ -48,8 +48,8 @@ class MyUserService extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _userRepo.blacklist;
+  /// Returns [User]s blocked by the authenticated [MyUser].
+  RxMap<UserId, RxUser> get blocklist => _userRepo.blocklist;
 
   @override
   void onInit() {

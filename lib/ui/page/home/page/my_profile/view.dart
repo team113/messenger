@@ -51,7 +51,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
-import 'blacklist/view.dart';
+import 'blocklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -770,7 +770,7 @@ Widget _language(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.blacklist] section.
+/// Returns the contents of a [ProfileTab.blocklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -778,10 +778,10 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         FieldButton(
-          text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
+          text: 'label_users_count'.l10nfmt({'count': c.blocklist.length}),
           onPressed:
-              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: c.blacklist.isEmpty
+              c.blocklist.isEmpty ? null : () => BlocklistView.show(context),
+          style: c.blocklist.isEmpty
               ? style.fonts.normal.regular.onBackground
               : style.fonts.normal.regular.primary,
         ),

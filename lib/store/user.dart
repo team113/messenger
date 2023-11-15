@@ -338,7 +338,7 @@ class UserRepository extends DisposableInterface
 
     if (saved == null ||
         saved.ver < user.ver ||
-        saved.blacklistedVer < user.blacklistedVer ||
+        saved.blockedVer < user.blockedVer ||
         ignoreVersion) {
       await _userLocal.put(user);
     }

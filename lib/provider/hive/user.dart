@@ -78,7 +78,7 @@ class HiveUser extends HiveObject {
   HiveUser(
     this.value,
     this.ver,
-    this.blacklistedVer,
+    this.blockedVer,
   );
 
   /// Persisted [User] model.
@@ -92,10 +92,10 @@ class HiveUser extends HiveObject {
   @HiveField(1)
   UserVersion ver;
 
-  /// Version of the authenticated [MyUser]'s blacklist state.
+  /// Version of the authenticated [MyUser]'s blocklist state.
   ///
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
   @HiveField(2)
-  MyUserVersion blacklistedVer;
+  MyUserVersion blockedVer;
 }

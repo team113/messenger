@@ -224,7 +224,7 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
-                          if (c.chat?.blacklisted == true) {
+                          if (c.chat?.blocked == true) {
                             return const SizedBox.shrink();
                           }
 
@@ -866,8 +866,8 @@ class _ChatViewState extends State<ChatView>
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
-    if (c.chat?.blacklisted == true) {
-      return SafeArea(child: UnblockButton(c.unblacklist));
+    if (c.chat?.blocked == true) {
+      return SafeArea(child: UnblockButton(c.unblock));
     }
 
     return Obx(() {

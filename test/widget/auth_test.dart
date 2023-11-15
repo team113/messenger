@@ -91,8 +91,8 @@ void main() async {
   await backgroundProvider.init(userId: const UserId('me'));
   var credentialsProvider = ChatCallCredentialsHiveProvider();
   await credentialsProvider.init(userId: const UserId('me'));
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init(userId: const UserId('me'));
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init(userId: const UserId('me'));
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init(userId: const UserId('me'));
   var monologProvider = MonologHiveProvider();
@@ -201,7 +201,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -272,7 +272,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
   }
 
   @override

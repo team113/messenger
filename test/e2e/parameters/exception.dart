@@ -18,7 +18,7 @@
 import 'package:gherkin/gherkin.dart';
 
 /// Exception types available in a [ExceptionParameter].
-enum ExceptionType { blacklisted, no }
+enum ExceptionType { blocked, no }
 
 /// [CustomParameter] representing a thrown [Exception].
 class ExceptionParameter extends CustomParameter<ExceptionType> {
