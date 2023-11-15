@@ -99,10 +99,10 @@ class CallWorker extends DisposableService {
 
   /// Returns the name of an incoming call sound asset.
   String get _incoming =>
-      PlatformUtils.isWeb ? 'chinese-web.mp3' : 'chinese.mp3';
+      PlatformUtils.isWeb ? 'incoming_call_web.mp3' : 'incoming_call.mp3';
 
   /// Returns the name of an outgoing call sound asset.
-  String get _outgoing => 'ringing.mp3';
+  String get _outgoing => 'outgoing_call.mp3';
 
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].

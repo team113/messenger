@@ -70,7 +70,7 @@ class ChatInfoCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
+                  AvatarWidget.fromRxChat(chat, radius: AvatarRadius.large),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

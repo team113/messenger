@@ -116,9 +116,9 @@ class _WorkViewState extends State<WorkView> {
                           onPressed: () {
                             // No-op.
                           },
-                          child: Icon(
-                            Icons.more_vert,
-                            color: style.colors.primary,
+                          child: const Padding(
+                            padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            child: SvgIcon(SvgIcons.more),
                           ),
                         ),
                       ],

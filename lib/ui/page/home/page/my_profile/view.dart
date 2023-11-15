@@ -841,11 +841,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child:
-                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+            child: const SvgIcon(SvgIcons.delete),
           ),
           onPressed: () => _deleteAccount(c, context),
           style: style.fonts.normal.regular.primary,
