@@ -1160,17 +1160,26 @@ class SvgIcons {
 
   static const SvgData callAudioMissed = SvgData(
     'assets/icons/call_audio_red.svg',
-    height: 12,
+    width: 12.3,
+    height: 12.3,
+  );
+
+  static const SvgData callAudioEnd = SvgData(
+    'assets/icons/call_audio_end.svg',
+    width: 14.74,
+    height: 12.3,
   );
 
   static const SvgData callAudioWhite = SvgData(
     'assets/icons/call_audio_white.svg',
-    height: 12,
+    width: 12.3,
+    height: 12.3,
   );
 
   static const SvgData callAudioDisabled = SvgData(
     'assets/icons/call_audio_grey.svg',
-    height: 12,
+    width: 12.3,
+    height: 12.3,
   );
 
   static const SvgData callVideo = SvgData(
@@ -1180,17 +1189,20 @@ class SvgIcons {
 
   static const SvgData callVideoMissed = SvgData(
     'assets/icons/call_video_red.svg',
-    height: 11,
+    width: 16.38,
+    height: 11.3,
   );
 
   static const SvgData callVideoWhite = SvgData(
     'assets/icons/call_video_white.svg',
-    height: 11,
+    width: 16.38,
+    height: 11.3,
   );
 
   static const SvgData callVideoDisabled = SvgData(
     'assets/icons/call_video_grey.svg',
-    height: 11,
+    width: 16.38,
+    height: 11.3,
   );
 
   static const SvgData download = SvgData(

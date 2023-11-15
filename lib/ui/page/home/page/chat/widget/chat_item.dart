@@ -1450,10 +1450,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             (call?.withVideo ?? false)
                 ? isMissed
                     ? SvgIcons.callVideoMissed
-                    : SvgIcons.callVideo
+                    : SvgIcons.callVideoDisabled
                 : isMissed
                     ? SvgIcons.callAudioMissed
-                    : SvgIcons.callAudio,
+                    : SvgIcons.callAudioDisabled,
           ),
         ),
         Flexible(

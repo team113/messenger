@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart' show ChatCallFinishReason;
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
@@ -163,12 +164,16 @@ class RecentChatTile extends StatelessWidget {
       final bool isRoute = chat.isRoute(router.route, me);
       final bool inverted = selected || active || isRoute;
 
-      final bool paid = rxChat.chat.value.isDialog &&
+      final bool paid = rxChat.members.values.any(
+        (e) =>
+            e.user.value.id != myUser?.id &&
+            (e.user.value.name?.val.toLowerCase() == 'kirey' ||
+                e.user.value.name?.val.toLowerCase() == 'alex2'),
+      );
+
+      final bool payee = rxChat.chat.value.isDialog &&
           (myUser?.name?.val.toLowerCase() == 'alex2' ||
-              myUser?.name?.val.toLowerCase() == 'kirey' ||
-              rxChat.members.values.any((e) =>
-                  e.user.value.name?.val.toLowerCase() == 'kirey' ||
-                  e.user.value.name?.val.toLowerCase() == 'alex2'));
+              myUser?.name?.val.toLowerCase() == 'kirey');
 
       return ChatTile(
         chat: rxChat,
@@ -189,25 +194,27 @@ class RecentChatTile extends StatelessWidget {
             ],
           );
         },
+        basement: payee
+            ? const Padding(
+                padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
+                child: Text('Входящий звонок: ..., входящие сообщения: ...'),
+              )
+            : null,
         status: [
           const SizedBox(height: 28),
           if (trailing == null) ...[
             _ongoingCall(context),
             if (blocked) ...[
               const SizedBox(width: 5),
-              SvgIcon(
-                inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
-              ),
-              const SizedBox(width: 5),
+              SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
             ] else if (paid) ...[
               const SizedBox(width: 4),
               UnreadCounter(
                 '\$',
-                color: const Color(0xFF6FB876),
+                color: style.colors.acceptPrimary,
                 inverted: inverted,
                 dimmed: true,
               ),
-              const SizedBox(width: 4),
             ],
             if (rxChat.unreadCount.value > 0) ...[
               const SizedBox(width: 4),
@@ -221,7 +228,7 @@ class RecentChatTile extends StatelessWidget {
               ),
             ] else ...[
               if (chat.muted != null) ...[
-                const SizedBox(width: 5),
+                const SizedBox(width: 4),
                 UnreadCounter(
                   null,
                   dimmed: true,
@@ -229,7 +236,6 @@ class RecentChatTile extends StatelessWidget {
                   icon: inverted ? SvgIcons.muted : SvgIcons.mutedWhite,
                   key: Key('MuteIndicator_${chat.id}'),
                 ),
-                const SizedBox(width: 5),
               ],
               const SizedBox(key: Key('NoUnreadMessages')),
             ],
@@ -244,6 +250,7 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 const SizedBox(height: 3),
                 Expanded(child: _subtitle(context, selected, inverted)),
+                const SizedBox(width: 3),
                 _status(context, inverted),
                 if (!chat.id.isLocalWith(me))
                   Text(
@@ -463,16 +470,24 @@ class RecentChatTile extends StatelessWidget {
         ];
       } else if (item != null) {
         if (item is ChatCall) {
+          final bool isMissed =
+              item.finishReason == ChatCallFinishReason.dropped ||
+                  item.finishReason == ChatCallFinishReason.unanswered;
+
           Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
             child: SvgIcon(
               item.withVideo
                   ? inverted
                       ? SvgIcons.callVideoWhite
-                      : SvgIcons.callVideoDisabled
+                      : isMissed
+                          ? SvgIcons.callVideoMissed
+                          : SvgIcons.callVideoDisabled
                   : inverted
                       ? SvgIcons.callAudioWhite
-                      : SvgIcons.callAudioDisabled,
+                      : isMissed
+                          ? SvgIcons.callAudioMissed
+                          : SvgIcons.callAudioDisabled,
               // Icons.call,
               // size: 16,
               // color: inverted
@@ -921,11 +936,16 @@ class RecentChatTile extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
                 child: Row(
                   children: [
-                    Icon(
-                      displayed ? Icons.call_end : Icons.call,
-                      size: 16,
-                      color: style.colors.onPrimary,
+                    SvgIcon(
+                      displayed
+                          ? SvgIcons.callAudioWhite
+                          : SvgIcons.callAudioEnd,
                     ),
+                    // Icon(
+                    //   displayed ? Icons.call_end : Icons.call,
+                    //   size: 16,
+                    //   color: style.colors.onPrimary,
+                    // ),
                     const SizedBox(width: 6),
                     PeriodicBuilder(
                       period: const Duration(seconds: 1),

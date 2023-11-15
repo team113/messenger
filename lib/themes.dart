@@ -105,6 +105,7 @@ class Themes {
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       accept: const Color(0x7F34B139),
+      acceptPrimary: const Color(0xFF6eb876),
       acceptAuxiliary: const Color(0xFF4CAF50),
       acceptLight: const Color(0xFFBFE3B9),
       acceptLighter: const Color(0xFFD9FDD3),
@@ -701,6 +702,7 @@ class Palette {
     Color? onBackgroundOpacity70,
     required this.transparent,
     required this.accept,
+    required this.acceptPrimary,
     required this.acceptAuxiliary,
     required this.acceptLight,
     required this.acceptLighter,
@@ -972,6 +974,8 @@ class Palette {
   /// [Color] displaying pleasant action confirmation messages.
   final Color acceptAuxiliary;
 
+  final Color acceptPrimary;
+
   /// Light variant of the [accept] color.
   final Color acceptLight;
 
@@ -1089,6 +1093,7 @@ class Palette {
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
       accept: Color.lerp(color.accept, other.accept, t)!,
+      acceptPrimary: Color.lerp(color.acceptPrimary, other.acceptPrimary, t)!,
       acceptAuxiliary:
           Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
       acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,

@@ -52,6 +52,7 @@ class ChatTile extends StatefulWidget {
     this.paid = false,
     this.highlight = false,
     this.dimmed = false,
+    this.basement,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -112,6 +113,8 @@ class ChatTile extends StatefulWidget {
 
   final bool highlight;
 
+  final Widget? basement;
+
   @override
   State<ChatTile> createState() => _ChatTileState();
 
@@ -138,7 +141,7 @@ class _ChatTileState extends State<ChatTile> {
     final Border hoverBorder =
         Border.all(color: style.colors.primaryHighlightShiniest, width: 0.5);
     final Border paidBorder =
-        Border.all(color: const Color(0xFFDCEBFA), width: 0.5);
+        Border.all(color: style.colors.acceptPrimary, width: 0.5);
     final Border chosenBorder =
         Border.all(color: const Color(0xFF58A6EF), width: 0.5);
 
@@ -148,118 +151,157 @@ class _ChatTileState extends State<ChatTile> {
       actions: widget.actions,
       indicateOpenedMenu: true,
       enabled: widget.enableContextMenu,
-      child: SizedBox(
-        height: widget.height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: FoldedWidget(
-            radius: 15,
-            folded: widget.folded,
-            child: InkWellWithHover(
-              selectedColor: chosen,
-              unselectedColor: widget.dimmed
-                  ? style.colors.onPrimaryOpacity50
-                  : widget.highlight
-                      ? paid
-                      : normal.darken(widget.darken),
-              selectedHoverColor: chosen,
-              unselectedHoverColor:
-                  widget.highlight ? paid.darken(0.03) : style.cardHoveredColor,
-              // unselectedHoverColor:
-              //     (widget.highlight ? paid : normal).darken(0.03),
-              border: widget.selected
-                  ? chosenBorder
-                  : widget.highlight
-                      ? paidBorder
-                      : normalBorder,
-              hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
-              selected: widget.selected || widget.active,
-              borderRadius: style.cardRadius,
-              onTap: widget.onTap,
-              folded: widget.chat?.chat.value.favoritePosition != null,
-              child: Padding(
-                key: widget.chat?.chat.value.favoritePosition != null
-                    ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
-                    : null,
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                child: Row(
-                  children: [
-                    // AvatarWidget.fromRxChat(
-                    //   widget.chat,
-                    //   key: _avatarKey,
-                    //   radius: 30,
-                    // ),
-                    widget.avatarBuilder(
-                      AvatarWidget.fromRxChat(
-                        widget.chat,
-                        key: _avatarKey,
-                        radius: 30,
-                      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        // height: widget.height,
+        child: FoldedWidget(
+          radius: 15,
+          folded: widget.folded,
+          child: InkWellWithHover(
+            selectedColor:
+                widget.basement == null ? chosen : style.colors.acceptPrimary,
+            unselectedColor: widget.dimmed
+                ? style.colors.onPrimaryOpacity50
+                : normal.darken(widget.darken),
+            selectedHoverColor:
+                widget.basement == null ? chosen : style.colors.acceptPrimary,
+            unselectedHoverColor:
+                widget.highlight ? paid.darken(0.03) : style.cardHoveredColor,
+            // unselectedHoverColor:
+            //     (widget.highlight ? paid : normal).darken(0.03),
+            border: widget.selected
+                ? chosenBorder
+                : widget.basement != null
+                    ? paidBorder
+                    : normalBorder,
+            hoveredBorder: widget.basement != null
+                ? paidBorder
+                : widget.selected
+                    ? chosenBorder
+                    : hoverBorder,
+            selected: widget.selected || widget.active,
+            borderRadius: style.cardRadius,
+            onTap: widget.onTap,
+            folded: widget.chat?.chat.value.favoritePosition != null,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: widget.height,
+                  child: Padding(
+                    key: widget.chat?.chat.value.favoritePosition != null
+                        ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
+                        : null,
+                    padding: EdgeInsets.fromLTRB(
+                      12,
+                      4,
+                      12,
+                      widget.basement == null ? 4 : 0,
                     ),
-                    const SizedBox(width: 12),
-                    ...widget.leading,
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                    child: Row(
+                      children: [
+                        // AvatarWidget.fromRxChat(
+                        //   widget.chat,
+                        //   key: _avatarKey,
+                        //   radius: 30,
+                        // ),
+                        widget.avatarBuilder(
+                          AvatarWidget.fromRxChat(
+                            widget.chat,
+                            key: _avatarKey,
+                            radius: 30,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ...widget.leading,
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      child: widget.titleBuilder(
-                                        widget.chat == null
-                                            ? Text(
-                                                ('dot'.l10n * 3),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1,
-                                                style: style.fonts.big.regular
-                                                    .onBackground
-                                                    .copyWith(
-                                                  color: widget.selected ||
-                                                          widget.active
-                                                      ? style.colors.onPrimary
-                                                      : style
-                                                          .colors.onBackground,
-                                                ),
-                                              )
-                                            : Obx(() {
-                                                return Text(
-                                                  widget.chat?.title.value ??
-                                                      ('dot'.l10n * 3),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                  style: style.fonts.big.regular
-                                                      .onBackground
-                                                      .copyWith(
-                                                    color: widget.selected ||
-                                                            widget.active
-                                                        ? style.colors.onPrimary
-                                                        : style.colors
-                                                            .onBackground,
-                                                  ),
-                                                );
-                                              }),
-                                      ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: widget.titleBuilder(
+                                            widget.chat == null
+                                                ? Text(
+                                                    ('dot'.l10n * 3),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    style: style.fonts.big
+                                                        .regular.onBackground
+                                                        .copyWith(
+                                                      color: widget.selected ||
+                                                              widget.active
+                                                          ? style
+                                                              .colors.onPrimary
+                                                          : style.colors
+                                                              .onBackground,
+                                                    ),
+                                                  )
+                                                : Obx(() {
+                                                    return Text(
+                                                      widget.chat?.title
+                                                              .value ??
+                                                          ('dot'.l10n * 3),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      style: style.fonts.big
+                                                          .regular.onBackground
+                                                          .copyWith(
+                                                        color: widget
+                                                                    .selected ||
+                                                                widget.active
+                                                            ? style.colors
+                                                                .onPrimary
+                                                            : style.colors
+                                                                .onBackground,
+                                                      ),
+                                                    );
+                                                  }),
+                                          ),
+                                        ),
+                                        ...widget.title,
+                                      ],
                                     ),
-                                    ...widget.title,
-                                  ],
-                                ),
+                                  ),
+                                  ...widget.status,
+                                ],
                               ),
-                              ...widget.status,
+                              ...widget.subtitle,
                             ],
                           ),
-                          ...widget.subtitle,
-                        ],
-                      ),
+                        ),
+                        ...widget.trailing,
+                      ],
                     ),
-                    ...widget.trailing,
-                  ],
+                  ),
                 ),
-              ),
+                if (widget.basement != null)
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: style.cardRadius.copyWith(
+                        topLeft: Radius.zero,
+                        topRight: Radius.zero,
+                      ),
+                      color: widget.selected || widget.active
+                          ? style.colors.onPrimary
+                          : style.colors.acceptPrimary,
+                    ),
+                    child: DefaultTextStyle(
+                      style: widget.selected || widget.active
+                          ? style.fonts.small.regular.onBackground
+                          : style.fonts.small.regular.onPrimary,
+                      child: widget.basement!,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

@@ -50,8 +50,8 @@ class UnreadCounter extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      width: 23,
-      height: 23,
+      width: 26,
+      height: 26,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: dimmed
@@ -65,8 +65,8 @@ class UnreadCounter extends StatelessWidget {
           ? Text(
               text ?? '',
               style: dimmed && inverted
-                  ? style.fonts.small.regular.secondary
-                  : style.fonts.small.regular.onPrimary,
+                  ? style.fonts.normal.regular.secondary
+                  : style.fonts.normal.regular.onPrimary,
               maxLines: 1,
               overflow: TextOverflow.clip,
               textAlign: TextAlign.center,
