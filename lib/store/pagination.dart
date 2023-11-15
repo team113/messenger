@@ -94,25 +94,8 @@ class Pagination<T, C, K> {
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
-  /// Disposes this [Pagination].
-  void dispose() {
-    _cancelToken.cancel();
-    _disposed = true;
-  }
-
-  /// Resets this [Pagination] to its initial state.
-  Future<void> clear() {
-    Log.print('clear()', 'Pagination');
-    items.clear();
-    hasNext.value = true;
-    hasPrevious.value = true;
-    startCursor = null;
-    endCursor = null;
-    return provider.clear();
-  }
-
-  /// Sets the initial [Page] of [items].
-  void setInitialPage(Page<T, C> page) {
+   /// Sets the initial [Page] of [items].
+  set initial(Page<T, C> page) {
     if (items.length < page.edges.length) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
@@ -131,6 +114,25 @@ class Pagination<T, C, K> {
       }
     }
   }
+
+  /// Disposes this [Pagination].
+  void dispose() {
+    _cancelToken.cancel();
+    _disposed = true;
+  }
+
+  /// Resets this [Pagination] to its initial state.
+  Future<void> clear() {
+    Log.print('clear()', 'Pagination');
+    items.clear();
+    hasNext.value = true;
+    hasPrevious.value = true;
+    startCursor = null;
+    endCursor = null;
+    return provider.clear();
+  }
+
+
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {

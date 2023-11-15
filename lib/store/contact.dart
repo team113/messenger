@@ -68,6 +68,7 @@ class ContactRepository extends DisposableInterface
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
 
+  // TODO: Unite [contacts] and [favorites] into single [paginated] list.
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> allContacts = RxObsMap();
 
@@ -415,8 +416,8 @@ class ContactRepository extends DisposableInterface
 
   /// Searches [ChatContact]s by the given criteria.
   ///
-  /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
-  /// (be non-`null`).
+  /// Exactly one of [email]/[phone]/[name] arguments must be specified (be
+  /// non-`null`).
   Future<Page<RxChatContact, ChatContactsCursor>> _search({
     UserName? name,
     UserEmail? email,
@@ -511,7 +512,7 @@ class ContactRepository extends DisposableInterface
   /// Adds the provided [HiveChatContact] to the [allContacts] and optionally to
   /// the [contacts] or [favorites].
   void _add(HiveChatContact contact, {bool pagination = false}) {
-    ChatContactId contactId = contact.value.id;
+    final ChatContactId contactId = contact.value.id;
 
     HiveRxChatContact? entry = allContacts[contactId];
 
@@ -600,8 +601,8 @@ class ContactRepository extends DisposableInterface
         node.favoriteChatContacts.info.endCursor =
             node.favoriteChatContacts.edges.lastOrNull?.favoriteCursor;
 
-        _contactsPagination.setInitialPage(node.chatContacts);
-        _favoriteContactsPagination.setInitialPage(node.favoriteChatContacts);
+        _contactsPagination.initial = node.chatContacts;
+        _favoriteContactsPagination.initial = node.favoriteChatContacts;
         break;
 
       case ChatContactsEventsKind.event:
