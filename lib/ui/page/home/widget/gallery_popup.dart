@@ -873,7 +873,7 @@ class _GalleryPopupState extends State<GalleryPopup>
   void _animateToPage(int page) {
     node.requestFocus();
     _pageController.animateToPage(
-      _page + 1,
+      page,
       curve: Curves.linear,
       duration: const Duration(milliseconds: 200),
     );
@@ -935,19 +935,11 @@ class _GalleryPopupState extends State<GalleryPopup>
     if (k is KeyUpEvent) {
       if (k.physicalKey == PhysicalKeyboardKey.arrowRight) {
         if (_page < widget.children.length - 1) {
-          _pageController.animateToPage(
-            _page + 1,
-            curve: Curves.linear,
-            duration: const Duration(milliseconds: 200),
-          );
+          _animateToPage(_page + 1);
         }
       } else if (k.physicalKey == PhysicalKeyboardKey.arrowLeft) {
         if (_page > 0) {
-          _pageController.animateToPage(
-            _page - 1,
-            curve: Curves.linear,
-            duration: const Duration(milliseconds: 200),
-          );
+          _animateToPage(_page - 1);
         }
       } else if (k.physicalKey == PhysicalKeyboardKey.escape) {
         _dismiss();
@@ -994,18 +986,10 @@ class _GalleryPopupState extends State<GalleryPopup>
       if (!_ignorePageSnapping && !horizontalPriority) {
         if (s.scrollDelta.dy > 0 && _page > 0) {
           _resetSnappingTimer();
-          _pageController.animateToPage(
-            _page - 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.linear,
-          );
+          _animateToPage(_page - 1);
         } else if (s.scrollDelta.dy < 0 && _page < widget.children.length - 1) {
           _resetSnappingTimer();
-          _pageController.animateToPage(
-            _page + 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.linear,
-          );
+          _animateToPage(_page + 1);
         }
       }
     }
