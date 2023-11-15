@@ -19,32 +19,32 @@ import 'package:log_me/log_me.dart' as me;
 
 /// Utility logging messages to console.
 class Log {
-  /// Write a fatal [message] with [tag] to the log.
+  /// Writes a fatal [message] with [tag] to the log.
   static void fatal(String message, [String? tag]) {
     me.Log.fatal('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Write an error [message] with [tag] to the log.
+  /// Writes an error [message] with [tag] to the log.
   static void error(String message, [String? tag]) {
     me.Log.error('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Write a warning [message] with [tag] to the log.
+  /// Writes a warning [message] with [tag] to the log.
   static void warning(String message, [String? tag]) {
     me.Log.warning('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Write an information [message] with [tag] to the log.
+  /// Writes an information [message] with [tag] to the log.
   static void info(String message, [String? tag]) {
     me.Log.info('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Write a debug [message] with [tag] to the log.
+  /// Writes a debug [message] with [tag] to the log.
   static void debug(String message, [String? tag]) {
     me.Log.debug('${tag != null ? '[$tag]' : ''} $message');
   }
 
-  /// Write a trace [message] with [tag] to the log.
+  /// Writes a trace [message] with [tag] to the log.
   static void trace(String message, [String? tag]) {
     me.Log.trace('${tag != null ? '[$tag]' : ''} $message');
   }
