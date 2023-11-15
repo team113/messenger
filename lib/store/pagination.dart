@@ -86,7 +86,7 @@ class Pagination<T, C, K> {
 
   /// [CancelToken] for cancelling [init], [around], [next] and [previous]
   /// query.
-  final CancelToken _cancelToken = CancelToken();
+  CancelToken _cancelToken = CancelToken();
 
   /// Indicator whether this [Pagination] has been disposed.
   bool _disposed = false;
@@ -109,6 +109,27 @@ class Pagination<T, C, K> {
     startCursor = null;
     endCursor = null;
     return provider.clear();
+  }
+
+  /// Sets the initial [Page] of [items].
+  void setInitialPage(Page<T, C> page) {
+    if (items.length < page.edges.length) {
+      _cancelToken.cancel();
+      _cancelToken = CancelToken();
+
+      for (var e in page.edges) {
+        items[onKey(e)] = e;
+      }
+
+      startCursor = page.info.startCursor;
+      endCursor = page.info.endCursor;
+      hasNext.value = page.info.hasNext;
+      hasPrevious.value = page.info.hasPrevious;
+    } else {
+      for (var e in page.edges) {
+        put(e);
+      }
+    }
   }
 
   /// Fetches the initial [Page] of [items].

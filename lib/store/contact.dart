@@ -89,6 +89,14 @@ class ContactRepository extends DisposableInterface
   /// [CombinedPagination] loading [contacts] and [favorites] with pagination.
   late final CombinedPagination<HiveChatContact, ChatContactId> _pagination;
 
+  /// [Pagination] loading [favorites] contacts with pagination.
+  late Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
+      _favoriteContactsPagination;
+
+  /// [Pagination] loading [contacts] with pagination.
+  late Pagination<HiveChatContact, ChatContactsCursor, ChatContactId>
+      _contactsPagination;
+
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
 
@@ -347,8 +355,7 @@ class ContactRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initPagination() async {
-    final Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
-        favorites = Pagination(
+    _favoriteContactsPagination = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -363,8 +370,7 @@ class ContactRepository extends DisposableInterface
           b.value.favoritePosition!.compareTo(a.value.favoritePosition!),
     );
 
-    final Pagination<HiveChatContact, ChatContactsCursor, ChatContactId>
-        contacts = Pagination(
+    _contactsPagination = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -380,11 +386,11 @@ class ContactRepository extends DisposableInterface
 
     _pagination = CombinedPagination([
       CombinedPaginationEntry(
-        favorites,
+        _favoriteContactsPagination,
         addIf: (e) => e.value.favoritePosition != null,
       ),
       CombinedPaginationEntry(
-        contacts,
+        _contactsPagination,
         addIf: (e) => e.value.favoritePosition == null,
       ),
     ]);
@@ -587,12 +593,15 @@ class ContactRepository extends DisposableInterface
 
       case ChatContactsEventsKind.chatContactsList:
         var node = event as ChatContactsEventsChatContactsList;
-        var chatContacts = [...node.chatContacts, ...node.favoriteChatContacts];
         _sessionLocal.setChatContactsListVersion(node.ver);
 
-        for (HiveChatContact c in chatContacts) {
-          _putChatContact(c);
-        }
+        // TODO: Remove when `favoriteChatContacts.info.endCursor` will be
+        //       [FavoriteChatContactsCursor].
+        node.favoriteChatContacts.info.endCursor =
+            node.favoriteChatContacts.edges.lastOrNull?.favoriteCursor;
+
+        _contactsPagination.setInitialPage(node.chatContacts);
+        _favoriteContactsPagination.setInitialPage(node.favoriteChatContacts);
         break;
 
       case ChatContactsEventsKind.event:
@@ -804,14 +813,26 @@ class ContactRepository extends DisposableInterface
         } else if (events.$$typename == 'ChatContactsList') {
           var list = events
               as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
-          for (var u in list.chatContacts.nodes
-              .map((e) => e.getHiveUsers())
+          for (var u in list.chatContacts.edges
+              .map((e) => e.node.getHiveUsers())
               .expand((e) => e)) {
             _userRepo.put(u);
           }
           yield ChatContactsEventsChatContactsList(
-            list.chatContacts.nodes.map((e) => e.toHive()).toList(),
-            list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
+            Page(
+              list.chatContacts.edges
+                  .map((e) => e.node.toHive(cursor: e.cursor))
+                  .where((e) => e.value.favoritePosition == null)
+                  .toList(),
+              list.chatContacts.pageInfo.toModel((c) => ChatContactsCursor(c)),
+            ),
+            Page(
+              list.favoriteChatContacts.edges
+                  .map((e) => e.node.toHive(favoriteCursor: e.cursor))
+                  .toList(),
+              list.chatContacts.pageInfo
+                  .toModel((c) => FavoriteChatContactsCursor(c)),
+            ),
             list.chatContacts.ver,
           );
         } else if (events.$$typename == 'ChatContactEventsVersioned') {

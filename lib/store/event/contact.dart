@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '../model/contact.dart';
+import '../pagination.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -72,10 +73,10 @@ class ChatContactsEventsChatContactsList extends ChatContactsEvents {
   );
 
   /// Initial state of non-favorite [ChatContact]s list.
-  final List<HiveChatContact> chatContacts;
+  final Page<HiveChatContact, ChatContactsCursor> chatContacts;
 
   /// Initial state of favorite [ChatContact]s list.
-  final List<HiveChatContact> favoriteChatContacts;
+  final Page<HiveChatContact, FavoriteChatContactsCursor> favoriteChatContacts;
 
   /// Version of the initial [ChatContact]s list.
   final ChatContactsListVersion ver;
