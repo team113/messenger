@@ -868,9 +868,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
-                  return AvatarWidget.fromRxUser(data, radius: 10);
+                  return AvatarWidget.fromRxUser(
+                    data,
+                    radius: AvatarRadius.smaller,
+                  );
                 }
-                return AvatarWidget.fromUser(user, radius: 10);
+                return AvatarWidget.fromUser(
+                  user,
+                  radius: AvatarRadius.smaller,
+                );
               },
             ),
           ),
@@ -881,7 +887,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+            child: AvatarWidget(
+              title: 'plus'.l10n,
+              radius: AvatarRadius.smaller,
+            ),
           ),
         );
       }
@@ -1002,7 +1011,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(widget.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 17),
+                    child: AvatarWidget.fromRxUser(
+                      widget.user,
+                      radius: AvatarRadius.medium,
+                    ),
                   ),
                 ),
               Flexible(
@@ -1028,7 +1040,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_info'.l10n
                                   : 'btn_message_info'.l10n,
-                              trailing: const Icon(Icons.info_outline),
+                              trailing: const SvgIcon(SvgIcons.info),
                               onPressed: () => MessageInfo.show(
                                 context,
                                 id: widget.forwards.first.value.id,
@@ -1041,7 +1053,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_copy'.l10n
                                     : 'btn_copy_text'.l10n,
-                                trailing: const SvgIcon(SvgIcons.copy),
+                                trailing: Transform.translate(
+                                  offset: const Offset(-2, 0),
+                                  child: const SvgIcon(SvgIcons.copy18),
+                                ),
                                 onPressed: () => widget.onCopy
                                     ?.call(_selection?.plainText ?? copyable!),
                               ),
@@ -1050,10 +1065,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/reply.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.reply),
                               onPressed: widget.onReply,
                             ),
                             ContextMenuButton(
@@ -1061,7 +1073,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_forward'.l10n
                                   : 'btn_forward_message'.l10n,
-                              trailing: const SvgIcon(SvgIcons.forward),
+                              trailing: const SvgIcon(SvgIcons.forwardSmall),
                               onPressed: () async {
                                 final List<ChatItemQuoteInput> quotes = [];
 
@@ -1095,20 +1107,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/edit.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.edit),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/delete_small.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.deleteThick),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = widget.authorId == widget.me &&
