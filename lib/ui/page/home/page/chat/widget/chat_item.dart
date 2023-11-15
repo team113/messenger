@@ -1443,9 +1443,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
-                  return AvatarWidget.fromRxUser(data, radius: 10);
+                  return AvatarWidget.fromRxUser(
+                    data,
+                    radius: AvatarRadius.smaller,
+                  );
                 }
-                return AvatarWidget.fromUser(user, radius: 10);
+                return AvatarWidget.fromUser(
+                  user,
+                  radius: AvatarRadius.smaller,
+                );
               },
             ),
           ),
@@ -1456,7 +1462,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+            child: AvatarWidget(
+              title: 'plus'.l10n,
+              radius: AvatarRadius.smaller,
+            ),
           ),
         );
       }
@@ -1609,8 +1618,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.author.id, push: true),
-                          child:
-                              AvatarWidget.fromRxUser(widget.user, radius: 17),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: AvatarRadius.medium,
+                          ),
                         )
                       : const SizedBox(width: 34),
                 ),
@@ -1740,11 +1751,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/send_small.svg',
-                                width: 18.37,
-                                height: 16,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.sendSmall),
                               onPressed: widget.onResend,
                             ),
                             ContextMenuButton(

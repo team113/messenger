@@ -29,12 +29,19 @@ class Block extends StatelessWidget {
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.expanded,
-    this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    this.padding = defaultPadding,
+    this.margin = defaultMargin,
     this.children = const [],
+    this.background,
+    this.headline,
+    this.maxWidth = 400,
   });
 
   /// Optional header of this [Block].
   final String? title;
+
+  /// Optional headline of this [Block].
+  final String? headline;
 
   /// Indicator whether this [Block] should be highlighted.
   final bool highlight;
@@ -51,50 +58,105 @@ class Block extends StatelessWidget {
   /// Padding to apply to the [children].
   final EdgeInsets padding;
 
+  /// Margin to apply to the [Block].
+  final EdgeInsets margin;
+
   /// [Widget]s to display.
   final List<Widget> children;
+
+  /// Optional background [Color] of this [Block].
+  final Color? background;
+
+  /// Maximum width this [Block] should occupy.
+  final double maxWidth;
+
+  /// Default [Block.padding] of its contents.
+  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
+
+  /// Default [Block.margin] to apply.
+  static const EdgeInsets defaultMargin = EdgeInsets.fromLTRB(8, 4, 8, 4);
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final InputBorder border = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: style.primaryBorder.top.color,
+        width: style.primaryBorder.top.width,
+      ),
+      borderRadius: BorderRadius.circular(15),
+    );
+
     return HighlightedContainer(
       highlight: highlight == true,
       child: Center(
         child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          decoration: BoxDecoration(
-            border: style.primaryBorder,
-            color: style.messageColor,
-            borderRadius: BorderRadius.circular(15),
-          ),
+          padding: margin,
           constraints: (expanded ?? context.isNarrow)
               ? null
-              : const BoxConstraints(maxWidth: 400),
-          padding: padding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: crossAxisAlignment,
-            children: [
-              if (title != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                      child: Text(
-                        title!,
-                        style: style.fonts.big.regular.onBackground,
-                      ),
-                    ),
+              : BoxConstraints(maxWidth: maxWidth),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: background ?? style.messageColor,
+              focusedBorder: border,
+              errorBorder: border,
+              enabledBorder: border,
+              disabledBorder: border,
+              focusedErrorBorder: border,
+              contentPadding: const EdgeInsets.all(12),
+              border: border,
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: padding,
+                  child: Column(
+                    crossAxisAlignment: crossAxisAlignment,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (title != null) ...[
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                            child: Text(
+                              title!,
+                              textAlign: TextAlign.center,
+                              style: style.fonts.big.regular.onBackground,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      ...children,
+                    ],
                   ),
                 ),
-              ...children,
-            ],
+                if (headline != null)
+                  Positioned(
+                    child: Text(headline!, style: _headlineStyle(context)),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  /// Returns the [TextStyle] to display [headline] with.
+  TextStyle _headlineStyle(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    if (background != null) {
+      final HSLColor hsl = HSLColor.fromColor(background!);
+      if (hsl.lightness < 0.5 && hsl.alpha > 0.2) {
+        return style.fonts.small.regular.onPrimary;
+      }
+    }
+
+    return style.fonts.small.regular.secondaryHighlightDarkest;
   }
 }

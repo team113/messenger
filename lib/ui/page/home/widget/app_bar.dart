@@ -32,6 +32,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.padding,
     this.border,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
+    this.top = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -52,6 +53,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
 
+  /// Indicator whether [SafeArea.top] padding should be applied.
+  final bool top;
+
   /// Height of the [CustomAppBar].
   static const double height = 60;
 
@@ -62,14 +66,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final double top = MediaQuery.of(context).padding.top;
+    double topPadding = 0;
+    if (top) {
+      topPadding = MediaQuery.of(context).padding.top;
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (top != 0)
+        if (topPadding != 0)
           Container(
-            height: top,
+            height: topPadding,
             width: double.infinity,
             color: style.colors.transparent,
           ),
