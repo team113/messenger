@@ -666,8 +666,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
-    final style = Theme.of(context).style;
-
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
@@ -692,45 +690,33 @@ class _GalleryPopupState extends State<GalleryPopup>
                 opacity: _displayLeft || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: Builder(builder: (context) {
-                    void Function()? onPressed = left
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page - 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null;
-
-                    return WidgetButton(
-                      onPressed: onPressed,
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        width: 60 + 16,
-                        height: double.infinity,
-                        child: Center(
-                          child: GalleryButton(
-                            onPressed: onPressed,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Center(
-                                child: Transform.translate(
-                                  offset: const Offset(-1, 0),
-                                  child: SvgIcon(
-                                    left
-                                        ? SvgIcons.arrowLeft
-                                        : SvgIcons.arrowLeftDisabled,
-                                  ),
+                  child: WidgetButton(
+                    onPressed: left ? () => _animateToPage(_page - 1) : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: GalleryButton(
+                          onPressed:
+                              left ? () => _animateToPage(_page - 1) : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 1),
+                            child: Center(
+                              child: Transform.translate(
+                                offset: const Offset(-1, 0),
+                                child: SvgIcon(
+                                  left
+                                      ? SvgIcons.arrowLeft
+                                      : SvgIcons.arrowLeftDisabled,
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -744,45 +730,33 @@ class _GalleryPopupState extends State<GalleryPopup>
                 opacity: _displayRight || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
-                  child: Builder(builder: (context) {
-                    void Function()? onPressed = right
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page + 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null;
-
-                    return WidgetButton(
-                      onPressed: onPressed,
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
-                        width: 60 + 16,
-                        height: double.infinity,
-                        child: Center(
-                          child: GalleryButton(
-                            onPressed: onPressed,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 1),
-                              child: Center(
-                                child: Transform.translate(
-                                  offset: const Offset(1, 0),
-                                  child: SvgIcon(
-                                    right
-                                        ? SvgIcons.arrowRight
-                                        : SvgIcons.arrowRightDisabled,
-                                  ),
+                  child: WidgetButton(
+                    onPressed: right ? () => _animateToPage(_page + 1) : null,
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      width: 60 + 16,
+                      height: double.infinity,
+                      child: Center(
+                        child: GalleryButton(
+                          onPressed:
+                              right ? () => _animateToPage(_page + 1) : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 1),
+                            child: Center(
+                              child: Transform.translate(
+                                offset: const Offset(1, 0),
+                                child: SvgIcon(
+                                  right
+                                      ? SvgIcons.arrowRight
+                                      : SvgIcons.arrowRightDisabled,
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -799,11 +773,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                 opacity: (_displayClose || _showControls) ? 1 : 0,
                 child: GalleryButton(
                   onPressed: _dismiss,
-                  child: Icon(
-                    Icons.close_rounded,
-                    color: style.colors.onPrimary,
-                    size: 28,
-                  ),
+                  icon: SvgIcons.close,
                 ),
               ),
             ),
@@ -897,6 +867,16 @@ class _GalleryPopupState extends State<GalleryPopup>
     ]);
 
     return widgets;
+  }
+
+  /// Animates the [_pageController] to the provided [page].
+  void _animateToPage(int page) {
+    node.requestFocus();
+    _pageController.animateToPage(
+      _page + 1,
+      curve: Curves.linear,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   /// Starts a dismiss animation.

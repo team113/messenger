@@ -56,11 +56,7 @@ class ButtonsSection {
             widget: MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
-              leading: const SvgImage.asset(
-                'assets/icons/frontend.svg',
-                width: 25.87,
-                height: 32,
-              ),
+              leading: const SvgIcon(SvgIcons.frontend),
               inverted: false,
               onPressed: () {},
             ),
@@ -70,11 +66,7 @@ class ButtonsSection {
             widget: MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
-              leading: const SvgImage.asset(
-                'assets/icons/frontend_white.svg',
-                width: 25.87,
-                height: 32,
-              ),
+              leading: const SvgIcon(SvgIcons.frontendWhite),
               inverted: true,
               onPressed: () {},
             ),
@@ -104,7 +96,7 @@ class ButtonsSection {
         ],
       ),
       Headline(
-        color: Color.alphaBlend(
+        background: Color.alphaBlend(
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
@@ -207,37 +199,24 @@ class ButtonsSection {
           children: [
             AnimatedButton(
               onPressed: () {},
-              child: const SvgImage.asset(
-                'assets/icons/chats.svg',
-                width: 39.26,
-                height: 33.5,
-              ),
+              child: const SvgIcon(SvgIcons.chats),
             ),
             const SizedBox(width: 32),
             AnimatedButton(
               onPressed: () {},
-              child: const SvgImage.asset(
-                'assets/icons/chat_video_call.svg',
-                width: 27.71,
-                height: 19,
-              ),
+              child: const SvgIcon(SvgIcons.chatVideoCall),
             ),
             const SizedBox(width: 32),
             AnimatedButton(
               onPressed: () {},
-              child: const SvgImage.asset(
-                'assets/icons/send.svg',
-                width: 25.44,
-                height: 21.91,
-              ),
+              child: const SvgIcon(SvgIcons.send),
             ),
           ],
         ),
       ),
       Headline(
         headline: 'CallButtonWidget',
-        color: style.colors.primaryAuxiliaryOpacity25,
-        invertHeadline: true,
+        background: style.colors.primaryAuxiliaryOpacity25,
         bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,8 +250,7 @@ class ButtonsSection {
       ),
       Headline(
         headline: 'GalleryButton',
-        color: style.colors.primaryAuxiliaryOpacity25,
-        invertHeadline: true,
+        background: style.colors.primaryAuxiliaryOpacity25,
         bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,10 +265,7 @@ class ButtonsSection {
               ),
             ),
             const SizedBox(width: 32),
-            GalleryButton(
-              onPressed: () {},
-              icon: SvgIcons.fullscreenEnter,
-            ),
+            GalleryButton(onPressed: () {}, icon: SvgIcons.fullscreenEnter),
             const SizedBox(width: 32),
             GalleryButton(
               onPressed: () {},

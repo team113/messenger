@@ -61,7 +61,11 @@ class FieldsSection {
           (
             headline: 'ReactiveTextField(error)',
             widget: ReactiveTextField(
-              state: TextFieldState(text: 'Text', error: 'Error text'),
+              state: TextFieldState(
+                text: 'Text',
+                error: 'Error text',
+                editable: false,
+              ),
               hint: 'Hint',
               label: 'Label',
             ),
@@ -74,11 +78,7 @@ class FieldsSection {
               onSuffixPressed: () {},
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
-                child: const SvgImage.asset(
-                  'assets/icons/copy.svg',
-                  width: 14.53,
-                  height: 17,
-                ),
+                child: const SvgIcon(SvgIcons.copy),
               ),
               label: 'Label',
               hint: 'Hint',
@@ -141,7 +141,7 @@ class FieldsSection {
           height: 60,
           width: 400,
           child: CustomAppBar(
-            withTop: false,
+            top: false,
             border: Border.all(color: style.colors.primary, width: 2),
             title: Theme(
               data: MessageFieldView.theme(context),
@@ -170,12 +170,7 @@ class FieldsSection {
                   child: child,
                 ),
                 onPressed: () {},
-                child: Icon(
-                  key: const Key('ArrowBack'),
-                  Icons.arrow_back_ios_new,
-                  size: 20,
-                  color: style.colors.primary,
-                ),
+                child: const SvgIcon(SvgIcons.back),
               ),
             ],
           ),

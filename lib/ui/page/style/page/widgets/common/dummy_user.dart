@@ -22,7 +22,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 
-/// A dummy implementation of [RxUser].
+/// Dummy implementation of [RxUser].
 ///
 /// Used to show [RxUser] related [Widget]s.
 class DummyRxUser extends RxUser {

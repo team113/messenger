@@ -41,7 +41,7 @@ class RoundFloatingButton extends StatefulWidget {
     this.color,
     this.hint,
     this.withBlur = false,
-    this.style,
+    this.minified = false,
     this.border,
     this.child,
   });
@@ -54,7 +54,7 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text under the button.
   final String? text;
 
-  /// Indicator whether the [text] should be showed
+  /// Indicator whether the [text] should be showed.
   final bool showText;
 
   /// Text that will show above the button on a hover.
@@ -81,8 +81,9 @@ class RoundFloatingButton extends StatefulWidget {
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
 
-  /// Optional [TextStyle] of the [text].
-  final TextStyle? style;
+  /// Indicator whether the [text] provided should be smaller, or small
+  /// otherwise.
+  final bool minified;
 
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
@@ -205,7 +206,9 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.text!,
                     textAlign: TextAlign.center,
-                    style: widget.style ?? style.fonts.small.regular.onPrimary,
+                    style: widget.minified
+                        ? style.fonts.smaller.regular.onPrimary
+                        : style.fonts.small.regular.onPrimary,
                     maxLines: 2,
                   ),
                 ),

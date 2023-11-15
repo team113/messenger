@@ -18,6 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../common/cat.dart';
+import '../widget/headline.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -36,8 +38,6 @@ import '/ui/page/home/page/chat/widget/chat_forward.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/time_label.dart';
 import '/ui/page/home/page/chat/widget/unread_label.dart';
-import '../common/cat.dart';
-import '../widget/headline.dart';
 
 /// [Routes.style] chat section.
 class ChatSection {
@@ -45,6 +45,7 @@ class ChatSection {
   static List<Widget> build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    // Returns a [ChatMessage] built locally with the provided parameters.
     ChatItem message({
       bool fromMe = true,
       SendingStatus status = SendingStatus.sent,
@@ -52,9 +53,12 @@ class ChatSection {
       List<String> attachments = const [],
       List<ChatItemQuote> repliesTo = const [],
     }) {
-      NativeFile image =
-          NativeFile(name: 'Image', size: 2, bytes: CatImage.bytes);
-      image.dimensions.value = CatImage.size;
+      final NativeFile image = NativeFile(
+        name: 'Image',
+        size: 2,
+        bytes: CatImage.bytes,
+        dimensions: CatImage.size,
+      );
 
       return ChatMessage(
         ChatItemId.local(),
@@ -78,6 +82,7 @@ class ChatSection {
       );
     }
 
+    // Returns a [ChatInfo] built locally with the provided parameters.
     ChatItem info(
       ChatInfoAction action, {
       bool fromMe = true,
@@ -91,6 +96,7 @@ class ChatSection {
       );
     }
 
+    // Returns a [ChatCall] built locally with the provided parameters.
     ChatItem call({
       bool fromMe = true,
       bool withVideo = false,
@@ -112,6 +118,7 @@ class ChatSection {
       );
     }
 
+    // Returns a [ChatItemWidget] with the provided [ChatItem].
     Widget chatItem(
       ChatItem v, {
       bool delivered = false,
@@ -147,6 +154,7 @@ class ChatSection {
       );
     }
 
+    /// Returns a [ChatForwardWidget] with the provided [ChatItem]s as forwards.
     Widget chatForward(
       List<ChatItem> v, {
       ChatItem? note,
@@ -203,7 +211,7 @@ class ChatSection {
     return [
       Headline(
         headline: 'TimeLabelWidget',
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         child: Column(
           children: [
             TimeLabelWidget(
@@ -226,7 +234,7 @@ class ChatSection {
       ),
       Headline(
         headline: 'UnreadLabel',
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         child: const Column(
           children: [UnreadLabel(123)],
         ),
@@ -234,7 +242,7 @@ class ChatSection {
       Headline(
         headline: 'ChatItemWidget',
         padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         child: Column(
           children: [
             chatItem(
@@ -447,7 +455,7 @@ class ChatSection {
       Headline(
         headline: 'ChatForwardWidget',
         padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         child: Column(
           children: [
             const SizedBox(height: 32),

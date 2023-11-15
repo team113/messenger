@@ -57,8 +57,8 @@ class DownloadButton extends StatelessWidget {
         title = 'App Store',
         link = 'messenger-ios.zip';
 
-  /// Constructs a [DownloadButton] for downloading the Google Play Android
-  /// application.
+  /// Constructs a [DownloadButton] for downloading the Android application from
+  /// Google Play.
   const DownloadButton.googlePlay({super.key})
       : asset = SvgIcons.googlePlay,
         title = 'Google Play',

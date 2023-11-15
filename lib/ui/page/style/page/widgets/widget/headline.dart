@@ -26,9 +26,8 @@ class Headline extends StatelessWidget {
     this.headline,
     required this.child,
     this.subtitle,
-    this.color,
-    this.invertHeadline = false,
-    this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    this.background,
+    this.padding = Block.defaultPadding,
     this.top = true,
     this.bottom = true,
   });
@@ -39,14 +38,11 @@ class Headline extends StatelessWidget {
   /// Optional header of this [Headline].
   final String? headline;
 
-  /// Indicator whether the [headline] color should be inverted.
-  final bool invertHeadline;
-
   /// Optional subtitle of this [Headline].
   final Widget? subtitle;
 
   /// Optional background [Color] of this [Block].
-  final Color? color;
+  final Color? background;
 
   /// Padding to apply to the [child].
   final EdgeInsets padding;
@@ -54,16 +50,15 @@ class Headline extends StatelessWidget {
   /// Indicator whether this [Headline] should have additional top margin.
   final bool top;
 
-  /// Indicator whether this [Headline] should have additional bottom margin.
+  /// Indicator whether this [Headline] should have additional bottom padding.
   final bool bottom;
 
   @override
   Widget build(BuildContext context) {
     return Block(
-      color: color,
+      background: background,
       headline: headline ?? child.runtimeType.toString(),
-      invertHeadline: invertHeadline,
-      topMargin: top ? 32 : null,
+      margin: top ? Block.defaultMargin.copyWith(top: 32) : Block.defaultMargin,
       maxWidth: 450,
       padding: padding,
       children: [

@@ -53,12 +53,12 @@ class TilesSection {
           (
             headline: 'ContextMenu(mobile)',
             widget: ContextMenu(
-              mobile: true,
+              enlarged: true,
               actions: [
-                ContextMenuButton(label: 'Action 1', mobile: true),
-                ContextMenuButton(label: 'Action 2', mobile: true),
-                ContextMenuButton(label: 'Action 3', mobile: true),
-                ContextMenuButton(label: 'Action 4', mobile: true),
+                ContextMenuButton(label: 'Action 1', enlarged: true),
+                ContextMenuButton(label: 'Action 2', enlarged: true),
+                ContextMenuButton(label: 'Action 3', enlarged: true),
+                ContextMenuButton(label: 'Action 4', enlarged: true),
               ],
             ),
           ),
@@ -122,6 +122,7 @@ class TilesSection {
           presenceIndex: 0,
           online: true,
         );
+
         return Headlines(
           color: Color.alphaBlend(
             style.sidebarColor,
@@ -130,10 +131,7 @@ class TilesSection {
           children: [
             (
               headline: 'ContactTile',
-              widget: ContactTile(
-                myUser: myUser,
-                onTap: () {},
-              ),
+              widget: ContactTile(myUser: myUser, onTap: () {}),
             ),
             (
               headline: 'ContactTile(selected)',

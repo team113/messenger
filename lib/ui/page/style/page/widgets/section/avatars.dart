@@ -28,7 +28,9 @@ class AvatarsSection {
   /// Returns the [Widget]s of this [AvatarsSection].
   static List<Widget> build() {
     ({String headline, Widget widget}) avatars(
-        String title, AvatarRadius radius) {
+      String title,
+      AvatarRadius radius,
+    ) {
       return (
         headline:
             'AvatarWidget(radius: ${radius.toDouble().toStringAsFixed(0)})',
@@ -49,9 +51,7 @@ class AvatarsSection {
     return [
       Headlines(
         children: AvatarRadius.values.reversed
-            .mapIndexed(
-              (i, e) => avatars(i.toString().padLeft(2, '0'), e),
-            )
+            .mapIndexed((i, e) => avatars(i.toString().padLeft(2, '0'), e))
             .toList(),
       ),
     ];

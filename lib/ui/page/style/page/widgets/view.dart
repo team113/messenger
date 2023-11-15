@@ -21,6 +21,7 @@ import '/routes.dart';
 import 'section/animations.dart';
 import 'section/avatars.dart';
 import 'section/buttons.dart';
+import 'section/call.dart';
 import 'section/chat.dart';
 import 'section/fields.dart';
 import 'section/images.dart';
@@ -49,6 +50,7 @@ class WidgetsView extends StatelessWidget {
         ...TilesSection.build(context),
         ...SystemSection.build(),
         ...NavigationSection.build(context),
+        ...CallSection.build(context),
         ...SoundsSection.build(),
       ],
     );

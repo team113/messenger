@@ -35,10 +35,7 @@ class AnimationsSection {
       ),
       const Headline(
         headline: 'AnimatedTyping',
-        child: SizedBox(
-          height: 32,
-          child: Center(child: AnimatedTyping()),
-        ),
+        child: SizedBox(height: 32, child: Center(child: AnimatedTyping())),
       ),
       const Headlines(
         children: [

@@ -1463,4 +1463,16 @@ class SvgIcons {
     width: 27.57,
     height: 23.8,
   );
+
+  static const SvgData deleteGallery = SvgData(
+    'assets/icons/delete_gallery.svg',
+    width: 28.22,
+    height: 27,
+  );
+
+  static const SvgData sendSmall = SvgData(
+    'assets/icons/send_small.svg',
+    width: 18.37,
+    height: 16,
+  );
 }

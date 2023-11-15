@@ -21,7 +21,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/widget/svg/svgs.dart';
 
-/// [RoundFloatingButton] styled for gallery.
+/// [RoundFloatingButton] styled to be used in [GalleryPopup] overlay.
 class GalleryButton extends StatelessWidget {
   const GalleryButton({
     super.key,
@@ -30,10 +30,12 @@ class GalleryButton extends StatelessWidget {
     this.onPressed,
   });
 
-  /// Optional [Widget] to replace the default [SvgImage.asset].
+  /// Optional [Widget] to display.
   final Widget? child;
 
   /// [SvgData] to display.
+  ///
+  /// Only meaningful, if [child] is not specified.
   final SvgData? icon;
 
   /// Callback, called when this [GalleryButton] is pressed.

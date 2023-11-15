@@ -1751,11 +1751,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/send_small.svg',
-                                width: 18.37,
-                                height: 16,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.sendSmall),
                               onPressed: widget.onResend,
                             ),
                             ContextMenuButton(

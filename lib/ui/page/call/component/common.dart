@@ -72,7 +72,7 @@ class MoreButton extends CallButton {
       hinted: hinted,
       expanded: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       onPressed: c.toggleMore,
     );
   }
@@ -113,7 +113,7 @@ class VideoButton extends CallButton {
         expanded: expanded,
         big: big,
         withBlur: blur,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.toggleVideo,
       );
     });
@@ -155,7 +155,7 @@ class AudioButton extends CallButton {
         expanded: expanded,
         withBlur: blur,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.toggleAudio,
       );
     });
@@ -192,7 +192,7 @@ class ScreenButton extends CallButton {
         hinted: hinted,
         expanded: expanded,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: () => c.toggleScreenShare(router.context!),
       );
     });
@@ -223,7 +223,7 @@ class HandButton extends CallButton {
         hinted: hinted,
         expanded: expanded,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.toggleHand,
       );
     });
@@ -245,7 +245,7 @@ class SettingsButton extends CallButton {
       hinted: hinted,
       expanded: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       onPressed: () => c.openSettings(router.context!),
     );
   }
@@ -268,7 +268,7 @@ class ParticipantsButton extends CallButton {
       hinted: hinted,
       expanded: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       onPressed: () => c.openAddMember(router.context!),
     );
   }
@@ -298,7 +298,7 @@ class RemoteVideoButton extends CallButton {
         hinted: hinted,
         expanded: expanded,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.toggleRemoteVideos,
       );
     });
@@ -329,7 +329,7 @@ class RemoteAudioButton extends CallButton {
         hinted: hinted,
         expanded: expanded,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.toggleRemoteAudios,
       );
     });
@@ -359,7 +359,7 @@ class AcceptAudioButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
@@ -390,7 +390,7 @@ class AcceptVideoButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
@@ -418,7 +418,7 @@ class DeclineButton extends CallButton {
       expanded: expanded,
       withBlur: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       onPressed: c.decline,
     );
   }
@@ -448,7 +448,7 @@ class CancelButton extends CallButton {
       expanded: expanded,
       withBlur: blur,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       onPressed: c.drop,
     );
   }
@@ -476,7 +476,7 @@ class EndCallButton extends CallButton {
       hinted: hinted,
       expanded: expanded,
       big: big,
-      isMobile: c.isMobile,
+      constrained: c.isMobile,
       onPressed: c.drop,
     );
   }
@@ -508,7 +508,7 @@ class SpeakerButton extends CallButton {
         expanded: expanded,
         withBlur: blur,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.toggleSpeaker,
       );
     });
@@ -541,7 +541,7 @@ class SwitchButton extends CallButton {
         expanded: expanded,
         withBlur: blur,
         big: big,
-        isMobile: c.isMobile,
+        constrained: c.isMobile,
         onPressed: c.switchCamera,
       );
     });

@@ -73,7 +73,6 @@ class AvatarWidget extends StatelessWidget {
   const AvatarWidget({
     super.key,
     this.avatar,
-    this.child,
     this.radius,
     this.title,
     this.color,
@@ -82,6 +81,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.label,
     this.onForbidden,
+    this.child,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -291,16 +291,9 @@ class AvatarWidget extends StatelessWidget {
   /// [Avatar] to display.
   final Avatar? avatar;
 
-  /// [Widget] to display inside this [AvatarWidget].
+  /// [AvatarRadius] to display [avatar] with.
   ///
-  /// No-op, if [avatar] is specified.
-  ///
-  /// Intended to be used on the [Routes.style] page only.
-  final Widget? child;
-
-  /// Size of the avatar, expressed as the radius (half the diameter).
-  ///
-  /// Defaults is [AvatarRadius.big].
+  /// [AvatarRadius.big] is used, if `null`.
   final AvatarRadius? radius;
 
   /// Optional title of an avatar to display.
@@ -327,6 +320,13 @@ class AvatarWidget extends StatelessWidget {
 
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
+
+  /// [Widget] to display inside this [AvatarWidget].
+  ///
+  /// No-op, if [avatar] is specified.
+  ///
+  /// Intended to be used on the [Routes.style] page only.
+  final Widget? child;
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {

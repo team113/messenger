@@ -36,9 +36,9 @@ class CallButtonWidget extends StatelessWidget {
     this.withBlur = false,
     this.color,
     this.border,
-    this.isMobile = false,
+    this.constrained = false,
     bool big = false,
-  }) : size = isMobile
+  }) : size = constrained
             ? null
             : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
@@ -67,8 +67,8 @@ class CallButtonWidget extends StatelessWidget {
   /// Indicator whether background should be blurred.
   final bool withBlur;
 
-  /// Indicator whether this [CallButtonWidget] should builds with mobile style.
-  final bool isMobile;
+  /// Indicator whether this [CallButtonWidget] should be constrained.
+  final bool constrained;
 
   /// Background color of this [CallButtonWidget].
   final Color? color;
@@ -87,8 +87,8 @@ class CallButtonWidget extends StatelessWidget {
         offset: offset,
         color: color ?? style.colors.onSecondaryOpacity50,
         hint: !expanded && hinted ? hint : null,
-        text: expanded || isMobile ? hint : null,
-        style: isMobile ? null : style.fonts.smaller.regular.onPrimary,
+        text: expanded || constrained ? hint : null,
+        minified: !constrained,
         showText: expanded,
         withBlur: withBlur,
         border: border,

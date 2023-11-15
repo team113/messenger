@@ -40,7 +40,9 @@ class NativeFile {
     Uint8List? bytes,
     Stream<List<int>>? stream,
     this.mime,
+    Size? dimensions,
   })  : bytes = Rx(bytes),
+        dimensions = Rx(dimensions),
         _readStream = stream {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
@@ -98,7 +100,7 @@ class NativeFile {
   MediaType? mime;
 
   /// [Size] of the image this [NativeFile] represents, if [isImage].
-  final Rx<Size?> dimensions = Rx(null);
+  final Rx<Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();

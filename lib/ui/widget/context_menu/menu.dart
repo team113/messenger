@@ -25,23 +25,22 @@ class ContextMenu extends StatelessWidget {
   const ContextMenu({
     super.key,
     required this.actions,
-    this.mobile,
+    this.enlarged,
   });
 
   /// List of [Widget]s to display in this [ContextMenu].
   final List<Widget> actions;
 
-  /// Indicator whether this [ContextMenuButton] should builds with mobile
-  /// style.
+  /// Indicator whether this [ContextMenu] should be enlarged.
   ///
-  /// Intended to be used only on style page.
-  final bool? mobile;
+  /// Intended to be used only for [Routes.style] page.
+  final bool? enlarged;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool isMobile = mobile ?? context.isMobile;
+    final bool isMobile = enlarged ?? context.isMobile;
 
     final List<Widget> widgets = [];
 
@@ -120,7 +119,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.leading,
     this.trailing,
     this.showTrailing = false,
-    this.mobile,
+    this.enlarged,
     this.onPressed,
   });
 
@@ -138,11 +137,10 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// On mobile platforms the provided [trailing] is always displayed.
   final bool showTrailing;
 
-  /// Indicator whether this [ContextMenuButton] should builds with mobile
-  /// style.
+  /// Indicator whether this [ContextMenuButton] should be enlarged.
   ///
-  /// Intended to be used only on style page.
-  final bool? mobile;
+  /// Intended to be used only for [Routes.style] page.
+  final bool? enlarged;
 
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
@@ -160,7 +158,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool isMobile = widget.mobile ?? context.isMobile;
+    final bool isMobile = widget.enlarged ?? context.isMobile;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),

@@ -41,8 +41,8 @@ class Headlines extends StatelessWidget {
 
     return Block(
       padding: EdgeInsets.zero,
-      color: color,
-      topMargin: 32,
+      background: color,
+      margin: Block.defaultMargin.copyWith(top: 32),
       maxWidth: 450,
       children: [
         ...children.mapIndexed((i, e) {

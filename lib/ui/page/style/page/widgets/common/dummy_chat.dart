@@ -25,10 +25,9 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/util/obs/rxlist.dart';
-import '/util/obs/rxmap.dart';
+import '/util/obs/obs.dart';
 
-/// A dummy implementation of [RxChat].
+/// Dummy implementation of [RxChat].
 ///
 /// Used to show [RxChat] related [Widget]s.
 class DummyRxChat extends RxChat {
