@@ -431,7 +431,7 @@ jobs:
           cache: true
 
       - name: Login to private E2E container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ secrets.E2E_REGISTRY }}
           username: ${{ secrets.E2E_USER }}
@@ -539,7 +539,7 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Login to ${{ matrix.registry }} container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ matrix.registry }}
           username: ${{ (matrix.registry == 'docker.io'
