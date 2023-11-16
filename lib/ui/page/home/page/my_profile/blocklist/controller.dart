@@ -18,8 +18,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
@@ -48,11 +50,23 @@ class BlocklistController extends GetxController {
   /// [Worker] to react on the [blocklist] updates.
   late final Worker _worker;
 
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
   /// Returns [User]s blocked by the authenticated [MyUser].
   RxMap<UserId, RxUser> get blocklist => _myUserService.blocklist;
 
+  /// Indicates whether the [blocklist] have a next page.
+  RxBool get hasNext => _myUserService.hasNext;
+
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     _worker = ever(
       _myUserService.blocklist,
       (Map<UserId, RxUser> users) {
@@ -63,6 +77,12 @@ class BlocklistController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    _ensureScrollable();
+    super.onReady();
   }
 
   @override
@@ -78,5 +98,52 @@ class BlocklistController extends GetxController {
     }
 
     await _userService.unblockUser(user.id);
+  }
+
+  /// Requests the next page of [blocklist] based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (scrollController.hasClients &&
+            hasNext.isTrue &&
+            _myUserService.nextLoading.isFalse &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 500) {
+          _myUserService.nextBlocklist();
+        }
+      });
+    }
+  }
+
+  /// Ensures the [BlocklistView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
+    if (hasNext.isTrue) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent < 50 &&
+            _myUserService.nextLoading.isFalse) {
+          await _myUserService.nextBlocklist();
+          _ensureScrollable();
+        }
+      });
+    }
   }
 }

@@ -32,6 +32,12 @@ abstract class AbstractMyUserRepository {
   /// Returns [User]s blocked by the authenticated [MyUser].
   RxMap<UserId, RxUser> get blocklist;
 
+  /// Indicates whether the [blocklist] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [blocklist] is loading.
+  RxBool get nextLoading;
+
   /// Initializes the repository.
   ///
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.
@@ -44,6 +50,9 @@ abstract class AbstractMyUserRepository {
 
   /// Disposes the repository.
   void dispose();
+
+  /// Fetches the next [blocklist] page.
+  Future<void> nextBlocklist();
 
   /// Clears the stored [MyUser].
   Future<void> clearCache();

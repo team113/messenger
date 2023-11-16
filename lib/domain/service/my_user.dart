@@ -51,6 +51,12 @@ class MyUserService extends DisposableService {
   /// Returns [User]s blocked by the authenticated [MyUser].
   RxMap<UserId, RxUser> get blocklist => _userRepo.blocklist;
 
+  /// Indicates whether the [blocklist] have next page.
+  RxBool get hasNext => _userRepo.hasNext;
+
+  /// Indicator whether a next page of the [blocklist] is loading.
+  RxBool get nextLoading => _userRepo.nextLoading;
+
   @override
   void onInit() {
     assert(_auth.initialized);
@@ -66,6 +72,9 @@ class MyUserService extends DisposableService {
     _userRepo.dispose();
     super.onClose();
   }
+
+  /// Fetches the next [blocklist] page.
+  Future<void> nextBlocklist() => _userRepo.nextBlocklist();
 
   /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///

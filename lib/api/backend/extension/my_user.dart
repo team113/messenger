@@ -56,6 +56,7 @@ extension MyUserConversion on MyUserMixin {
                 : MuteDuration.until(
                     (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
             : null,
+        blocklistCount: blocklist.totalCount,
       );
 
   /// Constructs a new [HiveMyUser] from this [MyUserMixin].

@@ -774,20 +774,19 @@ Widget _language(BuildContext context, MyProfileController c) {
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  return Column(
-    children: [
-      Paddings.dense(
-        FieldButton(
-          text: 'label_users_count'.l10nfmt({'count': c.blocklist.length}),
-          onPressed:
-              c.blocklist.isEmpty ? null : () => BlocklistView.show(context),
-          style: c.blocklist.isEmpty
-              ? style.fonts.normal.regular.onBackground
-              : style.fonts.normal.regular.primary,
-        ),
+  return Obx(() {
+    return Paddings.dense(
+      FieldButton(
+        text: 'label_users_count'
+            .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
+        onPressed:
+            c.blocklist.isEmpty ? null : () => BlocklistView.show(context),
+        style: c.blocklist.isEmpty
+            ? style.fonts.normal.regular.onBackground
+            : style.fonts.normal.regular.primary,
       ),
-    ],
-  );
+    );
+  });
 }
 
 /// Returns the contents of a [ProfileTab.download] section.

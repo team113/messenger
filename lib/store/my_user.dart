@@ -109,6 +109,12 @@ class MyUserRepository implements AbstractMyUserRepository {
   late final void Function() onPasswordUpdated;
 
   @override
+  RxBool get hasNext => _blocklistPagination.hasNext;
+
+  @override
+  RxBool get nextLoading => _blocklistPagination.nextLoading;
+
+  @override
   Future<void> init({
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
@@ -140,6 +146,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     _blocklistPagination = Pagination(
+      onKey: (e) => e.value.id,
+      perPage: 15,
       provider: GraphQlPageProvider(
         fetch: ({after, before, first, last}) => _fetchBlocklist(
           after: after,
@@ -148,7 +156,6 @@ class MyUserRepository implements AbstractMyUserRepository {
           last: last,
         ),
       ),
-      onKey: (e) => e.value.id,
     );
 
     _paginationSubscription =
@@ -181,6 +188,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   Future<void> clearCache() => _myUserLocal.clear();
+
+  @override
+  Future<void> nextBlocklist() => _blocklistPagination.next();
 
   @override
   Future<void> updateUserName(UserName? name) async {
@@ -836,11 +846,13 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.blocklistRecordAdded:
           event as EventBlocklistRecordAdded;
+          userEntity.value.blocklistCount++;
           _blocklistPagination.put(event.user);
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:
           event as EventBlocklistRecordRemoved;
+          userEntity.value.blocklistCount--;
           remove(event.user.value.id);
           break;
       }

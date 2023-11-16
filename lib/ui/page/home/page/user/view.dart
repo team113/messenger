@@ -306,9 +306,8 @@ class UserView extends StatelessWidget {
           return ActionButton(
             key: Key(c.isBlocked != null ? 'Unblock' : 'Block'),
             text: c.isBlocked != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlocked != null
-                ? c.unblock
-                : () => _blockUser(c, context),
+            onPressed:
+                c.isBlocked != null ? c.unblock : () => _blockUser(c, context),
             trailing: Obx(() {
               final Widget child;
               if (c.blocklistStatus.value.isEmpty) {

@@ -24,6 +24,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -55,10 +56,12 @@ class BlocklistView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 4),
-              ModalPopupHeader(
-                text:
-                    'label_users_count'.l10nfmt({'count': c.blocklist.length}),
-              ),
+              Obx(() {
+                return ModalPopupHeader(
+                  text: 'label_users_count'
+                      .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
+                );
+              }),
               const SizedBox(height: 4),
               if (c.blocklist.isEmpty)
                 Padding(
@@ -76,7 +79,7 @@ class BlocklistView extends StatelessWidget {
                       itemBuilder: (context, i) {
                         RxUser? user = c.blocklist.values.elementAt(i);
 
-                        return ContactTile(
+                        Widget child = ContactTile(
                           user: user,
                           onTap: () {
                             Navigator.of(context).pop();
@@ -101,6 +104,21 @@ class BlocklistView extends StatelessWidget {
                             const SizedBox(width: 4),
                           ],
                         );
+
+                        if (i == c.blocklist.length - 1) {
+                          if (c.hasNext.isTrue) {
+                            child = Column(
+                              children: [
+                                child,
+                                const CustomProgressIndicator(
+                                  key: Key('BlocklistLoading'),
+                                ),
+                              ],
+                            );
+                          }
+                        }
+
+                        return child;
                       },
                       itemCount: c.blocklist.length,
                     ),
