@@ -140,17 +140,6 @@ jobs:
           channel: stable
           cache: true
 
-      - run: sudo apt-get update -y
-        if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install -y
-                          ninja-build
-                          libunwind-dev
-                          libgtk-3-dev
-                          libpulse-dev
-                          libmpv-dev
-                          mpv
-        if: ${{ matrix.platform == 'linux' }}
-
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
@@ -172,7 +161,7 @@ jobs:
         if: ${{ matrix.platform == 'web' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ contains('linux macos windows', matrix.platform) }}
+        if: ${{ contains('macos windows', matrix.platform) }}
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -221,14 +210,12 @@ jobs:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'ios'
                           && 'build/ios/iphoneos/dist')
-                      || (matrix.platform == 'linux'
-                          && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/runner/Release')
                       ||     'build/web'}}
-        if: ${{ contains('ios linux macos web windows', matrix.platform) }}
+        if: ${{ contains('ios macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
@@ -261,6 +248,7 @@ jobs:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
+      - run: git config --global --add safe.directory '*'
 
       - run: apt-get update -y
       - run: apt-get install -y
@@ -279,14 +267,11 @@ jobs:
                      clang
                      zip
 
-      - run: git config --global --add safe.directory '*'
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
-
       - run: flutter config --enable-linux-desktop
 
       - name: Parse semver versions from Git tag
@@ -314,11 +299,10 @@ jobs:
           regex: '^${{ github.repository_owner }}/(.+)$'
 
       - run: mkdir artifacts/
-
       - uses: thedoctor0/zip-release@0.7.1
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-linux.zip
-          directory: 'build/linux/x64/release/bundle'
+          directory: build/linux/x64/release/bundle
 
       - name: Generate SHA256 checksums
         run: ${{ 'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
@@ -331,6 +315,7 @@ jobs:
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
+          if-no-files-found: error
           retention-days: 1
 
   dartdoc:
@@ -356,9 +341,7 @@ jobs:
              || startsWith(github.ref, 'refs/tags/v') }}
 
   docker:
-    needs:
-      - build
-      - build-linux
+    needs: ["build", "build-linux"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
