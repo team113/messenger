@@ -386,7 +386,7 @@ class NotificationService extends DisposableService {
     Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
     Log.debug(
-      '_initPushNotifications($options, onResponse, onBackground)',
+      '_initPushNotifications(options, onResponse, onBackground)',
       '$runtimeType',
     );
 

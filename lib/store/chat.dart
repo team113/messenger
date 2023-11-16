@@ -1531,7 +1531,7 @@ class ChatRepository extends DisposableInterface
   /// Adds the provided [HiveChat] to the [chats] and optionally to the
   /// [paginated].
   HiveRxChat _add(HiveChat chat, {bool pagination = false}) {
-    Log.debug('_add($chat, $pagination)', '$runtimeType');
+    Log.trace('_add($chat, $pagination)', '$runtimeType');
 
     final ChatId chatId = chat.value.id;
     HiveRxChat? entry = chats[chatId];
@@ -1873,7 +1873,7 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool ignoreVersion = false,
   }) async {
-    Log.debug('_putEntry($data, $pagination, $ignoreVersion)', '$runtimeType');
+    Log.trace('_putEntry($data, $pagination, $ignoreVersion)', '$runtimeType');
 
     final ChatId chatId = data.chat.value.id;
 

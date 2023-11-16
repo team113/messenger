@@ -267,7 +267,7 @@ class UserRepository extends DisposableInterface
 
   /// Puts the provided [user] into the local [Hive] storage.
   void put(HiveUser user, {bool ignoreVersion = false}) async {
-    Log.debug('put($user, $ignoreVersion)', '$runtimeType');
+    Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
     // If the provided [user] doesn't exist in the [users] yet, then we should
     // lock the [mutex] to ensure [get] doesn't invoke remote while [put]ting.
@@ -358,7 +358,7 @@ class UserRepository extends DisposableInterface
 
   /// Puts the provided [user] to [Hive].
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
-    Log.debug('_putUser($user, $ignoreVersion)', '$runtimeType');
+    Log.trace('_putUser($user, $ignoreVersion)', '$runtimeType');
 
     var saved = _userLocal.get(user.value.id);
 

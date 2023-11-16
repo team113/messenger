@@ -905,10 +905,20 @@ class MyUserRepository implements AbstractMyUserRepository {
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
+        Log.debug(
+          '_myUserRemoteEvents(ver): SubscriptionInitialized',
+          '$runtimeType',
+        );
+
         events
             as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
         // No-op.
       } else if (events.$$typename == 'MyUser') {
+        Log.debug(
+          '_myUserRemoteEvents(ver): MyUser',
+          '$runtimeType',
+        );
+
         _setMyUser((events as MyUserMixin).toHive());
       } else if (events.$$typename == 'MyUserEventsVersioned') {
         var mixin = events as MyUserEventsVersionedMixin;
