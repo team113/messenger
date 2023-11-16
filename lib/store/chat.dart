@@ -271,9 +271,7 @@ class ChatRepository extends DisposableInterface
     if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
       await (_localPagination?.next ?? _pagination?.next)?.call();
 
-      if (_pagination?.hasNext.value == false) {
-        _initMonolog();
-      }
+      _initMonolog();
     }
   }
 
@@ -1732,9 +1730,7 @@ class ChatRepository extends DisposableInterface
       ),
     );
 
-    if (_pagination?.hasNext.value == false) {
-      await _initMonolog();
-    }
+    await _initMonolog();
 
     status.value = RxStatus.success();
   }
@@ -2056,17 +2052,12 @@ class ChatRepository extends DisposableInterface
     return _putEntry(chatData);
   }
 
-  /// Initializes the [monolog], fetching it from remote, if none is known.
+  /// Initializes the local [monolog] if none is known.
   Future<void> _initMonolog() async {
-    if (monolog.isLocal && paginated[monolog] == null) {
-      // TODO: Monolog will be always fetched by pagination, so `getMonolog` can
-      //       be omitted.
-      final ChatMixin? query = await _graphQlProvider.getMonolog();
-      if (query == null) {
-        await _createLocalDialog(me);
-      } else {
-        _monologLocal.set(query.id);
-      }
+    if (monolog.isLocal &&
+        paginated[monolog] == null &&
+        _pagination?.hasNext.value == false) {
+      await _createLocalDialog(me);
     }
   }
 }
