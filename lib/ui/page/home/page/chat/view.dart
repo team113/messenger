@@ -437,9 +437,8 @@ class _ChatViewState extends State<ChatView>
                                                 (e) => e.id != c.me,
                                               ),
                                             ),
-                                            trailing: const SvgIcon(
-                                              SvgIcons.coin,
-                                            ),
+                                            trailing:
+                                                const SvgIcon(SvgIcons.coin),
                                           ),
                                           ContextMenuButton(
                                             label: contact
@@ -499,9 +498,7 @@ class _ChatViewState extends State<ChatView>
                                           onPressed: () {},
                                         ),
                                         ContextMenuButton(
-                                          label: PlatformUtils.isMobile
-                                              ? 'btn_select'.l10n
-                                              : 'btn_select_messages'.l10n,
+                                          label: 'btn_select_messages'.l10n,
                                           onPressed: c.selecting.toggle,
                                           trailing: const SvgIcon(
                                             SvgIcons.select,

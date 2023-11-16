@@ -1214,9 +1214,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               },
                             ),
                             ContextMenuButton(
-                              label: PlatformUtils.isMobile
-                                  ? 'btn_select'.l10n
-                                  : 'btn_select_messages'.l10n,
+                              label: 'btn_select_messages'.l10n,
                               trailing: const SvgIcon(SvgIcons.select),
                               onPressed: widget.onSelect,
                             ),

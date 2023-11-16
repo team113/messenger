@@ -1309,8 +1309,8 @@ class SvgIcons {
 
   static const SvgData coin = SvgData(
     'assets/icons/coin.svg',
-    width: 18,
-    height: 18,
+    width: 19,
+    height: 19,
   );
 
   static const SvgData makeAudioCall = SvgData(
@@ -1363,8 +1363,8 @@ class SvgIcons {
 
   static const SvgData block = SvgData(
     'assets/icons/block.svg',
-    width: 18,
-    height: 18,
+    width: 19,
+    height: 19,
   );
 
   static const SvgData cleanHistory = SvgData(
@@ -1393,8 +1393,8 @@ class SvgIcons {
 
   static const SvgData select = SvgData(
     'assets/icons/select.svg',
-    width: 19.5,
-    height: 18,
+    width: 19,
+    height: 19,
   );
 
   static const SvgData sortAbcSmall = SvgData(

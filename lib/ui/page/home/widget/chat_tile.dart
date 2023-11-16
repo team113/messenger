@@ -152,41 +152,31 @@ class _ChatTileState extends State<ChatTile> {
       indicateOpenedMenu: true,
       enabled: widget.enableContextMenu,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 3),
+        padding: EdgeInsets.fromLTRB(0, 3, 0, widget.basement == null ? 3 : 10),
         // height: widget.height,
-        child: FoldedWidget(
-          radius: 15,
-          folded: widget.folded,
-          child: InkWellWithHover(
-            selectedColor:
-                widget.basement == null ? chosen : style.colors.acceptPrimary,
-            unselectedColor: widget.dimmed
-                ? style.colors.onPrimaryOpacity50
-                : normal.darken(widget.darken),
-            selectedHoverColor:
-                widget.basement == null ? chosen : style.colors.acceptPrimary,
-            unselectedHoverColor:
-                widget.highlight ? paid.darken(0.03) : style.cardHoveredColor,
-            // unselectedHoverColor:
-            //     (widget.highlight ? paid : normal).darken(0.03),
-            border: widget.selected
-                ? chosenBorder
-                : widget.basement != null
-                    ? paidBorder
-                    : normalBorder,
-            hoveredBorder: widget.basement != null
-                ? paidBorder
-                : widget.selected
-                    ? chosenBorder
-                    : hoverBorder,
-            selected: widget.selected || widget.active,
-            borderRadius: style.cardRadius,
-            onTap: widget.onTap,
-            folded: widget.chat?.chat.value.favoritePosition != null,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
+        child: Stack(
+          children: [
+            FoldedWidget(
+              radius: 15,
+              folded: widget.folded,
+              child: InkWellWithHover(
+                selectedColor: chosen,
+                unselectedColor: widget.dimmed
+                    ? style.colors.onPrimaryOpacity50
+                    : normal.darken(widget.darken),
+                selectedHoverColor: chosen,
+                unselectedHoverColor: widget.highlight
+                    ? paid.darken(0.03)
+                    : style.cardHoveredColor,
+                // unselectedHoverColor:
+                //     (widget.highlight ? paid : normal).darken(0.03),
+                border: widget.selected ? chosenBorder : normalBorder,
+                hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
+                selected: widget.selected || widget.active,
+                borderRadius: style.cardRadius,
+                onTap: widget.onTap,
+                folded: widget.chat?.chat.value.favoritePosition != null,
+                child: SizedBox(
                   height: widget.height,
                   child: Padding(
                     key: widget.chat?.chat.value.favoritePosition != null
@@ -282,28 +272,35 @@ class _ChatTileState extends State<ChatTile> {
                     ),
                   ),
                 ),
-                if (widget.basement != null)
-                  Container(
-                    width: double.infinity,
+              ),
+            ),
+            if (widget.basement != null)
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Transform.translate(
+                  offset: const Offset(-12, 7),
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(4, 1, 4, 1),
                     decoration: BoxDecoration(
-                      borderRadius: style.cardRadius.copyWith(
-                        topLeft: Radius.zero,
-                        topRight: Radius.zero,
-                      ),
-                      color: widget.selected || widget.active
-                          ? style.colors.onPrimary
-                          : style.colors.acceptPrimary,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 4,
+                          blurStyle: BlurStyle.outer.workaround,
+                        ),
+                      ],
+                      borderRadius: style.cardRadius,
+                      color: style.colors.onPrimary,
                     ),
                     child: DefaultTextStyle(
-                      style: widget.selected || widget.active
-                          ? style.fonts.small.regular.onBackground
-                          : style.fonts.small.regular.onPrimary,
+                      style: style.fonts.smallest.regular.secondary,
                       child: widget.basement!,
                     ),
                   ),
-              ],
-            ),
-          ),
+                ),
+              ),
+          ],
         ),
       ),
     );

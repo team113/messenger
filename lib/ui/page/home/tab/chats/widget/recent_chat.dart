@@ -63,6 +63,7 @@ class RecentChatTile extends StatelessWidget {
     this.trailing,
     this.getUser,
     this.inCall,
+    this.inContacts,
     this.onCall,
     this.onLeave,
     this.onHide,
@@ -74,6 +75,7 @@ class RecentChatTile extends StatelessWidget {
     this.onUnfavorite,
     this.onSelect,
     this.onCreateGroup,
+    this.onContact,
     this.onTap,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -107,6 +109,7 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called to check whether this device of the currently
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
   final bool Function()? inCall;
+  final bool Function()? inContacts;
 
   final void Function(bool)? onCall;
 
@@ -141,6 +144,8 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onSelect;
 
   final void Function()? onCreateGroup;
+
+  final void Function(bool)? onContact;
 
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
@@ -195,9 +200,25 @@ class RecentChatTile extends StatelessWidget {
           );
         },
         basement: payee
-            ? const Padding(
-                padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
-                child: Text('Входящий звонок: ..., входящие сообщения: ...'),
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.call_rounded,
+                    size: 8,
+                    color: style.colors.secondary,
+                  ),
+                  const SizedBox(width: 1),
+                  const Text('\$123'),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chat_rounded,
+                    size: 8,
+                    color: style.colors.secondary,
+                  ),
+                  const SizedBox(width: 1),
+                  const Text('\$123'),
+                ],
               )
             : null,
         status: [
@@ -264,19 +285,6 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         actions: [
-          ContextMenuButton(
-            label: 'btn_audio_call'.l10n,
-            onPressed: () => onCall?.call(false),
-            trailing: const SvgIcon(SvgIcons.makeAudioCall),
-          ),
-          ContextMenuButton(
-            label: 'btn_video_call'.l10n,
-            onPressed: () => onCall?.call(true),
-            trailing: Transform.translate(
-              offset: const Offset(2, 0),
-              child: const SvgIcon(SvgIcons.makeVideoCall),
-            ),
-          ),
           if (chat.isDialog)
             ContextMenuButton(
               label: 'btn_set_price'.l10n,
@@ -287,6 +295,20 @@ class RecentChatTile extends StatelessWidget {
               ),
               trailing: const SvgIcon(SvgIcons.coin),
             ),
+          if (inContacts != null) ...[
+            if (inContacts?.call() == true)
+              ContextMenuButton(
+                label: 'btn_delete_from_contacts'.l10n,
+                onPressed: () => onContact?.call(false),
+                trailing: const SvgIcon(SvgIcons.deleteContact),
+              )
+            else
+              ContextMenuButton(
+                label: 'btn_add_to_contacts'.l10n,
+                onPressed: () => onContact?.call(true),
+                trailing: const SvgIcon(SvgIcons.addContact),
+              ),
+          ],
           if (chat.favoritePosition != null && onUnfavorite != null)
             ContextMenuButton(
               key: const Key('UnfavoriteChatButton'),
