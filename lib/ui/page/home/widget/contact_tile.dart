@@ -44,7 +44,7 @@ class ContactTile extends StatelessWidget {
     this.subtitle = const [],
     this.darken = 0,
     this.height = 86,
-    this.radius = 30,
+    this.radius = AvatarRadius.large,
     this.actions,
     this.folded = false,
     this.dense = false,
@@ -102,7 +102,7 @@ class ContactTile extends StatelessWidget {
   final double height;
 
   /// Radius of an [AvatarWidget] this [ContactTile] displays.
-  final double radius;
+  final AvatarRadius radius;
 
   /// Builder for building an [AvatarWidget] this [ContactTile] displays.
   ///
@@ -154,16 +154,16 @@ class ContactTile extends StatelessWidget {
                   contact != null
                       ? AvatarWidget.fromRxContact(
                           contact,
-                          radius: dense ? 17 : radius,
+                          radius: dense ? AvatarRadius.medium : radius,
                         )
                       : user != null
                           ? AvatarWidget.fromRxUser(
                               user,
-                              radius: dense ? 17 : radius,
+                              radius: dense ? AvatarRadius.medium : radius,
                             )
                           : AvatarWidget.fromMyUser(
                               myUser,
-                              radius: dense ? 17 : radius,
+                              radius: dense ? AvatarRadius.medium : radius,
                             ),
                 ),
                 const SizedBox(width: 12),

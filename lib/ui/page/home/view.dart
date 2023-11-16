@@ -323,7 +323,7 @@ class _HomeViewState extends State<HomeView> {
                                     padding: const EdgeInsets.only(bottom: 2),
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
-                                      radius: 16,
+                                      radius: AvatarRadius.normal,
                                       onForbidden: c.updateAvatar,
                                     ),
                                   ),

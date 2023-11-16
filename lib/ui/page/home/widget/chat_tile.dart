@@ -126,7 +126,9 @@ class ChatTile extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
               child: Row(
                 children: [
-                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
+                  avatarBuilder(
+                    AvatarWidget.fromRxChat(chat, radius: AvatarRadius.large),
+                  ),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(

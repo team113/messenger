@@ -21,7 +21,6 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
@@ -31,6 +30,7 @@ import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/dock_decorator.dart';
+import '../widget/double_bounce_indicator.dart';
 import '../widget/drop_box.dart';
 import '../widget/drop_box_area.dart';
 import '../widget/hint.dart';
@@ -254,11 +254,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (!Config.disableInfiniteAnimations)
-                      SpinKitDoubleBounce(
-                        color: style.colors.secondaryHighlightDark,
-                        size: 100 / 1.5,
-                        duration: const Duration(milliseconds: 4500),
-                      ),
+                      const DoubleBounceLoadingIndicator(),
                     const SizedBox(height: 16),
                     Text(
                       'label_reconnecting_ellipsis'.l10n,
@@ -374,20 +370,11 @@ Widget desktopCall(CallController c, BuildContext context) {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: 11),
-                SizedBox.square(
-                  dimension: CallController.buttonSize,
-                  child: AcceptAudioButton(c, highlight: !c.withVideo).build(),
-                ),
+                AcceptAudioButton(c, highlight: !c.withVideo).build(),
                 const SizedBox(width: 24),
-                SizedBox.square(
-                  dimension: CallController.buttonSize,
-                  child: AcceptVideoButton(c, highlight: c.withVideo).build(),
-                ),
+                AcceptVideoButton(c, highlight: c.withVideo).build(),
                 const SizedBox(width: 24),
-                SizedBox.square(
-                  dimension: CallController.buttonSize,
-                  child: DeclineButton(c).build(),
-                ),
+                DeclineButton(c).build(),
                 const SizedBox(width: 11),
               ],
             );
@@ -452,42 +439,29 @@ Widget desktopCall(CallController c, BuildContext context) {
                   onWillAccept: (CallButton? a) =>
                       a?.c == c && a?.isRemovable == true,
                   children: c.panel.map((e) {
-                    return SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: Column(
-                        children: [
-                          DelayedDraggable(
-                            feedback: Transform.translate(
-                              offset: const Offset(
-                                CallController.buttonSize / 2 * -1,
-                                CallController.buttonSize / 2 * -1,
-                              ),
-                              child: SizedBox.square(
-                                dimension: CallController.buttonSize,
-                                child: e.build(),
-                              ),
-                            ),
-                            data: e,
-                            onDragStarted: () {
-                              c.showDragAndDropButtonsHint = false;
-                              c.draggedButton.value = e;
-                            },
-                            onDragCompleted: () => c.draggedButton.value = null,
-                            onDragEnd: (_) => c.draggedButton.value = null,
-                            onDraggableCanceled: (_, __) =>
-                                c.draggedButton.value = null,
-                            maxSimultaneousDrags: e.isRemovable ? null : 0,
-                            dragAnchorStrategy: pointerDragAnchorStrategy,
-                            child: e.build(hinted: false),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            e.hint,
-                            style: style.fonts.smaller.regular.onPrimary,
-                            textAlign: TextAlign.center,
-                          )
-                        ],
+                    return DelayedDraggable(
+                      feedback: Transform.translate(
+                        offset: const Offset(
+                          CallController.buttonSize / 2 * -1,
+                          CallController.buttonSize / 2 * -1,
+                        ),
+                        child: e.build(),
+                      ),
+                      data: e,
+                      onDragStarted: () {
+                        c.showDragAndDropButtonsHint = false;
+                        c.draggedButton.value = e;
+                      },
+                      onDragCompleted: () => c.draggedButton.value = null,
+                      onDragEnd: (_) => c.draggedButton.value = null,
+                      onDraggableCanceled: (_, __) =>
+                          c.draggedButton.value = null,
+                      maxSimultaneousDrags: e.isRemovable ? null : 0,
+                      dragAnchorStrategy: pointerDragAnchorStrategy,
+                      child: e.build(
+                        hinted: false,
+                        big: true,
+                        expanded: true,
                       ),
                     );
                   }).toList(),
