@@ -171,7 +171,7 @@ class AuthorizationException with LocalizedExceptionMixin implements Exception {
   const AuthorizationException();
 
   @override
-  String toString() => 'AuthException()';
+  String toString() => 'AuthorizationException()';
 
   @override
   String toMessage() => 'err_unauthorized'.l10n;
