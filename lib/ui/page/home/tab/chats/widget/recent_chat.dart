@@ -938,8 +938,8 @@ class RecentChatTile extends StatelessWidget {
                   children: [
                     SvgIcon(
                       displayed
-                          ? SvgIcons.callAudioWhite
-                          : SvgIcons.callAudioEnd,
+                          ? SvgIcons.callAudioEnd
+                          : SvgIcons.callAudioWhite,
                     ),
                     // Icon(
                     //   displayed ? Icons.call_end : Icons.call,

@@ -1167,7 +1167,7 @@ class SvgIcons {
   static const SvgData callAudioEnd = SvgData(
     'assets/icons/call_audio_end.svg',
     width: 14.74,
-    height: 12.3,
+    height: 6.48,
   );
 
   static const SvgData callAudioWhite = SvgData(
