@@ -1785,7 +1785,7 @@ class OngoingCall {
             previous = $previous
             added = $added
             removed = $removed
-         )''',
+      )''',
       '$runtimeType',
     );
 
@@ -1818,7 +1818,7 @@ class OngoingCall {
             previous = $previous
             added = $added
             removed = $removed
-    )''',
+      )''',
       '$runtimeType',
     );
 

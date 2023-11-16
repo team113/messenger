@@ -330,7 +330,9 @@ class ChatService extends DisposableService {
   /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
   /// any).
   Future<void> createChatDirectLink(
-      ChatId chatId, ChatDirectLinkSlug slug) async {
+    ChatId chatId,
+    ChatDirectLinkSlug slug,
+  ) async {
     Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
     await _chatRepository.createChatDirectLink(chatId, slug);
   }

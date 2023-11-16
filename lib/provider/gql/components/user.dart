@@ -1286,6 +1286,7 @@ mixin UserGraphQlMixin {
   /// Succeeds if the specified [token] is not registered already.
   Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
     Log.debug('unregisterFcmDevice($token)', '$runtimeType');
+
     final variables = UnregisterFcmDeviceArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(

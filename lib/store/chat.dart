@@ -484,7 +484,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    return _graphQlProvider.postChatMessage(
+    return await _graphQlProvider.postChatMessage(
       chatId,
       text: text,
       attachments: attachments,
@@ -628,6 +628,7 @@ class ChatRepository extends DisposableInterface
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
+    Log.debug('readUntil($chatId, $untilId)', '$runtimeType');
     await _graphQlProvider.readChat(chatId, untilId);
   }
 
@@ -1152,7 +1153,7 @@ class ChatRepository extends DisposableInterface
   /// Returns an [User] by the provided [id].
   Future<RxUser?> getUser(UserId id) async {
     Log.debug('getUser($id)', '$runtimeType');
-    return _userRepo.get(id);
+    return await _userRepo.get(id);
   }
 
   @override

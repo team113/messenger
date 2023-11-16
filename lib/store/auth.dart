@@ -44,7 +44,7 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   set token(AccessToken? token) {
-    Log.debug('token($token)', '$runtimeType');
+    Log.debug('set token($token)', '$runtimeType');
 
     _graphQlProvider.token = token;
     if (token == null) {

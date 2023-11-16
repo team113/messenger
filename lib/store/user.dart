@@ -108,7 +108,7 @@ class UserRepository extends DisposableInterface
   @override
   Future<void> clearCache() async {
     Log.debug('clearCache()', '$runtimeType');
-    _userLocal.clear();
+    await _userLocal.clear();
   }
 
   @override

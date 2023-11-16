@@ -57,22 +57,13 @@ class GraphQlProviderBase {
   set token(AccessToken? value) => _client.token = value;
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
-  Future<void> reconnect() async {
-    Log.debug('reconnect()', '$runtimeType');
-    await _client.reconnect();
-  }
+  Future<void> reconnect() => _client.reconnect();
 
   /// Disconnects the [client] and disposes the connection.
-  void disconnect() {
-    Log.debug('disconnect()', '$runtimeType');
-    _client.disconnect();
-  }
+  void disconnect() => _client.disconnect();
 
   /// Clears the cache attached to the client.
-  void clearCache() {
-    Log.debug('clearCache()', '$runtimeType');
-    _client.clearCache();
-  }
+  void clearCache() => _client.clearCache();
 }
 
 /// Wrapper around [GraphQLClient] used to implement middleware capabilities.
