@@ -27,7 +27,8 @@ import 'package:messenger/routes.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Reads a message from the specified [User] in current [Chat].
+/// Reads the current [Chat] until the specified message for the provided
+/// [User].
 ///
 /// Examples:
 /// - Bob reads "Hello, Alice!" message
@@ -45,10 +46,7 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == msg);
 
-    await provider.readChat(
-      chat.id,
-      message.id,
-    );
+    await provider.readChat(chat.id, message.id);
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

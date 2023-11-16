@@ -1618,7 +1618,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     color: style.colors.danger,
                                   ),
                                 )
-                              : Container(key: const Key('Sent')),
+                              : Container(
+                                  key: _isRead
+                                      ? _isHalfRead
+                                          ? const Key('HalfRead')
+                                          : const Key('Read')
+                                      : const Key('Sent'),
+                                ),
                     );
                   }),
                 ),

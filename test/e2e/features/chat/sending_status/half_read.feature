@@ -15,20 +15,21 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat messages in group have correct half read sending status
+Feature: Half read status of messages in group chats
 
   Background: User is in group chat with Bob and Charlie
     Given I am Alice
-    And I pause for 1 second
     And users Bob and Charlie
-    And I have "Group" group with several users: Bob and Charlie
+    And I have "Group" group with Bob and Charlie
     And I am in "Group" chat
 
-  Scenario: User send message
+  Scenario: User sees messages half read
     When I fill `MessageField` field with "123"
     And I tap `Send` button
-    Then I pause for 2 second
-    And Bob reads "123" message
-    And I pause for 3 second
-    And Charlie reads "123" message
-    And I pause for 5 second
+    Then I wait until status of "123" message is sent
+
+    When Bob reads "123" message
+    Then I wait until status of "123" message is half read
+
+    When Charlie reads "123" message
+    Then I wait until status of "123" message is read

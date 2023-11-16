@@ -18,7 +18,7 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
 import '../parameters/users.dart';
@@ -33,45 +33,39 @@ final StepDefinitionGeneric haveGroupNamed =
     given2<String, TestUser, CustomWorld>(
   'I have {string} group with {user}',
   (String name, TestUser user, context) async {
-    final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final ChatService chatService = Get.find();
 
-    var chat = await provider.createGroupChat(
-      [authService.credentials.value!.userId],
+    final chat = await chatService.createGroupChat(
+      [context.world.sessions[user.name]!.userId],
       name: ChatName(name),
     );
 
     context.world.groups[name] = chat.id;
-    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Creates a [Chat]-group with the provided several [User] and the
-/// authenticated [MyUser].
+/// Creates a [Chat]-group with the provided [User]s and the authenticated
+/// [MyUser].
 ///
 /// Examples:
 /// - Given I have "Name" group with several users: Bob and Charlie.
-final StepDefinitionGeneric haveGroupWithSeveralNamed =
+final StepDefinitionGeneric haveGroup2Named =
     given3<String, TestUser, TestUser, CustomWorld>(
-  'I have {string} group with several users: {user} and {user}',
-  (String name, TestUser user, TestUser secondUser, context) async {
-    final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+  'I have {string} group with {user} and {user}',
+  (String name, TestUser bob, TestUser charlie, context) async {
+    final ChatService chatService = Get.find();
 
-    var chat = await provider.createGroupChat(
+    final chat = await chatService.createGroupChat(
       [
-        authService.credentials.value!.userId,
-        context.world.sessions[secondUser.name]!.userId
+        context.world.sessions[bob.name]!.userId,
+        context.world.sessions[charlie.name]!.userId
       ],
       name: ChatName(name),
     );
 
     context.world.groups[name] = chat.id;
-    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

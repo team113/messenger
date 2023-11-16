@@ -64,7 +64,7 @@ class SwipeableStatus extends StatelessWidget {
   /// Indicator whether status is read.
   final bool isRead;
 
-  /// Indicator whether status is read by several members.
+  /// Indicator whether status is read only partially.
   final bool isHalfRead;
 
   /// Indicator whether status is sending.

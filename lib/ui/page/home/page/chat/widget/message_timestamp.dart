@@ -73,6 +73,7 @@ class MessageTimestamp extends StatelessWidget {
     final bool isSent = status == SendingStatus.sent;
     final bool isDelivered = isSent && delivered;
     final bool isRead = isSent && read;
+    final bool isHalfRead = isSent && halfRead;
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
@@ -100,12 +101,16 @@ class MessageTimestamp extends StatelessWidget {
                   ? 'Error'
                   : isSending
                       ? 'Sending'
-                      : 'Sent',
+                      : isRead
+                          ? isHalfRead
+                              ? 'HalfRead'
+                              : 'Read'
+                          : 'Sent',
             ),
             width: 17,
             child: SvgIcon(
               isRead
-                  ? halfRead
+                  ? isHalfRead
                       ? inverted
                           ? SvgIcons.halfReadWhite
                           : SvgIcons.halfRead
