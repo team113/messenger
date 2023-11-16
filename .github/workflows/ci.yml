@@ -404,6 +404,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: ${{ (github.event_name == 'pull_request') && 2 || 1 }}
+      - name: Retrieve commit messages
+        id: commit
+        run: |
+          echo "messages=$(git log --grep='\[debug\]' \
+                                   --grep='\[trace\]' \
+                                   --format=%s)" \
+          >> $GITHUB_OUTPUT
+
+      - name: Determine log level
+        id: log
+        run: |
+          echo "level=${{ (contains(steps.commit.outputs.messages, '[debug]')
+                           && 'debug')
+                       || (contains(steps.commit.outputs.messages, '[trace]')
+                           && 'trace')
+                       ||     'info' }}"
+          >> $GITHUB_OUTPUT
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -443,7 +463,8 @@ jobs:
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes \
+               dart-env='SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}'
         env:
           OMIT: |
             [

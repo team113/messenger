@@ -49,4 +49,7 @@ class WindowPreferences {
 
   /// Returns the [Offset] position of these [WindowPreferences].
   Offset? get position => dx == null || dy == null ? null : Offset(dx!, dy!);
+
+  @override
+  String toString() => '$position, $size';
 }

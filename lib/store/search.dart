@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/repository/search.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'pagination.dart';
 
@@ -93,12 +94,16 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
 
   @override
   void dispose() {
+    Log.debug('dispose()', '$runtimeType');
+
     _paginationSubscription?.cancel();
     pagination?.dispose();
   }
 
   @override
   Future<void> next() async {
+    Log.debug('next()', '$runtimeType');
+
     if (pagination != null && nextLoading.isFalse) {
       if (status.value.isSuccess) {
         status.value = RxStatus.loadingMore();
