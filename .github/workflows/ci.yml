@@ -248,7 +248,6 @@ jobs:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
-      - run: git config --global --add safe.directory '*'
 
       - run: apt-get update -y
       - run: apt-get install -y
@@ -266,6 +265,8 @@ jobs:
                      cmake
                      clang
                      zip
+
+      - run: git config --global --add safe.directory '*'
 
       - uses: subosito/flutter-action@v2
         with:
