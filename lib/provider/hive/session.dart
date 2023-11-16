@@ -23,6 +23,7 @@ import '/domain/model/user.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 // TODO: Encrypt stored data.
@@ -36,6 +37,8 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
     Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
@@ -49,25 +52,44 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   }
 
   /// Returns the stored [Credentials] from [Hive].
-  Credentials? getCredentials() => getSafe(0)?.credentials;
+  Credentials? getCredentials() {
+    Log.debug('getCredentials()', '$runtimeType');
+    return getSafe(0)?.credentials;
+  }
 
   /// Returns the stored [ChatContactsListVersion] from [Hive].
-  ChatContactsListVersion? getChatContactsListVersion() =>
-      getSafe(0)?.chatContactsListVersion;
+  ChatContactsListVersion? getChatContactsListVersion() {
+    Log.debug('getChatContactsListVersion()', '$runtimeType');
+    return getSafe(0)?.chatContactsListVersion;
+  }
 
   /// Returns the stored [FavoriteChatsListVersion] from [Hive].
-  FavoriteChatsListVersion? getFavoriteChatsListVersion() =>
-      getSafe(0)?.favoriteChatsListVersion;
+  FavoriteChatsListVersion? getFavoriteChatsListVersion() {
+    Log.debug('getFavoriteChatsListVersion()', '$runtimeType');
+    return getSafe(0)?.favoriteChatsListVersion;
+  }
 
   /// Stores new [Credentials] to [Hive].
-  Future<void> setCredentials(Credentials credentials) =>
-      putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
+  Future<void> setCredentials(Credentials credentials) async {
+    Log.debug('setCredentials($credentials)', '$runtimeType');
+    await putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
+  }
 
   /// Stores a new [ChatContactsListVersion] to [Hive].
-  Future<void> setChatContactsListVersion(ChatContactsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
+  Future<void> setChatContactsListVersion(ChatContactsListVersion ver) async {
+    Log.debug('setChatContactsListVersion($ver)', '$runtimeType');
+    await putSafe(
+      0,
+      (box.get(0) ?? SessionData())..chatContactsListVersion = ver,
+    );
+  }
 
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
-  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) async {
+    Log.debug('setFavoriteChatsListVersion($ver)', '$runtimeType');
+    await putSafe(
+      0,
+      (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver,
+    );
+  }
 }

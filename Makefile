@@ -261,6 +261,7 @@ endif
 #	              [gen=(yes|no)] [clean=(no|yes)]
 #	              [( [start-app=no]
 #	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
+#	              [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 
 test.e2e:
 ifeq ($(clean),yes)
@@ -284,7 +285,8 @@ else
 	flutter drive --headless -d $(or $(device),chrome) \
 		--web-renderer html --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
-		--target=test/e2e/suite.dart
+		--target=test/e2e/suite.dart \
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 endif
 ifeq ($(start-app),yes)
 	@make docker.down

@@ -18,6 +18,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for blocked [UserId]s of the authenticated [MyUser].
@@ -35,11 +36,20 @@ class BlocklistHiveProvider extends HiveBaseProvider<bool> {
   Iterable<UserId> get blocked => box.keys.map((e) => UserId(e));
 
   /// Puts the provided [UserId] to [Hive].
-  Future<void> put(UserId id) => putSafe(id.val, true);
+  Future<void> put(UserId id) async {
+    Log.debug('put($id)', '$runtimeType');
+    await putSafe(id.val, true);
+  }
 
   /// Indicates whether the provided [id] is stored in [Hive].
-  bool get(UserId id) => getSafe(id.val) ?? false;
+  bool get(UserId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val) ?? false;
+  }
 
   /// Removes the provided [UserId] from [Hive].
-  Future<void> remove(UserId id) => deleteSafe(id.val);
+  Future<void> remove(UserId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 }

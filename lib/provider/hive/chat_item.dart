@@ -30,6 +30,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'chat_item.g.dart';
@@ -50,6 +51,8 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
@@ -94,14 +97,22 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
   Future<Iterable<HiveChatItem>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChatItem item) =>
-      putSafe(item.value.key.toString(), item);
+  Future<void> put(HiveChatItem item) async {
+    Log.debug('put($item)', '$runtimeType');
+    await putSafe(item.value.key.toString(), item);
+  }
 
   @override
-  Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
+  Future<HiveChatItem?> get(ChatItemKey key) async {
+    Log.debug('get($key)', '$runtimeType');
+    return await getSafe(key.toString());
+  }
 
   @override
-  Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
+  Future<void> remove(ChatItemKey key) async {
+    Log.debug('remove($key)', '$runtimeType');
+    await deleteSafe(key.toString());
+  }
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].
@@ -122,6 +133,9 @@ abstract class HiveChatItem extends HiveObject {
   /// tracking state's actuality.
   @HiveField(2)
   final ChatItemVersion ver;
+
+  @override
+  String toString() => '$runtimeType($value, $cursor, $ver)';
 }
 
 /// Persisted in [Hive] storage [ChatInfo]'s [value].

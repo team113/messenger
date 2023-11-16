@@ -34,6 +34,7 @@ import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
@@ -50,6 +51,8 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatAvatarAdapter());
@@ -109,13 +112,22 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   Future<Iterable<HiveChat>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChat item) => putSafe(item.value.id.val, item);
+  Future<void> put(HiveChat item) async {
+    Log.debug('put($item)', '$runtimeType');
+    await putSafe(item.value.id.val, item);
+  }
 
   @override
-  Future<HiveChat?> get(ChatId key) => getSafe(key.val);
+  Future<HiveChat?> get(ChatId key) async {
+    Log.debug('get($key)', '$runtimeType');
+    return await getSafe(key.val);
+  }
 
   @override
-  Future<void> remove(ChatId key) => deleteSafe(key.val);
+  Future<void> remove(ChatId key) async {
+    Log.debug('remove($key)', '$runtimeType');
+    await deleteSafe(key.val);
+  }
 }
 
 /// Persisted in [Hive] storage [Chat]'s [value].
@@ -156,4 +168,8 @@ class HiveChat extends HiveObject {
   /// Cursor of the [value] when paginating through favorite [Chat]s.
   @HiveField(5)
   FavoriteChatsCursor? favoriteCursor;
+
+  @override
+  String toString() =>
+      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
 }

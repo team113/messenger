@@ -33,6 +33,7 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
@@ -46,6 +47,8 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
@@ -98,16 +101,27 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
   Iterable<ChatMessage> get drafts => valuesSafe;
 
   /// Puts the provided [ChatMessage] to [Hive].
-  Future<void> put(ChatId id, ChatMessage draft) => putSafe(id.val, draft);
+  Future<void> put(ChatId id, ChatMessage draft) async {
+    Log.debug('put($id, $draft)', '$runtimeType');
+    await putSafe(id.val, draft);
+  }
 
   /// Returns a [ChatMessage] from [Hive] by the provided [id].
-  ChatMessage? get(ChatId id) => getSafe(id.val);
+  ChatMessage? get(ChatId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
-  Future<void> remove(ChatId id) => deleteSafe(id.val);
+  Future<void> remove(ChatId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 
   /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
   Future<void> move(ChatId oldKey, ChatId newKey) async {
+    Log.debug('move($oldKey, $newKey)', '$runtimeType');
+
     final ChatMessage? value = get(oldKey);
     if (value != null) {
       remove(oldKey);

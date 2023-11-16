@@ -34,6 +34,7 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/session.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -97,6 +98,8 @@ class AuthService extends GetxService {
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
     _storageSubscription?.cancel();
     _sessionSubscription?.cancel();
     _sessionProvider.close();
@@ -109,6 +112,8 @@ class AuthService extends GetxService {
   /// [Routes.auth] page if this operation fails. Otherwise, fetches user data
   /// from the server to be up-to-date with it.
   Future<String?> init() async {
+    Log.debug('init()', '$runtimeType');
+
     // Try to refresh session, otherwise just force logout.
     _authRepository.authExceptionHandler = (e) async {
       if (credentials.value?.rememberedSession.expireAt
@@ -189,13 +194,19 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _authRepository.recoverUserPassword(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-      );
+  }) async {
+    Log.debug(
+      'recoverUserPassword($login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
+    await _authRepository.recoverUserPassword(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+    );
+  }
 
   /// Validates the provided password recovery [ConfirmationCode] for a [MyUser]
   /// identified by the provided [num]/[login]/[email]/[phone] (exactly one of
@@ -206,14 +217,20 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _authRepository.validateUserPasswordRecoveryCode(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-        code: code,
-      );
+  }) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
+    await _authRepository.validateUserPasswordRecoveryCode(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+      code: code,
+    );
+  }
 
   /// Resets password for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified)
@@ -228,15 +245,21 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _authRepository.resetUserPassword(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-        code: code,
-        newPassword: newPassword,
-      );
+  }) async {
+    Log.debug(
+      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
+    await _authRepository.resetUserPassword(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+      code: code,
+      newPassword: newPassword,
+    );
+  }
 
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser] (valid for 24 hours).
@@ -244,6 +267,8 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
+    Log.debug('register()', '$runtimeType');
+
     status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
@@ -264,11 +289,15 @@ class AuthService extends GetxService {
   /// [confirmSignUpEmail] in order to successfully sign up.
   ///
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
-  Future<void> signUpWithEmail(UserEmail email) =>
-      _authRepository.signUpWithEmail(email);
+  Future<void> signUpWithEmail(UserEmail email) async {
+    Log.debug('signUpWithEmail($email)', '$runtimeType');
+    await _authRepository.signUpWithEmail(email);
+  }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   Future<void> confirmSignUpEmail(ConfirmationCode code) async {
+    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
+
     try {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
       _authorized(creds);
@@ -281,7 +310,10 @@ class AuthService extends GetxService {
 
   /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
   /// [signUpWithEmail].
-  Future<void> resendSignUpEmail() => _authRepository.resendSignUpEmail();
+  Future<void> resendSignUpEmail() async {
+    Log.debug('resendSignUpEmail()', '$runtimeType');
+    await _authRepository.resendSignUpEmail();
+  }
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
@@ -296,6 +328,8 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
   }) async {
+    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
+
     status.value = RxStatus.loadingMore();
     return _tokenGuard.protect(() async {
       try {
@@ -319,6 +353,8 @@ class AuthService extends GetxService {
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
+    Log.debug('signInWith($credentials)', '$runtimeType');
+
     // Check if the [credentials] are valid.
     credentials =
         await _authRepository.renewSession(credentials.rememberedSession.token);
@@ -334,6 +370,8 @@ class AuthService extends GetxService {
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {
+    Log.debug('logout()', '$runtimeType');
+
     status.value = RxStatus.loading();
 
     try {
@@ -363,6 +401,8 @@ class AuthService extends GetxService {
 
   /// Validates the current [AccessToken].
   Future<bool> validateToken() async {
+    Log.debug('validateToken()', '$runtimeType');
+
     try {
       await _authRepository.validateToken();
       return true;
@@ -373,6 +413,8 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [session].
   Future<void> renewSession() async {
+    Log.debug('renewSession()', '$runtimeType');
+
     if (WebUtils.credentialsUpdating) {
       // Wait until the [Credentials] are done updating in another tab.
       await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
@@ -410,11 +452,15 @@ class AuthService extends GetxService {
 
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) =>
-      _authRepository.useChatDirectLink(slug);
+  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+    Log.debug('useChatDirectLink($slug)', '$runtimeType');
+    return await _authRepository.useChatDirectLink(slug);
+  }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
+    Log.debug('_authorized($creds)', '$runtimeType');
+
     _authRepository.token = creds.session.token;
     credentials.value = creds;
     _refreshTimer?.cancel();
@@ -429,6 +475,8 @@ class AuthService extends GetxService {
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
   String _unauthorized() {
+    Log.debug('_unauthorized()', '$runtimeType');
+
     _sessionProvider.clear();
     _authRepository.token = null;
     credentials.value = null;

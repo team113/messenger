@@ -20,6 +20,7 @@ import 'dart:collection';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/cache_info.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [CacheInfo].
@@ -32,6 +33,7 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(CacheInfoAdapter());
   }
 
@@ -45,6 +47,8 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
     int? maxSize,
     DateTime? modified,
   }) {
+    Log.trace('set($checksums, $size, $maxSize, $modified)', '$runtimeType');
+
     final CacheInfo info = this.info;
 
     info.checksums = checksums ?? info.checksums;

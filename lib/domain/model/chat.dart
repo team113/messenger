@@ -287,6 +287,9 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
     return other.updatedAt.compareTo(updatedAt);
   }
+
+  @override
+  String toString() => '$runtimeType($id)';
 }
 
 /// Member of a [Chat].
