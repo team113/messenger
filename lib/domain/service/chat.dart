@@ -84,7 +84,6 @@ class ChatService extends DisposableService {
     ChatName? name,
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
-
     return await _chatRepository.createGroupChat(memberIds, name: name);
   }
 

@@ -93,6 +93,7 @@ class ContactService extends DisposableService {
     UserPhone? phone,
   }) {
     Log.debug('search($name, $email, $phone)', '$runtimeType');
+
     return _contactRepository.search(
       name: name,
       email: email,

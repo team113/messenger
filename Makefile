@@ -261,6 +261,7 @@ endif
 #	              [gen=(yes|no)] [clean=(no|yes)]
 #	              [( [start-app=no]
 #	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
+#	              [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 
 test.e2e:
 ifeq ($(clean),yes)

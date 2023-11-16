@@ -52,7 +52,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
-    Log.debug('signUp()', '$runtimeType');
+    Log.debug('signUp($remember)', '$runtimeType');
 
     final variables = SignUpArguments(remember: remember);
     final QueryResult result = await client.query(QueryOptions(

@@ -1118,6 +1118,8 @@ class ChatRepository extends DisposableInterface
     return _graphQlProvider
         .chatEvents(chatId, ver, onVer)
         .asyncExpand((event) async* {
+      Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
+
       var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
@@ -1275,7 +1277,7 @@ class ChatRepository extends DisposableInterface
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
-    Log.debug('chatEvent($e)', '$runtimeType');
+    Log.trace('chatEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatCleared') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
@@ -1631,7 +1633,7 @@ class ChatRepository extends DisposableInterface
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
   /// subscription.
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
-    Log.debug('_recentChatsRemoteEvent($event)', '$runtimeType');
+    Log.debug('_recentChatsRemoteEvent(${event.kind})', '$runtimeType');
 
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
@@ -1776,6 +1778,8 @@ class ChatRepository extends DisposableInterface
     Log.debug('_recentChatsRemoteEvents()', '$runtimeType');
 
     return _graphQlProvider.recentChatsTopEvents(3).asyncExpand((event) async* {
+      Log.trace('_recentChatsRemoteEvents(): ${event.data}', '$runtimeType');
+
       var events = RecentChatsTopEvents$Subscription.fromJson(event.data!)
           .recentChatsTopEvents;
 
@@ -1973,14 +1977,14 @@ class ChatRepository extends DisposableInterface
   /// Handles a [FavoriteChatsEvent] from the [_favoriteChatsEvents]
   /// subscription.
   Future<void> _favoriteChatsEvent(FavoriteChatsEvents event) async {
-    Log.debug('_favoriteChatsEvent($event)', '$runtimeType');
-
     switch (event.kind) {
       case FavoriteChatsEventsKind.initialized:
-        // No-op.
+        Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
         break;
 
       case FavoriteChatsEventsKind.chatsList:
+        Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
+
         var node = event as FavoriteChatsEventsChatsList;
         _sessionLocal.setFavoriteChatsListVersion(node.ver);
         for (ChatData data in node.chatList) {
@@ -1994,6 +1998,11 @@ class ChatRepository extends DisposableInterface
         var versioned = (event as FavoriteChatsEventsEvent).event;
         if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
           _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
+
+          Log.debug(
+            '_favoriteChatsEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
 
           for (var event in versioned.events) {
             switch (event.kind) {
@@ -2021,14 +2030,13 @@ class ChatRepository extends DisposableInterface
   Stream<FavoriteChatsEvents> _favoriteChatsEvents(
     FavoriteChatsListVersion? Function() ver,
   ) {
-    Log.debug(
-      '_favoriteChatsEvents(FavoriteChatsListVersion)',
-      '$runtimeType',
-    );
+    Log.debug('_favoriteChatsEvents(ver)', '$runtimeType');
 
     return _graphQlProvider
         .favoriteChatsEvents(ver)
         .asyncExpand((event) async* {
+      Log.trace('_favoriteChatsEvents: ${event.data}', '$runtimeType');
+
       var events = FavoriteChatsEvents$Subscription.fromJson(event.data!)
           .favoriteChatsEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -2060,7 +2068,7 @@ class ChatRepository extends DisposableInterface
   ChatEvent _favoriteChatsVersionedEvent(
     FavoriteChatsEventsVersionedMixin$Events e,
   ) {
-    Log.debug('_favoriteChatsVersionedEvent($e)', '$runtimeType');
+    Log.trace('_favoriteChatsVersionedEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatFavorited') {
       var node =

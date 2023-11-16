@@ -29,13 +29,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:log_me/log_me.dart' as me;
 
 import 'api/backend/schema.dart';
 import 'config.dart';
@@ -63,8 +63,9 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-  me.Log.options = me.LogOptions(level: Config.logLevel);
   MediaKit.ensureInitialized();
+
+  me.Log.options = me.LogOptions(level: Config.logLevel);
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
@@ -141,7 +142,8 @@ Future<void> main() async {
           StringBuffer buf = StringBuffer('$exception');
           if (stackTrace != null) {
             buf.write(
-                '\n\nWhen the exception was thrown, this was the stack:\n');
+              '\n\nWhen the exception was thrown, this was the stack:\n',
+            );
             buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
           }
 
@@ -160,6 +162,8 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
+  Log.debug('handlePushNotification($message)', 'main');
+
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();

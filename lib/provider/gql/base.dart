@@ -234,6 +234,8 @@ class GraphQlClient {
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() async {
+    Log.debug('reconnect()', '$runtimeType');
+
     if (_client == null || _currentToken != token) {
       _client = await _newClient();
       _currentToken = token;
@@ -242,6 +244,8 @@ class GraphQlClient {
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() {
+    Log.debug('disconnect()', '$runtimeType');
+
     _disposeWebSocket();
     _queryLimiter.clear();
     _subscriptionLimiter.clear();
@@ -333,6 +337,8 @@ class GraphQlClient {
 
   /// Populates the [_wsLink] with a new [WebSocketLink].
   Future<void> _newWebSocket() async {
+    Log.debug('_newWebSocket()', '$runtimeType');
+
     _wsLink = WebSocketLink(
       Config.ws,
       config: SocketClientConfig(
@@ -387,6 +393,7 @@ class GraphQlClient {
 
   /// Disposes the [_wsLink] and related resources.
   void _disposeWebSocket() {
+    Log.debug('_disposeWebSocket()', '$runtimeType');
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
     _channelSubscription?.cancel();
@@ -396,6 +403,8 @@ class GraphQlClient {
 
   /// Creates a new [GraphQLClient].
   Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
+    Log.debug('_newClient($raw)', '$runtimeType');
+
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
       defaultHeaders: {
@@ -515,16 +524,15 @@ class SubscriptionHandle {
 
   /// Subscribes to the events.
   Future<void> _subscribe() async {
+    Log.debug('subscribe()', '$runtimeType');
+
     _subscription?.cancel();
 
     try {
       _subscription = (await _listen(_options)).listen(
         (e) {
           if (_backoff != null) {
-            Log.info(
-              'Successfully resubscribed 👍',
-              _options.operationName,
-            );
+            Log.info('Successfully resubscribed 👍', _options.operationName);
 
             _backoffDuration = Duration.zero;
             _backoff?.cancel();

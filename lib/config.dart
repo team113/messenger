@@ -174,7 +174,7 @@ class Config {
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
           ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
-          : e.name == document['log']['level'],
+          : e.name == document['log']?['level'],
       orElse: () =>
           kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
     );

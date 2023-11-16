@@ -391,6 +391,7 @@ class CallRepository extends DisposableInterface
       'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
       '$runtimeType',
     );
+
     await _graphQlProvider.transformDialogCallIntoGroupCall(
       chatId,
       additionalMemberIds,
@@ -462,6 +463,8 @@ class CallRepository extends DisposableInterface
     return _graphQlProvider
         .callEvents(id, deviceId)
         .asyncExpand((event) async* {
+      Log.trace('heartbeat($id): ${event.data}', '$runtimeType');
+
       var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -491,6 +494,8 @@ class CallRepository extends DisposableInterface
     return _graphQlProvider
         .incomingCallsTopEvents(count)
         .asyncExpand((event) async* {
+      Log.trace('_incomingEvents($count): ${event.data}', '$runtimeType');
+
       var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
           .incomingChatCallsTopEvents;
 
@@ -520,7 +525,7 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    Log.debug('_callEvent($e)', '$runtimeType');
+    Log.trace('_callEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatCallFinished') {
       var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
@@ -675,7 +680,7 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].
   ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
-    Log.debug('_chatCall($m)', '$runtimeType');
+    Log.trace('_chatCall($m)', '$runtimeType');
 
     for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
@@ -705,6 +710,8 @@ class CallRepository extends DisposableInterface
     _events?.cancel();
     _events = _incomingEvents(count).listen(
       (e) async {
+        Log.debug('_subscribe($count): ${e.kind}', '$runtimeType');
+
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:
             // No-op.

@@ -118,6 +118,11 @@ class HiveRxUser extends RxUser {
     Log.debug('stopUpdates()', '$runtimeType($id)');
 
     if (--_listeners == 0) {
+      Log.debug(
+        '_remoteSubscription?.close(immediate: true)',
+        '$runtimeType($id)',
+      );
+
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
     }
@@ -136,14 +141,14 @@ class HiveRxUser extends RxUser {
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
   Future<void> _userEvent(UserEvents events) async {
-    Log.debug('_userEvent($events)', '$runtimeType($id)');
-
     switch (events.kind) {
       case UserEventsKind.initialized:
-        // No-op.
+        Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
         break;
 
       case UserEventsKind.user:
+        Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
+
         events as UserEventsUser;
         var saved = _userLocal.get(id);
         if (saved == null || saved.ver < events.user.ver) {
@@ -155,8 +160,17 @@ class HiveRxUser extends RxUser {
         var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
+          Log.debug(
+            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
           return;
         }
+
+        Log.debug(
+          '_userEvent(${events.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
 
         userEntity.ver = versioned.ver;
         for (var event in versioned.events) {
@@ -296,6 +310,11 @@ class HiveRxUser extends RxUser {
     _lastSeenTimer = Timer(
       delay,
       () {
+        Log.debug(
+          '_runLastSeenTimer(): delay($delay) has passed',
+          '$runtimeType($id)',
+        );
+
         lastSeen.value = user.value.lastSeenAt;
         lastSeen.refresh();
 
@@ -303,6 +322,11 @@ class HiveRxUser extends RxUser {
         _lastSeenTimer = Timer.periodic(
           period,
           (timer) {
+            Log.debug(
+              '_runLastSeenTimer(): period($period) has passed',
+              '$runtimeType($id)',
+            );
+
             lastSeen.value = user.value.lastSeenAt;
             lastSeen.refresh();
           },

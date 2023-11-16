@@ -57,7 +57,7 @@ class MediaUtilsImpl {
       }
 
       WebUtils.onPanic((e) {
-        Log.warning('Panic: ${e.toString()}', 'Jason');
+        Log.error('Panic: ${e.toString()}', 'Jason');
         _jason = null;
         _mediaManager = null;
       });

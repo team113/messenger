@@ -249,7 +249,9 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] has
   /// the specified name already
   Future<ChatEventsVersionedMixin?> renameChat(
-      ChatId id, ChatName? name) async {
+    ChatId id,
+    ChatName? name,
+  ) async {
     Log.debug('renameChat($id, $name)', '$runtimeType');
 
     RenameChatArguments variables = RenameChatArguments(id: id, name: name);
@@ -388,7 +390,9 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [User] is
   /// a member of the specified [Chat] already.
   Future<ChatEventsVersionedMixin?> addChatMember(
-      ChatId chatId, UserId userId) async {
+    ChatId chatId,
+    UserId userId,
+  ) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
 
     final variables = AddChatMemberArguments(chatId: chatId, userId: userId);
@@ -1425,10 +1429,7 @@ mixin ChatGraphQlMixin {
   Stream<QueryResult> favoriteChatsEvents(
     FavoriteChatsListVersion? Function() ver,
   ) {
-    Log.debug(
-      'favoriteChatsEvents(FavoriteChatsListVersion)',
-      '$runtimeType',
-    );
+    Log.debug('favoriteChatsEvents(ver)', '$runtimeType');
 
     final variables = FavoriteChatsEventsArguments(ver: ver());
     return client.subscribe(

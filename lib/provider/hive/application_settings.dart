@@ -49,6 +49,7 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setPopupsEnabled(bool enabled) async {
     Log.debug('setPopupsEnabled($enabled)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..enablePopups = enabled,
@@ -65,6 +66,7 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setShowIntroduction(bool show) async {
     Log.debug('setShowIntroduction($show)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..showIntroduction = show,
@@ -75,6 +77,7 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setSideBarWidth(double width) async {
     Log.debug('setSideBarWidth($width)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..sideBarWidth = width,
@@ -85,6 +88,7 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setCallButtons(List<String> buttons) async {
     Log.debug('setCallButtons($buttons)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..callButtons = buttons,
@@ -95,6 +99,7 @@ class ApplicationSettingsHiveProvider
   /// [ApplicationSettings.showDragAndDropVideosHint] to [Hive].
   Future<void> setShowDragAndDropVideosHint(bool show) async {
     Log.debug('setShowDragAndDropVideosHint($show)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..showDragAndDropVideosHint = show,
@@ -105,6 +110,7 @@ class ApplicationSettingsHiveProvider
   /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
   Future<void> setShowDragAndDropButtonsHint(bool show) async {
     Log.debug('setShowDragAndDropButtonsHint($show)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..showDragAndDropButtonsHint = show,
@@ -115,6 +121,7 @@ class ApplicationSettingsHiveProvider
   /// to [Hive].
   Future<void> setSortContactsByName(bool enabled) async {
     Log.debug('setSortContactsByName($enabled)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
@@ -125,6 +132,7 @@ class ApplicationSettingsHiveProvider
   /// to [Hive].
   Future<void> setLoadImages(bool enabled) async {
     Log.debug('setLoadImages($enabled)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
@@ -135,6 +143,7 @@ class ApplicationSettingsHiveProvider
   /// to [Hive].
   Future<void> setTimelineEnabled(bool enabled) async {
     Log.debug('setTimelineEnabled($enabled)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
@@ -145,6 +154,7 @@ class ApplicationSettingsHiveProvider
   /// [Hive].
   Future<void> setPinnedActions(List<String> buttons) async {
     Log.debug('setPinnedActions($buttons)', '$runtimeType');
+
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,

@@ -319,6 +319,8 @@ class UserRepository extends DisposableInterface
     Log.debug('userEvents($id)', '$runtimeType');
 
     return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
+      Log.trace('userEvents($id): ${event.data}', '$runtimeType');
+
       var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
@@ -435,7 +437,7 @@ class UserRepository extends DisposableInterface
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
   UserEvent _userEvent(UserEventsVersionedMixin$Events e) {
-    Log.debug('_userEvent($e)', '$runtimeType');
+    Log.trace('_userEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventUserAvatarDeleted') {
       var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
@@ -489,7 +491,7 @@ class UserRepository extends DisposableInterface
   /// Constructs a [BlocklistEvent] from the
   /// [BlocklistEventsVersionedMixin$Events].
   BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
-    Log.debug('_blocklistEvent($e)', '$runtimeType');
+    Log.trace('_blocklistEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventBlocklistRecordAdded') {
       var node =

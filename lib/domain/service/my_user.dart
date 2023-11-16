@@ -252,7 +252,7 @@ class MyUserService extends DisposableService {
     Log.debug('_onPasswordUpdated()', '$runtimeType');
 
     await _passwordChangeGuard.protect(() async {
-      bool isTokenValid = await _auth.validateToken();
+      final bool isTokenValid = await _auth.validateToken();
       if (!isTokenValid) {
         router.go(await _auth.logout());
       }

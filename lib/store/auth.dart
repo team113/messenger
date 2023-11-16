@@ -70,7 +70,7 @@ class AuthRepository implements AbstractAuthRepository {
   Future<Credentials> signUp() async {
     Log.debug('signUp()', '$runtimeType');
 
-    var response = await _graphQlProvider.signUp();
+    final response = await _graphQlProvider.signUp();
     return response.toModel();
   }
 
@@ -87,7 +87,7 @@ class AuthRepository implements AbstractAuthRepository {
       '$runtimeType',
     );
 
-    var response =
+    final response =
         await _graphQlProvider.signIn(password, login, num, email, phone, true);
     return response.toModel();
   }
@@ -178,6 +178,7 @@ class AuthRepository implements AbstractAuthRepository {
       'recoverUserPassword($login, $num, $email, $phone)',
       '$runtimeType',
     );
+
     await _graphQlProvider.recoverUserPassword(login, num, email, phone);
   }
 
@@ -193,6 +194,7 @@ class AuthRepository implements AbstractAuthRepository {
       'validateUserPasswordRecoveryCode($code, $login, $num, $email, $phone)',
       '$runtimeType',
     );
+
     await _graphQlProvider.validateUserPasswordRecoveryCode(
       login,
       num,
@@ -215,6 +217,7 @@ class AuthRepository implements AbstractAuthRepository {
       'resetUserPassword($code, ***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
+
     await _graphQlProvider.resetUserPassword(
       login,
       num,

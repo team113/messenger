@@ -380,7 +380,7 @@ mixin UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
   Stream<QueryResult> myUserEvents(MyUserVersion? Function() ver) {
-    Log.debug('myUserEvents(MyUserVersion)', '$runtimeType');
+    Log.debug('myUserEvents(ver)', '$runtimeType');
 
     final variables = MyUserEventsArguments(ver: ver());
     return client.subscribe(
@@ -448,7 +448,7 @@ mixin UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
   Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
-    Log.debug('userEvents($id, UserVersion)', '$runtimeType');
+    Log.debug('userEvents($id, ver)', '$runtimeType');
 
     final variables = UserEventsArguments(id: id, ver: ver());
     return client.subscribe(
@@ -674,7 +674,8 @@ mixin UserGraphQlMixin {
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-      ConfirmationCode code) async {
+    ConfirmationCode code,
+  ) async {
     Log.debug('confirmPhoneCode($code)', '$runtimeType');
 
     final variables = ConfirmUserPhoneArguments(code: code);

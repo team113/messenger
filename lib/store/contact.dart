@@ -163,10 +163,7 @@ class ContactRepository extends DisposableInterface
 
   @override
   Future<void> changeContactName(ChatContactId id, UserName name) async {
-    Log.debug(
-      'changeContactName($id, $name)',
-      '$runtimeType',
-    );
+    Log.debug('changeContactName($id, $name)', '$runtimeType');
 
     final HiveRxChatContact? contact = contacts[id];
     final UserName? oldName = contact?.contact.value.name;
@@ -331,6 +328,7 @@ class ContactRepository extends DisposableInterface
   @override
   RxChatContact? get(ChatContactId id) {
     Log.debug('get($id)', '$runtimeType');
+
     // TODO: Get [ChatContact] from remote if it's not stored locally.
     return contacts[id] ?? favorites[id];
   }
@@ -473,16 +471,18 @@ class ContactRepository extends DisposableInterface
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
   /// subscription.
   Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
-    Log.debug('_contactRemoteEvent($event)', '$runtimeType');
-
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
+        Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
+
         if (_sessionLocal.getChatContactsListVersion() != null) {
           status.value = RxStatus.success();
         }
         break;
 
       case ChatContactsEventsKind.chatContactsList:
+        Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
+
         var node = event as ChatContactsEventsChatContactsList;
         var chatContacts = [...node.chatContacts, ...node.favoriteChatContacts];
         _sessionLocal.setChatContactsListVersion(node.ver);
@@ -502,7 +502,17 @@ class ContactRepository extends DisposableInterface
 
       case ChatContactsEventsKind.event:
         var versioned = (event as ChatContactsEventsEvent).event;
-        if (versioned.listVer > _sessionLocal.getChatContactsListVersion()) {
+        if (versioned.listVer <= _sessionLocal.getChatContactsListVersion()) {
+          Log.debug(
+            '_contactRemoteEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+        } else {
+          Log.debug(
+            '_contactRemoteEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+
           _sessionLocal.setChatContactsListVersion(versioned.listVer);
 
           for (var node in versioned.events) {
@@ -653,12 +663,14 @@ class ContactRepository extends DisposableInterface
   Stream<ChatContactsEvents> _chatContactsRemoteEvents(
     ChatContactsListVersion? Function() ver,
   ) {
-    Log.debug(
-      '_chatContactsRemoteEvents(ChatContactsListVersion)',
-      '$runtimeType',
-    );
+    Log.debug('_chatContactsRemoteEvents(ver)', '$runtimeType');
 
     return _graphQlProvider.contactsEvents(ver).asyncExpand((event) async* {
+      Log.trace(
+        '_chatContactsRemoteEvents(ver): ${event.data}',
+        '$runtimeType',
+      );
+
       var events =
           ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
 
@@ -696,7 +708,7 @@ class ContactRepository extends DisposableInterface
   /// Constructs a [ChatContactEvent] from the
   /// [ChatContactEventsVersionedMixin$Events].
   ChatContactEvent _contactEvent(ChatContactEventsVersionedMixin$Events e) {
-    Log.debug('_contactEvent($e)', '$runtimeType');
+    Log.trace('_contactEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatContactCreated') {
       var node =

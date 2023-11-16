@@ -692,14 +692,21 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    Log.debug('_myUserRemoteEvent($versioned)', '$runtimeType');
-
     var userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
+      Log.debug(
+        '_myUserRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
       return;
     }
     userEntity.ver = versioned.ver;
+
+    Log.debug(
+      '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
+      '$runtimeType',
+    );
 
     for (var event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
@@ -893,6 +900,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
 
     return _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
+      Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
+
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -913,7 +922,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].
   MyUserEvent _myUserEvent(MyUserEventsVersionedMixin$Events e) {
-    Log.debug('_myUserEvent($e)', '$runtimeType');
+    Log.trace('_myUserEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;

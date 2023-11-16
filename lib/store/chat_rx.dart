@@ -503,10 +503,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> updateAttachments(ChatItem item) async {
-    Log.debug(
-      'updateAttachments($item)',
-      '$runtimeType($id)',
-    );
+    Log.debug('updateAttachments($item)', '$runtimeType($id)');
 
     if (item.id.isLocal) {
       return;
@@ -1066,7 +1063,6 @@ class HiveRxChat extends RxChat {
         onError: (e) async {
           if (e is StaleVersionException) {
             await _pagination.clear();
-
             await _pagination.around(cursor: _lastReadItemCursor);
           }
         },
@@ -1078,14 +1074,13 @@ class HiveRxChat extends RxChat {
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
   Future<void> _chatEvent(ChatEvents event) async {
-    Log.debug('_chatEvent($event)', '$runtimeType($id)');
-
     switch (event.kind) {
       case ChatEventsKind.initialized:
-        // No-op.
+        Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         break;
 
       case ChatEventsKind.chat:
+        Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         var node = event as ChatEventsChat;
         _chatRepository.put(node.chat, ignoreVersion: true);
         _lastReadItemCursor = node.chat.lastReadItemCursor;
@@ -1095,8 +1090,18 @@ class HiveRxChat extends RxChat {
         final HiveChat? chatEntity = await _chatLocal.get(id);
         var versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
+          Log.debug(
+            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
+
           return;
         }
+
+        Log.debug(
+          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
 
         chatEntity.ver = versioned.ver;
 
