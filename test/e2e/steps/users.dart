@@ -79,7 +79,11 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 /// - `Given user Bob`
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
   'user {user}',
-  (TestUser name, context) => createUser(name, context.world),
+  (TestUser name, context) => createUser(
+    name,
+    context.world,
+    password: name == TestUser.Alice ? UserPassword('123') : null,
+  ),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );

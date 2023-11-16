@@ -294,7 +294,7 @@ void main() async {
         .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.getBlocklist(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,

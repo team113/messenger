@@ -579,7 +579,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Removes a [User] identified by the provided [id] from the [blocklist].
+  /// Removes a [User] identified by the provided [userId] from the [blocklist].
   Future<void> remove(UserId userId) => _blocklistLocal.remove(userId);
 
   /// Fetches blocked [User]s with pagination.

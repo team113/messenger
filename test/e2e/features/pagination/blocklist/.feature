@@ -15,41 +15,23 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation SignIn(
-    $email: UserEmail
-    $phone: UserPhone
-    $login: UserLogin
-    $num: UserNum
-    $password: UserPassword!
-    $remember: Boolean
-) {
-    createSession(
-        email: $email
-        login: $login
-        num: $num
-        password: $password
-        remember: $remember
-        phone: $phone
-    ) {
-        __typename
-        ... on CreateSessionOk {
-            user {
-                __typename
-                id
-            }
-            session {
-                expireAt
-                token
-                ver
-            }
-            remembered {
-                expireAt
-                token
-                ver
-            }
-        }
-        ... on CreateSessionError {
-            code
-        }
-    }
-}
+Feature: Blocklist pagination
+
+  Scenario: Blocklist pagination works correctly
+    Given user Alice
+    And 16 users Dave
+    And Alice block 16 users with name "Dave"
+    And I sign in as Alice
+    And I wait until `HomeView` is present
+
+    When I tap `MenuButton` button
+    And I scroll `MenuListView` until `Blocklist` is present
+    And I tap `Blocklist` button
+    And I tap `ShowBlocklist` button
+    Then I wait until `BlocklistView` is present
+    And I see 15 blocked users
+
+    Given I have Internet with delay of 3 seconds
+    When I scroll `BlocklistView` to bottom
+    Then I wait until `BlocklistLoading` is present
+    And I see 16 blocked users

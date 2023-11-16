@@ -43,7 +43,7 @@ import 'my_profile_emails_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/my_profile_emails_unit');
-  var userData = {
+  var myUserData = {
     'id': '12345',
     'num': '1234567890123456',
     'login': 'login',
@@ -55,6 +55,7 @@ void main() async {
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
   var blocklist = {
@@ -97,7 +98,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         ),
       ]),
@@ -115,7 +116,7 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver':
               '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
@@ -138,7 +139,7 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
         }
       }).confirmUserEmail
@@ -157,14 +158,14 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
         }
       }).deleteUserEmail),
     );
 
     when(graphQlProvider.getBlocklist(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
@@ -213,7 +214,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         ),
       ]),

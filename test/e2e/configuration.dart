@@ -49,6 +49,7 @@ import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/block_users.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_muted.dart';
@@ -75,6 +76,7 @@ import 'steps/restart_app.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
@@ -125,6 +127,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
+        blockedCountUsers,
         cancelFileDownload,
         changeChatAvatar,
         chatIsFavorite,
@@ -167,6 +170,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollAndSee,
         scrollToBottom,
         scrollUntilPresent,
+        seeBlockedUsers,
         seeChatAsFavorite,
         seeChatAsMuted,
         seeChatAvatarAs,

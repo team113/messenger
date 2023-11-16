@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -45,6 +46,7 @@ class BlocklistView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
+      key: const Key('BlocklistView'),
       init: BlocklistController(
         Get.find(),
         Get.find(),
@@ -110,8 +112,11 @@ class BlocklistView extends StatelessWidget {
                             child = Column(
                               children: [
                                 child,
-                                const CustomProgressIndicator(
-                                  key: Key('BlocklistLoading'),
+                                CustomProgressIndicator(
+                                  key: const Key('BlocklistLoading'),
+                                  value: Config.disableInfiniteAnimations
+                                      ? 0
+                                      : null,
                                 ),
                               ],
                             );

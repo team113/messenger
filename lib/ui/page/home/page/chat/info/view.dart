@@ -429,7 +429,7 @@ class ChatInfoView extends StatelessWidget {
             ),
           ),
           ActionButton(
-            onPressed: () => _blocklistChat(c, context),
+            onPressed: () => _blockChat(c, context),
             text: 'btn_block'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -504,7 +504,7 @@ class ChatInfoView extends StatelessWidget {
   }
 
   /// Opens a confirmation popup blocking this [Chat].
-  Future<void> _blocklistChat(
+  Future<void> _blockChat(
     ChatInfoController c,
     BuildContext context,
   ) async {

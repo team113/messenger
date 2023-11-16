@@ -41,7 +41,7 @@ import 'my_user_muting_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/my_user_muting_unit');
-  var userData = {
+  var myUserData = {
     'id': '12345',
     'num': '1234567890123456',
     'login': 'login',
@@ -53,6 +53,7 @@ void main() async {
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
   var blacklist = {
@@ -93,7 +94,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         )
       ]),
@@ -111,7 +112,7 @@ void main() async {
           'events': [
             {'__typename': 'EventUserUnmuted', 'userId': '12345'}
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '2'
         }
       }).toggleMyUserMute
@@ -119,7 +120,7 @@ void main() async {
     );
 
     when(graphQlProvider.getBlocklist(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
@@ -159,7 +160,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         ),
       ]),

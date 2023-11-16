@@ -153,6 +153,7 @@ void main() async {
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
   var blocklist = {
@@ -184,7 +185,7 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.getBlocklist(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,

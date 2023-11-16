@@ -144,9 +144,7 @@ void main() async {
                 'online': {'__typename': 'UserOnline'},
                 'mutualContactsCount': 0,
                 'isDeleted': false,
-                'isBlocked': {
-                  'ver': '0',
-                },
+                'isBlocked': {'ver': '0'},
               },
               'action': {
                 '__typename': 'ChatInfoActionMemberAdded',
@@ -166,9 +164,7 @@ void main() async {
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
                   'isDeleted': false,
-                  'isBlocked': {
-                    'ver': '0',
-                  },
+                  'isBlocked': {'ver': '0'},
                 },
               },
             },
@@ -211,9 +207,7 @@ void main() async {
                 'online': {'__typename': 'UserOnline'},
                 'mutualContactsCount': 0,
                 'isDeleted': false,
-                'isBlocked': {
-                  'ver': '0',
-                },
+                'isBlocked': {'ver': '0'},
               },
               'action': {
                 '__typename': 'ChatInfoActionMemberRemoved',
@@ -233,9 +227,7 @@ void main() async {
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
                   'isDeleted': false,
-                  'isBlocked': {
-                    'ver': '0',
-                  },
+                  'isBlocked': {'ver': '0'},
                 },
               },
             },

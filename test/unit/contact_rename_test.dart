@@ -137,13 +137,6 @@ void main() async {
       ]),
     );
 
-    when(graphQlProvider.recentChats(
-      first: 120,
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
-        (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
     when(graphQlProvider.chatContacts(first: 120)).thenAnswer(
       (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
     );
