@@ -78,7 +78,7 @@ class CallTitle extends StatelessWidget {
             title,
             avatar,
             me,
-            radius: 32,
+            radius: AvatarRadius.larger,
             opacity: 0.8,
           ),
           const SizedBox(height: 16),

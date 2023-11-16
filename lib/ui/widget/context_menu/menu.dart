@@ -22,14 +22,25 @@ import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({super.key, required this.actions});
+  const ContextMenu({
+    super.key,
+    required this.actions,
+    this.enlarged,
+  });
 
   /// List of [Widget]s to display in this [ContextMenu].
   final List<Widget> actions;
 
+  /// Indicator whether this [ContextMenu] should be enlarged.
+  ///
+  /// Intended to be used only for [Routes.style] page.
+  final bool? enlarged;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final bool isMobile = enlarged ?? context.isMobile;
 
     final List<Widget> widgets = [];
 
@@ -38,7 +49,7 @@ class ContextMenu extends StatelessWidget {
       widgets.add(actions[i]);
 
       // Adds a divider if required.
-      if (context.isMobile && i < actions.length - 1) {
+      if (isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
             color: style.colors.onBackgroundOpacity7,
@@ -69,9 +80,9 @@ class ContextMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!context.isMobile) const SizedBox(height: 4),
+              if (!isMobile) const SizedBox(height: 4),
               ...widgets,
-              if (!context.isMobile) const SizedBox(height: 4),
+              if (!isMobile) const SizedBox(height: 4),
             ],
           ),
         ),
@@ -108,6 +119,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.leading,
     this.trailing,
     this.showTrailing = false,
+    this.enlarged,
     this.onPressed,
   });
 
@@ -125,6 +137,11 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// On mobile platforms the provided [trailing] is always displayed.
   final bool showTrailing;
 
+  /// Indicator whether this [ContextMenuButton] should be enlarged.
+  ///
+  /// Intended to be used only for [Routes.style] page.
+  final bool? enlarged;
+
   /// Callback, called when button is pressed.
   final VoidCallback? onPressed;
 
@@ -141,6 +158,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final bool isMobile = widget.enlarged ?? context.isMobile;
+
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -152,18 +171,17 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: context.isMobile
+          padding: isMobile
               ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
               : const EdgeInsets.fromLTRB(11, 6, 11, 6),
-          margin:
-              context.isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
+          margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: context.isMobile
                 ? style.contextMenuRadius
                 : BorderRadius.circular(7),
             color: isMouseOver
-                ? context.isMobile
+                ? isMobile
                     ? style.contextMenuHoveredColor
                     : style.colors.primary
                 : style.colors.transparent,
@@ -183,16 +201,16 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
               ],
               Text(
                 widget.label,
-                style: (isMouseOver && !context.isMobile
+                style: (isMouseOver && !isMobile
                         ? style.fonts.normal.regular.onPrimary
                         : style.fonts.normal.regular.onBackground)
                     .copyWith(
-                  fontSize: context.isMobile
+                  fontSize: isMobile
                       ? style.fonts.medium.regular.onBackground.fontSize
                       : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
-              if ((PlatformUtils.isMobile || widget.showTrailing) &&
+              if ((isMobile || widget.showTrailing) &&
                   widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),

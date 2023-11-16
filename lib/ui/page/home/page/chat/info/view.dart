@@ -82,7 +82,10 @@ class ChatInfoView extends StatelessWidget {
                     shadowColor: style.colors.onBackgroundOpacity27,
                     color: style.colors.onPrimary,
                     child: Center(
-                      child: AvatarWidget.fromRxChat(c.chat, radius: 17),
+                      child: AvatarWidget.fromRxChat(
+                        c.chat,
+                        radius: AvatarRadius.medium,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),

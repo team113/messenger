@@ -7,7 +7,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 ## [0.1.0-alpha.12] · 2023-??-??
-[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.11
+[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
 [Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
 
@@ -16,14 +16,18 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Always display online status on desktop. ([#702], [#681])
     - Download and Save as option from context menu. ([#697], [#654])
+    - Style page:
+        - Redesigned widgets tab. ([#695], [#632])
 
 ### Fixed
 
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
+[#632]: /../../issues/632
 [#681]: /../../issues/681
 [#654]: /../../issues/654
+[#695]: /../../pull/695
 [#702]: /../../pull/702
 [#711]: /../../pull/711
 [#697]: /../../pull/697
