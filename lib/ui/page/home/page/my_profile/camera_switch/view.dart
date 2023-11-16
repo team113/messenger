@@ -90,11 +90,7 @@ class CameraSwitchView extends StatelessWidget {
                               ),
                               child: local == null
                                   ? const Center(
-                                      child: SvgImage.asset(
-                                        'assets/icons/no_video.svg',
-                                        width: 48.54,
-                                        height: 42,
-                                      ),
+                                      child: SvgIcon(SvgIcons.noVideo),
                                     )
                                   : webrtc.VideoView(
                                       local.inner,

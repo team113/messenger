@@ -185,7 +185,7 @@ class _ChatViewState extends State<ChatView>
                               child: Center(
                                 child: AvatarWidget.fromRxChat(
                                   c.chat,
-                                  radius: 17,
+                                  radius: AvatarRadius.medium,
                                 ),
                               ),
                             ),
@@ -234,19 +234,13 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
-                                child: const SvgImage.asset(
-                                  'assets/icons/chat_video_call.svg',
-                                  height: 17,
-                                ),
+                                child: const SvgIcon(SvgIcons.chatVideoCall),
                               ),
                               const SizedBox(width: 28),
                               AnimatedButton(
                                 key: const Key('AudioCall'),
                                 onPressed: () => c.call(false),
-                                child: const SvgImage.asset(
-                                  'assets/icons/chat_audio_call.svg',
-                                  height: 19,
-                                ),
+                                child: const SvgIcon(SvgIcons.chatAudioCall),
                               ),
                             ];
                           } else {
@@ -262,11 +256,7 @@ class _ChatViewState extends State<ChatView>
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/call_end.svg',
-                                    width: 32,
-                                    height: 32,
-                                  ),
+                                  child: SvgIcon(SvgIcons.callEnd),
                                 ),
                               );
                             } else {
@@ -279,11 +269,7 @@ class _ChatViewState extends State<ChatView>
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Center(
-                                  child: SvgImage.asset(
-                                    'assets/icons/audio_call_start.svg',
-                                    width: 15,
-                                    height: 15,
-                                  ),
+                                  child: SvgIcon(SvgIcons.callStart),
                                 ),
                               );
                             }
@@ -539,13 +525,9 @@ class _ChatViewState extends State<ChatView>
                                           color: style
                                               .colors.onBackgroundOpacity27,
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Icon(
-                                            Icons.add_rounded,
-                                            size: 50,
-                                            color: style.colors.onPrimary,
-                                          ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: SvgIcon(SvgIcons.addBigger),
                                         ),
                                       ),
                                     ),

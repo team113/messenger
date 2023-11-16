@@ -240,10 +240,25 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         width: widget.width,
         margin: widget.margin,
         buttonBuilder: (i, b) {
+          if (PlatformUtils.isMobile) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                b,
+                if (i < widget.actions.length - 1)
+                  Container(
+                    color: style.colors.onBackgroundOpacity7,
+                    height: 1,
+                    width: double.infinity,
+                  ),
+              ],
+            );
+          }
+
           return Padding(
             padding: EdgeInsets.only(
-              top: i == 0 ? 6 : 0,
-              bottom: i == widget.actions.length - 1 ? 6 : 0,
+              top: i == 0 ? 4 : 0,
+              bottom: i == widget.actions.length - 1 ? 4 : 0,
             ),
             child: b,
           );

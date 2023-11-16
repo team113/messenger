@@ -55,7 +55,7 @@ class _InteractiveLogoState extends State<InteractiveLogo> {
     return Listener(
       onPointerDown: (_) => _animate(),
       child: SvgImage.asset(
-        'assets/images/logo/head000$_frame.svg',
+        'assets/images/logo/head_$_frame.svg',
         height: 134,
         fit: BoxFit.contain,
         placeholderBuilder: (context) {
@@ -67,7 +67,7 @@ class _InteractiveLogoState extends State<InteractiveLogo> {
 
   /// Starts the [_timer] increasing the [_frame]s.
   void _animate() {
-    _frame = 0;
+    _frame = 1;
     _timer?.cancel();
     _timer = Timer.periodic(
       const Duration(milliseconds: 45),

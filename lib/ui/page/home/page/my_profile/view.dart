@@ -324,13 +324,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
               trailing: Transform.translate(
                 key: const Key('DeleteEmail'),
                 offset: const Offset(0, -5),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: const SvgImage.asset(
-                    'assets/icons/delete.svg',
-                    height: 14,
-                  ),
-                ),
+                child: const SvgIcon(SvgIcons.delete),
               ),
               subtitle: RichText(
                 text: TextSpan(
@@ -393,11 +387,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
           hint: 'label_verify_email'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -5),
-            child: Transform.scale(
-              scale: 1.15,
-              child:
-                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+            child: const SvgIcon(SvgIcons.delete),
           ),
           onPressed: () => AddEmailView.show(
             context,
@@ -458,13 +448,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
               trailing: Transform.translate(
                 key: const Key('DeletePhone'),
                 offset: const Offset(0, -5),
-                child: Transform.scale(
-                  scale: 1.15,
-                  child: const SvgImage.asset(
-                    'assets/icons/delete.svg',
-                    height: 14,
-                  ),
-                ),
+                child: const SvgIcon(SvgIcons.delete),
               ),
               onPressed: () {
                 PlatformUtils.copy(text: e.val);
@@ -534,8 +518,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
             offset: const Offset(0, -5),
             child: Transform.scale(
               scale: 1.15,
-              child:
-                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
+              child: const SvgIcon(SvgIcons.delete),
             ),
           ),
           onPressed: () => AddPhoneView.show(
@@ -813,41 +796,31 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     const Column(
       children: [
         DownloadButton(
-          asset: 'windows',
-          width: 21.93,
-          height: 22,
+          asset: SvgIcons.windows,
           title: 'Windows',
           link: 'messenger-windows.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'apple',
-          width: 23,
-          height: 29,
+          asset: SvgIcons.apple,
           title: 'macOS',
           link: 'messenger-macos.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'linux',
-          width: 18.85,
-          height: 22,
+          asset: SvgIcons.linux,
           title: 'Linux',
           link: 'messenger-linux.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'apple',
-          width: 23,
-          height: 29,
+          asset: SvgIcons.apple,
           title: 'iOS',
           link: 'messenger-ios.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          asset: 'google',
-          width: 20.33,
-          height: 22.02,
+          asset: SvgIcons.googlePlay,
           title: 'Android',
           link: 'messenger-android.apk',
         ),
@@ -868,11 +841,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
           text: 'btn_delete_account'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
-            child: Transform.scale(
-              scale: 1.15,
-              child:
-                  const SvgImage.asset('assets/icons/delete.svg', height: 14),
-            ),
+            child: const SvgIcon(SvgIcons.delete),
           ),
           onPressed: () => _deleteAccount(c, context),
           style: style.fonts.normal.regular.primary,

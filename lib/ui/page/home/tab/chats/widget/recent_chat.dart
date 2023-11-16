@@ -67,6 +67,7 @@ class RecentChatTile extends StatelessWidget {
     this.onFavorite,
     this.onUnfavorite,
     this.onSelect,
+    this.onCall,
     this.onTap,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -126,6 +127,9 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] select action is triggered.
   final void Function()? onSelect;
 
+  /// Callback, called when this [rxChat] call action is triggered.
+  final void Function(bool)? onCall;
+
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
 
@@ -150,6 +154,17 @@ class RecentChatTile extends StatelessWidget {
 
       return ChatTile(
         chat: rxChat,
+        dimmed: blocked,
+        title: chat.muted != null
+            ? [
+                const SizedBox(width: 5),
+                SvgIcon(
+                  inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                  key: Key('MuteIndicator_${chat.id}'),
+                ),
+                const SizedBox(width: 5),
+              ]
+            : [],
         status: [
           _status(context, inverted),
           if (!chat.id.isLocalWith(me))
@@ -172,23 +187,8 @@ class RecentChatTile extends StatelessWidget {
                   _ongoingCall(context),
                   if (blocked) ...[
                     const SizedBox(width: 5),
-                    Icon(
-                      Icons.block,
-                      color: inverted
-                          ? style.colors.onPrimary
-                          : style.colors.secondaryHighlightDarkest,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                  ] else if (chat.muted != null) ...[
-                    const SizedBox(width: 5),
-                    SvgImage.asset(
-                      inverted
-                          ? 'assets/icons/muted_light.svg'
-                          : 'assets/icons/muted.svg',
-                      key: Key('MuteIndicator_${chat.id}'),
-                      width: 19.99,
-                      height: 15,
+                    SvgIcon(
+                      inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
                     ),
                     const SizedBox(width: 5),
                   ],
@@ -209,28 +209,32 @@ class RecentChatTile extends StatelessWidget {
           ),
         ],
         actions: [
+          ContextMenuButton(
+            label: 'btn_audio_call'.l10n,
+            onPressed: () => onCall?.call(false),
+            trailing: const SvgIcon(SvgIcons.makeAudioCall),
+          ),
+          ContextMenuButton(
+            label: 'btn_video_call'.l10n,
+            onPressed: () => onCall?.call(true),
+            trailing: Transform.translate(
+              offset: const Offset(2, 0),
+              child: const SvgIcon(SvgIcons.makeVideoCall),
+            ),
+          ),
           if (chat.favoritePosition != null && onUnfavorite != null)
             ContextMenuButton(
               key: const Key('UnfavoriteChatButton'),
               label: 'btn_delete_from_favorites'.l10n,
               onPressed: onUnfavorite,
-              trailing: const Icon(Icons.star_border),
+              trailing: const SvgIcon(SvgIcons.favoriteSmall),
             ),
           if (chat.favoritePosition == null && onFavorite != null)
             ContextMenuButton(
               key: const Key('FavoriteChatButton'),
               label: 'btn_add_to_favorites'.l10n,
               onPressed: onFavorite,
-              trailing: const Icon(Icons.star),
-            ),
-          if (onHide != null)
-            ContextMenuButton(
-              key: const Key('ButtonHideChat'),
-              label: PlatformUtils.isMobile
-                  ? 'btn_hide'.l10n
-                  : 'btn_hide_chat'.l10n,
-              onPressed: () => _hideChat(context),
-              trailing: const Icon(Icons.delete),
+              trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
             ),
           if (chat.muted == null && onMute != null)
             ContextMenuButton(
@@ -239,7 +243,7 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_mute'.l10n
                   : 'btn_mute_chat'.l10n,
               onPressed: onMute,
-              trailing: const Icon(Icons.notifications_off),
+              trailing: const SvgIcon(SvgIcons.unmuteSmall),
             ),
           if (chat.muted != null && onUnmute != null)
             ContextMenuButton(
@@ -248,7 +252,16 @@ class RecentChatTile extends StatelessWidget {
                   ? 'btn_unmute'.l10n
                   : 'btn_unmute_chat'.l10n,
               onPressed: onUnmute,
-              trailing: const Icon(Icons.notifications),
+              trailing: const SvgIcon(SvgIcons.muteSmall),
+            ),
+          if (onHide != null)
+            ContextMenuButton(
+              key: const Key('ButtonHideChat'),
+              label: PlatformUtils.isMobile
+                  ? 'btn_delete'.l10n
+                  : 'btn_delete_chat'.l10n,
+              onPressed: () => _hideChat(context),
+              trailing: const SvgIcon(SvgIcons.deleteThick),
             ),
         ],
         selected: inverted,
@@ -263,6 +276,13 @@ class RecentChatTile extends StatelessWidget {
   /// [Chat.lastItem] or an [AnimatedTyping] indicating an ongoing typing.
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
     final style = Theme.of(context).style;
+
+    if (blocked) {
+      return Text(
+        'label_user_is_blocked'.l10n,
+        style: style.fonts.normal.regular.secondary,
+      );
+    }
 
     return Obx(() {
       final List<Widget> subtitle;
@@ -287,7 +307,7 @@ class RecentChatTile extends StatelessWidget {
                       ? style.fonts.small.regular.onPrimary
                       : style.fonts.small.regular.primary,
                 ),
-                const SizedBox(width: 3),
+                const SizedBox(width: 2),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: AnimatedTyping(inverted: inverted),
@@ -311,7 +331,7 @@ class RecentChatTile extends StatelessWidget {
                           : style.fonts.small.regular.primary,
                     ),
                   ),
-                  const SizedBox(width: 3),
+                  const SizedBox(width: 2),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: AnimatedTyping(inverted: inverted),
@@ -384,12 +404,14 @@ class RecentChatTile extends StatelessWidget {
         if (item is ChatCall) {
           Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
-            child: Icon(
-              Icons.call,
-              size: 16,
-              color: inverted
-                  ? style.colors.onPrimary
-                  : style.colors.secondaryBackgroundLightest,
+            child: SvgIcon(
+              item.withVideo
+                  ? inverted
+                      ? SvgIcons.callVideoWhite
+                      : SvgIcons.callVideoDisabled
+                  : inverted
+                      ? SvgIcons.callAudioWhite
+                      : SvgIcons.callAudioDisabled,
             ),
           );
 
@@ -450,10 +472,13 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarWidget.fromRxUser(
+                          snapshot.data,
+                          radius: AvatarRadius.smaller,
+                        )
                       : AvatarWidget.fromUser(
                           chat.getUser(item.author.id),
-                          radius: 10,
+                          radius: AvatarRadius.smaller,
                         ),
                 ),
               ),
@@ -479,10 +504,13 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarWidget.fromRxUser(
+                          snapshot.data,
+                          radius: AvatarRadius.smaller,
+                        )
                       : AvatarWidget.fromUser(
                           chat.getUser(item.author.id),
-                          radius: 10,
+                          radius: AvatarRadius.smaller,
                         ),
                 ),
               ),
@@ -618,6 +646,7 @@ class RecentChatTile extends StatelessWidget {
             ? style.fonts.normal.regular.onPrimary
             : style.fonts.normal.regular.secondary,
         overflow: TextOverflow.ellipsis,
+        maxLines: 1,
         child: Row(children: subtitle),
       );
     });
@@ -672,9 +701,8 @@ class RecentChatTile extends StatelessWidget {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
           child: Center(
-            child: SvgImage.asset(
-              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-              height: 14.3,
+            child: SvgIcon(
+              inverted ? SvgIcons.fileSmall : SvgIcons.fileSmallWhite,
             ),
           ),
         );
@@ -710,9 +738,8 @@ class RecentChatTile extends StatelessWidget {
         content = Container(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
           child: Center(
-            child: SvgImage.asset(
-              inverted ? 'assets/icons/file_dark.svg' : 'assets/icons/file.svg',
-              height: 14.3,
+            child: SvgIcon(
+              inverted ? SvgIcons.fileSmall : SvgIcons.fileSmallWhite,
             ),
           ),
         );
@@ -751,32 +778,28 @@ class RecentChatTile extends StatelessWidget {
 
         return Padding(
           padding: const EdgeInsets.only(right: 4),
-          child: SizedBox(
-            height: 16,
-            width: 16,
-            child: SvgImage.asset(
-              isRead
-                  ? isHalfRead
-                      ? inverted
-                          ? 'assets/icons/half_read_white.svg'
-                          : 'assets/icons/half_read.svg'
-                      : inverted
-                          ? 'assets/icons/read_white.svg'
-                          : 'assets/icons/read.svg'
-                  : isDelivered
-                      ? inverted
-                          ? 'assets/icons/delivered_white.svg'
-                          : 'assets/icons/delivered.svg'
-                      : isSending
-                          ? isError
-                              ? 'assets/icons/error.svg'
-                              : inverted
-                                  ? 'assets/icons/sending_white.svg'
-                                  : 'assets/icons/sending.svg'
-                          : inverted
-                              ? 'assets/icons/sent_white.svg'
-                              : 'assets/icons/sent.svg',
-            ),
+          child: SvgIcon(
+            isRead
+                ? isHalfRead
+                    ? inverted
+                        ? SvgIcons.halfReadWhite
+                        : SvgIcons.halfRead
+                    : inverted
+                        ? SvgIcons.readWhite
+                        : SvgIcons.read
+                : isDelivered
+                    ? inverted
+                        ? SvgIcons.deliveredWhite
+                        : SvgIcons.delivered
+                    : isSending
+                        ? isError
+                            ? SvgIcons.error
+                            : inverted
+                                ? SvgIcons.sendingWhite
+                                : SvgIcons.sending
+                        : inverted
+                            ? SvgIcons.sentWhite
+                            : SvgIcons.sent,
           ),
         );
       }

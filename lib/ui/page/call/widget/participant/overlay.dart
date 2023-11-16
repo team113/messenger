@@ -81,22 +81,14 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           const Padding(
             padding: EdgeInsets.only(left: 3, right: 3),
-            child: SvgImage.asset(
-              'assets/icons/audio_off_small.svg',
-              width: 20.88,
-              height: 17,
-              fit: BoxFit.fitWidth,
-            ),
+            child: SvgIcon(SvgIcons.audioOffSmall),
           ),
         );
       } else if (isMuted) {
         additionally.add(
           const Padding(
             padding: EdgeInsets.only(left: 2, right: 2),
-            child: SvgImage.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 16.5,
-            ),
+            child: SvgIcon(SvgIcons.microphoneOffSmall),
           ),
         );
       }
@@ -105,10 +97,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           const Padding(
             padding: EdgeInsets.only(left: 2, right: 3),
-            child: SvgImage.asset(
-              'assets/icons/low_signal_level.svg',
-              height: 15.5,
-            ),
+            child: SvgIcon(SvgIcons.lowSignalSmall),
           ),
         );
       }
@@ -122,20 +111,14 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(
             const Padding(
               padding: EdgeInsets.only(left: 4, right: 4),
-              child: SvgImage.asset(
-                'assets/icons/screen_share_small.svg',
-                height: 12,
-              ),
+              child: SvgIcon(SvgIcons.screenShareSmall),
             ),
           );
         } else {
           additionally.add(
             const Padding(
               padding: EdgeInsets.only(left: 4, right: 4),
-              child: SvgImage.asset(
-                'assets/icons/screen_share_small.svg',
-                height: 12,
-              ),
+              child: SvgIcon(SvgIcons.screenShareSmall),
             ),
           );
         }
@@ -146,11 +129,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         additionally.add(
           const Padding(
             padding: EdgeInsets.only(left: 5, right: 5),
-            child: SvgImage.asset(
-              'assets/icons/video_off_small.svg',
-              width: 19.8,
-              height: 17,
-            ),
+            child: SvgIcon(SvgIcons.videoOffSmall),
           ),
         );
       }
@@ -178,7 +157,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
               CustomBoxShadow(
                 color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
-                blurStyle: BlurStyle.outer,
+                blurStyle: BlurStyle.outer.workaround,
               )
             ],
           ),

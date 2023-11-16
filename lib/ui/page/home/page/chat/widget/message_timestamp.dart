@@ -79,36 +79,6 @@ class MessageTimestamp extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
-          SizedBox(
-            height: isRead || isDelivered || (!isSending && !isError) ? 9 : 13,
-            child: SvgImage.asset(
-              isRead
-                  ? halfRead
-                      ? inverted
-                          ? 'assets/icons/half_read_white.svg'
-                          : 'assets/icons/half_read.svg'
-                      : inverted
-                          ? 'assets/icons/read_white.svg'
-                          : 'assets/icons/read.svg'
-                  : isDelivered
-                      ? inverted
-                          ? 'assets/icons/delivered_white.svg'
-                          : 'assets/icons/delivered.svg'
-                      : isSending
-                          ? isError
-                              ? 'assets/icons/error.svg'
-                              : inverted
-                                  ? 'assets/icons/sending_white.svg'
-                                  : 'assets/icons/sending.svg'
-                          : inverted
-                              ? 'assets/icons/sent_white.svg'
-                              : 'assets/icons/sent.svg',
-            ),
-          ),
-          const SizedBox(width: 3),
-        ],
         SelectionContainer.disabled(
           child: Text(
             date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
@@ -121,6 +91,43 @@ class MessageTimestamp extends StatelessWidget {
             ),
           ),
         ),
+        if (status != null &&
+            (isSent || isDelivered || isRead || isSending || isError)) ...[
+          const SizedBox(width: 3),
+          SizedBox(
+            key: Key(
+              isError
+                  ? 'Error'
+                  : isSending
+                      ? 'Sending'
+                      : 'Sent',
+            ),
+            width: 17,
+            child: SvgIcon(
+              isRead
+                  ? halfRead
+                      ? inverted
+                          ? SvgIcons.halfReadWhite
+                          : SvgIcons.halfRead
+                      : inverted
+                          ? SvgIcons.readWhite
+                          : SvgIcons.read
+                  : isDelivered
+                      ? inverted
+                          ? SvgIcons.deliveredWhite
+                          : SvgIcons.delivered
+                      : isSending
+                          ? isError
+                              ? SvgIcons.error
+                              : inverted
+                                  ? SvgIcons.sendingWhite
+                                  : SvgIcons.sending
+                          : inverted
+                              ? SvgIcons.sentWhite
+                              : SvgIcons.sent,
+            ),
+          ),
+        ],
       ],
     );
   }

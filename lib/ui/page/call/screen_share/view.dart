@@ -23,8 +23,8 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
+import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -120,18 +120,13 @@ class ScreenShareView extends StatelessWidget {
               const SizedBox(height: 25),
               Padding(
                 padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
+                child: PrimaryButton(
                   key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    'btn_share'.l10n,
-                    style: style.fonts.normal.regular.onPrimary,
-                  ),
+                  title: 'btn_share'.l10n,
                   onPressed: () {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 12),

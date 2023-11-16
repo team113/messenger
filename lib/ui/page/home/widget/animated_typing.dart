@@ -72,7 +72,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             widget.inverted ? style.colors.onPrimary : style.colors.primary;
         final Color end = style.colors.primaryHighlightLightest;
 
-        const double size = 4;
+        const double size = 3;
         const double spacing = 1.6;
 
         final Color? color1 = ColorTween(begin: begin, end: end).lerp(

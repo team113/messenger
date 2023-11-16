@@ -24,10 +24,17 @@ import '/ui/widget/svg/svg.dart';
 
 /// [MenuButton] displaying the provided [work].
 class VacancyWorkButton extends StatelessWidget {
-  const VacancyWorkButton(this.work, {super.key});
+  const VacancyWorkButton(
+    this.work, {
+    super.key,
+    this.onPressed = _defaultOnPressed,
+  });
 
   /// [WorkTab] to display.
   final WorkTab work;
+
+  /// Callback, called when this button is pressed.
+  final void Function(WorkTab work)? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -47,25 +54,21 @@ class VacancyWorkButton extends StatelessWidget {
           WorkTab.freelance => 'Flutter',
         },
         leading: switch (work) {
-          WorkTab.backend => SvgImage.asset(
-              'assets/icons/rust${selected ? '_white' : ''}.svg',
-              width: 32,
-              height: 32,
-            ),
-          WorkTab.frontend => SvgImage.asset(
-              'assets/icons/frontend${selected ? '_white' : ''}.svg',
-              width: 25.87,
-              height: 32,
-            ),
-          WorkTab.freelance => SvgImage.asset(
-              'assets/icons/freelance${selected ? '_white' : ''}.svg',
-              width: 32,
-              height: 32,
-            ),
+          WorkTab.backend =>
+            SvgIcon(selected ? SvgIcons.rustWhite : SvgIcons.rust),
+          WorkTab.frontend =>
+            SvgIcon(selected ? SvgIcons.frontendWhite : SvgIcons.frontend),
+          WorkTab.freelance =>
+            SvgIcon(selected ? SvgIcons.freelanceWhite : SvgIcons.freelance),
         },
         inverted: selected,
         onPressed: () => router.work(work),
       );
     });
   }
+
+  /// Changes router location to the [work] page.
+  ///
+  /// Intended to be used as a default of the [decorator].
+  static void _defaultOnPressed(WorkTab work) => router.work(work);
 }

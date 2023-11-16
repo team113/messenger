@@ -83,7 +83,10 @@ class TitleBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(chat, radius: 8),
+                      AvatarWidget.fromRxChat(
+                        chat,
+                        radius: AvatarRadius.smallest,
+                      ),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
@@ -108,9 +111,10 @@ class TitleBar extends StatelessWidget {
                       hint: fullscreen
                           ? 'btn_fullscreen_exit'.l10n
                           : 'btn_fullscreen_enter'.l10n,
-                      child: SvgImage.asset(
-                        'assets/icons/fullscreen_${fullscreen ? 'exit' : 'enter'}.svg',
-                        width: 12,
+                      child: SvgIcon(
+                        fullscreen
+                            ? SvgIcons.fullscreenExitSmall
+                            : SvgIcons.fullscreenEnterSmall,
                       ),
                     ),
                     const SizedBox(width: 10),
