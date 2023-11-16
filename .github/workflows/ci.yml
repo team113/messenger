@@ -440,7 +440,7 @@ jobs:
       - run: make flutter.pub
 
       - name: Prepare E2E environment
-        uses: SpicyPizza/create-envfile@v1
+        uses: SpicyPizza/create-envfile@v2
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
