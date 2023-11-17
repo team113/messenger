@@ -20,23 +20,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
+import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
 /// Waits until [ChatItem.status] of the specified [ChatMessage] becomes the
-/// provided [SendingStatus].
+/// provided [MessageSentStatus].
 ///
 /// Examples:
 /// - Then I wait until status of "123" message is sending
 /// - Then I wait until status of "123" message is error
 /// - Then I wait until status of "123" message is sent
+/// - Then I wait until status of "123" message is partially read
+/// - Then I wait until status of "123" message is read
 final StepDefinitionGeneric waitUntilMessageStatus =
-    then2<String, SendingStatus, CustomWorld>(
+    then2<String, MessageSentStatus, CustomWorld>(
   'I wait until status of {string} message is {sending}',
   (text, status, context) async {
     await context.world.appDriver.waitUntil(
@@ -60,13 +62,13 @@ final StepDefinitionGeneric waitUntilMessageStatus =
           return context.world.appDriver.isPresent(
             context.world.appDriver.findByDescendant(
               finder,
-              context.world.appDriver.findByKeySkipOffstage(
-                status == SendingStatus.sending
-                    ? 'Sending'
-                    : status == SendingStatus.error
-                        ? 'Error'
-                        : 'Sent',
-              ),
+              context.world.appDriver.findByKeySkipOffstage(switch (status) {
+                MessageSentStatus.sending => 'Sending',
+                MessageSentStatus.error => 'Error',
+                MessageSentStatus.sent => 'Sent',
+                MessageSentStatus.read => 'Read',
+                MessageSentStatus.halfRead => 'HalfRead',
+              }),
             ),
           );
         }

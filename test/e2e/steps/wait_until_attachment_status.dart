@@ -22,23 +22,23 @@ import 'package:gherkin/gherkin.dart' hide Attachment;
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
+import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
 /// Waits until [LocalAttachment.status] of the specified [Attachment] becomes
-/// the provided [SendingStatus].
+/// the provided [MessageSentStatus].
 ///
 /// Examples:
 /// - Then I wait until status of "test.txt" attachment is sending
 /// - Then I wait until status of "test.jpg" attachment is error
 /// - Then I wait until status of "test.doc" attachment is sent
 final StepDefinitionGeneric waitUntilAttachmentStatus =
-    then2<String, SendingStatus, CustomWorld>(
+    then2<String, MessageSentStatus, CustomWorld>(
   'I wait until status of {string} attachment is {sending}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
@@ -58,14 +58,14 @@ final StepDefinitionGeneric waitUntilAttachmentStatus =
 
         if (attachment != null &&
             await context.world.appDriver.isPresent(finder)) {
-          return status == SendingStatus.sending
+          return status == MessageSentStatus.sending
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
                     finder,
                     context.world.appDriver.findByKeySkipOffstage('Sending'),
                   ),
                 )
-              : status == SendingStatus.error
+              : status == MessageSentStatus.error
                   ? context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
                         finder,

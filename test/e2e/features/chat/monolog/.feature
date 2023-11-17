@@ -26,7 +26,7 @@ Feature: Monolog
   Scenario: Message can be posted in local monolog
     When I fill `MessageField` field with "Hello, my monolog"
     And I tap `Send` button
-    Then I wait until status of "Hello, my monolog" message is sent
+    Then I wait until status of "Hello, my monolog" message is read
     And monolog is indeed remote
 
   Scenario: Call can be made in local monolog
