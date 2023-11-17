@@ -472,10 +472,13 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarWidget.fromRxUser(
+                          snapshot.data,
+                          radius: AvatarRadius.smaller,
+                        )
                       : AvatarWidget.fromUser(
                           chat.getUser(item.author.id),
-                          radius: 10,
+                          radius: AvatarRadius.smaller,
                         ),
                 ),
               ),
@@ -501,10 +504,13 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarWidget.fromRxUser(
+                          snapshot.data,
+                          radius: AvatarRadius.smaller,
+                        )
                       : AvatarWidget.fromUser(
                           chat.getUser(item.author.id),
-                          radius: 10,
+                          radius: AvatarRadius.smaller,
                         ),
                 ),
               ),
@@ -765,6 +771,7 @@ class RecentChatTile extends StatelessWidget {
         final bool isSent = item.status.value == SendingStatus.sent;
         final bool isRead =
             chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
+        final bool isHalfRead = chat.isHalfRead(item, me);
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
@@ -773,9 +780,13 @@ class RecentChatTile extends StatelessWidget {
           padding: const EdgeInsets.only(right: 4),
           child: SvgIcon(
             isRead
-                ? inverted
-                    ? SvgIcons.readWhite
-                    : SvgIcons.read
+                ? isHalfRead
+                    ? inverted
+                        ? SvgIcons.halfReadWhite
+                        : SvgIcons.halfRead
+                    : inverted
+                        ? SvgIcons.readWhite
+                        : SvgIcons.read
                 : isDelivered
                     ? inverted
                         ? SvgIcons.deliveredWhite

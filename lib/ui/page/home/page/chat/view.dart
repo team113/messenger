@@ -185,7 +185,7 @@ class _ChatViewState extends State<ChatView>
                               child: Center(
                                 child: AvatarWidget.fromRxChat(
                                   c.chat,
-                                  radius: 17,
+                                  radius: AvatarRadius.medium,
                                 ),
                               ),
                             ),

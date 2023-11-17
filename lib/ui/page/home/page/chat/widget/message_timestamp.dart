@@ -32,6 +32,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.date = false,
     this.read = false,
+    this.halfRead = false,
     this.delivered = false,
     this.inverted = false,
     this.fontSize,
@@ -49,6 +50,10 @@ class MessageTimestamp extends StatelessWidget {
   /// Indicator whether this [MessageTimestamp] is considered to be read,
   /// meaning it should display an appropriate icon.
   final bool read;
+
+  /// Indicator whether this [MessageTimestamp] is considered to be read only
+  /// partially, meaning it should display an appropriate icon.
+  final bool halfRead;
 
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
   /// meaning it should display an appropriate icon.
@@ -68,6 +73,7 @@ class MessageTimestamp extends StatelessWidget {
     final bool isSent = status == SendingStatus.sent;
     final bool isDelivered = isSent && delivered;
     final bool isRead = isSent && read;
+    final bool isHalfRead = isSent && halfRead;
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
@@ -95,14 +101,22 @@ class MessageTimestamp extends StatelessWidget {
                   ? 'Error'
                   : isSending
                       ? 'Sending'
-                      : 'Sent',
+                      : isRead
+                          ? isHalfRead
+                              ? 'HalfRead'
+                              : 'Read'
+                          : 'Sent',
             ),
             width: 17,
             child: SvgIcon(
               isRead
-                  ? inverted
-                      ? SvgIcons.readWhite
-                      : SvgIcons.read
+                  ? isHalfRead
+                      ? inverted
+                          ? SvgIcons.halfReadWhite
+                          : SvgIcons.halfRead
+                      : inverted
+                          ? SvgIcons.readWhite
+                          : SvgIcons.read
                   : isDelivered
                       ? inverted
                           ? SvgIcons.deliveredWhite

@@ -85,7 +85,10 @@ class UserView extends StatelessWidget {
                       shadowColor: style.colors.onBackgroundOpacity27,
                       color: style.colors.onPrimary,
                       child: Center(
-                        child: AvatarWidget.fromRxUser(c.user, radius: 17),
+                        child: AvatarWidget.fromRxUser(
+                          c.user,
+                          radius: AvatarRadius.medium,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
