@@ -213,7 +213,7 @@ jobs:
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
-                          && 'build/windows/runner/Release')
+                          && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
         if: ${{ contains('ios macos web windows', matrix.platform) }}
 
