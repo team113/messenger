@@ -39,6 +39,7 @@ class InkWellWithHover extends StatefulWidget {
     this.folded = false,
     this.outlined = false,
     this.onHover,
+    this.bookmarkColor,
     required this.child,
   });
 
@@ -75,6 +76,8 @@ class InkWellWithHover extends StatefulWidget {
   final bool outlined;
 
   final void Function(bool)? onHover;
+
+  final Color? bookmarkColor;
 
   /// [Widget] wrapped by this [InkWellWithHover].
   final Widget child;
@@ -130,8 +133,9 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                         width: widget.borderRadius?.topLeft.y ?? 10,
                         height: widget.borderRadius?.topLeft.y ?? 10,
                         decoration: BoxDecoration(
-                          color:
-                              style.colors.primaryHighlightShiniest.darken(0.1),
+                          color: (widget.bookmarkColor ??
+                                  style.colors.primaryHighlightShiniest)
+                              .darken(0.1),
                           borderRadius: const BorderRadius.only(
                             bottomRight: Radius.circular(4),
                           ),

@@ -145,6 +145,11 @@ class _ChatTileState extends State<ChatTile> {
     final Border chosenBorder =
         Border.all(color: const Color(0xFF58A6EF), width: 0.5);
 
+    final newGreenColor = Color.alphaBlend(
+      style.colors.acceptPrimary.withOpacity(0.1),
+      style.colors.onPrimary,
+    );
+
     return ContextMenuRegion(
       key: Key('Chat_${widget.chat?.chat.value.id}'),
       preventContextMenu: false,
@@ -152,73 +157,101 @@ class _ChatTileState extends State<ChatTile> {
       indicateOpenedMenu: true,
       enabled: widget.enableContextMenu,
       child: Container(
-        padding: EdgeInsets.fromLTRB(0, 3, 0, widget.basement == null ? 3 : 10),
-        // height: widget.height,
+        padding: EdgeInsets.fromLTRB(0, 3, 0, widget.basement == null ? 3 : 16),
         child: Stack(
           children: [
-            FoldedWidget(
-              radius: 15,
-              folded: widget.folded,
-              child: InkWellWithHover(
-                selectedColor: chosen,
-                unselectedColor: widget.dimmed
-                    ? style.colors.onPrimaryOpacity50
-                    : normal.darken(widget.darken),
-                selectedHoverColor: chosen,
-                unselectedHoverColor: widget.highlight
-                    ? paid.darken(0.03)
-                    : style.cardHoveredColor,
-                // unselectedHoverColor:
-                //     (widget.highlight ? paid : normal).darken(0.03),
-                border: widget.selected ? chosenBorder : normalBorder,
-                hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
-                selected: widget.selected || widget.active,
-                borderRadius: style.cardRadius,
-                onTap: widget.onTap,
-                folded: widget.chat?.chat.value.favoritePosition != null,
-                child: SizedBox(
-                  height: widget.height,
-                  child: Padding(
-                    key: widget.chat?.chat.value.favoritePosition != null
-                        ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
-                        : null,
-                    padding: EdgeInsets.fromLTRB(
-                      12,
-                      4,
-                      12,
-                      widget.basement == null ? 4 : 0,
-                    ),
-                    child: Row(
-                      children: [
-                        // AvatarWidget.fromRxChat(
-                        //   widget.chat,
-                        //   key: _avatarKey,
-                        //   radius: 30,
-                        // ),
-                        widget.avatarBuilder(
-                          AvatarWidget.fromRxChat(
-                            widget.chat,
-                            key: _avatarKey,
-                            radius: 30,
-                          ),
+            InkWellWithHover(
+              selectedColor:
+                  widget.basement != null ? style.colors.acceptPrimary : chosen,
+              unselectedColor: widget.dimmed
+                  ? style.colors.onPrimaryOpacity50
+                  : normal.darken(widget.darken),
+              selectedHoverColor:
+                  widget.basement != null ? style.colors.acceptPrimary : chosen,
+              unselectedHoverColor: widget.basement != null
+                  ? newGreenColor
+                  : widget.highlight
+                      ? paid.darken(0.03)
+                      : style.cardHoveredColor,
+              // unselectedHoverColor:
+              //     (widget.highlight ? paid : normal).darken(0.03),
+              border: widget.basement != null
+                  ? paidBorder
+                  : widget.selected
+                      ? chosenBorder
+                      : normalBorder,
+              hoveredBorder: widget.basement != null
+                  ? paidBorder
+                  : widget.selected
+                      ? chosenBorder
+                      : hoverBorder,
+              selected: widget.selected || widget.active,
+              borderRadius: style.cardRadius,
+              onTap: widget.onTap,
+              folded: widget.chat?.chat.value.favoritePosition != null,
+              bookmarkColor:
+                  widget.basement != null ? style.colors.acceptPrimary : null,
+              child: SizedBox(
+                height:
+                    widget.basement == null ? widget.height : widget.height + 3,
+                child: Padding(
+                  key: widget.chat?.chat.value.favoritePosition != null
+                      ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
+                      : null,
+                  padding: EdgeInsets.fromLTRB(
+                    12,
+                    4,
+                    12,
+                    widget.basement == null ? 4 : 4 + 3,
+                  ),
+                  child: Row(
+                    children: [
+                      // AvatarWidget.fromRxChat(
+                      //   widget.chat,
+                      //   key: _avatarKey,
+                      //   radius: 30,
+                      // ),
+                      widget.avatarBuilder(
+                        AvatarWidget.fromRxChat(
+                          widget.chat,
+                          key: _avatarKey,
+                          radius: 30,
                         ),
-                        const SizedBox(width: 12),
-                        ...widget.leading,
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Flexible(
-                                          child: widget.titleBuilder(
-                                            widget.chat == null
-                                                ? Text(
-                                                    ('dot'.l10n * 3),
+                      ),
+                      const SizedBox(width: 12),
+                      ...widget.leading,
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: widget.titleBuilder(
+                                          widget.chat == null
+                                              ? Text(
+                                                  ('dot'.l10n * 3),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: style.fonts.big.regular
+                                                      .onBackground
+                                                      .copyWith(
+                                                    color: widget.selected ||
+                                                            widget.active
+                                                        ? style.colors.onPrimary
+                                                        : style.colors
+                                                            .onBackground,
+                                                  ),
+                                                )
+                                              : Obx(() {
+                                                  return Text(
+                                                    widget.chat?.title.value ??
+                                                        ('dot'.l10n * 3),
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     maxLines: 1,
@@ -232,70 +265,52 @@ class _ChatTileState extends State<ChatTile> {
                                                           : style.colors
                                                               .onBackground,
                                                     ),
-                                                  )
-                                                : Obx(() {
-                                                    return Text(
-                                                      widget.chat?.title
-                                                              .value ??
-                                                          ('dot'.l10n * 3),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
-                                                      style: style.fonts.big
-                                                          .regular.onBackground
-                                                          .copyWith(
-                                                        color: widget
-                                                                    .selected ||
-                                                                widget.active
-                                                            ? style.colors
-                                                                .onPrimary
-                                                            : style.colors
-                                                                .onBackground,
-                                                      ),
-                                                    );
-                                                  }),
-                                          ),
+                                                  );
+                                                }),
                                         ),
-                                        ...widget.title,
-                                      ],
-                                    ),
+                                      ),
+                                      ...widget.title,
+                                    ],
                                   ),
-                                  ...widget.status,
-                                ],
-                              ),
-                              ...widget.subtitle,
-                            ],
-                          ),
+                                ),
+                                ...widget.status,
+                              ],
+                            ),
+                            ...widget.subtitle,
+                          ],
                         ),
-                        ...widget.trailing,
-                      ],
-                    ),
+                      ),
+                      ...widget.trailing,
+                    ],
                   ),
                 ),
               ),
             ),
             if (widget.basement != null)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Transform.translate(
-                  offset: const Offset(-12, 7),
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(4, 1, 4, 1),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          blurRadius: 4,
-                          blurStyle: BlurStyle.outer.workaround,
-                        ),
-                      ],
-                      borderRadius: style.cardRadius,
-                      color: style.colors.onPrimary,
-                    ),
-                    child: DefaultTextStyle(
-                      style: style.fonts.smallest.regular.secondary,
-                      child: widget.basement!,
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Transform.translate(
+                    offset: const Offset(0, 11),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
+                      decoration: BoxDecoration(
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.black.withOpacity(0.25),
+                        //     blurRadius: 4,
+                        //     blurStyle: BlurStyle.outer.workaround,
+                        //   ),
+                        // ],
+                        borderRadius: style.cardRadius,
+                        color: newGreenColor,
+                        border: paidBorder,
+                      ),
+                      child: DefaultTextStyle(
+                        style: style.fonts.small.regular.onPrimary
+                            .copyWith(color: style.colors.secondary),
+                        child: widget.basement!,
+                      ),
                     ),
                   ),
                 ),

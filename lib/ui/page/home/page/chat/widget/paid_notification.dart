@@ -49,7 +49,6 @@ class PaidNotification extends StatelessWidget {
                 border: border,
                 borderRadius: style.cardRadius,
                 color: Colors.white,
-                // color: style.systemMessageColor,
               ),
               child: Column(
                 children: [
@@ -62,7 +61,7 @@ class PaidNotification extends StatelessWidget {
                   Text(
                     action ?? (accepted ? 'Закрыть' : 'Принять и продолжить'),
                     style: style.systemMessageStyle.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.primary,
                     ),
                   ),
                 ],

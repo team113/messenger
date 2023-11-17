@@ -200,24 +200,16 @@ class RecentChatTile extends StatelessWidget {
           );
         },
         basement: payee
-            ? Row(
+            ? const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.call_rounded,
-                    size: 8,
-                    color: style.colors.secondary,
-                  ),
-                  const SizedBox(width: 1),
-                  const Text('\$123'),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.chat_rounded,
-                    size: 8,
-                    color: style.colors.secondary,
-                  ),
-                  const SizedBox(width: 1),
-                  const Text('\$123'),
+                  SvgIcon(SvgIcons.callsTiny),
+                  SizedBox(width: 2),
+                  Text('123\$'),
+                  SizedBox(width: 8),
+                  SvgIcon(SvgIcons.chatsTiny),
+                  SizedBox(width: 2),
+                  Text('123\$'),
                 ],
               )
             : null,

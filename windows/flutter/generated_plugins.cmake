@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   desktop_drop
+  firebase_auth
   firebase_core
   medea_flutter_webrtc
   medea_jason

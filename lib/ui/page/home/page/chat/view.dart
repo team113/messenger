@@ -2117,14 +2117,8 @@ class _ChatViewState extends State<ChatView>
               child = PaidNotification(
                 accepted: c.paidAccepted.value,
                 border: c.paidBorder.value
-                    ? Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      )
-                    : Border.all(
-                        color: Colors.transparent,
-                        width: 2,
-                      ),
+                    ? Border.all(color: style.colors.primary, width: 2)
+                    : Border.all(color: Colors.transparent, width: 2),
                 onPressed: () {
                   c.paidDisclaimer.value = false;
                   c.paidDisclaimerDismissed.value = true;
@@ -2155,7 +2149,7 @@ class _ChatViewState extends State<ChatView>
                 },
               );
             } else {
-              child = const SizedBox();
+              child = const SizedBox(width: double.infinity);
             }
 
             return AnimatedSizeAndFade(child: child);

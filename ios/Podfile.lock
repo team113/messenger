@@ -46,44 +46,45 @@ PODS:
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
-  - Firebase/Auth (10.12.0):
+  - Firebase/Auth (10.17.0):
     - Firebase/CoreOnly
-    - FirebaseAuth (~> 10.12.0)
-  - Firebase/CoreOnly (10.12.0):
-    - FirebaseCore (= 10.12.0)
-  - Firebase/Messaging (10.12.0):
+    - FirebaseAuth (~> 10.17.0)
+  - Firebase/CoreOnly (10.17.0):
+    - FirebaseCore (= 10.17.0)
+  - Firebase/Messaging (10.17.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 10.12.0)
-  - firebase_auth (4.7.3):
-    - Firebase/Auth (= 10.12.0)
+    - FirebaseMessaging (~> 10.17.0)
+  - firebase_auth (4.14.0):
+    - Firebase/Auth (= 10.17.0)
     - firebase_core
     - Flutter
-  - firebase_core (2.15.1):
-    - Firebase/CoreOnly (= 10.12.0)
+  - firebase_core (2.22.0):
+    - Firebase/CoreOnly (= 10.17.0)
     - Flutter
-  - firebase_messaging (14.6.6):
-    - Firebase/Messaging (= 10.12.0)
+  - firebase_messaging (14.7.4):
+    - Firebase/Messaging (= 10.17.0)
     - firebase_core
     - Flutter
-  - FirebaseAppCheckInterop (10.15.0)
-  - FirebaseAuth (10.12.0):
-    - FirebaseAppCheckInterop (~> 10.0)
+  - FirebaseAppCheckInterop (10.18.0)
+  - FirebaseAuth (10.17.0):
+    - FirebaseAppCheckInterop (~> 10.17)
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
     - GoogleUtilities/Environment (~> 7.8)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
-  - FirebaseCore (10.12.0):
+    - RecaptchaInterop (~> 100.0)
+  - FirebaseCore (10.17.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/Logger (~> 7.8)
-  - FirebaseCoreInternal (10.15.0):
+  - FirebaseCoreInternal (10.18.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
-  - FirebaseInstallations (10.15.0):
+  - FirebaseInstallations (10.18.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
-  - FirebaseMessaging (10.12.0):
+  - FirebaseMessaging (10.17.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
     - GoogleDataTransport (~> 9.2)
@@ -101,7 +102,7 @@ PODS:
     - Flutter
   - google_sign_in_ios (0.0.1):
     - Flutter
-    - GoogleSignIn (~> 6.2)
+    - GoogleSignIn (~> 7.0)
   - GoogleDataTransport (9.2.5):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
@@ -111,10 +112,10 @@ PODS:
     - MLKitBarcodeScanning (~> 3.0.0)
   - GoogleMLKit/MLKitCore (4.0.0):
     - MLKitCommon (~> 9.0.0)
-  - GoogleSignIn (6.2.4):
+  - GoogleSignIn (7.0.0):
     - AppAuth (~> 1.5)
-    - GTMAppAuth (~> 1.3)
-    - GTMSessionFetcher/Core (< 3.0, >= 1.1)
+    - GTMAppAuth (< 3.0, >= 1.3)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.1)
   - GoogleToolboxForMac/DebugUtils (2.3.2):
     - GoogleToolboxForMac/Defines (= 2.3.2)
   - GoogleToolboxForMac/Defines (2.3.2)
@@ -127,28 +128,28 @@ PODS:
     - GoogleToolboxForMac/Defines (= 2.3.2)
     - "GoogleToolboxForMac/NSString+URLArguments (= 2.3.2)"
   - "GoogleToolboxForMac/NSString+URLArguments (2.3.2)"
-  - GoogleUtilities/AppDelegateSwizzler (7.11.5):
+  - GoogleUtilities/AppDelegateSwizzler (7.12.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (7.11.5):
+  - GoogleUtilities/Environment (7.12.0):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.11.5):
+  - GoogleUtilities/Logger (7.12.0):
     - GoogleUtilities/Environment
-  - GoogleUtilities/Network (7.11.5):
+  - GoogleUtilities/Network (7.12.0):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.11.5)"
-  - GoogleUtilities/Reachability (7.11.5):
+  - "GoogleUtilities/NSData+zlib (7.12.0)"
+  - GoogleUtilities/Reachability (7.12.0):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (7.11.5):
+  - GoogleUtilities/UserDefaults (7.12.0):
     - GoogleUtilities/Logger
   - GoogleUtilitiesComponents (1.1.0):
     - GoogleUtilities/Logger
-  - GTMAppAuth (1.3.1):
+  - GTMAppAuth (2.0.0):
     - AppAuth/Core (~> 1.6)
-    - GTMSessionFetcher/Core (< 3.0, >= 1.5)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.5)
   - GTMSessionFetcher/Core (2.3.0)
   - image_gallery_saver (2.0.2):
     - Flutter
@@ -188,14 +189,14 @@ PODS:
     - GTMSessionFetcher/Core (< 3.0, >= 1.1)
     - MLImage (= 1.0.0-beta4)
     - MLKitCommon (~> 9.0)
-  - mobile_scanner (3.2.0):
+  - mobile_scanner (3.5.2):
     - Flutter
     - GoogleMLKit/BarcodeScanning (~> 4.0.0)
-  - nanopb (2.30909.0):
-    - nanopb/decode (= 2.30909.0)
-    - nanopb/encode (= 2.30909.0)
-  - nanopb/decode (2.30909.0)
-  - nanopb/encode (2.30909.0)
+  - nanopb (2.30909.1):
+    - nanopb/decode (= 2.30909.1)
+    - nanopb/encode (= 2.30909.1)
+  - nanopb/decode (2.30909.1)
+  - nanopb/encode (2.30909.1)
   - open_file (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -211,20 +212,21 @@ PODS:
     - Flutter
   - PromisesObjC (2.3.1)
   - ReachabilitySwift (5.0.0)
+  - RecaptchaInterop (100.0.0)
   - screen_brightness_ios (0.1.0):
     - Flutter
-  - SDWebImage (5.18.1):
-    - SDWebImage/Core (= 5.18.1)
-  - SDWebImage/Core (5.18.1)
+  - SDWebImage (5.18.5):
+    - SDWebImage/Core (= 5.18.5)
+  - SDWebImage/Core (5.18.5)
   - sensors (0.0.1):
     - Flutter
-  - Sentry/HybridSDK (8.9.1):
-    - SentryPrivate (= 8.9.1)
+  - Sentry/HybridSDK (8.15.2):
+    - SentryPrivate (= 8.15.2)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.9.1)
-  - SentryPrivate (8.9.1)
+    - Sentry/HybridSDK (= 8.15.2)
+  - SentryPrivate (8.15.2)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -311,6 +313,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - ReachabilitySwift
+    - RecaptchaInterop
     - SDWebImage
     - Sentry
     - SentryPrivate
@@ -395,33 +398,33 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
-  connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
-  device_info_plus: 7545d84d8d1b896cb16a4ff98c19f07ec4b298ea
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
-  file_picker: ce3938a0df3cc1ef404671531facef740d03f920
-  Firebase: 07150e75d142fb9399f6777fa56a187b17f833a0
-  firebase_auth: 95f4a6acafa6a7a0d902aa467dd4d7ca336ee4be
-  firebase_core: 4a3246a02f828a01c74a2c26427037786d90f17f
-  firebase_messaging: 13b378c8449cae7ec96c79570170943dd73d4738
-  FirebaseAppCheckInterop: a8c555b1c2db1d9445e6c3a08a848167ddb7eb51
-  FirebaseAuth: a66c1e14ec58f41d154a4b41ce1a23ea00ad4805
-  FirebaseCore: f86a1394906b97ac445ae49c92552a9425831bed
-  FirebaseCoreInternal: 2f4bee5ed00301b5e56da0849268797a2dd31fb4
-  FirebaseInstallations: cae95cab0f965ce05b805189de1d4c70b11c76fb
-  FirebaseMessaging: bb2c4f6422a753038fe137d90ae7c1af57251316
+  file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
+  Firebase: f4ac0b02927af9253ae094d23deecf0890da7374
+  firebase_auth: 6a41305f668ac6f9bcbefdedfcba5aacb8367e92
+  firebase_core: efc9455611b8769fa90fbdae5da182600bd6901c
+  firebase_messaging: 9c697d1ecfe77edf15d995b5048906ffc994c96c
+  FirebaseAppCheckInterop: 3cd914842ba46f4304050874cd284de82f154ffd
+  FirebaseAuth: 8d285d9f6e39cc8e23be53a4edd83a923ea629d8
+  FirebaseCore: 534544dd98cabcf4bf8598d88ec683b02319a528
+  FirebaseCoreInternal: 8eb002e564b533bdcf1ba011f33f2b5c10e2ed4a
+  FirebaseInstallations: e842042ec6ac1fd2e37d7706363ebe7f662afea4
+  FirebaseMessaging: 1367b28c0c83a63072af4a711328fcc2e6899902
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_app_badger: b87fc231847b03b92ce1412aa351842e7e97932f
   flutter_background_service_ios: e30e0d3ee69e4cee66272d0c78eacd48c2e94aac
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
-  google_sign_in_ios: 1256ff9d941db546373826966720b0c24804bcdd
+  google_sign_in_ios: 8115e3fbe097e6509beb819ed602d47369d9011f
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
   GoogleMLKit: 2bd0dc6253c4d4f227aad460f69215a504b2980e
-  GoogleSignIn: 5651ce3a61e56ca864160e79b484cd9ed3f49b7a
+  GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
-  GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
+  GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
   GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
-  GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
+  GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
@@ -437,26 +440,27 @@ SPEC CHECKSUMS:
   MLKitBarcodeScanning: 04e264482c5f3810cb89ebc134ef6b61e67db505
   MLKitCommon: c1b791c3e667091918d91bda4bba69a91011e390
   MLKitVision: 8baa5f46ee3352614169b85250574fde38c36f49
-  mobile_scanner: 47056db0c04027ea5f41a716385542da28574662
-  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
+  mobile_scanner: 5090a13b7a35fc1c25b0d97e18e84f271a6eb605
+  nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
-  package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
+  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
   pasteboard: 982969ebaa7c78af3e6cc7761e8f5e77565d9ce0
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   pdfx: 7b876b09de8b7a0bf444a4f82b439ffcff4ee1ec
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
-  SDWebImage: ebdbcebc7933a45226d9313bd0118bc052ad458b
+  SDWebImage: 7ac2b7ddc5e8484c79aa90fc4e30b149d6a2c88f
   sensors: 84eb7a30e47a649e4172b71d6e81be614c280336
-  Sentry: e3203780941722a1fcfee99e351de14244c7f806
-  sentry_flutter: 8f0ffd53088e6a4d50c095852c5cad9e4405025c
-  SentryPrivate: 5e3683390f66611fc7c6215e27645873adb55d13
-  share_plus: 599aa54e4ea31d4b4c0e9c911bcc26c55e791028
+  Sentry: 6f5742b4c47c17c9adcf265f6f328cf4a0ed1923
+  sentry_flutter: 2c309a1d4b45e59d02cfa15795705687f1e2081b
+  SentryPrivate: b2f7996f37781080f04a946eb4e377ff63c64195
+  share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
-  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
+  url_launcher_ios: 68d46cc9766d0c41dbdc884310529557e3cd7a86
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
   volume_controller: 531ddf792994285c9b17f9d8a7e4dcdd29b3eae9
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
@@ -464,4 +468,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 138c677207479d912b992fe10e92106347aa5d39
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.14.2

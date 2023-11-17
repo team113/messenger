@@ -2081,12 +2081,13 @@ class FoldedWidget extends StatelessWidget {
               width: radius,
               height: radius,
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .extension<Style>()!
-                    .cardHoveredBorder
-                    .top
-                    .color
-                    .darken(0.1),
+                // color: (color ??
+                //         Theme.of(context)
+                //             .extension<Style>()!
+                //             .cardHoveredBorder
+                //             .top
+                //             .color)
+                //     .darken(0.1),
                 borderRadius:
                     const BorderRadius.only(bottomLeft: Radius.circular(4)),
                 boxShadow: [
