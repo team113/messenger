@@ -32,6 +32,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
+    this.isHalfRead = false,
     this.isSending = false,
     this.isError = false,
     this.status = true,
@@ -62,6 +63,9 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Indicator whether status is read.
   final bool isRead;
+
+  /// Indicator whether status is read only partially.
+  final bool isHalfRead;
 
   /// Indicator whether status is sending.
   final bool isSending;
@@ -130,7 +134,9 @@ class SwipeableStatus extends StatelessWidget {
                   child: Center(
                     child: SvgIcon(
                       isRead
-                          ? SvgIcons.read
+                          ? isHalfRead
+                              ? SvgIcons.halfRead
+                              : SvgIcons.read
                           : isDelivered
                               ? SvgIcons.delivered
                               : isSending
