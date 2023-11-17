@@ -59,6 +59,7 @@ import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
+import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
@@ -82,6 +83,7 @@ import 'steps/see_chat_selection.dart';
 import 'steps/see_chats.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
+import 'steps/see_contacts.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
@@ -143,6 +145,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         goToUserPage,
         hasDialogWithMe,
         hasGroups,
+        hasContacts,
+        hasFavoriteContacts,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -178,6 +182,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactPosition,
         seeContactSelection,
         seeCountChats,
+        seeCountContacts,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,

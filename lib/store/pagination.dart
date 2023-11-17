@@ -86,34 +86,13 @@ class Pagination<T, C, K> {
 
   /// [CancelToken] for cancelling [init], [around], [next] and [previous]
   /// query.
-  CancelToken _cancelToken = CancelToken();
+  final CancelToken _cancelToken = CancelToken();
 
   /// Indicator whether this [Pagination] has been disposed.
   bool _disposed = false;
 
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
-
-   /// Sets the initial [Page] of [items].
-  set initial(Page<T, C> page) {
-    if (items.length < page.edges.length) {
-      _cancelToken.cancel();
-      _cancelToken = CancelToken();
-
-      for (var e in page.edges) {
-        items[onKey(e)] = e;
-      }
-
-      startCursor = page.info.startCursor;
-      endCursor = page.info.endCursor;
-      hasNext.value = page.info.hasNext;
-      hasPrevious.value = page.info.hasPrevious;
-    } else {
-      for (var e in page.edges) {
-        put(e);
-      }
-    }
-  }
 
   /// Disposes this [Pagination].
   void dispose() {
@@ -131,8 +110,6 @@ class Pagination<T, C, K> {
     endCursor = null;
     return provider.clear();
   }
-
-
 
   /// Fetches the initial [Page] of [items].
   Future<void> init(T? item) {

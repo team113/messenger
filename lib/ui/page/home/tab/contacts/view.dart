@@ -411,6 +411,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else {
                 child = AnimationLimiter(
+                  key: const Key('Contacts'),
                   child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(

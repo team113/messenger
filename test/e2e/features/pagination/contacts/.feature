@@ -15,36 +15,35 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chats pagination
+Feature: Contacts pagination
 
-  Scenario: Chats pagination works correctly
+  Scenario: Contacts pagination works correctly
     Given user Alice
-    And Alice has 16 groups
+    And Alice has 16 contacts
     And I sign in as Alice
 
     When I tap `CloseButton` button
-    Then I wait until `Chats` is present
-    And I see 15 chats
+    And I tap `ContactsButton` button
+    Then I wait until `ContactsTab` is present
+    And I see 15 contacts
 
     Given I have Internet with delay of 3 seconds
-    When I scroll `Chats` until `ChatsLoading` is present
+    When I scroll `Contacts` until `ContactsLoading` is present
     Then I wait until `ChatsLoading` is absent
-    And I see 16 chats
+    And I see 16 contacts
 
-  Scenario: Chats pagination migrates from local to remote
-    Given I am Alice
-    And Alice has 16 groups
-    And I see 16 chats
-    And chats fetched are indeed remote
-    And I do not have Internet
+  Scenario: Contacts pagination transitions from favorites to all
+    Given user Alice
+    And Alice has 30 favorite contacts
+    And Alice has 15 contacts
+    And I sign in as Alice
 
-    When I restart app
-    Then I see 15 chats
-    And chats fetched are indeed local
+    When I tap `CloseButton` button
+    And I tap `ContactsButton` button
+    Then I see 15 contacts
 
-    When I scroll `Chats` to bottom
-    Then I see 16 chats
-    And chats fetched are indeed local
+    When I scroll `Contacts` to bottom
+    Then I see 30 contacts
 
-    When I have Internet without delay
-    Then chats fetched are indeed remote
+    When I scroll `Contacts` to bottom
+    Then I see 45 contacts

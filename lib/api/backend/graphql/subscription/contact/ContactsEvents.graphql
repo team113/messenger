@@ -21,35 +21,6 @@ subscription ContactsEvents($ver: ChatContactsListVersion) {
         ... on SubscriptionInitialized {
             ok
         }
-        ... on ChatContactsList {
-            chatContacts {
-                edges {
-                    node {
-                        __typename
-                        ...ChatContact
-                    }
-                    cursor
-                }
-                pageInfo {
-                    __typename
-                    ...PageInfo
-                }
-                ver
-            }
-            favoriteChatContacts {
-                edges {
-                    node {
-                        __typename
-                        ...ChatContact
-                    }
-                    cursor
-                }
-                pageInfo {
-                    __typename
-                    ...PageInfo
-                }
-            }
-        }
         ... on ChatContactEventsVersioned {
             ...ChatContactEventsVersioned
         }

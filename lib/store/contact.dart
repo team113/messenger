@@ -593,16 +593,7 @@ class ContactRepository extends DisposableInterface
         break;
 
       case ChatContactsEventsKind.chatContactsList:
-        var node = event as ChatContactsEventsChatContactsList;
-        _sessionLocal.setChatContactsListVersion(node.ver);
-
-        // TODO: Remove when `favoriteChatContacts.info.endCursor` will be
-        //       [FavoriteChatContactsCursor].
-        node.favoriteChatContacts.info.endCursor =
-            node.favoriteChatContacts.edges.lastOrNull?.favoriteCursor;
-
-        _contactsPagination.initial = node.chatContacts;
-        _favoriteContactsPagination.initial = node.favoriteChatContacts;
+        // No-op, as contacts are loaded through [_pagination].
         break;
 
       case ChatContactsEventsKind.event:
@@ -812,30 +803,7 @@ class ContactRepository extends DisposableInterface
               as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
           yield const ChatContactsEventsInitialized();
         } else if (events.$$typename == 'ChatContactsList') {
-          var list = events
-              as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
-          for (var u in list.chatContacts.edges
-              .map((e) => e.node.getHiveUsers())
-              .expand((e) => e)) {
-            _userRepo.put(u);
-          }
-          yield ChatContactsEventsChatContactsList(
-            Page(
-              list.chatContacts.edges
-                  .map((e) => e.node.toHive(cursor: e.cursor))
-                  .where((e) => e.value.favoritePosition == null)
-                  .toList(),
-              list.chatContacts.pageInfo.toModel((c) => ChatContactsCursor(c)),
-            ),
-            Page(
-              list.favoriteChatContacts.edges
-                  .map((e) => e.node.toHive(favoriteCursor: e.cursor))
-                  .toList(),
-              list.chatContacts.pageInfo
-                  .toModel((c) => FavoriteChatContactsCursor(c)),
-            ),
-            list.chatContacts.ver,
-          );
+          // No-op, as contacts are loaded through [_pagination].
         } else if (events.$$typename == 'ChatContactEventsVersioned') {
           var mixin = events
               as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
