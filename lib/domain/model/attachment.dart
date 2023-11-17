@@ -151,7 +151,7 @@ class FileAttachment extends Attachment {
 /// Unique ID of an [Attachment].
 @HiveType(typeId: ModelTypeId.attachmentId)
 class AttachmentId extends NewType<String> {
-  const AttachmentId(String val) : super(val);
+  const AttachmentId(super.val);
 
   /// Constructs a dummy [AttachmentId].
   factory AttachmentId.local() => AttachmentId('local_${const Uuid().v4()}');

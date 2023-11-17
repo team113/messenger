@@ -26,11 +26,11 @@ part 'chat_item.g.dart';
 /// Version of a [ChatItem]'s state.
 @HiveType(typeId: ModelTypeId.chatItemVersion)
 class ChatItemVersion extends Version {
-  ChatItemVersion(String val) : super(val);
+  ChatItemVersion(super.val);
 }
 
 /// Cursor of a [ChatItem].
 @HiveType(typeId: ModelTypeId.chatItemsCursor)
 class ChatItemsCursor extends NewType<String> {
-  const ChatItemsCursor(String val) : super(val);
+  const ChatItemsCursor(super.val);
 }

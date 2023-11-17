@@ -336,7 +336,7 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
 /// Only [Chat]-group can have a name.
 @HiveType(typeId: ModelTypeId.chatName)
 class ChatName extends NewType<String> {
-  const ChatName._(String val) : super(val);
+  const ChatName._(super.val);
 
   ChatName(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
@@ -355,7 +355,7 @@ class ChatName extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatFavoritePosition)
 class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {
-  const ChatFavoritePosition(double val) : super(val);
+  const ChatFavoritePosition(super.val);
 
   factory ChatFavoritePosition.parse(String val) =>
       ChatFavoritePosition(double.parse(val));
