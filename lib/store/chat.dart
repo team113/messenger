@@ -1654,6 +1654,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_localPagination].
   Future<void> _initLocalPagination() async {
+    Log.debug('_initLocalPagination()', '$runtimeType');
+
     final Pagination<HiveChat, FavoriteChatsCursor, ChatId> favoritePagination =
         Pagination(
       onKey: (e) => e.value.id,
@@ -1735,7 +1737,7 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
-  Log.debug('_initRemotePagination()', '$runtimeType');
+    Log.debug('_initRemotePagination()', '$runtimeType');
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
       onKey: (e) => e.value.id,
@@ -2217,8 +2219,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the local [monolog] if none is known.
   Future<void> _initMonolog() async {
-  Log.debug('_initMonolog()', '$runtimeType');
-  
+    Log.debug('_initMonolog()', '$runtimeType');
+
     if (monolog.isLocal &&
         paginated[monolog] == null &&
         _pagination?.hasNext.value == false) {

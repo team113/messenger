@@ -60,7 +60,7 @@ Feature: Chats pagination
 
   Scenario: Chats pagination transitions from favorites to recent
     Given user Alice
-    And Alice has 15 favorite groups
+    And Alice has 30 favorite groups
     And Alice has 15 groups
     And I sign in as Alice
 
@@ -68,4 +68,7 @@ Feature: Chats pagination
     Then I see 15 favorite chats
 
     When I scroll `Chats` to bottom
-    Then I see 30 chats
+    Then I see 30 favorite chats
+
+    When I scroll `Chats` to bottom
+    Then I see 45 chats
