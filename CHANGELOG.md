@@ -6,6 +6,35 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.12] · 2023-??-??
+[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
+
+[Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
+
+### Changed
+
+- UI:
+    - Always display online status on desktop. ([#702], [#681])
+    - Style page:
+        - Redesigned widgets tab. ([#695], [#632])
+    - Chat page:
+        - Display read partially message status in groups. ([#703], [#666])
+
+### Fixed
+
+- Web:
+    - Invalid caller name in popup calls. ([#711])
+
+[#632]: /../../issues/632
+[#666]: /../../issues/666
+[#681]: /../../issues/681
+[#695]: /../../pull/695
+[#702]: /../../pull/702
+[#703]: /../../pull/703
+[#711]: /../../pull/711
+
+
+
 ## [0.1.0-alpha.11] · 2023-11-02
 [0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
 

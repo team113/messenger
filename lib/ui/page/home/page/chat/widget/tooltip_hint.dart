@@ -20,12 +20,12 @@ import 'package:flutter/material.dart';
 /// [Tooltip] of a [hint].
 class TooltipHint extends StatelessWidget {
   const TooltipHint({
-    Key? key,
+    super.key,
     required this.child,
     this.onTap,
     this.hint,
     this.verticalOffset,
-  }) : super(key: key);
+  });
 
   /// Widget of this button.
   final Widget child;

@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import 'animated_switcher.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.

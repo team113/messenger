@@ -21,10 +21,10 @@ import 'package:flutter/material.dart';
 
 class ReactionWrap extends StatelessWidget {
   const ReactionWrap({
-    Key? key,
+    super.key,
     required this.width,
     required this.children,
-  }) : super(key: key);
+  });
 
   final double width;
   final List<Widget> children;

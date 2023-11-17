@@ -294,33 +294,9 @@ class PhoneFieldState extends ReactiveFieldState {
 }
 
 class _CountrySelectorNavigator extends CountrySelectorNavigator {
-  const _CountrySelectorNavigator({
-    List<IsoCode>? countries,
-    List<IsoCode>? favorites,
-    bool addSeparator = true,
-    bool showCountryCode = true,
-    bool sortCountries = false,
-    String? noResultMessage,
-    TextStyle? subtitleStyle,
-    TextStyle? titleStyle,
-    InputDecoration? searchBoxDecoration,
-    TextStyle? searchBoxTextStyle,
-    Color? searchBoxIconColor,
-    ScrollPhysics? scrollPhysics,
-  }) : super(
-          countries: countries,
-          favorites: favorites,
-          addSeparator: addSeparator,
-          showCountryCode: showCountryCode,
-          sortCountries: sortCountries,
-          noResultMessage: noResultMessage,
+  const _CountrySelectorNavigator()
+      : super(
           searchAutofocus: false,
-          subtitleStyle: subtitleStyle,
-          titleStyle: titleStyle,
-          searchBoxDecoration: searchBoxDecoration,
-          searchBoxTextStyle: searchBoxTextStyle,
-          searchBoxIconColor: searchBoxIconColor,
-          scrollPhysics: scrollPhysics,
         );
 
   @override

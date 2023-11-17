@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -29,9 +28,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
-import '/ui/widget/svg/svg.dart';
-import '/ui/widget/widget_button.dart';
-import '/util/platform_utils.dart';
 import 'page/colors/view.dart';
 import 'page/icons/view.dart';
 import 'page/typography/view.dart';

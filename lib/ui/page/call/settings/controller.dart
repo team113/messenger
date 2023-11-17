@@ -28,7 +28,7 @@ export 'view.dart';
 
 /// Controller of the call overlay settings.
 class CallSettingsController extends GetxController {
- CallSettingsController(this._call, this._settingsRepo, {required this.pop});
+  CallSettingsController(this._call, this._settingsRepo, {required this.pop});
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();

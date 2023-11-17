@@ -405,9 +405,9 @@ class AuthService {
 ```
 
 
-### Explicit reactive variable creation
+### Explicit types
 
-Do __NOT__ use shorthand `.obs` syntax when creating rx (reactive) variables.
+__Do__ specify types explicitly to increase code readability and strictness.
 
 #### 🚫 Wrong
 ```dart
@@ -503,7 +503,7 @@ remote = false
 
 [server.http]
 url = "https://messenger.soc.stg.t11913.org"
-ort = 443
+port = 443
 
 [server.ws]
 url = "wss://messenger.soc.stg.t11913.org"
@@ -511,6 +511,7 @@ port = 443
 ```
 
 __Note__, that passing `--dart-define`s to `make e2e` or `flutter drive` commands is __not__ possible. Use the `assets/conf.toml` in order to run E2E tests on the development backend. Be sure not to commit the modified `assets/conf.toml` file.
+
 
 
 

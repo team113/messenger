@@ -53,7 +53,7 @@ import 'package:messenger/util/platform_utils.dart';
 import 'controller.dart';
 
 class PublicView extends StatefulWidget {
-  const PublicView(this.id, {Key? key}) : super(key: key);
+  const PublicView(this.id, {super.key});
 
   final ChatId id;
 
@@ -597,7 +597,7 @@ class _PublicViewState extends State<PublicView>
 
     const double size = 125;
 
-    Widget _content() {
+    Widget content() {
       if (isImage || isVideo) {
         Widget child = MediaAttachment(attachment: e);
 
@@ -700,7 +700,7 @@ class _PublicViewState extends State<PublicView>
       );
     }
 
-    Widget _attachment() {
+    Widget attachment() {
       Style style = Theme.of(context).extension<Style>()!;
       return MouseRegion(
         key: Key(e.id.val),
@@ -719,7 +719,7 @@ class _PublicViewState extends State<PublicView>
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: _content(),
+                child: content(),
               ),
               Center(
                 child: SizedBox(
@@ -789,7 +789,7 @@ class _PublicViewState extends State<PublicView>
       key: Key(e.id.val),
       direction: MyDismissDirection.up,
       onDismissed: (_) => c.attachments.remove(e),
-      child: _attachment(),
+      child: attachment(),
     );
   }
 

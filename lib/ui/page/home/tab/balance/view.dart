@@ -31,7 +31,7 @@ import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 class BalanceTabView extends StatelessWidget {
-  const BalanceTabView({Key? key}) : super(key: key);
+  const BalanceTabView({super.key});
 
   @override
   Widget build(BuildContext context) {

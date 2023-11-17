@@ -23,7 +23,7 @@ import 'package:messenger/ui/widget/widget_button.dart';
 /// with a status next to it.
 class SwipeableInfo extends StatelessWidget {
   const SwipeableInfo({
-    Key? key,
+    super.key,
     required this.child,
     required this.swipeable,
     this.animation,
@@ -37,7 +37,7 @@ class SwipeableInfo extends StatelessWidget {
     this.padding = const EdgeInsets.only(bottom: 13),
     this.onPressed,
     this.expanded = false,
-  }) : super(key: key);
+  });
 
   /// Expanded width of the [swipeable].
   static const double width = 85;

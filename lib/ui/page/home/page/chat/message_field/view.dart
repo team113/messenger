@@ -54,7 +54,7 @@ import 'more.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
-  MessageFieldView({
+  const MessageFieldView({
     super.key,
     this.controller,
     this.onChanged,

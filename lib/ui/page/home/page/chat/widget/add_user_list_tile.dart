@@ -23,7 +23,7 @@ import '/domain/model/user.dart';
 
 /// [ListTile] with an information of an [User].
 class AddUserListTile extends StatelessWidget {
-  const AddUserListTile(this.user, this.onTap, {Key? key}) : super(key: key);
+  const AddUserListTile(this.user, this.onTap, {super.key});
 
   /// [User] this [AddUserListTile] is about.
   final User user;

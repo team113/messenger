@@ -32,7 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AccountsView extends StatelessWidget {
-  const AccountsView({Key? key}) : super(key: key);
+  const AccountsView({super.key});
 
   /// Displays an [AccountsView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {

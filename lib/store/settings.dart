@@ -178,7 +178,7 @@ class SettingsRepository extends DisposableInterface
   Future<void> setPartnerTabEnabled(bool enabled) =>
       _settingsLocal.setPartnerTabEnabled(enabled);
 
-        @override
+  @override
   Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
       _settingsLocal.setMediaButtonsPosition(position);
 

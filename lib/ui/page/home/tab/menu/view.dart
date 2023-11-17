@@ -38,7 +38,7 @@ import 'controller.dart';
 
 /// View of the `HomeTab.menu` tab.
 class MenuTabView extends StatelessWidget {
-  const MenuTabView({Key? key}) : super(key: key);
+  const MenuTabView({super.key});
 
   @override
   Widget build(BuildContext context) {

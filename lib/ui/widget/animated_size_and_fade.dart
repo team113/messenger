@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 /// The `AnimatedSizeAndFade` widget does a fade and size transition between a.
 class AnimatedSizeAndFade extends StatelessWidget {
   const AnimatedSizeAndFade({
-    Key? key,
+    super.key,
     this.child,
     this.fadeDuration = const Duration(milliseconds: 500),
     this.sizeDuration = const Duration(milliseconds: 500),
@@ -28,8 +28,7 @@ class AnimatedSizeAndFade extends StatelessWidget {
     this.fadeOutCurve = Curves.easeInOut,
     this.sizeCurve = Curves.easeInOut,
     this.alignment = Alignment.center,
-  })  : show = true,
-        super(key: key);
+  }) : show = true;
 
   /// [UniqueKey] used by this [AnimatedSizeAndFade].
   static final _key = UniqueKey();

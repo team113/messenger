@@ -26,13 +26,13 @@ import '/themes.dart';
 /// Animated button with expandable on toggle [actions].
 class AnimatedFab extends StatefulWidget {
   const AnimatedFab({
-    Key? key,
+    super.key,
     required this.closedIcon,
     required this.openedIcon,
     this.labelStyle,
     this.actions = const [],
     this.height = 400,
-  }) : super(key: key);
+  });
 
   /// Icon in a closed state.
   final Widget closedIcon;
@@ -267,7 +267,7 @@ class _AnimatedFabState extends State<AnimatedFab>
                     ),
                   );
                 },
-              ).toList(),
+              ),
             ],
           );
         },

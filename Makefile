@@ -827,6 +827,12 @@ endif
 
 
 
+deploy:
+	flutter build web --profile --web-renderer html && \
+	make helm.up cluster=review rebuild=yes buildx=yes
+
+
+
 
 ##################
 # .PHONY section #
@@ -835,6 +841,7 @@ endif
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
+		deploy \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \

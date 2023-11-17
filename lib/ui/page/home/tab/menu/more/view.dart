@@ -25,7 +25,7 @@ import 'package:messenger/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
 class MoreView extends StatelessWidget {
-  const MoreView({Key? key}) : super(key: key);
+  const MoreView({super.key});
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {

@@ -16,12 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
@@ -29,14 +26,11 @@ import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/num.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -152,7 +146,7 @@ class IntroductionView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
-              key: Key('${c.stage.value?.name.capitalizeFirst}Stage'),
+              key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,

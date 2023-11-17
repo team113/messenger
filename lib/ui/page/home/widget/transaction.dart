@@ -22,7 +22,6 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 
 enum TransactionCurrency { dollar, inter }

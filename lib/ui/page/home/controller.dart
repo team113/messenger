@@ -37,7 +37,6 @@ import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
-import '/util/message_popup.dart';
 import 'introduction/controller.dart';
 
 export 'view.dart';

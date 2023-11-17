@@ -30,7 +30,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Subtitle visual representation of a [RxChat].

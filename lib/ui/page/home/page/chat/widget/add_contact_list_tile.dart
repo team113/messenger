@@ -25,8 +25,8 @@ import '/ui/page/home/widget/avatar.dart';
 
 /// [ListTile] with an information of a [ChatContact].
 class AddContactListTile extends StatelessWidget {
-  const AddContactListTile(this.selected, this.contact, this.onTap, {Key? key})
-      : super(key: key);
+  const AddContactListTile(this.selected, this.contact, this.onTap,
+      {super.key});
 
   /// Indicator whether this [contact] is selected.
   final bool selected;

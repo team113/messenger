@@ -25,7 +25,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -43,7 +42,7 @@ import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
-  const ChatInfoView(this.id, {Key? key}) : super(key: key);
+  const ChatInfoView(this.id, {super.key});
 
   /// ID of the [Chat] of this info page.
   final ChatId id;

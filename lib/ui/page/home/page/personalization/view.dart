@@ -26,7 +26,7 @@ import 'controller.dart';
 
 /// View of the [Routes.personalization] page.
 class PersonalizationView extends StatelessWidget {
-  const PersonalizationView({Key? key}) : super(key: key);
+  const PersonalizationView({super.key});
 
   @override
   Widget build(BuildContext context) {

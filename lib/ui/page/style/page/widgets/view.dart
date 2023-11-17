@@ -330,7 +330,8 @@ class _WidgetsViewState extends State<WidgetsView> {
           ),
           (
             'CustomProgressIndicator.primary',
-            SizedBox(child: Center(child: CustomProgressIndicator.primary()))
+            const SizedBox(
+                child: Center(child: CustomProgressIndicator.primary()))
           ),
         ],
       ),
@@ -1601,7 +1602,7 @@ class _WidgetsViewState extends State<WidgetsView> {
                 CustomNavigationBarItem(
                   child: Transform.translate(
                     offset: const Offset(0, 0.5),
-                    child: SvgIcon(SvgIcons.chats),
+                    child: const SvgIcon(SvgIcons.chats),
                   ),
                 ),
                 const CustomNavigationBarItem(child: AvatarWidget(radius: 16)),

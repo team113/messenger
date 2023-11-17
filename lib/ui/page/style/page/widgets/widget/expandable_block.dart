@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 class ExpandableBlock extends StatefulWidget {
   const ExpandableBlock({
@@ -27,7 +25,7 @@ class ExpandableBlock extends StatefulWidget {
 }
 
 class _ExpandableBlockState extends State<ExpandableBlock> {
-  bool _expanded = true;
+  final bool _expanded = true;
 
   @override
   Widget build(BuildContext context) {

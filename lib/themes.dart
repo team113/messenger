@@ -389,16 +389,11 @@ class Themes {
 /// Shadow cast by a box that allows to customize its [blurStyle].
 class CustomBoxShadow extends BoxShadow {
   const CustomBoxShadow({
-    Color color = const Color(0xFF000000),
-    Offset offset = Offset.zero,
-    double blurRadius = 0.0,
+    super.color,
+    super.offset,
+    super.blurRadius,
     BlurStyle blurStyle = BlurStyle.normal,
-  })  : _blurStyle = blurStyle,
-        super(
-          color: color,
-          offset: offset,
-          blurRadius: blurRadius,
-        );
+  }) : _blurStyle = blurStyle;
 
   /// Style to use for blur in [MaskFilter] object.
   final BlurStyle _blurStyle;

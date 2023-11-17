@@ -30,7 +30,6 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/domain/model/chat_info.dart';
 import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/model/chat_item_quote_input.dart';
 import 'package:messenger/ui/page/home/widget/confirm_dialog.dart';

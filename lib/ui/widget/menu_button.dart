@@ -20,7 +20,6 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import 'svg/svg.dart';
 
 /// Rounded button with an [icon], [title] and [subtitle] intended to be used in

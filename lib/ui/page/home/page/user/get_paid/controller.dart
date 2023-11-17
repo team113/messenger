@@ -21,8 +21,6 @@ import 'package:messenger/domain/service/my_user.dart';
 
 export 'view.dart';
 
-
-
 /// Controller of a [ChatForwardView].
 class GetPaidController extends GetxController {
   GetPaidController(this._myUserService);

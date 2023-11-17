@@ -170,7 +170,7 @@ targets:
               dart_type:
                 name: FavoriteChatsListVersion
                 imports:
-                 - "package:messenger/store/model/chat.dart"
+                  - "package:messenger/store/model/chat.dart"
             - graphql_type: FcmRegistrationToken
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
               dart_type:
