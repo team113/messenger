@@ -52,7 +52,10 @@ class ContactService extends DisposableService {
       _contactRepository.favorites;
 
   /// Fetches the next [contacts] page.
-  FutureOr<void> next() => _contactRepository.next();
+  FutureOr<void> next() {
+    Log.debug('next()', '$runtimeType');
+    return _contactRepository.next();
+  }
 
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) async {

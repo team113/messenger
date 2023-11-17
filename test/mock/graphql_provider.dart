@@ -56,7 +56,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   }
 
   @override
-  Future<Contacts$Query> chatContacts({
+  Future<Contacts$Query$ChatContacts> chatContacts({
     int? first,
     ChatContactsCursor? after,
     int? last,
@@ -74,10 +74,10 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
           },
           'ver': '0',
         }
-      });
+      }).chatContacts;
 
   @override
-  Future<FavoriteContacts$Query> favoriteChatContacts({
+  Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
     int? first,
     FavoriteChatContactsCursor? after,
     int? last,
@@ -94,7 +94,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
           },
           'ver': '0',
         }
-      });
+      }).favoriteChatContacts;
 
   @override
   Future<RecentChats$Query> recentChats({

@@ -16,12 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '../model/contact.dart';
-import '../pagination.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/contact.dart';
 
 /// Possible kinds of a [ChatContactEvent].
 enum ChatContactEventKind {
@@ -62,27 +60,6 @@ class ChatContactsEventsInitialized extends ChatContactsEvents {
 
   @override
   ChatContactsEventsKind get kind => ChatContactsEventsKind.initialized;
-}
-
-/// Initial state of [ChatContact]s list.
-class ChatContactsEventsChatContactsList extends ChatContactsEvents {
-  const ChatContactsEventsChatContactsList(
-    this.chatContacts,
-    this.favoriteChatContacts,
-    this.ver,
-  );
-
-  /// Initial state of non-favorite [ChatContact]s list.
-  final Page<HiveChatContact, ChatContactsCursor> chatContacts;
-
-  /// Initial state of favorite [ChatContact]s list.
-  final Page<HiveChatContact, FavoriteChatContactsCursor> favoriteChatContacts;
-
-  /// Version of the initial [ChatContact]s list.
-  final ChatContactsListVersion ver;
-
-  @override
-  ChatContactsEventsKind get kind => ChatContactsEventsKind.chatContactsList;
 }
 
 /// [ChatContactEventsVersioned] happening in [ChatContact]s list.

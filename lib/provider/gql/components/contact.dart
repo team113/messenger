@@ -49,7 +49,7 @@ mixin ContactGraphQlMixin {
   /// If it's desired to receive the [ChatContact] pointed by the cursor without
   /// querying in both directions, one can specify [first] or [last] count as
   /// `0`.
-  Future<Contacts$Query> chatContacts({
+  Future<Contacts$Query$ChatContacts> chatContacts({
     int? first,
     ChatContactsCursor? after,
     int? last,
@@ -75,7 +75,7 @@ mixin ContactGraphQlMixin {
         variables: variables.toJson(),
       ),
     );
-    return Contacts$Query.fromJson(result.data!);
+    return Contacts$Query.fromJson(result.data!).chatContacts;
   }
 
   /// Returns favorited [ChatContact]s of the authenticated [MyUser] ordered by
@@ -105,7 +105,7 @@ mixin ContactGraphQlMixin {
   /// If it's desired to receive the [ChatContact], pointed by the cursor,
   /// without querying in both directions, one can specify [first] or [last] count
   /// as 0.
-  Future<FavoriteContacts$Query> favoriteChatContacts({
+  Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
     int? first,
     FavoriteChatContactsCursor? after,
     int? last,
@@ -124,7 +124,7 @@ mixin ContactGraphQlMixin {
         variables: variables.toJson(),
       ),
     );
-    return FavoriteContacts$Query.fromJson(result.data!);
+    return FavoriteContacts$Query.fromJson(result.data!).favoriteChatContacts;
   }
 
   /// Creates a new [ChatContact] in the authenticated [MyUser]'s address book.

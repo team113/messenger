@@ -17,9 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/contact.dart';
-import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
 
 import '../world/custom_world.dart';

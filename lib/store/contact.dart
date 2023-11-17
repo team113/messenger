@@ -115,8 +115,8 @@ class ContactRepository extends DisposableInterface
 
   @override
   Future<void> onInit() async {
-   Log.debug('onInit()', '$runtimeType');
-   
+    Log.debug('onInit()', '$runtimeType');
+
     status.value = RxStatus.loading();
 
     _initPagination();
@@ -128,8 +128,8 @@ class ContactRepository extends DisposableInterface
 
   @override
   void onClose() {
-  Log.debug('onClose()', '$runtimeType');
-  
+    Log.debug('onClose()', '$runtimeType');
+
     allContacts.forEach((_, v) => v.dispose());
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();
@@ -140,15 +140,15 @@ class ContactRepository extends DisposableInterface
 
   @override
   Future<void> next() {
-  Log.debug('next()', '$runtimeType');
- return _pagination.next();
- }
+    Log.debug('next()', '$runtimeType');
+    return _pagination.next();
+  }
 
   @override
   Future<void> clearCache() {
-  Log.debug('clearCache()', '$runtimeType');
- return _contactLocal.clear();
- }
+    Log.debug('clearCache()', '$runtimeType');
+    return _contactLocal.clear();
+  }
 
   // TODO: Forbid creating multiple ChatContacts with the same User?
   @override
@@ -352,7 +352,10 @@ class ContactRepository extends DisposableInterface
   }
 
   /// Removes a [ChatContact] identified by the provided [id].
-  Future<void> remove(ChatContactId id) => _contactLocal.remove(id);
+  Future<void> remove(ChatContactId id) {
+    Log.debug('remove($id)', '$runtimeType');
+    return _contactLocal.remove(id);
+  }
 
   /// Searches [ChatContact]s by the provided [UserName].
   ///
@@ -384,6 +387,8 @@ class ContactRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initPagination() async {
+    Log.debug('_initPagination()', '$runtimeType');
+
     _favoriteContactsPagination = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
@@ -490,8 +495,11 @@ class ContactRepository extends DisposableInterface
     bool pagination = false,
     bool ignoreVersion = false,
   }) async {
-  Log.debug('_putChatContact($contact)', '$runtimeType');
-  
+    Log.debug(
+      '_putChatContact($contact, $pagination, $ignoreVersion)',
+      '$runtimeType',
+    );
+
     final ChatContactId contactId = contact.value.id;
     final HiveRxChatContact? saved = allContacts[contactId];
 
@@ -544,6 +552,8 @@ class ContactRepository extends DisposableInterface
   /// Adds the provided [HiveChatContact] to the [allContacts] and optionally to
   /// the [contacts] or [favorites].
   void _add(HiveChatContact contact, {bool pagination = false}) {
+    Log.debug('_add($contact, $pagination)', '$runtimeType');
+
     final ChatContactId contactId = contact.value.id;
 
     HiveRxChatContact? entry = allContacts[contactId];
@@ -626,7 +636,7 @@ class ContactRepository extends DisposableInterface
   Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
-      Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
+        Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
         break;
 
       case ChatContactsEventsKind.chatContactsList:
@@ -754,8 +764,8 @@ class ContactRepository extends DisposableInterface
   //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
-  Log.debug('_fetchById($id)', '$runtimeType');
-  
+    Log.debug('_fetchById($id)', '$runtimeType');
+
     var contact =
         (await _chatContacts()).edges.firstWhereOrNull((e) => e.value.id == id);
     if (contact != null) {
@@ -773,16 +783,18 @@ class ContactRepository extends DisposableInterface
     ChatContactsCursor? before,
     bool noFavorite = true,
   }) async {
-  Log.debug('_chatContacts()', '$runtimeType');
-  
+    Log.debug(
+      '_chatContacts($first, $after, $last, $before, $noFavorite)',
+      '$runtimeType',
+    );
+
     Contacts$Query$ChatContacts query = (await _graphQlProvider.chatContacts(
       first: first,
       after: after,
       last: last,
       before: before,
       noFavorite: noFavorite,
-    ))
-        .chatContacts;
+    ));
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
@@ -808,14 +820,18 @@ class ContactRepository extends DisposableInterface
     int? last,
     FavoriteChatContactsCursor? before,
   }) async {
+    Log.debug(
+      '_favoriteContacts($first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
     FavoriteContacts$Query$FavoriteChatContacts query =
         (await _graphQlProvider.favoriteChatContacts(
       first: first,
       after: after,
       last: last,
       before: before,
-    ))
-            .favoriteChatContacts;
+    ));
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
