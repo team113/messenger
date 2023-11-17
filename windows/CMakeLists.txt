@@ -46,6 +46,9 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 # Application build
 add_subdirectory("runner")
 
+# https://github.com/firebase/flutterfire/issues/10931#issuecomment-1541348328
+set(CMAKE_BUILD_TYPE "Release")
+
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)
