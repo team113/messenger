@@ -45,7 +45,10 @@ class AudioUtilsImpl {
       // If [Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
       if (e is! TypeError) {
-        Log.error('Failed to initialize `Player`: ${e.toString()}');
+        Log.error(
+          'Failed to initialize `Player`: ${e.toString()}',
+          '$runtimeType',
+        );
       }
     }
   }
@@ -83,7 +86,10 @@ class AudioUtilsImpl {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
             if (e is! TypeError) {
-              Log.error('Failed to initialize `Player`: ${e.toString()}');
+              Log.error(
+                'Failed to initialize `Player`: ${e.toString()}',
+                '$runtimeType',
+              );
             }
           }
 
