@@ -86,15 +86,15 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
     final String? text;
 
     switch (widget.runtimeType) {
-      case ReactiveTextField:
+      case ReactiveTextField _:
         text = (widget as ReactiveTextField).state.controller.text;
         break;
 
-      case CopyableTextField:
+      case CopyableTextField _:
         text = (widget as CopyableTextField).state.controller.text;
         break;
 
-      case UserNumCopyable:
+      case UserNumCopyable _:
         text = (widget as UserNumCopyable).num.toString();
         break;
 
