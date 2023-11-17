@@ -162,15 +162,18 @@ void main() async {
       before: null,
       after: null,
       last: null,
-    )).thenAnswer((_) => Future.value((Contacts$Query.fromJson(chatContacts))));
+    )).thenAnswer((_) =>
+        Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
 
     when(graphQlProvider.favoriteChatContacts(
       first: anyNamed('first'),
       before: null,
       after: null,
       last: null,
-    )).thenAnswer((_) =>
-        Future.value((FavoriteContacts$Query.fromJson(favoriteChatContacts))));
+    )).thenAnswer(
+      (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
+          .favoriteChatContacts),
+    );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 

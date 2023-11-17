@@ -44,7 +44,7 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
       );
     }
 
-    Future.wait(futures);
+    await Future.wait(futures);
 
     provider.disconnect();
   },
@@ -83,7 +83,7 @@ final StepDefinitionGeneric hasFavoriteContacts =
       futures.add(future);
     }
 
-    Future.wait(futures);
+    await Future.wait(futures);
 
     provider.disconnect();
   },
