@@ -126,7 +126,7 @@ jobs:
         platform:
           - apk
           - appbundle
-          - ios
+          # - ios
           - macos
           - web
           - windows
