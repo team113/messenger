@@ -71,6 +71,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
+import 'steps/reads_message.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
@@ -143,6 +144,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         goToUserPage,
         hasDialogWithMe,
         hasGroups,
+        haveGroup2Named,
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
@@ -161,6 +163,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         popupWindows,
+        readsMessage,
         restartApp,
         returnToPreviousPage,
         rightClickWidget,
@@ -241,12 +244,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         IterableAmountParameter(),
+        MessageSentStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
         SearchCategoryParameter(),
         SelectionStatusParameter(),
-        SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
       ]

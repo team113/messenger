@@ -22,6 +22,7 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/store/model/contact.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'contact.g.dart';
@@ -36,6 +37,8 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatContactAdapter());
     Hive.maybeRegisterAdapter(ChatContactFavoritePositionAdapter());
@@ -52,14 +55,22 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
   Iterable<HiveChatContact> get contacts => valuesSafe;
 
   /// Puts the provided [ChatContact] to [Hive].
-  Future<void> put(HiveChatContact contact) =>
-      putSafe(contact.value.id.val, contact);
+  Future<void> put(HiveChatContact contact) async {
+    Log.debug('put($contact)', '$runtimeType');
+    await putSafe(contact.value.id.val, contact);
+  }
 
   /// Returns a [ChatContact] from [Hive] by its [id].
-  HiveChatContact? get(ChatContactId id) => getSafe(id.val);
+  HiveChatContact? get(ChatContactId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
 
   /// Removes an [ChatContact] from [Hive] by its [id].
-  Future<void> remove(ChatContactId id) => deleteSafe(id.val);
+  Future<void> remove(ChatContactId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 }
 
 /// Persisted in [Hive] storage [ChatContact]'s [value].

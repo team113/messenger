@@ -145,7 +145,7 @@ class ChatForward extends ChatItem {
 /// Unique ID of a [ChatItem].
 @HiveType(typeId: ModelTypeId.chatItemId)
 class ChatItemId extends NewType<String> {
-  const ChatItemId(String val) : super(val);
+  const ChatItemId(super.val);
 
   /// Constructs a dummy [ChatItemId].
   factory ChatItemId.local() => ChatItemId('local.${const Uuid().v4()}');
@@ -157,7 +157,7 @@ class ChatItemId extends NewType<String> {
 /// Text of a [ChatMessage].
 @HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
-  const ChatMessageText(String val) : super(val);
+  const ChatMessageText(super.val);
 
   /// Maximum allowed number of characters in this [ChatMessageText].
   static const int maxLength = 8192;
