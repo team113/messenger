@@ -18,6 +18,9 @@
 import 'dart:async';
 import 'dart:io';
 
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -25,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gal/gal.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/native_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -532,22 +536,76 @@ class PlatformUtilsImpl {
     return result;
   }
 
+  /// Saves a local video or image from the provided [bytes].
+  Future<void> downloadLocalFile(String name, Uint8List bytes) async {
+    if (isWeb) {
+      final html.Blob blob = html.Blob([bytes]);
+      final String url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement(href: url)
+        ..target = 'webSaveFileAnchor'
+        ..download = name;
+      html.document.body!.children.add(anchor);
+      anchor.click();
+      html.document.body!.children.remove(anchor);
+      html.Url.revokeObjectUrl(url);
+    } else {
+      Directory appDownloadDir = await downloadsDirectory;
+      final File file = File('${appDownloadDir.path}/$name');
+
+      await file.writeAsBytes(bytes);
+    }
+  }
+
+  /// Saves a video or an image from the provided [path] to the gallery.
+  Future<void> saveLocalFileToGallery(
+    String name,
+    String path,
+  ) async {
+    if (!isLinux && !isWeb) {
+      final bool isImage = NativeFile.imageTypes
+          .any((e) => name.endsWith(e) && !name.endsWith('svg'));
+      final bool isVideo = NativeFile.imageTypes.any((e) => name.endsWith(e));
+
+      if (isImage) {
+        await Gal.putImage(path);
+      } else if (isVideo) {
+        await Gal.putVideo(path);
+      } else {
+        throw GalException(
+          type: GalExceptionType.notSupportedFormat,
+          platformException: PlatformException(code: 'not_supported_format'),
+          stackTrace: StackTrace.current,
+        );
+      }
+    }
+  }
+
   /// Downloads a video or an image from the provided [url] and saves it to the
   /// gallery.
   Future<void> saveToGallery(
     String url,
     String name, {
-    required bool isVideo,
     String? checksum,
   }) async {
     if (!isLinux && !isWeb) {
-      final Directory temp = await getTemporaryDirectory();
+      final Directory temp = await temporaryDirectory;
       final String path = '${temp.path}/$name';
+
+      final bool isVideo = NativeFile.videoTypes.any((e) => url.endsWith(e));
+      final bool isImage = NativeFile.imageTypes.any((e) => url.endsWith(e)) &&
+          !(url.endsWith('svg'));
+
       await (await dio).download(url, path);
-      if (isVideo) {
+      if (isImage) {
+        await Gal.putImage(path);
+      } else if (isVideo) {
         await Gal.putVideo(path);
       } else {
-        await Gal.putImage(path);
+        throw GalException(
+          type: GalExceptionType.notSupportedFormat,
+          platformException: PlatformException(code: 'not_supported_format'),
+          stackTrace: StackTrace.current,
+        );
       }
     }
   }

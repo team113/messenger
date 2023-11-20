@@ -178,7 +178,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a save to gallery action of this [ChatItem] is
   /// triggered.
-  final void Function(List<Attachment>)? onSave;
+  final void Function(List<Attachment>, ChatItem)? onSave;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1779,7 +1779,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 key: const Key('DownloadAsButton'),
                                 label: media.length == 1
                                     ? 'btn_download_as'.l10n
-                                    : 'btn_download_as_all'.l10n,
+                                    : 'btn_download_all_as'.l10n,
                                 trailing: const Icon(Icons.download),
                                 onPressed: () =>
                                     widget.onDownloadAs?.call(media),
@@ -1797,7 +1797,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                         ? 'btn_save_all'.l10n
                                         : 'btn_save_to_gallery_all'.l10n,
                                 trailing: const Icon(Icons.download),
-                                onPressed: () => widget.onSave?.call(media),
+                                onPressed: () =>
+                                    widget.onSave?.call(media, item),
                               ),
                           ],
                           if (item.status.value == SendingStatus.error) ...[

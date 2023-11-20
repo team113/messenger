@@ -1190,7 +1190,6 @@ class ChatController extends GetxController {
   Future<void> downloadImage(List<Attachment> attachments, {String? to}) async {
     try {
       for (Attachment attachment in attachments) {
-        // TODO: Implement [LocalAttachment] downloading.
         if (attachment is! LocalAttachment) {
           await CacheWorker.instance
               .download(
@@ -1203,6 +1202,11 @@ class ChatController extends GetxController {
                     : to,
               )
               .future;
+        } else {
+          await PlatformUtils.downloadLocalFile(
+            attachment.filename,
+            attachment.file.bytes.value!,
+          );
         }
       }
 
@@ -1211,7 +1215,11 @@ class ChatController extends GetxController {
             ? 'label_files_downloaded'.l10n
             : attachments.first is ImageAttachment
                 ? 'label_image_downloaded'.l10n
-                : 'label_video_downloaded'.l10n,
+                : attachments.first is FileAttachment
+                    ? 'label_video_downloaded'.l10n
+                    : (attachments.first as LocalAttachment).file.isImage
+                        ? 'label_image_downloaded'.l10n
+                        : 'label_video_downloaded'.l10n,
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1220,7 +1228,10 @@ class ChatController extends GetxController {
   }
 
   /// Saves the provided [attachments] to the gallery.
-  Future<void> saveToGallery(List<Attachment> attachments) async {
+  Future<void> saveToGallery(
+    List<Attachment> attachments,
+    ChatItem item,
+  ) async {
     if (!await Gal.hasAccess()) {
       if (!await Gal.requestAccess()) {
         MessagePopup.error('err_no_access_to_gallery'.l10n);
@@ -1230,17 +1241,19 @@ class ChatController extends GetxController {
 
     try {
       for (Attachment attachment in attachments) {
-        // TODO: Implement [LocalAttachment] downloading.
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
             MessagePopup.success('label_video_downloading'.l10n);
           }
-
           await PlatformUtils.saveToGallery(
             attachment.original.url,
             attachment.filename,
             checksum: attachment.original.checksum,
-            isVideo: attachment is FileAttachment,
+          );
+        } else {
+          await PlatformUtils.saveLocalFileToGallery(
+            attachment.filename,
+            attachment.file.path ?? '',
           );
         }
       }
@@ -1252,6 +1265,11 @@ class ChatController extends GetxController {
                 ? 'label_image_saved_to_gallery'.l10n
                 : 'label_video_saved_to_gallery'.l10n,
       );
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse) {
+        chat?.updateAttachments(item);
+      }
+      await saveToGallery(attachments, item);
     } on GalException catch (e) {
       MessagePopup.error(switch (e.type) {
         GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
