@@ -18,9 +18,6 @@
 import 'dart:async';
 import 'dart:io';
 
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -32,6 +29,7 @@ import 'package:messenger/domain/model/native_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:universal_html/html.dart' as html;
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';

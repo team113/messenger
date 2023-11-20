@@ -88,6 +88,7 @@ dependencies:
   toml: ^0.14.0
   flutter_thumbhash: ^0.1.0+1
   universal_io: ^2.2.2
+  universal_html: ^2.2.4
   url_launcher: ^6.1.12
   uuid: ^3.0.7
   vibration: ^1.8.1
