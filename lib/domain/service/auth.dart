@@ -153,7 +153,7 @@ class AuthService extends GetxService {
 
     WebUtils.credentials = creds;
     _credentialsSubscription = _credentialsProvider.boxEvents
-        .listen((e) => WebUtils.credentials = e.value?.credentials);
+        .listen((e) => WebUtils.credentials = e.value);
 
     if (session == null) {
       return _unauthorized();
