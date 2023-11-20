@@ -74,6 +74,7 @@ import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
 import 'steps/restart_app.dart';
+import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
@@ -170,6 +171,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         readsMessage,
         restartApp,
         returnToPreviousPage,
+        rightClickMessage,
         rightClickWidget,
         scrollAndSee,
         scrollToBottom,
