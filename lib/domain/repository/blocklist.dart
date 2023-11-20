@@ -33,10 +33,6 @@ abstract class AbstractBlocklistRepository {
   RxBool get nextLoading;
 
   /// Initializes the repository.
-  ///
-  /// Callback [onUserDeleted] should be called when [myUser] is deleted.
-  /// Callback [onPasswordUpdated] should be called when [myUser]'s password
-  /// is updated.
   Future<void> init();
 
   /// Disposes the repository.
