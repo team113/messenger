@@ -67,7 +67,7 @@ final StepDefinitionGeneric selectMessageText =
       const Rect caret = Rect.fromLTWH(0.0, 6.0, 2.0, 20.0);
       final Offset localOffset =
           paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
-      return paragraph.localToGlobal(localOffset);
+      return paragraph.localToGlobal(localOffset + const Offset(0, 10));
     }
 
     final TestGesture gesture =

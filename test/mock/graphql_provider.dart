@@ -64,8 +64,37 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     bool noFavorite = false,
   }) async =>
       Contacts$Query.fromJson({
-        'chatContacts': {'nodes': [], 'ver': '0'}
+        'chatContacts': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          },
+          'ver': '0',
+        }
       }).chatContacts;
+
+  @override
+  Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
+    int? first,
+    FavoriteChatContactsCursor? after,
+    int? last,
+    FavoriteChatContactsCursor? before,
+  }) async =>
+      FavoriteContacts$Query.fromJson({
+        'favoriteChatContacts': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          },
+          'ver': '0',
+        }
+      }).favoriteChatContacts;
 
   @override
   Future<RecentChats$Query> recentChats({

@@ -61,6 +61,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'view.dart';
 
 export 'view.dart';
 

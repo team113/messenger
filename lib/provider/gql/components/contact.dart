@@ -78,6 +78,55 @@ mixin ContactGraphQlMixin {
     return Contacts$Query.fromJson(result.data!).chatContacts;
   }
 
+  /// Returns favorited [ChatContact]s of the authenticated [MyUser] ordered by
+  /// the custom order of [MyUser]'s favorites list (using
+  /// [ChatContact.favoritePosition] field).
+  ///
+  /// Use [favoriteChatContact] to update the position of a [ChatContact] in
+  /// [MyUser]'s favorites list.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [ChatContact]s are sorted in the order specified by the
+  /// authenticated [MyUser] in [favoriteChatContact] descending (starting from
+  /// the highest [ChatContactFavoritePosition] and finishing at the lowest).
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [ChatContact] pointed by the cursor and the
+  /// requested count of [ChatContact]s preceding and following it.
+  ///
+  /// If it's desired to receive the [ChatContact], pointed by the cursor,
+  /// without querying in both directions, one can specify [first] or [last] count
+  /// as 0.
+  Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
+    int? first,
+    FavoriteChatContactsCursor? after,
+    int? last,
+    FavoriteChatContactsCursor? before,
+  }) async {
+    final variables = FavoriteContactsArguments(
+      first: first,
+      last: last,
+      before: before,
+      after: after,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'FavoriteContacts',
+        document: FavoriteContactsQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return FavoriteContacts$Query.fromJson(result.data!).favoriteChatContacts;
+  }
+
   /// Creates a new [ChatContact] in the authenticated [MyUser]'s address book.
   ///
   /// Initially, a new [ChatContact] can be created with no more than 20

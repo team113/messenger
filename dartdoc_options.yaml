@@ -17,6 +17,7 @@ dartdoc:
     - orphaned-file
     - reexported-private-api-across-packages
     - tool-error
+    - unknown-directive
     - unknown-file
     - unknown-macro
     - unresolved-doc-reference
