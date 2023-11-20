@@ -134,13 +134,13 @@ class ChatCallCredentials extends HiveObject {
 /// Link for joining a [ChatCall] room on a media server.
 @HiveType(typeId: ModelTypeId.chatCallRoomJoinLink)
 class ChatCallRoomJoinLink extends NewType<String> {
-  const ChatCallRoomJoinLink(String val) : super(val);
+  const ChatCallRoomJoinLink(super.val);
 }
 
 /// ID of the device the authenticated [MyUser] starts a [ChatCall] from.
 @HiveType(typeId: ModelTypeId.chatCallDeviceId)
 class ChatCallDeviceId extends NewType<String> {
-  const ChatCallDeviceId(String val) : super(val);
+  const ChatCallDeviceId(super.val);
 }
 
 /// [ChatMember]s being dialed by a [ChatCall].

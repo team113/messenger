@@ -29,6 +29,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -63,6 +64,8 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
   MediaKit.ensureInitialized();
+
+  me.Log.options = me.LogOptions(level: Config.logLevel);
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
@@ -139,11 +142,12 @@ Future<void> main() async {
           StringBuffer buf = StringBuffer('$exception');
           if (stackTrace != null) {
             buf.write(
-                '\n\nWhen the exception was thrown, this was the stack:\n');
+              '\n\nWhen the exception was thrown, this was the stack:\n',
+            );
             buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
           }
 
-          Log.error(buf.toString());
+          Log.error(buf.toString(), 'SentryFlutter');
         }
       },
     },
@@ -158,6 +162,8 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
+  Log.debug('handlePushNotification($message)', 'main');
+
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
@@ -271,7 +277,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaleFactor: 1),
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: const TextScaler.linear(1)),
       child: GetMaterialApp.router(
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,

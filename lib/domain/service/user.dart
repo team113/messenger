@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
+import '/util/log.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
@@ -44,25 +45,39 @@ class UserService extends DisposableService {
     UserName? name,
     UserLogin? login,
     ChatDirectLinkSlug? link,
-  }) =>
-      _userRepository.search(
-        num: num,
-        name: name,
-        login: login,
-        link: link,
-      );
+  }) {
+    Log.debug('search($num, $name, $login, $link)', '$runtimeType');
+
+    return _userRepository.search(
+      num: num,
+      name: name,
+      login: login,
+      link: link,
+    );
+  }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> get(UserId id) => _userRepository.get(id);
+  Future<RxUser?> get(UserId id) async {
+    Log.debug('get($id)', '$runtimeType');
+    return await _userRepository.get(id);
+  }
 
   /// Blocks the specified [User] for the authenticated [MyUser].
-  Future<void> blockUser(UserId id, BlocklistReason? reason) =>
-      _userRepository.blockUser(id, reason);
+  Future<void> blockUser(UserId id, BlocklistReason? reason) async {
+    Log.debug('blockUser($id, $reason)', '$runtimeType');
+    await _userRepository.blockUser(id, reason);
+  }
 
   /// Removes the specified [User] from the blocklist of the authenticated
   /// [MyUser].
-  Future<void> unblockUser(UserId id) => _userRepository.unblockUser(id);
+  Future<void> unblockUser(UserId id) async {
+    Log.debug('unblockUser($id)', '$runtimeType');
+    await _userRepository.unblockUser(id);
+  }
 
   /// Removes [users] from the local data storage.
-  Future<void> clearCached() async => await _userRepository.clearCache();
+  Future<void> clearCached() async {
+    Log.debug('clearCached()', '$runtimeType');
+    await _userRepository.clearCache();
+  }
 }

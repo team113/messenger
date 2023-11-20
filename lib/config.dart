@@ -16,8 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
 
 import '/l10n/l10n.dart';
@@ -100,6 +102,9 @@ class Config {
     };
   }
 
+  /// Level of [Log]ger to log.
+  static me.LogLevel logLevel = me.LogLevel.info;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -166,6 +171,14 @@ class Config {
 
     origin = url;
 
+    logLevel = me.LogLevel.values.firstWhere(
+      (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
+          ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
+          : e.name == document['log']?['level'],
+      orElse: () =>
+          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
+    );
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -224,11 +237,17 @@ class Config {
             userAgentVersion =
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+            if (remote['log']?['level'] != null) {
+              logLevel = me.LogLevel.values.firstWhere(
+                (e) => e.name == remote['log']?['level'],
+                orElse: () => logLevel,
+              );
+            }
             origin = url;
           }
         }
       } catch (e) {
-        Log.print('Remote configuration fetch failed.', 'CONFIG');
+        Log.info('Remote configuration fetch failed.', 'CONFIG');
       }
     }
 

@@ -91,3 +91,10 @@
 #
 # Default:
 #   vapidKey = "BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0"
+
+[log]
+# Maximum allowed level of the log entries to output.
+#
+# Default:
+#   level = "debug" (if `kDebugMode` or `kProfileMode` is `true`)
+#   level = "info" (if `kReleaseMode` is `true`)

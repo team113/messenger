@@ -28,6 +28,7 @@ import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 
@@ -85,10 +86,11 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    final ChatId id = user.value.dialog;
+    Log.debug('get dialog', '$runtimeType($id)');
 
+    final ChatId dialogId = user.value.dialog;
     if (_dialog.value == null) {
-      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
+      _userRepository.getChat?.call(dialogId).then((v) => _dialog.value = v);
     }
 
     return _dialog;
@@ -96,12 +98,16 @@ class HiveRxUser extends RxUser {
 
   /// Disposes this [HiveRxUser].
   void dispose() {
+    Log.debug('dispose()', '$runtimeType($id)');
+
     _lastSeenTimer?.cancel();
     _worker?.dispose();
   }
 
   @override
   void listenUpdates() {
+    Log.debug('listenUpdates()', '$runtimeType($id)');
+
     if (_listeners++ == 0) {
       _initRemoteSubscription();
     }
@@ -109,7 +115,14 @@ class HiveRxUser extends RxUser {
 
   @override
   void stopUpdates() {
+    Log.debug('stopUpdates()', '$runtimeType($id)');
+
     if (--_listeners == 0) {
+      Log.debug(
+        '_remoteSubscription?.close(immediate: true)',
+        '$runtimeType($id)',
+      );
+
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
     }
@@ -117,6 +130,8 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
+
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
@@ -128,10 +143,12 @@ class HiveRxUser extends RxUser {
   Future<void> _userEvent(UserEvents events) async {
     switch (events.kind) {
       case UserEventsKind.initialized:
-        // No-op.
+        Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
         break;
 
       case UserEventsKind.user:
+        Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
+
         events as UserEventsUser;
         var saved = _userLocal.get(id);
         if (saved == null || saved.ver < events.user.ver) {
@@ -143,8 +160,17 @@ class HiveRxUser extends RxUser {
         var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
+          Log.debug(
+            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
           return;
         }
+
+        Log.debug(
+          '_userEvent(${events.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
 
         userEntity.ver = versioned.ver;
         for (var event in versioned.events) {
@@ -244,6 +270,8 @@ class HiveRxUser extends RxUser {
   // TODO: Cover with unit tests.
   /// Starts the [_lastSeenTimer] refreshing the [lastSeen].
   void _runLastSeenTimer() {
+    Log.debug('_runLastSeenTimer()', '$runtimeType($id)');
+
     _lastSeenTimer?.cancel();
     if (user.value.lastSeenAt == null) {
       return;
@@ -282,6 +310,11 @@ class HiveRxUser extends RxUser {
     _lastSeenTimer = Timer(
       delay,
       () {
+        Log.debug(
+          '_runLastSeenTimer(): delay($delay) has passed',
+          '$runtimeType($id)',
+        );
+
         lastSeen.value = user.value.lastSeenAt;
         lastSeen.refresh();
 
@@ -289,6 +322,11 @@ class HiveRxUser extends RxUser {
         _lastSeenTimer = Timer.periodic(
           period,
           (timer) {
+            Log.debug(
+              '_runLastSeenTimer(): period($period) has passed',
+              '$runtimeType($id)',
+            );
+
             lastSeen.value = user.value.lastSeenAt;
             lastSeen.refresh();
           },

@@ -200,7 +200,7 @@ class MyUserEmails {
 
 /// Confirmation code used by [MyUser].
 class ConfirmationCode extends NewType<String> {
-  const ConfirmationCode._(String val) : super(val);
+  const ConfirmationCode._(super.val);
 
   ConfirmationCode(String val) : super(val) {
     if (val.length != 4) {

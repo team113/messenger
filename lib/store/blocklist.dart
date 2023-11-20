@@ -19,16 +19,17 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/repository/blocklist.dart';
 
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/user.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'model/my_user.dart';
 import 'pagination.dart';
@@ -72,13 +73,15 @@ class BlocklistRepository implements AbstractBlocklistRepository {
 
   @override
   Future<void> init() async {
+    Log.debug('init()', '$runtimeType');
+
     _initLocalSubscription();
 
     _pagination = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _fetchBlocklist(
+        fetch: ({after, before, first, last}) => _blocklist(
           after: after,
           before: before,
           first: first,
@@ -105,33 +108,47 @@ class BlocklistRepository implements AbstractBlocklistRepository {
 
   @override
   void dispose() {
+    Log.debug('dispose()', '$runtimeType');
+
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();
     _pagination.dispose();
   }
 
   @override
-  Future<void> next() => _pagination.next();
+  Future<void> next() {
+    Log.debug('next()', '$runtimeType');
+    return _pagination.next();
+  }
 
   /// Removes a [User] identified by the provided [userId] from the [blocklist].
-  Future<void> remove(UserId userId) => _blocklistLocal.remove(userId);
+  Future<void> remove(UserId userId) {
+    Log.debug('remove($userId)', '$runtimeType');
+    return _blocklistLocal.remove(userId);
+  }
 
   /// Puts the provided [HiveUser] into this [BlocklistRepository].
-  Future<void> put(HiveUser user) => _pagination.put(user);
+  Future<void> put(HiveUser user) {
+    Log.debug('put()', '$runtimeType');
+    return _pagination.put(user);
+  }
 
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
+    Log.debug('reset()', '$runtimeType');
     await _pagination.clear();
     await _pagination.around();
   }
 
   /// Fetches blocked [User]s with pagination.
-  Future<Page<HiveUser, BlocklistCursor>> _fetchBlocklist({
+  Future<Page<HiveUser, BlocklistCursor>> _blocklist({
     int? first,
     BlocklistCursor? after,
     int? last,
     BlocklistCursor? before,
   }) async {
+    Log.debug('_blocklist($first, $after, $last, $before)', '$runtimeType');
+
     final query = await _graphQlProvider.getBlocklist(
       first: first,
       after: after,
@@ -150,6 +167,8 @@ class BlocklistRepository implements AbstractBlocklistRepository {
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
   Future<void> _add(UserId userId) async {
+    Log.debug('_add($userId)', '$runtimeType');
+
     final RxUser? user = blocklist[userId];
     if (user == null) {
       final RxUser? user = await _userRepo.get(userId);
@@ -161,6 +180,8 @@ class BlocklistRepository implements AbstractBlocklistRepository {
 
   /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
+    Log.debug('_initLocalSubscription()', '$runtimeType');
+
     _localSubscription = StreamIterator(_blocklistLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;

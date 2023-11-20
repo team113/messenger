@@ -26,17 +26,17 @@ part 'contact.g.dart';
 /// Version of a [ChatContact]'s state.
 @HiveType(typeId: ModelTypeId.chatContactVersion)
 class ChatContactVersion extends Version {
-  ChatContactVersion(String val) : super(val);
+  ChatContactVersion(super.val);
 }
 
 /// Cursor used for a subscription to [ChatContactEvent]s.
 @HiveType(typeId: ModelTypeId.chatContactsListVersion)
 class ChatContactsListVersion extends Version {
-  ChatContactsListVersion(String val) : super(val);
+  ChatContactsListVersion(super.val);
 }
 
 /// Cursor used for [ChatContact]s pagination.
 @HiveType(typeId: ModelTypeId.chatContactsCursor)
 class ChatContactsCursor extends NewType<String> {
-  ChatContactsCursor(String val) : super(val);
+  ChatContactsCursor(super.val);
 }

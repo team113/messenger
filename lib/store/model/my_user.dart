@@ -26,17 +26,17 @@ part 'my_user.g.dart';
 /// Version of [MyUser]'s state.
 @HiveType(typeId: ModelTypeId.myUserVersion)
 class MyUserVersion extends Version {
-  MyUserVersion(String val) : super(val);
+  MyUserVersion(super.val);
 }
 
 /// Version of a [ChatDirectLink]'s state.
 @HiveType(typeId: ModelTypeId.chatDirectLinkVersion)
 class ChatDirectLinkVersion extends Version {
-  ChatDirectLinkVersion(String val) : super(val);
+  ChatDirectLinkVersion(super.val);
 }
 
 /// Cursor of blocked [User]s.
 @HiveType(typeId: ModelTypeId.blocklistCursor)
 class BlocklistCursor extends NewType<String> {
-  BlocklistCursor(String val) : super(val);
+  BlocklistCursor(super.val);
 }

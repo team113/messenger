@@ -23,10 +23,10 @@ class AnimatedOffset extends ImplicitlyAnimatedWidget {
     super.key,
     required this.offset,
     required this.child,
-    Duration duration = const Duration(milliseconds: 250),
-    Curve curve = Curves.linear,
-    void Function()? onEnd,
-  }) : super(curve: curve, duration: duration, onEnd: onEnd);
+    super.duration = const Duration(milliseconds: 250),
+    super.curve,
+    super.onEnd,
+  });
 
   /// [Offset] to apply to the [child].
   final Offset offset;

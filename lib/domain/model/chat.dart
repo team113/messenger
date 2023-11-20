@@ -238,6 +238,20 @@ class Chat extends HiveObject implements Comparable<Chat> {
         null;
   }
 
+  /// Indicates whether the provided [ChatItem] was read only partially by some
+  /// [User] other than [me].
+  bool isHalfRead(ChatItem item, UserId? me) {
+    return members.any((e) {
+      if (e.user.id == me) {
+        return false;
+      }
+
+      final LastChatRead? read =
+          lastReads.firstWhereOrNull((m) => m.memberId == e.user.id);
+      return read == null || read.at.isBefore(item.at);
+    });
+  }
+
   /// Indicates whether the provided [ChatItem] was read by the given [user].
   bool isReadBy(ChatItem item, UserId? user) {
     return lastReads
@@ -273,6 +287,9 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
     return other.updatedAt.compareTo(updatedAt);
   }
+
+  @override
+  String toString() => '$runtimeType($id)';
 }
 
 /// Member of a [Chat].
@@ -333,7 +350,7 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
 /// Only [Chat]-group can have a name.
 @HiveType(typeId: ModelTypeId.chatName)
 class ChatName extends NewType<String> {
-  const ChatName._(String val) : super(val);
+  const ChatName._(super.val);
 
   ChatName(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
@@ -352,7 +369,7 @@ class ChatName extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatFavoritePosition)
 class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {
-  const ChatFavoritePosition(double val) : super(val);
+  const ChatFavoritePosition(super.val);
 
   factory ChatFavoritePosition.parse(String val) =>
       ChatFavoritePosition(double.parse(val));

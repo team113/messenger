@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Always display online status on desktop. ([#702], [#681])
     - Style page:
         - Redesigned widgets tab. ([#695], [#632])
+    - Chat page:
+        - Display read partially message status in groups. ([#703], [#666])
 
 ### Fixed
 
@@ -24,9 +26,11 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid caller name in popup calls. ([#711])
 
 [#632]: /../../issues/632
+[#666]: /../../issues/666
 [#681]: /../../issues/681
 [#695]: /../../pull/695
 [#702]: /../../pull/702
+[#703]: /../../pull/703
 [#711]: /../../pull/711
 
 

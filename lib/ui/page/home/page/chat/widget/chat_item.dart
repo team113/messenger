@@ -391,6 +391,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
+  /// Indicates whether this [ChatItem] was read only partially.
+  bool get _isHalfRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    return chat.isHalfRead(widget.item.value, widget.me);
+  }
+
   /// Returns the [UserId] of [User] posted this [ChatItem].
   UserId get _author => widget.item.value.author.id;
 
@@ -1509,6 +1519,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isDelivered:
           isSent && widget.chat.value?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && _isRead,
+      isHalfRead: _isHalfRead,
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(item.at.val.toLocal().hm),
@@ -1607,7 +1618,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     color: style.colors.danger,
                                   ),
                                 )
-                              : Container(key: const Key('Sent')),
+                              : Container(
+                                  key: _isRead
+                                      ? _isHalfRead
+                                          ? const Key('HalfRead')
+                                          : const Key('Read')
+                                      : const Key('Sent'),
+                                ),
                     );
                   }),
                 ),
@@ -1811,6 +1828,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           at: item.at,
           status: _fromMe ? item.status.value : null,
           read: _isRead || isMonolog,
+          halfRead: _isHalfRead,
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,

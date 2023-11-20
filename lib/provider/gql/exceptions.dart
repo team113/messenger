@@ -179,8 +179,7 @@ class AuthorizationException with LocalizedExceptionMixin implements Exception {
 
 /// Specific [GraphQlException] thrown on `NOT_CHAT_MEMBER` extension code.
 class NotChatMemberException extends GraphQlException {
-  NotChatMemberException([Iterable<GraphQLError> graphqlErrors = const []])
-      : super(graphqlErrors);
+  NotChatMemberException([super.graphqlErrors]);
 
   @override
   String toString() => 'NotChatMemberException()';
@@ -191,8 +190,7 @@ class NotChatMemberException extends GraphQlException {
 
 /// Specific [GraphQlException] thrown on `STALE_VERSION` extension code.
 class StaleVersionException extends GraphQlException {
-  StaleVersionException([Iterable<GraphQLError> graphqlErrors = const []])
-      : super(graphqlErrors);
+  StaleVersionException([super.graphqlErrors]);
 
   @override
   String toString() => 'StaleVersionException()';

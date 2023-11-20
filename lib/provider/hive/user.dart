@@ -26,6 +26,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'user.g.dart';
@@ -40,6 +41,8 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
@@ -63,13 +66,22 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
   Iterable<HiveUser> get users => valuesSafe;
 
   /// Puts the provided [User] to [Hive].
-  Future<void> put(HiveUser user) => putSafe(user.value.id.val, user);
+  Future<void> put(HiveUser user) async {
+    Log.debug('put($user)', '$runtimeType');
+    await putSafe(user.value.id.val, user);
+  }
 
   /// Returns a [User] from [Hive] by its [id].
-  HiveUser? get(UserId id) => getSafe(id.val);
+  HiveUser? get(UserId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
 
   /// Removes an [User] from [Hive] by its [id].
-  Future<void> remove(UserId id) => deleteSafe(id.val);
+  Future<void> remove(UserId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 }
 
 /// Persisted in [Hive] storage [User]'s [value].
@@ -98,4 +110,7 @@ class HiveUser extends HiveObject {
   /// tracking state's actuality.
   @HiveField(2)
   MyUserVersion blockedVer;
+
+  @override
+  String toString() => '$runtimeType($value, $ver, $blockedVer)';
 }

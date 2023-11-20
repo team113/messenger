@@ -16,17 +16,24 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/sending_status.dart';
 
-/// [CustomParameter] representing a [SendingStatus].
-class SendingStatusParameter extends CustomParameter<SendingStatus> {
-  SendingStatusParameter()
+/// Status of a [ChatItem] delivery.
+enum MessageSentStatus { sending, sent, error, read, halfRead }
+
+/// [CustomParameter] representing a [MessageSentStatus].
+class MessageSentStatusParameter extends CustomParameter<MessageSentStatus> {
+  MessageSentStatusParameter()
       : super(
           'sending',
-          RegExp(
-            '(${SendingStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => SendingStatus.values.firstWhere((e) => e.name == c),
+          RegExp('(sending|sent|error|read|half read)'),
+          (c) {
+            switch (c) {
+              case 'half read':
+                return MessageSentStatus.halfRead;
+
+              default:
+                return MessageSentStatus.values.firstWhere((e) => e.name == c);
+            }
+          },
         );
 }

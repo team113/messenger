@@ -15,28 +15,21 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Text messages selection and copying
+Feature: Half read status of messages in group chats
 
-  Scenario: User copies text of a message
+  Background: User is in group chat with Bob and Charlie
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
-    And I am in chat with Bob
+    And users Bob and Charlie
+    And I have "Group" group with Bob and Charlie
+    And I am in "Group" chat
 
-    When I fill `MessageField` field with "For selection"
+  Scenario: User sees messages half read
+    When I fill `MessageField` field with "123"
     And I tap `Send` button
-    Then I wait until status of "For selection" message is sent
+    Then I wait until status of "123" message is sent
 
-    When I long press "For selection" message
-    And I tap `CopyButton` button
-    Then copied text is "For selection"
+    When Bob reads "123" message
+    Then I wait until status of "123" message is half read
 
-    When I select "For selection" message from 2 to 10 symbols
-    And I long press "For selection" message
-    And I tap `CopyButton` button
-    Then copied text is "r select"
-
-    When I select "For selection" message from 0 to 13 symbols
-    And I long press "For selection" message
-    And I tap `CopyButton` button
-    Then copied text is "For selection"
+    When Charlie reads "123" message
+    Then I wait until status of "123" message is read

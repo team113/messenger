@@ -23,9 +23,10 @@ import '../model/my_user.dart';
 import '../model/user.dart';
 import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
+import '/util/log.dart';
 import 'disposable_service.dart';
 
-/// Service responsible for [MyUser] management.
+/// Service responsible for [MyUser]'s blocklist.
 class BlocklistService extends DisposableService {
   BlocklistService(this._blocklistRepo);
 
@@ -43,16 +44,21 @@ class BlocklistService extends DisposableService {
 
   @override
   void onInit() {
+    Log.debug('onInit()', '$runtimeType');
     _blocklistRepo.init();
     super.onInit();
   }
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
     _blocklistRepo.dispose();
     super.onClose();
   }
 
   /// Fetches the next [blocklist] page.
-  Future<void> next() => _blocklistRepo.next();
+  Future<void> next() {
+    Log.debug('next()', '$runtimeType');
+    return _blocklistRepo.next();
+  }
 }
