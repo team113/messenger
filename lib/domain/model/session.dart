@@ -41,7 +41,7 @@ class Session extends HiveObject {
 /// Unique authentication token of a [Session].
 @HiveType(typeId: ModelTypeId.accessToken)
 class AccessToken extends NewType<String> {
-  const AccessToken(String val) : super(val);
+  const AccessToken(super.val);
 }
 
 /// Remembered session of a [MyUser] allowing to renew his [Session]s.
@@ -69,7 +69,7 @@ class RememberedSession extends HiveObject {
 /// Type of a [RememberedSession]'s refresh token.
 @HiveType(typeId: ModelTypeId.rememberedToken)
 class RefreshToken extends NewType<String> {
-  const RefreshToken(String val) : super(val);
+  const RefreshToken(super.val);
 }
 
 /// Container of a [Session] and a [RememberedSession] representing the current
