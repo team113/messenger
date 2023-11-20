@@ -134,6 +134,7 @@ class ContactRepository extends DisposableInterface
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
+    _pagination.dispose();
 
     super.onClose();
   }
