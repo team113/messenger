@@ -526,20 +526,18 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                 ),
               );
-              AbstractBlocklistRepository blocklistRepository =
-                  deps.put<AbstractBlocklistRepository>(
-                BlocklistRepository(
-                  graphQlProvider,
-                  Get.find(),
-                  userRepository,
-                ),
+              BlocklistRepository blocklistRepository = BlocklistRepository(
+                graphQlProvider,
+                Get.find(),
+                userRepository,
               );
+              deps.put<AbstractBlocklistRepository>(blocklistRepository);
               AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
                   graphQlProvider,
                   Get.find(),
-                  Get.find(),
+                  blocklistRepository,
                   userRepository,
                 ),
               );
@@ -667,20 +665,18 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
-            AbstractBlocklistRepository blocklistRepository =
-                deps.put<AbstractBlocklistRepository>(
-              BlocklistRepository(
-                graphQlProvider,
-                Get.find(),
-                userRepository,
-              ),
+            BlocklistRepository blocklistRepository = BlocklistRepository(
+              graphQlProvider,
+              Get.find(),
+              userRepository,
             );
+            deps.put<AbstractBlocklistRepository>(blocklistRepository);
             AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
                 Get.find(),
-                Get.find(),
+                blocklistRepository,
                 userRepository,
               ),
             );
