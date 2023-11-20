@@ -120,6 +120,7 @@ dependencies:
   mobile_scanner: ^3.4.1
   pdfx: ^2.4.0
   flag:
+  flutter_slidable: ^3.0.1
 
 dev_dependencies:
   artemis: ^7.13.1

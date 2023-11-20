@@ -21,6 +21,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
@@ -1067,9 +1068,11 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: SafeAnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
+                    child: SlidableAutoCloseBehavior(
+                      child: SafeAnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        child: child,
+                      ),
                     ),
                   );
                 }),
