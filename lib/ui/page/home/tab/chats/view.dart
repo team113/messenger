@@ -659,21 +659,26 @@ class ChatsTabView extends StatelessWidget {
                               } else if (element is DividerElement) {
                                 child = Container(
                                   width: double.infinity,
-                                  margin:
-                                      const EdgeInsets.fromLTRB(8, 24, 8, 8),
+                                  margin: EdgeInsets.fromLTRB(
+                                    8,
+                                    i == 0 ? 0 : 8,
+                                    8,
+                                    3,
+                                  ),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
                                     vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: style.systemMessageBorder,
-                                    color: style.systemMessageColor,
-                                  ),
+                                      // borderRadius: BorderRadius.circular(15),
+                                      // border: style.systemMessageBorder,
+                                      // color: style.systemMessageColor,
+                                      ),
                                   child: Center(
                                     child: Text(
                                       element.category.name.capitalizeFirst!,
-                                      style: style.systemMessageStyle,
+                                      style: style
+                                          .fonts.normal.regular.onBackground,
                                     ),
                                   ),
                                 );

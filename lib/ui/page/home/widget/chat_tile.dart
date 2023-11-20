@@ -157,54 +157,56 @@ class _ChatTileState extends State<ChatTile> {
       indicateOpenedMenu: true,
       enabled: widget.enableContextMenu,
       child: Container(
-        padding: EdgeInsets.fromLTRB(0, 3, 0, widget.basement == null ? 3 : 16),
-        child: Stack(
-          children: [
-            InkWellWithHover(
-              selectedColor:
-                  widget.basement != null ? style.colors.acceptPrimary : chosen,
-              unselectedColor: widget.dimmed
-                  ? style.colors.onPrimaryOpacity50
-                  : normal.darken(widget.darken),
-              selectedHoverColor:
-                  widget.basement != null ? style.colors.acceptPrimary : chosen,
-              unselectedHoverColor: widget.basement != null
-                  ? newGreenColor
-                  : widget.highlight
-                      ? paid.darken(0.03)
-                      : style.cardHoveredColor,
-              // unselectedHoverColor:
-              //     (widget.highlight ? paid : normal).darken(0.03),
-              border: widget.basement != null
-                  ? paidBorder
-                  : widget.selected
-                      ? chosenBorder
-                      : normalBorder,
-              hoveredBorder: widget.basement != null
-                  ? paidBorder
-                  : widget.selected
-                      ? chosenBorder
-                      : hoverBorder,
-              selected: widget.selected || widget.active,
-              borderRadius: style.cardRadius,
-              onTap: widget.onTap,
-              folded: widget.chat?.chat.value.favoritePosition != null,
-              bookmarkColor:
-                  widget.basement != null ? style.colors.acceptPrimary : null,
-              child: SizedBox(
-                height:
-                    widget.basement == null ? widget.height : widget.height + 3,
-                child: Padding(
-                  key: widget.chat?.chat.value.favoritePosition != null
-                      ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
-                      : null,
-                  padding: EdgeInsets.fromLTRB(
-                    12,
-                    4,
-                    12,
-                    widget.basement == null ? 4 : 4 + 3,
-                  ),
-                  child: Row(
+        padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+        child: InkWellWithHover(
+          selectedColor:
+              widget.basement != null ? style.colors.acceptPrimary : chosen,
+          unselectedColor: widget.dimmed
+              ? style.colors.onPrimaryOpacity50
+              : normal.darken(widget.darken),
+          selectedHoverColor:
+              widget.basement != null ? style.colors.acceptPrimary : chosen,
+          unselectedHoverColor: widget.basement != null
+              ? newGreenColor
+              : widget.highlight
+                  ? paid.darken(0.03)
+                  : style.cardHoveredColor,
+          // unselectedHoverColor:
+          //     (widget.highlight ? paid : normal).darken(0.03),
+          border: widget.basement != null
+              ? paidBorder
+              : widget.selected
+                  ? chosenBorder
+                  : normalBorder,
+          hoveredBorder: widget.basement != null
+              ? paidBorder
+              : widget.selected
+                  ? chosenBorder
+                  : hoverBorder,
+          selected: widget.selected || widget.active,
+          borderRadius: style.cardRadius,
+          onTap: widget.onTap,
+          folded: widget.chat?.chat.value.favoritePosition != null,
+          bookmarkColor:
+              widget.basement != null ? style.colors.acceptPrimary : null,
+          child: SizedBox(
+            height:
+                widget.basement == null ? widget.height : widget.height + 21,
+            child: Padding(
+              key: widget.chat?.chat.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
+                  : null,
+              padding: EdgeInsets.fromLTRB(
+                12,
+                4,
+                12,
+                widget.basement == null ? 4 : 4,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
                     children: [
                       // AvatarWidget.fromRxChat(
                       //   widget.chat,
@@ -283,39 +285,38 @@ class _ChatTileState extends State<ChatTile> {
                       ...widget.trailing,
                     ],
                   ),
-                ),
+                  if (widget.basement != null)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Transform.translate(
+                        offset: Offset(0, 4),
+                        child: Container(
+                          // margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                          padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
+                          decoration: BoxDecoration(
+                            // boxShadow: [
+                            //   BoxShadow(
+                            //     color: Colors.black.withOpacity(0.25),
+                            //     blurRadius: 4,
+                            //     blurStyle: BlurStyle.outer.workaround,
+                            //   ),
+                            // ],
+                            borderRadius: style.cardRadius,
+                            color: newGreenColor,
+                            border: paidBorder,
+                          ),
+                          child: DefaultTextStyle(
+                            style: style.fonts.small.regular.onPrimary
+                                .copyWith(color: style.colors.secondary),
+                            child: widget.basement!,
+                          ),
+                        ),
+                      ),
+                    )
+                ],
               ),
             ),
-            if (widget.basement != null)
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Transform.translate(
-                    offset: const Offset(0, 11),
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
-                      decoration: BoxDecoration(
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.black.withOpacity(0.25),
-                        //     blurRadius: 4,
-                        //     blurStyle: BlurStyle.outer.workaround,
-                        //   ),
-                        // ],
-                        borderRadius: style.cardRadius,
-                        color: newGreenColor,
-                        border: paidBorder,
-                      ),
-                      child: DefaultTextStyle(
-                        style: style.fonts.small.regular.onPrimary
-                            .copyWith(color: style.colors.secondary),
-                        child: widget.basement!,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
