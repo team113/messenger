@@ -32,10 +32,10 @@ abstract class SearchResult<K extends Comparable, T> {
   /// - `status.isSuccess`, meaning the [items] were successfully fetched.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
-  /// Indicator whether the [items] have next page.
+  /// Indicates whether the [items] have next page.
   RxBool get hasNext;
 
-  /// Indicator whether the [next] page of [items] is being fetched.
+  /// Indicates whether the [next] page of [items] is being fetched.
   RxBool get nextLoading;
 
   /// Disposes this [SearchResult].
