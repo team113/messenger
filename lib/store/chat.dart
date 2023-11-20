@@ -1478,7 +1478,10 @@ class ChatRepository extends DisposableInterface
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
-    if (!WebUtils.isPopup) {
+    //
+    // Favorite [HiveChat]s will be putted to [Hive] through
+    // [HiveGraphQlPageProvider].
+    if (!WebUtils.isPopup || chat.value.favoritePosition == null) {
       HiveChat? saved;
 
       // If version is ignored, there's no need to retrieve the stored chat.
@@ -2080,18 +2083,6 @@ class ChatRepository extends DisposableInterface
         Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
         break;
 
-      case FavoriteChatsEventsKind.chatsList:
-        Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
-
-        var node = event as FavoriteChatsEventsChatsList;
-        _favoriteChatsDataLocal.setFavoriteChatsListVersion(node.ver);
-        for (ChatData data in node.chatList) {
-          if (chats[data.chat.value.id] == null) {
-            _putEntry(data);
-          }
-        }
-        break;
-
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
         if (versioned.ver >
@@ -2143,12 +2134,7 @@ class ChatRepository extends DisposableInterface
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
         yield const FavoriteChatsEventsInitialized();
       } else if (events.$$typename == 'FavoriteChatsList') {
-        var chatsList = events
-            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
-        var data = chatsList.chats.edges
-            .map((e) => e.node.toData(null, e.cursor))
-            .toList();
-        yield FavoriteChatsEventsChatsList(data, chatsList.chats.ver);
+        // No-op, as favorite chats are fetched through [Pagination].
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
         var mixin = events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
