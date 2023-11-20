@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.13"
+  FLUTTER_VER: "3.16"
 
 jobs:
 
@@ -213,7 +213,7 @@ jobs:
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
-                          && 'build/windows/runner/Release')
+                          && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
         if: ${{ contains('ios macos web windows', matrix.platform) }}
 
@@ -468,7 +468,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(50652\\)] ",
+              ":INFO:CONSOLE\\(51109\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]

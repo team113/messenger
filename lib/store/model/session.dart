@@ -29,7 +29,7 @@ part 'session.g.dart';
 /// tracking state's actuality.
 @HiveType(typeId: ModelTypeId.sessionVersion)
 class SessionVersion extends NewType<BigInt> {
-  const SessionVersion(BigInt val) : super(val);
+  const SessionVersion(super.val);
 
   factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
 }
@@ -40,7 +40,7 @@ class SessionVersion extends NewType<BigInt> {
 /// tracking state's actuality.
 @HiveType(typeId: ModelTypeId.rememberedSessionVersion)
 class RememberedSessionVersion extends NewType<BigInt> {
-  const RememberedSessionVersion(BigInt val) : super(val);
+  const RememberedSessionVersion(super.val);
 
   factory RememberedSessionVersion.parse(String val) =>
       RememberedSessionVersion(BigInt.parse(val));

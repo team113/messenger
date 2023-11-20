@@ -25,5 +25,5 @@ part 'chat_call.g.dart';
 /// Cursor of an [OngoingCall] position.
 @HiveType(typeId: ModelTypeId.incomingChatCallsCursor)
 class IncomingChatCallsCursor extends NewType<String> {
-  const IncomingChatCallsCursor(String val) : super(val);
+  const IncomingChatCallsCursor(super.val);
 }
