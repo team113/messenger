@@ -25,7 +25,7 @@ import 'user.dart';
 /// Extension adding models construction from a [MyUserMixin].
 extension MyUserConversion on MyUserMixin {
   /// Constructs a new [MyUser] from this [MyUserMixin].
-  MyUser toModel() => MyUser(
+  MyUser toModel({int? blocklistCount}) => MyUser(
         id: id,
         num: this.num,
         online: online.$$typename == 'UserOnline',
@@ -56,9 +56,10 @@ extension MyUserConversion on MyUserMixin {
                 : MuteDuration.until(
                     (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
             : null,
-        blocklistCount: blocklist.totalCount,
+        blocklistCount: blocklistCount,
       );
 
   /// Constructs a new [HiveMyUser] from this [MyUserMixin].
-  HiveMyUser toHive() => HiveMyUser(toModel(), ver);
+  HiveMyUser toHive({int? blocklistCount}) =>
+      HiveMyUser(toModel(blocklistCount: blocklistCount), ver);
 }

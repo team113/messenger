@@ -31,6 +31,7 @@ import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -136,10 +137,16 @@ void main() async {
     );
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+          graphQlProvider, blockedUsersProvider, userRepository),
+    );
+
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blockedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
@@ -178,10 +185,16 @@ void main() async {
     );
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+          graphQlProvider, blockedUsersProvider, userRepository),
+    );
+
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blockedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});

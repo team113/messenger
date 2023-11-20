@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/blocklist.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import 'view.dart';
@@ -32,7 +33,12 @@ export 'view.dart';
 
 /// Controller of a [BlocklistView].
 class BlocklistController extends GetxController {
-  BlocklistController(this._myUserService, this._userService, {this.pop});
+  BlocklistController(
+    this._myUserService,
+    this._userService,
+    this._blocklistService, {
+    this.pop,
+  });
 
   /// Callback, called when a [BlocklistView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -41,11 +47,14 @@ class BlocklistController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [MyUserService] maintaining the blocked [User]s.
+  /// [MyUserService] used to getting [MyUser] value.
   final MyUserService _myUserService;
 
   /// [UserService] un-blocking the [User]s.
   final UserService _userService;
+
+  /// [BlocklistService] maintaining the blocked [User]s.
+  final BlocklistService _blocklistService;
 
   /// [Worker] to react on the [blocklist] updates.
   late final Worker _worker;
@@ -58,17 +67,17 @@ class BlocklistController extends GetxController {
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns [User]s blocked by the authenticated [MyUser].
-  RxMap<UserId, RxUser> get blocklist => _myUserService.blocklist;
+  RxMap<UserId, RxUser> get blocklist => _blocklistService.blocklist;
 
   /// Indicates whether the [blocklist] have a next page.
-  RxBool get hasNext => _myUserService.hasNext;
+  RxBool get hasNext => _blocklistService.hasNext;
 
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
 
     _worker = ever(
-      _myUserService.blocklist,
+      _blocklistService.blocklist,
       (Map<UserId, RxUser> users) {
         if (users.isEmpty) {
           pop?.call();
@@ -111,10 +120,10 @@ class BlocklistController extends GetxController {
 
         if (scrollController.hasClients &&
             hasNext.isTrue &&
-            _myUserService.nextLoading.isFalse &&
+            _blocklistService.nextLoading.isFalse &&
             scrollController.position.pixels >
                 scrollController.position.maxScrollExtent - 500) {
-          _myUserService.nextBlocklist();
+          _blocklistService.next();
         }
       });
     }
@@ -139,8 +148,8 @@ class BlocklistController extends GetxController {
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
-            _myUserService.nextLoading.isFalse) {
-          await _myUserService.nextBlocklist();
+            _blocklistService.nextLoading.isFalse) {
+          await _blocklistService.next();
           _ensureScrollable();
         }
       });

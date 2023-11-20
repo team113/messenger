@@ -50,6 +50,7 @@ class BlocklistView extends StatelessWidget {
       init: BlocklistController(
         Get.find(),
         Get.find(),
+        Get.find(),
         pop: context.popModal,
       ),
       builder: (BlocklistController c) {

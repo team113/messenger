@@ -22,21 +22,11 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
-
-  /// Returns [User]s blocked by the authenticated [MyUser].
-  RxMap<UserId, RxUser> get blocklist;
-
-  /// Indicates whether the [blocklist] have next page.
-  RxBool get hasNext;
-
-  /// Indicator whether a next page of the [blocklist] is loading.
-  RxBool get nextLoading;
 
   /// Initializes the repository.
   ///
@@ -50,9 +40,6 @@ abstract class AbstractMyUserRepository {
 
   /// Disposes the repository.
   void dispose();
-
-  /// Fetches the next [blocklist] page.
-  Future<void> nextBlocklist();
 
   /// Clears the stored [MyUser].
   Future<void> clearCache();

@@ -56,6 +56,7 @@ import 'package:messenger/provider/hive/session.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/my_user.dart';
@@ -439,6 +440,13 @@ void main() async {
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        userRepository,
+      ),
+    );
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -471,7 +479,7 @@ void main() async {
     MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blockedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

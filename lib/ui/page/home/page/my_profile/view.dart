@@ -783,14 +783,15 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
+    int blocklistCount = c.myUser.value?.blocklistCount ?? 0;
+
     return Paddings.dense(
       FieldButton(
         key: const Key('ShowBlocklist'),
-        text: 'label_users_count'
-            .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
+        text: 'label_users_count'.l10nfmt({'count': blocklistCount}),
         onPressed:
-            c.blocklist.isEmpty ? null : () => BlocklistView.show(context),
-        style: c.blocklist.isEmpty
+            blocklistCount == 0 ? null : () => BlocklistView.show(context),
+        style: blocklistCount == 0
             ? style.fonts.normal.regular.onBackground
             : style.fonts.normal.regular.primary,
       ),

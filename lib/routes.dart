@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
+import 'domain/repository/blocklist.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
@@ -30,6 +31,7 @@ import 'domain/repository/my_user.dart';
 import 'domain/repository/settings.dart';
 import 'domain/repository/user.dart';
 import 'domain/service/auth.dart';
+import 'domain/service/blocklist.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
@@ -53,6 +55,7 @@ import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
 import 'provider/hive/user.dart';
+import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
@@ -523,6 +526,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                 ),
               );
+              AbstractBlocklistRepository blocklistRepository =
+                  deps.put<AbstractBlocklistRepository>(
+                BlocklistRepository(
+                  graphQlProvider,
+                  Get.find(),
+                  userRepository,
+                ),
+              );
               AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
@@ -543,6 +554,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 chatService,
                 callRepository,
               ));
+              deps.put(BlocklistService(blocklistRepository));
 
               return deps;
             },
@@ -655,6 +667,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
+            AbstractBlocklistRepository blocklistRepository =
+                deps.put<AbstractBlocklistRepository>(
+              BlocklistRepository(
+                graphQlProvider,
+                Get.find(),
+                userRepository,
+              ),
+            );
             AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
@@ -676,6 +696,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               chatService,
               callRepository,
             ));
+            deps.put(BlocklistService(blocklistRepository));
 
             deps.put(CallWorker(
               callService,

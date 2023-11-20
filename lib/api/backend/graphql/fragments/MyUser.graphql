@@ -57,8 +57,5 @@ fragment MyUser on MyUser {
     presence
     status
     unreadChatsCount
-    blocklist {
-        totalCount
-    }
     ver
 }
