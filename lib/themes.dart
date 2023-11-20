@@ -137,7 +137,7 @@ class Themes {
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'NotoSansDisplay',
+      fontFamily: 'Roboto',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,

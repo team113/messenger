@@ -195,6 +195,12 @@ flutter:
     - assets/resume.pdf
     - assets/images/media_buttons/
   fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
     - family: InterRoboto
       fonts:
         - asset: assets/fonts/InterRoboto-Regular.ttf
