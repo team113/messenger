@@ -35,11 +35,11 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/favorite_chats_data.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -60,7 +60,7 @@ void main() async {
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var sessionProvider = Get.put(SessionDataHiveProvider());
+  var sessionProvider = Get.put(CredentialsHiveProvider());
   await sessionProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
@@ -86,8 +86,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var favoriteChatsDataProvider = FavoriteChatsDataHiveProvider();
-  await favoriteChatsDataProvider.init();
+  var sessionDataDataProvider = SessionDataHiveProvider();
+  await sessionDataDataProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -307,7 +307,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        favoriteChatsDataProvider,
+        sessionDataDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

@@ -28,7 +28,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
@@ -65,7 +65,7 @@ void main() async {
     }
   };
 
-  var sessionProvider = SessionDataHiveProvider();
+  var sessionProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   await sessionProvider.init();

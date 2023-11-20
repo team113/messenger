@@ -17,45 +17,25 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model/session.dart';
+import '/domain/model/chat.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
-import '/util/new_type.dart';
-import 'contact.dart';
+import '/store/model/contact.dart';
 
 part 'session_data.g.dart';
 
 /// [Session] relative preferences.
 @HiveType(typeId: ModelTypeId.sessionData)
 class SessionData extends HiveObject {
-  /// Persisted [Credentials] data.
+  /// Persisted [FavoriteChatsListVersion] data.
   @HiveField(0)
-  Credentials? credentials;
+  FavoriteChatsListVersion? favoriteChatsListVersion;
+
+  /// Persisted indicator whether all favorite [Chat]s are stored locally.
+  @HiveField(1)
+  bool? favoriteChatsFetched;
 
   /// Persisted [ChatContactsListVersion] data.
-  @HiveField(1)
+  @HiveField(2)
   ChatContactsListVersion? chatContactsListVersion;
-}
-
-/// Version of [Session]'s state.
-///
-/// It increases monotonically, so may be used (and is intended to) for
-/// tracking state's actuality.
-@HiveType(typeId: ModelTypeId.sessionVersion)
-class SessionVersion extends NewType<BigInt> {
-  const SessionVersion(BigInt val) : super(val);
-
-  factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
-}
-
-/// Version of [RememberedSession]'s state.
-///
-/// It increases monotonically, so may be used (and is intended to) for
-/// tracking state's actuality.
-@HiveType(typeId: ModelTypeId.rememberedSessionVersion)
-class RememberedSessionVersion extends NewType<BigInt> {
-  const RememberedSessionVersion(BigInt val) : super(val);
-
-  factory RememberedSessionVersion.parse(String val) =>
-      RememberedSessionVersion(BigInt.parse(val));
 }

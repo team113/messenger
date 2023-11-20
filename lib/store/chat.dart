@@ -57,7 +57,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';
-import '/provider/hive/favorite_chats_data.dart';
+import '/provider/hive/session_data.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/recent_chat.dart';
 import '/store/event/recent_chat.dart';
@@ -89,7 +89,7 @@ class ChatRepository extends DisposableInterface
     this._callRepo,
     this._draftLocal,
     this._userRepo,
-    this._favoriteChatsDataLocal,
+    this._sessionLocal,
     this._monologLocal, {
     required this.me,
   });
@@ -133,8 +133,8 @@ class ChatRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [FavoriteChatsDataHiveProvider] storing a [FavoriteChatsListVersion].
-  final FavoriteChatsDataHiveProvider _favoriteChatsDataLocal;
+  /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
+  final SessionDataHiveProvider _sessionLocal;
 
   /// [MonologHiveProvider] storing a [ChatId] of the [Chat]-monolog.
   final MonologHiveProvider _monologLocal;
@@ -1767,8 +1767,7 @@ class ChatRepository extends DisposableInterface
           getKey: (e) => e.value.id,
           orderBy: (_) => _favoriteLocal.values,
           isLast: (_) => true,
-          isFirst: (_) =>
-              _favoriteChatsDataLocal.getFavoriteChatsFetched() ?? false,
+          isFirst: (_) => _sessionLocal.getFavoriteChatsFetched() ?? false,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,
         ),
@@ -1782,7 +1781,7 @@ class ChatRepository extends DisposableInterface
             );
 
             if (!page.info.hasNext) {
-              _favoriteChatsDataLocal.setFavoriteChatsFetched(true);
+              _sessionLocal.setFavoriteChatsFetched(true);
             }
 
             return page;
@@ -2056,7 +2055,7 @@ class ChatRepository extends DisposableInterface
 
     _favoriteChatsSubscription?.cancel();
     _favoriteChatsSubscription = StreamQueue(
-      _favoriteChatsEvents(_favoriteChatsDataLocal.getFavoriteChatsListVersion),
+      _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
     );
     await _favoriteChatsSubscription!.execute(
       _favoriteChatsEvent,
@@ -2085,9 +2084,8 @@ class ChatRepository extends DisposableInterface
 
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
-        if (versioned.ver >
-            _favoriteChatsDataLocal.getFavoriteChatsListVersion()) {
-          _favoriteChatsDataLocal.setFavoriteChatsListVersion(versioned.ver);
+        if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
+          _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
 
           Log.debug(
             '_favoriteChatsEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',

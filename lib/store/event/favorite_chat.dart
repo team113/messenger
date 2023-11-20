@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/chat.dart';
-import '/store/chat.dart';
 import '/store/event/chat.dart';
 import '/store/model/chat.dart';
 

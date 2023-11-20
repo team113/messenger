@@ -42,12 +42,12 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/favorite_chats_data.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -142,7 +142,7 @@ void main() async {
     }
   };
 
-  var sessionProvider = SessionDataHiveProvider();
+  var sessionProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
@@ -197,8 +197,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var favoriteChatsDataProvider = FavoriteChatsDataHiveProvider();
-  await favoriteChatsDataProvider.init();
+  var sessionDataProvider = SessionDataHiveProvider();
+  await sessionDataProvider.init();
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
@@ -422,7 +422,7 @@ void main() async {
         graphQlProvider,
         contactProvider,
         userRepository,
-        sessionProvider,
+        sessionDataProvider,
       ),
     );
     Get.put(ContactService(contactRepository));
@@ -445,7 +445,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        favoriteChatsDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

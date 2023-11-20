@@ -45,7 +45,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -66,7 +66,7 @@ void main() async {
 
   Hive.init('./test/.temp_hive/auth_widget');
 
-  var sessionProvider = SessionDataHiveProvider();
+  var sessionProvider = CredentialsHiveProvider();
   var graphQlProvider = _FakeGraphQlProvider();
   AuthRepository authRepository = AuthRepository(graphQlProvider);
   AuthService authService = AuthService(authRepository, sessionProvider);

@@ -16,16 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/adapters.dart';
+import 'package:log_me/log_me.dart';
 
-import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/session.dart';
-import '/domain/model/user.dart';
+import '/domain/model/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
-import '/util/log.dart';
 import 'base.dart';
 
-// TODO: Encrypt stored data.
 /// [Hive] storage for a [SessionData].
 class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   @override
@@ -38,21 +36,22 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
 
-    Hive.maybeRegisterAdapter(AccessTokenAdapter());
-    Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
-    Hive.maybeRegisterAdapter(CredentialsAdapter());
-    Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(RefreshTokenAdapter());
-    Hive.maybeRegisterAdapter(RememberedSessionAdapter());
-    Hive.maybeRegisterAdapter(SessionAdapter());
     Hive.maybeRegisterAdapter(SessionDataAdapter());
-    Hive.maybeRegisterAdapter(UserIdAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
   }
 
-  /// Returns the stored [Credentials] from [Hive].
-  Credentials? getCredentials() {
-    Log.debug('getCredentials()', '$runtimeType');
-    return getSafe(0)?.credentials;
+  /// Returns the stored [FavoriteChatsListVersion] from [Hive].
+  FavoriteChatsListVersion? getFavoriteChatsListVersion() {
+    Log.debug('getFavoriteChatsListVersion()', '$runtimeType');
+    return getSafe(0)?.favoriteChatsListVersion;
+  }
+
+  /// Returns the stored indicator whether all favorite [Chat]s are stored
+  /// locally.
+  bool? getFavoriteChatsFetched() {
+    Log.debug('getFavoriteChatsFetched()', '$runtimeType');
+    return getSafe(0)?.favoriteChatsFetched;
   }
 
   /// Returns the stored [ChatContactsListVersion] from [Hive].
@@ -61,10 +60,20 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     return getSafe(0)?.chatContactsListVersion;
   }
 
-  /// Stores new [Credentials] to [Hive].
-  Future<void> setCredentials(Credentials credentials) async {
-    Log.debug('setCredentials($credentials)', '$runtimeType');
-    await putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
+  /// Stores a new [FavoriteChatsListVersion] to [Hive].
+  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) {
+    Log.debug('setChatContactsListVersion($ver)', '$runtimeType');
+    return putSafe(
+        0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+  }
+
+  /// Stores a new [SessionData.favoriteChatsFetched] to [Hive].
+  Future<void> setFavoriteChatsFetched(bool val) {
+    Log.debug('setFavoriteChatsFetched($val)', '$runtimeType');
+    return putSafe(
+      0,
+      (box.get(0) ?? SessionData())..favoriteChatsFetched = val,
+    );
   }
 
   /// Stores a new [ChatContactsListVersion] to [Hive].

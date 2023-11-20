@@ -38,7 +38,7 @@ import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/session.dart';
+import '/provider/hive/credentials.dart';
 import '/routes.dart';
 
 /// Background service iOS handler.
@@ -154,10 +154,10 @@ class _BackgroundService {
     Timer(_renewSessionTimerDuration, () async {
       if (!_connectionEstablished && _credentials == null) {
         await Hive.initFlutter('hive');
-        var sessionProvider = SessionDataHiveProvider();
+        var sessionProvider = CredentialsHiveProvider();
         await sessionProvider.init();
 
-        _credentials = sessionProvider.getCredentials();
+        _credentials = sessionProvider.get();
         _provider.token = _credentials?.session.token;
         _provider.reconnect();
 
@@ -285,9 +285,9 @@ class _BackgroundService {
                 // Re-initialization is required every time since [Hive] may
                 // behave poorly between isolates.
                 await Hive.initFlutter('hive');
-                var sessionProvider = SessionDataHiveProvider();
+                var sessionProvider = CredentialsHiveProvider();
                 await sessionProvider.init();
-                await sessionProvider.setCredentials(_credentials!);
+                await sessionProvider.set(_credentials!);
                 await sessionProvider.close();
                 await Hive.close();
               });

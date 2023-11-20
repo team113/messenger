@@ -49,12 +49,12 @@ import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/favorite_chats_data.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -284,10 +284,10 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  var sessionProvider = Get.put(SessionDataHiveProvider());
+  var sessionProvider = Get.put(CredentialsHiveProvider());
   await sessionProvider.init();
   await sessionProvider.clear();
-  sessionProvider.setCredentials(
+  sessionProvider.set(
     Credentials(
       Session(
         const AccessToken('token'),
@@ -335,8 +335,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var favoriteChatsDataProvider = FavoriteChatsDataHiveProvider();
-  await favoriteChatsDataProvider.init();
+  var sessionDataDataProvider = SessionDataHiveProvider();
+  await sessionDataDataProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -395,7 +395,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        favoriteChatsDataProvider,
+        sessionDataDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

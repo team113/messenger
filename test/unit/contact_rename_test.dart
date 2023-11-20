@@ -28,7 +28,8 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
@@ -41,9 +42,9 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
-  var sessionData = Get.put(SessionDataHiveProvider());
-  await sessionData.init();
-  await sessionData.clear();
+  var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
+  await credentialsHiveProvider.init();
+  await credentialsHiveProvider.clear();
   var userHiveProvider = Get.put(UserHiveProvider());
   await userHiveProvider.init();
   var contactProvider = Get.put(ContactHiveProvider());
@@ -51,6 +52,8 @@ void main() async {
   await contactProvider.clear();
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
+  var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
+  await sessionDataHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -60,7 +63,7 @@ void main() async {
 
   setUp(() async {
     Get.reset();
-    await sessionData.clear();
+    await credentialsHiveProvider.clear();
     await contactProvider.clear();
   });
 
@@ -113,7 +116,7 @@ void main() async {
         graphQlProvider,
         contactProvider,
         userRepo,
-        sessionData,
+        sessionDataHiveProvider,
       ),
     );
 

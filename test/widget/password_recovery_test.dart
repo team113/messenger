@@ -29,7 +29,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -51,7 +51,7 @@ void main() async {
   Hive.init('./test/.temp_hive/password_recovery');
   await L10n.init();
 
-  var sessionProvider = SessionDataHiveProvider();
+  var sessionProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   AuthRepository authRepository = AuthRepository(graphQlProvider);

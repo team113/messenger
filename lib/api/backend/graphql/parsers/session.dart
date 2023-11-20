@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/session.dart';
-import '/store/model/session_data.dart';
+import '/store/model/session.dart';
 
 // ignore: todo
 // TODO: Change List<Object?> to List<String>.
@@ -202,7 +202,7 @@ List<String?>?
                     e))
             .toList();
 
-// SessionVersion
+// RememberedSessionVersion
 
 RememberedSessionVersion
     fromGraphQLRememberedSessionVersionToDartRememberedSessionVersion(
