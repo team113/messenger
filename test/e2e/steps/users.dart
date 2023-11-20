@@ -19,6 +19,8 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -45,6 +47,12 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
         .signIn(password, num: context.world.sessions[user.name]?.userNum);
 
     router.home();
+
+    // Ensure business logic is initialized.
+    await context.world.appDriver.waitUntil(() async {
+      return Get.isRegistered<ChatService>() &&
+          Get.isRegistered<MyUserService>();
+    });
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
