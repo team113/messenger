@@ -22,11 +22,11 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Web:
-    - Invalid caller name in popup calls. ([#711])
 - UI:
     - Media panel:
         - Disabled incoming video being loaded indefinitely. ([#707], [#700])
+- Web:
+    - Invalid caller name in popup calls. ([#711])
 
 [#632]: /../../issues/632
 [#666]: /../../issues/666
