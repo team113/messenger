@@ -35,4 +35,5 @@ Feature: Blocklist pagination
     Given I have Internet with delay of 3 seconds
     When I scroll `BlocklistView` to bottom
     Then I wait until `BlocklistLoading` is present
+    Then I wait until `BlocklistLoading` is absent
     And I see 16 blocked users

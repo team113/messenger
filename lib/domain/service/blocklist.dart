@@ -31,7 +31,7 @@ import 'disposable_service.dart';
 class BlocklistService extends DisposableService {
   BlocklistService(this._blocklistRepo);
 
-  /// Repository responsible for storing [MyUser].
+  /// Repository responsible for storing blocked [RxUser]s.
   final AbstractBlocklistRepository _blocklistRepo;
 
   /// Returns [User]s blocked by the authenticated [MyUser].

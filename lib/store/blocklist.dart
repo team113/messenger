@@ -54,7 +54,7 @@ class BlocklistRepository implements AbstractBlocklistRepository {
   /// Blocked [User]s local [Hive] storage.
   final BlocklistHiveProvider _blocklistLocal;
 
-  /// [User]s repository, used to put the fetched [MyUser] into it.
+  /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
   /// [BlocklistHiveProvider.boxEvents] subscription.
