@@ -28,7 +28,7 @@ import 'base.dart';
 part 'contact.g.dart';
 
 /// [Hive] storage for [ChatContact]s.
-class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
+class ContactHiveProvider extends HiveLazyProvider<HiveChatContact> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -44,6 +44,8 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
     Hive.maybeRegisterAdapter(ChatContactFavoritePositionAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
     Hive.maybeRegisterAdapter(ChatContactVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatContactsCursorAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(HiveChatContactAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
@@ -52,7 +54,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
   }
 
   /// Returns a list of [ChatContact]s from [Hive].
-  Iterable<HiveChatContact> get contacts => valuesSafe;
+  Future<Iterable<HiveChatContact>> get contacts => valuesSafe;
 
   /// Puts the provided [ChatContact] to [Hive].
   Future<void> put(HiveChatContact contact) async {
@@ -61,7 +63,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
   }
 
   /// Returns a [ChatContact] from [Hive] by its [id].
-  HiveChatContact? get(ChatContactId id) {
+  Future<HiveChatContact?> get(ChatContactId id) {
     Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
@@ -76,7 +78,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 /// Persisted in [Hive] storage [ChatContact]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatContact)
 class HiveChatContact extends HiveObject {
-  HiveChatContact(this.value, this.ver);
+  HiveChatContact(this.value, this.ver, this.cursor, this.favoriteCursor);
 
   /// Persisted [ChatContact].
   @HiveField(0)
@@ -88,4 +90,12 @@ class HiveChatContact extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   ChatContactVersion ver;
+
+  /// Cursor of the [value] when paginating through all [ChatContact]s.
+  @HiveField(2)
+  ChatContactsCursor? cursor;
+
+  /// Cursor of the [value] when paginating through favorite [ChatContact]s.
+  @HiveField(3)
+  FavoriteChatContactsCursor? favoriteCursor;
 }

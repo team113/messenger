@@ -120,4 +120,5 @@ class ModelTypeId {
   static const imageFile = 100;
   static const favoriteChatsCursor = 101;
   static const thumbhash = 102;
+  static const favoriteChatContactsCursor = 103;
 }

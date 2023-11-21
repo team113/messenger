@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -63,7 +64,6 @@ class ContactsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -200,17 +200,6 @@ class ContactsTabView extends StatelessWidget {
                         selector: c.moreKey,
                         margin: const EdgeInsets.only(bottom: 4, right: 0),
                         actions: [
-                          ContextMenuButton(
-                            label: c.sortByName
-                                ? 'label_sort_by_visit'.l10n
-                                : 'label_sort_by_name'.l10n,
-                            onPressed: c.toggleSorting,
-                            trailing: SvgIcon(
-                              c.sortByName
-                                  ? SvgIcons.sortAbcSmall
-                                  : SvgIcons.sortTimeSmall,
-                            ),
-                          ),
                           ContextMenuButton(
                             key: const Key('SelectContactsButton'),
                             label: 'btn_select_and_delete'.l10n,
@@ -422,6 +411,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else {
                 child = AnimationLimiter(
+                  key: const Key('Contacts'),
                   child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(
@@ -558,18 +548,29 @@ class ContactsTabView extends StatelessWidget {
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
-                              c.contacts.mapIndexed((i, e) {
-                                return AnimationConfiguration.staggeredList(
-                                  position: c.favorites.length + i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: _contact(context, e, c),
+                              [
+                                ...c.contacts.mapIndexed((i, e) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: c.favorites.length + i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: _contact(context, e, c),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                if (c.hasNext.isTrue)
+                                  Center(
+                                    child: CustomProgressIndicator(
+                                      key: const Key('ContactsLoading'),
+                                      value: Config.disableInfiniteAnimations
+                                          ? 0
+                                          : null,
                                     ),
                                   ),
-                                );
-                              }).toList(),
+                              ],
                             ),
                           ),
                         ),
