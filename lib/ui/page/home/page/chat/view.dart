@@ -680,7 +680,7 @@ class _ChatViewState extends State<ChatView>
                   await Future.delayed(Duration.zero);
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
-                onDownload: c.downloadImage,
+                onDownload: c.downloadMedia,
                 onDownloadAs: c.downloadAs,
                 onSave: c.saveToGallery,
               ),

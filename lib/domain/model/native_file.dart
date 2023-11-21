@@ -114,22 +114,11 @@ class NativeFile {
   /// Returns an extension of this file.
   String get extension => name.split('.').last;
 
-  /// Returns all supported image formats.
-  static List<String> get imageTypes => [
-        'jpg',
-        'jpeg',
-        'png',
-        'gif',
-        'jfif',
-        'svg',
-        'webp',
-      ];
-
   /// Indicates whether this file represents an image or not.
   bool get isImage {
     // Best effort if [mime] is `null`.
     if (mime == null) {
-      return NativeFile.imageTypes.contains(extension.toLowerCase());
+      return NativeFile.images.contains(extension.toLowerCase());
     }
 
     return mime?.type == 'image';
@@ -145,21 +134,11 @@ class NativeFile {
     return mime?.subtype == 'svg+xml';
   }
 
-  /// Returns all supported video formats.
-  static List<String> get videoTypes => [
-        'mp4',
-        'mov',
-        'webm',
-        'mkv',
-        'flv',
-        '3gp',
-      ];
-
   /// Indicates whether this file represents a video or not.
   bool get isVideo {
     // Best effort if [mime] is `null`.
     if (mime == null) {
-      return NativeFile.videoTypes.contains(extension.toLowerCase());
+      return NativeFile.videos.contains(extension.toLowerCase());
     }
 
     return mime?.type == 'video';
@@ -178,6 +157,13 @@ class NativeFile {
 
     return _mergedStream;
   }
+
+  /// Returns all the recognized image formats.
+  static List<String> get images =>
+      ['jpg', 'jpeg', 'png', 'gif', 'jfif', 'svg', 'webp'];
+
+  /// Returns all the recognized video formats.
+  static List<String> get videos => ['mp4', 'mov', 'webm', 'mkv', 'flv', '3gp'];
 
   /// Ensures [mime] is correctly assigned.
   ///

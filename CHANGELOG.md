@@ -11,11 +11,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
 
+### Added
+
+- UI:
+    - Chat page:
+        - `Download` and `Save as` context menu options. ([#697], [#654])
+
 ### Changed
 
 - UI:
     - Always display online status on desktop. ([#702], [#681])
-    - Download and Save as option from context menu. ([#697], [#654])
     - Style page:
         - Redesigned widgets tab. ([#695], [#632])
     - Chat page:

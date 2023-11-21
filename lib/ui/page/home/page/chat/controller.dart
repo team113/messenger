@@ -1187,7 +1187,7 @@ class ChatController extends GetxController {
   }
 
   /// Downloads the provided [attachments].
-  Future<void> downloadImage(List<Attachment> attachments, {String? to}) async {
+  Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
     try {
       for (Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
@@ -1301,7 +1301,7 @@ class ChatController extends GetxController {
             );
 
       if (to != null) {
-        await downloadImage(attachments, to: to);
+        await downloadMedia(attachments, to: to);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);

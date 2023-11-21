@@ -560,9 +560,9 @@ class PlatformUtilsImpl {
     String path,
   ) async {
     if (!isLinux && !isWeb) {
-      final bool isImage = NativeFile.imageTypes
+      final bool isImage = NativeFile.images
           .any((e) => name.endsWith(e) && !name.endsWith('svg'));
-      final bool isVideo = NativeFile.imageTypes.any((e) => name.endsWith(e));
+      final bool isVideo = NativeFile.images.any((e) => name.endsWith(e));
 
       if (isImage) {
         await Gal.putImage(path);
@@ -586,14 +586,14 @@ class PlatformUtilsImpl {
     String? checksum,
   }) async {
     if (!isLinux && !isWeb) {
-      final Directory temp = await temporaryDirectory;
-      final String path = '${temp.path}/$name';
+      final String path = '${(await temporaryDirectory).path}/$name';
 
-      final bool isVideo = NativeFile.videoTypes.any((e) => url.endsWith(e));
-      final bool isImage = NativeFile.imageTypes.any((e) => url.endsWith(e)) &&
+      final bool isVideo = NativeFile.videos.any((e) => url.endsWith(e));
+      final bool isImage = NativeFile.images.any((e) => url.endsWith(e)) &&
           !(url.endsWith('svg'));
 
       await (await dio).download(url, path);
+
       if (isImage) {
         await Gal.putImage(path);
       } else if (isVideo) {
