@@ -173,12 +173,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setSortContactsByName(bool enabled) async {
-    Log.debug('setSortContactsByName($enabled)', '$runtimeType');
-    await _settingsLocal.setSortContactsByName(enabled);
-  }
-
-  @override
   Future<void> setLoadImages(bool enabled) async {
     Log.debug('setLoadImages($enabled)', '$runtimeType');
     await _settingsLocal.setLoadImages(enabled);

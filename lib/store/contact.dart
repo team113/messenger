@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
@@ -32,6 +31,7 @@ import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/search.dart';
+import '/provider/gql/exceptions.dart' show StaleVersionException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/session.dart';
@@ -43,8 +43,10 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'pagination/combined_pagination.dart';
 import 'search.dart';
 import 'user.dart';
 
@@ -67,6 +69,10 @@ class ContactRepository extends DisposableInterface
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> favorites = RxObsMap();
 
+  // TODO: Unite [contacts] and [favorites] into single [paginated] list.
+  @override
+  final RxObsMap<ChatContactId, HiveRxChatContact> allContacts = RxObsMap();
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -82,32 +88,38 @@ class ContactRepository extends DisposableInterface
   /// [ContactHiveProvider.boxEvents] subscription.
   StreamIterator? _localSubscription;
 
+  /// [CombinedPagination] loading [contacts] and [favorites] with pagination.
+  late final CombinedPagination<HiveChatContact, ChatContactId> _pagination;
+
+  /// [Pagination] loading [favorites] contacts with pagination.
+  late Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
+      _favoriteContactsPagination;
+
+  /// [Pagination] loading [contacts] with pagination.
+  late Pagination<HiveChatContact, ChatContactsCursor, ChatContactId>
+      _contactsPagination;
+
+  /// Subscription to the [_pagination] changes.
+  StreamSubscription? _paginationSubscription;
+
   /// [_chatContactsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatContactsEvents>? _remoteSubscription;
 
   @override
+  RxBool get hasNext => _pagination.hasNext;
+
+  @override
+  RxBool get nextLoading => _pagination.nextLoading;
+
+  @override
   Future<void> onInit() async {
     Log.debug('onInit()', '$runtimeType');
 
-    if (!_contactLocal.isEmpty) {
-      for (HiveChatContact c in _contactLocal.contacts) {
-        HiveRxChatContact entry = HiveRxChatContact(_userRepo, c)..init();
-        if (c.value.favoritePosition == null) {
-          contacts[c.value.id] = entry;
-        } else {
-          favorites[c.value.id] = entry;
-        }
-      }
-    }
+    status.value = RxStatus.loading();
 
-    status.value = _contactLocal.isEmpty
-        ? _sessionLocal.getChatContactsListVersion() != null
-            ? RxStatus.loadingMore()
-            : RxStatus.loading()
-        : RxStatus.loadingMore();
-
+    _initPagination();
     _initLocalSubscription();
     _initRemoteSubscription();
 
@@ -118,18 +130,25 @@ class ContactRepository extends DisposableInterface
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    contacts.forEach((_, v) => v.dispose());
-    favorites.forEach((_, v) => v.dispose());
+    allContacts.forEach((_, v) => v.dispose());
     _localSubscription?.cancel();
+    _paginationSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
+    _pagination.dispose();
 
     super.onClose();
   }
 
   @override
-  Future<void> clearCache() async {
+  Future<void> next() {
+    Log.debug('next()', '$runtimeType');
+    return _pagination.next();
+  }
+
+  @override
+  Future<void> clearCache() {
     Log.debug('clearCache()', '$runtimeType');
-    await _contactLocal.clear();
+    return _contactLocal.clear();
   }
 
   // TODO: Forbid creating multiple ChatContacts with the same User?
@@ -333,6 +352,12 @@ class ContactRepository extends DisposableInterface
     return contacts[id] ?? favorites[id];
   }
 
+  /// Removes a [ChatContact] identified by the provided [id].
+  Future<void> remove(ChatContactId id) {
+    Log.debug('remove($id)', '$runtimeType');
+    return _contactLocal.remove(id);
+  }
+
   /// Searches [ChatContact]s by the provided [UserName].
   ///
   /// This is a fuzzy search.
@@ -361,10 +386,72 @@ class ContactRepository extends DisposableInterface
     return (await _search(phone: phone)).edges.firstOrNull;
   }
 
+  /// Initializes the [_pagination].
+  Future<void> _initPagination() async {
+    Log.debug('_initPagination()', '$runtimeType');
+
+    _favoriteContactsPagination = Pagination(
+      onKey: (e) => e.value.id,
+      perPage: 15,
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _favoriteContacts(
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+        ),
+      ),
+      compare: (a, b) =>
+          b.value.favoritePosition!.compareTo(a.value.favoritePosition!),
+    );
+
+    _contactsPagination = Pagination(
+      onKey: (e) => e.value.id,
+      perPage: 15,
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _chatContacts(
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+        ),
+      ),
+      compare: (a, b) => a.value.name.val.compareTo(b.value.name.val),
+    );
+
+    _pagination = CombinedPagination([
+      CombinedPaginationEntry(
+        _favoriteContactsPagination,
+        addIf: (e) => e.value.favoritePosition != null,
+      ),
+      CombinedPaginationEntry(
+        _contactsPagination,
+        addIf: (e) => e.value.favoritePosition == null,
+      ),
+    ]);
+
+    _paginationSubscription = _pagination.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _putChatContact(event.value!, pagination: true, ignoreVersion: true);
+          break;
+
+        case OperationKind.removed:
+          remove(event.value!.value.id);
+          break;
+      }
+    });
+
+    await _pagination.around();
+
+    status.value = RxStatus.success();
+  }
+
   /// Searches [ChatContact]s by the given criteria.
   ///
-  /// Exactly one of [num]/[login]/[link]/[name] arguments must be specified
-  /// (be non-`null`).
+  /// Exactly one of [email]/[phone]/[name] arguments must be specified (be
+  /// non-`null`).
   Future<Page<RxChatContact, ChatContactsCursor>> _search({
     UserName? name,
     UserEmail? email,
@@ -403,16 +490,98 @@ class ContactRepository extends DisposableInterface
     );
   }
 
-  /// Puts the provided [contact] to [Hive].
-  Future<void> _putChatContact(HiveChatContact contact) async {
-    Log.debug('_putChatContact($contact)', '$runtimeType');
+  /// Puts the provided [contact] to [Pagination] and [Hive].
+  Future<void> _putChatContact(
+    HiveChatContact contact, {
+    bool pagination = false,
+    bool ignoreVersion = false,
+  }) async {
+    Log.debug(
+      '_putChatContact($contact, $pagination, $ignoreVersion)',
+      '$runtimeType',
+    );
 
-    var saved = _contactLocal.get(contact.value.id);
-    // TODO: Version should not be zero at all.
-    if (saved == null ||
-        saved.ver <= contact.ver ||
-        contact.ver.internal == BigInt.zero) {
-      await _contactLocal.put(contact);
+    final ChatContactId contactId = contact.value.id;
+    final HiveRxChatContact? saved = allContacts[contactId];
+
+    // Check the versions first, if [ignoreVersion] is `false`.
+    if (saved != null && !ignoreVersion) {
+      if (saved.ver >= contact.ver) {
+        if (pagination) {
+          if (contact.value.favoritePosition != null) {
+            favorites[contactId] ??= saved;
+          } else {
+            contacts[contactId] ??= saved;
+          }
+        } else {
+          await _pagination.put(contact);
+        }
+
+        return;
+      }
+    }
+
+    // [pagination] is `true`, if the [contact] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
+    if (!pagination) {
+      await _pagination.put(contact);
+    }
+
+    _add(contact, pagination: pagination);
+
+    // TODO: https://github.com/team113/messenger/issues/27
+    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+    // synchronization, thus writes from multiple applications may lead to
+    // missing events.
+    if (!WebUtils.isPopup) {
+      HiveChatContact? saved;
+
+      // If version is ignored, there's no need to retrieve the stored chat.
+      if (!ignoreVersion) {
+        saved = await _contactLocal.get(contactId);
+      }
+
+      // TODO: Version should not be zero at all.
+      if (saved == null ||
+          saved.ver < contact.ver ||
+          contact.ver.internal == BigInt.zero) {
+        await _contactLocal.put(contact);
+      }
+    }
+  }
+
+  /// Adds the provided [HiveChatContact] to the [allContacts] and optionally to
+  /// the [contacts] or [favorites].
+  void _add(HiveChatContact contact, {bool pagination = false}) {
+    Log.debug('_add($contact, $pagination)', '$runtimeType');
+
+    final ChatContactId contactId = contact.value.id;
+
+    HiveRxChatContact? entry = allContacts[contactId];
+
+    if (entry == null) {
+      entry = HiveRxChatContact(_userRepo, contact)..init();
+      allContacts[contactId] = entry;
+    } else {
+      entry.contact.value = contact.value;
+    }
+
+    if (pagination) {
+      if (contact.value.favoritePosition == null) {
+        favorites.remove(contactId);
+
+        contacts[contactId] ??= entry;
+        contacts.emit(
+          MapChangeNotification.updated(entry.id, entry.id, entry),
+        );
+      } else {
+        contacts.remove(contactId);
+
+        favorites[contactId] ??= entry;
+        favorites.emit(
+          MapChangeNotification.updated(entry.id, entry.id, entry),
+        );
+      }
     }
   }
 
@@ -422,36 +591,18 @@ class ContactRepository extends DisposableInterface
 
     _localSubscription = StreamIterator(_contactLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
+      final BoxEvent event = _localSubscription!.current;
+      final ChatContactId contactId = ChatContactId(event.key);
+
       if (event.deleted) {
-        favorites.remove(ChatContactId(event.key));
-        contacts.remove(ChatContactId(event.key));
+        allContacts.remove(contactId)?.dispose();
+        favorites.remove(contactId);
+        contacts.remove(contactId);
+        _pagination.remove(contactId);
       } else {
-        if (event.value?.value.favoritePosition == null) {
-          favorites.remove(ChatContactId(event.key));
-          HiveRxChatContact? contact = contacts[ChatContactId(event.key)];
-          if (contact == null) {
-            contacts[ChatContactId(event.key)] =
-                HiveRxChatContact(_userRepo, event.value)..init();
-          } else {
-            contact.contact.value = event.value.value;
-            contacts.emit(
-              MapChangeNotification.updated(contact.id, contact.id, contact),
-            );
-          }
-        } else {
-          contacts.remove(ChatContactId(event.key));
-          HiveRxChatContact? contact = favorites[ChatContactId(event.key)];
-          if (contact == null) {
-            favorites[ChatContactId(event.key)] =
-                HiveRxChatContact(_userRepo, event.value)..init();
-          } else {
-            contact.contact.value = event.value.value;
-            contact.contact.refresh();
-            favorites.emit(
-              MapChangeNotification.updated(contact.id, contact.id, contact),
-            );
-          }
+        final HiveRxChatContact? contact = allContacts[contactId];
+        if (contact == null || contact.ver <= event.value.ver) {
+          _add(event.value);
         }
       }
     }
@@ -465,7 +616,20 @@ class ContactRepository extends DisposableInterface
     _remoteSubscription = StreamQueue(
       _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
     );
-    await _remoteSubscription!.execute(_contactRemoteEvent);
+    await _remoteSubscription!.execute(
+      _contactRemoteEvent,
+      onError: (e) async {
+        if (e is StaleVersionException) {
+          allContacts.clear();
+          contacts.clear();
+          favorites.clear();
+
+          await _contactLocal.clear();
+          await _pagination.clear();
+          await _pagination.around();
+        }
+      },
+    );
   }
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
@@ -474,30 +638,10 @@ class ContactRepository extends DisposableInterface
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
         Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
-
-        if (_sessionLocal.getChatContactsListVersion() != null) {
-          status.value = RxStatus.success();
-        }
         break;
 
       case ChatContactsEventsKind.chatContactsList:
-        Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
-
-        var node = event as ChatContactsEventsChatContactsList;
-        var chatContacts = [...node.chatContacts, ...node.favoriteChatContacts];
-        _sessionLocal.setChatContactsListVersion(node.ver);
-
-        for (HiveChatContact c in _contactLocal.contacts) {
-          if (!chatContacts.any((m) => m.value.id == c.value.id)) {
-            _contactLocal.remove(c.value.id);
-          }
-        }
-
-        for (HiveChatContact c in chatContacts) {
-          _putChatContact(c);
-        }
-
-        status.value = RxStatus.success();
+        // No-op, as contacts are loaded through [_pagination].
         break;
 
       case ChatContactsEventsKind.event:
@@ -525,17 +669,19 @@ class ContactRepository extends DisposableInterface
                     name: node.name,
                   ),
                   versioned.ver,
+                  null,
+                  null,
                 ),
               );
 
               continue;
             } else if (node.kind == ChatContactEventKind.deleted) {
-              _contactLocal.remove(node.contactId);
+              remove(node.contactId);
               continue;
             }
 
             HiveChatContact? contactEntity =
-                _contactLocal.get(node.contactId) ??
+                await _contactLocal.get(node.contactId) ??
                     await _fetchById(node.contactId);
             contactEntity?.ver = versioned.ver;
 
@@ -609,7 +755,7 @@ class ContactRepository extends DisposableInterface
                 throw StateError('Unreachable');
             }
 
-            _contactLocal.put(contactEntity);
+            _putChatContact(contactEntity);
           }
         }
     }
@@ -621,36 +767,89 @@ class ContactRepository extends DisposableInterface
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
     Log.debug('_fetchById($id)', '$runtimeType');
 
-    var contact = (await _chatContacts())[id];
+    var contact =
+        (await _chatContacts()).edges.firstWhereOrNull((e) => e.value.id == id);
     if (contact != null) {
       _putChatContact(contact);
     }
     return contact;
   }
 
-  // TODO: Contacts list can be huge, so we should implement pagination and
-  //       loading on demand.
-  /// Fetches __all__ [HiveChatContact]s from the remote.
-  Future<HashMap<ChatContactId, HiveChatContact>> _chatContacts() async {
-    Log.debug('_chatContacts()', '$runtimeType');
+  /// Fetches [HiveChatContact]s ordered by their [ChatContact.name] with
+  /// pagination.
+  Future<Page<HiveChatContact, ChatContactsCursor>> _chatContacts({
+    int? first,
+    ChatContactsCursor? after,
+    int? last,
+    ChatContactsCursor? before,
+    bool noFavorite = true,
+  }) async {
+    Log.debug(
+      '_chatContacts($first, $after, $last, $before, $noFavorite)',
+      '$runtimeType',
+    );
 
-    const maxInt = 120;
-    Contacts$Query$ChatContacts query =
-        await _graphQlProvider.chatContacts(noFavorite: false, first: maxInt);
+    Contacts$Query$ChatContacts query = (await _graphQlProvider.chatContacts(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+      noFavorite: noFavorite,
+    ));
     _sessionLocal.setChatContactsListVersion(query.ver);
 
-    HashMap<ChatContactId, HiveChatContact> contacts = HashMap();
-    for (var c in query.nodes) {
-      List<HiveUser> users = c.getHiveUsers();
+    for (var c in query.edges) {
+      final List<HiveUser> users = c.node.getHiveUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
-
-      HiveChatContact contact = c.toHive();
-      contacts[contact.value.id] = contact;
     }
 
-    return contacts;
+    return Page(
+      RxList(
+        query.edges.map((e) => e.node.toHive(cursor: e.cursor)).toList(),
+      ),
+      query.pageInfo.toModel((c) => ChatContactsCursor(c)),
+    );
+  }
+
+  /// Fetches favorite [HiveChatContact]s ordered by their
+  /// [ChatContact.favoritePosition] with pagination.
+  Future<Page<HiveChatContact, FavoriteChatContactsCursor>> _favoriteContacts({
+    int? first,
+    FavoriteChatContactsCursor? after,
+    int? last,
+    FavoriteChatContactsCursor? before,
+  }) async {
+    Log.debug(
+      '_favoriteContacts($first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
+    FavoriteContacts$Query$FavoriteChatContacts query =
+        (await _graphQlProvider.favoriteChatContacts(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    ));
+    _sessionLocal.setChatContactsListVersion(query.ver);
+
+    for (var c in query.edges) {
+      final List<HiveUser> users = c.node.getHiveUsers();
+      for (var user in users) {
+        _userRepo.put(user);
+      }
+    }
+
+    return Page(
+      RxList(
+        query.edges
+            .map((e) => e.node.toHive(favoriteCursor: e.cursor))
+            .toList(),
+      ),
+      query.pageInfo.toModel((c) => FavoriteChatContactsCursor(c)),
+    );
   }
 
   /// Notifies about updates in all [ChatContact]s of the authenticated
@@ -679,18 +878,7 @@ class ContactRepository extends DisposableInterface
             as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
         yield const ChatContactsEventsInitialized();
       } else if (events.$$typename == 'ChatContactsList') {
-        var list = events
-            as ContactsEvents$Subscription$ChatContactsEvents$ChatContactsList;
-        for (var u in list.chatContacts.nodes
-            .map((e) => e.getHiveUsers())
-            .expand((e) => e)) {
-          _userRepo.put(u);
-        }
-        yield ChatContactsEventsChatContactsList(
-          list.chatContacts.nodes.map((e) => e.toHive()).toList(),
-          list.favoriteChatContacts.nodes.map((e) => e.toHive()).toList(),
-          list.chatContacts.ver,
-        );
+        // No-op, as contacts are loaded through [_pagination].
       } else if (events.$$typename == 'ChatContactEventsVersioned') {
         var mixin = events
             as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
