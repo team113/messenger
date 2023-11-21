@@ -31,6 +31,7 @@ import '/provider/hive/blocklist.dart';
 import '/provider/hive/user.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 import 'model/my_user.dart';
 import 'pagination.dart';
 import 'pagination/graphql.dart';
@@ -45,7 +46,7 @@ class BlocklistRepository implements AbstractBlocklistRepository {
   );
 
   @override
-  final RxMap<UserId, RxUser> blocklist = RxMap<UserId, RxUser>();
+  final RxObsMap<UserId, RxUser> blocklist = RxObsMap<UserId, RxUser>();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -88,13 +89,20 @@ class BlocklistRepository implements AbstractBlocklistRepository {
           last: last,
         ),
       ),
+      compare: (a, b) {
+        if (a.value.isBlocked == null || b.value.isBlocked == null) {
+          return 0;
+        }
+
+        return b.value.isBlocked!.at.compareTo(a.value.isBlocked!.at);
+      },
     );
 
     _paginationSubscription = _pagination.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _add(event.key!);
+          put(event.value!, pagination: true);
           break;
 
         case OperationKind.removed:
@@ -121,16 +129,31 @@ class BlocklistRepository implements AbstractBlocklistRepository {
     return _pagination.next();
   }
 
+  /// Puts the provided [user] to [Pagination] and [Hive].
+  Future<void> put(HiveUser user, {bool pagination = false}) async {
+    Log.debug('put($user, $pagination)', '$runtimeType');
+
+    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
+    if (!pagination) {
+      await _pagination.put(user);
+    } else {
+      _add(user.value.id);
+
+      // TODO: https://github.com/team113/messenger/issues/27
+      // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+      // synchronization, thus writes from multiple applications may lead to
+      // missing events.
+      if (!WebUtils.isPopup) {
+        await _blocklistLocal.put(user.value.id);
+      }
+    }
+  }
+
   /// Removes a [User] identified by the provided [userId] from the [blocklist].
   Future<void> remove(UserId userId) {
     Log.debug('remove($userId)', '$runtimeType');
     return _blocklistLocal.remove(userId);
-  }
-
-  /// Puts the provided [HiveUser] into this [BlocklistRepository].
-  Future<void> put(HiveUser user) {
-    Log.debug('put()', '$runtimeType');
-    return _pagination.put(user);
   }
 
   /// Resets this [BlocklistRepository].
@@ -189,7 +212,9 @@ class BlocklistRepository implements AbstractBlocklistRepository {
       if (event.deleted) {
         blocklist.remove(userId);
       } else {
-        await _add(userId);
+        if (blocklist[userId] == null) {
+          await _add(userId);
+        }
       }
     }
   }

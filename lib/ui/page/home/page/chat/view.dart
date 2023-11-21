@@ -834,7 +834,7 @@ class _ChatViewState extends State<ChatView>
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Center(
                   child: ColoredBox(
-                    color: style.colors.transparent,
+                    color: style.colors.almostTransparent,
                     child: const CustomProgressIndicator(),
                   ),
                 ),

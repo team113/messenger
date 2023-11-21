@@ -27,6 +27,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/blocklist.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
+import '/util/obs/obs.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -39,6 +40,9 @@ class BlocklistController extends GetxController {
     this._blocklistService, {
     this.pop,
   });
+
+  /// Reactive list of sorted blocked [RxUser]s.
+  final RxList<RxUser> blocklist = RxList();
 
   /// Callback, called when a [BlocklistView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -56,8 +60,8 @@ class BlocklistController extends GetxController {
   /// [BlocklistService] maintaining the blocked [User]s.
   final BlocklistService _blocklistService;
 
-  /// [Worker] to react on the [blocklist] updates.
-  late final Worker _worker;
+  /// [StreamSubscription] to react on the [BlocklistService.blocklist] updates.
+  late final StreamSubscription _blocklistSubscription;
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -66,9 +70,6 @@ class BlocklistController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Returns [User]s blocked by the authenticated [MyUser].
-  RxMap<UserId, RxUser> get blocklist => _blocklistService.blocklist;
-
   /// Indicates whether the [blocklist] have a next page.
   RxBool get hasNext => _blocklistService.hasNext;
 
@@ -76,14 +77,25 @@ class BlocklistController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    _worker = ever(
-      _blocklistService.blocklist,
-      (Map<UserId, RxUser> users) {
-        if (users.isEmpty) {
-          pop?.call();
-        }
-      },
-    );
+    blocklist.value = _blocklistService.blocklist.values.toList();
+    _sort();
+
+    _blocklistSubscription = _blocklistService.blocklist.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          blocklist.add(e.value!);
+          _sort();
+          break;
+
+        case OperationKind.removed:
+          blocklist.removeWhere((c) => c.id == e.key);
+          break;
+
+        case OperationKind.updated:
+          // No-op, as [blocklist] is never updated.
+          break;
+      }
+    });
 
     super.onInit();
   }
@@ -96,7 +108,7 @@ class BlocklistController extends GetxController {
 
   @override
   void onClose() {
-    _worker.dispose();
+    _blocklistSubscription.cancel();
     super.onClose();
   }
 
@@ -107,6 +119,21 @@ class BlocklistController extends GetxController {
     }
 
     await _userService.unblockUser(user.id);
+  }
+
+  /// Sorts the [blocklist] by the [User.isBlocked] value.
+  void _sort() {
+    blocklist.sort(
+          (a, b) {
+        if (a.user.value.isBlocked == null ||
+            b.user.value.isBlocked == null) {
+          return 0;
+        }
+
+        return b.user.value.isBlocked!.at
+            .compareTo(a.user.value.isBlocked!.at);
+      },
+    );
   }
 
   /// Requests the next page of [blocklist] based on the

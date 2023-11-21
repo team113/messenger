@@ -388,7 +388,7 @@ class ChatsTabView extends StatelessWidget {
                         center = Center(
                           key: UniqueKey(),
                           child: ColoredBox(
-                            color: style.colors.transparent,
+                            color: style.colors.almostTransparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -536,7 +536,7 @@ class ChatsTabView extends StatelessWidget {
                         key: UniqueKey(),
                         child: ColoredBox(
                           key: const Key('Loading'),
-                          color: style.colors.transparent,
+                          color: style.colors.almostTransparent,
                           child: const CustomProgressIndicator(),
                         ),
                       );
@@ -668,7 +668,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: style.colors.transparent,
+                            color: style.colors.almostTransparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );

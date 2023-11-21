@@ -55,6 +55,9 @@ class BlocklistView extends StatelessWidget {
       ),
       builder: (BlocklistController c) {
         return Obx(() {
+          Iterable<RxUser> blocklist =
+              c.blocklist.where((e) => e.user.value.isBlocked != null);
+
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -66,7 +69,7 @@ class BlocklistView extends StatelessWidget {
                 );
               }),
               const SizedBox(height: 4),
-              if (c.blocklist.isEmpty)
+              if (blocklist.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text('label_no_users'.l10n),
@@ -80,7 +83,7 @@ class BlocklistView extends StatelessWidget {
                       shrinkWrap: true,
                       padding: ModalPopup.padding(context),
                       itemBuilder: (context, i) {
-                        RxUser? user = c.blocklist.values.elementAt(i);
+                        RxUser? user = blocklist.elementAt(i);
 
                         Widget child = ContactTile(
                           user: user,
@@ -126,7 +129,7 @@ class BlocklistView extends StatelessWidget {
 
                         return child;
                       },
-                      itemCount: c.blocklist.length,
+                      itemCount: blocklist.length,
                     ),
                   ),
                 ),

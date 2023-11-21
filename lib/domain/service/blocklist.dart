@@ -24,6 +24,7 @@ import '../model/user.dart';
 import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
 import '/util/log.dart';
+import '/util/obs/rxmap.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser]'s blocklist.
@@ -34,7 +35,7 @@ class BlocklistService extends DisposableService {
   final AbstractBlocklistRepository _blocklistRepo;
 
   /// Returns [User]s blocked by the authenticated [MyUser].
-  RxMap<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
+  RxObsMap<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
 
   /// Indicates whether the [blocklist] have next page.
   RxBool get hasNext => _blocklistRepo.hasNext;

@@ -20,11 +20,12 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/util/obs/rxmap.dart';
 
 /// [MyUser]'s blocklist repository interface.
 abstract class AbstractBlocklistRepository {
   /// Returns [User]s blocked by the authenticated [MyUser].
-  RxMap<UserId, RxUser> get blocklist;
+  RxObsMap<UserId, RxUser> get blocklist;
 
   /// Indicates whether the [blocklist] have next page.
   RxBool get hasNext;

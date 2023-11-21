@@ -809,21 +809,19 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.blocklistRecordAdded:
           event as EventBlocklistRecordAdded;
-          userEntity.value.blocklistCount ??= 0;
-          userEntity.value.blocklistCount =
-              userEntity.value.blocklistCount! + 1;
+          if (userEntity.value.blocklistCount != null) {
+            userEntity.value.blocklistCount =
+                userEntity.value.blocklistCount! + 1;
+          }
           _blocklistRepo.put(event.user);
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:
           event as EventBlocklistRecordRemoved;
-          userEntity.value.blocklistCount ??= 1;
           if (userEntity.value.blocklistCount != null) {
             userEntity.value.blocklistCount =
                 userEntity.value.blocklistCount! - 1;
-          } else {}
-          userEntity.value.blocklistCount =
-              userEntity.value.blocklistCount! - 1;
+          }
           _blocklistRepo.remove(event.user.value.id);
           break;
       }
