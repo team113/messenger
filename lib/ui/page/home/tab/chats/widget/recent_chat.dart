@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatCallFinishReason;
 import 'package:messenger/domain/model/my_user.dart';
@@ -69,6 +68,7 @@ class RecentChatTile extends StatelessWidget {
     this.onCall,
     this.onLeave,
     this.onHide,
+    this.onDismiss,
     this.onDrop,
     this.onJoin,
     this.onMute,
@@ -120,6 +120,8 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when this [rxChat] hide action is triggered.
   final void Function()? onHide;
+
+  final void Function()? onDismiss;
 
   /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action is
   /// triggered.
@@ -183,6 +185,7 @@ class RecentChatTile extends StatelessWidget {
               myUser?.name?.val.toLowerCase() == 'kirey');
 
       return CustomSlidable(
+        slidableKey: Key(rxChat.id.val),
         groupTag: 'chat',
         actions: [
           CustomAction(
@@ -191,6 +194,7 @@ class RecentChatTile extends StatelessWidget {
             text: 'btn_delete'.l10n,
           ),
         ],
+        onDismissed: onDismiss,
         child: ChatTile(
           chat: rxChat,
           avatarBuilder: avatarBuilder,

@@ -35,11 +35,13 @@ class HivePageProvider<T extends Object, C, K>
     required this.getCursor,
     required this.getKey,
     Iterable<K> Function(Iterable<K>)? orderBy,
+    bool Function(T)? where,
     this.isFirst,
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
     this.reversed = false,
-  }) : orderBy = orderBy ?? _defaultOrderBy<K>;
+  })  : where = where ?? _defaultWhere,
+        orderBy = orderBy ?? _defaultOrderBy<K>;
 
   /// Callback, called when a key of the provided [T] is required.
   final K Function(T item) getKey;
@@ -50,6 +52,8 @@ class HivePageProvider<T extends Object, C, K>
   /// Callback, called to retrieve the order of keys the items from
   /// [IterableHiveProvider] should be sorted in.
   final Iterable<K> Function(Iterable<K>) orderBy;
+
+  final bool Function(T) where;
 
   /// Callback, called to indicate whether the provided [T] is the first.
   final bool Function(T item)? isFirst;
@@ -105,7 +109,7 @@ class HivePageProvider<T extends Object, C, K>
     List<T> items = [];
     for (var k in keys) {
       final T? item = await _provider.get(k);
-      if (item != null) {
+      if (item != null && where(item)) {
         items.add(item);
       }
     }
@@ -135,7 +139,7 @@ class HivePageProvider<T extends Object, C, K>
       List<T> items = [];
       for (var k in ordered.after(index, count)) {
         final T? item = await _provider.get(k);
-        if (item != null) {
+        if (item != null && where(item)) {
           items.add(item);
         }
       }
@@ -168,7 +172,7 @@ class HivePageProvider<T extends Object, C, K>
       final List<T> items = [];
       for (var i in ordered.before(index, count)) {
         final T? item = await _provider.get(i);
-        if (item != null) {
+        if (item != null && where(item)) {
           items.add(item);
         }
       }
@@ -225,6 +229,8 @@ class HivePageProvider<T extends Object, C, K>
   ///
   /// Intended to be used as a default [orderBy].
   static Iterable<K> _defaultOrderBy<K>(Iterable<K> keys) => keys;
+
+  static bool _defaultWhere(_) => true;
 }
 
 /// Extension adding ability to take items around, after and before an index.

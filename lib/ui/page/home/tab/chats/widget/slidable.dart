@@ -6,22 +6,30 @@ import 'package:messenger/ui/widget/widget_button.dart';
 class CustomSlidable extends StatelessWidget {
   const CustomSlidable({
     super.key,
+    this.slidableKey,
     this.groupTag,
     this.actions = const [],
+    this.onDismissed,
     required this.child,
   });
 
+  final Key? slidableKey;
   final Object? groupTag;
   final List<CustomAction> actions;
+  final void Function()? onDismissed;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return Slidable(
+      key: slidableKey,
       groupTag: groupTag,
       endActionPane: ActionPane(
         extentRatio: 0.33,
         motion: const StretchMotion(),
+        dismissible: onDismissed == null
+            ? null
+            : DismissiblePane(onDismissed: onDismissed!),
         children: actions,
       ),
       child: Builder(builder: (context) {

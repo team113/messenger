@@ -191,7 +191,7 @@ class _ChatTileState extends State<ChatTile> {
               widget.basement != null ? style.colors.acceptPrimary : null,
           child: SizedBox(
             height:
-                widget.basement == null ? widget.height : widget.height + 21,
+                widget.basement == null ? widget.height : widget.height + 10,
             child: Padding(
               key: widget.chat?.chat.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
@@ -200,60 +200,48 @@ class _ChatTileState extends State<ChatTile> {
                 12,
                 4,
                 12,
-                widget.basement == null ? 4 : 4,
+                widget.basement == null ? 4 : 4 + 0,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Stack(
+                alignment: Alignment.center,
+                // mainAxisSize: MainAxisSize.min,
+                // mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    children: [
-                      // AvatarWidget.fromRxChat(
-                      //   widget.chat,
-                      //   key: _avatarKey,
-                      //   radius: 30,
-                      // ),
-                      widget.avatarBuilder(
-                        AvatarWidget.fromRxChat(
-                          widget.chat,
-                          key: _avatarKey,
-                          radius: 30,
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom: widget.basement == null ? 0 : 14,
+                    ),
+                    child: Row(
+                      children: [
+                        // AvatarWidget.fromRxChat(
+                        //   widget.chat,
+                        //   key: _avatarKey,
+                        //   radius: 30,
+                        // ),
+                        widget.avatarBuilder(
+                          AvatarWidget.fromRxChat(
+                            widget.chat,
+                            key: _avatarKey,
+                            radius: 30,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      ...widget.leading,
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        child: widget.titleBuilder(
-                                          widget.chat == null
-                                              ? Text(
-                                                  ('dot'.l10n * 3),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                  style: style.fonts.big.regular
-                                                      .onBackground
-                                                      .copyWith(
-                                                    color: widget.selected ||
-                                                            widget.active
-                                                        ? style.colors.onPrimary
-                                                        : style.colors
-                                                            .onBackground,
-                                                  ),
-                                                )
-                                              : Obx(() {
-                                                  return Text(
-                                                    widget.chat?.title.value ??
-                                                        ('dot'.l10n * 3),
+                        const SizedBox(width: 12),
+                        ...widget.leading,
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: widget.titleBuilder(
+                                            widget.chat == null
+                                                ? Text(
+                                                    ('dot'.l10n * 3),
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     maxLines: 1,
@@ -267,50 +255,56 @@ class _ChatTileState extends State<ChatTile> {
                                                           : style.colors
                                                               .onBackground,
                                                     ),
-                                                  );
-                                                }),
+                                                  )
+                                                : Obx(() {
+                                                    return Text(
+                                                      widget.chat?.title
+                                                              .value ??
+                                                          ('dot'.l10n * 3),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      style: style.fonts.big
+                                                          .regular.onBackground
+                                                          .copyWith(
+                                                        color: widget
+                                                                    .selected ||
+                                                                widget.active
+                                                            ? style.colors
+                                                                .onPrimary
+                                                            : style.colors
+                                                                .onBackground,
+                                                      ),
+                                                    );
+                                                  }),
+                                          ),
                                         ),
-                                      ),
-                                      ...widget.title,
-                                    ],
+                                        ...widget.title,
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                ...widget.status,
-                              ],
-                            ),
-                            ...widget.subtitle,
-                          ],
+                                  ...widget.status,
+                                ],
+                              ),
+                              ...widget.subtitle,
+                            ],
+                          ),
                         ),
-                      ),
-                      ...widget.trailing,
-                    ],
+                        ...widget.trailing,
+                      ],
+                    ),
                   ),
                   if (widget.basement != null)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Transform.translate(
-                        offset: Offset(0, 4),
-                        child: Container(
-                          // margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                          padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
-                          decoration: BoxDecoration(
-                            // boxShadow: [
-                            //   BoxShadow(
-                            //     color: Colors.black.withOpacity(0.25),
-                            //     blurRadius: 4,
-                            //     blurStyle: BlurStyle.outer.workaround,
-                            //   ),
-                            // ],
-                            borderRadius: style.cardRadius,
-                            color: newGreenColor,
-                            border: paidBorder,
-                          ),
-                          child: DefaultTextStyle(
-                            style: style.fonts.small.regular.onPrimary
-                                .copyWith(color: style.colors.secondary),
-                            child: widget.basement!,
-                          ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: DefaultTextStyle(
+                        style: style.fonts.small.regular.onPrimary.copyWith(
+                          color: widget.selected
+                              ? style.colors.onPrimary
+                              : style.colors.primary,
                         ),
+                        child: widget.basement!,
                       ),
                     )
                 ],

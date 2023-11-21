@@ -193,7 +193,6 @@ flutter:
     - assets/images/
     - assets/images/logo/
     - assets/l10n/
-    - assets/resume.pdf
     - assets/images/media_buttons/
   fonts:
     - family: Roboto

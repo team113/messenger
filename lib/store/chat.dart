@@ -281,6 +281,7 @@ class ChatRepository extends DisposableInterface
           isLast: (_) => true,
           isFirst: (_) => true,
           orderBy: (_) => _recentLocal.values,
+          where: (e) => !e.value.isHidden,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,
         ),

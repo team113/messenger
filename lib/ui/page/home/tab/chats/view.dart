@@ -669,7 +669,7 @@ class ChatsTabView extends StatelessWidget {
                                     horizontal: 12,
                                     vertical: 8,
                                   ),
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                       // borderRadius: BorderRadius.circular(15),
                                       // border: style.systemMessageBorder,
                                       // color: style.systemMessageColor,
@@ -843,6 +843,8 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
+                                onDismiss: () =>
+                                    c.unwind(HideReversibleAction(e)),
                                 inCall: () => c.containsCall(e.id),
                                 inContacts: e.chat.value.isDialog
                                     ? () => c.inContacts(e)
@@ -1163,6 +1165,84 @@ class ChatsTabView extends StatelessWidget {
                 child: child,
               );
             }),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Obx(() {
+                final Widget child;
+
+                if (c.undo.isEmpty) {
+                  child = const SizedBox();
+                } else {
+                  final ReversibleAction last = c.undo.last;
+                  if (last is HideReversibleAction) {
+                    child = Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        10 + 10,
+                        0,
+                        10 + 10,
+                        72,
+                      ),
+                      child: WidgetButton(
+                        onPressed: () => c.restore(last),
+                        child: Container(
+                          key: Key('${last.chat.id}'),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: style.colors.primary.withOpacity(0.9),
+                            boxShadow: [
+                              CustomBoxShadow(
+                                blurRadius: 8,
+                                color: style.colors.onBackgroundOpacity13,
+                                blurStyle: BlurStyle.outer.workaround,
+                              ),
+                            ],
+                          ),
+                          height: CustomNavigationBar.height,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          child: Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      value: last.remaining.value / 5000,
+                                      color: style.colors.onPrimary,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${last.remaining.value ~/ 1000 + 1}',
+                                    style: style.fonts.small.regular.onPrimary,
+                                  )
+                                ],
+                              ),
+                              Center(
+                                child: Text(
+                                  'Undo delete'.l10n,
+                                  style: style.fonts.big.regular.onPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    child = const SizedBox();
+                  }
+                }
+
+                return SafeAnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: child,
+                );
+              }),
+            ),
           ],
         );
       },

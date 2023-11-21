@@ -1249,7 +1249,6 @@ class OngoingCall {
 
           switch (d) {
             case TrackMediaDirection.sendRecv:
-            case TrackMediaDirection.sendOnly:
               member?.tracks.addIf(!member!.tracks.contains(t), t);
               switch (track.kind()) {
                 case MediaKind.audio:
@@ -1260,6 +1259,11 @@ class OngoingCall {
                   await t.createRenderer();
                   break;
               }
+              break;
+
+            case TrackMediaDirection.sendOnly:
+              member?.tracks.addIf(!member!.tracks.contains(t), t);
+              await t.removeRenderer();
               break;
 
             case TrackMediaDirection.recvOnly:

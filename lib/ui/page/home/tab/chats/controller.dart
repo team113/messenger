@@ -97,6 +97,8 @@ class ChatsTabController extends GetxController {
 
   final Rx<LoaderElement?> loader = Rx(null);
 
+  final RxList<ReversibleAction> undo = RxList();
+
   /// Status of the [createGroup] progression.
   ///
   /// May be:
@@ -656,6 +658,39 @@ class ChatsTabController extends GetxController {
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
 
+  void restore(ReversibleAction action) {
+    action.cancel();
+    undo.remove(action);
+  }
+
+  void unwind(ReversibleAction action) {
+    if (action is HideReversibleAction) {
+      final index = chats.indexWhere((e) => e.id == action.chat.id);
+
+      if (index != -1) {
+        final RxChat chat = chats.removeAt(index);
+
+        action.onCancel = () {
+          chats.insert(index, chat);
+          undo.remove(action);
+        };
+
+        action.onDone = () {
+          // Uncomment to REALLY hide the chat.
+          // hideChat(action.chat.id);
+          undo.remove(action);
+        };
+
+        for (var e in List.from(undo, growable: false)) {
+          e.finish();
+        }
+        undo.clear();
+
+        undo.add(action..start());
+      }
+    }
+  }
+
   /// Enables and initializes or disables and disposes the [search].
   void _toggleSearch([bool enable = true]) {
     if (search.value != null && enable) {
@@ -899,4 +934,45 @@ class RecentElement extends ListElement {
 
 class LoaderElement extends ListElement {
   const LoaderElement();
+}
+
+abstract class ReversibleAction {
+  ReversibleAction();
+
+  final RxInt remaining = RxInt(5000);
+
+  void Function()? onDone;
+  void Function()? onCancel;
+
+  Timer? _timer;
+
+  void start() {
+    _timer = Timer.periodic(32.milliseconds, (t) {
+      final value = remaining.value - 32;
+
+      if (remaining.value <= 0) {
+        remaining.value = 0;
+        finish();
+      } else {
+        remaining.value = value;
+      }
+    });
+  }
+
+  void finish() {
+    onDone?.call();
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void cancel() {
+    onCancel?.call();
+    _timer?.cancel();
+    _timer = null;
+  }
+}
+
+class HideReversibleAction extends ReversibleAction {
+  HideReversibleAction(this.chat);
+  final RxChat chat;
 }
