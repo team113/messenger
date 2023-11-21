@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/selected_dot.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -43,9 +44,12 @@ import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/controller.dart';
@@ -286,7 +290,138 @@ class _ChatViewState extends State<ChatView>
                             ];
                           }
 
-                          return Row(children: children);
+                          return Row(
+                            children: [
+                              ...children,
+                              const SizedBox(width: 28 - 8),
+                              Obx(() {
+                                final bool muted =
+                                    c.chat?.chat.value.muted != null;
+
+                                final bool favorite =
+                                    c.chat?.chat.value.favoritePosition != null;
+
+                                final bool contact = c.inContacts.value;
+
+                                final Widget child;
+
+                                if (c.selecting.value) {
+                                  child = Container(
+                                    padding: const EdgeInsets.only(
+                                      left: 10,
+                                      right: 0,
+                                    ),
+                                    key: c.moreKey,
+                                    height: double.infinity,
+                                    child: const Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 0, 21, 0),
+                                      child: SvgIcon(SvgIcons.closePrimary),
+                                    ),
+                                  );
+                                } else {
+                                  child = ContextMenuRegion(
+                                    key: c.moreKey,
+                                    selector: c.moreKey,
+                                    alignment: Alignment.topRight,
+                                    enablePrimaryTap: true,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 10,
+                                    ),
+                                    actions: [
+                                      if (c.chat?.chat.value.isDialog ==
+                                          true) ...[
+                                        ContextMenuButton(
+                                          label: contact
+                                              ? 'btn_delete_from_contacts'.l10n
+                                              : 'btn_add_to_contacts'.l10n,
+                                          onPressed: contact
+                                              ? c.removeFromContacts
+                                              : c.addToContacts,
+                                          trailing: SvgIcon(
+                                            contact
+                                                ? SvgIcons.deleteContact
+                                                : SvgIcons.addContact,
+                                          ),
+                                        ),
+                                      ],
+                                      ContextMenuButton(
+                                        label: favorite
+                                            ? 'btn_delete_from_favorites'.l10n
+                                            : 'btn_add_to_favorites'.l10n,
+                                        onPressed: favorite
+                                            ? c.unfavoriteChat
+                                            : c.favoriteChat,
+                                        trailing: SvgIcon(
+                                          favorite
+                                              ? SvgIcons.favoriteSmall
+                                              : SvgIcons.unfavoriteSmall,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: muted
+                                            ? PlatformUtils.isMobile
+                                                ? 'btn_unmute'.l10n
+                                                : 'btn_unmute_chat'.l10n
+                                            : PlatformUtils.isMobile
+                                                ? 'btn_mute'.l10n
+                                                : 'btn_mute_chat'.l10n,
+                                        onPressed:
+                                            muted ? c.unmuteChat : c.muteChat,
+                                        trailing: SvgIcon(
+                                          muted
+                                              ? SvgIcons.unmuteSmall
+                                              : SvgIcons.muteSmall,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_clear_history'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () {},
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_block'.l10n,
+                                        trailing: const SvgIcon(SvgIcons.block),
+                                        onPressed: () {},
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_select_messages'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.select,
+                                        ),
+                                      ),
+                                    ],
+                                    child: Container(
+                                      padding: const EdgeInsets.only(
+                                        left: 10,
+                                        right: 0,
+                                      ),
+                                      height: double.infinity,
+                                      child: const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(10, 0, 21, 0),
+                                        child: SvgIcon(SvgIcons.more),
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                return AnimatedButton(
+                                  onPressed: c.selecting.value
+                                      ? c.selecting.toggle
+                                      : null,
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                );
+                              }),
+                            ],
+                          );
                         }),
                       ],
                     ),
@@ -547,6 +682,60 @@ class _ChatViewState extends State<ChatView>
     );
   }
 
+  Widget _selectable(
+    BuildContext context,
+    ChatController c, {
+    required ListElement item,
+    required bool overlay,
+    required Widget child,
+  }) {
+    return Obx(() {
+      final bool selected = c.selected.contains(item);
+
+      return WidgetButton(
+        onPressed: c.selecting.value
+            ? selected
+                ? () => c.selected.remove(item)
+                : () => c.selected.add(item)
+            : null,
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: IgnorePointer(
+                    ignoring: c.selecting.value,
+                    child: child,
+                  ),
+                ),
+                if (!overlay)
+                  AnimatedSize(
+                    duration: 150.milliseconds,
+                    child: c.selecting.value
+                        ? const SizedBox(key: Key('Expanded'), width: 32)
+                        : const SizedBox(),
+                  ),
+              ],
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: c.selecting.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SelectedDot(
+                          selected: selected,
+                        ),
+                      )
+                    : const SizedBox(),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
   /// Builds a visual representation of a [ListElement] identified by the
   /// provided index.
   Widget _listElement(BuildContext context, ChatController c, int i) {
@@ -629,57 +818,65 @@ class _ChatViewState extends State<ChatView>
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight: c.highlightIndex.value == i,
+              highlight:
+                  c.highlightIndex.value == i || c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-              child: ChatItemWidget(
-                chat: c.chat!.chat,
-                item: e,
-                me: c.me!,
-                avatar: !previousSame,
-                loadImages: c.settings.value?.loadImages != false,
-                reads: c.chat!.members.length > 10
-                    ? []
-                    : c.chat!.reads.where((m) =>
-                        m.at == e.value.at &&
-                        m.memberId != c.me &&
-                        m.memberId != e.value.author.id),
-                user: snapshot.data ?? (user is RxUser? ? user : null),
-                getUser: c.getUser,
-                animation: _animation,
-                timestamp: c.settings.value?.timelineEnabled != true,
-                onHide: () => c.hideChatItem(e.value),
-                onDelete: () => c.deleteMessage(e.value),
-                onReply: () {
-                  MessageFieldController field = c.edit.value ?? c.send;
+              child: _selectable(
+                context,
+                c,
+                item: element,
+                overlay:
+                    e.value.author.id != c.me || element is ChatInfoElement,
+                child: ChatItemWidget(
+                  chat: c.chat!.chat,
+                  item: e,
+                  me: c.me!,
+                  avatar: !previousSame,
+                  loadImages: c.settings.value?.loadImages != false,
+                  reads: c.chat!.members.length > 10
+                      ? []
+                      : c.chat!.reads.where((m) =>
+                          m.at == e.value.at &&
+                          m.memberId != c.me &&
+                          m.memberId != e.value.author.id),
+                  user: snapshot.data ?? (user is RxUser? ? user : null),
+                  getUser: c.getUser,
+                  animation: _animation,
+                  timestamp: c.settings.value?.timelineEnabled != true,
+                  onHide: () => c.hideChatItem(e.value),
+                  onDelete: () => c.deleteMessage(e.value),
+                  onReply: () {
+                    MessageFieldController field = c.edit.value ?? c.send;
 
-                  if (field.replied.any((i) => i.id == e.value.id)) {
-                    field.replied.removeWhere((i) => i.id == e.value.id);
-                  } else {
-                    field.replied.add(e.value);
-                  }
-                },
-                onCopy: (text) {
-                  if (c.selection.value?.plainText.isNotEmpty == true) {
-                    c.copyText(c.selection.value!.plainText);
-                  } else {
-                    c.copyText(text);
-                  }
-                },
-                onRepliedTap: (q) async {
-                  if (q.original != null) {
-                    await c.animateTo(q.original!.id);
-                  }
-                },
-                onGallery: c.calculateGallery,
-                onResend: () => c.resendItem(e.value),
-                onEdit: () => c.editMessage(e.value),
-                onDrag: (d) => c.isItemDragged.value = d,
-                onFileTap: (a) => c.download(e.value, a),
-                onAttachmentError: () async {
-                  await c.chat?.updateAttachments(e.value);
-                  await Future.delayed(Duration.zero);
-                },
-                onSelecting: (s) => c.isSelecting.value = s,
+                    if (field.replied.any((i) => i.id == e.value.id)) {
+                      field.replied.removeWhere((i) => i.id == e.value.id);
+                    } else {
+                      field.replied.add(e.value);
+                    }
+                  },
+                  onCopy: (text) {
+                    if (c.selection.value?.plainText.isNotEmpty == true) {
+                      c.copyText(c.selection.value!.plainText);
+                    } else {
+                      c.copyText(text);
+                    }
+                  },
+                  onRepliedTap: (q) async {
+                    if (q.original != null) {
+                      await c.animateTo(q.original!.id);
+                    }
+                  },
+                  onGallery: c.calculateGallery,
+                  onResend: () => c.resendItem(e.value),
+                  onEdit: () => c.editMessage(e.value),
+                  onDrag: (d) => c.isItemDragged.value = d,
+                  onFileTap: (a) => c.download(e.value, a),
+                  onAttachmentError: () async {
+                    await c.chat?.updateAttachments(e.value);
+                    await Future.delayed(Duration.zero);
+                  },
+                  onSelecting: (s) => c.isSelecting.value = s,
+                ),
               ),
             );
           }),
