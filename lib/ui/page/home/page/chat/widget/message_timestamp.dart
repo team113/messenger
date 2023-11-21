@@ -21,6 +21,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// [Row] displaying the provided [status] and [at] stylized to be a status of
 /// some [ChatItem].
@@ -31,6 +32,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.date = false,
     this.read = false,
+    this.halfRead = false,
     this.delivered = false,
     this.inverted = false,
     this.fontSize,
@@ -48,6 +50,10 @@ class MessageTimestamp extends StatelessWidget {
   /// Indicator whether this [MessageTimestamp] is considered to be read,
   /// meaning it should display an appropriate icon.
   final bool read;
+
+  /// Indicator whether this [MessageTimestamp] is considered to be read only
+  /// partially, meaning it should display an appropriate icon.
+  final bool halfRead;
 
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
   /// meaning it should display an appropriate icon.
@@ -67,38 +73,13 @@ class MessageTimestamp extends StatelessWidget {
     final bool isSent = status == SendingStatus.sent;
     final bool isDelivered = isSent && delivered;
     final bool isRead = isSent && read;
+    final bool isHalfRead = isSent && halfRead;
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
-          Icon(
-            (isRead || isDelivered)
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? style.colors.primary
-                : isError
-                    ? style.colors.danger
-                    : style.colors.secondary,
-            size: 12,
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                      ? 'Sending'
-                      : 'Sent',
-            ),
-          ),
-          const SizedBox(width: 3),
-        ],
         SelectionContainer.disabled(
           child: Text(
             date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
@@ -111,6 +92,47 @@ class MessageTimestamp extends StatelessWidget {
             ),
           ),
         ),
+        if (status != null &&
+            (isSent || isDelivered || isRead || isSending || isError)) ...[
+          const SizedBox(width: 3),
+          SizedBox(
+            key: Key(
+              isError
+                  ? 'Error'
+                  : isSending
+                      ? 'Sending'
+                      : isRead
+                          ? isHalfRead
+                              ? 'HalfRead'
+                              : 'Read'
+                          : 'Sent',
+            ),
+            width: 17,
+            child: SvgIcon(
+              isRead
+                  ? isHalfRead
+                      ? inverted
+                          ? SvgIcons.halfReadWhite
+                          : SvgIcons.halfRead
+                      : inverted
+                          ? SvgIcons.readWhite
+                          : SvgIcons.read
+                  : isDelivered
+                      ? inverted
+                          ? SvgIcons.deliveredWhite
+                          : SvgIcons.delivered
+                      : isSending
+                          ? isError
+                              ? SvgIcons.error
+                              : inverted
+                                  ? SvgIcons.sendingWhite
+                                  : SvgIcons.sending
+                          : inverted
+                              ? SvgIcons.sentWhite
+                              : SvgIcons.sent,
+            ),
+          ),
+        ],
       ],
     );
   }

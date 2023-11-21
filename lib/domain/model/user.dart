@@ -135,6 +135,9 @@ class User extends HiveObject {
 
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
+
+  @override
+  String toString() => '$runtimeType($id)';
 }
 
 /// Unique ID of an [User].
@@ -142,7 +145,7 @@ class User extends HiveObject {
 /// See more details in [User.id].
 @HiveType(typeId: ModelTypeId.userId)
 class UserId extends NewType<String> implements Comparable<UserId> {
-  const UserId(String val) : super(val);
+  const UserId(super.val);
 
   @override
   int compareTo(UserId other) => val.compareTo(other.val);
@@ -153,7 +156,7 @@ class UserId extends NewType<String> implements Comparable<UserId> {
 /// See more details in [User.num].
 @HiveType(typeId: ModelTypeId.userNum)
 class UserNum extends NewType<String> {
-  const UserNum._(String val) : super(val);
+  const UserNum._(super.val);
 
   factory UserNum(String val) {
     val = val.replaceAll(' ', '');
@@ -191,7 +194,7 @@ class UserNum extends NewType<String> {
 /// password.
 @HiveType(typeId: ModelTypeId.userLogin)
 class UserLogin extends NewType<String> {
-  const UserLogin._(String val) : super(val);
+  const UserLogin._(super.val);
 
   UserLogin(String val) : super(val) {
     if (val.isNumericOnly) {
@@ -213,7 +216,7 @@ class UserLogin extends NewType<String> {
 /// See more details in [User.name].
 @HiveType(typeId: ModelTypeId.userName)
 class UserName extends NewType<String> {
-  const UserName._(String val) : super(val);
+  const UserName._(super.val);
 
   UserName(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
@@ -233,7 +236,7 @@ class UserName extends NewType<String> {
 /// Password allows [User] to perform a sign-in, when combined with a
 /// [UserLogin], [UserNum], [UserEmail] or [UserPhone].
 class UserPassword extends NewType<String> {
-  const UserPassword._(String val) : super(val);
+  const UserPassword._(super.val);
 
   UserPassword(String val) : super(val) {
     if (val.isEmpty) {
@@ -255,7 +258,7 @@ class UserPassword extends NewType<String> {
 /// Email address of an [User].
 @HiveType(typeId: ModelTypeId.userEmail)
 class UserEmail extends NewType<String> {
-  const UserEmail._(String val) : super(val);
+  const UserEmail._(super.val);
 
   UserEmail(String val) : super(val) {
     if (!EmailValidator.validate(val)) {
@@ -270,7 +273,7 @@ class UserEmail extends NewType<String> {
 /// Phone number of an [User].
 @HiveType(typeId: ModelTypeId.userPhone)
 class UserPhone extends NewType<String> {
-  const UserPhone._(String val) : super(val);
+  const UserPhone._(super.val);
 
   UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
@@ -315,7 +318,7 @@ class ChatDirectLink {
 /// Slug of a [ChatDirectLink].
 @HiveType(typeId: ModelTypeId.chatDirectLinkSlug)
 class ChatDirectLinkSlug extends NewType<String> {
-  const ChatDirectLinkSlug._(String val) : super(val);
+  const ChatDirectLinkSlug._(super.val);
 
   ChatDirectLinkSlug(String val) : super(val) {
     if (val.length > 100) {
@@ -357,7 +360,7 @@ class ChatDirectLinkSlug extends NewType<String> {
 /// Status of an [User].
 @HiveType(typeId: ModelTypeId.userTextStatus)
 class UserTextStatus extends NewType<String> {
-  const UserTextStatus._(String val) : super(val);
+  const UserTextStatus._(super.val);
 
   UserTextStatus(String val) : super(val) {
     if (val.length > 25) {

@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
+import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
@@ -30,14 +31,17 @@ import 'conditional_backdrop.dart';
 class RoundFloatingButton extends StatefulWidget {
   const RoundFloatingButton({
     super.key,
+    this.icon,
+    this.offset,
     this.asset,
     this.assetWidth = 60,
     this.onPressed,
     this.text,
+    this.showText = true,
     this.color,
     this.hint,
     this.withBlur = false,
-    this.style,
+    this.minified = false,
     this.border,
     this.child,
   });
@@ -50,8 +54,17 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text under the button.
   final String? text;
 
+  /// Indicator whether the [text] should be showed.
+  final bool showText;
+
   /// Text that will show above the button on a hover.
   final String? hint;
+
+  /// [SvgData] to display instead of [asset].
+  final SvgData? icon;
+
+  /// [Offset] to apply to the [icon] or [asset].
+  final Offset? offset;
 
   /// Name of the asset to place into the [SvgImage.asset].
   final String? asset;
@@ -68,8 +81,9 @@ class RoundFloatingButton extends StatefulWidget {
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
 
-  /// Optional [TextStyle] of the [text].
-  final TextStyle? style;
+  /// Indicator whether the [text] provided should be smaller, or small
+  /// otherwise.
+  final bool minified;
 
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
@@ -107,18 +121,50 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    Widget? child = widget.child;
+
+    if (child == null) {
+      if (widget.icon == null) {
+        child = Center(
+          child: SizedBox(
+            width: min(widget.assetWidth, 60),
+            height: min(widget.assetWidth, 60),
+            child: SvgImage.asset(
+              'assets/icons/${widget.asset}.svg',
+              width: widget.assetWidth,
+            ),
+          ),
+        );
+      } else {
+        child = LayoutBuilder(builder: (context, constraints) {
+          return Center(
+            child: SizedBox(
+              width: (constraints.maxWidth / 60) * (widget.icon?.width ?? 60),
+              height:
+                  (constraints.maxHeight / 60) * (widget.icon?.height ?? 60),
+              child: Transform.translate(
+                offset: widget.offset ?? Offset.zero,
+                child: SvgIcon(widget.icon!),
+              ),
+            ),
+          );
+        });
+      }
+    }
+
     Widget button = Container(
+      constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
       color: style.colors.transparent,
       child: ConditionalBackdropFilter(
         condition: !WebUtils.isSafari && widget.withBlur,
-        borderRadius: BorderRadius.circular(60),
+        borderRadius: BorderRadius.circular(300),
         child: Material(
           key: _key,
           elevation: 0,
           color: widget.color,
           type: MaterialType.circle,
           child: InkWell(
-            borderRadius: BorderRadius.circular(60),
+            borderRadius: BorderRadius.circular(300),
             onHover: widget.hint != null
                 ? (b) {
                     if (b) {
@@ -130,17 +176,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   }
                 : null,
             onTap: widget.onPressed,
-            child: widget.child ??
-                SizedBox(
-                  width: max(widget.assetWidth, 60),
-                  height: max(widget.assetWidth, 60),
-                  child: Center(
-                    child: SvgImage.asset(
-                      'assets/icons/${widget.asset}.svg',
-                      width: widget.assetWidth,
-                    ),
-                  ),
-                ),
+            child: child,
           ),
         ),
       ),
@@ -158,17 +194,24 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     return widget.text == null
         ? button
         : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               button,
               const SizedBox(height: 5),
-              Text(
-                widget.text!,
-                textAlign: TextAlign.center,
-                style: widget.style ?? style.fonts.small.regular.onPrimary,
-                maxLines: 2,
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: widget.showText ? 1 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    widget.text!,
+                    textAlign: TextAlign.center,
+                    style: widget.minified
+                        ? style.fonts.smaller.regular.onPrimary
+                        : style.fonts.small.regular.onPrimary,
+                    maxLines: 2,
+                  ),
+                ),
               ),
             ],
           );
@@ -215,15 +258,23 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               height: size.height,
               child: Transform.translate(
                 offset: Offset(0, -size.height - 2),
-                child: UnconstrainedBox(
-                  child: Text(
-                    widget.hint!,
-                    textAlign: TextAlign.center,
-                    style: style.fonts.small.regular.onPrimary.copyWith(
-                      shadows: [
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                      ],
+                child: AllowOverflow(
+                  child: UnconstrainedBox(
+                    child: Text(
+                      widget.hint!,
+                      textAlign: TextAlign.center,
+                      style: style.fonts.small.regular.onPrimary.copyWith(
+                        shadows: [
+                          Shadow(
+                            blurRadius: 6,
+                            color: style.colors.onBackground,
+                          ),
+                          Shadow(
+                            blurRadius: 6,
+                            color: style.colors.onBackground,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

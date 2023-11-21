@@ -16,8 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 
+import '/themes.dart';
+import '/ui/page/call/controller.dart';
+import '/ui/widget/svg/svg.dart';
 import 'round_button.dart';
 
 /// [RoundFloatingButton] optionally displaying its [hint] according to the
@@ -25,8 +27,8 @@ import 'round_button.dart';
 class CallButtonWidget extends StatelessWidget {
   const CallButtonWidget({
     super.key,
-    required this.asset,
-    this.assetWidth = 60,
+    this.asset,
+    this.offset,
     this.onPressed,
     this.hint,
     this.hinted = true,
@@ -34,13 +36,20 @@ class CallButtonWidget extends StatelessWidget {
     this.withBlur = false,
     this.color,
     this.border,
-  });
+    this.constrained = false,
+    bool big = false,
+  }) : size = constrained
+            ? null
+            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
-  /// Asset to display.
-  final String? asset;
+  /// [SvgData] to display.
+  final SvgData? asset;
 
-  /// Width of the [asset].
-  final double assetWidth;
+  /// [Offset] to apply to the [asset].
+  final Offset? offset;
+
+  /// Size of this [CallButtonWidget].
+  final double? size;
 
   /// Callback, called when this [CallButtonWidget] is pressed.
   final void Function()? onPressed;
@@ -58,6 +67,9 @@ class CallButtonWidget extends StatelessWidget {
   /// Indicator whether background should be blurred.
   final bool withBlur;
 
+  /// Indicator whether this [CallButtonWidget] should be constrained.
+  final bool constrained;
+
   /// Background color of this [CallButtonWidget].
   final Color? color;
 
@@ -68,15 +80,20 @@ class CallButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return RoundFloatingButton(
-      asset: asset,
-      assetWidth: assetWidth,
-      color: color ?? style.colors.onSecondaryOpacity50,
-      hint: !expanded && hinted ? hint : null,
-      text: expanded ? hint : null,
-      withBlur: withBlur,
-      border: border,
-      onPressed: onPressed,
+    return SizedBox.square(
+      dimension: size,
+      child: RoundFloatingButton(
+        icon: asset,
+        offset: offset,
+        color: color ?? style.colors.onSecondaryOpacity50,
+        hint: !expanded && hinted ? hint : null,
+        text: expanded || constrained ? hint : null,
+        minified: !constrained,
+        showText: expanded,
+        withBlur: withBlur,
+        border: border,
+        onPressed: onPressed,
+      ),
     );
   }
 }

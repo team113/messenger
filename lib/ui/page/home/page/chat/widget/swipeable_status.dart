@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Swipeable widget allowing its [child] to be swiped to reveal [swipeable]
 /// with a status next to it.
@@ -31,6 +32,7 @@ class SwipeableStatus extends StatelessWidget {
     this.isSent = false,
     this.isDelivered = false,
     this.isRead = false,
+    this.isHalfRead = false,
     this.isSending = false,
     this.isError = false,
     this.status = true,
@@ -39,7 +41,7 @@ class SwipeableStatus extends StatelessWidget {
   });
 
   /// Expanded width of the [swipeable].
-  static const double width = 65;
+  static const double width = 75;
 
   /// Child to swipe to reveal [swipeable].
   final Widget child;
@@ -61,6 +63,9 @@ class SwipeableStatus extends StatelessWidget {
 
   /// Indicator whether status is read.
   final bool isRead;
+
+  /// Indicator whether status is read only partially.
+  final bool isHalfRead;
 
   /// Indicator whether status is sending.
   final bool isSending;
@@ -110,7 +115,7 @@ class SwipeableStatus extends StatelessWidget {
       textAlign: TextAlign.end,
       maxLines: 1,
       overflow: TextOverflow.visible,
-      style: style.fonts.smaller.regular.secondary,
+      style: style.fonts.small.regular.secondary,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 3),
         margin: const EdgeInsets.only(right: 2, left: 8),
@@ -125,20 +130,22 @@ class SwipeableStatus extends StatelessWidget {
           children: [
             if (status) ...[
               if (isSent || isDelivered || isRead || isSending || isError)
-                Icon(
-                  (isRead || isDelivered)
-                      ? Icons.done_all
-                      : isSending
-                          ? Icons.access_alarm
-                          : isError
-                              ? Icons.error_outline
-                              : Icons.done,
-                  color: isRead
-                      ? style.colors.primary
-                      : isError
-                          ? style.colors.danger
-                          : style.colors.secondary,
-                  size: 12,
+                SizedBox(
+                  child: Center(
+                    child: SvgIcon(
+                      isRead
+                          ? isHalfRead
+                              ? SvgIcons.halfRead
+                              : SvgIcons.read
+                          : isDelivered
+                              ? SvgIcons.delivered
+                              : isSending
+                                  ? isError
+                                      ? SvgIcons.error
+                                      : SvgIcons.sending
+                                  : SvgIcons.sent,
+                    ),
+                  ),
                 ),
               const SizedBox(width: 3),
             ],

@@ -32,7 +32,6 @@ class ApplicationSettings extends HiveObject {
     this.callButtons = const [],
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
-    this.sortContactsByName = true,
     this.loadImages = true,
     this.timelineEnabled = false,
     this.pinnedActions = const [],
@@ -70,20 +69,16 @@ class ApplicationSettings extends HiveObject {
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
 
-  /// Indicator whether [ChatContact]s should be sorted by their names.
-  @HiveField(7)
-  bool sortContactsByName;
-
   /// Indicator whether [ImageAttachment]s should be loaded automatically.
-  @HiveField(8)
+  @HiveField(7)
   bool loadImages;
 
   /// Indicator whether [ChatItem.at] labels should be displayed as a timeline
   /// in a [Chat].
-  @HiveField(9)
+  @HiveField(8)
   bool timelineEnabled;
 
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
-  @HiveField(10)
+  @HiveField(9)
   List<String> pinnedActions;
 }

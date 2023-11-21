@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
+import 'util/platform_utils.dart';
+
 part 'themes.g.dart';
 
 /// Application themes constants.
@@ -139,6 +141,8 @@ class Themes {
       fontSize: 17,
       fontWeight: FontWeight.w400,
       height: 1.3,
+      letterSpacing: 0,
+      wordSpacing: 0,
     );
 
     final Fonts fonts = Fonts(
@@ -168,7 +172,7 @@ class Themes {
       SystemUiOverlayStyle(
         systemNavigationBarColor: colors.transparent,
         statusBarColor: colors.transparent,
-        statusBarBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.dark,
       ),
     );
@@ -176,198 +180,199 @@ class Themes {
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
-        extensions: [
-          Style(
-            colors: colors,
-            fonts: fonts,
-            barrierColor: colors.onBackgroundOpacity50,
-            cardBlur: 5,
-            cardBorder:
-                Border.all(color: colors.secondaryHighlightDark, width: 0.5),
-            cardColor: colors.onPrimaryOpacity95,
-            cardHoveredColor: colors.backgroundAuxiliaryLightest,
-            cardHoveredBorder: Border.all(
-              color: colors.primaryHighlightShiniest,
-              width: 0.5,
-            ),
-            cardRadius: BorderRadius.circular(14),
-            cardSelectedBorder:
-                Border.all(color: colors.primaryHighlightShiny, width: 0.5),
-            contextMenuBackgroundColor: colors.secondaryHighlight,
-            contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
-            contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: textStyle.copyWith(color: colors.primary),
-            messageColor: colors.onPrimary,
-            primaryBorder: Border.all(
-              color: colors.secondaryHighlightDark,
-              width: 0.5,
-            ),
-            readMessageColor: colors.acceptLighter,
-            secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
-            sidebarColor: colors.onPrimaryOpacity50,
-            systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDark,
-              width: 0.5,
-            ),
-            systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle: fonts.small.regular.secondary,
-            systemMessagePrimary: fonts.small.regular.primary,
-            unreadMessageColor: colors.acceptLightest,
+      extensions: [
+        Style(
+          colors: colors,
+          fonts: fonts,
+          barrierColor: colors.onBackgroundOpacity50,
+          cardBlur: 5,
+          cardBorder:
+              Border.all(color: colors.secondaryHighlightDark, width: 0.5),
+          cardColor: colors.onPrimaryOpacity95,
+          cardHoveredColor: colors.backgroundAuxiliaryLightest,
+          cardHoveredBorder: Border.all(
+            color: colors.primaryHighlightShiniest,
+            width: 0.5,
           ),
-        ],
-        scaffoldBackgroundColor: colors.transparent,
-        appBarTheme: theme.appBarTheme.copyWith(
-          backgroundColor: colors.onPrimaryOpacity25,
-          foregroundColor: colors.secondary,
-          iconTheme: theme.appBarTheme.iconTheme?.copyWith(
-            color: colors.secondary,
+          cardRadius: BorderRadius.circular(14),
+          cardSelectedBorder:
+              Border.all(color: colors.primaryHighlightShiny, width: 0.5),
+          contextMenuBackgroundColor: colors.onPrimary,
+          contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
+          contextMenuRadius: BorderRadius.circular(11),
+          linkStyle: textStyle.copyWith(color: colors.primary),
+          messageColor: colors.onPrimary,
+          primaryBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            width: 0.5,
           ),
-          actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
-            color: colors.secondary,
+          readMessageColor: colors.acceptLighter,
+          secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
+          sidebarColor: colors.onPrimaryOpacity50,
+          systemMessageBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            width: 0.5,
           ),
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: fonts.big.regular.onBackground,
+          systemMessageColor: colors.secondaryHighlight,
+          systemMessageStyle: fonts.small.regular.secondary,
+          systemMessagePrimary: fonts.small.regular.primary,
+          unreadMessageColor: colors.acceptLightest,
         ),
-        tabBarTheme: theme.tabBarTheme.copyWith(
-          labelColor: colors.primary,
-          unselectedLabelColor: colors.secondary,
-        ),
-        primaryIconTheme: const IconThemeData.fallback().copyWith(
+      ],
+      scaffoldBackgroundColor: colors.transparent,
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: colors.onPrimaryOpacity25,
+        foregroundColor: colors.secondary,
+        iconTheme: theme.appBarTheme.iconTheme?.copyWith(
           color: colors.secondary,
         ),
-        splashColor: colors.transparent,
-        iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
-        textTheme: Typography.blackCupertino.copyWith(
-          displayLarge: fonts.largest.regular.onBackground,
-          displayMedium: fonts.larger.regular.onBackground,
-          displaySmall: fonts.large.regular.onBackground,
-          headlineLarge: fonts.big.regular.onBackground,
-          headlineMedium: fonts.big.regular.onBackground,
-          headlineSmall: fonts.small.regular.onBackground,
-          titleLarge: fonts.medium.regular.onBackground,
-          titleMedium: fonts.normal.regular.onBackground,
-          titleSmall: fonts.normal.bold.onBackground,
-          labelLarge: fonts.normal.regular.onBackground,
-          labelMedium: fonts.small.regular.onBackground,
-          labelSmall: fonts.smaller.regular.onBackground,
-          bodyLarge: fonts.medium.regular.onBackground,
-          bodyMedium: fonts.normal.regular.onBackground,
-          bodySmall: fonts.small.regular.onBackground,
+        actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
+          color: colors.secondary,
         ),
-        inputDecorationTheme: theme.inputDecorationTheme.copyWith(
-          focusColor: colors.primary,
-          hoverColor: colors.transparent,
-          fillColor: colors.primary,
-          hintStyle: fonts.normal.regular.secondaryHighlightDarkest,
-          labelStyle: fonts.normal.regular.secondaryHighlightDarkest,
-          errorStyle: fonts.small.regular.danger,
-          helperStyle: fonts.normal.regular.secondaryHighlightDarkest,
-          prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
-          suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
-          counterStyle: fonts.small.regular.secondaryHighlightDarkest,
-          floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
-          errorMaxLines: 5,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.primary),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.danger),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.danger),
-          ),
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: fonts.big.regular.onBackground,
+      ),
+      tabBarTheme: theme.tabBarTheme.copyWith(
+        labelColor: colors.primary,
+        unselectedLabelColor: colors.secondary,
+      ),
+      primaryIconTheme: const IconThemeData.fallback().copyWith(
+        color: colors.secondary,
+      ),
+      splashColor: colors.transparent,
+      iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
+      textTheme: Typography.blackCupertino.copyWith(
+        displayLarge: fonts.largest.regular.onBackground,
+        displayMedium: fonts.larger.regular.onBackground,
+        displaySmall: fonts.large.regular.onBackground,
+        headlineLarge: fonts.big.regular.onBackground,
+        headlineMedium: fonts.big.regular.onBackground,
+        headlineSmall: fonts.small.regular.onBackground,
+        titleLarge: fonts.medium.regular.onBackground,
+        titleMedium: fonts.normal.regular.onBackground,
+        titleSmall: fonts.normal.bold.onBackground,
+        labelLarge: fonts.normal.regular.onBackground,
+        labelMedium: fonts.small.regular.onBackground,
+        labelSmall: fonts.smaller.regular.onBackground,
+        bodyLarge: fonts.medium.regular.onBackground,
+        bodyMedium: fonts.normal.regular.onBackground,
+        bodySmall: fonts.small.regular.onBackground,
+      ),
+      inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+        focusColor: colors.primary,
+        hoverColor: colors.transparent,
+        fillColor: colors.primary,
+        hintStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        labelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        errorStyle: fonts.small.regular.danger,
+        helperStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        counterStyle: fonts.small.regular.secondaryHighlightDarkest,
+        floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        errorMaxLines: 5,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.primary),
         ),
-        textSelectionTheme: theme.textSelectionTheme.copyWith(
-          cursorColor: colors.primary,
-          selectionHandleColor: colors.primary,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
-        floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.danger),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.danger),
+        ),
+      ),
+      textSelectionTheme: theme.textSelectionTheme.copyWith(
+        cursorColor: colors.primary,
+        selectionHandleColor: colors.primary,
+      ),
+      floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+      ),
+      bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+        backgroundColor: colors.primaryHighlightShiniest,
+        selectedItemColor: colors.primary,
+        unselectedItemColor: colors.secondary,
+      ),
+      progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
+        color: colors.primary,
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: colors.secondary,
+          textStyle: fonts.medium.regular.secondary,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          backgroundColor: colors.transparent,
+          foregroundColor: colors.secondary,
+          minimumSize: const Size(100, 60),
+          maximumSize: const Size(250, 60),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          side: BorderSide(width: 1, color: colors.secondary),
+          textStyle: fonts.medium.regular.secondary,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
-          foregroundColor: colors.onPrimary,
-        ),
-        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-          backgroundColor: colors.primaryHighlightShiniest,
-          selectedItemColor: colors.primary,
-          unselectedItemColor: colors.secondary,
-        ),
-        progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
-          color: colors.primary,
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: colors.secondary,
-            textStyle: fonts.medium.regular.secondary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
           ),
+          padding: const EdgeInsets.all(12),
+          textStyle: fonts.normal.regular.secondary,
         ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            backgroundColor: colors.transparent,
-            foregroundColor: colors.secondary,
-            minimumSize: const Size(100, 60),
-            maximumSize: const Size(250, 60),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: fonts.medium.regular.secondary,
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.all(12),
-            textStyle: fonts.normal.regular.secondary,
-          ),
-        ),
-        scrollbarTheme: theme.scrollbarTheme.copyWith(
-          interactive: true,
-          thickness: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.dragged) ||
-                states.contains(MaterialState.hovered)) {
-              return 6;
-            }
+      ),
+      scrollbarTheme: theme.scrollbarTheme.copyWith(
+        interactive: true,
+        thickness: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.dragged) ||
+              states.contains(MaterialState.hovered)) {
+            return 6;
+          }
 
-            return 4;
-          }),
-        ),
-        radioTheme: theme.radioTheme.copyWith(
-          fillColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
-              return Colors.white;
-            }
+          return 4;
+        }),
+      ),
+      radioTheme: theme.radioTheme.copyWith(
+        fillColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.white;
+          }
 
-            return colors.primary;
-          }),
-        ),
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
-          },
-        ));
+          return colors.primary;
+        }),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
+    );
   }
 
   /// Returns a dark theme.
@@ -380,16 +385,11 @@ class Themes {
 /// Shadow cast by a box that allows to customize its [blurStyle].
 class CustomBoxShadow extends BoxShadow {
   const CustomBoxShadow({
-    Color color = const Color(0xFF000000),
-    Offset offset = Offset.zero,
-    double blurRadius = 0.0,
+    super.color,
+    super.offset,
+    super.blurRadius,
     BlurStyle blurStyle = BlurStyle.normal,
-  })  : _blurStyle = blurStyle,
-        super(
-          color: color,
-          offset: offset,
-          blurRadius: blurRadius,
-        );
+  }) : _blurStyle = blurStyle;
 
   /// Style to use for blur in [MaskFilter] object.
   final BlurStyle _blurStyle;
@@ -1080,4 +1080,20 @@ extension HexColor on Color {
       '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+}
+
+// TODO: Remove, when flutter/flutter#132839 is fixed:
+//       https://github.com/flutter/flutter/issues/132839
+/// Extension adding workaround of [BlurStyle.outer] rendered incorrectly on
+/// iOS.
+extension BlurStylePlatformExtension on BlurStyle {
+  /// Returns the [BlurStyle.outer], if not [PlatformUtilsImpl.isIOS], or
+  /// [BlurStyle.normal] otherwise.
+  BlurStyle get workaround {
+    if (PlatformUtils.isIOS) {
+      return BlurStyle.normal;
+    }
+
+    return BlurStyle.outer;
+  }
 }

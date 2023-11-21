@@ -27,6 +27,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'my_user.g.dart';
@@ -41,6 +42,8 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
@@ -71,7 +74,10 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   HiveMyUser? get myUser => getSafe(0);
 
   /// Saves the provided [MyUser] in [Hive].
-  Future<void> set(HiveMyUser user) => putSafe(0, user);
+  Future<void> set(HiveMyUser user) async {
+    Log.debug('set($user)', '$runtimeType');
+    await putSafe(0, user);
+  }
 }
 
 /// Persisted in [Hive] storage [MyUser]'s [value].
@@ -92,4 +98,7 @@ class HiveMyUser extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   MyUserVersion ver;
+
+  @override
+  String toString() => '$runtimeType($value, $ver)';
 }

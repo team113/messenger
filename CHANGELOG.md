@@ -7,7 +7,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 ## [0.1.0-alpha.12] · 2023-??-??
-[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.11
+[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
 [Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
 
@@ -15,6 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Always display online status on desktop. ([#702], [#681])
+    - Style page:
+        - Redesigned widgets tab. ([#695], [#632])
+    - Chat page:
+        - Display read partially message status in groups. ([#703], [#666])
 
 ### Fixed
 
@@ -23,9 +27,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Infinity loader on member with disabled video. ([#707], [#700])
 
+[#632]: /../../issues/632
+[#666]: /../../issues/666
 [#681]: /../../issues/681
-[#702]: /../../pull/702
+[#695]: /../../pull/695
 [#700]: /../../issues/700
+[#702]: /../../pull/702
+[#703]: /../../pull/703
 [#707]: /../../pull/707
 [#711]: /../../pull/711
 

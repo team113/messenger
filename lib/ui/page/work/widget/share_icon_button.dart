@@ -49,16 +49,8 @@ class ShareIconButton extends StatelessWidget {
         }
       },
       child: PlatformUtils.isMobile
-          ? const SvgImage.asset(
-              'assets/icons/share_thick.svg',
-              width: 17.54,
-              height: 18.36,
-            )
-          : const SvgImage.asset(
-              'assets/icons/copy_thick.svg',
-              width: 16.18,
-              height: 18.8,
-            ),
+          ? const SvgIcon(SvgIcons.shareThick)
+          : const SvgIcon(SvgIcons.copyThick),
     );
   }
 }

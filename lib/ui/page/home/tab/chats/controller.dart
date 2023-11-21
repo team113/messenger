@@ -61,6 +61,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'view.dart';
 
 export 'view.dart';
 
@@ -316,6 +317,19 @@ class ChatsTabController extends GetxController {
           router.chat(user.user.value.dialog);
         }
       }
+    }
+  }
+
+  /// Starts an [OngoingCall] in the [Chat] identified by the provided [id].
+  Future<void> call(ChatId id, [bool withVideo = false]) async {
+    try {
+      await _callService.call(id, withVideo: withVideo);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    } on CallDoesNotExistException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
     }
   }
 

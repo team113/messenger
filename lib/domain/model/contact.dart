@@ -85,7 +85,7 @@ class ChatContact extends HiveObject {
 @HiveType(typeId: ModelTypeId.chatContactId)
 class ChatContactId extends NewType<String>
     implements Comparable<ChatContactId> {
-  const ChatContactId(String val) : super(val);
+  const ChatContactId(super.val);
 
   @override
   int compareTo(ChatContactId other) => val.compareTo(other.val);
@@ -96,7 +96,7 @@ class ChatContactId extends NewType<String>
 @HiveType(typeId: ModelTypeId.chatContactFavoritePosition)
 class ChatContactFavoritePosition extends NewType<double>
     implements Comparable<ChatContactFavoritePosition> {
-  const ChatContactFavoritePosition(double val) : super(val);
+  const ChatContactFavoritePosition(super.val);
 
   factory ChatContactFavoritePosition.parse(String val) =>
       ChatContactFavoritePosition(double.parse(val));

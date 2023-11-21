@@ -391,6 +391,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
+  /// Indicates whether this [ChatItem] was read only partially.
+  bool get _isHalfRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    return chat.isHalfRead(widget.item.value, widget.me);
+  }
+
   /// Returns the [UserId] of [User] posted this [ChatItem].
   UserId get _author => widget.item.value.author.id;
 
@@ -1350,15 +1360,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       children: [
         Padding(
           padding: const EdgeInsets.only(right: 8),
-          child: call?.withVideo ?? false
-              ? SvgImage.asset(
-                  'assets/icons/call_video${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-                  height: 11,
-                )
-              : SvgImage.asset(
-                  'assets/icons/call_audio${isMissed && !_fromMe ? '_red' : isOngoing ? '_blue' : ''}.svg',
-                  height: 12,
-                ),
+          child: SvgIcon(
+            (call?.withVideo ?? false)
+                ? isMissed
+                    ? SvgIcons.callVideoMissed
+                    : SvgIcons.callVideo
+                : isMissed
+                    ? SvgIcons.callAudioMissed
+                    : SvgIcons.callAudio,
+          ),
         ),
         Flexible(
           child: Row(
@@ -1443,9 +1453,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
-                  return AvatarWidget.fromRxUser(data, radius: 10);
+                  return AvatarWidget.fromRxUser(
+                    data,
+                    radius: AvatarRadius.smaller,
+                  );
                 }
-                return AvatarWidget.fromUser(user, radius: 10);
+                return AvatarWidget.fromUser(
+                  user,
+                  radius: AvatarRadius.smaller,
+                );
               },
             ),
           ),
@@ -1456,7 +1472,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+            child: AvatarWidget(
+              title: 'plus'.l10n,
+              radius: AvatarRadius.smaller,
+            ),
           ),
         );
       }
@@ -1500,6 +1519,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       isDelivered:
           isSent && widget.chat.value?.lastDelivery.isBefore(item.at) == false,
       isRead: isSent && _isRead,
+      isHalfRead: _isHalfRead,
       isError: item.status.value == SendingStatus.error,
       isSending: item.status.value == SendingStatus.sending,
       swipeable: Text(item.at.val.toLocal().hm),
@@ -1598,7 +1618,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     color: style.colors.danger,
                                   ),
                                 )
-                              : Container(key: const Key('Sent')),
+                              : Container(
+                                  key: _isRead
+                                      ? _isHalfRead
+                                          ? const Key('HalfRead')
+                                          : const Key('Read')
+                                      : const Key('Sent'),
+                                ),
                     );
                   }),
                 ),
@@ -1609,8 +1635,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.author.id, push: true),
-                          child:
-                              AvatarWidget.fromRxUser(widget.user, radius: 17),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: AvatarRadius.medium,
+                          ),
                         )
                       : const SizedBox(width: 34),
                 ),
@@ -1638,7 +1666,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             label: PlatformUtils.isMobile
                                 ? 'btn_info'.l10n
                                 : 'btn_message_info'.l10n,
-                            trailing: const Icon(Icons.info_outline),
+                            trailing: const SvgIcon(SvgIcons.info),
                             onPressed: () => MessageInfo.show(
                               context,
                               id: widget.item.value.id,
@@ -1651,9 +1679,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/copy_small.svg',
-                                height: 18,
+                              trailing: Transform.translate(
+                                offset: const Offset(-2, 0),
+                                child: const SvgIcon(SvgIcons.copy18),
                               ),
                               onPressed: () => widget.onCopy
                                   ?.call(_selection?.plainText ?? copyable!),
@@ -1664,10 +1692,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/reply.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.reply),
                               onPressed: widget.onReply,
                             ),
                             if (item is ChatMessage)
@@ -1676,10 +1701,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 label: PlatformUtils.isMobile
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/forward.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.forwardSmall),
                                 onPressed: () async {
                                   await ChatForwardView.show(
                                     context,
@@ -1698,10 +1720,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
-                                trailing: const SvgImage.asset(
-                                  'assets/icons/edit.svg',
-                                  height: 18,
-                                ),
+                                trailing: const SvgIcon(SvgIcons.edit),
                                 onPressed: widget.onEdit,
                               ),
                             ContextMenuButton(
@@ -1709,10 +1728,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/delete_small.svg',
-                                height: 18,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.deleteThick),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
@@ -1727,6 +1743,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       ? null
                                       : 'label_message_will_deleted_for_you'
                                           .l10n,
+                                  initial: 1,
                                   variants: [
                                     if (!deletable || !isMonolog)
                                       ConfirmDialogVariant(
@@ -1751,11 +1768,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/send_small.svg',
-                                width: 18.37,
-                                height: 16,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.sendSmall),
                               onPressed: widget.onResend,
                             ),
                             ContextMenuButton(
@@ -1763,11 +1776,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgImage.asset(
-                                'assets/icons/delete_small.svg',
-                                width: 17.75,
-                                height: 17,
-                              ),
+                              trailing: const SvgIcon(SvgIcons.deleteThick),
                               onPressed: () async {
                                 await ConfirmDialog.show(
                                   context,
@@ -1783,8 +1792,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               },
                             ),
                             ContextMenuButton(
-                              label: 'btn_select'.l10n,
-                              trailing: const Icon(Icons.select_all),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_select'.l10n
+                                  : 'btn_select_messages'.l10n,
+                              trailing: const SvgIcon(SvgIcons.select),
                             ),
                           ],
                         ],
@@ -1817,6 +1828,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           at: item.at,
           status: _fromMe ? item.status.value : null,
           read: _isRead || isMonolog,
+          halfRead: _isHalfRead,
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,

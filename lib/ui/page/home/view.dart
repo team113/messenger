@@ -220,11 +220,9 @@ class _HomeViewState extends State<HomeView> {
                           child: CustomNavigationBar(
                             items: [
                               const CustomNavigationBarItem(
-                                child: SvgImage.asset(
-                                  'assets/icons/partner.svg',
+                                child: SvgIcon(
+                                  SvgIcons.partner,
                                   key: Key('WorkButton'),
-                                  width: 36,
-                                  height: 28,
                                 ),
                               ),
                               const CustomNavigationBarItem(
@@ -265,18 +263,14 @@ class _HomeViewState extends State<HomeView> {
                                     final Widget child;
 
                                     if (c.myUser.value?.muted != null) {
-                                      child = const SvgImage.asset(
-                                        'assets/icons/chats_muted.svg',
+                                      child = const SvgIcon(
+                                        SvgIcons.chatsMuted,
                                         key: Key('Muted'),
-                                        width: 39.26,
-                                        height: 33.5,
                                       );
                                     } else {
-                                      child = const SvgImage.asset(
-                                        'assets/icons/chats.svg',
+                                      child = const SvgIcon(
+                                        SvgIcons.chats,
                                         key: Key('Unmuted'),
-                                        width: 39.26,
-                                        height: 33.5,
                                       );
                                     }
 
@@ -329,7 +323,7 @@ class _HomeViewState extends State<HomeView> {
                                     padding: const EdgeInsets.only(bottom: 2),
                                     child: AvatarWidget.fromMyUser(
                                       c.myUser.value,
-                                      radius: 15,
+                                      radius: AvatarRadius.normal,
                                       onForbidden: c.updateAvatar,
                                     ),
                                   ),
@@ -426,9 +420,9 @@ class _HomeViewState extends State<HomeView> {
           final Widget image;
           if (c.background.value != null) {
             image = Image.memory(
+              c.background.value!,
               width: double.infinity,
               height: double.infinity,
-              c.background.value!,
               key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
             );

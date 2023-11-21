@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/repository/contact.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -63,7 +64,6 @@ class ContactsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(
-        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -143,22 +143,23 @@ class ContactsTabView extends StatelessWidget {
 
                 if (c.search.value != null) {
                   if (c.search.value?.search.isEmpty.value == false) {
-                    child = const SvgImage.asset(
-                      'assets/icons/search_exit.svg',
+                    child = const SvgIcon(
+                      SvgIcons.searchExit,
                       key: Key('CloseSearch'),
-                      height: 11,
                     );
                   }
                 } else {
-                  if (c.selecting.value) {
-                    child = SvgImage.asset(
-                      c.search.value != null
-                          ? 'assets/icons/search_exit.svg'
-                          : 'assets/icons/close_primary.svg',
-                      key: const Key('CloseGroupSearching'),
-                      height: c.search.value != null ? 11 : 15,
-                    );
-                  }
+                  child = c.selecting.value
+                      ? c.search.value != null
+                          ? const SvgIcon(
+                              SvgIcons.searchExit,
+                              key: Key('CloseGroupSearching'),
+                            )
+                          : const SvgIcon(
+                              SvgIcons.closePrimary,
+                              key: Key('CloseGroupSearching'),
+                            )
+                      : null;
                 }
 
                 return Row(
@@ -200,15 +201,10 @@ class ContactsTabView extends StatelessWidget {
                         margin: const EdgeInsets.only(bottom: 4, right: 0),
                         actions: [
                           ContextMenuButton(
-                            label: c.sortByName
-                                ? 'label_sort_by_visit'.l10n
-                                : 'label_sort_by_name'.l10n,
-                            onPressed: c.toggleSorting,
-                          ),
-                          ContextMenuButton(
                             key: const Key('SelectContactsButton'),
                             label: 'btn_select_and_delete'.l10n,
                             onPressed: c.toggleSelecting,
+                            trailing: const SvgIcon(SvgIcons.select),
                           ),
                         ],
                         child: AnimatedButton(
@@ -288,10 +284,7 @@ class ContactsTabView extends StatelessWidget {
                             size: 20,
                             color: style.colors.primary,
                           )
-                        : const SvgImage.asset(
-                            'assets/icons/search.svg',
-                            width: 17.77,
-                          ),
+                        : const SvgIcon(SvgIcons.search),
                   ),
                 );
               }),
@@ -418,6 +411,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else {
                 child = AnimationLimiter(
+                  key: const Key('Contacts'),
                   child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(
@@ -554,18 +548,29 @@ class ContactsTabView extends StatelessWidget {
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
-                              c.contacts.mapIndexed((i, e) {
-                                return AnimationConfiguration.staggeredList(
-                                  position: c.favorites.length + i,
-                                  duration: const Duration(milliseconds: 375),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 50,
-                                    child: FadeInAnimation(
-                                      child: _contact(context, e, c),
+                              [
+                                ...c.contacts.mapIndexed((i, e) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: c.favorites.length + i,
+                                    duration: const Duration(milliseconds: 375),
+                                    child: SlideAnimation(
+                                      horizontalOffset: 50,
+                                      child: FadeInAnimation(
+                                        child: _contact(context, e, c),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                if (c.hasNext.isTrue)
+                                  Center(
+                                    child: CustomProgressIndicator(
+                                      key: const Key('ContactsLoading'),
+                                      value: Config.disableInfiniteAnimations
+                                          ? 0
+                                          : null,
                                     ),
                                   ),
-                                );
-                              }).toList(),
+                              ],
                             ),
                           ),
                         ),
@@ -681,18 +686,18 @@ class ContactsTabView extends StatelessWidget {
                   label: 'btn_delete_from_favorites'.l10n,
                   onPressed: () =>
                       c.unfavoriteContact(contact.contact.value.id),
-                  trailing: const Icon(Icons.star_border),
+                  trailing: const SvgIcon(SvgIcons.favoriteSmall),
                 )
               : ContextMenuButton(
                   key: const Key('FavoriteContactButton'),
                   label: 'btn_add_to_favorites'.l10n,
                   onPressed: () => c.favoriteContact(contact.contact.value.id),
-                  trailing: const Icon(Icons.star),
+                  trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
                 ),
           ContextMenuButton(
             label: 'btn_delete'.l10n,
             onPressed: () => _removeFromContacts(c, context, contact),
-            trailing: const Icon(Icons.delete),
+            trailing: const SvgIcon(SvgIcons.deleteThick),
           ),
         ],
         subtitle: [
@@ -730,13 +735,9 @@ class ContactsTabView extends StatelessWidget {
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgImage.asset(
-                inverted
-                    ? 'assets/icons/muted_light.svg'
-                    : 'assets/icons/muted.svg',
+              child: SvgIcon(
+                inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
                 key: Key('MuteIndicator_${contact.id}'),
-                width: 19.99,
-                height: 15,
               ),
             );
           }),

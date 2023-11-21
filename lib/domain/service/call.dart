@@ -32,6 +32,7 @@ import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart'
     show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -66,6 +67,11 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
+    Log.debug(
+      'call($chatId, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
     if (WebUtils.containsCall(chatId)) {
@@ -103,6 +109,11 @@ class CallService extends DisposableService {
     bool withVideo = false,
     bool withScreen = false,
   }) async {
+    Log.debug(
+      'join($chatId, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
     }
@@ -147,6 +158,8 @@ class CallService extends DisposableService {
 
   /// Leaves or declines an [OngoingCall] identified by the given [chatId].
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
+    Log.debug('leave($chatId, $deviceId)', '$runtimeType');
+
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       deviceId ??= call.value.deviceId;
@@ -168,6 +181,8 @@ class CallService extends DisposableService {
 
   /// Declines an [OngoingCall] identified by the given [chatId].
   Future<void> decline(ChatId chatId) async {
+    Log.debug('decline($chatId)', '$runtimeType');
+
     Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
@@ -191,6 +206,11 @@ class CallService extends DisposableService {
     bool withVideo = true,
     bool withScreen = false,
   }) {
+    Log.debug(
+      'addStored($stored, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     return _callsRepo.addStored(
       stored,
       withAudio: withAudio,
@@ -200,12 +220,17 @@ class CallService extends DisposableService {
   }
 
   /// Removes an [OngoingCall] identified by the given [chatId].
-  void remove(ChatId chatId) => _callsRepo.remove(chatId);
+  void remove(ChatId chatId) {
+    Log.debug('remove($chatId)', '$runtimeType');
+    _callsRepo.remove(chatId);
+  }
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the [OngoingCall]
   /// identified by the given [chatId].
   Future<void> toggleHand(ChatId chatId, bool raised) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
+
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.toggleHand(chatId, raised);
     }
@@ -214,6 +239,8 @@ class CallService extends DisposableService {
   /// Redials a [User] who left or declined the ongoing [ChatCall] in the
   /// specified [Chat]-group by the authenticated [MyUser].
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
+    Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
+
     if (_callsRepo.contains(chatId)) {
       await _callsRepo.redialChatCallMember(chatId, memberId);
     }
@@ -225,6 +252,8 @@ class CallService extends DisposableService {
   /// If the specified [User] participates in the [ChatCall] from multiple
   /// devices simultaneously, then removes all the devices at once.
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
+    Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
+
     if (_callsRepo.contains(chatId)) {
       await _callsRepo.removeChatCallMember(chatId, userId);
     }
@@ -237,7 +266,12 @@ class CallService extends DisposableService {
     List<UserId> additionalMemberIds, {
     ChatName? groupName,
   }) async {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    Log.debug(
+      'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
+      '$runtimeType',
+    );
+
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       await _callsRepo.transformDialogCallIntoGroupCall(
         chatId,
@@ -252,11 +286,10 @@ class CallService extends DisposableService {
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].
-  Stream<ChatCallEvents> heartbeat(
-    ChatItemId id,
-    ChatCallDeviceId deviceId,
-  ) =>
-      _callsRepo.heartbeat(id, deviceId);
+  Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId) {
+    Log.debug('heartbeat($id, $deviceId)', '$runtimeType');
+    return _callsRepo.heartbeat(id, deviceId);
+  }
 
   /// Switches an [OngoingCall] identified by its [chatId] to the specified
   /// [newChatId].
@@ -266,7 +299,12 @@ class CallService extends DisposableService {
     required ChatItemId callId,
     required ChatItemId newCallId,
   }) {
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    Log.debug(
+      'moveCall($chatId, $newChatId, $callId, $newCallId)',
+      '$runtimeType',
+    );
+
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
       _callsRepo.moveCredentials(callId, newCallId);
@@ -278,14 +316,21 @@ class CallService extends DisposableService {
 
   /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
   /// specified [OngoingCall].
-  void transferCredentials(ChatId chatId, ChatItemId callId) =>
-      _callsRepo.transferCredentials(chatId, callId);
+  void transferCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
+    _callsRepo.transferCredentials(chatId, callId);
+  }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) =>
-      _callsRepo.removeCredentials(id);
+  Future<void> removeCredentials(ChatItemId id) async {
+    Log.debug('removeCredentials($id)', '$runtimeType');
+    await _callsRepo.removeCredentials(id);
+  }
 
   /// Returns a [RxChat] by the provided [id].
-  Future<RxChat?> getChat(ChatId id) => _chatService.get(id);
+  Future<RxChat?> getChat(ChatId id) async {
+    Log.debug('getChat($id)', '$runtimeType');
+    return await _chatService.get(id);
+  }
 }

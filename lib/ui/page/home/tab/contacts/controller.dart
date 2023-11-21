@@ -20,12 +20,12 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
@@ -33,7 +33,6 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallIsInPopupException;
 import '/domain/repository/contact.dart';
-import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -47,6 +46,7 @@ import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import 'view.dart';
 
 export 'view.dart';
 
@@ -56,7 +56,6 @@ class ContactsTabController extends GetxController {
     this._chatService,
     this._contactService,
     this._calls,
-    this._settingsRepository,
     this._userService,
   );
 
@@ -107,14 +106,8 @@ class ContactsTabController extends GetxController {
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// Settings repository maintaining the [ApplicationSettings].
-  final AbstractSettingsRepository _settingsRepository;
-
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _rxUserWorkers = {};
-
-  /// [Worker]s to [RxUser.user] reacting on its changes.
-  final Map<UserId, Worker> _userWorkers = {};
 
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
@@ -126,16 +119,23 @@ class ContactsTabController extends GetxController {
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
+  /// Subscription for the [ContactService.status] changes.
+  StreamSubscription? _statusSubscription;
+
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
   /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
   Rx<RxStatus> get status => _contactService.status;
 
-  /// Indicates whether [contacts] should be sorted by their names or otherwise
-  /// by their [User.lastSeenAt] dates.
-  bool get sortByName =>
-      _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
+  /// Indicates whether the [favorites] or [contacts] have a next page.
+  RxBool get hasNext => _contactService.hasNext;
 
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     contacts.value = _contactService.contacts.values.toList();
     favorites.value = _contactService.favorites.values.toList();
     _sortContacts();
@@ -146,6 +146,18 @@ class ContactsTabController extends GetxController {
     HardwareKeyboard.instance.addHandler(_escapeListener);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
+    if (_contactService.status.value.isSuccess) {
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => _ensureScrollable());
+    } else {
+      _statusSubscription = _contactService.status.listen((status) {
+        if (status.isSuccess) {
+          SchedulerBinding.instance
+              .addPostFrameCallback((_) => _ensureScrollable());
+        }
+      });
     }
 
     super.onInit();
@@ -159,8 +171,8 @@ class ContactsTabController extends GetxController {
 
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    _statusSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
-    _userWorkers.forEach((_, v) => v.dispose());
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -258,12 +270,6 @@ class ContactsTabController extends GetxController {
     await favoriteContact(contactId, ChatContactFavoritePosition(position));
   }
 
-  /// Toggles the [sortByName] sorting the [contacts].
-  void toggleSorting() {
-    _settingsRepository.setSortContactsByName(!sortByName);
-    _sortContacts();
-  }
-
   /// Enables and initializes or disables and disposes the [search].
   void toggleSearch([bool enable = true]) {
     search.value?.onClose();
@@ -352,18 +358,12 @@ class ContactsTabController extends GetxController {
         if (rxUser?.id != user?.id) {
           rxUser?.stopUpdates();
           rxUser = user?..listenUpdates();
-          _userWorkers.remove(user?.id)?.dispose();
         }
 
         if (user != null) {
-          _populateSortingWorker(user.user);
           _sortContacts();
         }
       });
-
-      if (c.user.value != null) {
-        _populateSortingWorker(c.user.value!.user);
-      }
     }
 
     contacts.forEach(listen);
@@ -379,7 +379,6 @@ class ContactsTabController extends GetxController {
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
           contacts.removeWhere((c) => c.id == e.key);
-          _userWorkers.remove(e.key)?.dispose();
           _rxUserWorkers.remove(e.key)?.dispose();
           break;
 
@@ -401,7 +400,6 @@ class ContactsTabController extends GetxController {
 
         case OperationKind.removed:
           e.value?.user.value?.stopUpdates();
-          _userWorkers.remove(e.key)?.dispose();
           _rxUserWorkers.remove(e.key)?.dispose();
           favorites.removeWhere((c) => c.contact.value.id == e.key);
           break;
@@ -413,47 +411,10 @@ class ContactsTabController extends GetxController {
     });
   }
 
-  /// Populates a [Worker] sorting the [contacts] on the [User.online] and
-  /// [User.lastSeenAt] changes of the provided [user].
-  void _populateSortingWorker(Rx<User> user) {
-    final User u = user.value;
-
-    if (_userWorkers[u.id] == null) {
-      bool online = u.online;
-      PreciseDateTime? lastSeenAt = u.lastSeenAt;
-
-      _userWorkers[u.id] = ever(user, (User u) {
-        if (!sortByName && (online != u.online || lastSeenAt != u.lastSeenAt)) {
-          online = u.online;
-          lastSeenAt = u.lastSeenAt;
-          _sortContacts();
-        }
-      });
-    }
-  }
-
-  /// Sorts the [contacts] by their names or by their [User.lastSeenAt] based on
-  /// the [sortByName] indicator.
+  /// Sorts the [contacts] by their names.
   void _sortContacts() {
     contacts.sort((a, b) {
-      if (sortByName == true) {
-        return a.contact.value.name.val.compareTo(b.contact.value.name.val);
-      } else {
-        final User? userA = a.user.value?.user.value;
-        final User? userB = b.user.value?.user.value;
-
-        if (userA?.online == true && userB?.online == false) {
-          return -1;
-        } else if (userA?.online == false && userB?.online == true) {
-          return 1;
-        } else {
-          if (userB?.lastSeenAt == null || userA?.lastSeenAt == null) {
-            return 0;
-          } else {
-            return userB!.lastSeenAt!.compareTo(userA!.lastSeenAt!);
-          }
-        }
-      }
+      return a.contact.value.name.val.compareTo(b.contact.value.name.val);
     });
   }
 
@@ -485,6 +446,53 @@ class ContactsTabController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Requests the next page of [ChatContact]s based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (scrollController.hasClients &&
+            hasNext.isTrue &&
+            _contactService.nextLoading.isFalse &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 500) {
+          _contactService.next();
+        }
+      });
+    }
+  }
+
+  /// Ensures the [ContactsTabView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
+    if (hasNext.isTrue) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent < 50 &&
+            _contactService.nextLoading.isFalse) {
+          await _contactService.next();
+          _ensureScrollable();
+        }
+      });
+    }
   }
 
   /// Invokes [toggleSearch], if [search]ing.

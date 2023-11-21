@@ -19,15 +19,17 @@ Feature: Chats pagination
 
   Scenario: Chats pagination works correctly
     Given user Alice
-    And Alice has 31 groups
+    And Alice has 16 groups
     And I sign in as Alice
 
     When I tap `CloseButton` button
     Then I wait until `Chats` is present
+    And I see 15 chats
 
     Given I have Internet with delay of 3 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
+    And I see 16 chats
 
   Scenario: Chats pagination migrates from local to remote
     Given I am Alice

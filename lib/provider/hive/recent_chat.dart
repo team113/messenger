@@ -20,6 +20,7 @@ import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s.
@@ -35,6 +36,7 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
@@ -43,6 +45,8 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(PreciseDateTime key, ChatId item) async {
+    Log.debug('put($key, $item)', '$runtimeType');
+
     final String i = key.toUtc().toString();
 
     if (getSafe(i) != item) {
@@ -59,6 +63,8 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Removes the provided [ChatId] from [Hive].
   Future<void> remove(ChatId item) async {
+    Log.debug('remove($item)', '$runtimeType');
+
     await _mutex.protect(() async {
       final int index = values.toList().indexOf(item);
       if (index != -1) {

@@ -74,17 +74,11 @@ class StyleView extends StatelessWidget {
                         key: c.inverted.value
                             ? const Key('Dark')
                             : const Key('Light'),
-                        child: c.inverted.value
-                            ? const SvgImage.asset(
-                                'assets/icons/dark_mode.svg',
-                                width: 20.8,
-                                height: 20.8,
-                              )
-                            : const SvgImage.asset(
-                                'assets/icons/light_mode.svg',
-                                width: 23,
-                                height: 23,
-                              ),
+                        child: SvgIcon(
+                          c.inverted.value
+                              ? SvgIcons.darkMode
+                              : SvgIcons.lightMode,
+                        ),
                       ),
                     ),
                   ),
@@ -161,29 +155,17 @@ class StyleView extends StatelessWidget {
         StyleTab.colors => StyleCard(
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(tab.index),
-            child: const SvgImage.asset(
-              'assets/icons/palette.svg',
-              width: 20.8,
-              height: 20.8,
-            ),
+            child: const SvgIcon(SvgIcons.palette),
           ),
         StyleTab.typography => StyleCard(
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(tab.index),
-            child: const SvgImage.asset(
-              'assets/icons/typography.svg',
-              width: 24.02,
-              height: 16,
-            ),
+            child: const SvgIcon(SvgIcons.typography),
           ),
         StyleTab.widgets => StyleCard(
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(tab.index),
-            child: const SvgImage.asset(
-              'assets/icons/widgets.svg',
-              width: 18.78,
-              height: 18.78,
-            ),
+            child: const SvgIcon(SvgIcons.widgets),
           ),
       };
     });
