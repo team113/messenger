@@ -1523,8 +1523,20 @@ class SvgIcons {
     height: 11,
   );
 
+  static const SvgData chatsTinyWhite = SvgData(
+    'assets/icons/chats_tiny_white.svg',
+    width: 10.18,
+    height: 11,
+  );
+
   static const SvgData callsTiny = SvgData(
     'assets/icons/calls_tiny.svg',
+    width: 11,
+    height: 11,
+  );
+
+  static const SvgData callsTinyWhite = SvgData(
+    'assets/icons/calls_tiny_white.svg',
     width: 11,
     height: 11,
   );

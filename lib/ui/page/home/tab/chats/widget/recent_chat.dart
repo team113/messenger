@@ -214,17 +214,22 @@ class RecentChatTile extends StatelessWidget {
               ],
             );
           },
+
           basement: payee
-              ? const Row(
+              ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SvgIcon(SvgIcons.callsTiny),
-                    SizedBox(width: 2),
-                    Text('123\$'),
-                    SizedBox(width: 8),
-                    SvgIcon(SvgIcons.chatsTiny),
-                    SizedBox(width: 2),
-                    Text('123\$'),
+                    SvgIcon(
+                      inverted ? SvgIcons.callsTinyWhite : SvgIcons.callsTiny,
+                    ),
+                    const SizedBox(width: 2),
+                    const Text('123\$'),
+                    const SizedBox(width: 8),
+                    SvgIcon(
+                      inverted ? SvgIcons.chatsTinyWhite : SvgIcons.chatsTiny,
+                    ),
+                    const SizedBox(width: 2),
+                    const Text('123\$'),
                   ],
                 )
               : null,
@@ -359,7 +364,7 @@ class RecentChatTile extends StatelessWidget {
               ),
           ],
           active: active || isRoute,
-          selected: selected,
+          selected: selected || inverted,
           // paid: paid,
           enableContextMenu: enableContextMenu,
           onTap: onTap ?? () => router.chat(chat.id),
