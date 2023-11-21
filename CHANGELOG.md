@@ -25,7 +25,8 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Invalid caller name in popup calls. ([#711])
 - UI:
-    - Infinity loader on member with disabled video. ([#707], [#700])
+    - Media panel:
+        - Disabled incoming video being loaded indefinitely. ([#707], [#700])
 
 [#632]: /../../issues/632
 [#666]: /../../issues/666

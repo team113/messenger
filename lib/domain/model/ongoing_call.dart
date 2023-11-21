@@ -24,13 +24,13 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../service/call.dart';
 import '/domain/model/media_settings.dart';
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '../service/call.dart';
 import 'chat.dart';
 import 'chat_call.dart';
 import 'chat_item.dart';
@@ -1299,7 +1299,6 @@ class OngoingCall {
 
           switch (d) {
             case TrackMediaDirection.sendRecv:
-            case TrackMediaDirection.sendOnly:
               member?.tracks.addIf(!member!.tracks.contains(t), t);
               switch (track.kind()) {
                 case MediaKind.audio:
@@ -1310,6 +1309,11 @@ class OngoingCall {
                   await t.createRenderer();
                   break;
               }
+              break;
+
+            case TrackMediaDirection.sendOnly:
+              member?.tracks.addIf(!member!.tracks.contains(t), t);
+              await t.removeRenderer();
               break;
 
             case TrackMediaDirection.recvOnly:
@@ -2011,11 +2015,9 @@ class CallMember {
     bool isHandRaised = false,
     bool isConnected = false,
     bool isDialing = false,
-    bool isVideoEnabled = true,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
         isDialing = RxBool(isDialing),
-        isVideoEnabled = RxBool(isVideoEnabled),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
@@ -2023,11 +2025,9 @@ class CallMember {
     bool isHandRaised = false,
     bool isConnected = false,
     bool isDialing = false,
-    bool isVideoEnabled = true,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
         isDialing = RxBool(isDialing),
-        isVideoEnabled = RxBool(isVideoEnabled),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -2047,9 +2047,6 @@ class CallMember {
 
   /// Indicator whether this [CallMember] is dialing.
   final RxBool isDialing;
-
-  /// Indicator whether the video of this [CallMember] is enabled.
-  final RxBool isVideoEnabled;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
@@ -2075,10 +2072,8 @@ class CallMember {
 
     if (enabled) {
       await _connection?.enableRemoteVideo(source);
-      isVideoEnabled.value = true;
     } else {
       await _connection?.disableRemoteVideo(source);
-      isVideoEnabled.value = false;
     }
   }
 
