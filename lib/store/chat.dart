@@ -1673,19 +1673,7 @@ class ChatRepository extends DisposableInterface
         strategy: PaginationStrategy.fromEnd,
         reversed: true,
       ),
-      compare: (a, b) {
-        if (a.value.favoritePosition != null &&
-            b.value.favoritePosition == null) {
-          return -1;
-        } else if (a.value.favoritePosition == null &&
-            b.value.favoritePosition != null) {
-          return 1;
-        } else if (a.value.favoritePosition != null &&
-            b.value.favoritePosition != null) {
-          return b.value.favoritePosition!.compareTo(a.value.favoritePosition!);
-        }
-        return b.value.updatedAt.compareTo(a.value.updatedAt);
-      },
+      compare: (a, b) => a.value.compareTo(b.value),
     );
 
     final Pagination<HiveChat, RecentChatsCursor, ChatId> recentPagination =
@@ -1767,7 +1755,7 @@ class ChatRepository extends DisposableInterface
           getKey: (e) => e.value.id,
           orderBy: (_) => _favoriteLocal.values,
           isLast: (_) => true,
-          isFirst: (_) => _sessionLocal.getFavoriteChatsFetched() ?? false,
+          isFirst: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,
         ),
@@ -1781,7 +1769,7 @@ class ChatRepository extends DisposableInterface
             );
 
             if (!page.info.hasNext) {
-              _sessionLocal.setFavoriteChatsFetched(true);
+              _sessionLocal.setFavoriteChatsSynchronized(true);
             }
 
             return page;

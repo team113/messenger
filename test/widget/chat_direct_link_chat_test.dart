@@ -201,8 +201,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataProvider = SessionDataHiveProvider();
-  await sessionDataProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     FlutterError.onError = ignoreOverflowErrors;
@@ -352,7 +352,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -361,7 +361,7 @@ void main() async {
       graphQlProvider,
       contactProvider,
       UserRepository(graphQlProvider, userProvider),
-      sessionDataProvider,
+      sessionProvider,
     );
 
     Get.put(ContactService(contactRepository));

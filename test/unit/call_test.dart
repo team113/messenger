@@ -148,8 +148,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataProvider = SessionDataHiveProvider();
-  await sessionDataProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -225,7 +225,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -357,7 +357,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -432,7 +432,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),

@@ -36,9 +36,9 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
 
-    Hive.maybeRegisterAdapter(SessionDataAdapter());
-    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
     Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
+    Hive.maybeRegisterAdapter(SessionDataAdapter());
   }
 
   /// Returns the stored [FavoriteChatsListVersion] from [Hive].
@@ -49,9 +49,9 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
 
   /// Returns the stored indicator whether all favorite [Chat]s are stored
   /// locally.
-  bool? getFavoriteChatsFetched() {
-    Log.debug('getFavoriteChatsFetched()', '$runtimeType');
-    return getSafe(0)?.favoriteChatsFetched;
+  bool? getFavoriteChatsSynchronized() {
+    Log.debug('getFavoriteChatsSynchronized()', '$runtimeType');
+    return getSafe(0)?.favoriteChatsSynchronized;
   }
 
   /// Returns the stored [ChatContactsListVersion] from [Hive].
@@ -64,15 +64,17 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
   Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) {
     Log.debug('setChatContactsListVersion($ver)', '$runtimeType');
     return putSafe(
-        0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+      0,
+      (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver,
+    );
   }
 
-  /// Stores a new [SessionData.favoriteChatsFetched] to [Hive].
-  Future<void> setFavoriteChatsFetched(bool val) {
-    Log.debug('setFavoriteChatsFetched($val)', '$runtimeType');
+  /// Stores a new [SessionData.favoriteChatsSynchronized] to [Hive].
+  Future<void> setFavoriteChatsSynchronized(bool val) {
+    Log.debug('setFavoriteChatsSynchronized($val)', '$runtimeType');
     return putSafe(
       0,
-      (box.get(0) ?? SessionData())..favoriteChatsFetched = val,
+      (box.get(0) ?? SessionData())..favoriteChatsSynchronized = val,
     );
   }
 

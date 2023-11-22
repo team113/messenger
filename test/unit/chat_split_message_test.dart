@@ -96,8 +96,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataProvider = SessionDataHiveProvider();
-  await sessionDataProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   AuthService authService = Get.put(
     AuthService(
@@ -239,7 +239,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -317,7 +317,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -403,7 +403,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -483,7 +483,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -555,7 +555,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -641,7 +641,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),

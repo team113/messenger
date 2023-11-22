@@ -412,8 +412,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataProvider = SessionDataHiveProvider();
-  await sessionDataProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -469,7 +469,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataProvider,
+        sessionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
