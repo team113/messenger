@@ -63,3 +63,13 @@ extension MyUserConversion on MyUserMixin {
   HiveMyUser toHive({int? blocklistCount}) =>
       HiveMyUser(toModel(blocklistCount: blocklistCount), ver);
 }
+
+/// Extension adding models construction from a
+/// [MyUserEvents$Subscription$MyUserEvents$MyUser].
+extension MyUserEventsMyUserConversion
+    on MyUserEvents$Subscription$MyUserEvents$MyUser {
+  /// Constructs a new [HiveMyUser] from this
+  /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
+  HiveMyUser toHive() =>
+      HiveMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
+}

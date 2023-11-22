@@ -856,14 +856,9 @@ class MyUserRepository implements AbstractMyUserRepository {
           '$runtimeType',
         );
 
-        _setMyUser(
-          (events as MyUserMixin).toHive(
-            blocklistCount:
-                (events as MyUserEvents$Subscription$MyUserEvents$MyUser)
-                    .blocklist
-                    .totalCount,
-          ),
-        );
+        events as MyUserEvents$Subscription$MyUserEvents$MyUser;
+
+        _setMyUser(events.toHive());
       } else if (events.$$typename == 'MyUserEventsVersioned') {
         var mixin = events as MyUserEventsVersionedMixin;
         yield MyUserEventsVersioned(
