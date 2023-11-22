@@ -154,10 +154,10 @@ class _BackgroundService {
     Timer(_renewSessionTimerDuration, () async {
       if (!_connectionEstablished && _credentials == null) {
         await Hive.initFlutter('hive');
-        var sessionProvider = CredentialsHiveProvider();
-        await sessionProvider.init();
+        var credentialsProvider = CredentialsHiveProvider();
+        await credentialsProvider.init();
 
-        _credentials = sessionProvider.get();
+        _credentials = credentialsProvider.get();
         _provider.token = _credentials?.session.token;
         _provider.reconnect();
 
@@ -165,7 +165,7 @@ class _BackgroundService {
           _subscribe();
         }
 
-        await sessionProvider.close();
+        await credentialsProvider.close();
         await Hive.close();
       }
     });
@@ -285,10 +285,10 @@ class _BackgroundService {
                 // Re-initialization is required every time since [Hive] may
                 // behave poorly between isolates.
                 await Hive.initFlutter('hive');
-                var sessionProvider = CredentialsHiveProvider();
-                await sessionProvider.init();
-                await sessionProvider.set(_credentials!);
-                await sessionProvider.close();
+                var credentialsProvider = CredentialsHiveProvider();
+                await credentialsProvider.init();
+                await credentialsProvider.set(_credentials!);
+                await credentialsProvider.close();
                 await Hive.close();
               });
 

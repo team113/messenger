@@ -164,7 +164,7 @@ void main() async {
     }
   };
 
-  var sessionProvider = CredentialsHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
@@ -178,9 +178,9 @@ void main() async {
   );
 
   AuthService authService =
-      AuthService(AuthRepository(graphQlProvider), sessionProvider);
+      AuthService(AuthRepository(graphQlProvider), credentialsProvider);
   await authService.init();
-  await sessionProvider.init();
+  await credentialsProvider.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
@@ -207,8 +207,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
@@ -226,9 +226,9 @@ void main() async {
   Get.put(contactProvider);
   Get.put(userProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
-  Get.put(sessionProvider);
-  Get.put(chatProvider);
   Get.put(credentialsProvider);
+  Get.put(chatProvider);
+  Get.put(callCredentialsProvider);
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -423,7 +423,7 @@ void main() async {
     final authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
@@ -463,7 +463,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),

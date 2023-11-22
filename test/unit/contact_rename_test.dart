@@ -187,8 +187,8 @@ void main() async {
       ),
     ).thenAnswer(
       (_) => Future.value(UpdateChatContactName$Mutation.fromJson(
-                  updateChatContact)
-              .updateChatContactName
+        updateChatContact,
+      ).updateChatContactName
           as UpdateChatContactName$Mutation$UpdateChatContactName$ChatContactEventsVersioned),
     );
 

@@ -60,14 +60,14 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
 
-  var sessionProvider = Get.put(CredentialsHiveProvider());
-  await sessionProvider.init();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
   var userProvider = Get.put(UserHiveProvider());
   await userProvider.init();
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
-  var credentialsProvider = Get.put(ChatCallCredentialsHiveProvider());
-  await credentialsProvider.init();
+  var callCredentialsProvider = Get.put(ChatCallCredentialsHiveProvider());
+  await callCredentialsProvider.init();
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -84,8 +84,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataDataProvider = SessionDataHiveProvider();
-  await sessionDataDataProvider.init();
+  var sessionDataProvider = SessionDataHiveProvider();
+  await sessionDataProvider.init();
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -186,7 +186,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
@@ -205,7 +205,7 @@ void main() async {
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
-      credentialsProvider,
+      callCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
@@ -218,7 +218,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -246,7 +246,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
@@ -265,7 +265,7 @@ void main() async {
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
-      credentialsProvider,
+      callCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
@@ -278,7 +278,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

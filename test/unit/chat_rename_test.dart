@@ -62,14 +62,14 @@ void main() async {
 
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
-  var sessionProvider = Get.put(CredentialsHiveProvider());
-  await sessionProvider.init();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
@@ -84,8 +84,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataDataProvider = SessionDataHiveProvider();
-  await sessionDataDataProvider.init();
+  var sessionDataProvider = SessionDataHiveProvider();
+  await sessionDataProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -183,7 +183,7 @@ void main() async {
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
-      sessionProvider,
+      credentialsProvider,
     ),
   );
   await authService.init();
@@ -246,7 +246,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -260,7 +260,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -300,7 +300,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -314,7 +314,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

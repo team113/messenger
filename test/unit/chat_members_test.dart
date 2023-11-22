@@ -60,16 +60,16 @@ void main() async {
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var sessionProvider = Get.put(CredentialsHiveProvider());
-  await sessionProvider.init();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -86,8 +86,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataDataProvider = SessionDataHiveProvider();
-  await sessionDataDataProvider.init();
+  var sessionDataProvider = SessionDataHiveProvider();
+  await sessionDataProvider.init();
 
   var recentChats = {
     'recentChats': {
@@ -282,7 +282,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
@@ -293,7 +293,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -307,7 +307,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

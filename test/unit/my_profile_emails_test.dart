@@ -67,10 +67,10 @@ void main() async {
     }
   };
 
-  var sessionProvider = CredentialsHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await sessionProvider.init();
+  await credentialsProvider.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
@@ -86,7 +86,7 @@ void main() async {
 
   Get.put(myUserProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
-  Get.put(sessionProvider);
+  Get.put(credentialsProvider);
 
   test(
       'MyUserService successfully adds, removes, confirms email and resends confirmation code',
@@ -175,7 +175,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     UserRepository userRepository =
@@ -232,7 +232,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     UserRepository userRepository =

@@ -354,10 +354,10 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  var sessionProvider = Get.put(CredentialsHiveProvider());
-  await sessionProvider.init();
-  await sessionProvider.clear();
-  sessionProvider.set(
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
+  await credentialsProvider.clear();
+  credentialsProvider.set(
     Credentials(
       Session(
         const AccessToken('token'),
@@ -397,8 +397,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var myUserProvider = MyUserHiveProvider();
@@ -412,8 +412,8 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataDataProvider = SessionDataHiveProvider();
-  await sessionDataDataProvider.init();
+  var sessionDataProvider = SessionDataHiveProvider();
+  await sessionDataProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -438,7 +438,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
@@ -456,7 +456,7 @@ void main() async {
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
-      credentialsProvider,
+      callCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
@@ -469,7 +469,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

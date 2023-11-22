@@ -125,16 +125,16 @@ void main() async {
   await myUserProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var sessionProvider = CredentialsHiveProvider();
-  await sessionProvider.init();
+  var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -148,12 +148,12 @@ void main() async {
   await recentChatProvider.init();
   var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionDataDataProvider = SessionDataHiveProvider();
-  await sessionDataDataProvider.init();
+  var sessionDataProvider = SessionDataHiveProvider();
+  await sessionDataProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
-    sessionProvider.set(
+    credentialsProvider.set(
       Credentials(
         Session(
           const AccessToken('token'),
@@ -193,7 +193,7 @@ void main() async {
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
-        Get.put(AuthService(authRepository, sessionProvider));
+        Get.put(AuthService(authRepository, credentialsProvider));
     await authService.init();
 
     UserRepository userRepository =
@@ -211,7 +211,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -225,7 +225,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -325,7 +325,7 @@ void main() async {
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
-        Get.put(AuthService(authRepository, sessionProvider));
+        Get.put(AuthService(authRepository, credentialsProvider));
     await authService.init();
 
     UserRepository userRepository =
@@ -343,7 +343,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -357,7 +357,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -400,7 +400,7 @@ void main() async {
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
-        Get.put(AuthService(authRepository, sessionProvider));
+        Get.put(AuthService(authRepository, credentialsProvider));
     await authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -418,7 +418,7 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -432,7 +432,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionDataDataProvider,
+        sessionDataProvider,
         monologProvider,
         me: const UserId('me'),
       ),

@@ -159,9 +159,9 @@ void main() async {
     }
   };
 
-  var sessionProvider = Get.put(CredentialsHiveProvider());
-  await sessionProvider.init();
-  await sessionProvider.clear();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
+  await credentialsProvider.clear();
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -191,8 +191,9 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AuthService authService =
-      Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
+  AuthService authService = Get.put(
+    AuthService(AuthRepository(graphQlProvider), credentialsProvider),
+  );
   await authService.init();
 
   router = RouterState(authService);
@@ -217,8 +218,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
@@ -390,7 +391,7 @@ void main() async {
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
-      credentialsProvider,
+      callCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
