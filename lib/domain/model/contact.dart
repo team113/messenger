@@ -28,7 +28,7 @@ part 'contact.g.dart';
 ///
 /// It may be linked with some real [User]s, but also may not.
 @HiveType(typeId: ModelTypeId.chatContact)
-class ChatContact extends HiveObject {
+class ChatContact extends HiveObject implements Comparable<ChatContact> {
   ChatContact(
     this.id, {
     required this.name,
@@ -79,6 +79,25 @@ class ChatContact extends HiveObject {
   /// [MyUser].
   @HiveField(6)
   ChatContactFavoritePosition? favoritePosition;
+
+  @override
+  int compareTo(ChatContact other) {
+    if (favoritePosition != null && other.favoritePosition == null) {
+      return -1;
+    } else if (favoritePosition == null && other.favoritePosition != null) {
+      return 1;
+    } else if (favoritePosition != null && other.favoritePosition != null) {
+      return other.favoritePosition!.compareTo(favoritePosition!);
+    }
+
+    int namesComparing = name.val.compareTo(other.name.val);
+
+    if (namesComparing == 0) {
+      return id.val.compareTo(other.id.val);
+    }
+
+    return namesComparing;
+  }
 }
 
 /// Unique ID of a [ChatContact].

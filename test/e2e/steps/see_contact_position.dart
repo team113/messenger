@@ -42,7 +42,6 @@ final StepDefinitionGeneric seeContactPosition =
         final ChatContactId contactId = context.world.contacts[name]!;
 
         final List<RxChatContact> contacts = [
-          ...controller.favorites,
           ...controller.contacts,
         ];
 

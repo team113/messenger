@@ -401,7 +401,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               }
             } else {
-              if (c.contacts.isEmpty && c.favorites.isEmpty) {
+              if (c.contacts.isEmpty) {
                 child = KeyedSubtree(
                   key: UniqueKey(),
                   child: Center(
@@ -410,6 +410,17 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
+                final List<RxChatContact> favorites = [];
+                final List<RxChatContact> contacts = [];
+
+                for (RxChatContact e in c.contacts) {
+                  if (e.contact.value.favoritePosition != null) {
+                    favorites.add(e);
+                  } else {
+                    contacts.add(e);
+                  }
+                }
+
                 child = AnimationLimiter(
                   key: const Key('Contacts'),
                   child: SafeScrollbar(
@@ -459,14 +470,14 @@ class ContactsTabView extends StatelessWidget {
                               );
                             },
                             itemBuilder: (_, i) {
-                              if (c.favorites.isEmpty) {
+                              if (favorites.isEmpty) {
                                 // This builder is invoked for some reason when
                                 // deleting all favorite contacts, so put a
                                 // guard for that case.
                                 return const SizedBox.shrink(key: Key('0'));
                               }
 
-                              RxChatContact contact = c.favorites.elementAt(i);
+                              RxChatContact contact = favorites[i];
                               return KeyedSubtree(
                                 key: Key(contact.id.val),
                                 child: Obx(() {
@@ -533,7 +544,7 @@ class ContactsTabView extends StatelessWidget {
                                 }),
                               );
                             },
-                            itemCount: c.favorites.length,
+                            itemCount: favorites.length,
                             onReorder: (a, b) {
                               c.reorderContact(a, b);
                               c.reordering.value = false;
@@ -549,9 +560,9 @@ class ContactsTabView extends StatelessWidget {
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
                               [
-                                ...c.contacts.mapIndexed((i, e) {
+                                ...contacts.mapIndexed((i, e) {
                                   return AnimationConfiguration.staggeredList(
-                                    position: c.favorites.length + i,
+                                    position: favorites.length + i,
                                     duration: const Duration(milliseconds: 375),
                                     child: SlideAnimation(
                                       horizontalOffset: 50,
@@ -651,7 +662,7 @@ class ContactsTabView extends StatelessWidget {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      bool favorite = c.favorites.contains(contact);
+      bool favorite = contact.contact.value.favoritePosition != null;
 
       final bool selected = router.routes
               .lastWhereOrNull((e) => e.startsWith(Routes.user))

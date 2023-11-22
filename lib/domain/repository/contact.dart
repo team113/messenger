@@ -28,32 +28,28 @@ import 'search.dart';
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
   /// Returns reactive map of [ChatContact]s in the current pagination view.
-  RxObsMap<ChatContactId, RxChatContact> get contacts;
-
-  /// Returns reactive map of favorite [ChatContact]s in the current pagination
-  /// view.
-  RxObsMap<ChatContactId, RxChatContact> get favorites;
+  RxObsMap<ChatContactId, RxChatContact> get paginated;
 
   /// Returns reactive map of all [RxChatContact]s stored.
-  RxObsMap<ChatContactId, RxChatContact> get allContacts;
+  RxObsMap<ChatContactId, RxChatContact> get contacts;
 
   /// Returns the initialization [RxStatus] of this repository and its
-  /// [contacts] and [favorites].
+  /// [paginated] and [favorites].
   Rx<RxStatus> get status;
 
-  /// Indicates whether the [contacts] or [favorites] have next page.
+  /// Indicates whether the [paginated] or [favorites] have next page.
   RxBool get hasNext;
 
-  /// Indicates whether a next page of the [contacts] or [favorites] is loading.
+  /// Indicates whether a next page of the [paginated] or [favorites] is loading.
   RxBool get nextLoading;
 
   /// Returns a [ChatContact] by the provided [id].
   RxChatContact? get(ChatContactId id);
 
-  /// Fetches the next [contacts] page.
+  /// Fetches the next [paginated] page.
   Future<void> next();
 
-  /// Clears the stored [contacts].
+  /// Clears the stored [paginated].
   Future<void> clearCache();
 
   /// Creates a new [ChatContact] with the specified [User] in the current
@@ -90,7 +86,7 @@ abstract class AbstractContactRepository {
 }
 
 /// Unified reactive [ChatContact] entity.
-abstract class RxChatContact {
+abstract class RxChatContact implements Comparable<RxChatContact> {
   /// Reactive value of the [ChatContact] this [RxChatContact] represents.
   Rx<ChatContact> get contact;
 

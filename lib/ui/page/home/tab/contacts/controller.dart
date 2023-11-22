@@ -62,9 +62,6 @@ class ContactsTabController extends GetxController {
   /// Reactive list of sorted [ChatContact]s.
   final RxList<RxChatContact> contacts = RxList();
 
-  /// Reactive list of favorited [ChatContact]s.
-  final RxList<RxChatContact> favorites = RxList();
-
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
@@ -136,10 +133,8 @@ class ContactsTabController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    contacts.value = _contactService.contacts.values.toList();
-    favorites.value = _contactService.favorites.values.toList();
-    _sortContacts();
-    _sortFavorites();
+    contacts.value = _contactService.paginated.values.toList();
+    contacts.sort();
 
     _initUsersUpdates();
 
@@ -165,7 +160,7 @@ class ContactsTabController extends GetxController {
 
   @override
   void onClose() {
-    for (RxChatContact contact in [...contacts, ...favorites]) {
+    for (RxChatContact contact in contacts) {
       contact.user.value?.stopUpdates();
     }
 
@@ -248,6 +243,10 @@ class ContactsTabController extends GetxController {
 
   /// Reorders a [ChatContact] from the [from] position to the [to] position.
   Future<void> reorderContact(int from, int to) async {
+    final List<RxChatContact> favorites = contacts
+        .where((e) => e.contact.value.favoritePosition != null)
+        .toList();
+
     double position;
 
     if (to <= 0) {
@@ -361,18 +360,18 @@ class ContactsTabController extends GetxController {
         }
 
         if (user != null) {
-          _sortContacts();
+          contacts.sort();
         }
       });
     }
 
     contacts.forEach(listen);
 
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
+    _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
           contacts.add(e.value!);
-          _sortContacts();
+          contacts.sort();
           listen(e.value!);
           break;
 
@@ -383,47 +382,11 @@ class ContactsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          _sortContacts();
+          contacts.sort();
+          contacts.refresh();
           break;
       }
     });
-
-    favorites.forEach(listen);
-
-    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          favorites.add(e.value!);
-          _sortFavorites();
-          listen(e.value!);
-          break;
-
-        case OperationKind.removed:
-          e.value?.user.value?.stopUpdates();
-          _rxUserWorkers.remove(e.key)?.dispose();
-          favorites.removeWhere((c) => c.contact.value.id == e.key);
-          break;
-
-        case OperationKind.updated:
-          _sortFavorites();
-          break;
-      }
-    });
-  }
-
-  /// Sorts the [contacts] by their names.
-  void _sortContacts() {
-    contacts.sort((a, b) {
-      return a.contact.value.name.val.compareTo(b.contact.value.name.val);
-    });
-  }
-
-  /// Sorts the [favorites] by the [ChatContact.favoritePosition].
-  void _sortFavorites() {
-    favorites.sort(
-      (a, b) => b.contact.value.favoritePosition!
-          .compareTo(a.contact.value.favoritePosition!),
-    );
   }
 
   /// Disables the [search], if its focus is lost or its query is empty.
