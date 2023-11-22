@@ -585,8 +585,17 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _remoteSubscription?.close(immediate: true);
-    _remoteSubscription =
-        StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
+    _remoteSubscription = StreamQueue(
+      _myUserRemoteEvents(() {
+        // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
+        // is `null`, to retrieve it.
+        if (_myUserLocal.myUser?.value.blocklistCount == null) {
+          return null;
+        }
+
+        return _myUserLocal.myUser?.ver;
+      }),
+    );
     await _remoteSubscription!.execute(_myUserRemoteEvent, onError: (e) async {
       if (e is StaleVersionException) {
         await _blocklistRepo.reset();
@@ -613,7 +622,12 @@ class MyUserRepository implements AbstractMyUserRepository {
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
-    if (user.ver > _myUserLocal.myUser?.ver || ignoreVersion) {
+    // Update the stored [MyUser], if the provided [user] has non-`null`
+    // blocklist count, which is different from the stored one.
+    final bool blocklist = user.value.blocklistCount != null &&
+        user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
+
+    if (user.ver > _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
       user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
       _myUserLocal.set(user);
     }
@@ -820,7 +834,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           event as EventBlocklistRecordRemoved;
           if (userEntity.value.blocklistCount != null) {
             userEntity.value.blocklistCount =
-                userEntity.value.blocklistCount! - 1;
+                max(userEntity.value.blocklistCount! - 1, 0);
           }
           _blocklistRepo.remove(event.user.value.id);
           break;

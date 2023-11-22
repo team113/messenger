@@ -125,10 +125,12 @@ class UserController extends GetxController {
     _fetchUser();
 
     inContacts = RxBool(
-      _contactService.contacts.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
-          _contactService.favorites.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)),
+      _contactService.contacts.values.any((e) =>
+              e.contact.value.users.isNotEmpty &&
+              e.contact.value.users.every((m) => m.id == id)) ||
+          _contactService.favorites.values.any((e) =>
+              e.contact.value.users.isNotEmpty &&
+              e.contact.value.users.every((m) => m.id == id)),
     );
 
     inFavorites = RxBool(
