@@ -24,15 +24,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gal/gal.dart';
-import 'package:get/get.dart';
-import 'package:messenger/domain/model/native_file.dart';
+import 'package:get/get.dart' as get_x;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
+import '/domain/model/native_file.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import 'backoff.dart';
@@ -89,31 +88,33 @@ class PlatformUtilsImpl {
   static const Duration _activityTimeout = Duration(seconds: 15);
 
   /// Indicates whether application is running in a web browser.
-  bool get isWeb => GetPlatform.isWeb;
+  bool get isWeb => get_x.GetPlatform.isWeb;
 
   // TODO: Remove when jonataslaw/getx#1936 is fixed:
   //       https://github.com/jonataslaw/getx/issues/1936
   /// Indicates whether device's OS is macOS.
-  bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
+  bool get isMacOS => WebUtils.isMacOS || get_x.GetPlatform.isMacOS;
 
   /// Indicates whether device's OS is Windows.
-  bool get isWindows => GetPlatform.isWindows;
+  bool get isWindows => get_x.GetPlatform.isWindows;
 
   /// Indicates whether device's OS is Linux.
-  bool get isLinux => GetPlatform.isLinux;
+  bool get isLinux => get_x.GetPlatform.isLinux;
 
   /// Indicates whether device's OS is Android.
-  bool get isAndroid => GetPlatform.isAndroid;
+  bool get isAndroid => get_x.GetPlatform.isAndroid;
 
   /// Indicates whether device's OS is iOS.
-  bool get isIOS => GetPlatform.isIOS;
+  bool get isIOS => get_x.GetPlatform.isIOS;
 
   /// Indicates whether device is running on a mobile OS.
-  bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
+  bool get isMobile => get_x.GetPlatform.isIOS || get_x.GetPlatform.isAndroid;
 
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
-      PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
+      PlatformUtils.isMacOS ||
+      get_x.GetPlatform.isWindows ||
+      get_x.GetPlatform.isLinux;
 
   /// Indicates whether device is running on a Firebase Cloud Messaging
   /// supported OS, meaning it supports receiving push notifications.
@@ -148,10 +149,10 @@ class PlatformUtilsImpl {
         },
       );
     } else {
-      Worker? worker;
+      get_x.Worker? worker;
 
       _focusController = StreamController<bool>.broadcast(
-        onListen: () => worker = ever(
+        onListen: () => worker = get_x.ever(
           router.lifecycle,
           (AppLifecycleState a) => _focusController?.add(a.inForeground),
         ),
@@ -534,77 +535,45 @@ class PlatformUtilsImpl {
     return result;
   }
 
-  /// Saves a local video or image from the provided [bytes].
-  Future<void> downloadLocalFile(String name, Uint8List bytes) async {
-    if (isWeb) {
-      final html.Blob blob = html.Blob([bytes]);
-      final String url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..target = 'webSaveFileAnchor'
-        ..download = name;
-      html.document.body!.children.add(anchor);
-      anchor.click();
-      html.document.body!.children.remove(anchor);
-      html.Url.revokeObjectUrl(url);
-    } else {
-      Directory appDownloadDir = await downloadsDirectory;
-      final File file = File('${appDownloadDir.path}/$name');
-
-      await file.writeAsBytes(bytes);
-    }
-  }
-
-  /// Saves a video or an image from the provided [path] to the gallery.
-  Future<void> saveLocalFileToGallery(
-    String name,
-    String path,
-  ) async {
-    if (!isLinux && !isWeb) {
-      final bool isImage = NativeFile.images
-          .any((e) => name.endsWith(e) && !name.endsWith('svg'));
-      final bool isVideo = NativeFile.images.any((e) => name.endsWith(e));
-
-      if (isImage) {
-        await Gal.putImage(path);
-      } else if (isVideo) {
-        await Gal.putVideo(path);
-      } else {
-        throw GalException(
-          type: GalExceptionType.notSupportedFormat,
-          platformException: PlatformException(code: 'not_supported_format'),
-          stackTrace: StackTrace.current,
-        );
-      }
-    }
-  }
-
   /// Downloads a video or an image from the provided [url] and saves it to the
   /// gallery.
+  ///
+  /// Do not call this method on Linux and Web, since Gal does
+  /// not currently support these platforms. Follow this issue on
+  /// [GitHub](https://github.com/natsuk4ze/gal/issues/163).
   Future<void> saveToGallery(
     String url,
     String name, {
     String? checksum,
   }) async {
-    if (!isLinux && !isWeb) {
-      final String path = '${(await temporaryDirectory).path}/$name';
+    final String path = '${(await temporaryDirectory).path}/$name';
 
-      final bool isVideo = NativeFile.videos.any((e) => url.endsWith(e));
-      final bool isImage = NativeFile.images.any((e) => url.endsWith(e)) &&
-          !(url.endsWith('svg'));
+    final Response response = await (await dio).download(url, path);
+    final Map<String, List<String>> headers = response.headers.map;
+    final List<String>? type = headers['Content-Type']?[0].split('/');
 
-      await (await dio).download(url, path);
+    bool? isImage;
+    if (type != null) {
+      final bool isSupportedType = NativeFile.images.any((e) => e == type[1]);
+      isImage = type[0] == 'image' && isSupportedType
+          ? true
+          : type[1] == 'svg+xml'
+              ? null
+              : false;
+    }
 
+    if (isImage != null) {
       if (isImage) {
         await Gal.putImage(path);
-      } else if (isVideo) {
-        await Gal.putVideo(path);
       } else {
-        throw GalException(
-          type: GalExceptionType.notSupportedFormat,
-          platformException: PlatformException(code: 'not_supported_format'),
-          stackTrace: StackTrace.current,
-        );
+        await Gal.putVideo(path);
       }
+    } else {
+      throw GalException(
+        type: GalExceptionType.notSupportedFormat,
+        platformException: PlatformException(code: 'not_supported_format'),
+        stackTrace: StackTrace.current,
+      );
     }
   }
 

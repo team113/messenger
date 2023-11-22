@@ -681,8 +681,8 @@ class _ChatViewState extends State<ChatView>
                 },
                 onSelecting: (s) => c.isSelecting.value = s,
                 onDownload: c.downloadMedia,
-                onDownloadAs: c.downloadAs,
-                onSave: c.saveToGallery,
+                onDownloadAs: c.downloadMediaAs,
+                onSave: (a) => c.saveToGallery(a, e.value),
               ),
             );
           }),

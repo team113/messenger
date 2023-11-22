@@ -1186,11 +1186,12 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Downloads the provided [attachments].
+  /// Downloads the provided image or video [attachments].
   Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
     try {
       for (Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
+          print('download');
           await CacheWorker.instance
               .download(
                 attachment.original.url,
@@ -1203,10 +1204,7 @@ class ChatController extends GetxController {
               )
               .future;
         } else {
-          await PlatformUtils.downloadLocalFile(
-            attachment.filename,
-            attachment.file.bytes.value!,
-          );
+          // TODO: Implement [LocalAttachment] download
         }
       }
 
@@ -1215,11 +1213,7 @@ class ChatController extends GetxController {
             ? 'label_files_downloaded'.l10n
             : attachments.first is ImageAttachment
                 ? 'label_image_downloaded'.l10n
-                : attachments.first is FileAttachment
-                    ? 'label_video_downloaded'.l10n
-                    : (attachments.first as LocalAttachment).file.isImage
-                        ? 'label_image_downloaded'.l10n
-                        : 'label_video_downloaded'.l10n,
+                : 'label_video_downloaded'.l10n,
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1232,14 +1226,12 @@ class ChatController extends GetxController {
     List<Attachment> attachments,
     ChatItem item,
   ) async {
-    if (!await Gal.hasAccess()) {
-      if (!await Gal.requestAccess()) {
-        MessagePopup.error('err_no_access_to_gallery'.l10n);
-        return;
-      }
+    if (!await Gal.requestAccess()) {
+      MessagePopup.error('err_no_access_to_gallery'.l10n);
+      return;
     }
 
-    try {
+    Future<void> saveAttachments() async {
       for (Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
@@ -1251,10 +1243,7 @@ class ChatController extends GetxController {
             checksum: attachment.original.checksum,
           );
         } else {
-          await PlatformUtils.saveLocalFileToGallery(
-            attachment.filename,
-            attachment.file.path ?? '',
-          );
+          // TODO: Implement [LocalAttachment] download
         }
       }
 
@@ -1265,21 +1254,31 @@ class ChatController extends GetxController {
                 ? 'label_image_saved_to_gallery'.l10n
                 : 'label_video_saved_to_gallery'.l10n,
       );
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.badResponse) {
-        chat?.updateAttachments(item);
-      }
-      await saveToGallery(attachments, item);
-    } on GalException catch (e) {
-      MessagePopup.error(switch (e.type) {
-        GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
-        GalExceptionType.notEnoughSpace => 'err_no_space_left_in_gallery'.l10n,
-        GalExceptionType.notSupportedFormat => 'err_unsupported_format'.l10n,
-        GalExceptionType.unexpected => 'err_could_not_download'.l10n,
-      });
+    }
 
-      if (e.type == GalExceptionType.unexpected) {
-        rethrow;
+    try {
+      try {
+        await saveAttachments();
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 403) {
+          await chat?.updateAttachments(item);
+          await Future.delayed(Duration.zero);
+          await saveAttachments();
+        } else {
+          rethrow;
+        }
+      } on GalException catch (e) {
+        MessagePopup.error(switch (e.type) {
+          GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
+          GalExceptionType.notEnoughSpace =>
+            'err_no_space_left_in_gallery'.l10n,
+          GalExceptionType.notSupportedFormat => 'err_unsupported_format'.l10n,
+          GalExceptionType.unexpected => 'err_could_not_download'.l10n,
+        });
+
+        if (e.type == GalExceptionType.unexpected) {
+          rethrow;
+        }
       }
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1287,8 +1286,9 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Downloads the provided image [attachments] using `save as` dialog.
-  Future<void> downloadAs(List<Attachment> attachments) async {
+  /// Downloads the provided image or video [attachments] using `save as`
+  /// dialog.
+  Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
       String? to = attachments.length > 1
           ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)

@@ -178,7 +178,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a save to gallery action of this [ChatItem] is
   /// triggered.
-  final void Function(List<Attachment>, ChatItem)? onSave;
+  final void Function(List<Attachment>)? onSave;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1742,6 +1742,43 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 trailing: const SvgIcon(SvgIcons.edit),
                                 onPressed: widget.onEdit,
                               ),
+                            if (media.isNotEmpty) ...[
+                              if (PlatformUtils.isDesktop)
+                                ContextMenuButton(
+                                  key: const Key('DownloadButton'),
+                                  label: media.length == 1
+                                      ? 'btn_download'.l10n
+                                      : 'btn_download_all'.l10n,
+                                  trailing: const Icon(Icons.download),
+                                  onPressed: () =>
+                                      widget.onDownload?.call(media),
+                                ),
+                              if (PlatformUtils.isDesktop &&
+                                  !PlatformUtils.isWeb)
+                                ContextMenuButton(
+                                  key: const Key('DownloadAsButton'),
+                                  label: media.length == 1
+                                      ? 'btn_download_as'.l10n
+                                      : 'btn_download_all_as'.l10n,
+                                  trailing: const Icon(Icons.download),
+                                  onPressed: () =>
+                                      widget.onDownloadAs?.call(media),
+                                ),
+                              if (!PlatformUtils.isWeb &&
+                                  !PlatformUtils.isLinux)
+                                ContextMenuButton(
+                                  key: const Key('SaveButton'),
+                                  label: media.length == 1
+                                      ? PlatformUtils.isMobile
+                                          ? 'btn_save'.l10n
+                                          : 'btn_save_to_gallery'.l10n
+                                      : PlatformUtils.isMobile
+                                          ? 'btn_save_all'.l10n
+                                          : 'btn_save_to_gallery_all'.l10n,
+                                  trailing: const Icon(Icons.download),
+                                  onPressed: () => widget.onSave?.call(media),
+                                ),
+                            ],
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile
@@ -1780,44 +1817,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
-                            if (media.isNotEmpty) ...[
-                              if (PlatformUtils.isDesktop)
-                                ContextMenuButton(
-                                  key: const Key('DownloadButton'),
-                                  label: media.length == 1
-                                      ? 'btn_download'.l10n
-                                      : 'btn_download_all'.l10n,
-                                  trailing: const Icon(Icons.download),
-                                  onPressed: () =>
-                                      widget.onDownload?.call(media),
-                                ),
-                              if (PlatformUtils.isDesktop &&
-                                  !PlatformUtils.isWeb)
-                                ContextMenuButton(
-                                  key: const Key('DownloadAsButton'),
-                                  label: media.length == 1
-                                      ? 'btn_download_as'.l10n
-                                      : 'btn_download_all_as'.l10n,
-                                  trailing: const Icon(Icons.download),
-                                  onPressed: () =>
-                                      widget.onDownloadAs?.call(media),
-                                ),
-                              if (!PlatformUtils.isWeb &&
-                                  !PlatformUtils.isLinux)
-                                ContextMenuButton(
-                                  key: const Key('SaveButton'),
-                                  label: media.length == 1
-                                      ? PlatformUtils.isMobile
-                                          ? 'btn_save'.l10n
-                                          : 'btn_save_to_gallery'.l10n
-                                      : PlatformUtils.isMobile
-                                          ? 'btn_save_all'.l10n
-                                          : 'btn_save_to_gallery_all'.l10n,
-                                  trailing: const Icon(Icons.download),
-                                  onPressed: () =>
-                                      widget.onSave?.call(media, item),
-                                ),
-                            ],
                           ],
                           if (item.status.value == SendingStatus.error) ...[
                             ContextMenuButton(

@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -1094,21 +1095,41 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  ///
+  /// Do not call this method on Linux and Web, since Gal does
+  /// not currently support these platforms. Follow this issue on
+  /// [GitHub](https://github.com/natsuk4ze/gal/issues/163).
   Future<void> _saveToGallery(GalleryItem item) async {
-    if (!await Gal.hasAccess()) {
-      if (!await Gal.requestAccess()) {
-        MessagePopup.error('err_no_access_to_gallery'.l10n);
-        return;
+    if (!await Gal.requestAccess()) {
+      MessagePopup.error('err_no_access_to_gallery'.l10n);
+      return;
+    }
+
+    Future<void> saveItem() async {
+      await PlatformUtils.saveToGallery(
+        item.link,
+        item.name,
+        checksum: item.checksum,
+      );
+
+      if (mounted) {
+        MessagePopup.success(item.isVideo
+            ? 'label_video_saved_to_gallery'.l10n
+            : 'label_image_saved_to_gallery'.l10n);
       }
     }
 
     try {
       try {
-        await PlatformUtils.saveToGallery(
-          item.link,
-          item.name,
-          checksum: item.checksum,
-        );
+        await saveItem();
+      } on DioException catch (e) {
+        if (item.onError != null && e.response?.statusCode == 403) {
+          await item.onError?.call();
+          await Future.delayed(Duration.zero);
+          await saveItem();
+        } else {
+          rethrow;
+        }
       } on GalException catch (e) {
         MessagePopup.error(switch (e.type) {
           GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
@@ -1121,22 +1142,6 @@ class _GalleryPopupState extends State<GalleryPopup>
         if (e.type == GalExceptionType.unexpected) {
           rethrow;
         }
-      } catch (_) {
-        if (item.onError != null) {
-          await item.onError?.call();
-          return SchedulerBinding.instance.addPostFrameCallback((_) {
-            item = widget.children[_page];
-            _saveToGallery(item);
-          });
-        } else {
-          rethrow;
-        }
-      }
-
-      if (mounted) {
-        MessagePopup.success(item.isVideo
-            ? 'label_video_saved_to_gallery'.l10n
-            : 'label_image_saved_to_gallery'.l10n);
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
