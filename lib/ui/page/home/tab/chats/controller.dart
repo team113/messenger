@@ -663,6 +663,8 @@ class ChatsTabController extends GetxController {
     undo.remove(action);
   }
 
+  final RxBool withPrices = RxBool(true);
+
   void unwind(ReversibleAction action) {
     if (action is HideReversibleAction) {
       final index = chats.indexWhere((e) => e.id == action.chat.id);

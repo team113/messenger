@@ -58,6 +58,7 @@ class RecentChatTile extends StatelessWidget {
     super.key,
     this.me,
     this.myUser,
+    this.price = true,
     this.blocked = false,
     this.selected = false,
     this.active = false,
@@ -154,6 +155,8 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
 
+  final bool price;
+
   /// Builder for building an [AvatarWidget] the [ChatTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
@@ -180,7 +183,8 @@ class RecentChatTile extends StatelessWidget {
                 e.user.value.name?.val.toLowerCase() == 'alex2'),
       );
 
-      final bool payee = rxChat.chat.value.isDialog &&
+      final bool payee = price &&
+          rxChat.chat.value.isDialog &&
           (myUser?.name?.val.toLowerCase() == 'alex2' ||
               myUser?.name?.val.toLowerCase() == 'kirey');
 
@@ -219,6 +223,9 @@ class RecentChatTile extends StatelessWidget {
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // const SizedBox(width: 8),
+                    // const Text('Get paid'),
+                    const Spacer(),
                     SvgIcon(
                       inverted ? SvgIcons.callsTinyWhite : SvgIcons.callsTiny,
                     ),
@@ -230,6 +237,7 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     const Text('123\$'),
+                    // const SizedBox(width: 8),
                   ],
                 )
               : null,
@@ -238,19 +246,27 @@ class RecentChatTile extends StatelessWidget {
             if (trailing == null) ...[
               _ongoingCall(context),
               if (blocked) ...[
-                const SizedBox(width: 5),
+                const SizedBox(width: 8),
                 SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
               ] else if (paid) ...[
-                const SizedBox(width: 4),
-                UnreadCounter(
-                  '\$',
-                  color: style.colors.acceptPrimary,
-                  inverted: inverted,
-                  dimmed: true,
+                const SizedBox(width: 8),
+                SvgIcon(
+                  inverted ? SvgIcons.dollarStatusWhite : SvgIcons.dollarStatus,
                 ),
+                // Text(
+                //   '\$',
+                //   style: inverted
+                //       ? style.fonts.small.regular.onPrimary
+                //       : style.fonts.small.regular.secondary.copyWith(
+                //           color: style.colors.acceptPrimary,
+                //         ),
+                //   maxLines: 1,
+                //   overflow: TextOverflow.clip,
+                //   textAlign: TextAlign.center,
+                // ),
               ],
               if (rxChat.unreadCount.value > 0) ...[
-                const SizedBox(width: 4),
+                const SizedBox(width: 10),
                 UnreadCounter(
                   key: const Key('UnreadMessages'),
                   rxChat.unreadCount.value > 99
@@ -261,14 +277,15 @@ class RecentChatTile extends StatelessWidget {
                 ),
               ] else ...[
                 if (chat.muted != null) ...[
-                  const SizedBox(width: 4),
-                  UnreadCounter(
-                    null,
-                    dimmed: true,
-                    inverted: inverted,
-                    icon: inverted ? SvgIcons.muted : SvgIcons.mutedWhite,
-                    key: Key('MuteIndicator_${chat.id}'),
-                  ),
+                  const SizedBox(width: 10),
+                  SvgIcon(inverted ? SvgIcons.mutedWhite : SvgIcons.muted),
+                  // UnreadCounter(
+                  //   null,
+                  //   dimmed: true,
+                  //   inverted: inverted,
+                  //   icon: inverted ? SvgIcons.muted : SvgIcons.mutedWhite,
+                  //   key: Key('MuteIndicator_${chat.id}'),
+                  // ),
                 ],
                 const SizedBox(key: Key('NoUnreadMessages')),
               ],
@@ -957,12 +974,12 @@ class RecentChatTile extends StatelessWidget {
               color: paid ? paidColor : style.colors.onPrimary,
               width: 0.5,
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Material(
             elevation: 0,
             type: MaterialType.button,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(6),
             color: displayed ? style.colors.danger : style.colors.primary,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
@@ -971,17 +988,12 @@ class RecentChatTile extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
                 child: Row(
                   children: [
-                    SvgIcon(
-                      displayed
-                          ? SvgIcons.callAudioEnd
-                          : SvgIcons.callAudioWhite,
-                    ),
                     // Icon(
                     //   displayed ? Icons.call_end : Icons.call,
                     //   size: 16,
                     //   color: style.colors.onPrimary,
                     // ),
-                    const SizedBox(width: 6),
+
                     PeriodicBuilder(
                       period: const Duration(seconds: 1),
                       builder: (_) {
@@ -991,10 +1003,16 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: style.fonts.normal.regular.onPrimary,
+                          style: style.fonts.smaller.regular.onPrimary,
                         ).fixedDigits();
                       },
-                    )
+                    ),
+                    const SizedBox(width: 6),
+                    SvgIcon(
+                      displayed
+                          ? SvgIcons.callAudioEnd
+                          : SvgIcons.callAudioWhite,
+                    ),
                   ],
                 ),
               ),

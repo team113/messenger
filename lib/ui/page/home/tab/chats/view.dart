@@ -368,6 +368,13 @@ class ChatsTabView extends StatelessWidget {
                                       trailing: const SvgIcon(SvgIcons.group),
                                     ),
                                     ContextMenuButton(
+                                      label: c.withPrices.value
+                                          ? 'Скрыть ценники'.l10n
+                                          : 'Отображать ценники'.l10n,
+                                      onPressed: c.withPrices.toggle,
+                                      trailing: const SvgIcon(SvgIcons.coin),
+                                    ),
+                                    ContextMenuButton(
                                       key: const Key('SelectChatButton'),
                                       label: 'btn_select_and_delete'.l10n,
                                       onPressed: c.toggleSelecting,
@@ -827,6 +834,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? const Key('ChatMonolog')
                                     : Key('RecentChat_${e.id}'),
                                 me: c.me,
+                                price: c.withPrices.value,
                                 myUser: c.myUser.value,
                                 blocked: e.blacklisted,
                                 selected: selected,

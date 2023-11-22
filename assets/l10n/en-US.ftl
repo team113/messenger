@@ -1111,3 +1111,4 @@ label_media_buttons_in_context_menu = In the context menu
 label_media_buttons_in_top = In the chat above
 label_media_buttons_in_bottom = In the chat below
 label_media_buttons_in_more = In the message field
+label_days_ago_short = {$days} d

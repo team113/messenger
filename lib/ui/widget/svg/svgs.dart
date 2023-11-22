@@ -420,14 +420,14 @@ class SvgIcons {
 
   static const SvgData muted = SvgData(
     'assets/icons/muted.svg',
-    width: 14.25,
-    height: 15,
+    width: 15.2,
+    height: 16,
   );
 
   static const SvgData mutedWhite = SvgData(
     'assets/icons/muted_white.svg',
-    width: 14.25,
-    height: 15,
+    width: 15.2,
+    height: 16,
   );
 
   static const SvgData fileSmall = SvgData(
@@ -1539,5 +1539,17 @@ class SvgIcons {
     'assets/icons/calls_tiny_white.svg',
     width: 11,
     height: 11,
+  );
+
+  static const SvgData dollarStatus = SvgData(
+    'assets/icons/dollar_status.svg',
+    width: 10.38,
+    height: 17,
+  );
+
+  static const SvgData dollarStatusWhite = SvgData(
+    'assets/icons/dollar_status_white.svg',
+    width: 10.38,
+    height: 17,
   );
 }

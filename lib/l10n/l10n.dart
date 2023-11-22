@@ -166,7 +166,7 @@ extension L10nDateExtension on DateTime {
     } else if (differenceInDays < 1) {
       return hm;
     } else {
-      return e;
+      return 'label_days_ago_short'.l10nfmt({'days': differenceInDays});
     }
   }
 
