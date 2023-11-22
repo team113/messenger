@@ -554,7 +554,8 @@ class ContactRepository extends DisposableInterface
     if (pagination) {
       paginated[contactId] ??= entry;
 
-      if(entry.contact.value.favoritePosition != contact.value.favoritePosition) {
+      if (entry.contact.value.favoritePosition !=
+          contact.value.favoritePosition) {
         paginated.emit(
           MapChangeNotification.updated(entry.id, entry.id, entry),
         );

@@ -140,7 +140,7 @@ class UserController extends GetxController {
               e.value!.contact.value.users.every((e) => e.id == id)) {
             inContacts.value = true;
 
-            if( e.value!.contact.value.favoritePosition != null) {
+            if (e.value!.contact.value.favoritePosition != null) {
               inFavorites.value = true;
             }
           }
@@ -189,8 +189,8 @@ class UserController extends GetxController {
       try {
         final RxChatContact? contact =
             _contactService.paginated.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                );
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
         if (contact != null) {
           await _contactService.deleteContact(contact.contact.value.id);
         }
@@ -249,7 +249,8 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      RxChatContact? contact = _contactService.paginated.values.firstWhereOrNull(
+      RxChatContact? contact =
+          _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
       if (contact != null) {
