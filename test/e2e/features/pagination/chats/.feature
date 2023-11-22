@@ -48,3 +48,29 @@ Feature: Chats pagination
 
     When I have Internet without delay
     Then chats fetched are indeed remote
+
+  Scenario: Favorite chats pagination works correctly
+    Given user Alice
+    And Alice has 16 favorite groups
+    And I sign in as Alice
+
+    When I tap `CloseButton` button
+    Then I see 15 favorite chats
+
+    When I scroll `Chats` to bottom
+    Then I see 16 favorite chats
+
+  Scenario: Chats pagination transitions from favorites to recent
+    Given user Alice
+    And Alice has 30 favorite groups
+    And Alice has 15 groups
+    And I sign in as Alice
+
+    When I tap `CloseButton` button
+    Then I see 15 favorite chats
+
+    When I scroll `Chats` to bottom
+    Then I see 30 favorite chats
+
+    When I scroll `Chats` to bottom
+    Then I see 45 chats

@@ -34,7 +34,7 @@ import '/domain/repository/search.dart';
 import '/provider/gql/exceptions.dart' show StaleVersionException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
-import '/provider/hive/session.dart';
+import '/provider/hive/session_data.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';

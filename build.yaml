@@ -212,13 +212,13 @@ targets:
               dart_type:
                 name: RememberedSessionVersion
                 imports:
-                  - "package:messenger/store/model/session_data.dart"
+                  - "package:messenger/store/model/session.dart"
             - graphql_type: SessionVersion
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
               dart_type:
                 name: SessionVersion
                 imports:
-                  - "package:messenger/store/model/session_data.dart"
+                  - "package:messenger/store/model/session.dart"
             - graphql_type: ThumbHash
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/thumbhash.dart"
               dart_type:

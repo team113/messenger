@@ -45,3 +45,30 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
     );
   },
 );
+
+/// Indicates whether the provided count of favorite [Chat]s are present within
+/// [ChatsTabView].
+///
+/// Examples:
+/// - Then I see 30 favorite chats
+final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
+  'I see {int} favorite chats',
+  (count, context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+
+        final controller = Get.find<ChatsTabController>();
+        if (controller.chats
+                .where((e) => e.chat.value.favoritePosition != null)
+                .length ==
+            count) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      timeout: const Duration(seconds: 30),
+    );
+  },
+);
