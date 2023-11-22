@@ -45,11 +45,13 @@ import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
+import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -158,9 +160,9 @@ void main() async {
     }
   };
 
-  var sessionProvider = Get.put(SessionDataHiveProvider());
-  await sessionProvider.init();
-  await sessionProvider.clear();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
+  await credentialsProvider.clear();
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -190,8 +192,9 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AuthService authService =
-      Get.put(AuthService(AuthRepository(graphQlProvider), sessionProvider));
+  AuthService authService = Get.put(
+    AuthService(AuthRepository(graphQlProvider), credentialsProvider),
+  );
   await authService.init();
 
   router = RouterState(authService);
@@ -216,8 +219,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
@@ -229,6 +232,10 @@ void main() async {
   await monologProvider.init();
   var recentChatProvider = RecentChatHiveProvider();
   await recentChatProvider.init();
+  var favoriteChatProvider = FavoriteChatHiveProvider();
+  await favoriteChatProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -392,7 +399,7 @@ void main() async {
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
-      credentialsProvider,
+      callCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
@@ -401,6 +408,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,

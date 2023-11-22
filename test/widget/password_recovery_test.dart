@@ -29,7 +29,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -51,13 +51,13 @@ void main() async {
   Hive.init('./test/.temp_hive/password_recovery');
   await L10n.init();
 
-  var sessionProvider = SessionDataHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   AuthRepository authRepository = AuthRepository(graphQlProvider);
-  AuthService authService = AuthService(authRepository, sessionProvider);
+  AuthService authService = AuthService(authRepository, credentialsProvider);
   await authService.init();
-  await sessionProvider.clear();
+  await credentialsProvider.clear();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
@@ -81,13 +81,13 @@ void main() async {
     Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
-    Get.put(sessionProvider);
+    Get.put(credentialsProvider);
     Get.put(chatProvider);
 
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();

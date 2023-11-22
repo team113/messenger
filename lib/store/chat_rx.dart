@@ -71,7 +71,9 @@ class HiveRxChat extends RxChat {
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
-        ver = hiveChat.ver;
+        // TODO: Don't ignore version, when all events are surely delivered by
+        //       subscribing to `chatEvents` with that version.
+        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
 
   @override
   final Rx<Chat> chat;
@@ -107,7 +109,7 @@ class HiveRxChat extends RxChat {
   final RxInt unreadCount;
 
   /// [ChatVersion] of this [HiveRxChat].
-  ChatVersion ver;
+  ChatVersion? ver;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -339,8 +341,10 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key,
-        isFirst: (e) => id.isLocal || chat.value.firstItem?.id == e.value.id,
-        isLast: (e) => id.isLocal || chat.value.lastItem?.id == e.value.id,
+        isFirst: (e) =>
+            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
+        isLast: (e) =>
+            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
         strategy: PaginationStrategy.fromEnd,
       ),
     );
@@ -1079,7 +1083,15 @@ class HiveRxChat extends RxChat {
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         var node = event as ChatEventsChat;
-        _chatRepository.put(node.chat, ignoreVersion: true);
+        final HiveChat? chatEntity = await _chatLocal.get(id);
+        if (chatEntity != null) {
+          chatEntity.value = node.chat.value;
+          chatEntity.ver = node.chat.ver;
+          _chatRepository.put(chatEntity, ignoreVersion: true);
+        } else {
+          _chatRepository.put(node.chat, ignoreVersion: true);
+        }
+
         _lastReadItemCursor = node.chat.lastReadItemCursor;
         break;
 

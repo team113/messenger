@@ -25,7 +25,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -47,7 +47,7 @@ void main() async {
   test('MyProfile test', () async {
     Get.reset();
 
-    final getStorage = SessionDataHiveProvider();
+    final getStorage = CredentialsHiveProvider();
     final graphQlProvider = FakeGraphQlProvider();
 
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));

@@ -26,7 +26,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:mockito/annotations.dart';
@@ -37,7 +37,7 @@ import 'auth_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/unit_auth');
-  var provider = SessionDataHiveProvider();
+  var provider = CredentialsHiveProvider();
   await provider.init();
 
   setUp(() async {
@@ -101,7 +101,7 @@ void main() async {
   });
 
   test('AuthService successfully logins with saved session', () async {
-    provider.setCredentials(
+    provider.set(
       Credentials(
         Session(
           const AccessToken('token'),
