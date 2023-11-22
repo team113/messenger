@@ -22,7 +22,6 @@ import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/store/blocklist.dart';
 
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
@@ -33,8 +32,8 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
@@ -43,6 +42,7 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import 'blocklist.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
@@ -65,7 +65,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
-  /// Blocked [User]s local [Hive] storage.
+  /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.

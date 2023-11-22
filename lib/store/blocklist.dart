@@ -77,41 +77,7 @@ class BlocklistRepository implements AbstractBlocklistRepository {
     Log.debug('init()', '$runtimeType');
 
     _initLocalSubscription();
-
-    _pagination = Pagination(
-      onKey: (e) => e.value.id,
-      perPage: 15,
-      provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _blocklist(
-          after: after,
-          before: before,
-          first: first,
-          last: last,
-        ),
-      ),
-      compare: (a, b) {
-        if (a.value.isBlocked == null || b.value.isBlocked == null) {
-          return 0;
-        }
-
-        return b.value.isBlocked!.at.compareTo(a.value.isBlocked!.at);
-      },
-    );
-
-    _paginationSubscription = _pagination.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          put(event.value!, pagination: true);
-          break;
-
-        case OperationKind.removed:
-          remove(event.key!);
-          break;
-      }
-    });
-
-    _pagination.around();
+    _initRemotePagination();
   }
 
   @override
@@ -133,7 +99,7 @@ class BlocklistRepository implements AbstractBlocklistRepository {
   Future<void> put(HiveUser user, {bool pagination = false}) async {
     Log.debug('put($user, $pagination)', '$runtimeType');
 
-    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // [pagination] is `true`, if the [user] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
       await _pagination.put(user);
@@ -217,5 +183,45 @@ class BlocklistRepository implements AbstractBlocklistRepository {
         }
       }
     }
+  }
+
+  /// Initializes the [_pagination].
+  Future<void> _initRemotePagination() async {
+    Log.debug('_initRemotePagination()', '$runtimeType');
+
+    _pagination = Pagination(
+      onKey: (e) => e.value.id,
+      perPage: 15,
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _blocklist(
+          after: after,
+          before: before,
+          first: first,
+          last: last,
+        ),
+      ),
+      compare: (a, b) {
+        if (a.value.isBlocked == null || b.value.isBlocked == null) {
+          return 0;
+        }
+
+        return b.value.isBlocked!.at.compareTo(a.value.isBlocked!.at);
+      },
+    );
+
+    _paginationSubscription = _pagination.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          put(event.value!, pagination: true);
+          break;
+
+        case OperationKind.removed:
+          remove(event.key!);
+          break;
+      }
+    });
+
+    await _pagination.around();
   }
 }

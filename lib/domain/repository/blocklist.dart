@@ -20,7 +20,7 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
-import '/util/obs/rxmap.dart';
+import '/util/obs/obs.dart';
 
 /// [MyUser]'s blocklist repository interface.
 abstract class AbstractBlocklistRepository {
