@@ -19,6 +19,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
+import '/util/log.dart';
+import '/util/new_type.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatId]s sorted by the [ChatFavoritePosition]s.
@@ -34,6 +36,7 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
@@ -42,7 +45,9 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(ChatFavoritePosition key, ChatId item) async {
-    final String i = key.toString().padLeft(100, '0');
+    Log.debug('put($key, $item)', '$runtimeType');
+
+    final String i = key.toExactString();
 
     if (getSafe(i) != item) {
       await _mutex.protect(() async {
@@ -58,6 +63,8 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Removes the provided [ChatId] from [Hive].
   Future<void> remove(ChatId item) async {
+    Log.debug('remove($item)', '$runtimeType');
+
     await _mutex.protect(() async {
       final int index = values.toList().indexOf(item);
       if (index != -1) {

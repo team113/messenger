@@ -45,7 +45,6 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
-import '/util/web/web_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
 import 'pagination/combined_pagination.dart';

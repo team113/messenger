@@ -103,7 +103,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   Future<void> put(
     T item, {
     bool ignoreBounds = false,
-    int Function(T, T)? compare
+    int Function(T, T)? compare,
   }) =>
       hiveProvider.put(item, ignoreBounds: ignoreBounds, compare: compare);
 
