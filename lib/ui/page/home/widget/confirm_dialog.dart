@@ -115,9 +115,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _selected = widget.initial >= widget.variants.length
-        ? widget.variants.last
-        : widget.variants[widget.initial];
+    _selected = max(min(widget.initial, widget.variants.length - 1), 0);
     super.initState();
   }
 

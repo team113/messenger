@@ -24,7 +24,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gal/gal.dart';
-import 'package:get/get.dart' as get_x;
+import 'package:get/get.dart' hide Response;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
