@@ -1191,7 +1191,6 @@ class ChatController extends GetxController {
     try {
       for (Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
-          print('download');
           await CacheWorker.instance
               .download(
                 attachment.original.url,
@@ -1205,6 +1204,7 @@ class ChatController extends GetxController {
               .future;
         } else {
           // TODO: Implement [LocalAttachment] download
+          throw UnimplementedError('can_not_saving_local_attachments');
         }
       }
 
@@ -1244,6 +1244,7 @@ class ChatController extends GetxController {
           );
         } else {
           // TODO: Implement [LocalAttachment] download
+          throw UnimplementedError('can_not_saving_local_attachments');
         }
       }
 
