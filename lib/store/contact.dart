@@ -471,7 +471,7 @@ class ContactRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _putChatContact(event.value!, pagination: true, ignoreVersion: true);
+          _putChatContact(event.value!, pagination: true);
           break;
 
         case OperationKind.removed:
@@ -531,10 +531,9 @@ class ContactRepository extends DisposableInterface
   Future<void> _putChatContact(
     HiveChatContact contact, {
     bool pagination = false,
-    bool ignoreVersion = false,
   }) async {
     Log.debug(
-      '_putChatContact($contact, $pagination, $ignoreVersion)',
+      '_putChatContact($contact, $pagination)',
       '$runtimeType',
     );
 
@@ -542,7 +541,7 @@ class ContactRepository extends DisposableInterface
     final HiveRxChatContact? saved = contacts[contactId];
 
     // Check the versions first, if [ignoreVersion] is `false`.
-    if (saved != null && !ignoreVersion) {
+    if (saved != null) {
       if (saved.ver >= contact.ver) {
         if (pagination) {
           paginated[contactId] ??= saved;
@@ -561,35 +560,6 @@ class ContactRepository extends DisposableInterface
     }
 
     _add(contact, pagination: pagination);
-
-    // TODO: https://github.com/team113/messenger/issues/27
-    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
-    // synchronization, thus writes from multiple applications may lead to
-    // missing events.
-    if (!WebUtils.isPopup) {
-      HiveChatContact? saved;
-
-      // If version is ignored, there's no need to retrieve the stored chat.
-      if (!ignoreVersion) {
-        saved = await _contactLocal.get(contactId);
-      }
-
-      // TODO: Version should not be zero at all.
-      if (saved == null ||
-          saved.ver < contact.ver ||
-          contact.ver.internal == BigInt.zero) {
-        if (contact.value.favoritePosition != null) {
-          _favoriteLocal.put(contact.value.favoritePosition!, contactId);
-          _contactSortingLocal.remove(contactId);
-        } else {
-          _contactSortingLocal.put(
-              contact.value.name, contact.value.id, contactId);
-          _favoriteLocal.remove(contactId);
-        }
-
-        await _contactLocal.put(contact);
-      }
-    }
   }
 
   /// Adds the provided [HiveChatContact] to the [contacts] and optionally to
