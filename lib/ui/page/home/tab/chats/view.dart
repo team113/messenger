@@ -1184,11 +1184,11 @@ class ChatsTabView extends StatelessWidget {
                   final ReversibleAction last = c.undo.last;
                   if (last is HideReversibleAction) {
                     child = Padding(
-                      padding: const EdgeInsets.fromLTRB(
+                      padding: EdgeInsets.fromLTRB(
                         10 + 10,
                         0,
                         10 + 10,
-                        72,
+                        72 + MediaQuery.of(context).viewPadding.bottom,
                       ),
                       child: WidgetButton(
                         onPressed: () => c.restore(last),
