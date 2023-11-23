@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
+import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/web/web_utils.dart';
 import 'conditional_backdrop.dart';
@@ -36,12 +37,12 @@ class RoundFloatingButton extends StatefulWidget {
     this.assetWidth = 60,
     this.onPressed,
     this.text,
+    this.showText = true,
     this.color,
     this.hint,
     this.withBlur = false,
-    this.style,
+    this.minified = false,
     this.border,
-    this.inverted = false,
     this.child,
   });
 
@@ -53,10 +54,16 @@ class RoundFloatingButton extends StatefulWidget {
   /// Text under the button.
   final String? text;
 
+  /// Indicator whether the [text] should be showed.
+  final bool showText;
+
   /// Text that will show above the button on a hover.
   final String? hint;
 
+  /// [SvgData] to display instead of [asset].
   final SvgData? icon;
+
+  /// [Offset] to apply to the [icon] or [asset].
   final Offset? offset;
 
   /// Name of the asset to place into the [SvgImage.asset].
@@ -74,13 +81,12 @@ class RoundFloatingButton extends StatefulWidget {
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
 
-  /// Optional [TextStyle] of the [text].
-  final TextStyle? style;
+  /// Indicator whether the [text] provided should be smaller, or small
+  /// otherwise.
+  final bool minified;
 
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
-
-  final bool inverted;
 
   @override
   State<RoundFloatingButton> createState() => _RoundFloatingButtonState();
@@ -116,6 +122,7 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     final style = Theme.of(context).style;
 
     Widget? child = widget.child;
+
     if (child == null) {
       if (widget.icon == null) {
         child = Center(
@@ -187,17 +194,24 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     return widget.text == null
         ? button
         : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               button,
               const SizedBox(height: 5),
-              Text(
-                widget.text!,
-                textAlign: TextAlign.center,
-                style: widget.style ?? style.fonts.small.regular.onPrimary,
-                maxLines: 2,
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: widget.showText ? 1 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    widget.text!,
+                    textAlign: TextAlign.center,
+                    style: widget.minified
+                        ? style.fonts.smaller.regular.onPrimary
+                        : style.fonts.small.regular.onPrimary,
+                    maxLines: 2,
+                  ),
+                ),
               ),
             ],
           );
@@ -244,15 +258,23 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
               height: size.height,
               child: Transform.translate(
                 offset: Offset(0, -size.height - 2),
-                child: UnconstrainedBox(
-                  child: Text(
-                    widget.hint!,
-                    textAlign: TextAlign.center,
-                    style: style.fonts.small.regular.onPrimary.copyWith(
-                      shadows: [
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                        Shadow(blurRadius: 6, color: style.colors.onBackground),
-                      ],
+                child: AllowOverflow(
+                  child: UnconstrainedBox(
+                    child: Text(
+                      widget.hint!,
+                      textAlign: TextAlign.center,
+                      style: style.fonts.small.regular.onPrimary.copyWith(
+                        shadows: [
+                          Shadow(
+                            blurRadius: 6,
+                            color: style.colors.onBackground,
+                          ),
+                          Shadow(
+                            blurRadius: 6,
+                            color: style.colors.onBackground,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

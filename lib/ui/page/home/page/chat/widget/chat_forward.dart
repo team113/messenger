@@ -925,9 +925,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 if (data != null) {
-                  return AvatarWidget.fromRxUser(data, radius: 10);
+                  return AvatarWidget.fromRxUser(
+                    data,
+                    radius: AvatarRadius.smaller,
+                  );
                 }
-                return AvatarWidget.fromUser(user, radius: 10);
+                return AvatarWidget.fromUser(
+                  user,
+                  radius: AvatarRadius.smaller,
+                );
               },
             ),
           ),
@@ -938,7 +944,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+            child: AvatarWidget(
+              title: 'plus'.l10n,
+              radius: AvatarRadius.smaller,
+            ),
           ),
         );
       }
@@ -1059,7 +1068,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   child: InkWell(
                     customBorder: const CircleBorder(),
                     onTap: () => router.user(widget.authorId, push: true),
-                    child: AvatarWidget.fromRxUser(widget.user, radius: 17),
+                    child: AvatarWidget.fromRxUser(
+                      widget.user,
+                      radius: AvatarRadius.medium,
+                    ),
                   ),
                 ),
               Flexible(

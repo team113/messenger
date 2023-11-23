@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/routes.dart';
 
+import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import 'svg/svg.dart';
 
@@ -144,6 +144,7 @@ class MenuButton extends StatelessWidget {
   /// Optional icon of this [MenuButton].
   final IconData? icon;
 
+  /// Optional leading to display before the [title].
   final Widget? leading;
 
   /// Callback, called when this [MenuButton] is tapped.
@@ -224,13 +225,6 @@ class MenuButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  static Widget _icon(ProfileTab tab, IconData icon) {
-    return RectangleIcon(
-      icon,
-      color: Colors.primaries[tab.index % Colors.primaries.length],
     );
   }
 }

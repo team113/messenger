@@ -31,6 +31,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -49,7 +50,7 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/download.dart';
-import 'provider/hive/session.dart';
+import 'provider/hive/credentials.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -66,6 +67,8 @@ import 'util/web/web_utils.dart';
 Future<void> main() async {
   await Config.init();
   MediaKit.ensureInitialized();
+
+  me.Log.options = me.LogOptions(level: Config.logLevel);
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
@@ -155,11 +158,12 @@ Future<void> main() async {
           StringBuffer buf = StringBuffer('$exception');
           if (stackTrace != null) {
             buf.write(
-                '\n\nWhen the exception was thrown, this was the stack:\n');
+              '\n\nWhen the exception was thrown, this was the stack:\n',
+            );
             buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
           }
 
-          Log.error(buf.toString());
+          Log.error(buf.toString(), 'SentryFlutter');
         }
       },
     },
@@ -174,13 +178,15 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
+  Log.debug('handlePushNotification($message)', 'main');
+
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     final FlutterCallkeep callKeep = FlutterCallkeep();
 
     if (await callKeep.hasPhoneAccount()) {
       SharedPreferences? prefs;
-      SessionDataHiveProvider? sessionProvider;
+      CredentialsHiveProvider? credentialsProvider;
       GraphQlProvider? provider;
       StreamSubscription? subscription;
 
@@ -221,11 +227,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
         await Config.init();
         await Hive.initFlutter('hive');
-        sessionProvider = SessionDataHiveProvider();
+        credentialsProvider = CredentialsHiveProvider();
 
-        await sessionProvider.init();
-        final Credentials? credentials = sessionProvider.getCredentials();
-        await sessionProvider.close();
+        await credentialsProvider.init();
+        final Credentials? credentials = credentialsProvider.get();
+        await credentialsProvider.close();
 
         if (credentials != null) {
           provider = GraphQlProvider();
@@ -273,7 +279,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         provider?.disconnect();
         subscription?.cancel();
         callKeep.rejectCall(message.data['chatId']);
-        await sessionProvider?.close();
+        await credentialsProvider?.close();
         await Hive.close();
       }
     }
@@ -303,7 +309,7 @@ class App extends StatelessWidget {
   }
 }
 
-/// Initializes a [Hive] storage and registers a [SessionDataHiveProvider] in
+/// Initializes a [Hive] storage and registers a [CredentialsHiveProvider] in
 /// the [Get]'s context.
 Future<void> _initHive() async {
   await Hive.initFlutter('hive');
@@ -324,7 +330,7 @@ Future<void> _initHive() async {
     });
   }
 
-  await Get.put(SessionDataHiveProvider()).init();
+  await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {

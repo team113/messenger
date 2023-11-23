@@ -198,37 +198,37 @@ class AuthView extends StatelessWidget {
               shrinkWrap: true,
               children: const [
                 DownloadButton(
-                  icon: SvgIcon(SvgIcons.windows),
+                  asset: SvgIcons.windows,
                   title: 'Windows',
                   link: 'messenger-windows.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  icon: SvgIcon(SvgIcons.apple),
+                  asset: SvgIcons.apple,
                   title: 'macOS',
                   link: 'messenger-macos.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  icon: SvgIcon(SvgIcons.linux),
+                  asset: SvgIcons.linux,
                   title: 'Linux',
                   link: 'messenger-linux.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  icon: SvgIcon(SvgIcons.appStore),
+                  asset: SvgIcons.appStore,
                   title: 'App Store',
                   link: 'messenger-ios.zip',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  icon: SvgIcon(SvgIcons.googlePlay),
+                  asset: SvgIcons.googlePlay,
                   title: 'Google Play',
                   link: 'messenger-android.apk',
                 ),
                 SizedBox(height: 8),
                 DownloadButton(
-                  icon: SvgIcon(SvgIcons.android),
+                  asset: SvgIcons.android,
                   title: 'Android',
                   link: 'messenger-android.apk',
                 ),

@@ -379,6 +379,7 @@ class PlatformUtilsImpl {
     return null;
   }
 
+  /// Downloads a file by provided [url] using `save as` dialog.
   Future<File?> saveTo(String url) async {
     String? to;
 

@@ -96,7 +96,7 @@ class MenuTabView extends StatelessWidget {
                         return AvatarWidget.fromMyUser(
                           c.myUser.value,
                           key: c.profileKey,
-                          radius: 17,
+                          radius: AvatarRadius.medium,
                         );
                       }),
                     ),
@@ -153,7 +153,7 @@ class MenuTabView extends StatelessWidget {
                     } else if (router.accounts.value == 1) {
                       return AnimatedButton(
                         child: AvatarWidget(
-                          radius: 13,
+                          radius: AvatarRadius.small,
                           title: c.myUser.value!.name?.val ??
                               c.myUser.value!.num.toString(),
                           color: c.myUser.value!.num.val.sum() - 1,
@@ -165,7 +165,7 @@ class MenuTabView extends StatelessWidget {
                           alignment: Alignment.center,
                           children: [
                             AvatarWidget(
-                              radius: 13,
+                              radius: AvatarRadius.small,
                               title: c.myUser.value!.name?.val ??
                                   c.myUser.value!.num.toString(),
                               color: c.myUser.value!.num.val.sum() - 2,
@@ -179,7 +179,7 @@ class MenuTabView extends StatelessWidget {
                                 ),
                                 padding: const EdgeInsets.all(1),
                                 child: AvatarWidget(
-                                  radius: 13,
+                                  radius: AvatarRadius.small,
                                   title: c.myUser.value!.name?.val ??
                                       c.myUser.value!.num.toString(),
                                   color: c.myUser.value!.num.val.sum() - 1,

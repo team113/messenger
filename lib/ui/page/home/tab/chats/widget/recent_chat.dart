@@ -609,10 +609,13 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarWidget.fromRxUser(
+                          snapshot.data,
+                          radius: AvatarRadius.smaller,
+                        )
                       : AvatarWidget.fromUser(
                           chat.getUser(item.author.id),
-                          radius: 10,
+                          radius: AvatarRadius.smaller,
                         ),
                 ),
               ),
@@ -638,10 +641,13 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: getUser?.call(item.author.id),
                   builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(snapshot.data, radius: 10)
+                      ? AvatarWidget.fromRxUser(
+                          snapshot.data,
+                          radius: AvatarRadius.smaller,
+                        )
                       : AvatarWidget.fromUser(
                           chat.getUser(item.author.id),
-                          radius: 10,
+                          radius: AvatarRadius.smaller,
                         ),
                 ),
               ),

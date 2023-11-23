@@ -66,7 +66,7 @@ class ContactView extends StatelessWidget {
                   Center(
                     child: AvatarWidget.fromRxContact(
                       c.contact.value,
-                      radius: 17,
+                      radius: AvatarRadius.medium,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -159,7 +159,7 @@ class ContactView extends StatelessWidget {
                       _label(context, 'Публичная информация'),
                       AvatarWidget.fromRxContact(
                         c.contact.value,
-                        radius: 100,
+                        radius: AvatarRadius.largest,
                         badge: false,
                       ),
                       const SizedBox(height: 15),

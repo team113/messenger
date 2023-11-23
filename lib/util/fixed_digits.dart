@@ -37,7 +37,7 @@ extension FixedDigitsExtension on Text {
         locale: locale,
         softWrap: softWrap,
         overflow: overflow,
-        textScaleFactor: textScaleFactor,
+        textScaler: textScaler,
         maxLines: maxLines,
         textWidthBasis: textWidthBasis,
         textHeightBehavior: textHeightBehavior,

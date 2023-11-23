@@ -1,7 +1,25 @@
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 
 import 'svg.dart';
 
+/// Data of a SVG to display in [SvgImage].
 class SvgData {
   const SvgData(
     this.asset, {
@@ -9,15 +27,24 @@ class SvgData {
     this.height,
   });
 
+  /// Asset of the SVG.
   final String asset;
+
+  /// Width of the SVG.
   final double? width;
+
+  /// Height of the SVG.
   final double? height;
 }
 
+/// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
   const SvgIcon(this.data, {super.key, this.height});
 
+  /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional height to display [data] of.
   final double? height;
 
   @override
@@ -26,6 +53,7 @@ class SvgIcon extends StatelessWidget {
   }
 }
 
+/// [SvgData]s of the SVG icons available.
 class SvgIcons {
   static const SvgData chat = SvgData(
     'assets/icons/chat.svg',
@@ -485,7 +513,7 @@ class SvgIcons {
   );
 
   static const SvgData menuMedia = SvgData(
-    'assets/icons/menu_media2.svg',
+    'assets/icons/menu_media.svg',
     width: 32,
     height: 32,
   );
@@ -704,7 +732,7 @@ class SvgIcons {
   );
 
   static const SvgData smileSmall = SvgData(
-    'assets/icons/smile_mini.svg',
+    'assets/icons/smile_small.svg',
     width: 21,
     height: 21,
   );
@@ -1551,5 +1579,27 @@ class SvgIcons {
     'assets/icons/dollar_status_white.svg',
     width: 10.38,
     height: 17,
+  );
+
+  static const SvgData acceptAudioCall = SvgData(
+    'assets/icons/call_audio_white.svg',
+    height: 29,
+  );
+
+  static const SvgData acceptAudioCallSmall = SvgData(
+    'assets/icons/call_audio_white.svg',
+    height: 24,
+  );
+
+   static const SvgData callCameraFront = SvgData(
+    'assets/icons/camera_front.svg',
+    width: 27.57,
+    height: 23.8,
+  );
+
+  static const SvgData callCameraBack = SvgData(
+    'assets/icons/camera_back.svg',
+    width: 27.57,
+    height: 23.8,
   );
 }

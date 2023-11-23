@@ -17,7 +17,11 @@
 
 import 'package:get/get.dart';
 
+import '/ui/widget/svg/svg.dart';
+
+/// Controller of a [IconsView].
 class IconsController extends GetxController {
+  /// Currently selected [IconDetails] to display.
   final Rx<IconDetails?> icon = Rx(
     IconDetails(
       'application/iOS.png',
@@ -27,11 +31,31 @@ class IconsController extends GetxController {
   );
 }
 
+/// [SvgData] or its path representing a single icon.
 class IconDetails {
-  IconDetails(String asset, {this.invert = false, this.download})
-      : asset = asset.replaceFirst('assets/icons/', '');
+  IconDetails(
+    String asset, {
+    this.invert = false,
+    this.download,
+  })  : data = null,
+        asset = asset.replaceFirst('assets/icons/', '');
 
-  late final String asset;
+  IconDetails.svg(
+    this.data, {
+    this.invert = false,
+    this.download,
+  }) : asset = null;
+
+  /// Path to the asset these details represent.
+  final String? asset;
+
+  /// [SvgData] these details represent.
+  final SvgData? data;
+
+  /// Indicator whether the icon represented should be presented on the inverted
+  /// background.
   final bool invert;
+
+  /// Path to the asset to download.
   final String? download;
 }

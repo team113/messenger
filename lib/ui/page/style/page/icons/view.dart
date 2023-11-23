@@ -20,44 +20,35 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
-import 'package:messenger/ui/page/call/widget/call_button.dart';
-import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
-import 'package:messenger/ui/page/call/widget/raised_hand.dart';
-import 'package:messenger/ui/page/call/widget/round_button.dart';
-import 'package:messenger/ui/page/home/widget/action.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
-import 'package:messenger/ui/page/home/widget/block.dart';
-import 'package:messenger/ui/page/home/widget/chat_tile.dart';
-import 'package:messenger/ui/page/home/widget/navigation_bar.dart';
-import 'package:messenger/ui/page/home/widget/wallet.dart';
-import 'package:messenger/ui/page/login/widget/sign_button.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/ui/widget/menu_button.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/message_popup.dart';
-import 'package:messenger/util/platform_utils.dart';
+
+import '/config.dart';
+import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
+import '/ui/page/call/widget/call_button.dart';
+import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/call/widget/raised_hand.dart';
+import '/ui/page/call/widget/round_button.dart';
+import '/ui/page/home/widget/action.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/chat_tile.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/wallet.dart';
+import '/ui/page/login/widget/sign_button.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/menu_button.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 import 'controller.dart';
 
-/// Widgets view of the [Routes.style] page.
-class IconsView extends StatefulWidget {
-  const IconsView({super.key, this.inverted = false});
-
-  /// Indicator whether this view should have its colors inverted.
-  final bool inverted;
-
-  @override
-  State<IconsView> createState() => _WidgetsViewState();
-}
-
-class _WidgetsViewState extends State<IconsView> {
-  final ScrollController _scrollController = ScrollController();
+/// Icons view of the [Routes.style] page.
+class IconsView extends StatelessWidget {
+  const IconsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +59,7 @@ class _WidgetsViewState extends State<IconsView> {
       builder: (IconsController c) {
         final List<Widget> children = [
           Block(
-            color: style.colors.primaryDark,
+            background: style.colors.primaryDark,
             children: [
               Wrap(
                 spacing: 8,
@@ -76,52 +67,17 @@ class _WidgetsViewState extends State<IconsView> {
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  _downloadableIcon(
-                    context,
-                    c,
-                    icon: 'iOS.png',
-                    archive: 'iOS',
-                  ),
-                  _downloadableIcon(
-                    context,
-                    c,
-                    icon: 'macOS.png',
-                    archive: 'macOS',
-                  ),
-                  _downloadableIcon(
-                    context,
-                    c,
-                    icon: 'windows.ico',
-                    archive: 'windows',
-                  ),
-                  _downloadableIcon(
-                    context,
-                    c,
-                    icon: 'android.png',
-                    archive: 'android',
-                  ),
-                  _downloadableIcon(
-                    context,
-                    c,
-                    icon: 'web.png',
-                    archive: 'web',
-                    mini: true,
-                  ),
-                  _downloadableIcon(
-                    context,
-                    c,
-                    icon: 'alert.png',
-                    archive: 'alert',
-                    mini: true,
-                  ),
+                  _downloadableIcon(context, c, 'iOS.png'),
+                  _downloadableIcon(context, c, 'macOS.png'),
+                  _downloadableIcon(context, c, 'windows.ico'),
+                  _downloadableIcon(context, c, 'android.png'),
+                  _downloadableIcon(context, c, 'web.png', mini: true),
+                  _downloadableIcon(context, c, 'alert.png', mini: true),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 8),
-          // Block(
-          //   children: SvgIcons.head.map((e) => AnimatedButton(child: SvgIcon(data))).toList(),
-          // ),
           Block(
             children: [
               _appBar(
@@ -129,7 +85,7 @@ class _WidgetsViewState extends State<IconsView> {
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.chat.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.chat),
                     child: Transform.translate(
                       offset: const Offset(0, 1),
                       child: const SvgIcon(SvgIcons.chat),
@@ -137,14 +93,14 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
-                    onPressed: () => c.icon.value =
-                        IconDetails(SvgIcons.chatVideoCall.asset),
+                    onPressed: () =>
+                        c.icon.value = IconDetails.svg(SvgIcons.chatVideoCall),
                     child: const SvgIcon(SvgIcons.chatVideoCall),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
-                    onPressed: () => c.icon.value =
-                        IconDetails(SvgIcons.chatAudioCall.asset),
+                    onPressed: () =>
+                        c.icon.value = IconDetails.svg(SvgIcons.chatAudioCall),
                     child: const SvgIcon(SvgIcons.chatAudioCall),
                   ),
                 ],
@@ -154,8 +110,8 @@ class _WidgetsViewState extends State<IconsView> {
                 context,
                 trailing: [
                   AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.callEnd.asset,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      SvgIcons.callEnd,
                       invert: true,
                     ),
                     child: Container(
@@ -172,10 +128,8 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.callStart.asset,
-                      invert: true,
-                    ),
+                    onPressed: () => c.icon.value =
+                        IconDetails.svg(SvgIcons.callStart, invert: true),
                     child: Container(
                       height: 32,
                       width: 32,
@@ -195,8 +149,8 @@ class _WidgetsViewState extends State<IconsView> {
                 context,
                 trailing: [
                   AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.callEndSmall.asset,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      SvgIcons.callEndSmall,
                       invert: true,
                     ),
                     child: Container(
@@ -213,8 +167,8 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.callStartSmall.asset,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      SvgIcons.callStartSmall,
                       invert: true,
                     ),
                     child: Container(
@@ -237,20 +191,20 @@ class _WidgetsViewState extends State<IconsView> {
                 leading: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.home.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.home),
                     child: const SvgIcon(SvgIcons.home),
                   ),
                 ],
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.shareThick.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.shareThick),
                     child: const SvgIcon(SvgIcons.shareThick),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.copyThick.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.copyThick),
                     child: const SvgIcon(SvgIcons.copyThick),
                   ),
                 ],
@@ -261,26 +215,26 @@ class _WidgetsViewState extends State<IconsView> {
                 leading: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.search.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.search),
                     child: const SvgIcon(SvgIcons.search),
                   ),
                 ],
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.closePrimary.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.closePrimary),
                     child: const SvgIcon(SvgIcons.closePrimary),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
-                    onPressed: () => c.icon.value =
-                        IconDetails(SvgIcons.contactsSwitch.asset),
+                    onPressed: () =>
+                        c.icon.value = IconDetails.svg(SvgIcons.contactsSwitch),
                     child: const SvgIcon(SvgIcons.contactsSwitch),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.chatsSwitch.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.chatsSwitch),
                     child: const SvgIcon(SvgIcons.chatsSwitch),
                   ),
                 ],
@@ -291,7 +245,7 @@ class _WidgetsViewState extends State<IconsView> {
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.searchExit.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.searchExit),
                     child: const SvgIcon(SvgIcons.searchExit),
                   ),
                 ],
@@ -302,7 +256,7 @@ class _WidgetsViewState extends State<IconsView> {
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.addAccount.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.addAccount),
                     child: const SvgIcon(SvgIcons.addAccount),
                   ),
                 ],
@@ -313,25 +267,25 @@ class _WidgetsViewState extends State<IconsView> {
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.palette.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.palette),
                     child: const SvgIcon(SvgIcons.palette),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.typography.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.typography),
                     child: const SvgIcon(SvgIcons.typography),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.widgets.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.widgets),
                     child: const SvgIcon(SvgIcons.widgets),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.icons.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.icons),
                     child: const SvgIcon(SvgIcons.icons),
                   ),
                 ],
@@ -342,13 +296,13 @@ class _WidgetsViewState extends State<IconsView> {
                 trailing: [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.lightMode.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.lightMode),
                     child: const SvgIcon(SvgIcons.lightMode),
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.darkMode.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.darkMode),
                     child: const SvgIcon(SvgIcons.darkMode),
                   ),
                 ],
@@ -362,8 +316,8 @@ class _WidgetsViewState extends State<IconsView> {
                     children: [
                       const SizedBox(height: 32),
                       AnimatedButton(
-                        onPressed: () => c.icon.value =
-                            IconDetails(SvgIcons.mutedSmall.asset),
+                        onPressed: () =>
+                            c.icon.value = IconDetails.svg(SvgIcons.mutedSmall),
                         child: const SvgIcon(SvgIcons.mutedSmall),
                       ),
                     ],
@@ -378,21 +332,20 @@ class _WidgetsViewState extends State<IconsView> {
                 icon: const SvgIcon(SvgIcons.register),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.register.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.register),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.enter),
                 title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.enter.asset),
+                onPressed: () => c.icon.value = IconDetails.svg(SvgIcons.enter),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.oneTime),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.oneTime.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.oneTime),
               ),
 
               //
@@ -400,36 +353,34 @@ class _WidgetsViewState extends State<IconsView> {
               SignButton(
                 icon: const SvgIcon(SvgIcons.email),
                 title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.email.asset),
+                onPressed: () => c.icon.value = IconDetails.svg(SvgIcons.email),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.phone),
                 title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.phone.asset),
+                onPressed: () => c.icon.value = IconDetails.svg(SvgIcons.phone),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.password),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.password.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.password),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.qrCode),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.qrCode.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.qrCode),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.google),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.google.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.google),
               ),
 
               const SizedBox(height: 8),
@@ -437,98 +388,91 @@ class _WidgetsViewState extends State<IconsView> {
                 icon: const SvgIcon(SvgIcons.github),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.github.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.github),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.apple),
                 title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.apple.asset),
+                onPressed: () => c.icon.value = IconDetails.svg(SvgIcons.apple),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.windows),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.windows.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.windows),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.linux),
                 title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.linux.asset),
+                onPressed: () => c.icon.value = IconDetails.svg(SvgIcons.linux),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.appStore),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.appStore.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.appStore),
               ),
               const SizedBox(height: 8),
               SignButton(
                 icon: const SvgIcon(SvgIcons.googlePlay),
                 title: '',
                 onPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.googlePlay.asset),
+                    c.icon.value = IconDetails.svg(SvgIcons.googlePlay),
               ),
               const SizedBox(height: 8),
               SignButton(
-                  icon: const SvgIcon(SvgIcons.android),
-                  title: '',
-                  onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.android.asset)),
+                icon: const SvgIcon(SvgIcons.android),
+                title: '',
+                onPressed: () =>
+                    c.icon.value = IconDetails.svg(SvgIcons.android),
+              ),
             ],
           ),
           Block(
             children: [
               ReactiveTextField(
-                state: TextFieldState(),
+                state: TextFieldState(editable: false),
                 onSuffixPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.visibleOff.asset),
-                readOnly: true,
+                    c.icon.value = IconDetails.svg(SvgIcons.visibleOff),
                 trailing: const SvgIcon(SvgIcons.visibleOff),
               ),
               const SizedBox(height: 8),
               ReactiveTextField(
-                state: TextFieldState(),
+                state: TextFieldState(editable: false),
                 onSuffixPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.visibleOn.asset),
-                readOnly: true,
+                    c.icon.value = IconDetails.svg(SvgIcons.visibleOn),
                 trailing: const SvgIcon(SvgIcons.visibleOn),
               ),
               const SizedBox(height: 8),
               ReactiveTextField(
-                state: TextFieldState(),
+                state: TextFieldState(editable: false),
                 onSuffixPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.copy.asset),
-                readOnly: true,
+                    c.icon.value = IconDetails.svg(SvgIcons.copy),
                 trailing: const SvgIcon(SvgIcons.copy),
               ),
               const SizedBox(height: 8),
               ReactiveTextField(
-                state: TextFieldState(),
+                state: TextFieldState(editable: false),
                 onSuffixPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.share.asset),
-                readOnly: true,
+                    c.icon.value = IconDetails.svg(SvgIcons.share),
                 trailing: const SvgIcon(SvgIcons.share),
               ),
               const SizedBox(height: 8),
               ReactiveTextField(
-                state: TextFieldState(),
+                state: TextFieldState(editable: false),
                 onSuffixPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.timer.asset),
-                readOnly: true,
+                    c.icon.value = IconDetails.svg(SvgIcons.timer),
                 trailing: const SvgIcon(SvgIcons.timer),
               ),
               const SizedBox(height: 8),
               ReactiveTextField(
-                state: TextFieldState(),
+                state: TextFieldState(editable: false),
                 onSuffixPressed: () =>
-                    c.icon.value = IconDetails(SvgIcons.errorBig.asset),
-                readOnly: true,
+                    c.icon.value = IconDetails.svg(SvgIcons.errorBig),
                 trailing: const SvgIcon(SvgIcons.errorBig),
               ),
             ],
@@ -538,7 +482,7 @@ class _WidgetsViewState extends State<IconsView> {
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.rust.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.rust),
                   child: const SvgIcon(SvgIcons.rust),
                 ),
               ),
@@ -547,7 +491,7 @@ class _WidgetsViewState extends State<IconsView> {
                 inverted: true,
                 leading: AnimatedButton(
                   onPressed: () => c.icon.value =
-                      IconDetails(SvgIcons.rustWhite.asset, invert: true),
+                      IconDetails.svg(SvgIcons.rustWhite, invert: true),
                   child: const SvgIcon(SvgIcons.rustWhite),
                 ),
               ),
@@ -555,7 +499,7 @@ class _WidgetsViewState extends State<IconsView> {
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.frontend.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.frontend),
                   child: const SvgIcon(SvgIcons.frontend),
                 ),
               ),
@@ -563,10 +507,8 @@ class _WidgetsViewState extends State<IconsView> {
               MenuButton(
                 inverted: true,
                 leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails(
-                    SvgIcons.frontendWhite.asset,
-                    invert: true,
-                  ),
+                  onPressed: () => c.icon.value =
+                      IconDetails.svg(SvgIcons.frontendWhite, invert: true),
                   child: const SvgIcon(SvgIcons.frontendWhite),
                 ),
               ),
@@ -574,7 +516,7 @@ class _WidgetsViewState extends State<IconsView> {
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.freelance.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.freelance),
                   child: const SvgIcon(SvgIcons.freelance),
                 ),
               ),
@@ -582,10 +524,8 @@ class _WidgetsViewState extends State<IconsView> {
               MenuButton(
                 inverted: true,
                 leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails(
-                    SvgIcons.freelanceWhite.asset,
-                    invert: true,
-                  ),
+                  onPressed: () => c.icon.value =
+                      IconDetails.svg(SvgIcons.freelanceWhite, invert: true),
                   child: const SvgIcon(SvgIcons.freelanceWhite),
                 ),
               ),
@@ -598,7 +538,7 @@ class _WidgetsViewState extends State<IconsView> {
                 [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.walletClosed.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.walletClosed),
                     child: const WalletWidget(
                       balance: 0,
                       visible: true,
@@ -606,7 +546,7 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.wallet.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.wallet),
                     child: const WalletWidget(
                       balance: 1000,
                       visible: true,
@@ -614,7 +554,7 @@ class _WidgetsViewState extends State<IconsView> {
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.walletOpened.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.walletOpened),
                     child: const WalletWidget(
                       balance: 1000,
                       visible: false,
@@ -628,27 +568,27 @@ class _WidgetsViewState extends State<IconsView> {
                 [
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.partner.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.partner),
                     child: const SvgIcon(SvgIcons.partner),
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.publicsMuted.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.publicsMuted),
                     child: const SvgIcon(SvgIcons.publicsMuted),
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.publics.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.publics),
                     child: const SvgIcon(SvgIcons.publics),
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.chatsMuted.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.chatsMuted),
                     child: const SvgIcon(SvgIcons.chatsMuted),
                   ),
                   AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.chats.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.chats),
                     child: const SvgIcon(SvgIcons.chats),
                   ),
                 ],
@@ -660,7 +600,7 @@ class _WidgetsViewState extends State<IconsView> {
               ActionButton(
                 trailing: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.delete.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.delete),
                   child: const SvgIcon(SvgIcons.delete),
                 ),
               ),
@@ -668,7 +608,7 @@ class _WidgetsViewState extends State<IconsView> {
               ActionButton(
                 trailing: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.mute.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.mute),
                   child: const SvgIcon(SvgIcons.mute),
                 ),
               ),
@@ -676,7 +616,7 @@ class _WidgetsViewState extends State<IconsView> {
               ActionButton(
                 trailing: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.unmute.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.unmute),
                   child: const SvgIcon(SvgIcons.unmute),
                 ),
               ),
@@ -684,7 +624,7 @@ class _WidgetsViewState extends State<IconsView> {
               ActionButton(
                 trailing: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.addUser.asset),
+                      c.icon.value = IconDetails.svg(SvgIcons.addUser),
                   child: const SvgIcon(SvgIcons.addUser),
                 ),
               ),
@@ -695,8 +635,12 @@ class _WidgetsViewState extends State<IconsView> {
               ChatTile(
                 avatarBuilder: (_) => AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails(SvgIcons.notes.asset),
-                  child: AvatarWidget.fromMonolog(null, null, radius: 30),
+                      c.icon.value = IconDetails.svg(SvgIcons.notes),
+                  child: AvatarWidget.fromMonolog(
+                    null,
+                    null,
+                    radius: AvatarRadius.large,
+                  ),
                 ),
                 titleBuilder: (_) => const SizedBox(),
               ),
@@ -715,7 +659,7 @@ class _WidgetsViewState extends State<IconsView> {
                         const SizedBox(width: 5),
                         AnimatedButton(
                           onPressed: () =>
-                              c.icon.value = IconDetails(SvgIcons.muted.asset),
+                              c.icon.value = IconDetails.svg(SvgIcons.muted),
                           child: const SvgIcon(SvgIcons.muted),
                         ),
                         const SizedBox(width: 5),
@@ -739,8 +683,10 @@ class _WidgetsViewState extends State<IconsView> {
                         const Spacer(),
                         const SizedBox(width: 5),
                         AnimatedButton(
-                          onPressed: () => c.icon.value =
-                              IconDetails(SvgIcons.mutedWhite.asset),
+                          onPressed: () => c.icon.value = IconDetails.svg(
+                            SvgIcons.mutedWhite,
+                            invert: true,
+                          ),
                           child: const SvgIcon(SvgIcons.mutedWhite),
                         ),
                         const SizedBox(width: 5),
@@ -763,8 +709,8 @@ class _WidgetsViewState extends State<IconsView> {
                         const Spacer(),
                         const SizedBox(width: 5),
                         AnimatedButton(
-                          onPressed: () => c.icon.value =
-                              IconDetails(SvgIcons.blocked.asset),
+                          onPressed: () =>
+                              c.icon.value = IconDetails.svg(SvgIcons.blocked),
                           child: const SvgIcon(SvgIcons.blocked),
                         ),
                         const SizedBox(width: 5),
@@ -788,8 +734,10 @@ class _WidgetsViewState extends State<IconsView> {
                         const Spacer(),
                         const SizedBox(width: 5),
                         AnimatedButton(
-                          onPressed: () => c.icon.value =
-                              IconDetails(SvgIcons.blockedWhite.asset),
+                          onPressed: () => c.icon.value = IconDetails.svg(
+                            SvgIcons.blockedWhite,
+                            invert: true,
+                          ),
                           child: const SvgIcon(SvgIcons.blockedWhite),
                         ),
                         const SizedBox(width: 5),
@@ -807,7 +755,7 @@ class _WidgetsViewState extends State<IconsView> {
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
                       onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.read.asset),
+                          c.icon.value = IconDetails.svg(SvgIcons.read),
                       child: const SvgIcon(SvgIcons.read),
                     ),
                   ),
@@ -823,8 +771,10 @@ class _WidgetsViewState extends State<IconsView> {
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
-                      onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.readWhite.asset),
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.readWhite,
+                        invert: true,
+                      ),
                       child: const SvgIcon(SvgIcons.readWhite),
                     ),
                   ),
@@ -840,7 +790,7 @@ class _WidgetsViewState extends State<IconsView> {
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
                       onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.delivered.asset),
+                          c.icon.value = IconDetails.svg(SvgIcons.delivered),
                       child: const SvgIcon(SvgIcons.delivered),
                     ),
                   ),
@@ -856,8 +806,10 @@ class _WidgetsViewState extends State<IconsView> {
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
-                      onPressed: () => c.icon.value =
-                          IconDetails(SvgIcons.deliveredWhite.asset),
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.deliveredWhite,
+                        invert: true,
+                      ),
                       child: const SvgIcon(SvgIcons.deliveredWhite),
                     ),
                   ),
@@ -873,7 +825,7 @@ class _WidgetsViewState extends State<IconsView> {
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
                       onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.sent.asset),
+                          c.icon.value = IconDetails.svg(SvgIcons.sent),
                       child: const SvgIcon(SvgIcons.sent),
                     ),
                   ),
@@ -889,8 +841,8 @@ class _WidgetsViewState extends State<IconsView> {
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
-                      onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.sentWhite.asset),
+                      onPressed: () => c.icon.value =
+                          IconDetails.svg(SvgIcons.sentWhite, invert: true),
                       child: const SvgIcon(SvgIcons.sentWhite),
                     ),
                   ),
@@ -906,7 +858,7 @@ class _WidgetsViewState extends State<IconsView> {
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
                       onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.sending.asset),
+                          c.icon.value = IconDetails.svg(SvgIcons.sending),
                       child: const SvgIcon(SvgIcons.sending),
                     ),
                   ),
@@ -922,8 +874,10 @@ class _WidgetsViewState extends State<IconsView> {
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
-                      onPressed: () => c.icon.value =
-                          IconDetails(SvgIcons.sendingWhite.asset),
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.sendingWhite,
+                        invert: true,
+                      ),
                       child: const SvgIcon(SvgIcons.sendingWhite),
                     ),
                   ),
@@ -939,7 +893,7 @@ class _WidgetsViewState extends State<IconsView> {
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
                       onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.error.asset),
+                          c.icon.value = IconDetails.svg(SvgIcons.error),
                       child: const SvgIcon(SvgIcons.error),
                     ),
                   ),
@@ -956,7 +910,7 @@ class _WidgetsViewState extends State<IconsView> {
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
                       onPressed: () =>
-                          c.icon.value = IconDetails(SvgIcons.error.asset),
+                          c.icon.value = IconDetails.svg(SvgIcons.error),
                       child: const SvgIcon(SvgIcons.error),
                     ),
                   ),
@@ -1018,8 +972,8 @@ class _WidgetsViewState extends State<IconsView> {
                       height: 56,
                       child: Center(
                         child: AnimatedButton(
-                          onPressed: () => c.icon.value =
-                              IconDetails(SvgIcons.chatMore.asset),
+                          onPressed: () =>
+                              c.icon.value = IconDetails.svg(SvgIcons.chatMore),
                           child: const SvgIcon(SvgIcons.chatMore),
                         ),
                       ),
@@ -1030,8 +984,8 @@ class _WidgetsViewState extends State<IconsView> {
                       height: 56,
                       child: Center(
                         child: AnimatedButton(
-                          onPressed: () => c.icon.value =
-                              IconDetails(SvgIcons.forward.asset),
+                          onPressed: () =>
+                              c.icon.value = IconDetails.svg(SvgIcons.forward),
                           child: const SvgIcon(SvgIcons.forward),
                         ),
                       ),
@@ -1042,7 +996,7 @@ class _WidgetsViewState extends State<IconsView> {
                       child: Center(
                         child: AnimatedButton(
                           onPressed: () =>
-                              c.icon.value = IconDetails(SvgIcons.send.asset),
+                              c.icon.value = IconDetails.svg(SvgIcons.send),
                           child: const SvgIcon(SvgIcons.send),
                         ),
                       ),
@@ -1077,8 +1031,7 @@ class _WidgetsViewState extends State<IconsView> {
                         height: 56,
                         child: Center(
                           child: AnimatedButton(
-                            onPressed: () =>
-                                c.icon.value = IconDetails(e.asset),
+                            onPressed: () => c.icon.value = IconDetails.svg(e),
                             child: SvgIcon(e),
                           ),
                         ),
@@ -1114,8 +1067,7 @@ class _WidgetsViewState extends State<IconsView> {
                         height: 56,
                         child: Center(
                           child: AnimatedButton(
-                            onPressed: () =>
-                                c.icon.value = IconDetails(e.asset),
+                            onPressed: () => c.icon.value = IconDetails.svg(e),
                             child: SvgIcon(e),
                           ),
                         ),
@@ -1173,7 +1125,7 @@ class _WidgetsViewState extends State<IconsView> {
                               width: 26,
                               child: AnimatedButton(
                                 onPressed: () =>
-                                    c.icon.value = IconDetails(e.asset),
+                                    c.icon.value = IconDetails.svg(e),
                                 child: SvgIcon(e),
                               ),
                             ),
@@ -1184,8 +1136,8 @@ class _WidgetsViewState extends State<IconsView> {
                                 width: 40,
                                 child: Center(
                                     child: AnimatedButton(
-                                  onPressed: () => c.icon.value =
-                                      IconDetails(trailing!.asset),
+                                  onPressed: () =>
+                                      c.icon.value = IconDetails.svg(trailing!),
                                   child: SvgIcon(trailing),
                                 )),
                               ),
@@ -1249,7 +1201,7 @@ class _WidgetsViewState extends State<IconsView> {
                               const Spacer(),
                               AnimatedButton(
                                 onPressed: () =>
-                                    c.icon.value = IconDetails(e.asset),
+                                    c.icon.value = IconDetails.svg(e),
                                 child: SvgIcon(e),
                               ),
                             ],
@@ -1286,9 +1238,9 @@ class _WidgetsViewState extends State<IconsView> {
                   SvgIcons.callIncomingAudioOff,
                 ].map((e) {
                   return CallButtonWidget(
-                    icon: e,
-                    onPressed: () => c.icon.value = IconDetails(
-                      e.asset,
+                    asset: e,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      e,
                       invert: true,
                     ),
                   );
@@ -1306,8 +1258,8 @@ class _WidgetsViewState extends State<IconsView> {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.addBigger.asset,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      SvgIcons.addBigger,
                       invert: true,
                     ),
                     child: const SvgIcon(SvgIcons.addBigger),
@@ -1323,8 +1275,8 @@ class _WidgetsViewState extends State<IconsView> {
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.addBig.asset,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      SvgIcons.addBig,
                       invert: true,
                     ),
                     child: const SvgIcon(SvgIcons.addBig),
@@ -1372,7 +1324,7 @@ class _WidgetsViewState extends State<IconsView> {
                         padding: const EdgeInsets.only(left: 4, right: 4),
                         child: AnimatedButton(
                           onPressed: () =>
-                              c.icon.value = IconDetails(e.asset, invert: true),
+                              c.icon.value = IconDetails.svg(e, invert: true),
                           child: SvgIcon(e),
                         ),
                       );
@@ -1386,7 +1338,7 @@ class _WidgetsViewState extends State<IconsView> {
             children: [
               AnimatedButton(
                 onPressed: () => c.icon.value =
-                    IconDetails(SvgIcons.handUpBig.asset, invert: true),
+                    IconDetails.svg(SvgIcons.handUpBig, invert: true),
                 child: const RaisedHand(true),
               ),
             ],
@@ -1406,16 +1358,16 @@ class _WidgetsViewState extends State<IconsView> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AnimatedButton(
-                            onPressed: () => c.icon.value = IconDetails(
-                              SvgIcons.fullscreenExitSmall.asset,
+                            onPressed: () => c.icon.value = IconDetails.svg(
+                              SvgIcons.fullscreenExitSmall,
                               invert: true,
                             ),
                             child: const SvgIcon(SvgIcons.fullscreenExitSmall),
                           ),
                           const SizedBox(width: 10),
                           AnimatedButton(
-                            onPressed: () => c.icon.value = IconDetails(
-                              SvgIcons.fullscreenEnterSmall.asset,
+                            onPressed: () => c.icon.value = IconDetails.svg(
+                              SvgIcons.fullscreenEnterSmall,
                               invert: true,
                             ),
                             child: const SvgIcon(SvgIcons.fullscreenEnterSmall),
@@ -1440,8 +1392,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.fullscreenExit.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.fullscreenExit,
                         invert: true,
                       ),
                       icon: SvgIcons.fullscreenExit,
@@ -1452,8 +1404,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.fullscreenEnter.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.fullscreenEnter,
                         invert: true,
                       ),
                       icon: SvgIcons.fullscreenEnter,
@@ -1464,8 +1416,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.arrowLeft.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.arrowLeft,
                         invert: true,
                       ),
                       icon: SvgIcons.arrowLeft,
@@ -1477,8 +1429,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.arrowRight.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.arrowRight,
                         invert: true,
                       ),
                       icon: SvgIcons.arrowRight,
@@ -1490,8 +1442,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.arrowLeftDisabled.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.arrowLeftDisabled,
                         invert: true,
                       ),
                       icon: SvgIcons.arrowLeftDisabled,
@@ -1503,8 +1455,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.arrowRightDisabled.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.arrowRightDisabled,
                         invert: true,
                       ),
                       icon: SvgIcons.arrowRightDisabled,
@@ -1516,8 +1468,8 @@ class _WidgetsViewState extends State<IconsView> {
                     height: 60,
                     child: RoundFloatingButton(
                       color: style.colors.onSecondaryOpacity50,
-                      onPressed: () => c.icon.value = IconDetails(
-                        SvgIcons.close.asset,
+                      onPressed: () => c.icon.value = IconDetails.svg(
+                        SvgIcons.close,
                         invert: true,
                       ),
                       icon: SvgIcons.close,
@@ -1536,7 +1488,7 @@ class _WidgetsViewState extends State<IconsView> {
                 child: Center(
                   child: AnimatedButton(
                     onPressed: () =>
-                        c.icon.value = IconDetails(SvgIcons.download.asset),
+                        c.icon.value = IconDetails.svg(SvgIcons.download),
                     child: const SvgIcon(SvgIcons.download),
                   ),
                 ),
@@ -1554,8 +1506,8 @@ class _WidgetsViewState extends State<IconsView> {
                 ),
                 child: Center(
                   child: AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(
-                      SvgIcons.noVideo.asset,
+                    onPressed: () => c.icon.value = IconDetails.svg(
+                      SvgIcons.noVideo,
                       invert: true,
                     ),
                     child: const SvgIcon(SvgIcons.noVideo),
@@ -1564,7 +1516,6 @@ class _WidgetsViewState extends State<IconsView> {
               ),
             ],
           ),
-
           Block(
             children: [
               ...[
@@ -1591,14 +1542,13 @@ class _WidgetsViewState extends State<IconsView> {
               ].map(
                 (e) => MenuButton(
                   leading: AnimatedButton(
-                    onPressed: () => c.icon.value = IconDetails(e.asset),
+                    onPressed: () => c.icon.value = IconDetails.svg(e),
                     child: SvgIcon(e),
                   ),
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 120),
         ];
 
@@ -1606,10 +1556,7 @@ class _WidgetsViewState extends State<IconsView> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: ListView(
-                controller: _scrollController,
-                children: children,
-              ),
+              child: ListView(children: children),
             ),
             Positioned(
               bottom: 0,
@@ -1621,8 +1568,9 @@ class _WidgetsViewState extends State<IconsView> {
                 }
 
                 final String? asset = c.icon.value?.asset;
-                final String? download =
-                    c.icon.value?.download ?? c.icon.value?.asset;
+                final SvgData? data = c.icon.value?.data;
+                final String download = data?.asset ??
+                    'assets/icons/${c.icon.value?.download ?? c.icon.value?.asset}';
                 final bool invert = c.icon.value?.invert == true;
 
                 return Container(
@@ -1656,17 +1604,19 @@ class _WidgetsViewState extends State<IconsView> {
                           SizedBox(
                             width: 22,
                             height: 22,
-                            child: asset?.endsWith('.svg') == true
-                                ? SvgImage.asset(
-                                    'assets/icons/$asset',
-                                    width: 24,
-                                    height: 24,
-                                  )
-                                : Image.asset(
-                                    'assets/icons/$asset',
-                                    width: 24,
-                                    height: 24,
-                                  ),
+                            child: data == null
+                                ? asset?.endsWith('.svg') == true
+                                    ? SvgImage.asset(
+                                        'assets/icons/$asset',
+                                        width: 24,
+                                        height: 24,
+                                      )
+                                    : Image.asset(
+                                        'assets/icons/$asset',
+                                        width: 24,
+                                        height: 24,
+                                      )
+                                : SvgIcon(data, height: 24),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -1674,7 +1624,7 @@ class _WidgetsViewState extends State<IconsView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '$asset',
+                                  '${data?.asset.replaceFirst('assets/icons/', '') ?? asset}',
                                   style: invert
                                       ? style.fonts.normal.regular.onPrimary
                                       : style.fonts.normal.regular.onBackground,
@@ -1687,7 +1637,7 @@ class _WidgetsViewState extends State<IconsView> {
                               label: 'Download',
                               onPressed: () async {
                                 final file = await PlatformUtils.saveTo(
-                                  '${Config.origin}/assets/assets/icons/$download',
+                                  '${Config.origin}/assets/$download',
                                 );
 
                                 if (file != null) {
@@ -1710,6 +1660,7 @@ class _WidgetsViewState extends State<IconsView> {
     );
   }
 
+  /// Constructs a [CustomAppBar] displaying the provided [children].
   Widget _appBar(
     BuildContext context, {
     List<Widget> children = const [],
@@ -1730,18 +1681,18 @@ class _WidgetsViewState extends State<IconsView> {
     );
   }
 
+  /// Constructs the [IconDetails] downloadable in the `application` directory.
   Widget _downloadableIcon(
     BuildContext context,
-    IconsController c, {
-    required String icon,
-    required String archive,
+    IconsController c,
+    String icon, {
     bool mini = false,
   }) {
     return AnimatedButton(
       onPressed: () => c.icon.value = IconDetails(
         'application/$icon',
         invert: true,
-        download: 'application/$archive.zip',
+        download: 'application/${icon.split('.').first}.zip',
       ),
       child: Image.asset(
         'assets/icons/application/$icon',
@@ -1752,6 +1703,7 @@ class _WidgetsViewState extends State<IconsView> {
   }
 }
 
+/// Constructs the [Container] visually shaped like the [CustomNavigationBar].
 Widget _navBar(BuildContext context, List<Widget> children) {
   final style = Theme.of(context).style;
 
@@ -1779,6 +1731,7 @@ Widget _navBar(BuildContext context, List<Widget> children) {
   );
 }
 
+/// Constructs a [Container] visually shaped like a [ChatCall] message.
 Widget _messageCall(
   BuildContext context,
   IconsController c,
@@ -1798,7 +1751,7 @@ Widget _messageCall(
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 0, 0),
           child: AnimatedButton(
-            onPressed: () => c.icon.value = IconDetails(icon.asset),
+            onPressed: () => c.icon.value = IconDetails.svg(icon),
             child: SvgIcon(icon),
           ),
         ),
@@ -1808,6 +1761,8 @@ Widget _messageCall(
   );
 }
 
+/// Constructs a [Container] visually shaped like a message displaying the
+/// [icon] as its status.
 Widget _messageStatus(
   BuildContext context,
   IconsController c,
@@ -1828,7 +1783,7 @@ Widget _messageStatus(
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 6, 8),
           child: AnimatedButton(
-            onPressed: () => c.icon.value = IconDetails(icon.asset),
+            onPressed: () => c.icon.value = IconDetails.svg(icon),
             child: SvgIcon(icon),
           ),
         ),

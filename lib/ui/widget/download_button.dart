@@ -28,30 +28,56 @@ import '/util/web/web_utils.dart';
 class DownloadButton extends StatelessWidget {
   const DownloadButton({
     super.key,
-    this.icon,
     this.asset,
-    this.width,
-    this.height,
     required this.title,
     this.link,
   });
 
+  /// Constructs a [DownloadButton] for downloading the Windows application.
+  const DownloadButton.windows({super.key})
+      : asset = SvgIcons.windows,
+        title = 'Windows',
+        link = 'messenger-windows.zip';
+
+  /// Constructs a [DownloadButton] for downloading the macOS application.
+  const DownloadButton.macos({super.key})
+      : asset = SvgIcons.apple,
+        title = 'macOS',
+        link = 'messenger-macos.zip';
+
+  /// Constructs a [DownloadButton] for downloading the Linux application.
+  const DownloadButton.linux({super.key})
+      : asset = SvgIcons.linux,
+        title = 'Linux',
+        link = 'messenger-linux.zip';
+
+  /// Constructs a [DownloadButton] for downloading the iOS application.
+  const DownloadButton.appStore({super.key})
+      : asset = SvgIcons.appStore,
+        title = 'App Store',
+        link = 'messenger-ios.zip';
+
+  /// Constructs a [DownloadButton] for downloading the Android application from
+  /// Google Play.
+  const DownloadButton.googlePlay({super.key})
+      : asset = SvgIcons.googlePlay,
+        title = 'Google Play',
+        link = 'messenger-android.apk';
+
+  /// Constructs a [DownloadButton] for downloading the Android application.
+  const DownloadButton.android({super.key})
+      : asset = SvgIcons.android,
+        title = 'Android',
+        link = 'messenger-android.apk';
+
   /// Asset to display as a prefix to this [DownloadButton].
-  final String? asset;
-
-  /// Width of the [asset].
-  final double? width;
-
-  /// Height of the [asset].
-  final double? height;
+  final SvgData? asset;
 
   /// Title of this [DownloadButton].
   final String title;
 
   /// Relative link to the downloadable asset.
   final String? link;
-
-  final Widget? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -62,16 +88,10 @@ class DownloadButton extends StatelessWidget {
       onPressed: link == null
           ? null
           : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
-      prefix: Padding(
-        padding: const EdgeInsets.only(left: 20),
-        child: asset == null
-            ? icon
-            : SvgImage.asset(
-                'assets/icons/$asset.svg',
-                width: width,
-                height: height,
-              ),
-      ),
+      prefix: asset == null
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(left: 20), child: SvgIcon(asset!)),
       style: link == null
           ? style.fonts.normal.regular.onBackground
           : style.fonts.normal.regular.primary,

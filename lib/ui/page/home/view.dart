@@ -459,7 +459,7 @@ class _HomeViewState extends State<HomeView> {
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,
                                     key: c.profileKey,
-                                    radius: 16,
+                                    radius: AvatarRadius.medium,
                                   ),
                                 ),
                               ),

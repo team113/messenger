@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/svg/svgs.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
 import 'widget_button.dart';
 

@@ -32,7 +32,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
-import '/provider/hive/session.dart';
+import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -42,7 +42,7 @@ import '/util/web/web_utils.dart';
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
 class AuthService extends GetxService {
-  AuthService(this._authRepository, this._sessionProvider);
+  AuthService(this._authRepository, this._credentialsProvider);
 
   /// Currently authorized session's [Credentials].
   final Rx<Credentials?> credentials = Rx(null);
@@ -58,8 +58,8 @@ class AuthService extends GetxService {
   /// - `status.isSuccess` meaning successful authorization.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// [SessionDataHiveProvider] used to store user [Session].
-  final SessionDataHiveProvider _sessionProvider;
+  /// [CredentialsHiveProvider] used to store user [Session].
+  final CredentialsHiveProvider _credentialsProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -77,9 +77,9 @@ class AuthService extends GetxService {
   /// Guard used to track [renewSession] completion.
   final Mutex _tokenGuard = Mutex();
 
-  /// [StreamSubscription] to [SessionDataHiveProvider.boxEvents] saving new
+  /// [StreamSubscription] to [CredentialsHiveProvider.boxEvents] saving new
   /// [Credentials] to the browser's storage.
-  StreamSubscription? _sessionSubscription;
+  StreamSubscription? _credentialsSubscription;
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
@@ -98,8 +98,8 @@ class AuthService extends GetxService {
   @override
   void onClose() {
     _storageSubscription?.cancel();
-    _sessionSubscription?.cancel();
-    _sessionProvider.close();
+    _credentialsSubscription?.cancel();
+    _credentialsProvider.close();
     _refreshTimer?.cancel();
   }
 
@@ -121,8 +121,8 @@ class AuthService extends GetxService {
       }
     };
 
-    await _sessionProvider.init();
-    Credentials? creds = _sessionProvider.getCredentials();
+    await _credentialsProvider.init();
+    Credentials? creds = _credentialsProvider.get();
     Session? session = creds?.session;
     RememberedSession? remembered = creds?.rememberedSession;
 
@@ -147,8 +147,8 @@ class AuthService extends GetxService {
     });
 
     WebUtils.credentials = creds;
-    _sessionSubscription = _sessionProvider.boxEvents
-        .listen((e) => WebUtils.credentials = e.value?.credentials);
+    _credentialsSubscription = _credentialsProvider.boxEvents
+        .listen((e) => WebUtils.credentials = e.value);
 
     if (session == null) {
       return _unauthorized();
@@ -249,7 +249,7 @@ class AuthService extends GetxService {
       try {
         var data = await _authRepository.signUp();
         _authorized(data);
-        _sessionProvider.setCredentials(data);
+        _credentialsProvider.set(data);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -263,7 +263,7 @@ class AuthService extends GetxService {
     return _tokenGuard.protect(() async {
       try {
         _authorized(creds);
-        _sessionProvider.setCredentials(creds);
+        _credentialsProvider.set(creds);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -286,7 +286,7 @@ class AuthService extends GetxService {
     try {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
       _authorized(creds);
-      _sessionProvider.setCredentials(creds);
+      _credentialsProvider.set(creds);
     } catch (e) {
       _unauthorized();
       rethrow;
@@ -321,7 +321,7 @@ class AuthService extends GetxService {
           phone: phone,
         );
         _authorized(data);
-        _sessionProvider.setCredentials(data);
+        _credentialsProvider.set(data);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -340,7 +340,7 @@ class AuthService extends GetxService {
     status.value = RxStatus.loadingMore();
     await _tokenGuard.protect(() async {
       _authorized(credentials);
-      _sessionProvider.setCredentials(credentials);
+      _credentialsProvider.set(credentials);
       status.value = RxStatus.success();
     });
   }
@@ -410,7 +410,7 @@ class AuthService extends GetxService {
               .renewSession(credentials.value!.rememberedSession.token);
           _authorized(data);
 
-          _sessionProvider.setCredentials(data);
+          _credentialsProvider.set(data);
           status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
@@ -443,7 +443,7 @@ class AuthService extends GetxService {
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
   String _unauthorized() {
-    _sessionProvider.clear();
+    _credentialsProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();

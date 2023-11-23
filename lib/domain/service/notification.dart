@@ -417,7 +417,7 @@ class NotificationService extends DisposableService {
           sound: 'notification',
         );
       } catch (e) {
-        Log.error(e);
+        Log.error(e.toString());
       }
     }
 

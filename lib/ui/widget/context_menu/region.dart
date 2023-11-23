@@ -228,11 +228,20 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   Future<void> _show(BuildContext context, Offset position) async {
     final style = Theme.of(context).style;
 
-    if (widget.actions.isEmpty) {
+    if (_displayed || widget.actions.isEmpty) {
       return;
     }
 
     HapticFeedback.lightImpact();
+
+    _displayed = true;
+    if (widget.indicateOpenedMenu) {
+      _darkened = true;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -290,16 +299,15 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           -(widget.alignment ?? Alignment.bottomCenter).y,
         ),
       );
-    } else {
-      _displayed = true;
-      if (widget.indicateOpenedMenu) {
-        _darkened = true;
-      }
 
+      _displayed = false;
+      if (widget.indicateOpenedMenu) {
+        _darkened = false;
+      }
       if (mounted) {
         setState(() {});
       }
-
+    } else {
       _entry = OverlayEntry(builder: (_) {
         return Listener(
           onPointerUp: (d) {

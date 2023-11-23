@@ -295,7 +295,7 @@ class _BrowserSvgState extends State<_BrowserSvg> {
         }
       }
     } catch (e, stack) {
-      Log.error('Error loading SVG: $e\n$stack');
+      Log.error('Error loading SVG: $e\n$stack', '$runtimeType');
     }
   }
 

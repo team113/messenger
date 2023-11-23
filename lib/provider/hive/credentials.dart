@@ -20,54 +20,40 @@ import 'package:hive_flutter/adapters.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat.dart';
-import '/store/model/contact.dart';
-import '/store/model/session_data.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 // TODO: Encrypt stored data.
-/// [Hive] storage for a [SessionData].
-class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
+/// [Hive] storage for a [Credentials].
+class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch(key: 0);
 
   @override
-  String get boxName => 'session_data';
+  String get boxName => 'credentials';
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
-    Hive.maybeRegisterAdapter(ChatContactsListVersionAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
-    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RefreshTokenAdapter());
     Hive.maybeRegisterAdapter(RememberedSessionAdapter());
     Hive.maybeRegisterAdapter(SessionAdapter());
-    Hive.maybeRegisterAdapter(SessionDataAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
   /// Returns the stored [Credentials] from [Hive].
-  Credentials? getCredentials() => getSafe(0)?.credentials;
-
-  /// Returns the stored [ChatContactsListVersion] from [Hive].
-  ChatContactsListVersion? getChatContactsListVersion() =>
-      getSafe(0)?.chatContactsListVersion;
-
-  /// Returns the stored [FavoriteChatsListVersion] from [Hive].
-  FavoriteChatsListVersion? getFavoriteChatsListVersion() =>
-      getSafe(0)?.favoriteChatsListVersion;
+  Credentials? get() {
+    Log.debug('getCredentials()', '$runtimeType');
+    return getSafe(0);
+  }
 
   /// Stores new [Credentials] to [Hive].
-  Future<void> setCredentials(Credentials credentials) =>
-      putSafe(0, (box.get(0) ?? SessionData())..credentials = credentials);
-
-  /// Stores a new [ChatContactsListVersion] to [Hive].
-  Future<void> setChatContactsListVersion(ChatContactsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..chatContactsListVersion = ver);
-
-  /// Stores a new [FavoriteChatsListVersion] to [Hive].
-  Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) =>
-      putSafe(0, (box.get(0) ?? SessionData())..favoriteChatsListVersion = ver);
+  Future<void> set(Credentials credentials) async {
+    Log.debug('setCredentials($credentials)', '$runtimeType');
+    await putSafe(0, credentials);
+  }
 }

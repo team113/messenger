@@ -117,7 +117,7 @@ class _PublicViewState extends State<PublicView>
                       child: Center(
                         child: AvatarWidget.fromRxChat(
                           c.chat,
-                          radius: 17,
+                          radius: AvatarRadius.medium,
                         ),
                       ),
                     ),
@@ -809,10 +809,10 @@ class _PublicViewState extends State<PublicView>
             onPressed?.call();
             Navigator.of(context).pop();
           },
-          style: const TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-          ),
+          // style: const TextStyle(
+          //   fontSize: 15,
+          //   color: Colors.black,
+          // ),
           color: const Color(0xFF63B4FF),
           child: SizedBox(
             width: 60,

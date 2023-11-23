@@ -179,7 +179,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           child = AvatarWidget.fromMyUser(
             widget.myUser,
             key: _avatarKey,
-            radius: 100,
+            radius: AvatarRadius.largest,
             // badge: false,
           );
           break;
@@ -189,7 +189,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           child = AvatarWidget.fromRxUser(
             widget.user,
             key: _avatarKey,
-            radius: 100,
+            radius: AvatarRadius.largest,
             // badge: false,
           );
           break;
@@ -199,7 +199,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           child = AvatarWidget.fromRxChat(
             widget.chat,
             key: _avatarKey,
-            radius: 100,
+            radius: AvatarRadius.largest,
           );
           break;
       }

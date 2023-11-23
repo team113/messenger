@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/log.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -70,7 +71,9 @@ class HiveRxChat extends RxChat {
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
-        ver = hiveChat.ver;
+        // TODO: Don't ignore version, when all events are surely delivered by
+        //       subscribing to `chatEvents` with that version.
+        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
 
   @override
   final Rx<Chat> chat;
@@ -106,7 +109,7 @@ class HiveRxChat extends RxChat {
   final RxInt unreadCount;
 
   /// [ChatVersion] of this [HiveRxChat].
-  ChatVersion ver;
+  ChatVersion? ver;
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -336,8 +339,10 @@ class HiveRxChat extends RxChat {
         _local,
         getCursor: (e) => e?.cursor,
         getKey: (e) => e.value.key,
-        isFirst: (e) => id.isLocal || chat.value.firstItem?.id == e.value.id,
-        isLast: (e) => id.isLocal || chat.value.lastItem?.id == e.value.id,
+        isFirst: (e) =>
+            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
+        isLast: (e) =>
+            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
         strategy: PaginationStrategy.fromEnd,
       ),
     );
@@ -997,6 +1002,8 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
+
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = StreamQueue(
@@ -1021,12 +1028,21 @@ class HiveRxChat extends RxChat {
   Future<void> _chatEvent(ChatEvents event) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:
-        // No-op.
+        Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         break;
 
       case ChatEventsKind.chat:
+        Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         var node = event as ChatEventsChat;
-        _chatRepository.put(node.chat, ignoreVersion: true);
+        final HiveChat? chatEntity = await _chatLocal.get(id);
+        if (chatEntity != null) {
+          chatEntity.value = node.chat.value;
+          chatEntity.ver = node.chat.ver;
+          _chatRepository.put(chatEntity, ignoreVersion: true);
+        } else {
+          _chatRepository.put(node.chat, ignoreVersion: true);
+        }
+
         _lastReadItemCursor = node.chat.lastReadItemCursor;
         break;
 
@@ -1034,8 +1050,18 @@ class HiveRxChat extends RxChat {
         final HiveChat? chatEntity = await _chatLocal.get(id);
         var versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
+          Log.debug(
+            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
+
           return;
         }
+
+        Log.debug(
+          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
 
         chatEntity.ver = versioned.ver;
 

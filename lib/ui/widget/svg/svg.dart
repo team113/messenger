@@ -95,6 +95,7 @@ class SvgImage extends StatelessWidget {
   })  : bytes = null,
         asset = null;
 
+  /// Instantiates a widget rendering an SVG picture from a [SvgData].
   SvgImage.icon(
     SvgData data, {
     super.key,

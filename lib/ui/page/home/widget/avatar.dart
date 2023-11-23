@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -25,6 +26,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -35,6 +37,34 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
+/// Possible radiuses of an [AvatarWidget].
+enum AvatarRadius {
+  smallest,
+  smaller,
+  small,
+  normal,
+  medium,
+  big,
+  large,
+  larger,
+  largest;
+
+  /// Converts this [AvatarRadius] to a [double].
+  double toDouble() {
+    return switch (this) {
+      AvatarRadius.smallest => 8,
+      AvatarRadius.smaller => 10,
+      AvatarRadius.small => 15,
+      AvatarRadius.normal => 16,
+      AvatarRadius.medium => 17,
+      AvatarRadius.big => 20,
+      AvatarRadius.large => 30,
+      AvatarRadius.larger => 32,
+      AvatarRadius.largest => 100,
+    };
+  }
+}
+
 /// Widget to build an [Avatar].
 ///
 /// Displays a colored [BoxDecoration] with initials based on a [title] if
@@ -43,16 +73,15 @@ class AvatarWidget extends StatefulWidget {
   const AvatarWidget({
     super.key,
     this.avatar,
-    this.child,
     this.radius,
-    this.maxRadius,
-    this.minRadius,
     this.title,
     this.color,
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
     this.label,
+    this.onForbidden,
+    this.child,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -60,9 +89,7 @@ class AvatarWidget extends StatefulWidget {
     ChatContact? contact, {
     Key? key,
     Avatar? avatar,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -73,8 +100,6 @@ class AvatarWidget extends StatefulWidget {
             ? contact?.name.val.sum()
             : contact?.users.first.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -83,9 +108,7 @@ class AvatarWidget extends StatefulWidget {
     RxChatContact? contact, {
     Key? key,
     Avatar? avatar,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
   }) {
@@ -95,8 +118,6 @@ class AvatarWidget extends StatefulWidget {
         contact?.contact.value,
         avatar: avatar,
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     }
@@ -114,8 +135,6 @@ class AvatarWidget extends StatefulWidget {
             ? contact.contact.value.name.val.sum()
             : contact.user.value?.user.value.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     });
@@ -125,11 +144,10 @@ class AvatarWidget extends StatefulWidget {
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
+    FutureOr<void> Function()? onForbidden,
   }) =>
       AvatarWidget(
         key: key,
@@ -139,18 +157,15 @@ class AvatarWidget extends StatefulWidget {
         title: myUser?.name?.val ?? myUser?.num.val,
         color: myUser?.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
+        onForbidden: onForbidden,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
   factory AvatarWidget.fromUser(
     User? user, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
   }) =>
@@ -162,8 +177,6 @@ class AvatarWidget extends StatefulWidget {
         title: user?.name?.val ?? user?.num.val,
         color: user?.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -171,9 +184,7 @@ class AvatarWidget extends StatefulWidget {
   static Widget fromRxUser(
     RxUser? user, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
   }) {
@@ -182,8 +193,6 @@ class AvatarWidget extends StatefulWidget {
         user?.user.value,
         key: key,
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     }
@@ -197,8 +206,6 @@ class AvatarWidget extends StatefulWidget {
         title: user.user.value.name?.val ?? user.user.value.num.val,
         color: user.user.value.num.val.sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       ),
     );
@@ -209,9 +216,7 @@ class AvatarWidget extends StatefulWidget {
     Chat? chat,
     UserId? me, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -224,8 +229,6 @@ class AvatarWidget extends StatefulWidget {
         avatar: chat?.avatar,
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -236,9 +239,7 @@ class AvatarWidget extends StatefulWidget {
     Avatar? avatar,
     UserId? me, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) =>
       AvatarWidget(
@@ -247,8 +248,6 @@ class AvatarWidget extends StatefulWidget {
         title: title,
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
 
@@ -256,17 +255,13 @@ class AvatarWidget extends StatefulWidget {
   static Widget fromRxChat(
     RxChat? chat, {
     Key? key,
-    double? radius,
-    double? maxRadius,
-    double? minRadius,
+    AvatarRadius? radius,
     double opacity = 1,
   }) {
     if (chat == null) {
       return AvatarWidget(
         key: key,
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     }
@@ -278,8 +273,6 @@ class AvatarWidget extends StatefulWidget {
           chat.chat.value,
           chat.me,
           radius: radius,
-          maxRadius: maxRadius,
-          minRadius: minRadius,
           opacity: opacity,
         );
       }
@@ -294,8 +287,6 @@ class AvatarWidget extends StatefulWidget {
         title: chat.title.value,
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
-        maxRadius: maxRadius,
-        minRadius: minRadius,
         opacity: opacity,
       );
     });
@@ -304,38 +295,10 @@ class AvatarWidget extends StatefulWidget {
   /// [Avatar] to display.
   final Avatar? avatar;
 
-  /// [Widget] to display inside this [AvatarWidget].
+  /// [AvatarRadius] to display [avatar] with.
   ///
-  /// No-op, if [avatar] is specified.
-  ///
-  /// Intended to be used on the [Routes.style] page only.
-  final Widget? child;
-
-  /// Size of the avatar, expressed as the radius (half the diameter).
-  ///
-  /// If [radius] is specified, then neither [minRadius] nor [maxRadius] may be
-  /// specified. Specifying [radius] is equivalent to specifying a [minRadius]
-  /// and [maxRadius], both with the value of [radius].
-  ///
-  /// If neither [minRadius] nor [maxRadius] are specified, defaults to 20
-  /// logical pixels.
-  final double? radius;
-
-  /// The maximum size of the avatar, expressed as the radius (half the
-  /// diameter).
-  ///
-  /// If [maxRadius] is specified, then [radius] must not also be specified.
-  ///
-  /// Defaults to [double.infinity].
-  final double? maxRadius;
-
-  /// The minimum size of the avatar, expressed as the radius (half the
-  /// diameter).
-  ///
-  /// If [minRadius] is specified, then [radius] must not also be specified.
-  ///
-  /// Defaults to zero.
-  final double? minRadius;
+  /// [AvatarRadius.big] is used, if `null`.
+  final AvatarRadius? radius;
 
   /// Optional title of an avatar to display.
   final String? title;
@@ -359,6 +322,16 @@ class AvatarWidget extends StatefulWidget {
   /// Optional label to show inside this [AvatarWidget].
   final Widget? label;
 
+  /// Callback, called when [avatar] fetching fails with `Forbidden` error.
+  final FutureOr<void> Function()? onForbidden;
+
+  /// [Widget] to display inside this [AvatarWidget].
+  ///
+  /// No-op, if [avatar] is specified.
+  ///
+  /// Intended to be used on the [Routes.style] page only.
+  final Widget? child;
+
   @override
   State<AvatarWidget> createState() => _AvatarWidgetState();
 }
@@ -368,22 +341,18 @@ class _AvatarWidgetState extends State<AvatarWidget> {
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {
-    if (widget.radius == null &&
-        widget.minRadius == null &&
-        widget.maxRadius == null) {
-      return 40;
+    if (widget.radius == null) {
+      return AvatarRadius.big.toDouble() * 2;
     }
-    return 2.0 * (widget.radius ?? widget.minRadius ?? 20);
+    return 2.0 * widget.radius!.toDouble();
   }
 
   /// Returns maximum diameter of the avatar.
   double get _maxDiameter {
-    if (widget.radius == null &&
-        widget.minRadius == null &&
-        widget.maxRadius == null) {
-      return 40;
+    if (widget.radius == null) {
+      return AvatarRadius.big.toDouble() * 2;
     }
-    return 2.0 * (widget.radius ?? widget.maxRadius ?? 40);
+    return 2.0 * widget.radius!.toDouble();
   }
 
   @override

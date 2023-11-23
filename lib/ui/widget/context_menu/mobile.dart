@@ -219,7 +219,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   @override
   void initState() {
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
@@ -255,7 +255,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
   @override
   void dispose() {
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
     _fading.dispose();

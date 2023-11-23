@@ -43,6 +43,7 @@ import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/provider/hive/user.dart';
 import '/util/backoff.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
@@ -91,9 +92,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
-  /// Subscription to the [PlatformUtils.onActivityChanged] initializing and
+  /// Subscription to the [PlatformUtils.onFocusChanged] initializing and
   /// canceling the [_keepOnlineSubscription].
-  StreamSubscription? _onActivityChanged;
+  StreamSubscription? _onFocusChanged;
 
   /// [CancelToken] for cancelling the [_fetchBlocklist].
   final CancelToken _cancelToken = CancelToken();
@@ -118,13 +119,13 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initRemoteSubscription();
     _initBlacklistSubscription();
 
-    if (PlatformUtils.isDesktop || await PlatformUtils.isActive) {
+    if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
     }
 
     if (!PlatformUtils.isDesktop) {
-      _onActivityChanged = PlatformUtils.onActivityChanged.listen((active) {
-        if (active) {
+      _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) {
+        if (focused) {
           if (_keepOnlineSubscription == null) {
             _initKeepOnlineSubscription();
           }
@@ -167,7 +168,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _blocklistSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
-    _onActivityChanged?.cancel();
+    _onFocusChanged?.cancel();
     _cancelToken.cancel();
   }
 
@@ -824,28 +825,44 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
   Stream<MyUserEventsVersioned> _myUserRemoteEvents(
     MyUserVersion? Function() ver,
-  ) =>
-      _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
-        var events =
-            MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+  ) {
+    Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
 
-        if (events.$$typename == 'SubscriptionInitialized') {
-          events
-              as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
-          // No-op.
-        } else if (events.$$typename == 'MyUser') {
-          _setMyUser((events as MyUserMixin).toHive());
-        } else if (events.$$typename == 'MyUserEventsVersioned') {
-          var mixin = events as MyUserEventsVersionedMixin;
-          yield MyUserEventsVersioned(
-            mixin.events.map((e) => _myUserEvent(e)).toList(),
-            mixin.ver,
-          );
-        }
-      });
+    return _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
+      Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
+
+      var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        Log.debug(
+          '_myUserRemoteEvents(ver): SubscriptionInitialized',
+          '$runtimeType',
+        );
+
+        events
+            as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
+        // No-op.
+      } else if (events.$$typename == 'MyUser') {
+        Log.debug(
+          '_myUserRemoteEvents(ver): MyUser',
+          '$runtimeType',
+        );
+
+        _setMyUser((events as MyUserMixin).toHive());
+      } else if (events.$$typename == 'MyUserEventsVersioned') {
+        var mixin = events as MyUserEventsVersionedMixin;
+        yield MyUserEventsVersioned(
+          mixin.events.map((e) => _myUserEvent(e)).toList(),
+          mixin.ver,
+        );
+      }
+    });
+  }
 
   /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].
   MyUserEvent _myUserEvent(MyUserEventsVersionedMixin$Events e) {
+    Log.trace('_myUserEvent($e)', '$runtimeType');
+
     if (e.$$typename == 'EventUserNameUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name);

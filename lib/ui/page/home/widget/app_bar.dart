@@ -33,7 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.border,
     this.decoration,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
-    this.withTop = true,
+    this.top = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -56,7 +56,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final Widget? decoration;
 
-  final bool withTop;
+  final bool top;
 
   /// Height of the [CustomAppBar].
   static const double height = 60;
@@ -68,7 +68,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final double top = MediaQuery.of(context).padding.top;
+    double topPadding = 0;
+    if (top) {
+      topPadding = MediaQuery.of(context).padding.top;
+    }
 
     return Stack(
       children: [
@@ -76,9 +79,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (withTop && top != 0)
+            if (top && topPadding != 0)
               Container(
-                height: top,
+                height: topPadding,
                 width: double.infinity,
                 color: style.colors.transparent,
               ),

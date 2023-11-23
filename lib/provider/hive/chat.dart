@@ -156,4 +156,7 @@ class HiveChat extends HiveObject {
   /// Cursor of the [value] when paginating through favorite [Chat]s.
   @HiveField(5)
   FavoriteChatsCursor? favoriteCursor;
+ @override
+  String toString() =>
+      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
 }

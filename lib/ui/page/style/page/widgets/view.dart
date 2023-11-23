@@ -212,10 +212,12 @@ class _WidgetsViewState extends State<WidgetsView> {
     bool bottom = true,
   }) {
     return Block(
-      color: color,
+      background: color,
       headline: title ?? child.runtimeType.toString(),
       headlineColor: headlineColor,
-      margin: top ? null : 4,
+      margin: Block.defaultMargin.copyWith(
+        top: top ? Block.defaultMargin.top : 4,
+      ),
       children: [
         if (top) const SizedBox(height: 16),
         SelectionContainer.disabled(child: child),
@@ -236,7 +238,7 @@ class _WidgetsViewState extends State<WidgetsView> {
 
     return Block(
       padding: EdgeInsets.zero,
-      color: color,
+      background: color,
       headline: '',
       children: [
         ...children.mapIndexed((i, e) {
@@ -342,9 +344,9 @@ class _WidgetsViewState extends State<WidgetsView> {
   List<Widget> _avatars(BuildContext context) {
     // final style = Theme.of(context).style;
 
-    (String, Widget) avatars(String title, double radius) {
+    (String, Widget) avatars(String title, AvatarRadius radius) {
       return (
-        'AvatarWidget(radius: ${radius.toStringAsFixed(0)})',
+        'AvatarWidget(radius: ${radius.toDouble().toStringAsFixed(0)})',
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -362,15 +364,7 @@ class _WidgetsViewState extends State<WidgetsView> {
     return [
       _headlines(
         children: [
-          avatars('01', 100),
-          avatars('02', 32),
-          avatars('03', 30),
-          avatars('04', 20),
-          avatars('05', 17),
-          avatars('06', 16),
-          avatars('07', 13),
-          avatars('08', 10),
-          avatars('09', 8),
+          ...AvatarRadius.values.map((e) => avatars('00', e)),
         ],
       ),
     ];
@@ -471,7 +465,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           height: 60,
           width: 400,
           child: CustomAppBar(
-            withTop: false,
+            top: false,
             border: Border.all(color: style.colors.primary, width: 2),
             title: Theme(
               data: MessageFieldView.theme(context),
@@ -735,7 +729,7 @@ class _WidgetsViewState extends State<WidgetsView> {
                 color: style.colors.onSecondaryOpacity50,
                 onPressed: () {},
                 withBlur: true,
-                icon: SvgIcons.fullscreenEnter,
+                asset: SvgIcons.fullscreenEnter,
                 // assetWidth: 22,
                 // asset: 'fullscreen_enter_white',
               ),
@@ -746,8 +740,8 @@ class _WidgetsViewState extends State<WidgetsView> {
               height: 82,
               child: CallButtonWidget(
                 onPressed: () {},
-                hint: 'Hint'.l10n,
-                asset: 'screen_share_on'.l10n,
+                hint: 'Hint',
+                asset: SvgIcons.callScreenShareOn,
                 hinted: true,
                 expanded: true,
               ),
@@ -756,8 +750,8 @@ class _WidgetsViewState extends State<WidgetsView> {
             SizedBox.square(
               dimension: CallController.buttonSize,
               child: CallButtonWidget(
-                hint: 'Hint'.l10n,
-                asset: 'screen_share_on'.l10n,
+                hint: 'Hint',
+                asset: SvgIcons.callScreenShareOn,
                 hinted: true,
                 onPressed: () {},
               ),
@@ -770,7 +764,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.windows',
             const DownloadButton(
-              icon: SvgIcon(SvgIcons.windows),
+              asset: SvgIcons.windows,
               title: 'Windows',
               link: '',
             ),
@@ -778,7 +772,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.macos',
             const DownloadButton(
-              icon: SvgIcon(SvgIcons.apple),
+              asset: SvgIcons.apple,
               title: 'macOS',
               link: '',
             ),
@@ -786,7 +780,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.linux',
             const DownloadButton(
-              icon: SvgIcon(SvgIcons.linux),
+              asset: SvgIcons.linux,
               title: 'Linux',
               link: '',
             ),
@@ -794,7 +788,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.appStore',
             const DownloadButton(
-              icon: SvgIcon(SvgIcons.appStore),
+              asset: SvgIcons.appStore,
               title: 'App Store',
               link: '',
             ),
@@ -802,7 +796,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.googlePlay',
             const DownloadButton(
-              icon: SvgIcon(SvgIcons.googlePlay),
+              asset: SvgIcons.googlePlay,
               title: 'Google Play',
               link: '',
             ),
@@ -810,7 +804,7 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'DownloadButton.android',
             const DownloadButton(
-              icon: SvgIcon(SvgIcons.android),
+              asset: SvgIcons.android,
               title: 'Android',
               link: '',
             ),
@@ -899,12 +893,12 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'ContextMenu(mobile)',
             const ContextMenu(
-              enlarge: true,
+              enlarged: true,
               actions: [
-                ContextMenuButton(label: 'Action 1', enlarge: true),
-                ContextMenuButton(label: 'Action 2', enlarge: true),
-                ContextMenuButton(label: 'Action 3', enlarge: true),
-                ContextMenuButton(label: 'Action 4', enlarge: true),
+                ContextMenuButton(label: 'Action 1', enlarged: true),
+                ContextMenuButton(label: 'Action 2', enlarged: true),
+                ContextMenuButton(label: 'Action 3', enlarged: true),
+                ContextMenuButton(label: 'Action 4', enlarged: true),
               ],
             ),
           ),
@@ -1204,7 +1198,7 @@ class _WidgetsViewState extends State<WidgetsView> {
 
     return [
       Block(
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         headline: 'TimeLabelWidget',
         children: [
           TimeLabelWidget(
@@ -1225,7 +1219,7 @@ class _WidgetsViewState extends State<WidgetsView> {
         ],
       ),
       Block(
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         headline: 'UnreadLabel',
         children: const [UnreadLabel(123)],
       ),
@@ -1484,7 +1478,7 @@ class _WidgetsViewState extends State<WidgetsView> {
       ),
       Block(
         padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-        color: style.colors.onBackgroundOpacity7,
+        background: style.colors.onBackgroundOpacity7,
         headline: 'ChatForwardWidget',
         children: [
           const SizedBox(height: 32),
@@ -1518,7 +1512,7 @@ class _WidgetsViewState extends State<WidgetsView> {
             SizedBox(
               height: 60,
               child: CustomAppBar(
-                withTop: false,
+                top: false,
                 title: const Text('Title'),
                 leading: [StyledBackButton(onPressed: () {})],
                 actions: const [SizedBox(width: 60)],
@@ -1530,7 +1524,7 @@ class _WidgetsViewState extends State<WidgetsView> {
             SizedBox(
               height: 60,
               child: CustomAppBar(
-                withTop: false,
+                top: false,
                 title: const Row(children: [Text('Title')]),
                 padding: const EdgeInsets.only(left: 4, right: 20),
                 leading: [StyledBackButton(onPressed: () {})],
@@ -1564,7 +1558,7 @@ class _WidgetsViewState extends State<WidgetsView> {
             onLeave: (_) {},
             onWillAccept: (d) => true,
             itemBuilder: (i) => CallButtonWidget(
-              asset: 'more',
+              asset: SvgIcons.callMore,
               onPressed: () {},
             ),
           ),
@@ -1580,7 +1574,7 @@ class _WidgetsViewState extends State<WidgetsView> {
               height: 100,
               child: Center(
                 child: CallButtonWidget(
-                  asset: 'more',
+                  asset: SvgIcons.callMore,
                   onPressed: () {},
                 ),
               ),
@@ -1605,7 +1599,9 @@ class _WidgetsViewState extends State<WidgetsView> {
                     child: const SvgIcon(SvgIcons.chats),
                   ),
                 ),
-                const CustomNavigationBarItem(child: AvatarWidget(radius: 16)),
+                const CustomNavigationBarItem(
+                  child: AvatarWidget(radius: AvatarRadius.medium),
+                ),
               ],
             );
           },

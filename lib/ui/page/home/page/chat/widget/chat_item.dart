@@ -1549,7 +1549,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       color: style.colors.secondaryOpacity40,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: AvatarWidget.fromRxUser(data, radius: 10),
+                    child: AvatarWidget.fromRxUser(
+                      data,
+                      radius: AvatarRadius.smaller,
+                    ),
                   );
                 }
 
@@ -1565,7 +1568,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   verticalOffset: 15,
-                  child: AvatarWidget.fromUser(user, radius: 10),
+                  child: AvatarWidget.fromUser(
+                    user,
+                    radius: AvatarRadius.smaller,
+                  ),
                 );
               },
             ),
@@ -1577,7 +1583,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: AvatarWidget(title: 'plus'.l10n, radius: 10),
+            child: AvatarWidget(
+              title: 'plus'.l10n,
+              radius: AvatarRadius.smaller,
+            ),
           ),
         );
       }
@@ -1731,8 +1740,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ? InkWell(
                           customBorder: const CircleBorder(),
                           onTap: () => router.user(item.author.id, push: true),
-                          child:
-                              AvatarWidget.fromRxUser(widget.user, radius: 17),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: AvatarRadius.medium,
+                          ),
                         )
                       : const SizedBox(width: 34),
                 ),

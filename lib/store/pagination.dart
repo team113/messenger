@@ -305,7 +305,7 @@ class Pagination<T, C, K> {
       return;
     }
 
-    Log.print('put($item)', 'Pagination');
+    // Log.print('put($item)', 'Pagination');
 
     Future<void> put() async {
       items[onKey(item)] = item;

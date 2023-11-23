@@ -29,18 +29,22 @@ class Block extends StatelessWidget {
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.expanded,
-    this.padding = const EdgeInsets.fromLTRB(32, 16, 32, 16),
+    this.padding = defaultPadding,
+    this.margin = defaultMargin,
     this.children = const [],
     this.headline,
     this.headlineColor,
     this.underline,
-    this.color,
+    this.background,
     this.fade = false,
-    this.margin,
+    this.maxWidth = 400,
   });
 
   /// Optional header of this [Block].
   final String? title;
+
+  /// Optional headline of this [Block].
+  final String? headline;
 
   /// Indicator whether this [Block] should be highlighted.
   final bool highlight;
@@ -57,17 +61,27 @@ class Block extends StatelessWidget {
   /// Padding to apply to the [children].
   final EdgeInsets padding;
 
+  /// Margin to apply to the [Block].
+  final EdgeInsets margin;
+
   /// [Widget]s to display.
   final List<Widget> children;
 
-  final String? headline;
   final Widget? underline;
 
-  final Color? color;
+  final Color? background;
   final Color? headlineColor;
 
+  /// Maximum width this [Block] should occupy.
+  final double maxWidth;
+
   final bool fade;
-  final double? margin;
+
+  /// Default [Block.padding] of its contents.
+  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
+
+  /// Default [Block.margin] to apply.
+  static const EdgeInsets defaultMargin = EdgeInsets.fromLTRB(8, 4, 8, 4);
 
   @override
   Widget build(BuildContext context) {
@@ -86,12 +100,7 @@ class Block extends StatelessWidget {
       highlight: highlight == true,
       child: Center(
         child: Container(
-          padding: EdgeInsets.fromLTRB(
-            8,
-            margin ?? (headline == null ? 4 : 32),
-            8,
-            4,
-          ),
+          padding: margin,
 
           constraints: (expanded ?? context.isNarrow)
               ? null
@@ -102,13 +111,13 @@ class Block extends StatelessWidget {
           child: InputDecorator(
             decoration: InputDecoration(
               filled: true,
-              fillColor: color ?? style.messageColor,
+              fillColor: background ?? style.messageColor,
               focusedBorder: border,
               errorBorder: border,
               enabledBorder: border,
               disabledBorder: border,
               focusedErrorBorder: border,
-              contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              contentPadding: const EdgeInsets.all(12),
               border: border,
             ),
             child: Stack(

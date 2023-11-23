@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -216,7 +215,7 @@ class _ChatTileState extends State<ChatTile> {
                         AvatarWidget.fromRxChat(
                           widget.chat,
                           key: _avatarKey,
-                          radius: 30,
+                          radius: AvatarRadius.large,
                         ),
                       ),
                       const SizedBox(width: 12),

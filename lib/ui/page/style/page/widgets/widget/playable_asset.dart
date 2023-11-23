@@ -18,16 +18,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 
+import '/config.dart';
 import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
-/// Playable [asset] with optional [subtitle] to put underneath the player.
+/// Playable [asset] with the player.
 class PlayableAsset extends StatefulWidget {
   const PlayableAsset(this.asset, {super.key, this.once = true});
 
@@ -43,6 +43,7 @@ class PlayableAsset extends StatefulWidget {
 
 /// State of a [PlayableAsset] maintaining the [_audio].
 class _PlayableAssetState extends State<PlayableAsset> {
+  /// Indicator whether this [PlayableAsset] is hovered.
   bool _hovered = false;
 
   /// [StreamSubscription] for the audio playback.
@@ -95,24 +96,17 @@ class _PlayableAssetState extends State<PlayableAsset> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
-            // StyledCupertinoButton(
-            //   padding: EdgeInsets.zero,
-            //   label: '${widget.asset}.mp3',
-            //   style: style.fonts.medium.regular.primary,
-            //   onPressed: () {},
-            // ),
             SelectionContainer.disabled(
               child: StyledCupertinoButton(
                 padding: EdgeInsets.zero,
                 label: 'Download',
                 style: style.fonts.smaller.regular.primary,
                 onPressed: () async {
-                  const String asset = 'head_0.svg';
                   final file = await PlatformUtils.saveTo(
-                    '${Config.origin}/assets/assets/audio/$asset',
+                    '${Config.origin}/assets/assets/audio/${widget.asset}.mp3',
                   );
                   if (file != null) {
-                    MessagePopup.success('$asset downloaded');
+                    MessagePopup.success('${widget.asset}.mp3 downloaded');
                   }
                 },
               ),
@@ -121,51 +115,6 @@ class _PlayableAssetState extends State<PlayableAsset> {
         ),
       ],
     );
-
-    // return DefaultTextStyle(
-    //   style: style.fonts.small.regular.onBackground,
-    //   child: Column(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: [
-    //       Padding(
-    //         padding: const EdgeInsets.only(left: 4, bottom: 4),
-    //         child: WidgetButton(
-    //           onPressed: () {
-    //             Clipboard.setData(
-    //               ClipboardData(text: 'audio/${widget.asset}.mp3'),
-    //             );
-    //             MessagePopup.success('Path to the asset has been copied');
-    //           },
-    //           child: Text('${widget.asset}.mp3'),
-    //         ),
-    //       ),
-    //       Container(
-    //         height: 80,
-    //         width: 120,
-    //         decoration: BoxDecoration(
-    //           color: const Color(0xFFFFFFFF),
-    //           borderRadius: BorderRadius.circular(12),
-    //           border: Border.all(color: const Color(0xFF1F3C5D)),
-    //         ),
-    //         child: GestureDetector(
-    //           onTap: _audio != null ? _stopAudio : _playAudio,
-    //           child: Icon(
-    //             _audio != null
-    //                 ? Icons.pause_outlined
-    //                 : Icons.play_arrow_rounded,
-    //             size: 50,
-    //             color: const Color(0xFF1F3C5D),
-    //           ),
-    //         ),
-    //       ),
-    //       if (widget.subtitle != null)
-    //         Padding(
-    //           padding: const EdgeInsets.only(left: 4, top: 4),
-    //           child: Text(widget.subtitle!),
-    //         ),
-    //     ],
-    //   ),
-    // );
   }
 
   /// Plays the audio.

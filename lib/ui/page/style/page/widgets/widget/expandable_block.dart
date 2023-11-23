@@ -34,7 +34,7 @@ class _ExpandableBlockState extends State<ExpandableBlock> {
     return Stack(
       children: [
         Block(
-          color: widget.color,
+          background: widget.color,
           headline: widget.headline,
           padding: widget.padding,
           // underline: AnimatedButton(

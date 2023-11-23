@@ -72,7 +72,7 @@ class _PdfPreviewState extends State<PdfPreview> {
         setState(() => _status = RxStatus.success());
       }
     } catch (e) {
-      Log.error(e);
+      Log.error(e.toString());
       if (mounted) {
         setState(() => _status = RxStatus.error(e.toString()));
       }

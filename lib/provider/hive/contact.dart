@@ -65,7 +65,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 /// Persisted in [Hive] storage [ChatContact]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatContact)
 class HiveChatContact extends HiveObject {
-  HiveChatContact(this.value, this.ver);
+  HiveChatContact(this.value, this.ver,this.cursor,this.favoriteCursor);
 
   /// Persisted [ChatContact].
   @HiveField(0)
@@ -77,4 +77,12 @@ class HiveChatContact extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   ChatContactVersion ver;
+
+  /// Cursor of the [value] when paginating through all [ChatContact]s.
+  @HiveField(2)
+  ChatContactsCursor? cursor;
+
+  /// Cursor of the [value] when paginating through favorite [ChatContact]s.
+  @HiveField(3)
+  FavoriteChatContactsCursor? favoriteCursor;
 }

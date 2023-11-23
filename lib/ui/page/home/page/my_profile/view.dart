@@ -1791,31 +1791,31 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     const Column(
       children: [
         DownloadButton(
-          icon: SvgIcon(SvgIcons.windows),
+          asset: SvgIcons.windows,
           title: 'Windows',
           link: 'messenger-windows.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          icon: SvgIcon(SvgIcons.apple),
+          asset: SvgIcons.apple,
           title: 'macOS',
           link: 'messenger-macos.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          icon: SvgIcon(SvgIcons.linux),
+          asset: SvgIcons.linux,
           title: 'Linux',
           link: 'messenger-linux.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          icon: SvgIcon(SvgIcons.apple),
+          asset: SvgIcons.apple,
           title: 'iOS',
           link: 'messenger-ios.zip',
         ),
         SizedBox(height: 8),
         DownloadButton(
-          icon: SvgIcon(SvgIcons.googlePlay),
+          asset: SvgIcons.googlePlay,
           title: 'Android',
           link: 'messenger-android.apk',
         ),
