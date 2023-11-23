@@ -143,7 +143,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   final bool? enlarged;
 
   /// Callback, called when button is pressed.
-  final VoidCallback? onPressed;
+  final void Function()? onPressed;
 
   @override
   State<ContextMenuButton> createState() => _ContextMenuButtonState();
@@ -177,9 +177,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: context.isMobile
-                ? style.contextMenuRadius
-                : BorderRadius.circular(7),
+            borderRadius:
+                isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
             color: isMouseOver
                 ? isMobile
                     ? style.contextMenuHoveredColor

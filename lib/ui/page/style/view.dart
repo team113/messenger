@@ -29,6 +29,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'page/colors/view.dart';
+import 'page/icons/view.dart';
 import 'page/typography/view.dart';
 import 'page/widgets/view.dart';
 
@@ -137,6 +138,7 @@ class StyleView extends StatelessWidget {
                     }),
                   StyleTab.typography => const TypographyView(),
                   StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                  StyleTab.icons => const SelectionArea(child: IconsView()),
                 },
               );
             }).toList(),
@@ -166,6 +168,11 @@ class StyleView extends StatelessWidget {
             inverted: selected,
             onPressed: () => c.pages.jumpToPage(tab.index),
             child: const SvgIcon(SvgIcons.widgets),
+          ),
+        StyleTab.icons => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgIcon(SvgIcons.icons),
           ),
       };
     });

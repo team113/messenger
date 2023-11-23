@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
 
+### Added
+
+- UI:
+    - Style page:
+        - Icons tab. ([#730], [#710])
+
 ### Changed
 
 - UI:
@@ -36,7 +42,9 @@ All user visible changes to this project will be documented in this file. This p
 [#702]: /../../pull/702
 [#703]: /../../pull/703
 [#707]: /../../pull/707
+[#710]: /../../issues/710
 [#711]: /../../pull/711
+[#730]: /../../pull/730
 
 
 

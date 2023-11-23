@@ -42,9 +42,11 @@ class ChatTile extends StatelessWidget {
     this.height = 94,
     this.darken = 0,
     this.dimmed = false,
+    Widget Function(Widget)? titleBuilder,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
-  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
+  })  : titleBuilder = titleBuilder ?? _defaultBuilder,
+        avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -84,6 +86,11 @@ class ChatTile extends StatelessWidget {
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
+
+  /// Builder for building the [RxChat.title].
+  ///
+  /// Intended to be used to allow custom modifications over the title.
+  final Widget Function(Widget child) titleBuilder;
 
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
@@ -142,17 +149,20 @@ class ChatTile extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Flexible(
-                                    child: Obx(() {
-                                      return Text(
-                                        chat?.title.value ?? ('dot'.l10n * 3),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: selected
-                                            ? style.fonts.big.regular.onPrimary
-                                            : style
-                                                .fonts.big.regular.onBackground,
-                                      );
-                                    }),
+                                    child: titleBuilder(
+                                      Obx(() {
+                                        return Text(
+                                          chat?.title.value ?? ('dot'.l10n * 3),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: selected
+                                              ? style
+                                                  .fonts.big.regular.onPrimary
+                                              : style.fonts.big.regular
+                                                  .onBackground,
+                                        );
+                                      }),
+                                    ),
                                   ),
                                   ...title,
                                 ],
@@ -176,5 +186,5 @@ class ChatTile extends StatelessWidget {
   }
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
+  static Widget _defaultBuilder(Widget child) => child;
 }
