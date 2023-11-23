@@ -80,6 +80,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   @override
   void initState() {
     if (widget.withActivities) {
+      _updateTimer(widget.chat.chat.value);
       _chatWorker = ever(widget.chat.chat, _updateTimer);
     }
     super.initState();
@@ -99,10 +100,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     if (widget.withActivities) {
       if (chat.ongoingCall != null) {
         final List<TextSpan> spans = [];
-        if (!context.isMobile) {
-          spans.add(TextSpan(text: 'label_call_active'.l10n));
-          spans.add(TextSpan(text: 'space_vertical_space'.l10n));
-        }
+        // if (!context.isMobile) {
+        //   spans.add(TextSpan(text: 'label_call_active'.l10n));
+        //   spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+        // }
 
         spans.add(
           TextSpan(
@@ -227,6 +228,16 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       _duration = null;
       _durationTimer?.cancel();
       _durationTimer = null;
+
+      if (chat.ongoingCall?.conversationStartedAt != null) {
+        _duration = DateTime.now().difference(
+          chat.ongoingCall!.conversationStartedAt!.val,
+        );
+
+        if (mounted) {
+          setState(() {});
+        }
+      }
 
       if (chat.ongoingCall != null) {
         _durationTimer = Timer.periodic(

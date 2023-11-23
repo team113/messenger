@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -42,7 +43,7 @@ class ChatTile extends StatefulWidget {
     this.selected = false,
     this.outlined = false,
     this.onTap,
-    this.height = 94,
+    this.height = 80,
     this.darken = 0,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -52,6 +53,7 @@ class ChatTile extends StatefulWidget {
     this.highlight = false,
     this.dimmed = false,
     this.basement,
+    this.onBasementPressed,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -113,6 +115,7 @@ class ChatTile extends StatefulWidget {
   final bool highlight;
 
   final Widget? basement;
+  final void Function()? onBasementPressed;
 
   @override
   State<ChatTile> createState() => _ChatTileState();
@@ -156,7 +159,7 @@ class _ChatTileState extends State<ChatTile> {
       indicateOpenedMenu: true,
       enabled: widget.enableContextMenu,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+        padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
         child: InkWellWithHover(
           selectedColor:
               widget.basement != null ? style.colors.acceptPrimary : chosen,
@@ -302,23 +305,38 @@ class _ChatTileState extends State<ChatTile> {
                 ),
               ),
               if (widget.basement != null)
-                Container(
-                  decoration: BoxDecoration(
-                      // color: style.colors.onBackgroundOpacity7,
-                      // // border: paidBorder,
-                      // borderRadius: style.cardRadius.copyWith(
-                      //   topLeft: Radius.zero,
-                      //   topRight: Radius.zero,
-                      // ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: WidgetButton(
+                    onPressed: widget.onBasementPressed,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: style.colors.onBackgroundOpacity7,
+                        color: widget.selected
+                            ? style.colors.onBackgroundOpacity7
+                            : style.colors.acceptPrimary.withOpacity(0.1),
+                        // border: paidBorder,
+                        border: Border(
+                          top: BorderSide(
+                            color: style.colors.acceptPrimary.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        borderRadius: style.cardRadius.copyWith(
+                          topLeft: Radius.zero,
+                          topRight: Radius.zero,
+                        ),
                       ),
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
-                  child: DefaultTextStyle(
-                    style: style.fonts.small.regular.onPrimary.copyWith(
-                      color: widget.selected
-                          ? style.colors.onPrimary
-                          : style.colors.primary,
+                      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+                      child: DefaultTextStyle(
+                        style: style.fonts.small.regular.onPrimary.copyWith(
+                          color: widget.selected
+                              ? style.colors.onPrimary
+                              : style.colors.primary,
+                        ),
+                        child: widget.basement!,
+                      ),
                     ),
-                    child: widget.basement!,
                   ),
                 )
             ],

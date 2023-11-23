@@ -369,8 +369,8 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                     ContextMenuButton(
                                       label: c.withPrices.value
-                                          ? 'Скрыть ценники'.l10n
-                                          : 'Отображать ценники'.l10n,
+                                          ? 'label_hide_incoming_prices'.l10n
+                                          : 'label_show_incoming_prices'.l10n,
                                       onPressed: c.withPrices.toggle,
                                       trailing: const SvgIcon(SvgIcons.coin),
                                     ),

@@ -125,21 +125,8 @@ class MessageTimestamp extends StatelessWidget {
             ),
           ],
         ],
-        if (at != null)
-          SelectionContainer.disabled(
-            child: Text(
-              date ? at!.val.toLocal().yMdHm : at!.val.toLocal().hm,
-              style: style.fonts.smaller.regular.onBackground.copyWith(
-                fontSize: fontSize ??
-                    style.fonts.smaller.regular.onBackground.fontSize,
-                color:
-                    inverted ? style.colors.onPrimary : style.colors.secondary,
-              ),
-            ),
-          ),
         if (status != null &&
             (isSent || isDelivered || isRead || isSending || isError)) ...[
-          if (at != null) const SizedBox(width: 3),
           SizedBox(
             width: 17,
             child: SvgIcon(
@@ -166,7 +153,20 @@ class MessageTimestamp extends StatelessWidget {
                               : SvgIcons.sent,
             ),
           ),
+          if (at != null) const SizedBox(width: 3),
         ],
+        if (at != null)
+          SelectionContainer.disabled(
+            child: Text(
+              date ? at!.val.toLocal().yMdHm : at!.val.toLocal().hm,
+              style: style.fonts.small.regular.onBackground.copyWith(
+                fontSize:
+                    fontSize ?? style.fonts.small.regular.onBackground.fontSize,
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
+              ),
+            ),
+          ),
       ],
     );
   }

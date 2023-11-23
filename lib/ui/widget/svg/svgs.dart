@@ -1591,7 +1591,7 @@ class SvgIcons {
     height: 24,
   );
 
-   static const SvgData callCameraFront = SvgData(
+  static const SvgData callCameraFront = SvgData(
     'assets/icons/camera_front.svg',
     width: 27.57,
     height: 23.8,
@@ -1601,5 +1601,17 @@ class SvgIcons {
     'assets/icons/camera_back.svg',
     width: 27.57,
     height: 23.8,
+  );
+
+  static const SvgData activeCallStart = SvgData(
+    'assets/icons/active_call_start.svg',
+    width: 8,
+    height: 8,
+  );
+
+  static const SvgData activeCallEnd = SvgData(
+    'assets/icons/active_call_end.svg',
+    width: 9.59,
+    height: 4.21,
   );
 }

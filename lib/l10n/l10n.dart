@@ -187,12 +187,16 @@ extension L10nDateExtension on DateTime {
       }
     }
 
-    return 'label_ago_date'.l10nfmt({
-      'years': months ~/ 12,
-      'months': months,
-      'weeks': days ~/ 7,
-      'days': days,
-    });
+    if (days > 6) {
+      return yMd;
+    } else {
+      return 'label_ago_date'.l10nfmt({
+        'years': months ~/ 12,
+        'months': months,
+        'weeks': days ~/ 7,
+        'days': days,
+      });
+    }
   }
 
   /// Returns a Julian day number of this [DateTime].

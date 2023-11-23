@@ -219,12 +219,19 @@ class RecentChatTile extends StatelessWidget {
             );
           },
 
+          // onBasementPressed: () async {
+          //   await GetPaidView.show(
+          //     context,
+          //     mode: GetPaidMode.user,
+          //     user: rxChat.members.values.firstWhere((e) => e.id != me),
+          //   );
+          // },
           basement: payee
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // const SizedBox(width: 8),
-                    // const Text('Get paid'),
+                    const SizedBox(width: 6),
+                    const Text('Total: \$123'),
                     const Spacer(),
                     SvgIcon(
                       inverted ? SvgIcons.callsTinyWhite : SvgIcons.callsTiny,
@@ -237,7 +244,7 @@ class RecentChatTile extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     const Text('123\$'),
-                    // const SizedBox(width: 8),
+                    // const SizedBox(width: 5),
                   ],
                 )
               : null,
@@ -993,6 +1000,7 @@ class RecentChatTile extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Icon(
                     //   displayed ? Icons.call_end : Icons.call,
@@ -1014,10 +1022,15 @@ class RecentChatTile extends StatelessWidget {
                       },
                     ),
                     const SizedBox(width: 6),
-                    SvgIcon(
-                      displayed
-                          ? SvgIcons.callAudioEnd
-                          : SvgIcons.callAudioWhite,
+                    Transform.translate(
+                      offset: PlatformUtils.isWeb
+                          ? const Offset(0, -0.5)
+                          : Offset.zero,
+                      child: SvgIcon(
+                        displayed
+                            ? SvgIcons.activeCallEnd
+                            : SvgIcons.activeCallStart,
+                      ),
                     ),
                   ],
                 ),
@@ -1029,9 +1042,12 @@ class RecentChatTile extends StatelessWidget {
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
-        child: AnimatedSwitcher(
-          duration: 300.milliseconds,
-          child: button(inCall?.call() == true),
+        child: Transform.translate(
+          offset: const Offset(1, 0),
+          child: AnimatedSwitcher(
+            duration: 300.milliseconds,
+            child: button(inCall?.call() == true),
+          ),
         ),
       );
     });
