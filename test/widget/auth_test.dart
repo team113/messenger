@@ -45,7 +45,7 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -66,12 +66,12 @@ void main() async {
 
   Hive.init('./test/.temp_hive/auth_widget');
 
-  var sessionProvider = SessionDataHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = _FakeGraphQlProvider();
   AuthRepository authRepository = AuthRepository(graphQlProvider);
-  AuthService authService = AuthService(authRepository, sessionProvider);
+  AuthService authService = AuthService(authRepository, credentialsProvider);
   await authService.init();
-  await sessionProvider.clear();
+  await credentialsProvider.clear();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init(userId: const UserId('me'));
@@ -89,8 +89,8 @@ void main() async {
   await applicationSettingsProvider.init(userId: const UserId('me'));
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init(userId: const UserId('me'));
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init(userId: const UserId('me'));
+  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  await callCredentialsProvider.init(userId: const UserId('me'));
   var blacklistedUsersProvider = BlocklistHiveProvider();
   await blacklistedUsersProvider.init(userId: const UserId('me'));
   var callRectProvider = CallRectHiveProvider();
@@ -104,19 +104,19 @@ void main() async {
     Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
-    Get.put(sessionProvider);
+    Get.put(credentialsProvider);
     Get.put(chatProvider);
     Get.put(draftProvider);
     Get.put(settingsProvider);
-    Get.put(credentialsProvider);
+    Get.put(callCredentialsProvider);
     Get.put(NotificationService(graphQlProvider));
-    Get.put(BackgroundWorker(sessionProvider));
+    Get.put(BackgroundWorker(credentialsProvider));
     Get.put(monologProvider);
 
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();

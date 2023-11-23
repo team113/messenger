@@ -47,7 +47,7 @@ import 'l10n/l10n.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/download.dart';
-import 'provider/hive/session.dart';
+import 'provider/hive/credentials.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -170,7 +170,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
     if (await callKeep.hasPhoneAccount()) {
       SharedPreferences? prefs;
-      SessionDataHiveProvider? sessionProvider;
+      CredentialsHiveProvider? credentialsProvider;
       GraphQlProvider? provider;
       StreamSubscription? subscription;
 
@@ -211,11 +211,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
         await Config.init();
         await Hive.initFlutter('hive');
-        sessionProvider = SessionDataHiveProvider();
+        credentialsProvider = CredentialsHiveProvider();
 
-        await sessionProvider.init();
-        final Credentials? credentials = sessionProvider.getCredentials();
-        await sessionProvider.close();
+        await credentialsProvider.init();
+        final Credentials? credentials = credentialsProvider.get();
+        await credentialsProvider.close();
 
         if (credentials != null) {
           provider = GraphQlProvider();
@@ -263,7 +263,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         provider?.disconnect();
         subscription?.cancel();
         callKeep.rejectCall(message.data['chatId']);
-        await sessionProvider?.close();
+        await credentialsProvider?.close();
         await Hive.close();
       }
     }
@@ -293,7 +293,7 @@ class App extends StatelessWidget {
   }
 }
 
-/// Initializes a [Hive] storage and registers a [SessionDataHiveProvider] in
+/// Initializes a [Hive] storage and registers a [CredentialsHiveProvider] in
 /// the [Get]'s context.
 Future<void> _initHive() async {
   await Hive.initFlutter('hive');
@@ -314,7 +314,7 @@ Future<void> _initHive() async {
     });
   }
 
-  await Get.put(SessionDataHiveProvider()).init();
+  await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {

@@ -17,26 +17,31 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/model/session.dart';
 import '/domain/model_type_id.dart';
-import '/store/model/chat.dart';
-import '/store/model/contact.dart';
+import '/util/new_type.dart';
 
-part 'session_data.g.dart';
+part 'session.g.dart';
 
-/// [Session] relative preferences.
-@HiveType(typeId: ModelTypeId.sessionData)
-class SessionData extends HiveObject {
-  /// Persisted [FavoriteChatsListVersion] data.
-  @HiveField(0)
-  FavoriteChatsListVersion? favoriteChatsListVersion;
+/// Version of [Session]'s state.
+///
+/// It increases monotonically, so may be used (and is intended to) for
+/// tracking state's actuality.
+@HiveType(typeId: ModelTypeId.sessionVersion)
+class SessionVersion extends NewType<BigInt> {
+  const SessionVersion(super.val);
 
-  /// Persisted indicator whether all favorite [Chat]s are synchronized with the
-  /// remote, meaning no queries should be made.
-  @HiveField(1)
-  bool? favoriteChatsSynchronized;
+  factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
+}
 
-  /// Persisted [ChatContactsListVersion] data.
-  @HiveField(2)
-  ChatContactsListVersion? chatContactsListVersion;
+/// Version of [RememberedSession]'s state.
+///
+/// It increases monotonically, so may be used (and is intended to) for
+/// tracking state's actuality.
+@HiveType(typeId: ModelTypeId.rememberedSessionVersion)
+class RememberedSessionVersion extends NewType<BigInt> {
+  const RememberedSessionVersion(super.val);
+
+  factory RememberedSessionVersion.parse(String val) =>
+      RememberedSessionVersion(BigInt.parse(val));
 }

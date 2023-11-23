@@ -28,7 +28,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/my_user.dart';
@@ -65,10 +65,10 @@ void main() async {
     }
   };
 
-  var sessionProvider = SessionDataHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await sessionProvider.init();
+  await credentialsProvider.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
@@ -84,7 +84,7 @@ void main() async {
 
   Get.put(myUserProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
-  Get.put(sessionProvider);
+  Get.put(credentialsProvider);
 
   test('MyUserService successfully mutes and unmutes MyUser', () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
@@ -130,7 +130,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     UserRepository userRepository =
@@ -172,7 +172,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     UserRepository userRepository =
