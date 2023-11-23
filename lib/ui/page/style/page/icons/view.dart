@@ -45,7 +45,7 @@ import '/util/platform_utils.dart';
 
 import 'controller.dart';
 
-/// Widgets view of the [Routes.style] page.
+/// Icons view of the [Routes.style] page.
 class IconsView extends StatelessWidget {
   const IconsView({super.key});
 
@@ -424,10 +424,11 @@ class IconsView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               SignButton(
-                  icon: const SvgIcon(SvgIcons.android),
-                  title: '',
-                  onPressed: () =>
-                      c.icon.value = IconDetails.svg(SvgIcons.android)),
+                icon: const SvgIcon(SvgIcons.android),
+                title: '',
+                onPressed: () =>
+                    c.icon.value = IconDetails.svg(SvgIcons.android),
+              ),
             ],
           ),
           Block(
@@ -505,10 +506,8 @@ class IconsView extends StatelessWidget {
               MenuButton(
                 inverted: true,
                 leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails.svg(
-                    SvgIcons.frontendWhite,
-                    invert: true,
-                  ),
+                  onPressed: () => c.icon.value =
+                      IconDetails.svg(SvgIcons.frontendWhite, invert: true),
                   child: const SvgIcon(SvgIcons.frontendWhite),
                 ),
               ),
@@ -524,10 +523,8 @@ class IconsView extends StatelessWidget {
               MenuButton(
                 inverted: true,
                 leading: AnimatedButton(
-                  onPressed: () => c.icon.value = IconDetails.svg(
-                    SvgIcons.freelanceWhite,
-                    invert: true,
-                  ),
+                  onPressed: () => c.icon.value =
+                      IconDetails.svg(SvgIcons.freelanceWhite, invert: true),
                   child: const SvgIcon(SvgIcons.freelanceWhite),
                 ),
               ),
@@ -813,10 +810,8 @@ class IconsView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
                     child: AnimatedButton(
-                      onPressed: () => c.icon.value = IconDetails.svg(
-                        SvgIcons.sentWhite,
-                        invert: true,
-                      ),
+                      onPressed: () => c.icon.value =
+                          IconDetails.svg(SvgIcons.sentWhite, invert: true),
                       child: const SvgIcon(SvgIcons.sentWhite),
                     ),
                   ),
