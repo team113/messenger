@@ -36,8 +36,17 @@ class SessionData extends HiveObject {
   @HiveField(1)
   ChatContactsListVersion? chatContactsListVersion;
 
-  /// Persisted [FavoriteChatsListVersion] data.
   @HiveField(2)
+  /// Persisted indicator whether all favorite [ChatContact]s are stored
+  /// locally.
+  bool? favoriteContactsSynchronized;
+
+  @HiveField(3)
+  /// Persisted indicator whether all [ChatContact]s are stored locally.
+  bool? contactsSynchronized;
+
+  /// Persisted [FavoriteChatsListVersion] data.
+  @HiveField(4)
   FavoriteChatsListVersion? favoriteChatsListVersion;
 }
 

@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model_type_id.dart';
@@ -28,7 +30,8 @@ import 'base.dart';
 part 'contact.g.dart';
 
 /// [Hive] storage for [ChatContact]s.
-class ContactHiveProvider extends HiveLazyProvider<HiveChatContact> {
+class ContactHiveProvider extends HiveLazyProvider<HiveChatContact>
+    implements IterableHiveProvider<HiveChatContact, ChatContactId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -53,22 +56,25 @@ class ContactHiveProvider extends HiveLazyProvider<HiveChatContact> {
     Hive.maybeRegisterAdapter(UserPhoneAdapter());
   }
 
-  /// Returns a list of [ChatContact]s from [Hive].
-  Future<Iterable<HiveChatContact>> get contacts => valuesSafe;
+  @override
+  Iterable<ChatContactId> get keys => keysSafe.map((e) => ChatContactId(e));
 
-  /// Puts the provided [ChatContact] to [Hive].
+  @override
+  Future<Iterable<HiveChatContact>> get values => valuesSafe;
+
+  @override
   Future<void> put(HiveChatContact contact) async {
     Log.debug('put($contact)', '$runtimeType');
     await putSafe(contact.value.id.val, contact);
   }
 
-  /// Returns a [ChatContact] from [Hive] by its [id].
+  @override
   Future<HiveChatContact?> get(ChatContactId id) {
     Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
-  /// Removes an [ChatContact] from [Hive] by its [id].
+  @override
   Future<void> remove(ChatContactId id) async {
     Log.debug('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

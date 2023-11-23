@@ -63,7 +63,19 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     return getSafe(0)?.chatContactsListVersion;
   }
 
-  /// Returns the stored [FavoriteChatsListVersion] from [Hive].
+  /// Returns the stored [ChatContactsListVersion] from [Hive].
+  bool? getFavoriteContactsSynchronized() {
+    Log.debug('getFavoriteContactsSynchronized()', '$runtimeType');
+    return getSafe(0)?.favoriteContactsSynchronized;
+  }
+
+  /// Returns the stored [SessionData.contactsSynchronized] from [Hive].
+  bool? getContactsSynchronized() {
+    Log.debug('getContactsSynchronized()', '$runtimeType');
+    return getSafe(0)?.contactsSynchronized;
+  }
+
+  /// Returns the stored [SessionData.favoriteChatsListVersion] from [Hive].
   FavoriteChatsListVersion? getFavoriteChatsListVersion() {
     Log.debug('getFavoriteChatsListVersion()', '$runtimeType');
     return getSafe(0)?.favoriteChatsListVersion;
@@ -81,6 +93,24 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     await putSafe(
       0,
       (box.get(0) ?? SessionData())..chatContactsListVersion = ver,
+    );
+  }
+
+  /// Returns the stored [SessionData.favoriteContactsSynchronized] from [Hive].
+  Future<void> setFavoriteContactsSynchronized(bool val) async {
+    Log.debug('setFavoriteContactsSynchronized($val)', '$runtimeType');
+    await putSafe(
+      0,
+      (box.get(0) ?? SessionData())..favoriteContactsSynchronized = val,
+    );
+  }
+
+  /// Returns the stored [SessionData.contactsSynchronized] from [Hive].
+  Future<void> setContactsSynchronized(bool val) async {
+    Log.debug('setContactsSynchronized($val)', '$runtimeType');
+    await putSafe(
+      0,
+      (box.get(0) ?? SessionData())..contactsSynchronized = val,
     );
   }
 

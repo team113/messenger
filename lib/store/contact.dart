@@ -34,6 +34,8 @@ import '/domain/repository/search.dart';
 import '/provider/gql/exceptions.dart' show StaleVersionException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
+import '/provider/hive/contact_sorting.dart';
+import '/provider/hive/favorite_contact.dart';
 import '/provider/hive/session.dart';
 import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
@@ -47,6 +49,8 @@ import '/util/web/web_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
 import 'pagination/combined_pagination.dart';
+import 'pagination/hive.dart';
+import 'pagination/hive_graphql.dart';
 import 'search.dart';
 import 'user.dart';
 
@@ -56,6 +60,8 @@ class ContactRepository extends DisposableInterface
   ContactRepository(
     this._graphQlProvider,
     this._contactLocal,
+    this._favoriteLocal,
+    this._contactSortingLocal,
     this._userRepo,
     this._sessionLocal,
   );
@@ -75,6 +81,12 @@ class ContactRepository extends DisposableInterface
   /// [ChatContact]s local [Hive] storage.
   final ContactHiveProvider _contactLocal;
 
+  /// [ChatContact]s local [Hive] storage.
+  final FavoriteContactHiveProvider _favoriteLocal;
+
+  /// [ChatContact]s local [Hive] storage.
+  final ContactSortingHiveProvider _contactSortingLocal;
+
   /// [User]s repository.
   final UserRepository _userRepo;
 
@@ -86,14 +98,6 @@ class ContactRepository extends DisposableInterface
 
   /// [CombinedPagination] loading [paginated] with pagination.
   late final CombinedPagination<HiveChatContact, ChatContactId> _pagination;
-
-  /// [Pagination] loading favorites contacts with pagination.
-  late Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
-      _favoriteContactsPagination;
-
-  /// [Pagination] loading [paginated] with pagination.
-  late Pagination<HiveChatContact, ChatContactsCursor, ChatContactId>
-      _contactsPagination;
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
@@ -380,29 +384,73 @@ class ContactRepository extends DisposableInterface
   Future<void> _initPagination() async {
     Log.debug('_initPagination()', '$runtimeType');
 
-    _favoriteContactsPagination = Pagination(
+    final Pagination<HiveChatContact, FavoriteChatContactsCursor, ChatContactId>
+        favoriteContactsPagination = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
-      provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _favoriteContacts(
-          after: after,
-          first: first,
-          before: before,
-          last: last,
+      provider: HiveGraphQlPageProvider(
+        hiveProvider: HivePageProvider(
+          _contactLocal,
+          getCursor: (e) => e?.favoriteCursor,
+          getKey: (e) => e.value.id,
+          orderBy: (_) => _favoriteLocal.values,
+          isFirst: (_) =>
+              _sessionLocal.getFavoriteContactsSynchronized() == true,
+          isLast: (_) =>
+              _sessionLocal.getFavoriteContactsSynchronized() == true,
+          strategy: PaginationStrategy.fromEnd,
+          reversed: true,
+        ),
+        graphQlProvider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) async {
+            Page<HiveChatContact, FavoriteChatContactsCursor> page =
+                await _favoriteContacts(
+              after: after,
+              first: first,
+              before: before,
+              last: last,
+            );
+
+            if (page.info.hasNext == false) {
+              _sessionLocal.setFavoriteContactsSynchronized(true);
+            }
+
+            return page;
+          },
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    _contactsPagination = Pagination(
+    final Pagination<HiveChatContact, ChatContactsCursor, ChatContactId>
+        contactsPagination = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
-      provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _chatContacts(
-          after: after,
-          first: first,
-          before: before,
-          last: last,
+      provider: HiveGraphQlPageProvider(
+        hiveProvider: HivePageProvider(
+          _contactLocal,
+          getCursor: (e) => e?.cursor,
+          getKey: (e) => e.value.id,
+          orderBy: (_) => _contactSortingLocal.values,
+          isFirst: (_) => _sessionLocal.getContactsSynchronized() == true,
+          isLast: (_) => _sessionLocal.getContactsSynchronized() == true,
+        ),
+        graphQlProvider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) async {
+            Page<HiveChatContact, ChatContactsCursor> page =
+                await _chatContacts(
+              after: after,
+              first: first,
+              before: before,
+              last: last,
+            );
+
+            if (page.info.hasNext == false) {
+              _sessionLocal.setContactsSynchronized(true);
+            }
+
+            return page;
+          },
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
@@ -410,11 +458,11 @@ class ContactRepository extends DisposableInterface
 
     _pagination = CombinedPagination([
       CombinedPaginationEntry(
-        _favoriteContactsPagination,
+        favoriteContactsPagination,
         addIf: (e) => e.value.favoritePosition != null,
       ),
       CombinedPaginationEntry(
-        _contactsPagination,
+        contactsPagination,
         addIf: (e) => e.value.favoritePosition == null,
       ),
     ]);
@@ -530,6 +578,15 @@ class ContactRepository extends DisposableInterface
       if (saved == null ||
           saved.ver < contact.ver ||
           contact.ver.internal == BigInt.zero) {
+        if (contact.value.favoritePosition != null) {
+          _favoriteLocal.put(contact.value.favoritePosition!, contactId);
+          _contactSortingLocal.remove(contactId);
+        } else {
+          _contactSortingLocal.put(
+              contact.value.name, contact.value.id, contactId);
+          _favoriteLocal.remove(contactId);
+        }
+
         await _contactLocal.put(contact);
       }
     }
@@ -576,10 +633,22 @@ class ContactRepository extends DisposableInterface
         contacts.remove(contactId)?.dispose();
         paginated.remove(contactId);
         _pagination.remove(contactId);
+
+        _favoriteLocal.remove(contactId);
+        _contactSortingLocal.remove(contactId);
       } else {
         final HiveRxChatContact? contact = contacts[contactId];
-        if (contact == null || contact.ver <= event.value.ver) {
-          _add(event.value);
+        final HiveChatContact value = event.value;
+        if (contact == null || contact.ver <= value.ver) {
+          _add(value);
+        }
+
+        if (value.value.favoritePosition != null) {
+          _favoriteLocal.put(value.value.favoritePosition!, contactId);
+          _contactSortingLocal.remove(contactId);
+        } else {
+          _contactSortingLocal.put(value.value.name, value.value.id, contactId);
+          _favoriteLocal.remove(contactId);
         }
       }
     }
@@ -602,6 +671,8 @@ class ContactRepository extends DisposableInterface
 
           await _contactLocal.clear();
           await _pagination.clear();
+          await _sessionLocal.setFavoriteContactsSynchronized(false);
+          await _sessionLocal.setContactsSynchronized(false);
           await _pagination.around();
         }
       },
