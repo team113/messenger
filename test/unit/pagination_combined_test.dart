@@ -146,7 +146,10 @@ class _ListPageProvider implements PageProvider<int, int, int> {
   }
 
   @override
-  Future<void> put(int item) async {}
+  Future<void> put(int item, {
+    bool ignoreBounds = false,
+    int Function(int, int)? compare,
+  }) async {}
 
   @override
   Future<void> remove(int key) async {}

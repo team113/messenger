@@ -82,8 +82,7 @@ class ContactsTabController extends GetxController {
   /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
-  /// [Timer] displaying the [contacts] and [favorites] being fetched when it
-  /// becomes `null`.
+  /// [Timer] displaying the [contacts] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
   );
@@ -109,9 +108,6 @@ class ContactsTabController extends GetxController {
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
-  /// [StreamSubscription]s to the [favorites] updates.
-  StreamSubscription? _favoritesSubscription;
-
   /// Subscription for [SearchController.users] and [SearchController.contacts]
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
@@ -123,10 +119,10 @@ class ContactsTabController extends GetxController {
   /// current frame.
   bool _scrollIsInvoked = false;
 
-  /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
+  /// Returns the [RxStatus] of the [contacts] fetching.
   Rx<RxStatus> get status => _contactService.status;
 
-  /// Indicates whether the [favorites] or [contacts] have a next page.
+  /// Indicates whether the [contacts] have a next page.
   RxBool get hasNext => _contactService.hasNext;
 
   @override
@@ -165,7 +161,6 @@ class ContactsTabController extends GetxController {
     }
 
     _contactsSubscription?.cancel();
-    _favoritesSubscription?.cancel();
     _statusSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
 
@@ -370,6 +365,7 @@ class ContactsTabController extends GetxController {
     _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
+          print('OperationKind.added: ${e.value?.id}');
           contacts.add(e.value!);
           contacts.sort();
           listen(e.value!);

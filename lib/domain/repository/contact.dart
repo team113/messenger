@@ -34,13 +34,13 @@ abstract class AbstractContactRepository {
   RxObsMap<ChatContactId, RxChatContact> get contacts;
 
   /// Returns the initialization [RxStatus] of this repository and its
-  /// [paginated] and [favorites].
+  /// [paginated].
   Rx<RxStatus> get status;
 
-  /// Indicates whether the [paginated] or [favorites] have next page.
+  /// Indicates whether the [paginated] have next page.
   RxBool get hasNext;
 
-  /// Indicates whether a next page of the [paginated] or [favorites] is loading.
+  /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading;
 
   /// Returns a [ChatContact] by the provided [id].

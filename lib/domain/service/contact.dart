@@ -34,13 +34,13 @@ class ContactService extends DisposableService {
   /// Repository to fetch [ChatContact]s from.
   final AbstractContactRepository _contactRepository;
 
-  /// Returns the [RxStatus] of the [paginated] and [favorites] initialization.
+  /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _contactRepository.status;
 
-  /// Indicates whether the [paginated] or [favorites] have next page.
+  /// Indicates whether the [paginated] have next page.
   RxBool get hasNext => _contactRepository.hasNext;
 
-  /// Indicates whether a next page of the [paginated] or [favorites] is loading.
+  /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
   /// Returns the reactive map the currently paginated [ChatContact]s.
