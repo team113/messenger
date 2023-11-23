@@ -164,7 +164,9 @@ class SearchController extends GetxController {
   /// Indicates whether the [usersSearch] or [contactsSearch] have
   /// next page.
   RxBool get hasNext => query.value.length < 2
-      ? _chatService.hasNext
+      ? categories.contains(SearchCategory.chat)
+          ? _chatService.hasNext
+          : RxBool(false)
       : usersSearch.value?.hasNext ??
           contactsSearch.value?.hasNext ??
           RxBool(false);

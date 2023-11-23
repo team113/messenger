@@ -18,12 +18,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/ui/page/login/widget/primary_button.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
+import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
