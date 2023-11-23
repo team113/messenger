@@ -16,7 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
+
+import '/ui/widget/svg/svg.dart';
 
 /// Controller of a [IconsView].
 class IconsController extends GetxController {
