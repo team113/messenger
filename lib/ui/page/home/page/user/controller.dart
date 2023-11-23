@@ -142,6 +142,8 @@ class UserController extends GetxController {
 
             if (e.value!.contact.value.favoritePosition != null) {
               inFavorites.value = true;
+            } else {
+              inFavorites.value = false;
             }
           }
           break;

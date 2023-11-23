@@ -44,7 +44,8 @@ class ContactSortingHiveProvider extends HiveBaseProvider<ChatContactId> {
   /// Returns a list of [ChatContactId]s from [Hive].
   Iterable<ChatContactId> get values => valuesSafe;
 
-  /// Puts the provided [ChatContactId] by the provided [key] to [Hive].
+  /// Puts the provided [ChatContactId] by the provided [name] and [id] to
+  /// [Hive].
   Future<void> put(UserName name, ChatContactId id, ChatContactId item) async {
     String key = '${name}_$id';
 

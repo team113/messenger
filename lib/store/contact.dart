@@ -80,11 +80,13 @@ class ContactRepository extends DisposableInterface
   /// [ChatContact]s local [Hive] storage.
   final ContactHiveProvider _contactLocal;
 
-  /// [ChatContact]s local [Hive] storage.
-  final FavoriteContactHiveProvider _favoriteLocal;
-
-  /// [ChatContact]s local [Hive] storage.
+  /// [ChatContactId]s sorted by [UserName] representing [ChatContact]s [Hive]
+  /// storage.
   final ContactSortingHiveProvider _contactSortingLocal;
+
+  /// [ChatContactId]s sorted by [ChatContactFavoritePosition] representing
+  /// favorite [ChatContact]s [Hive] storage.
+  final FavoriteContactHiveProvider _favoriteLocal;
 
   /// [User]s repository.
   final UserRepository _userRepo;
@@ -216,16 +218,7 @@ class ContactRepository extends DisposableInterface
           .where((e) => e.contact.value.favoritePosition != null)
           .toList();
 
-      favorites.sort(
-        (a, b) => b.contact.value.favoritePosition!
-            .compareTo(a.contact.value.favoritePosition!),
-      );
-
-      final List<HiveRxChatContact> sorted = favorites
-        ..sort(
-          (a, b) => b.contact.value.favoritePosition!
-              .compareTo(a.contact.value.favoritePosition!),
-        );
+      final List<HiveRxChatContact> sorted = favorites..sort();
 
       final double? highestFavorite = sorted.isEmpty
           ? null
@@ -539,7 +532,6 @@ class ContactRepository extends DisposableInterface
     final ChatContactId contactId = contact.value.id;
     final HiveRxChatContact? saved = contacts[contactId];
 
-    // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null) {
       if (saved.ver >= contact.ver) {
         if (pagination) {
@@ -570,22 +562,28 @@ class ContactRepository extends DisposableInterface
 
     HiveRxChatContact? entry = contacts[contactId];
 
+    bool emitUpdate = false;
+
     if (entry == null) {
       entry = HiveRxChatContact(_userRepo, contact)..init();
       contacts[contactId] = entry;
     } else {
+      if (entry.contact.value.favoritePosition !=
+          contact.value.favoritePosition) {
+        emitUpdate = true;
+      }
+
       entry.contact.value = contact.value;
     }
 
     if (pagination) {
       paginated[contactId] ??= entry;
+    }
 
-      if (entry.contact.value.favoritePosition !=
-          contact.value.favoritePosition) {
-        paginated.emit(
-          MapChangeNotification.updated(entry.id, entry.id, entry),
-        );
-      }
+    if (emitUpdate) {
+      paginated.emit(
+        MapChangeNotification.updated(entry.id, entry.id, entry),
+      );
     }
   }
 
@@ -642,6 +640,7 @@ class ContactRepository extends DisposableInterface
           await _pagination.clear();
           await _sessionLocal.setFavoriteContactsSynchronized(false);
           await _sessionLocal.setContactsSynchronized(false);
+
           await _pagination.around();
         }
       },

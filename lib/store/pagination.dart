@@ -341,7 +341,7 @@ class Pagination<T, C, K> {
 
     if (put) {
       items[onKey(item)] = item;
-      await provider.put(item, ignoreBounds: true);
+      await provider.put(item, compare: compare, ignoreBounds: true);
     } else {
       await provider.put(item, compare: compare);
     }

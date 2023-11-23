@@ -365,7 +365,6 @@ class ContactsTabController extends GetxController {
     _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          print('OperationKind.added: ${e.value?.id}');
           contacts.add(e.value!);
           contacts.sort();
           listen(e.value!);

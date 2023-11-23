@@ -120,8 +120,8 @@ class ChatRepository extends DisposableInterface
   /// storage.
   final RecentChatHiveProvider _recentLocal;
 
-  /// [ChatId]s sorted by [PreciseDateTime] representing favorite [Chat]s [Hive]
-  /// storage.
+  /// [ChatId]s sorted by [ChatFavoritePosition] representing favorite [Chat]s
+  /// [Hive] storage.
   final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
@@ -2053,6 +2053,7 @@ class ChatRepository extends DisposableInterface
 
           await _pagination?.clear();
           await _favoriteLocal.clear();
+          await _sessionLocal.setFavoriteChatsSynchronized(false);
 
           await _pagination?.around();
 
