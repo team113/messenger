@@ -19,7 +19,7 @@ import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
 
 /// [StyleView] section.
-enum StyleTab { colors, typography, widgets }
+enum StyleTab { colors, typography, widgets, icons }
 
 /// Controller of a [StyleView].
 class StyleController extends GetxController {
