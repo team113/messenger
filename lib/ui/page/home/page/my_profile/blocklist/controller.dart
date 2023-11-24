@@ -70,7 +70,7 @@ class BlocklistController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Returns the [RxStatus] of the [chats] fetching and initialization.
+  /// Returns the [RxStatus] of the [blocklist] fetching and initialization.
   Rx<RxStatus> get status => _blocklistService.status;
 
   /// Indicates whether the [blocklist] have a next page.
