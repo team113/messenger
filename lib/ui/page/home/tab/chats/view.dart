@@ -205,7 +205,7 @@ class ChatsTabView extends StatelessWidget {
                                         e.chat.value.isMonolog) &&
                                     !e.chat.value.isHidden &&
                                     !e.hidden.value) {
-                                  chats.add(e.rxChat);
+                                  chats.add(e.rx);
                                 }
                               }
 
@@ -707,12 +707,12 @@ class ChatsTabView extends StatelessWidget {
                                   !e.chat.value.isHidden &&
                                   !e.hidden.value) {
                                 if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e.rxChat);
+                                  calls.add(e.rx);
                                 } else if (e.chat.value.favoritePosition !=
                                     null) {
-                                  favorites.add(e.rxChat);
+                                  favorites.add(e.rx);
                                 } else {
-                                  chats.add(e.rxChat);
+                                  chats.add(e.rx);
                                 }
                               }
                             }

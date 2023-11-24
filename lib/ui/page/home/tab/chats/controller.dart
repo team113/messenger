@@ -828,7 +828,7 @@ class ChatEntry implements Comparable<ChatEntry> {
   late bool _hasCall;
 
   /// Returns the [RxChat] this [ChatEntry] represents.
-  RxChat get rxChat => _chat;
+  RxChat get rx => _chat;
 
   /// Returns value of a [Chat] this [ChatEntry] represents.
   Rx<Chat> get chat => _chat.chat;
