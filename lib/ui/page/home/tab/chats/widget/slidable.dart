@@ -32,24 +32,7 @@ class CustomSlidable extends StatelessWidget {
             : DismissiblePane(onDismissed: onDismissed!),
         children: actions,
       ),
-      child: Builder(builder: (context) {
-        return child;
-        // return AnimatedBuilder(
-        //   animation: Slidable.of(context)!.animation,
-        //   builder: (context, child) {
-        //     if (Slidable.of(context)?.ratio != 0) {
-        //       return GestureDetector(
-        //         behavior: HitTestBehavior.translucent,
-        //         onTap: () => Slidable.of(context)!.close(),
-        //         child: IgnorePointer(child: child),
-        //       );
-        //     }
-
-        //     return child!;
-        //   },
-        //   child: child,
-        // );
-      }),
+      child: child,
     );
   }
 }

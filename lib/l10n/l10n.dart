@@ -166,7 +166,7 @@ extension L10nDateExtension on DateTime {
     } else if (differenceInDays < 1) {
       return hm;
     } else {
-      return 'label_days_ago_short'.l10nfmt({'days': differenceInDays});
+      return 'label_days_short'.l10nfmt({'days': differenceInDays});
     }
   }
 
@@ -189,14 +189,14 @@ extension L10nDateExtension on DateTime {
 
     if (days > 6) {
       return yMd;
-    } else {
-      return 'label_ago_date'.l10nfmt({
-        'years': months ~/ 12,
-        'months': months,
-        'weeks': days ~/ 7,
-        'days': days,
-      });
     }
+
+    return 'label_ago_date'.l10nfmt({
+      'years': months ~/ 12,
+      'months': months,
+      'weeks': days ~/ 7,
+      'days': days,
+    });
   }
 
   /// Returns a Julian day number of this [DateTime].

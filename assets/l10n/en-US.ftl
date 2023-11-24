@@ -1013,6 +1013,7 @@ label_days_ago = {$days ->
         [one] {$days} day
         *[other] {$days} days
     }
+label_days_short = {$days} d
 btn_pin = Pin
 btn_pin_message = Pin message
 btn_unpin = Unin
@@ -1111,6 +1112,5 @@ label_media_buttons_in_context_menu = In the context menu
 label_media_buttons_in_top = In the chat above
 label_media_buttons_in_bottom = In the chat below
 label_media_buttons_in_more = In the message field
-label_days_ago_short = {$days} d
 label_hide_incoming_prices = Hide price for incoming
 label_show_incoming_prices = Show price for incoming

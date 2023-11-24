@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -90,141 +91,7 @@ class UserView extends StatelessWidget {
           return LayoutBuilder(builder: (context, constraints) {
             return Scaffold(
               appBar: CustomAppBar(
-                title: Center(
-                  child: SizedBox(
-                    width: 400,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // const Spacer(),
-                        AnimatedButton(
-                          onPressed: c.openChat,
-                          child: const SvgIcon(SvgIcons.chat),
-                        ),
-                        // const SizedBox(width: 28),
-                        AnimatedButton(
-                          onPressed: () => c.call(true),
-                          child: const SvgIcon(SvgIcons.chatVideoCall),
-                        ),
-                        // const SizedBox(width: 28),
-                        AnimatedButton(
-                          onPressed: () => c.call(false),
-                          child: const SvgIcon(SvgIcons.chatAudioCall),
-                        ),
-                        // const SizedBox(width: 28),
-                        Obx(() {
-                          final bool muted =
-                              c.user?.dialog.value?.chat.value.muted != null;
-
-                          return AnimatedButton(
-                            onPressed: muted ? c.unmuteChat : c.muteChat,
-                            child: SvgIcon(
-                              muted
-                                  ? SvgIcons.notificationsOff
-                                  : SvgIcons.notificationsOn,
-                            ),
-                          );
-                        }),
-                        // const SizedBox(width: 28),
-                      ],
-                    ),
-                  ),
-                ),
-                padding: const EdgeInsets.only(left: 4, right: 20),
-                leading: const [StyledBackButton()],
-                actions: [
-                  AnimatedButton(
-                    onPressed: () {},
-                    child: const SvgIcon(SvgIcons.favorite),
-                  ),
-                ],
-                // title: Row(
-                //   children: [
-                //     Material(
-                //       elevation: 6,
-                //       type: MaterialType.circle,
-                //       shadowColor: style.colors.onBackgroundOpacity27,
-                //       color: style.colors.onPrimary,
-                //       child: Center(
-                //         child: AvatarWidget.fromRxUser(c.user, radius: 17),
-                //       ),
-                //     ),
-                //     const SizedBox(width: 10),
-                //     Flexible(
-                //       child: DefaultTextStyle.merge(
-                //         maxLines: 1,
-                //         overflow: TextOverflow.ellipsis,
-                //         child: Obx(() {
-                //           final String? status = c.user?.user.value.getStatus();
-                //           final UserTextStatus? text =
-                //               c.user?.user.value.status;
-                //           final StringBuffer buffer = StringBuffer();
-
-                //           if (status != null || text != null) {
-                //             buffer.write(text ?? '');
-
-                //             if (status != null && text != null) {
-                //               buffer.write('space_vertical_space'.l10n);
-                //             }
-
-                //             buffer.write(status ?? '');
-                //           }
-
-                //           final String subtitle = buffer.toString();
-
-                //           return Column(
-                //             mainAxisAlignment: MainAxisAlignment.center,
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [
-                //               Text(
-                //                   '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
-                //               if (subtitle.isNotEmpty)
-                //                 Text(
-                //                   subtitle,
-                //                   style: style.fonts.small.regular.secondary,
-                //                 )
-                //             ],
-                //           );
-                //         }),
-                //       ),
-                //     ),
-                //     const SizedBox(width: 10),
-                //   ],
-                // ),
-                // padding: const EdgeInsets.only(left: 4, right: 20),
-                // leading: const [StyledBackButton()],
-                // actions: [
-                //   AnimatedButton(
-                //     onPressed: c.openChat,
-                //     child: Transform.translate(
-                //       offset: const Offset(0, 1),
-                //       child: const SvgIcon(SvgIcons.chat),
-                //     ),
-                //   ),
-                //   Obx(() {
-                //     if (c.isBlocked != null) {
-                //       return const SizedBox.shrink();
-                //     }
-
-                //     return Row(
-                //       mainAxisSize: MainAxisSize.min,
-                //       children: [
-                //         if (constraints.maxWidth > 400) ...[
-                //           const SizedBox(width: 28),
-                //           AnimatedButton(
-                //             onPressed: () => c.call(true),
-                //             child: const SvgIcon(SvgIcons.chatVideoCall),
-                //           ),
-                //         ],
-                //         const SizedBox(width: 28),
-                //         AnimatedButton(
-                //           onPressed: () => c.call(false),
-                //           child: const SvgIcon(SvgIcons.chatAudioCall),
-                //         ),
-                //       ],
-                //     );
-                //   }),
-                // ],
+                title: _bar(c, context),
               ),
               body: Scrollbar(
                 controller: c.scrollController,
@@ -388,6 +255,106 @@ class UserView extends StatelessWidget {
     );
   }
 
+  Widget _bar(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final List<Widget> buttons = [
+        AnimatedButton(
+          onPressed: c.openChat,
+          child: const SvgIcon(SvgIcons.chat),
+        ),
+        AnimatedButton(
+          onPressed: () => c.call(true),
+          child: const SvgIcon(SvgIcons.chatVideoCall),
+        ),
+        AnimatedButton(
+          onPressed: () => c.call(false),
+          child: const SvgIcon(SvgIcons.chatAudioCall),
+        ),
+        if (constraints.maxWidth >= 460)
+          Obx(() {
+            final bool muted = c.user?.dialog.value?.chat.value.muted != null;
+
+            return AnimatedButton(
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              child: SvgIcon(
+                muted ? SvgIcons.notificationsOff : SvgIcons.notificationsOn,
+              ),
+            );
+          }),
+        if (constraints.maxWidth >= 560)
+          AnimatedButton(
+            onPressed: () {},
+            child: const SvgIcon(SvgIcons.favorite),
+          ),
+      ];
+
+      return Center(
+        child: Row(
+          children: [
+            const SizedBox(width: 8),
+            const StyledBackButton(),
+            Material(
+              elevation: 6,
+              type: MaterialType.circle,
+              shadowColor: style.colors.onBackgroundOpacity27,
+              color: style.colors.onPrimary,
+              child: Center(
+                child: AvatarWidget.fromRxUser(
+                  c.user,
+                  radius: AvatarRadius.medium,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: DefaultTextStyle.merge(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                child: Obx(() {
+                  final String? status = c.user?.user.value.getStatus();
+                  final UserTextStatus? text = c.user?.user.value.status;
+                  final StringBuffer buffer = StringBuffer();
+
+                  if (status != null || text != null) {
+                    buffer.write(text ?? '');
+
+                    if (status != null && text != null) {
+                      buffer.write('space_vertical_space'.l10n);
+                    }
+
+                    buffer.write(status ?? '');
+                  }
+
+                  final String subtitle = buffer.toString();
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
+                      if (subtitle.isNotEmpty)
+                        Text(
+                          subtitle,
+                          style: style.fonts.small.regular.secondary,
+                        )
+                    ],
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(width: 40),
+            ...buttons.expand((e) {
+              return [e, const SizedBox(width: 28)];
+            }),
+          ],
+        ),
+      );
+    });
+  }
+
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
     return Column(
@@ -401,6 +368,11 @@ class UserView extends StatelessWidget {
             text: c.inContacts.value
                 ? 'btn_delete_from_contacts'.l10n
                 : 'btn_add_to_contacts'.l10n,
+            trailing: SvgIcon(
+              c.inContacts.value
+                  ? SvgIcons.deleteContact16
+                  : SvgIcons.addContact16,
+            ),
             onPressed: c.status.value.isLoadingMore
                 ? null
                 : c.inContacts.value
@@ -415,6 +387,9 @@ class UserView extends StatelessWidget {
                 : 'btn_add_to_favorites'.l10n,
             onPressed:
                 c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+            trailing: SvgIcon(
+              c.inFavorites.value ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+            ),
           );
         }),
         if (c.user?.user.value.dialog.isLocal == false &&
@@ -429,19 +404,19 @@ class UserView extends StatelessWidget {
 
             return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: SvgIcon(isMuted ? SvgIcons.mute : SvgIcons.unmute),
+              trailing: SvgIcon(isMuted ? SvgIcons.mute16 : SvgIcons.unmute16),
               onPressed: isMuted ? c.unmuteChat : c.muteChat,
             );
           }),
           ActionButton(
-            text: 'btn_hide_chat'.l10n,
+            text: 'btn_delete_chat'.l10n,
             trailing: const SvgIcon(SvgIcons.delete),
             onPressed: () => _hideChat(c, context),
           ),
           ActionButton(
             key: const Key('ClearHistoryButton'),
             text: 'btn_clear_history'.l10n,
-            trailing: const SvgIcon(SvgIcons.delete),
+            trailing: const SvgIcon(SvgIcons.cleanHistory16),
             onPressed: () => _clearChat(c, context),
           ),
         ],
@@ -455,7 +430,7 @@ class UserView extends StatelessWidget {
             trailing: Obx(() {
               final Widget child;
               if (c.blacklistStatus.value.isEmpty) {
-                child = const SizedBox();
+                child = const SvgIcon(SvgIcons.block16);
               } else {
                 child = const CustomProgressIndicator();
               }
@@ -467,7 +442,11 @@ class UserView extends StatelessWidget {
             }),
           );
         }),
-        ActionButton(text: 'btn_report'.l10n, onPressed: () {}),
+        ActionButton(
+          text: 'btn_report'.l10n,
+          onPressed: () {},
+          trailing: const SvgIcon(SvgIcons.report16),
+        ),
       ],
     );
   }

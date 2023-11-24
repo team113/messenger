@@ -175,16 +175,12 @@ class _ChatTileState extends State<ChatTile> {
                   : style.cardHoveredColor,
           // unselectedHoverColor:
           //     (widget.highlight ? paid : normal).darken(0.03),
-          border: widget.basement != null
-              ? paidBorder
-              : widget.selected
+          border: widget.selected
+              ? widget.basement == null
                   ? chosenBorder
-                  : normalBorder,
-          hoveredBorder: widget.basement != null
-              ? paidBorder
-              : widget.selected
-                  ? chosenBorder
-                  : hoverBorder,
+                  : paidBorder
+              : normalBorder,
+          hoveredBorder: widget.selected ? chosenBorder : hoverBorder,
           selected: widget.selected || widget.active,
           borderRadius: style.cardRadius,
           onTap: widget.onTap,
@@ -316,17 +312,22 @@ class _ChatTileState extends State<ChatTile> {
                             ? style.colors.onBackgroundOpacity7
                             : style.colors.acceptPrimary.withOpacity(0.1),
                         // border: paidBorder,
-                        border: Border(
-                          top: BorderSide(
-                            color: style.colors.acceptPrimary.withOpacity(0.2),
-                            width: 0.5,
-                          ),
-                        ),
+                        // border: Border(
+                        //   // top: BorderSide(
+                        //   //   color: style.colors.acceptPrimary.withOpacity(0.2),
+                        //   //   width: 0.5,
+                        //   // ),
+
+                        //   right: BorderSide(color: style.cardColor, width: 2),
+                        //   left: BorderSide(color: style.cardColor, width: 2),
+                        //   bottom: BorderSide(color: style.cardColor, width: 2),
+                        // ),
                         borderRadius: style.cardRadius.copyWith(
                           topLeft: Radius.zero,
                           topRight: Radius.zero,
                         ),
                       ),
+                      margin: const EdgeInsets.fromLTRB(2, 0, 2, 2),
                       padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
                       child: DefaultTextStyle(
                         style: style.fonts.small.regular.onPrimary.copyWith(

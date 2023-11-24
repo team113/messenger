@@ -17,6 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_subtitle.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
@@ -72,149 +73,15 @@ class ChatInfoView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(
-              actions: [
-                AnimatedButton(
-                  onPressed: () {},
-                  child: const SvgIcon(SvgIcons.favorite),
-                ),
-              ],
-              title: Center(
-                child: SizedBox(
-                  width: 400,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // const Spacer(),
-                      AnimatedButton(
-                        onPressed: () => router.chat(c.chat?.id ?? id),
-                        child: const SvgIcon(SvgIcons.chat),
-                      ),
-                      // const SizedBox(width: 28),
-                      AnimatedButton(
-                        onPressed: () => c.call(true),
-                        child: const SvgIcon(SvgIcons.chatVideoCall),
-                      ),
-                      // const SizedBox(width: 28),
-                      AnimatedButton(
-                        onPressed: () => c.call(false),
-                        child: const SvgIcon(SvgIcons.chatAudioCall),
-                      ),
-                      // const SizedBox(width: 28),
-                      Obx(() {
-                        final bool muted = c.chat?.chat.value.muted != null;
-
-                        return AnimatedButton(
-                          onPressed: muted ? c.unmuteChat : c.muteChat,
-                          child: SvgIcon(
-                            muted
-                                ? SvgIcons.notificationsOff
-                                : SvgIcons.notificationsOn,
-                          ),
-                        );
-                      }),
-                      // const SizedBox(width: 28),
-                    ],
-
-                    //  [
-                    //     Material(
-                    //       elevation: 6,
-                    //       type: MaterialType.circle,
-                    //       shadowColor: style.colors.onBackgroundOpacity27,
-                    //       color: style.colors.onPrimary,
-                    //       child: Center(
-                    //         child:
-                    //             AvatarWidget.fromRxChat(c.chat, radius: 17),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 10),
-                    //     Flexible(
-                    //       child: DefaultTextStyle.merge(
-                    //         maxLines: 1,
-                    //         overflow: TextOverflow.ellipsis,
-                    //         child: Column(
-                    //           mainAxisAlignment: MainAxisAlignment.center,
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             Row(
-                    //               children: [
-                    //                 Flexible(
-                    //                   child: Text(
-                    //                     c.chat!.title.value,
-                    //                     overflow: TextOverflow.ellipsis,
-                    //                     maxLines: 1,
-                    //                   ),
-                    //                 ),
-                    //                 // if (c.chat?.chat.value.muted != null) ...[
-                    //                 //   const SizedBox(width: 5),
-                    //                 //   const SvgImage.asset(
-                    //                 //     'assets/icons/muted.svg',
-                    //                 //     width: 19.99 * 0.6,
-                    //                 //     height: 15 * 0.6,
-                    //                 //   ),
-                    //                 // ]
-                    //               ],
-                    //             ),
-                    //             ChatSubtitle(c.chat!, c.me,
-                    //                 withActivities: false),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 10),
-                    //   ],
-                  ),
-                ),
-              ),
-              padding: const EdgeInsets.only(left: 4, right: 20),
-              leading: const [StyledBackButton()],
               // actions: [
-              //   Transform.translate(
-              //     offset: const Offset(0, 1),
-              //     child: AnimatedButton(
-              //       onPressed: () => router.chat(id, push: true),
-              //       child: const SvgIcon(SvgIcons.chat),
-              //     ),
+              //   AnimatedButton(
+              //     onPressed: () {},
+              //     child: const SvgIcon(SvgIcons.favorite),
               //   ),
-              //   if (c.chat!.chat.value.ongoingCall == null) ...[
-              //     if (!context.isMobile) ...[
-              //       const SizedBox(width: 28),
-              //       AnimatedButton(
-              //         onPressed: () => c.call(true),
-              //         child: const SvgIcon(SvgIcons.chatVideoCall),
-              //       ),
-              //     ],
-              //     const SizedBox(width: 28),
-              //     AnimatedButton(
-              //       onPressed: () => c.call(false),
-              //       child: const SvgIcon(SvgIcons.chatAudioCall),
-              //     ),
-              //   ] else ...[
-              //     const SizedBox(width: 14),
-              //     AnimatedButton(
-              //       key: c.inCall ? const Key('Drop') : const Key('Join'),
-              //       onPressed: c.inCall ? c.dropCall : c.joinCall,
-              //       child: Container(
-              //         key: const Key('ActiveCallButton'),
-              //         height: 22,
-              //         width: 22,
-              //         decoration: BoxDecoration(
-              //           color: c.inCall
-              //               ? style.colors.danger
-              //               : style.colors.primary,
-              //           shape: BoxShape.circle,
-              //         ),
-              //         child: Center(
-              //           child: AnimatedSwitcher(
-              //             duration: 300.milliseconds,
-              //             child: c.inCall
-              //                 ? const SvgIcon(SvgIcons.callEndSmall)
-              //                 : const SvgIcon(SvgIcons.callStartSmall),
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ],
               // ],
+              title: _bar(c, context),
+              // padding: const EdgeInsets.only(left: 4, right: 20),
+              // leading: const [StyledBackButton()],
             ),
             body: Scrollbar(
               controller: c.scrollController,
@@ -364,10 +231,7 @@ class ChatInfoView extends StatelessWidget {
           ActionButton(
             onPressed: () {},
             text: 'btn_add_to_contacts'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
-            ),
+            trailing: const SvgIcon(SvgIcons.addContact16),
           ),
         Obx(() {
           final bool favorited = c.chat?.chat.value.favoritePosition != null;
@@ -379,9 +243,8 @@ class ChatInfoView extends StatelessWidget {
             text: favorited
                 ? 'btn_delete_from_favorites'.l10n
                 : 'btn_add_to_favorites'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
+            trailing: SvgIcon(
+              favorited ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
             ),
           );
         }),
@@ -394,15 +257,15 @@ class ChatInfoView extends StatelessWidget {
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: muted
-                    ? const SvgIcon(SvgIcons.mute)
-                    : const SvgIcon(SvgIcons.unmute),
+                    ? const SvgIcon(SvgIcons.mute16)
+                    : const SvgIcon(SvgIcons.unmute16),
               ),
             );
           }),
         ActionButton(
           key: const Key('HideChatButton'),
           onPressed: () => _hideChat(c, context),
-          text: 'btn_hide_chat'.l10n,
+          text: 'btn_delete_chat'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
             child: const SvgIcon(SvgIcons.delete),
@@ -412,39 +275,134 @@ class ChatInfoView extends StatelessWidget {
           key: const Key('ClearHistoryButton'),
           onPressed: () => _clearChat(c, context),
           text: 'btn_clear_history'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: const SvgIcon(SvgIcons.delete),
-          ),
+          trailing: const SvgIcon(SvgIcons.cleanHistory16),
         ),
         if (!c.isMonolog) ...[
           ActionButton(
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
-            ),
+            trailing: const SvgIcon(SvgIcons.leave16),
           ),
           ActionButton(
             onPressed: () => _blacklistChat(c, context),
             text: 'btn_block'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
-            ),
+            trailing: const SvgIcon(SvgIcons.block16),
           ),
           ActionButton(
             onPressed: () {},
             text: 'btn_report'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.delete),
+              child: const SvgIcon(SvgIcons.report16),
             ),
           ),
         ],
       ],
     );
+  }
+
+  Widget _bar(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final bool small = constraints.maxWidth <= 460;
+
+      final List<Widget> buttons = [
+        AnimatedButton(
+          onPressed: () => router.chat(c.chat?.id ?? id),
+          child: const SvgIcon(SvgIcons.chat),
+        ),
+        AnimatedButton(
+          onPressed: () => c.call(true),
+          child: const SvgIcon(SvgIcons.chatVideoCall),
+        ),
+        AnimatedButton(
+          onPressed: () => c.call(false),
+          child: const SvgIcon(SvgIcons.chatAudioCall),
+        ),
+        if (constraints.maxWidth >= 460)
+          Obx(() {
+            final bool muted = c.chat?.chat.value.muted != null;
+
+            return AnimatedButton(
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              child: SvgIcon(
+                muted ? SvgIcons.notificationsOff : SvgIcons.notificationsOn,
+              ),
+            );
+          }),
+        if (constraints.maxWidth >= 560)
+          AnimatedButton(
+            onPressed: () {},
+            child: const SvgIcon(SvgIcons.favorite),
+          ),
+      ];
+
+      return Center(
+        child: Row(
+          children: [
+            const SizedBox(width: 8),
+            const StyledBackButton(),
+            Material(
+              elevation: 6,
+              type: MaterialType.circle,
+              shadowColor: style.colors.onBackgroundOpacity27,
+              color: style.colors.onPrimary,
+              child: Center(
+                child: AvatarWidget.fromRxChat(
+                  c.chat,
+                  radius: AvatarRadius.medium,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: DefaultTextStyle.merge(
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Obx(() {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              c.chat!.title.value,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                          Obx(() {
+                            if (c.chat?.chat.value.muted == null) {
+                              return const SizedBox();
+                            }
+
+                            return const Padding(
+                              padding: EdgeInsets.only(left: 5),
+                              child: SvgIcon(SvgIcons.muted),
+                            );
+                          }),
+                        ],
+                      );
+                    }),
+                    if (!c.isMonolog && c.chat != null)
+                      ChatSubtitle(c.chat!, c.me),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 40),
+            ...buttons.expand((e) {
+              return [e, const SizedBox(width: 28)];
+            }),
+          ],
+        ),
+      );
+    });
   }
 
   /// Returns the action buttons to do with this [Chat].

@@ -434,13 +434,13 @@ class SvgIcons {
     height: 31.67,
   );
 
-  static const SvgData mute = SvgData(
+  static const SvgData mute16 = SvgData(
     'assets/icons/mute.svg',
     width: 17.85,
     height: 16,
   );
 
-  static const SvgData unmute = SvgData(
+  static const SvgData unmute16 = SvgData(
     'assets/icons/unmute.svg',
     width: 17.85,
     height: 16,
@@ -1613,5 +1613,53 @@ class SvgIcons {
     'assets/icons/active_call_end.svg',
     width: 9.59,
     height: 4.21,
+  );
+
+  static const SvgData addContact16 = SvgData(
+    'assets/icons/add_contact16.svg',
+    width: 19.07,
+    height: 17.48,
+  );
+
+  static const SvgData deleteContact16 = SvgData(
+    'assets/icons/delete_contact16.svg',
+    width: 18.8,
+    height: 16.98,
+  );
+
+  static const SvgData favorite16 = SvgData(
+    'assets/icons/favorite16.svg',
+    width: 16.82,
+    height: 16,
+  );
+
+  static const SvgData cleanHistory16 = SvgData(
+    'assets/icons/clean_history.svg',
+    width: 17.21,
+    height: 18,
+  );
+
+  static const SvgData leave16 = SvgData(
+    'assets/icons/group.svg',
+    width: 21.29,
+    height: 18,
+  );
+
+  static const SvgData block16 = SvgData(
+    'assets/icons/block.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData report16 = SvgData(
+    'assets/icons/delete.svg',
+    width: 16.75,
+    height: 15.99,
+  );
+
+  static const SvgData unfavorite16 = SvgData(
+    'assets/icons/unfavorite16.svg',
+    width: 16.82,
+    height: 16,
   );
 }

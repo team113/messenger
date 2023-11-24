@@ -1043,6 +1043,7 @@ label_days_ago = {$days ->
         [few] {$days} дня
         *[other] {$days} дней
     }
+label_days_short = {$days} д
 btn_pin = Закрепить
 btn_pin_message = Закрепить сообщение
 btn_unpin = Открепить
@@ -1143,6 +1144,5 @@ label_media_buttons_in_context_menu = В контекстном меню
 label_media_buttons_in_top = В чате сверху
 label_media_buttons_in_bottom = В чате снизу
 label_media_buttons_in_more = В поле сообщения
-label_days_ago_short = {$days} д
 label_hide_incoming_prices = Скрыть стоимость входящих
 label_show_incoming_prices = Отображать стоимость входящих
