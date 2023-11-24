@@ -630,7 +630,7 @@ class ContactEntry implements Comparable<ContactEntry> {
   final RxBool hidden = RxBool(false);
 
   /// Returns [RxChatContact] of the [contact].
-  RxChatContact get rxContact => _contact;
+  RxChatContact get rx => _contact;
 
   /// Returns [ChatContactId] of the [contact].
   ChatContactId get id => _contact.id;

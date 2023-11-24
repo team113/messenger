@@ -245,7 +245,7 @@ class ContactsTabView extends StatelessWidget {
                       } else {
                         for (var e in c.contacts) {
                           if (!c.selectedContacts.contains(e.id)) {
-                            c.selectContact(e.rxContact);
+                            c.selectContact(e.rx);
                           }
                         }
                       }
@@ -480,7 +480,7 @@ class ContactsTabView extends StatelessWidget {
                                 child: Obx(() {
                                   final Widget child = _contact(
                                     context,
-                                    contact.rxContact,
+                                    contact,
                                     c,
                                     avatarBuilder: (child) {
                                       if (PlatformUtils.isMobile) {
@@ -568,11 +568,7 @@ class ContactsTabView extends StatelessWidget {
                                     child: SlideAnimation(
                                       horizontalOffset: 50,
                                       child: FadeInAnimation(
-                                        child: _contact(
-                                          context,
-                                          e.rxContact,
-                                          c,
-                                        ),
+                                        child: _contact(context, e, c),
                                       ),
                                     ),
                                   );
@@ -740,7 +736,7 @@ class ContactsTabView extends StatelessWidget {
   /// Returns a [ListTile] with [contact]'s information.
   Widget _contact(
     BuildContext context,
-    RxChatContact contact,
+    ContactEntry contact,
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
@@ -762,10 +758,12 @@ class ContactsTabView extends StatelessWidget {
         endActionPane: ActionPane(
           extentRatio: 0.33,
           motion: const StretchMotion(),
-          dismissible: DismissiblePane(onDismissed: () => c.dismiss(contact)),
+          dismissible:
+              DismissiblePane(onDismissed: () => c.dismiss(contact.rx)),
           children: [
             FadingSlidableAction(
-              onPressed: (context) => _removeFromContacts(c, context, contact),
+              onPressed: (context) =>
+                  _removeFromContacts(c, context, contact.rx),
               icon: const Icon(Icons.delete),
               text: 'btn_delete'.l10n,
             ),
@@ -773,7 +771,7 @@ class ContactsTabView extends StatelessWidget {
         ),
         child: ContactTile(
           key: Key('Contact_${contact.id}'),
-          contact: contact,
+          contact: contact.rx,
           folded: favorite,
           selected: inverted,
           enableContextMenu: !c.selecting.value,
@@ -785,7 +783,7 @@ class ContactsTabView extends StatelessWidget {
                   )
               : avatarBuilder,
           onTap: c.selecting.value
-              ? () => c.selectContact(contact)
+              ? () => c.selectContact(contact.rx)
               : contact.contact.value.users.isNotEmpty
                   // TODO: Open [Routes.contact] page when it's implemented.
                   ? () => router.user(contact.user.value!.id)
@@ -808,7 +806,7 @@ class ContactsTabView extends StatelessWidget {
                   ),
             ContextMenuButton(
               label: 'btn_delete'.l10n,
-              onPressed: () => _removeFromContacts(c, context, contact),
+              onPressed: () => _removeFromContacts(c, context, contact.rx),
               trailing: const SvgIcon(SvgIcons.deleteThick),
             ),
           ],
