@@ -86,65 +86,65 @@ class BlocklistView extends StatelessWidget {
                               child: Text('label_no_users'.l10n),
                             )
                           : Scrollbar(
-                            controller: c.scrollController,
-                            child: ListView.builder(
                               controller: c.scrollController,
-                              shrinkWrap: true,
-                              padding: ModalPopup.padding(context),
-                              itemBuilder: (context, i) {
-                                RxUser? user = blocklist.elementAt(i);
+                              child: ListView.builder(
+                                controller: c.scrollController,
+                                shrinkWrap: true,
+                                padding: ModalPopup.padding(context),
+                                itemBuilder: (context, i) {
+                                  RxUser? user = blocklist.elementAt(i);
 
-                                Widget child = ContactTile(
-                                  user: user,
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                    router.user(user.id, push: true);
-                                  },
-                                  darken: 0.03,
-                                  subtitle: [
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      user.user.value.isBlocked?.at.val.yMd ??
-                                          '',
-                                      style:
-                                          style.fonts.small.regular.secondary,
-                                    ),
-                                  ],
-                                  trailing: [
-                                    WidgetButton(
-                                      onPressed: () => c.unblock(user),
-                                      child: Text(
-                                        'btn_unblock_short'.l10n,
+                                  Widget child = ContactTile(
+                                    user: user,
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      router.user(user.id, push: true);
+                                    },
+                                    darken: 0.03,
+                                    subtitle: [
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        user.user.value.isBlocked?.at.val.yMd ??
+                                            '',
                                         style:
-                                            style.fonts.small.regular.primary,
+                                            style.fonts.small.regular.secondary,
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                  ],
-                                );
-
-                                if (i == c.blocklist.length - 1) {
-                                  if (c.hasNext.isTrue) {
-                                    child = Column(
-                                      children: [
-                                        child,
-                                        CustomProgressIndicator(
-                                          key: const Key('BlocklistLoading'),
-                                          value:
-                                              Config.disableInfiniteAnimations
-                                                  ? 0
-                                                  : null,
+                                    ],
+                                    trailing: [
+                                      WidgetButton(
+                                        onPressed: () => c.unblock(user),
+                                        child: Text(
+                                          'btn_unblock_short'.l10n,
+                                          style:
+                                              style.fonts.small.regular.primary,
                                         ),
-                                      ],
-                                    );
-                                  }
-                                }
+                                      ),
+                                      const SizedBox(width: 4),
+                                    ],
+                                  );
 
-                                return child;
-                              },
-                              itemCount: blocklist.length,
+                                  if (i == c.blocklist.length - 1) {
+                                    if (c.hasNext.isTrue) {
+                                      child = Column(
+                                        children: [
+                                          child,
+                                          CustomProgressIndicator(
+                                            key: const Key('BlocklistLoading'),
+                                            value:
+                                                Config.disableInfiniteAnimations
+                                                    ? 0
+                                                    : null,
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                  }
+
+                                  return child;
+                                },
+                                itemCount: blocklist.length,
+                              ),
                             ),
-                          ),
                 ),
               ),
               const SizedBox(height: 8),
