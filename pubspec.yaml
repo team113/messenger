@@ -154,6 +154,7 @@ flutter:
     - assets/conf.toml
     - assets/fonts/
     - assets/icons/
+    - assets/icons/application/
     - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
