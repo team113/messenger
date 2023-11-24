@@ -242,6 +242,7 @@ btn_take_photo = Фото
 btn_take_video = Видео
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
+btn_undo_delete = Отменить удаление
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук

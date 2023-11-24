@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
 import '/config.dart';
@@ -45,6 +46,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
 import 'rectangular_call_button.dart';
+import 'slidable_action.dart';
 import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -69,6 +71,7 @@ class RecentChatTile extends StatelessWidget {
     this.onSelect,
     this.onCall,
     this.onTap,
+    this.onDismissed,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
@@ -133,6 +136,9 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
 
+  /// Callback, called when this [RecentChatTile] is dismissed.
+  final void Function()? onDismissed;
+
   /// Builder for building an [AvatarWidget] the [ChatTile] displays.
   ///
   /// Intended to be used to allow custom [Badge]s, [InkWell]s, etc over the
@@ -152,122 +158,140 @@ class RecentChatTile extends StatelessWidget {
       final bool isRoute = chat.isRoute(router.route, me);
       final bool inverted = isRoute || selected;
 
-      return ChatTile(
-        chat: rxChat,
-        dimmed: blocked,
-        title: chat.muted != null
-            ? [
-                const SizedBox(width: 5),
-                SvgIcon(
-                  inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                  key: Key('MuteIndicator_${chat.id}'),
-                ),
-                const SizedBox(width: 5),
-              ]
-            : [],
-        status: [
-          _status(context, inverted),
-          if (!chat.id.isLocalWith(me))
-            Text(
-              chat.updatedAt.val.toLocal().short,
-              style: inverted
-                  ? style.fonts.normal.regular.onPrimary
-                  : style.fonts.normal.regular.secondary,
+      return Slidable(
+        key: Key(rxChat.id.val),
+        groupTag: 'chat',
+        endActionPane: ActionPane(
+          extentRatio: 0.33,
+          motion: const StretchMotion(),
+          dismissible: onDismissed == null
+              ? null
+              : DismissiblePane(onDismissed: onDismissed!),
+          children: [
+            FadingSlidableAction(
+              onPressed: _hideChat,
+              icon: const Icon(Icons.delete),
+              text: 'btn_delete'.l10n,
             ),
-        ],
-        subtitle: [
-          const SizedBox(height: 5),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 38),
-            child: Row(
-              children: [
-                const SizedBox(height: 3),
-                Expanded(child: _subtitle(context, selected, inverted)),
-                if (trailing == null) ...[
-                  _ongoingCall(context),
-                  if (blocked) ...[
-                    const SizedBox(width: 5),
-                    SvgIcon(
-                      inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
-                    ),
-                    const SizedBox(width: 5),
-                  ],
-                  if (rxChat.unreadCount.value > 0) ...[
-                    const SizedBox(width: 4),
-                    UnreadCounter(
-                      key: const Key('UnreadMessages'),
-                      rxChat.unreadCount.value,
-                      inverted: inverted,
-                      dimmed: chat.muted != null,
-                    ),
+          ],
+        ),
+        child: ChatTile(
+          chat: rxChat,
+          dimmed: blocked,
+          title: chat.muted != null
+              ? [
+                  const SizedBox(width: 5),
+                  SvgIcon(
+                    inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                    key: Key('MuteIndicator_${chat.id}'),
+                  ),
+                  const SizedBox(width: 5),
+                ]
+              : [],
+          status: [
+            _status(context, inverted),
+            if (!chat.id.isLocalWith(me))
+              Text(
+                chat.updatedAt.val.toLocal().short,
+                style: inverted
+                    ? style.fonts.normal.regular.onPrimary
+                    : style.fonts.normal.regular.secondary,
+              ),
+          ],
+          subtitle: [
+            const SizedBox(height: 5),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 38),
+              child: Row(
+                children: [
+                  const SizedBox(height: 3),
+                  Expanded(child: _subtitle(context, selected, inverted)),
+                  if (trailing == null) ...[
+                    _ongoingCall(context),
+                    if (blocked) ...[
+                      const SizedBox(width: 5),
+                      SvgIcon(
+                        inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
+                      ),
+                      const SizedBox(width: 5),
+                    ],
+                    if (rxChat.unreadCount.value > 0) ...[
+                      const SizedBox(width: 4),
+                      UnreadCounter(
+                        key: const Key('UnreadMessages'),
+                        rxChat.unreadCount.value,
+                        inverted: inverted,
+                        dimmed: chat.muted != null,
+                      ),
+                    ] else
+                      const SizedBox(key: Key('NoUnreadMessages')),
                   ] else
-                    const SizedBox(key: Key('NoUnreadMessages')),
-                ] else
-                  ...trailing!,
-              ],
+                    ...trailing!,
+                ],
+              ),
             ),
-          ),
-        ],
-        actions: [
-          ContextMenuButton(
-            label: 'btn_audio_call'.l10n,
-            onPressed: () => onCall?.call(false),
-            trailing: const SvgIcon(SvgIcons.makeAudioCall),
-          ),
-          ContextMenuButton(
-            label: 'btn_video_call'.l10n,
-            onPressed: () => onCall?.call(true),
-            trailing: Transform.translate(
-              offset: const Offset(2, 0),
-              child: const SvgIcon(SvgIcons.makeVideoCall),
-            ),
-          ),
-          if (chat.favoritePosition != null && onUnfavorite != null)
+          ],
+          actions: [
             ContextMenuButton(
-              key: const Key('UnfavoriteChatButton'),
-              label: 'btn_delete_from_favorites'.l10n,
-              onPressed: onUnfavorite,
-              trailing: const SvgIcon(SvgIcons.favoriteSmall),
+              label: 'btn_audio_call'.l10n,
+              onPressed: () => onCall?.call(false),
+              trailing: const SvgIcon(SvgIcons.makeAudioCall),
             ),
-          if (chat.favoritePosition == null && onFavorite != null)
             ContextMenuButton(
-              key: const Key('FavoriteChatButton'),
-              label: 'btn_add_to_favorites'.l10n,
-              onPressed: onFavorite,
-              trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+              label: 'btn_video_call'.l10n,
+              onPressed: () => onCall?.call(true),
+              trailing: Transform.translate(
+                offset: const Offset(2, 0),
+                child: const SvgIcon(SvgIcons.makeVideoCall),
+              ),
             ),
-          if (chat.muted == null && onMute != null)
-            ContextMenuButton(
-              key: const Key('MuteChatButton'),
-              label: PlatformUtils.isMobile
-                  ? 'btn_mute'.l10n
-                  : 'btn_mute_chat'.l10n,
-              onPressed: onMute,
-              trailing: const SvgIcon(SvgIcons.unmuteSmall),
-            ),
-          if (chat.muted != null && onUnmute != null)
-            ContextMenuButton(
-              key: const Key('UnmuteChatButton'),
-              label: PlatformUtils.isMobile
-                  ? 'btn_unmute'.l10n
-                  : 'btn_unmute_chat'.l10n,
-              onPressed: onUnmute,
-              trailing: const SvgIcon(SvgIcons.muteSmall),
-            ),
-          if (onHide != null)
-            ContextMenuButton(
-              key: const Key('ButtonHideChat'),
-              label: PlatformUtils.isMobile
-                  ? 'btn_delete'.l10n
-                  : 'btn_delete_chat'.l10n,
-              onPressed: () => _hideChat(context),
-              trailing: const SvgIcon(SvgIcons.deleteThick),
-            ),
-        ],
-        selected: inverted,
-        avatarBuilder: avatarBuilder,
-        enableContextMenu: enableContextMenu,
-        onTap: onTap ?? () => router.chat(chat.id),
+            if (chat.favoritePosition != null && onUnfavorite != null)
+              ContextMenuButton(
+                key: const Key('UnfavoriteChatButton'),
+                label: 'btn_delete_from_favorites'.l10n,
+                onPressed: onUnfavorite,
+                trailing: const SvgIcon(SvgIcons.favoriteSmall),
+              ),
+            if (chat.favoritePosition == null && onFavorite != null)
+              ContextMenuButton(
+                key: const Key('FavoriteChatButton'),
+                label: 'btn_add_to_favorites'.l10n,
+                onPressed: onFavorite,
+                trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+              ),
+            if (chat.muted == null && onMute != null)
+              ContextMenuButton(
+                key: const Key('MuteChatButton'),
+                label: PlatformUtils.isMobile
+                    ? 'btn_mute'.l10n
+                    : 'btn_mute_chat'.l10n,
+                onPressed: onMute,
+                trailing: const SvgIcon(SvgIcons.unmuteSmall),
+              ),
+            if (chat.muted != null && onUnmute != null)
+              ContextMenuButton(
+                key: const Key('UnmuteChatButton'),
+                label: PlatformUtils.isMobile
+                    ? 'btn_unmute'.l10n
+                    : 'btn_unmute_chat'.l10n,
+                onPressed: onUnmute,
+                trailing: const SvgIcon(SvgIcons.muteSmall),
+              ),
+            if (onHide != null)
+              ContextMenuButton(
+                key: const Key('ButtonHideChat'),
+                label: PlatformUtils.isMobile
+                    ? 'btn_delete'.l10n
+                    : 'btn_delete_chat'.l10n,
+                onPressed: () => _hideChat(context),
+                trailing: const SvgIcon(SvgIcons.deleteThick),
+              ),
+          ],
+          selected: inverted,
+          avatarBuilder: avatarBuilder,
+          enableContextMenu: enableContextMenu,
+          onTap: onTap ?? () => router.chat(chat.id),
+        ),
       );
     });
   }

@@ -242,6 +242,7 @@ btn_take_photo = Take photo
 btn_take_video = Take video
 btn_unblock = Unblock
 btn_unblock_short = Unblock
+btn_undo_delete = Undo delete
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats

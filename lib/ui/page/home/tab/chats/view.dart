@@ -21,6 +21,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
@@ -183,12 +184,12 @@ class ChatsTabView extends StatelessWidget {
                       if (c.selecting.value) {
                         final bool selected = c.chats.isNotEmpty &&
                             c.chats.where((e) {
-                              return (!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden;
+                              return (!e.chat.id.isLocal ||
+                                      e.chat.messages.isNotEmpty ||
+                                      e.chat.chat.value.isMonolog) &&
+                                  !e.chat.chat.value.isHidden;
                             }).every(
-                              (e) => c.selectedChats.any((m) => m == e.id),
+                              (e) => c.selectedChats.any((m) => m == e.chat.id),
                             );
 
                         return WidgetButton(
@@ -198,12 +199,13 @@ class ChatsTabView extends StatelessWidget {
                             } else {
                               final List<RxChat> chats = [];
 
-                              for (RxChat e in c.chats) {
-                                if ((!e.id.isLocal ||
-                                        e.messages.isNotEmpty ||
-                                        e.chat.value.isMonolog) &&
-                                    !e.chat.value.isHidden) {
-                                  chats.add(e);
+                              for (var e in c.chats) {
+                                if ((!e.chat.id.isLocal ||
+                                        e.chat.messages.isNotEmpty ||
+                                        e.chat.chat.value.isMonolog) &&
+                                    !e.chat.chat.value.isHidden &&
+                                    !e.hidden.value) {
+                                  chats.add(e.chat);
                                 }
                               }
 
@@ -665,8 +667,10 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none(
                       (e) {
-                        return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !e.chat.value.isHidden;
+                        return (!e.chat.id.isLocal ||
+                                e.chat.chat.value.isMonolog) &&
+                            !e.chat.chat.value.isHidden &&
+                            !e.hidden.value;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
@@ -697,18 +701,19 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (RxChat e in c.chats) {
-                              if ((!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden) {
-                                if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e);
-                                } else if (e.chat.value.favoritePosition !=
+                            for (var e in c.chats) {
+                              if ((!e.chat.id.isLocal ||
+                                      e.chat.messages.isNotEmpty ||
+                                      e.chat.chat.value.isMonolog) &&
+                                  !e.chat.chat.value.isHidden &&
+                                  !e.hidden.value) {
+                                if (e.chat.chat.value.ongoingCall != null) {
+                                  calls.add(e.chat);
+                                } else if (e.chat.chat.value.favoritePosition !=
                                     null) {
-                                  favorites.add(e);
+                                  favorites.add(e.chat);
                                 } else {
-                                  chats.add(e);
+                                  chats.add(e.chat);
                                 }
                               }
                             }
@@ -765,6 +770,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? () => c.selectChat(e)
                                     : null,
                                 onCall: (video) => c.call(e.id, video),
+                                onDismissed: () => c.dismiss(e),
                                 enableContextMenu: !c.selecting.value,
                                 trailing: c.selecting.value
                                     ? [
@@ -972,73 +978,154 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: SafeAnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
+                    child: SlidableAutoCloseBehavior(
+                      child: SafeAnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        child: child,
+                      ),
                     ),
                   );
                 }),
-                bottomNavigationBar: Obx(() {
-                  if (c.groupCreating.value) {
-                    return BottomPaddedRow(
-                      children: [
-                        ShadowedRoundedButton(
-                          onPressed: c.closeGroupCreating,
-                          color: style.colors.onPrimary,
-                          child: Text(
-                            'btn_cancel'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                        ShadowedRoundedButton(
-                          onPressed: c.createGroup,
-                          color: style.colors.primary,
-                          child: Text(
-                            'btn_create_group'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  } else if (c.selecting.value) {
-                    return BottomPaddedRow(
-                      children: [
-                        ShadowedRoundedButton(
-                          onPressed: c.toggleSelecting,
-                          child: Text(
-                            'btn_cancel'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                        ShadowedRoundedButton(
-                          key: const Key('DeleteChats'),
-                          onPressed: c.selectedChats.isEmpty
-                              ? null
-                              : () => _hideChats(context, c),
-                          color: style.colors.primary,
-                          child: Text(
-                            'btn_delete_count'.l10nfmt({
-                              'count': c.selectedChats.length,
-                            }),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: c.selectedChats.isEmpty
-                                ? style.fonts.medium.regular.onBackground
-                                : style.fonts.medium.regular.onPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+                bottomNavigationBar: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(() {
+                      final Widget child;
+                      final action = c.dismissed.lastOrNull;
 
-                  return const SizedBox();
-                }),
+                      if (action == null) {
+                        child = const SizedBox(key: Key('NoDismissed'));
+                      } else {
+                        child = Padding(
+                          key: Key('Dismissed_${action.chat.id}'),
+                          padding: EdgeInsets.fromLTRB(
+                            10 + 10,
+                            0,
+                            10 + 10,
+                            72 + MediaQuery.of(context).viewPadding.bottom,
+                          ),
+                          child: WidgetButton(
+                            key: const Key('Restore'),
+                            onPressed: action.cancel,
+                            child: Container(
+                              key: Key('${action.chat.id}'),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: style.colors.primary.withOpacity(0.9),
+                                boxShadow: [
+                                  CustomBoxShadow(
+                                    blurRadius: 8,
+                                    color: style.colors.onBackgroundOpacity13,
+                                    blurStyle: BlurStyle.outer.workaround,
+                                  ),
+                                ],
+                              ),
+                              height: CustomNavigationBar.height,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          value: action.remaining.value / 5000,
+                                          color: style.colors.onPrimary,
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${action.remaining.value ~/ 1000 + 1}',
+                                        style:
+                                            style.fonts.small.regular.onPrimary,
+                                      )
+                                    ],
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      'btn_undo_delete'.l10n,
+                                      style: style.fonts.big.regular.onPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return SafeAnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: child,
+                      );
+                    }),
+                    Obx(() {
+                      if (c.groupCreating.value) {
+                        return BottomPaddedRow(
+                          children: [
+                            ShadowedRoundedButton(
+                              onPressed: c.closeGroupCreating,
+                              color: style.colors.onPrimary,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onBackground,
+                              ),
+                            ),
+                            ShadowedRoundedButton(
+                              onPressed: c.createGroup,
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_create_group'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else if (c.selecting.value) {
+                        return BottomPaddedRow(
+                          children: [
+                            ShadowedRoundedButton(
+                              onPressed: c.toggleSelecting,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onBackground,
+                              ),
+                            ),
+                            ShadowedRoundedButton(
+                              key: const Key('DeleteChats'),
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_delete_count'.l10nfmt({
+                                  'count': c.selectedChats.length,
+                                }),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: c.selectedChats.isEmpty
+                                    ? style.fonts.medium.regular.onBackground
+                                    : style.fonts.medium.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return const SizedBox();
+                    }),
+                  ],
+                ),
               );
             }),
             Obx(() {

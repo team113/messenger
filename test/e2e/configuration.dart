@@ -51,10 +51,12 @@ import 'parameters/users.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
+import 'steps/chat_is_hidden.dart';
 import 'steps/chat_is_muted.dart';
 import 'steps/chats_availability.dart';
 import 'steps/contact.dart';
 import 'steps/contact_is_favorite.dart';
+import 'steps/dismiss_chat.dart';
 import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
@@ -79,6 +81,7 @@ import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_chat_avatar.dart';
+import 'steps/see_chat_dismissed.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
@@ -132,6 +135,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         cancelFileDownload,
         changeChatAvatar,
         chatIsFavorite,
+        chatIsIndeedHidden,
         chatIsMuted,
         chatsAvailability,
         checkCopyText,
@@ -139,17 +143,19 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contactIsFavorite,
         copyFromField,
         countUsers,
+        dismissChat,
         downloadFile,
         dragChatDown,
         dragContactDown,
         fillField,
         fillFieldN,
         goToUserPage,
+        hasContacts,
         hasDialogWithMe,
+        hasFavoriteContacts,
         hasFavoriteGroups,
         hasGroups,
-        hasContacts,
-        hasFavoriteContacts,
+        haveGroup1Named,
         haveGroup2Named,
         haveGroupNamed,
         haveInternetWithDelay,
@@ -177,6 +183,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollAndSee,
         scrollToBottom,
         scrollUntilPresent,
+        seeChatAsDismissed,
         seeChatAsFavorite,
         seeChatAsMuted,
         seeChatAvatarAs,
@@ -193,10 +200,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
-        seeUserInSearchResults,
+        seeNoChatsDismissed,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,

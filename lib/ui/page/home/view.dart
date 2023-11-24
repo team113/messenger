@@ -174,40 +174,35 @@ class _HomeViewState extends State<HomeView> {
                           }
                         }
                       },
-                      child: Obx(() {
-                        return PageView(
-                          physics: c.verticalScrollTimer.value == null &&
-                                  router.navigation.value
-                              ? null
-                              : const NeverScrollableScrollPhysics(),
-                          controller: c.pages,
-                          onPageChanged: (int i) {
-                            router.tab = HomeTab.values[i];
-                            c.page.value = router.tab;
+                      child: PageView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: c.pages,
+                        onPageChanged: (int i) {
+                          router.tab = HomeTab.values[i];
+                          c.page.value = router.tab;
 
-                            if (!context.isNarrow) {
-                              switch (router.tab) {
-                                case HomeTab.menu:
-                                  router.me();
-                                  break;
+                          if (!context.isNarrow) {
+                            switch (router.tab) {
+                              case HomeTab.menu:
+                                router.me();
+                                break;
 
-                                default:
-                                  if (router.route == Routes.me) {
-                                    router.home();
-                                  }
-                                  break;
-                              }
+                              default:
+                                if (router.route == Routes.me) {
+                                  router.home();
+                                }
+                                break;
                             }
-                          },
-                          // [KeepAlivePage] used to keep the tabs' states.
-                          children: const [
-                            KeepAlivePage(child: WorkTabView()),
-                            KeepAlivePage(child: ContactsTabView()),
-                            KeepAlivePage(child: ChatsTabView()),
-                            KeepAlivePage(child: MenuTabView()),
-                          ],
-                        );
-                      }),
+                          }
+                        },
+                        // [KeepAlivePage] used to keep the tabs' states.
+                        children: const [
+                          KeepAlivePage(child: WorkTabView()),
+                          KeepAlivePage(child: ContactsTabView()),
+                          KeepAlivePage(child: ChatsTabView()),
+                          KeepAlivePage(child: MenuTabView()),
+                        ],
+                      ),
                     ),
                     extendBody: true,
                     bottomNavigationBar: SafeArea(

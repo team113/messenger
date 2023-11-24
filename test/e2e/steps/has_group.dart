@@ -25,12 +25,27 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
+/// Creates a [Chat]-group with the the authenticated [MyUser].
+///
+/// Examples:
+/// - Given I have "Name" group.
+final StepDefinitionGeneric haveGroupNamed = given1<String, CustomWorld>(
+  'I have {string} group',
+  (String name, context) async {
+    final ChatService chatService = Get.find();
+    final chat = await chatService.createGroupChat([], name: ChatName(name));
+    context.world.groups[name] = chat.id;
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
 /// Creates a [Chat]-group with the provided [User] and the authenticated
 /// [MyUser].
 ///
 /// Examples:
 /// - Given I have "Name" group with Bob.
-final StepDefinitionGeneric haveGroupNamed =
+final StepDefinitionGeneric haveGroup1Named =
     given2<String, TestUser, CustomWorld>(
   'I have {string} group with {user}',
   (String name, TestUser user, context) async {
