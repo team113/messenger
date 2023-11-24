@@ -77,7 +77,7 @@ class ChatsTabController extends GetxController {
   );
 
   /// Reactive list of sorted [Chat]s.
-  late final RxList<ChatEntry> chats;
+  final RxList<ChatEntry> chats = RxList();
 
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -176,7 +176,7 @@ class ChatsTabController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    chats = RxList(
+    chats.value = RxList(
       _chatService.paginated.values
           .map((e) => ChatEntry(e, chats.sort))
           .toList(),
