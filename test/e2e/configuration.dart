@@ -161,7 +161,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasFavoriteGroups,
         hasGroups,
 
-        // Don't resort the `haveGroup` steps, as `gherkin` packages checks it's
+        // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
         // regular expression in the provided order.
         haveGroup2Named,
         haveGroup1Named,
