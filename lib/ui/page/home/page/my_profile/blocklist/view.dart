@@ -24,6 +24,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
@@ -69,70 +70,83 @@ class BlocklistView extends StatelessWidget {
                 );
               }),
               const SizedBox(height: 4),
-              if (blocklist.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text('label_no_users'.l10n),
-                )
-              else
-                Flexible(
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: ListView.builder(
-                      controller: c.scrollController,
-                      shrinkWrap: true,
-                      padding: ModalPopup.padding(context),
-                      itemBuilder: (context, i) {
-                        RxUser? user = blocklist.elementAt(i);
+              Flexible(
+                child: SafeAnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: c.status.value.isLoading
+                      ? SizedBox(
+                          height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+                          child: const Center(
+                            child: CustomProgressIndicator.primary(),
+                          ),
+                        )
+                      : blocklist.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text('label_no_users'.l10n),
+                            )
+                          : Scrollbar(
+                            controller: c.scrollController,
+                            child: ListView.builder(
+                              controller: c.scrollController,
+                              shrinkWrap: true,
+                              padding: ModalPopup.padding(context),
+                              itemBuilder: (context, i) {
+                                RxUser? user = blocklist.elementAt(i);
 
-                        Widget child = ContactTile(
-                          user: user,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            router.user(user.id, push: true);
-                          },
-                          darken: 0.03,
-                          subtitle: [
-                            const SizedBox(height: 5),
-                            Text(
-                              user.user.value.isBlocked?.at.val.yMd ?? '',
-                              style: style.fonts.small.regular.secondary,
+                                Widget child = ContactTile(
+                                  user: user,
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                    router.user(user.id, push: true);
+                                  },
+                                  darken: 0.03,
+                                  subtitle: [
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      user.user.value.isBlocked?.at.val.yMd ??
+                                          '',
+                                      style:
+                                          style.fonts.small.regular.secondary,
+                                    ),
+                                  ],
+                                  trailing: [
+                                    WidgetButton(
+                                      onPressed: () => c.unblock(user),
+                                      child: Text(
+                                        'btn_unblock_short'.l10n,
+                                        style:
+                                            style.fonts.small.regular.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                  ],
+                                );
+
+                                if (i == c.blocklist.length - 1) {
+                                  if (c.hasNext.isTrue) {
+                                    child = Column(
+                                      children: [
+                                        child,
+                                        CustomProgressIndicator(
+                                          key: const Key('BlocklistLoading'),
+                                          value:
+                                              Config.disableInfiniteAnimations
+                                                  ? 0
+                                                  : null,
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                }
+
+                                return child;
+                              },
+                              itemCount: blocklist.length,
                             ),
-                          ],
-                          trailing: [
-                            WidgetButton(
-                              onPressed: () => c.unblock(user),
-                              child: Text(
-                                'btn_unblock_short'.l10n,
-                                style: style.fonts.small.regular.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                        );
-
-                        if (i == c.blocklist.length - 1) {
-                          if (c.hasNext.isTrue) {
-                            child = Column(
-                              children: [
-                                child,
-                                CustomProgressIndicator(
-                                  key: const Key('BlocklistLoading'),
-                                  value: Config.disableInfiniteAnimations
-                                      ? 0
-                                      : null,
-                                ),
-                              ],
-                            );
-                          }
-                        }
-
-                        return child;
-                      },
-                      itemCount: blocklist.length,
-                    ),
-                  ),
+                          ),
                 ),
+              ),
               const SizedBox(height: 8),
             ],
           );

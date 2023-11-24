@@ -70,6 +70,9 @@ class BlocklistController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Returns the [RxStatus] of the [chats] fetching and initialization.
+  Rx<RxStatus> get status => _blocklistService.status;
+
   /// Indicates whether the [blocklist] have a next page.
   RxBool get hasNext => _blocklistService.hasNext;
 
@@ -101,7 +104,9 @@ class BlocklistController extends GetxController {
   }
 
   @override
-  void onReady() {
+  Future<void> onReady() async {
+    await _blocklistService.fetchBlocklist();
+
     _ensureScrollable();
     super.onReady();
   }

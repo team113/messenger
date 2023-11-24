@@ -37,6 +37,9 @@ class BlocklistService extends DisposableService {
   /// Returns [User]s blocked by the authenticated [MyUser].
   RxObsMap<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
 
+  /// Returns the [RxStatus] of the [blocklist] fetching.
+  Rx<RxStatus> get status => _blocklistRepo.status;
+
   /// Indicates whether the [blocklist] have next page.
   RxBool get hasNext => _blocklistRepo.hasNext;
 
@@ -55,6 +58,12 @@ class BlocklistService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
     _blocklistRepo.dispose();
     super.onClose();
+  }
+
+  /// Fetches the initial [blocklist].
+  Future<void> fetchBlocklist() {
+    Log.debug('fetchBlocklist()', '$runtimeType');
+    return _blocklistRepo.fetchBlocklist();
   }
 
   /// Fetches the next [blocklist] page.

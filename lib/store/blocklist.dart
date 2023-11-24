@@ -48,6 +48,9 @@ class BlocklistRepository implements AbstractBlocklistRepository {
   @override
   final RxObsMap<UserId, RxUser> blocklist = RxObsMap<UserId, RxUser>();
 
+  @override
+  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -87,6 +90,16 @@ class BlocklistRepository implements AbstractBlocklistRepository {
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();
     _pagination.dispose();
+  }
+
+  @override
+  Future<void> fetchBlocklist() async {
+    Log.debug('fetchBlocklist()', '$runtimeType');
+
+    if (blocklist.isEmpty && _pagination.hasNext.isTrue) {
+      await _pagination.around();
+      status.value = RxStatus.success();
+    }
   }
 
   @override
@@ -221,7 +234,5 @@ class BlocklistRepository implements AbstractBlocklistRepository {
           break;
       }
     });
-
-    await _pagination.around();
   }
 }

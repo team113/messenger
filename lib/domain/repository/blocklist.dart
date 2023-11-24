@@ -27,6 +27,10 @@ abstract class AbstractBlocklistRepository {
   /// Returns [User]s blocked by the authenticated [MyUser].
   RxObsMap<UserId, RxUser> get blocklist;
 
+  /// Returns the initialization [RxStatus] of this repository and its
+  /// [blocklist].
+  Rx<RxStatus> get status;
+
   /// Indicates whether the [blocklist] have next page.
   RxBool get hasNext;
 
@@ -38,6 +42,9 @@ abstract class AbstractBlocklistRepository {
 
   /// Disposes the repository.
   void dispose();
+
+  /// Fetches the initial [blocklist].
+  Future<void> fetchBlocklist();
 
   /// Fetches the next [blocklist] page.
   Future<void> next();
