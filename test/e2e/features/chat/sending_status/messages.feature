@@ -23,8 +23,6 @@ Feature: Chat messages have correct sending status
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
-
-    # Wait for `RxChat.around` to finish.
     And I pause for 5 seconds
 
   Scenario: User sends message
