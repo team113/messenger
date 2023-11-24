@@ -35,7 +35,7 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
         await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
         final controller = Get.find<ChatsTabController>();
-        if (controller.chats.where((e) => !e.chat.id.isLocal).length == count) {
+        if (controller.chats.where((e) => !e.id.isLocal).length == count) {
           return true;
         } else {
           return false;
@@ -60,7 +60,7 @@ final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
 
         final controller = Get.find<ChatsTabController>();
         if (controller.chats
-                .where((e) => e.chat.chat.value.favoritePosition != null)
+                .where((e) => e.chat.value.favoritePosition != null)
                 .length ==
             count) {
           return true;

@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
@@ -30,8 +31,8 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
+import '/ui/page/home/tab/chats/widget/slidable_action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/contact_tile.dart';
@@ -51,6 +52,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/recognizers.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.contacts] tab.
@@ -243,7 +245,7 @@ class ContactsTabView extends StatelessWidget {
                       } else {
                         for (var e in c.contacts) {
                           if (!c.selectedContacts.contains(e.id)) {
-                            c.selectContact(e);
+                            c.selectContact(e.rxContact);
                           }
                         }
                       }
@@ -466,13 +468,19 @@ class ContactsTabView extends StatelessWidget {
                                 return const SizedBox.shrink(key: Key('0'));
                               }
 
-                              RxChatContact contact = c.favorites.elementAt(i);
+                              final ContactEntry contact =
+                                  c.favorites.elementAt(i);
+
+                              if (contact.hidden.value) {
+                                return const SizedBox();
+                              }
+
                               return KeyedSubtree(
                                 key: Key(contact.id.val),
                                 child: Obx(() {
                                   final Widget child = _contact(
                                     context,
-                                    contact,
+                                    contact.rxContact,
                                     c,
                                     avatarBuilder: (child) {
                                       if (PlatformUtils.isMobile) {
@@ -550,13 +558,21 @@ class ContactsTabView extends StatelessWidget {
                             delegate: SliverChildListDelegate.fixed(
                               [
                                 ...c.contacts.mapIndexed((i, e) {
+                                  if (e.hidden.value) {
+                                    return const SizedBox();
+                                  }
+
                                   return AnimationConfiguration.staggeredList(
                                     position: c.favorites.length + i,
                                     duration: const Duration(milliseconds: 375),
                                     child: SlideAnimation(
                                       horizontalOffset: 50,
                                       child: FadeInAnimation(
-                                        child: _contact(context, e, c),
+                                        child: _contact(
+                                          context,
+                                          e.rxContact,
+                                          c,
+                                        ),
                                       ),
                                     ),
                                   );
@@ -592,50 +608,130 @@ class ContactsTabView extends StatelessWidget {
                   );
                 }),
                 ContextMenuInterceptor(
-                  child: SafeAnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: child,
+                  child: SlidableAutoCloseBehavior(
+                    child: SafeAnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: child,
+                    ),
                   ),
                 ),
               ],
             );
           }),
-          bottomNavigationBar: Obx(() {
-            if (c.selecting.value) {
-              return BottomPaddedRow(
-                children: [
-                  ShadowedRoundedButton(
-                    onPressed: c.toggleSelecting,
-                    child: Text(
-                      'btn_cancel'.l10n,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: style.fonts.medium.regular.onBackground,
-                    ),
-                  ),
-                  ShadowedRoundedButton(
-                    key: const Key('DeleteContacts'),
-                    onPressed: c.selectedContacts.isEmpty
-                        ? null
-                        : () => _removeContacts(context, c),
-                    color: style.colors.primary,
-                    child: Text(
-                      'btn_delete_count'.l10nfmt({
-                        'count': c.selectedContacts.length,
-                      }),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: c.selectedContacts.isEmpty
-                          ? style.fonts.medium.regular.onBackground
-                          : style.fonts.medium.regular.onPrimary,
-                    ),
-                  )
-                ],
-              );
-            }
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(() {
+                final Widget child;
+                final action = c.dismissed.lastOrNull;
 
-            return const SizedBox();
-          }),
+                if (action == null) {
+                  child = const SizedBox(key: Key('NoDismissed'));
+                } else {
+                  child = Padding(
+                    key: Key('Dismissed_${action.contact.id}'),
+                    padding: EdgeInsets.fromLTRB(
+                      10 + 10,
+                      0,
+                      10 + 10,
+                      72 + MediaQuery.of(context).viewPadding.bottom,
+                    ),
+                    child: WidgetButton(
+                      key: const Key('Restore'),
+                      onPressed: action.cancel,
+                      child: Container(
+                        key: Key('${action.contact.id}'),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: style.colors.primary.withOpacity(0.9),
+                          boxShadow: [
+                            CustomBoxShadow(
+                              blurRadius: 8,
+                              color: style.colors.onBackgroundOpacity13,
+                              blurStyle: BlurStyle.outer.workaround,
+                            ),
+                          ],
+                        ),
+                        height: CustomNavigationBar.height,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        child: Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    value: action.remaining.value / 5000,
+                                    color: style.colors.onPrimary,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                Text(
+                                  '${action.remaining.value ~/ 1000 + 1}',
+                                  style: style.fonts.small.regular.onPrimary,
+                                )
+                              ],
+                            ),
+                            Center(
+                              child: Text(
+                                'btn_undo_delete'.l10n,
+                                style: style.fonts.big.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SafeAnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: child,
+                );
+              }),
+              Obx(() {
+                if (c.selecting.value) {
+                  return BottomPaddedRow(
+                    children: [
+                      ShadowedRoundedButton(
+                        onPressed: c.toggleSelecting,
+                        child: Text(
+                          'btn_cancel'.l10n,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                      ShadowedRoundedButton(
+                        key: const Key('DeleteContacts'),
+                        onPressed: c.selectedContacts.isEmpty
+                            ? null
+                            : () => _removeContacts(context, c),
+                        color: style.colors.primary,
+                        child: Text(
+                          'btn_delete_count'.l10nfmt({
+                            'count': c.selectedContacts.length,
+                          }),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: c.selectedContacts.isEmpty
+                              ? style.fonts.medium.regular.onBackground
+                              : style.fonts.medium.regular.onPrimary,
+                        ),
+                      )
+                    ],
+                  );
+                }
+
+                return const SizedBox();
+              }),
+            ],
+          ),
         );
       }),
     );
@@ -660,117 +756,134 @@ class ContactsTabView extends StatelessWidget {
 
       final bool inverted = selected || c.selectedContacts.contains(contact.id);
 
-      return ContactTile(
-        key: Key('Contact_${contact.id}'),
-        contact: contact,
-        folded: favorite,
-        selected: inverted,
-        enableContextMenu: !c.selecting.value,
-        avatarBuilder: c.selecting.value
-            ? (child) => WidgetButton(
+      return Slidable(
+        key: Key(contact.id.val),
+        groupTag: 'contact',
+        endActionPane: ActionPane(
+          extentRatio: 0.33,
+          motion: const StretchMotion(),
+          dismissible: DismissiblePane(onDismissed: () => c.dismiss(contact)),
+          children: [
+            FadingSlidableAction(
+              onPressed: (context) => _removeFromContacts(c, context, contact),
+              icon: const Icon(Icons.delete),
+              text: 'btn_delete'.l10n,
+            ),
+          ],
+        ),
+        child: ContactTile(
+          key: Key('Contact_${contact.id}'),
+          contact: contact,
+          folded: favorite,
+          selected: inverted,
+          enableContextMenu: !c.selecting.value,
+          avatarBuilder: c.selecting.value
+              ? (child) => WidgetButton(
+                    // TODO: Open [Routes.contact] page when it's implemented.
+                    onPressed: () => router.user(contact.user.value!.id),
+                    child: avatarBuilder?.call(child) ?? child,
+                  )
+              : avatarBuilder,
+          onTap: c.selecting.value
+              ? () => c.selectContact(contact)
+              : contact.contact.value.users.isNotEmpty
                   // TODO: Open [Routes.contact] page when it's implemented.
-                  onPressed: () => router.user(contact.user.value!.id),
-                  child: avatarBuilder?.call(child) ?? child,
-                )
-            : avatarBuilder,
-        onTap: c.selecting.value
-            ? () => c.selectContact(contact)
-            : contact.contact.value.users.isNotEmpty
-                // TODO: Open [Routes.contact] page when it's implemented.
-                ? () => router.user(contact.user.value!.id)
-                : null,
-        actions: [
-          favorite
-              ? ContextMenuButton(
-                  key: const Key('UnfavoriteContactButton'),
-                  label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: () =>
-                      c.unfavoriteContact(contact.contact.value.id),
-                  trailing: const SvgIcon(SvgIcons.favoriteSmall),
-                )
-              : ContextMenuButton(
-                  key: const Key('FavoriteContactButton'),
-                  label: 'btn_add_to_favorites'.l10n,
-                  onPressed: () => c.favoriteContact(contact.contact.value.id),
-                  trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
-                ),
-          ContextMenuButton(
-            label: 'btn_delete'.l10n,
-            onPressed: () => _removeFromContacts(c, context, contact),
-            trailing: const SvgIcon(SvgIcons.deleteThick),
-          ),
-        ],
-        subtitle: [
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Obx(() {
-              if (contact.user.value == null) {
+                  ? () => router.user(contact.user.value!.id)
+                  : null,
+          actions: [
+            favorite
+                ? ContextMenuButton(
+                    key: const Key('UnfavoriteContactButton'),
+                    label: 'btn_delete_from_favorites'.l10n,
+                    onPressed: () =>
+                        c.unfavoriteContact(contact.contact.value.id),
+                    trailing: const SvgIcon(SvgIcons.favoriteSmall),
+                  )
+                : ContextMenuButton(
+                    key: const Key('FavoriteContactButton'),
+                    label: 'btn_add_to_favorites'.l10n,
+                    onPressed: () =>
+                        c.favoriteContact(contact.contact.value.id),
+                    trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+                  ),
+            ContextMenuButton(
+              label: 'btn_delete'.l10n,
+              onPressed: () => _removeFromContacts(c, context, contact),
+              trailing: const SvgIcon(SvgIcons.deleteThick),
+            ),
+          ],
+          subtitle: [
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Obx(() {
+                if (contact.user.value == null) {
+                  return const SizedBox();
+                }
+
+                final subtitle = contact.user.value?.user.value
+                    .getStatus(contact.user.value?.lastSeen.value);
+
+                if (subtitle != null) {
+                  return Text(
+                    subtitle,
+                    style: inverted
+                        ? style.fonts.small.regular.onPrimary
+                        : style.fonts.small.regular.secondary,
+                  );
+                }
+
+                return const SizedBox();
+              }),
+            ),
+          ],
+          trailing: [
+            Obx(() {
+              final dialog = contact.user.value?.dialog.value;
+
+              if (dialog?.chat.value.muted == null ||
+                  contact.user.value?.user.value.isBlocked != null) {
                 return const SizedBox();
               }
 
-              final subtitle = contact.user.value?.user.value
-                  .getStatus(contact.user.value?.lastSeen.value);
-
-              if (subtitle != null) {
-                return Text(
-                  subtitle,
-                  style: inverted
-                      ? style.fonts.small.regular.onPrimary
-                      : style.fonts.small.regular.secondary,
-                );
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: SvgIcon(
+                  inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                  key: Key('MuteIndicator_${contact.id}'),
+                ),
+              );
+            }),
+            Obx(() {
+              if (contact.user.value?.user.value.isBlocked == null) {
+                return const SizedBox();
               }
 
-              return const SizedBox();
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Icon(
+                  Icons.block,
+                  color: inverted
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
+                  size: 20,
+                ),
+              );
             }),
-          ),
-        ],
-        trailing: [
-          Obx(() {
-            final dialog = contact.user.value?.dialog.value;
+            Obx(() {
+              if (!c.selecting.value) {
+                return const SizedBox();
+              }
 
-            if (dialog?.chat.value.muted == null ||
-                contact.user.value?.user.value.isBlocked != null) {
-              return const SizedBox();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SvgIcon(
-                inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                key: Key('MuteIndicator_${contact.id}'),
-              ),
-            );
-          }),
-          Obx(() {
-            if (contact.user.value?.user.value.isBlocked == null) {
-              return const SizedBox();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: Icon(
-                Icons.block,
-                color: inverted
-                    ? style.colors.onPrimary
-                    : style.colors.secondaryHighlightDarkest,
-                size: 20,
-              ),
-            );
-          }),
-          Obx(() {
-            if (!c.selecting.value) {
-              return const SizedBox();
-            }
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: SelectedDot(
-                selected: c.selectedContacts.contains(contact.id),
-                size: 22,
-              ),
-            );
-          }),
-        ],
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: SelectedDot(
+                  selected: c.selectedContacts.contains(contact.id),
+                  size: 22,
+                ),
+              );
+            }),
+          ],
+        ),
       );
     });
   }

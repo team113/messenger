@@ -40,14 +40,14 @@ final StepDefinitionGeneric seeFavoriteChatPosition =
         final controller = Get.find<ChatsTabController>();
         final ChatId chatId = context.world.groups[name]!;
         final Iterable<ChatEntry> favorites = controller.chats
-            .where((c) => c.chat.chat.value.favoritePosition != null);
+            .where((c) => c.chat.value.favoritePosition != null);
 
         switch (status) {
           case PositionStatus.first:
-            return favorites.first.chat.id == chatId;
+            return favorites.first.id == chatId;
 
           case PositionStatus.last:
-            return favorites.last.chat.id == chatId;
+            return favorites.last.id == chatId;
         }
       },
     );

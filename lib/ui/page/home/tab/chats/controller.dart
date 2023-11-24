@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
@@ -177,7 +178,7 @@ class ChatsTabController extends GetxController {
 
     chats = RxList(
       _chatService.paginated.values
-          .map((e) => ChatEntry(e, () => chats.sort()))
+          .map((e) => ChatEntry(e, chats.sort))
           .toList(),
     );
 
@@ -190,7 +191,7 @@ class ChatsTabController extends GetxController {
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
     // listening to its updates.
-    Future<void> listenUpdates(RxChat chat) async {
+    Future<void> listenUpdates(ChatEntry chat) async {
       final UserId? userId = chat.chat.value.members
           .firstWhereOrNull((u) => u.user.id != me)
           ?.user
@@ -206,25 +207,22 @@ class ChatsTabController extends GetxController {
       }
     }
 
-    chats
-        .where((c) => c.chat.chat.value.isDialog)
-        .map((e) => e.chat)
-        .forEach(listenUpdates);
-
+    chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          chats.add(ChatEntry(event.value!, chats.sort));
+          final entry = ChatEntry(event.value!, chats.sort);
+          chats.add(entry);
           chats.sort();
 
           if (event.value!.chat.value.isDialog) {
-            listenUpdates(event.value!);
+            listenUpdates(entry);
           }
           break;
 
         case OperationKind.removed:
           chats.removeWhere((e) {
-            if (e.chat.chat.value.id == event.key) {
+            if (e.chat.value.id == event.key) {
               e.dispose();
               return true;
             }
@@ -562,19 +560,19 @@ class ChatsTabController extends GetxController {
   Future<void> reorderChat(int from, int to) async {
     final List<ChatEntry> favorites = chats
         .where((e) =>
-            e.chat.chat.value.ongoingCall == null &&
-            e.chat.chat.value.favoritePosition != null)
+            e.chat.value.ongoingCall == null &&
+            e.chat.value.favoritePosition != null)
         .toList();
 
     double position;
 
     if (to <= 0) {
-      position = favorites.first.chat.chat.value.favoritePosition!.val * 2;
+      position = favorites.first.chat.value.favoritePosition!.val * 2;
     } else if (to >= favorites.length) {
-      position = favorites.last.chat.chat.value.favoritePosition!.val / 2;
+      position = favorites.last.chat.value.favoritePosition!.val / 2;
     } else {
-      position = (favorites[to].chat.chat.value.favoritePosition!.val +
-              favorites[to - 1].chat.chat.value.favoritePosition!.val) /
+      position = (favorites[to].chat.value.favoritePosition!.val +
+              favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
 
@@ -585,7 +583,7 @@ class ChatsTabController extends GetxController {
     final int start = chats.indexOf(favorites[from]);
     final int end = chats.indexOf(favorites[to]);
 
-    final ChatId chatId = chats[start].chat.id;
+    final ChatId chatId = chats[start].id;
     chats.insert(end, chats.removeAt(start));
 
     await favoriteChat(chatId, ChatFavoritePosition(position));
@@ -607,7 +605,7 @@ class ChatsTabController extends GetxController {
           hideChat(chat.id);
         } else {
           for (var e in chats) {
-            if (e.chat.id == chat.id) {
+            if (e.id == chat.id) {
               e.hidden.value = false;
             }
           }
@@ -621,7 +619,7 @@ class ChatsTabController extends GetxController {
     dismissed.add(entry);
 
     for (var e in chats) {
-      if (e.chat.id == chat.id) {
+      if (e.id == chat.id) {
         e.hidden.value = true;
       }
     }
@@ -796,12 +794,12 @@ class ChatsTabController extends GetxController {
 class ChatEntry implements Comparable<ChatEntry> {
   /// Returns a [ChatEntry] capturing the provided [chat] changes to
   /// invoke a [sort] on [Chat.updatedAt] or [Chat.ongoingCall] updates.
-  ChatEntry(this.chat, [void Function()? sort]) {
-    _updatedAt = chat.chat.value.updatedAt;
-    _hasCall = chat.chat.value.ongoingCall != null;
+  ChatEntry(this._chat, [void Function()? sort]) {
+    _updatedAt = _chat.chat.value.updatedAt;
+    _hasCall = _chat.chat.value.ongoingCall != null;
 
     _worker = ever(
-      chat.chat,
+      _chat.chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
         if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
@@ -814,7 +812,7 @@ class ChatEntry implements Comparable<ChatEntry> {
   }
 
   /// [RxChat] itself.
-  final RxChat chat;
+  final RxChat _chat;
 
   /// Indicator whether this [ChatEntry] is hidden.
   final RxBool hidden = RxBool(false);
@@ -829,11 +827,26 @@ class ChatEntry implements Comparable<ChatEntry> {
   /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
   late bool _hasCall;
 
+  /// Returns the [RxChat] this [ChatEntry] represents.
+  RxChat get rxChat => _chat;
+
+  /// Returns value of a [Chat] this [ChatEntry] represents.
+  Rx<Chat> get chat => _chat.chat;
+
+  /// Returns a [ChatId] of the [chat].
+  ChatId get id => _chat.chat.value.id;
+
+  /// Returns observable list of [ChatItem]s of the [chat].
+  RxObsList<Rx<ChatItem>> get messages => _chat.messages;
+
+  /// Reactive list of [User]s being members of this [chat].
+  RxObsMap<UserId, RxUser> get members => _chat.members;
+
   /// Disposes this [ChatEntry].
   void dispose() => _worker.dispose();
 
   @override
-  int compareTo(ChatEntry other) => chat.compareTo(other.chat);
+  int compareTo(ChatEntry other) => _chat.compareTo(other._chat);
 }
 
 /// Element to display in a [ListView].

@@ -55,8 +55,10 @@ import 'steps/chat_is_hidden.dart';
 import 'steps/chat_is_muted.dart';
 import 'steps/chats_availability.dart';
 import 'steps/contact.dart';
+import 'steps/contact_is_deleted.dart';
 import 'steps/contact_is_favorite.dart';
 import 'steps/dismiss_chat.dart';
+import 'steps/dismiss_contact.dart';
 import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
@@ -86,6 +88,7 @@ import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
 import 'steps/see_chats.dart';
+import 'steps/see_contact_dismissed.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
 import 'steps/see_contacts.dart';
@@ -141,9 +144,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         checkCopyText,
         contact,
         contactIsFavorite,
+        contactIsIndeedDeleted,
         copyFromField,
         countUsers,
         dismissChat,
+        dismissContact,
         downloadFile,
         dragChatDown,
         dragContactDown,
@@ -191,6 +196,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatInSearchResults,
         seeChatMessages,
         seeChatSelection,
+        seeContactAsDismissed,
         seeContactAsFavorite,
         seeContactPosition,
         seeContactSelection,
@@ -201,6 +207,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
         seeNoChatsDismissed,
+        seeNoContactsDismissed,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
