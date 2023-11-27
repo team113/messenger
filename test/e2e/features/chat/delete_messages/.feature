@@ -22,7 +22,7 @@ Feature: Chat items are deleted correctly
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    And I pause for 2 second
+    And I pause for 5 second
 
   Scenario: User deletes message
     When I fill `MessageField` field with "For deletion"
