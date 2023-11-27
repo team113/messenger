@@ -120,6 +120,7 @@ enum WidgetKey {
   RenameChatField,
   RepeatPasswordField,
   Resend,
+  Restore,
   Search,
   SearchButton,
   SearchField,
@@ -150,8 +151,8 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
-  UserScrollable,
   UsernameField,
+  UserScrollable,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

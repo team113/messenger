@@ -68,7 +68,8 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
     final contact1 = await provider.createChatContact(
       name: UserName(user1.name),
       records: [
-        ChatContactRecord(userId: context.world.sessions[user1.name]!.userId)
+        if (context.world.sessions[user1.name] != null)
+          ChatContactRecord(userId: context.world.sessions[user1.name]!.userId)
       ],
     );
 
@@ -79,7 +80,8 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
     final contact2 = await provider.createChatContact(
       name: UserName(user2.name),
       records: [
-        ChatContactRecord(userId: context.world.sessions[user2.name]!.userId)
+        if (context.world.sessions[user2.name] != null)
+          ChatContactRecord(userId: context.world.sessions[user2.name]!.userId)
       ],
     );
 
