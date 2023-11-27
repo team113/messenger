@@ -16,6 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Style page:
         - Icons tab. ([#730], [#710])
+    - Chats tab:
+        - Swipe to delete gesture. ([#732])
+    - Contacts tab:
+        - Swipe to delete gesture. ([#732])
 
 ### Changed
 
@@ -45,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
 [#710]: /../../issues/710
 [#711]: /../../pull/711
 [#730]: /../../pull/730
+[#732]: /../../pull/732
 
 
 

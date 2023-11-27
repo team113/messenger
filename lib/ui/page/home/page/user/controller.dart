@@ -372,7 +372,7 @@ extension UserViewExt on User {
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.l10n} ${(lastSeen ?? lastSeenAt)!.val.toDifferenceAgo()}';
+          return (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo();
         } else {
           return 'label_offline'.l10n;
         }
@@ -381,7 +381,7 @@ extension UserViewExt on User {
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
-          return '${'label_last_seen'.l10n} ${(lastSeen ?? lastSeenAt)!.val.toDifferenceAgo()}';
+          return (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo();
         } else {
           return 'label_offline'.l10n;
         }

@@ -15,40 +15,46 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
-import '../parameters/position_status.dart';
+import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat] with the provided name is displayed at the
-/// specified [PositionStatus].
+/// Indicates whether a [Chat] with the provided name is dismissed.
 ///
 /// Examples:
-/// - Then I see "Example" chat first in favorites list
-/// - Then I see "Example" chat last in favorites list
-final StepDefinitionGeneric seeFavoriteChatPosition =
-    then2<String, PositionStatus, CustomWorld>(
-  'I see {string} chat {position} in favorites list',
-  (name, status, context) async {
+/// - Then I see "Example" chat as dismissed
+final StepDefinitionGeneric seeChatAsDismissed = then1<String, CustomWorld>(
+  'I see {string} chat as dismissed',
+  (name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final controller = Get.find<ChatsTabController>();
         final ChatId chatId = context.world.groups[name]!;
-        final Iterable<ChatEntry> favorites = controller.chats
-            .where((c) => c.chat.value.favoritePosition != null);
 
-        switch (status) {
-          case PositionStatus.first:
-            return favorites.first.id == chatId;
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver.findByKeySkipOffstage('Dismissed_$chatId'),
+        );
+      },
+    );
+  },
+);
 
-          case PositionStatus.last:
-            return favorites.last.id == chatId;
-        }
+/// Indicates whether no [Chat]s are displayed as dismissed.
+///
+/// Examples:
+/// - Then I see no chats dismissed
+final StepDefinitionGeneric seeNoChatsDismissed = then<CustomWorld>(
+  'I see no chats dismissed',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
+        );
       },
     );
   },

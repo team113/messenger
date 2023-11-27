@@ -42,7 +42,6 @@ import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -60,7 +59,7 @@ class ContactsTabController extends GetxController {
   );
 
   /// Reactive list of sorted [ChatContact]s.
-  final RxList<RxChatContact> contacts = RxList();
+  final RxList<ContactEntry> contacts = RxList();
 
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -89,6 +88,9 @@ class ContactsTabController extends GetxController {
 
   /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
+
+  /// [DismissedContact]s added in [dismiss].
+  final RxList<DismissedContact> dismissed = RxList();
 
   /// [Chat]s service used to create a dialog [Chat].
   final ChatService _chatService;
@@ -129,8 +131,7 @@ class ContactsTabController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    contacts.value = _contactService.paginated.values.toList();
-    contacts.sort();
+    contacts.value = _contactService.paginated.values.map((e) => ContactEntry(e)).toList()..sort();
 
     _initUsersUpdates();
 
@@ -156,13 +157,17 @@ class ContactsTabController extends GetxController {
 
   @override
   void onClose() {
-    for (RxChatContact contact in contacts) {
+    for (ContactEntry contact in contacts) {
       contact.user.value?.stopUpdates();
     }
 
     _contactsSubscription?.cancel();
     _statusSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
+
+    for (var e in dismissed) {
+      e._timer.cancel();
+    }
 
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -327,6 +332,41 @@ class ContactsTabController extends GetxController {
     }
   }
 
+  /// Dismisses the [contact], adding it to the [dismissed].
+  void dismiss(RxChatContact contact) {
+    for (var e in List<DismissedContact>.from(dismissed, growable: false)) {
+      e._done(true);
+    }
+    dismissed.clear();
+
+    DismissedContact? entry;
+
+    entry = DismissedContact(
+      contact,
+      onDone: (d) {
+        if (d) {
+          deleteFromContacts(contact.contact.value);
+        } else {
+          for (var e in contacts) {
+            if (e.id == contact.id) {
+              e.hidden.value = false;
+            }
+          }
+        }
+
+        dismissed.remove(entry!);
+      },
+    );
+
+    dismissed.add(entry);
+
+    for (var e in contacts) {
+      if (e.id == contact.id) {
+        e.hidden.value = true;
+      }
+    }
+  }
+
   /// Starts a [ChatCall] with a [user] [withVideo] or not.
   ///
   /// Creates a dialog [Chat] with a [user] if it doesn't exist yet.
@@ -346,7 +386,7 @@ class ContactsTabController extends GetxController {
   /// [contacts] list.
   void _initUsersUpdates() {
     /// States an interest in updates of the specified [RxChatContact.user].
-    void listen(RxChatContact c) {
+    void listen(ContactEntry c) {
       RxUser? rxUser = c.user.value?..listenUpdates();
       _rxUserWorkers[c.id] = ever(c.user, (RxUser? user) {
         if (rxUser?.id != user?.id) {
@@ -365,7 +405,8 @@ class ContactsTabController extends GetxController {
     _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          contacts.add(e.value!);
+        final entry = ContactEntry(e.value!);
+          contacts.add(entry);
           contacts.sort();
           listen(e.value!);
           break;
@@ -378,7 +419,6 @@ class ContactsTabController extends GetxController {
 
         case OperationKind.updated:
           contacts.sort();
-          contacts.refresh();
           break;
       }
     });
@@ -465,5 +505,119 @@ class ContactsTabController extends GetxController {
     }
 
     return false;
+  }
+}
+
+/// Element to display in a [ListView].
+abstract class ListElement {
+  const ListElement();
+}
+
+/// [ListElement] representing a [RxChatContact].
+class ContactElement extends ListElement {
+  const ContactElement(this.contact);
+
+  /// [RxChatContact] itself.
+  final RxChatContact contact;
+}
+
+/// [ListElement] representing a [RxUser].
+class UserElement extends ListElement {
+  const UserElement(this.user);
+
+  /// [RxUser] itself.
+  final RxUser user;
+}
+
+/// [ListElement] representing a visual divider of the provided [category].
+class DividerElement extends ListElement {
+  const DividerElement(this.category);
+
+  /// [SearchCategory] of this [DividerElement].
+  final SearchCategory category;
+}
+
+/// [RxChatContact] being dismissed.
+///
+/// Invokes the irreversible action (e.g. hiding the [contact]) when the
+/// [remaining] milliseconds have passed.
+class DismissedContact {
+  DismissedContact(this.contact, {void Function(bool)? onDone})
+      : _onDone = onDone {
+    _timer = Timer.periodic(32.milliseconds, (t) {
+      final value = remaining.value - 32;
+
+      if (remaining.value <= 0) {
+        remaining.value = 0;
+        _done(true);
+      } else {
+        remaining.value = value;
+      }
+    });
+  }
+
+  /// [RxChatContact] itself.
+  final RxChatContact contact;
+
+  /// Time in milliseconds before the [contact] invokes the irreversible action.
+  final RxInt remaining = RxInt(5000);
+
+  /// Callback, called when [_timer] is done counting the [remaining]
+  /// milliseconds.
+  final void Function(bool)? _onDone;
+
+  /// [Timer] counting milliseconds until the [remaining].
+  late final Timer _timer;
+
+  /// Indicator whether the [_done] was already invoked.
+  bool _invoked = false;
+
+  /// Cancels the dismissal.
+  void cancel() => _done();
+
+  /// Invokes the [_onDone] and cancels the [_timer].
+  void _done([bool done = false]) {
+    if (!_invoked) {
+      _invoked = true;
+      _onDone?.call(done);
+      _timer.cancel();
+    }
+  }
+}
+
+/// [RxChatContact] entry in a list.
+class ContactEntry implements Comparable<ContactEntry> {
+  ContactEntry(this._contact);
+
+  /// [RxChatContact] itself.
+  final RxChatContact _contact;
+
+  /// Indicator whether this [ContactEntry] is hidden.
+  final RxBool hidden = RxBool(false);
+
+  /// Returns [RxChatContact] of the [contact].
+  RxChatContact get rx => _contact;
+
+  /// Returns [ChatContactId] of the [contact].
+  ChatContactId get id => _contact.id;
+
+  /// Reactive value of the first [User] this [ContactEntry] contains.
+  Rx<RxUser?> get user => _contact.user;
+
+  /// Returns the [ChatContact] this [ContactEntry] represents.
+  Rx<ChatContact> get contact => _contact.contact;
+
+  @override
+  int compareTo(ContactEntry other) {
+    if (contact.value.favoritePosition != null) {
+      if (other.contact.value.favoritePosition == null) {
+        return 1;
+      } else {
+        return other.contact.value.favoritePosition!
+            .compareTo(contact.value.favoritePosition!);
+      }
+    }
+
+    return contact.value.name.val.compareTo(other.contact.value.name.val);
   }
 }

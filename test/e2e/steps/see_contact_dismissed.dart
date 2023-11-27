@@ -15,42 +15,46 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
-import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
 
-import '../parameters/position_status.dart';
+import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [ChatContact] with the provided name is displayed at the
-/// specified [PositionStatus].
+/// Indicates whether a [ChatContact] with the provided name is dismissed.
 ///
 /// Examples:
-/// - Then I see "Bob" contact first in contacts list
-/// - Then I see "Bob" contact last in contacts list
-final StepDefinitionGeneric seeContactPosition =
-    then2<String, PositionStatus, CustomWorld>(
-  'I see {string} contact {position} in contacts list',
-  (name, status, context) async {
+/// - Then I see "Example" contact as dismissed
+final StepDefinitionGeneric seeContactAsDismissed = then1<String, CustomWorld>(
+  'I see {string} contact as dismissed',
+  (name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final controller = Get.find<ContactsTabController>();
         final ChatContactId contactId = context.world.contacts[name]!;
 
-        final List<ContactEntry> contacts = [
-          ...controller.contacts,
-        ];
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver.findByKeySkipOffstage('Dismissed_$contactId'),
+        );
+      },
+    );
+  },
+);
 
-        switch (status) {
-          case PositionStatus.first:
-            return contacts.first.id == contactId;
-
-          case PositionStatus.last:
-            return contacts.last.id == contactId;
-        }
+/// Indicates whether no [ChatContact]s are displayed as dismissed.
+///
+/// Examples:
+/// - Then I see no chats dismissed
+final StepDefinitionGeneric seeNoContactsDismissed = then<CustomWorld>(
+  'I see no contacts dismissed',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
+        );
       },
     );
   },

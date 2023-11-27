@@ -18,38 +18,30 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/ui/page/home/tab/chats/controller.dart';
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
-import '../parameters/position_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat] with the provided name is displayed at the
-/// specified [PositionStatus].
+/// Indicates whether a [Chat] with the provided name is indeed hidden.
 ///
 /// Examples:
-/// - Then I see "Example" chat first in favorites list
-/// - Then I see "Example" chat last in favorites list
-final StepDefinitionGeneric seeFavoriteChatPosition =
-    then2<String, PositionStatus, CustomWorld>(
-  'I see {string} chat {position} in favorites list',
-  (name, status, context) async {
+/// - And "Name" chat is indeed hidden
+final StepDefinitionGeneric chatIsIndeedHidden = given1<String, CustomWorld>(
+  '{string} chat is indeed hidden',
+  (String name, context) async {
+    final provider = GraphQlProvider();
+    final AuthService authService = Get.find();
+    provider.token = authService.credentials.value!.session.token;
+
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        final controller = Get.find<ChatsTabController>();
-        final ChatId chatId = context.world.groups[name]!;
-        final Iterable<ChatEntry> favorites = controller.chats
-            .where((c) => c.chat.value.favoritePosition != null);
-
-        switch (status) {
-          case PositionStatus.first:
-            return favorites.first.id == chatId;
-
-          case PositionStatus.last:
-            return favorites.last.id == chatId;
-        }
+        final response = await provider.getChat(context.world.groups[name]!);
+        return response.chat?.isHidden == true;
       },
+      timeout: const Duration(seconds: 30),
     );
   },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
