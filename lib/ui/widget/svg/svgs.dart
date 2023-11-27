@@ -1623,7 +1623,7 @@ class SvgIcons {
 
   static const SvgData deleteContact16 = SvgData(
     'assets/icons/delete_contact16.svg',
-    width: 18,
+    width: 18.6,
     height: 16.6,
   );
 
@@ -1665,7 +1665,19 @@ class SvgIcons {
 
   static const SvgData verifyEmail = SvgData(
     'assets/icons/verify_email.svg',
-    width: 13.89,
+    width: 12.92,
     height: 16,
+  );
+
+  static const SvgData muted16 = SvgData(
+    'assets/icons/muted16.svg',
+    width: 16.18,
+    height: 16.45,
+  );
+
+  static const SvgData unmuted16 = SvgData(
+    'assets/icons/unmuted16.svg',
+    width: 16.18,
+    height: 16.45,
   );
 }

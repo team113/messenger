@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
@@ -36,9 +37,13 @@ class AddChatMemberView extends StatelessWidget {
 
   /// Displays an [AddChatMemberView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
       mobilePadding: const EdgeInsets.all(0),
+      // background: style.sidebarColor,
+      background: const Color.fromARGB(255, 240, 242, 244),
       child: AddChatMemberView(chatId: chatId),
     );
   }

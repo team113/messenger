@@ -94,7 +94,7 @@ class ChatInfoView extends StatelessWidget {
                   if (false) _quick(c, context),
                   // const SizedBox(height: 4),
                   Block(
-                    title: 'label_public_information'.l10n,
+                    // title: 'label_public_information'.l10n,
                     children: [
                       BigAvatarWidget.chat(
                         c.chat,
@@ -227,12 +227,6 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!c.isMonolog)
-          ActionButton(
-            onPressed: () {},
-            text: 'btn_add_to_contacts'.l10n,
-            trailing: const SvgIcon(SvgIcons.addContact16),
-          ),
         Obx(() {
           final bool favorited = c.chat?.chat.value.favoritePosition != null;
           return ActionButton(
@@ -257,8 +251,8 @@ class ChatInfoView extends StatelessWidget {
               trailing: Transform.translate(
                 offset: const Offset(0, -1),
                 child: muted
-                    ? const SvgIcon(SvgIcons.mute16)
-                    : const SvgIcon(SvgIcons.unmute16),
+                    ? const SvgIcon(SvgIcons.muted16)
+                    : const SvgIcon(SvgIcons.unmuted16),
               ),
             );
           }),

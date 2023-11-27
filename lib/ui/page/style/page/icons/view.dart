@@ -608,16 +608,16 @@ class IconsView extends StatelessWidget {
               ActionButton(
                 trailing: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails.svg(SvgIcons.mute16),
-                  child: const SvgIcon(SvgIcons.mute16),
+                      c.icon.value = IconDetails.svg(SvgIcons.muted16),
+                  child: const SvgIcon(SvgIcons.muted16),
                 ),
               ),
               const SizedBox(height: 8),
               ActionButton(
                 trailing: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails.svg(SvgIcons.unmute16),
-                  child: const SvgIcon(SvgIcons.unmute16),
+                      c.icon.value = IconDetails.svg(SvgIcons.unmuted16),
+                  child: const SvgIcon(SvgIcons.unmuted16),
                 ),
               ),
               const SizedBox(height: 8),

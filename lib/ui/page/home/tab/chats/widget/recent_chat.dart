@@ -189,6 +189,7 @@ class RecentChatTile extends StatelessWidget {
               myUser?.name?.val.toLowerCase() == 'kirey');
 
       return CustomSlidable(
+        enabled: onHide != null,
         slidableKey: Key(rxChat.id.val),
         groupTag: 'chat',
         actions: [
@@ -321,7 +322,7 @@ class RecentChatTile extends StatelessWidget {
             ),
           ],
           actions: [
-            if (chat.isDialog)
+            if (chat.isDialog) ...[
               ContextMenuButton(
                 label: 'btn_set_price'.l10n,
                 onPressed: () => GetPaidView.show(
@@ -331,19 +332,20 @@ class RecentChatTile extends StatelessWidget {
                 ),
                 trailing: const SvgIcon(SvgIcons.coin),
               ),
-            if (inContacts != null) ...[
-              if (inContacts?.call() == true)
-                ContextMenuButton(
-                  label: 'btn_delete_from_contacts'.l10n,
-                  onPressed: () => onContact?.call(false),
-                  trailing: const SvgIcon(SvgIcons.deleteContact),
-                )
-              else
-                ContextMenuButton(
-                  label: 'btn_add_to_contacts'.l10n,
-                  onPressed: () => onContact?.call(true),
-                  trailing: const SvgIcon(SvgIcons.addContact),
-                ),
+              if (inContacts != null) ...[
+                if (inContacts?.call() == true)
+                  ContextMenuButton(
+                    label: 'btn_delete_from_contacts'.l10n,
+                    onPressed: () => onContact?.call(false),
+                    trailing: const SvgIcon(SvgIcons.deleteContact),
+                  )
+                else
+                  ContextMenuButton(
+                    label: 'btn_add_to_contacts'.l10n,
+                    onPressed: () => onContact?.call(true),
+                    trailing: const SvgIcon(SvgIcons.addContact),
+                  ),
+              ],
             ],
             if (chat.favoritePosition != null && onUnfavorite != null)
               ContextMenuButton(

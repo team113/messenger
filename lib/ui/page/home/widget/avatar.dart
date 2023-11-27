@@ -400,8 +400,8 @@ class _AvatarWidgetState extends State<AvatarWidget> {
         backgroundColor: style.colors.onPrimary,
         padding: EdgeInsets.all(badgeSize / 12),
         offset: maxWidth >= 40
-            ? maxWidth >= 100
-                ? const Offset(-15, -15)
+            ? maxWidth >= 70
+                ? const Offset(-18, -18)
                 : const Offset(-2.5, -2.5)
             : const Offset(0, 0),
         label: SizedBox(

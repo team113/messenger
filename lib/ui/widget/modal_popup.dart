@@ -47,6 +47,7 @@ abstract class ModalPopup {
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
+    Color? background,
   }) {
     final style = Theme.of(context).style;
 
@@ -55,7 +56,7 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: style.colors.onPrimary,
+        backgroundColor: background ?? style.colors.onPrimary,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
@@ -114,7 +115,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: style.colors.onPrimary,
+                color: background ?? style.colors.onPrimary,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(

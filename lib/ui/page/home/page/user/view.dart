@@ -127,6 +127,8 @@ class UserView extends StatelessWidget {
                       // title:
                       //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
                       children: [
+                        BigAvatarWidget.user(c.user),
+                        const SizedBox(height: 12), const SizedBox(height: 12),
                         Text(
                           '${c.user!.user.value.name ?? c.user!.user.value.num}',
                           style: style.fonts.big.regular.onBackground,
@@ -135,9 +137,7 @@ class UserView extends StatelessWidget {
                           const SizedBox(height: 4),
                           subtitle,
                         ],
-                        const SizedBox(height: 12),
-                        BigAvatarWidget.user(c.user),
-                        const SizedBox(height: 12),
+                        // const SizedBox(height: 12),
                         // UserNameCopyable(
                         //   c.user!.user.value.name,
                         //   c.user!.user.value.num,
@@ -404,7 +404,8 @@ class UserView extends StatelessWidget {
 
             return ActionButton(
               text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: SvgIcon(isMuted ? SvgIcons.mute16 : SvgIcons.unmute16),
+              trailing:
+                  SvgIcon(isMuted ? SvgIcons.muted16 : SvgIcons.unmuted16),
               onPressed: isMuted ? c.unmuteChat : c.muteChat,
             );
           }),

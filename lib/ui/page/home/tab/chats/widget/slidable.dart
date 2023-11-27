@@ -6,6 +6,7 @@ import 'package:messenger/ui/widget/widget_button.dart';
 class CustomSlidable extends StatelessWidget {
   const CustomSlidable({
     super.key,
+    this.enabled = true,
     this.slidableKey,
     this.groupTag,
     this.actions = const [],
@@ -13,6 +14,7 @@ class CustomSlidable extends StatelessWidget {
     required this.child,
   });
 
+  final bool enabled;
   final Key? slidableKey;
   final Object? groupTag;
   final List<CustomAction> actions;
@@ -21,6 +23,10 @@ class CustomSlidable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!enabled) {
+      return child;
+    }
+
     return Slidable(
       key: slidableKey,
       groupTag: groupTag,
