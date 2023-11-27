@@ -22,7 +22,7 @@ Feature: Half read status of messages in group chats
     And users Bob and Charlie
     And I have "Group" group with Bob and Charlie
     And I am in "Group" chat
-    And I pause for 1 second
+    And I pause for 2 second
 
   Scenario: User sees messages half read
     When I fill `MessageField` field with "123"

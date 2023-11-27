@@ -22,7 +22,7 @@ Feature: Text messages selection and copying
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    And I pause for 1 second
+    And I pause for 2 second
 
     When I fill `MessageField` field with "For selection"
     And I tap `Send` button
