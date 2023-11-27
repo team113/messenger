@@ -412,10 +412,10 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
-                final List<RxChatContact> favorites = [];
-                final List<RxChatContact> contacts = [];
+                final List<ContactEntry> favorites = [];
+                final List<ContactEntry> contacts = [];
 
-                for (RxChatContact e in c.contacts) {
+                for (ContactEntry e in c.contacts) {
                   if (e.contact.value.favoritePosition != null) {
                     favorites.add(e);
                   } else {

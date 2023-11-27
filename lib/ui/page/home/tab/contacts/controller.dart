@@ -243,7 +243,7 @@ class ContactsTabController extends GetxController {
 
   /// Reorders a [ChatContact] from the [from] position to the [to] position.
   Future<void> reorderContact(int from, int to) async {
-    final List<RxChatContact> favorites = contacts
+    final List<ContactEntry> favorites = contacts
         .where((e) => e.contact.value.favoritePosition != null)
         .toList();
 
@@ -408,7 +408,7 @@ class ContactsTabController extends GetxController {
         final entry = ContactEntry(e.value!);
           contacts.add(entry);
           contacts.sort();
-          listen(e.value!);
+          listen(entry);
           break;
 
         case OperationKind.removed:
