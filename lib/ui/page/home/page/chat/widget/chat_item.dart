@@ -1471,15 +1471,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 final RxUser? data =
                     snapshot.data ?? (member is RxUser? ? member : null);
 
-                if (data != null) {
-                  return AvatarWidget.fromRxUser(
-                    data,
-                    radius: AvatarRadius.smaller,
-                  );
-                }
-                return AvatarWidget.fromUser(
-                  user,
-                  radius: AvatarRadius.smaller,
+                return Tooltip(
+                  message: data?.user.value.name?.val ??
+                      data?.user.value.num.toString() ??
+                      user?.name?.val ??
+                      user?.num.toString(),
+                  verticalOffset: 15,
+                  padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                  decoration: BoxDecoration(
+                    color: style.colors.secondaryOpacity40,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: data != null
+                      ? AvatarWidget.fromRxUser(
+                          data,
+                          radius: AvatarRadius.smaller,
+                        )
+                      : AvatarWidget.fromUser(
+                          user,
+                          radius: AvatarRadius.smaller,
+                        ),
                 );
               },
             ),

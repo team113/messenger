@@ -101,152 +101,152 @@ void main() {
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 2, 24)),
-      'A week ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 2)),
-      'A week ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 3)),
-      '2 weeks ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 17)),
-      'A month ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 31)),
-      'A month ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 1)),
-      'A month ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 16)),
-      'A month ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2021, 12, 24, 18, 09).toRelative(DateTime(2022, 2, 17, 15, 43)),
-      'A month ago',
+      '12/24/2021',
     );
 
     expect(
       DateTime(2022, 1, 18, 15, 16).toRelative(DateTime(2022, 2, 18, 10, 21)),
-      'A month ago',
+      '1/18/2022',
     );
 
     expect(
       DateTime(2022, 1, 19, 15, 16).toRelative(DateTime(2022, 2, 18, 10, 21)),
-      '4 weeks ago',
+      '1/19/2022',
     );
 
     expect(
       DateTime(2022, 1, 21, 15, 16).toRelative(DateTime(2022, 2, 18, 10, 21)),
-      '4 weeks ago',
+      '1/21/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 17)),
-      '2 months ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2023, 2, 16)),
-      '11 months ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2023, 2, 17)),
-      'An year ago',
+      '2/17/2022',
     );
 
     expect(
       DateTime(2022, 3).toRelative(DateTime(2023, 3)),
-      'An year ago',
+      '3/1/2022',
     );
 
     expect(
       DateTime(2022).toRelative(DateTime(2023)),
-      'An year ago',
+      '1/1/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2023, 12, 12)),
-      '11 months ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2023, 12, 13)),
-      'An year ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2024, 12, 12)),
-      'An year ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2024, 12, 12)),
-      'An year ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2024, 12, 13)),
-      '2 years ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2025, 12, 12)),
-      '2 years ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2025, 12, 13)),
-      '3 years ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2026, 12, 12)),
-      '3 years ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2026, 12, 13)),
-      '4 years ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2027, 12, 12)),
-      '4 years ago',
+      '12/13/2022',
     );
 
     expect(
       DateTime(2017, 9, 7, 17, 30).toRelative(DateTime(2022, 9, 7, 17, 30)),
-      '5 years ago',
+      '9/7/2017',
     );
 
     expect(
       DateTime(2017, 9, 7, 17, 30).toRelative(DateTime(2023, 01, 01)),
-      '5 years ago',
+      '9/7/2017',
     );
 
     expect(
       DateTime(2017, 9, 7, 17, 30).toRelative(DateTime(2023, 9, 7, 17, 30)),
-      '6 years ago',
+      '9/7/2017',
     );
 
     expect(
       DateTime(1970, 2, 17).toRelative(DateTime(2100, 2, 17)),
-      '130 years ago',
+      '2/17/1970',
     );
   });
 }

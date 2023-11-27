@@ -52,10 +52,10 @@ class HivePageProvider<T extends Object, C, K>
   final Iterable<K> Function(Iterable<K>) orderBy;
 
   /// Callback, called to indicate whether the provided [T] is the first.
-  final bool Function(T item)? isFirst;
+  final bool Function(T? item)? isFirst;
 
   /// Callback, called to indicate whether the provided [T] is the last.
-  final bool Function(T item)? isLast;
+  final bool Function(T? item)? isLast;
 
   /// [PaginationStrategy] of [around] invoke.
   final PaginationStrategy strategy;
@@ -77,7 +77,17 @@ class HivePageProvider<T extends Object, C, K>
     final Iterable<K> ordered = orderBy(_provider.keys);
 
     if (ordered.isEmpty) {
-      return null;
+      Page<T, C> page = Page(
+        [],
+        PageInfo(
+          startCursor: null,
+          endCursor: null,
+          hasPrevious: isFirst == null ? true : !isFirst!.call(null),
+          hasNext: isLast == null ? true : !isLast!.call(null),
+        ),
+      );
+
+      return reversed ? page.reversed() : page;
     }
 
     Iterable<dynamic>? keys;
@@ -186,7 +196,16 @@ class HivePageProvider<T extends Object, C, K>
   Future<void> remove(K key) => _provider.remove(key);
 
   @override
-  Future<void> clear() => _provider.clear();
+  Future<void> clear() async {
+    final Iterable<K> ordered = orderBy(_provider.keys);
+    if (ordered.length != _provider.keys.length) {
+      for (var e in ordered) {
+        await _provider.remove(e);
+      }
+    } else {
+      await _provider.clear();
+    }
+  }
 
   /// Creates a [Page] from the provided [items].
   Page<T, C> _page(List<T> items) {

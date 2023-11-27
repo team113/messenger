@@ -14,8 +14,14 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
+    - Style page:
+        - Icons tab. ([#730], [#710])
     - Chat page:
-        - `Download` and `Save as` context menu options. ([#697], [#654])
+        - `Download` and `Save as` context menu options. ([#697], [#654])    
+    - Chats tab:
+        - Swipe to delete gesture. ([#732])
+    - Contacts tab:
+        - Swipe to delete gesture. ([#732])
 
 ### Changed
 
@@ -28,6 +34,9 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- UI:
+    - Media panel:
+        - Disabled incoming video being loaded indefinitely. ([#707], [#700])
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
@@ -36,10 +45,15 @@ All user visible changes to this project will be documented in this file. This p
 [#681]: /../../issues/681
 [#654]: /../../issues/654
 [#695]: /../../pull/695
+[#700]: /../../issues/700
 [#702]: /../../pull/702
 [#703]: /../../pull/703
+[#707]: /../../pull/707
+[#710]: /../../issues/710
 [#711]: /../../pull/711
 [#697]: /../../pull/697
+[#730]: /../../pull/730
+[#732]: /../../pull/732
 
 
 

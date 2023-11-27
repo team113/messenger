@@ -19,8 +19,8 @@ import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
@@ -52,6 +52,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/recognizers.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
@@ -198,12 +199,13 @@ class ChatsTabView extends StatelessWidget {
                             } else {
                               final List<RxChat> chats = [];
 
-                              for (RxChat e in c.chats) {
+                              for (var e in c.chats) {
                                 if ((!e.id.isLocal ||
                                         e.messages.isNotEmpty ||
                                         e.chat.value.isMonolog) &&
-                                    !e.chat.value.isHidden) {
-                                  chats.add(e);
+                                    !e.chat.value.isHidden &&
+                                    !e.hidden.value) {
+                                  chats.add(e.rx);
                                 }
                               }
 
@@ -308,51 +310,56 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      return AnimatedOpacity(
-                        duration: 250.milliseconds,
-                        opacity: c.searching.value ||
-                                c.groupCreating.value ||
-                                c.selecting.value
-                            ? 0
-                            : 1,
-                        child: ContextMenuRegion(
-                          key: const Key('ChatsMenu'),
-                          selector: c.moreKey,
-                          alignment: Alignment.topRight,
-                          enablePrimaryTap: true,
-                          enableSecondaryTap: false,
-                          enableLongTap: false,
-                          margin: const EdgeInsets.only(bottom: 4, right: 0),
-                          actions: [
-                            ContextMenuButton(
-                              label: 'btn_create_group'.l10n,
-                              onPressed: c.startGroupCreating,
-                              trailing: const SvgIcon(SvgIcons.group),
+                      return IgnorePointer(
+                        ignoring: c.searching.value ||
+                            c.groupCreating.value ||
+                            c.selecting.value,
+                        child: AnimatedOpacity(
+                          duration: 250.milliseconds,
+                          opacity: c.searching.value ||
+                                  c.groupCreating.value ||
+                                  c.selecting.value
+                              ? 0
+                              : 1,
+                          child: ContextMenuRegion(
+                            key: const Key('ChatsMenu'),
+                            selector: c.moreKey,
+                            alignment: Alignment.topRight,
+                            enablePrimaryTap: true,
+                            enableSecondaryTap: false,
+                            enableLongTap: false,
+                            margin: const EdgeInsets.only(bottom: 4, right: 0),
+                            actions: [
+                              ContextMenuButton(
+                                label: 'btn_create_group'.l10n,
+                                onPressed: c.startGroupCreating,
+                                trailing: const SvgIcon(SvgIcons.group),
+                              ),
+                              ContextMenuButton(
+                                key: const Key('SelectChatsButton'),
+                                label: 'btn_select_and_delete'.l10n,
+                                onPressed: c.toggleSelecting,
+                                trailing: const SvgIcon(SvgIcons.select),
+                              ),
+                            ],
+                            child: AnimatedButton(
+                              decorator: (child) {
+                                return Container(
+                                  key: c.moreKey,
+                                  padding: const EdgeInsets.only(
+                                    left: 12,
+                                    right: 18,
+                                  ),
+                                  height: double.infinity,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                    child: child,
+                                  ),
+                                );
+                              },
+                              child: const SvgIcon(SvgIcons.more),
                             ),
-                            ContextMenuButton(
-                              key: const Key('SelectChatsButton'),
-                              label: 'btn_select_and_delete'.l10n,
-                              onPressed: c.toggleSelecting,
-                              trailing: const SvgIcon(SvgIcons.select),
-                            ),
-                          ],
-                          child: AnimatedButton(
-                            decorator: (child) {
-                              return Container(
-                                key: c.moreKey,
-                                padding: const EdgeInsets.only(
-                                  left: 12,
-                                  right: 18,
-                                ),
-                                height: double.infinity,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: const SvgIcon(SvgIcons.more),
                           ),
                         ),
                       );
@@ -376,7 +383,8 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.contacts.isEmpty == true &&
                         c.search.value?.users.isEmpty == true) {
                       if (c.search.value?.searchStatus.value.isSuccess ==
-                          true) {
+                              true ||
+                          c.search.value?.searchStatus.value.isEmpty == true) {
                         center = Center(
                           key: UniqueKey(),
                           child: Text(
@@ -660,7 +668,8 @@ class ChatsTabView extends StatelessWidget {
                     if (c.chats.none(
                       (e) {
                         return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !e.chat.value.isHidden;
+                            !e.chat.value.isHidden &&
+                            !e.hidden.value;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
@@ -691,18 +700,19 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (RxChat e in c.chats) {
+                            for (var e in c.chats) {
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden) {
+                                  !e.chat.value.isHidden &&
+                                  !e.hidden.value) {
                                 if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e);
+                                  calls.add(e.rx);
                                 } else if (e.chat.value.favoritePosition !=
                                     null) {
-                                  favorites.add(e);
+                                  favorites.add(e.rx);
                                 } else {
-                                  chats.add(e);
+                                  chats.add(e.rx);
                                 }
                               }
                             }
@@ -759,6 +769,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? () => c.selectChat(e)
                                     : null,
                                 onCall: (video) => c.call(e.id, video),
+                                onDismissed: () => c.dismiss(e),
                                 enableContextMenu: !c.selecting.value,
                                 trailing: c.selecting.value
                                     ? [
@@ -966,73 +977,154 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
-                    child: SafeAnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: child,
+                    child: SlidableAutoCloseBehavior(
+                      child: SafeAnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        child: child,
+                      ),
                     ),
                   );
                 }),
-                bottomNavigationBar: Obx(() {
-                  if (c.groupCreating.value) {
-                    return BottomPaddedRow(
-                      children: [
-                        ShadowedRoundedButton(
-                          onPressed: c.closeGroupCreating,
-                          color: style.colors.onPrimary,
-                          child: Text(
-                            'btn_cancel'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                        ShadowedRoundedButton(
-                          onPressed: c.createGroup,
-                          color: style.colors.primary,
-                          child: Text(
-                            'btn_create_group'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  } else if (c.selecting.value) {
-                    return BottomPaddedRow(
-                      children: [
-                        ShadowedRoundedButton(
-                          onPressed: c.toggleSelecting,
-                          child: Text(
-                            'btn_cancel'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                        ShadowedRoundedButton(
-                          key: const Key('DeleteChats'),
-                          onPressed: c.selectedChats.isEmpty
-                              ? null
-                              : () => _hideChats(context, c),
-                          color: style.colors.primary,
-                          child: Text(
-                            'btn_delete_count'.l10nfmt({
-                              'count': c.selectedChats.length,
-                            }),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: c.selectedChats.isEmpty
-                                ? style.fonts.medium.regular.onBackground
-                                : style.fonts.medium.regular.onPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+                bottomNavigationBar: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(() {
+                      final Widget child;
+                      final action = c.dismissed.lastOrNull;
 
-                  return const SizedBox();
-                }),
+                      if (action == null) {
+                        child = const SizedBox(key: Key('NoDismissed'));
+                      } else {
+                        child = Padding(
+                          key: Key('Dismissed_${action.chat.id}'),
+                          padding: EdgeInsets.fromLTRB(
+                            10 + 10,
+                            0,
+                            10 + 10,
+                            72 + MediaQuery.of(context).viewPadding.bottom,
+                          ),
+                          child: WidgetButton(
+                            key: const Key('Restore'),
+                            onPressed: action.cancel,
+                            child: Container(
+                              key: Key('${action.chat.id}'),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: style.colors.primary.withOpacity(0.9),
+                                boxShadow: [
+                                  CustomBoxShadow(
+                                    blurRadius: 8,
+                                    color: style.colors.onBackgroundOpacity13,
+                                    blurStyle: BlurStyle.outer.workaround,
+                                  ),
+                                ],
+                              ),
+                              height: CustomNavigationBar.height,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          value: action.remaining.value / 5000,
+                                          color: style.colors.onPrimary,
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${action.remaining.value ~/ 1000 + 1}',
+                                        style:
+                                            style.fonts.small.regular.onPrimary,
+                                      )
+                                    ],
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      'btn_undo_delete'.l10n,
+                                      style: style.fonts.big.regular.onPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return SafeAnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: child,
+                      );
+                    }),
+                    Obx(() {
+                      if (c.groupCreating.value) {
+                        return BottomPaddedRow(
+                          children: [
+                            ShadowedRoundedButton(
+                              onPressed: c.closeGroupCreating,
+                              color: style.colors.onPrimary,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onBackground,
+                              ),
+                            ),
+                            ShadowedRoundedButton(
+                              onPressed: c.createGroup,
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_create_group'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else if (c.selecting.value) {
+                        return BottomPaddedRow(
+                          children: [
+                            ShadowedRoundedButton(
+                              onPressed: c.toggleSelecting,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onBackground,
+                              ),
+                            ),
+                            ShadowedRoundedButton(
+                              key: const Key('DeleteChats'),
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_delete_count'.l10nfmt({
+                                  'count': c.selectedChats.length,
+                                }),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: c.selectedChats.isEmpty
+                                    ? style.fonts.medium.regular.onBackground
+                                    : style.fonts.medium.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return const SizedBox();
+                    }),
+                  ],
+                ),
               );
             }),
             Obx(() {
@@ -1085,33 +1177,6 @@ class ChatsTabView extends StatelessWidget {
 
     if (result == true) {
       await c.hideChats(clear);
-    }
-  }
-}
-
-/// [OneSequenceGestureRecognizer] rejecting the secondary mouse button events.
-class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
-  @override
-  String get debugDescription => 'DisableSecondaryButtonRecognizer';
-
-  @override
-  void didStopTrackingLastPointer(int pointer) {
-    // No-op.
-  }
-
-  @override
-  void handleEvent(PointerEvent event) {
-    // No-op.
-  }
-
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    startTrackingPointer(event.pointer);
-
-    if (event.buttons == kPrimaryButton) {
-      resolve(GestureDisposition.rejected);
-    } else {
-      resolve(GestureDisposition.accepted);
     }
   }
 }

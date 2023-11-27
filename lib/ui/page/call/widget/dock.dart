@@ -36,7 +36,7 @@ class Dock<T extends Object> extends StatefulWidget {
     required this.itemBuilder,
     this.onReorder,
     this.itemWidth = 48,
-    this.delayed = false,
+    this.delayed = true,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,

@@ -656,6 +656,7 @@ class Palette {
     required this.secondaryHighlightDark,
     required this.secondaryHighlightDarkest,
     Color? secondaryOpacity87,
+    Color? secondaryOpacity40,
     required this.onSecondary,
     Color? onSecondaryOpacity20,
     Color? onSecondaryOpacity50,
@@ -697,6 +698,7 @@ class Palette {
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
         onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
         secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
+        secondaryOpacity40 = secondaryOpacity40 ?? secondary.withOpacity(0.40),
         onSecondaryOpacity20 =
             onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
         onSecondaryOpacity50 =
@@ -811,6 +813,11 @@ class Palette {
   ///
   /// Used as the muted indicator background in calls.
   final Color secondaryOpacity87;
+
+  /// 40% opacity of the [secondary] color.
+  ///
+  /// Used as the muted indicator background in calls.
+  final Color secondaryOpacity40;
 
   /// Background [Color] of the [secondary] elements.
   ///
