@@ -22,6 +22,7 @@ Feature: Monolog
     And I wait until `ChatMonolog` is present
     And I am in monolog
     And monolog is indeed local
+    And I pause for 1 second
 
   Scenario: Message can be posted in local monolog
     When I fill `MessageField` field with "Hello, my monolog"
