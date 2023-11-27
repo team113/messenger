@@ -294,7 +294,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
 /// Member of a [Chat].
 @HiveType(typeId: ModelTypeId.chatMember)
-class ChatMember {
+class ChatMember implements Comparable<ChatMember> {
   ChatMember(this.user, this.joinedAt);
 
   /// [User] represented by this [ChatMember].
@@ -304,6 +304,11 @@ class ChatMember {
   /// [PreciseDateTime] when the [User] became a [ChatMember].
   @HiveField(1)
   final PreciseDateTime joinedAt;
+
+  @override
+  int compareTo(ChatMember other) {
+    return joinedAt.compareTo(other.joinedAt);
+  }
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].

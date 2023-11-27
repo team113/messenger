@@ -43,6 +43,7 @@ import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
@@ -126,6 +127,10 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
+  /// [Pagination] loading [members] with pagination.
+  late final Pagination<HiveChatMember, ChatMembersCursor, UserId>
+      _membersPagination;
+
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
       _provider;
@@ -136,8 +141,11 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
-  /// Subscription to the [Pagination.items] changes.
+  /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
+
+  /// Subscription to the [_membersPagination] changes.
+  StreamSubscription? _membersPaginationSubscription;
 
   /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
@@ -192,6 +200,12 @@ class HiveRxChat extends RxChat {
 
   @override
   RxBool get previousLoading => _pagination.previousLoading;
+
+  @override
+  RxBool get membersHasNext => _membersPagination.hasNext;
+
+  @override
+  RxBool get membersNextLoading => _membersPagination.nextLoading;
 
   @override
   UserCallCover? get callCover {
@@ -274,7 +288,7 @@ class HiveRxChat extends RxChat {
       chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
     );
 
-    _updateTitle(chat.value.members.map((e) => e.user));
+    _updateTitle();
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
 
     Chat previous = chat.value;
@@ -302,92 +316,8 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    _provider = HiveGraphQlPageProvider(
-      graphQlProvider: GraphQlPageProvider(
-        reversed: true,
-        fetch: ({after, before, first, last}) async {
-          final Page<HiveChatItem, ChatItemsCursor> reversed =
-              await _chatRepository.messages(
-            chat.value.id,
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          );
-
-          final Page<HiveChatItem, ChatItemsCursor> page;
-          if (_provider.graphQlProvider.reversed) {
-            page = reversed.reversed();
-          } else {
-            page = reversed;
-          }
-
-          if (page.info.hasPrevious == false) {
-            final HiveChat? chatEntity = await _chatLocal.get(id);
-            final ChatItem? firstItem = page.edges.firstOrNull?.value;
-
-            if (chatEntity != null &&
-                firstItem != null &&
-                chatEntity.value.firstItem != firstItem) {
-              chatEntity.value.firstItem = firstItem;
-              _chatLocal.put(chatEntity);
-            }
-          }
-
-          return reversed;
-        },
-      ),
-      hiveProvider: HivePageProvider(
-        _local,
-        getCursor: (e) => e?.cursor,
-        getKey: (e) => e.value.key,
-        isFirst: (e) =>
-            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
-        isLast: (e) =>
-            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
-        strategy: PaginationStrategy.fromEnd,
-      ),
-    );
-
-    _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
-      onKey: (e) => e.value.key,
-      provider: _provider,
-      compare: (a, b) => a.value.key.compareTo(b.value.key),
-    );
-
-    if (id.isLocal) {
-      _pagination.hasNext.value = false;
-      _pagination.hasPrevious.value = false;
-      status.value = RxStatus.success();
-    }
-
-    _paginationSubscription = _pagination.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-          _add(event.value!.value);
-          break;
-
-        case OperationKind.removed:
-          messages.removeWhere((e) => e.value.id == event.value?.value.id);
-          break;
-
-        case OperationKind.updated:
-          _add(event.value!.value);
-          break;
-      }
-    });
-
-    await _local.init(userId: me);
-
-    HiveChatItem? item;
-    if (chat.value.lastReadItem != null) {
-      item = await get(chat.value.lastReadItem!);
-    }
-
-    await _pagination.init(item);
-    if (_pagination.items.isNotEmpty) {
-      status.value = RxStatus.success();
-    }
+    _initMessagesPagination();
+    _initMembersPagination();
   }
 
   /// Disposes this [HiveRxChat].
@@ -403,7 +333,9 @@ class HiveRxChat extends RxChat {
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
+    _membersPaginationSubscription?.cancel();
     _pagination.dispose();
+    _membersPagination.dispose();
     _messagesSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
@@ -461,6 +393,8 @@ class HiveRxChat extends RxChat {
   Future<void> around() async {
     Log.debug('around()', '$runtimeType($id)');
 
+    _membersPagination.around();
+
     if (id.isLocal ||
         status.value.isSuccess ||
         (hasNext.isFalse && hasPrevious.isFalse)) {
@@ -503,6 +437,13 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+  }
+
+  @override
+  Future<void> nextMembers() async {
+    Log.debug('nextMembers()', '$runtimeType($id)');
+
+    await _membersPagination.next();
   }
 
   @override
@@ -844,6 +785,143 @@ class HiveRxChat extends RxChat {
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
+  /// Initializes the [_pagination].
+  Future<void> _initMessagesPagination() async {
+    _provider = HiveGraphQlPageProvider(
+      graphQlProvider: GraphQlPageProvider(
+        reversed: true,
+        fetch: ({after, before, first, last}) async {
+          final Page<HiveChatItem, ChatItemsCursor> reversed =
+              await _chatRepository.messages(
+            chat.value.id,
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          );
+
+          final Page<HiveChatItem, ChatItemsCursor> page;
+          if (_provider.graphQlProvider.reversed) {
+            page = reversed.reversed();
+          } else {
+            page = reversed;
+          }
+
+          if (page.info.hasPrevious == false) {
+            final HiveChat? chatEntity = await _chatLocal.get(id);
+            final ChatItem? firstItem = page.edges.firstOrNull?.value;
+
+            if (chatEntity != null &&
+                firstItem != null &&
+                chatEntity.value.firstItem != firstItem) {
+              chatEntity.value.firstItem = firstItem;
+              _chatLocal.put(chatEntity);
+            }
+          }
+
+          return reversed;
+        },
+      ),
+      hiveProvider: HivePageProvider(
+        _local,
+        getCursor: (e) => e?.cursor,
+        getKey: (e) => e.value.key,
+        isFirst: (e) =>
+            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
+        isLast: (e) =>
+            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
+        strategy: PaginationStrategy.fromEnd,
+      ),
+    );
+
+    _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      onKey: (e) => e.value.key,
+      provider: _provider,
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
+    );
+
+    if (id.isLocal) {
+      _pagination.hasNext.value = false;
+      _pagination.hasPrevious.value = false;
+      status.value = RxStatus.success();
+    }
+
+    _paginationSubscription = _pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+          _add(event.value!.value);
+          break;
+
+        case OperationKind.removed:
+          messages.removeWhere((e) => e.value.id == event.value?.value.id);
+          break;
+
+        case OperationKind.updated:
+          _add(event.value!.value);
+          break;
+      }
+    });
+
+    await _local.init(userId: me);
+
+    HiveChatItem? item;
+    if (chat.value.lastReadItem != null) {
+      item = await get(chat.value.lastReadItem!);
+    }
+
+    await _pagination.init(item);
+    if (_pagination.items.isNotEmpty) {
+      status.value = RxStatus.success();
+    }
+  }
+
+  /// Initializes the [_membersPagination].
+  Future<void> _initMembersPagination() async {
+    var provider =
+        GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
+      fetch: ({after, before, first, last}) {
+        return _chatRepository.members(
+          chat.value.id,
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+        );
+      },
+    );
+
+    _membersPagination = Pagination(
+      onKey: (e) => e.value.user.id,
+      perPage: 15,
+      provider: provider,
+      compare: (a, b) => a.value.compareTo(b.value),
+    );
+
+    if (id.isLocal) {
+      _membersPagination.hasNext.value = false;
+      _membersPagination.hasPrevious.value = false;
+    }
+
+    _membersPaginationSubscription =
+        _membersPagination.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          print('added/updated: ${event.value!.value.joinedAt}');
+          RxUser? user = await _chatRepository.getUser(event.key!);
+
+          if (user != null) {
+            members[event.key!] = user;
+          }
+          break;
+
+        case OperationKind.removed:
+          members.remove(event.key!);
+          break;
+      }
+    });
+  }
+
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
   /// [FileAttachment]s, if any.
   void _add(ChatItem item) {
@@ -879,9 +957,7 @@ class HiveRxChat extends RxChat {
   Future<void> _updateFields({Chat? previous}) async {
     Log.debug('_updateFields($previous)', '$runtimeType($id)');
 
-    if (chat.value.name != null) {
-      _updateTitle();
-    }
+    _initTitleUpdating();
 
     if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
@@ -901,24 +977,21 @@ class HiveRxChat extends RxChat {
       );
     }
 
-    // TODO: Users list can be huge, so we should implement pagination and
-    //       loading on demand.
-    for (var m in chat.value.members) {
-      if (!members.containsKey(m.user.id)) {
-        var user = await _chatRepository.getUser(m.user.id);
-        if (user != null) {
-          members[m.user.id] = user;
-        }
-      }
+    if (chat.value.unreadCount < unreadCount.value ||
+        (chat.value.unreadCount != previous?.unreadCount &&
+            _readTimer == null)) {
+      unreadCount.value = chat.value.unreadCount;
     }
+  }
 
-    members
-        .removeWhere((k, _) => chat.value.members.none((m) => m.user.id == k));
+  /// Initializes the [_userWorkers] updating the [title].
+  void _initTitleUpdating() {
+    Log.debug('_initTitleUpdating()', '$runtimeType($id)');
 
     if (chat.value.name == null) {
       var users = members.values.take(3);
       _userWorkers.removeWhere((k, v) {
-        if (!users.any((u) => u.id == k)) {
+        if (users.none((u) => u.id == k)) {
           v.dispose();
           return true;
         }
@@ -936,22 +1009,20 @@ class HiveRxChat extends RxChat {
 
       _updateTitle();
     }
-
-    if (chat.value.unreadCount < unreadCount.value ||
-        (chat.value.unreadCount != previous?.unreadCount &&
-            _readTimer == null)) {
-      unreadCount.value = chat.value.unreadCount;
-    }
   }
 
   /// Updates the [title].
-  void _updateTitle([Iterable<User>? users]) {
-    Log.debug('_updateTitle($users)', '$runtimeType($id)');
+  void _updateTitle() {
+    Log.debug('_updateTitle()', '$runtimeType($id)');
 
-    title.value = chat.value.getTitle(
-      users?.take(3) ?? members.values.take(3).map((e) => e.user.value),
-      me,
-    );
+    Iterable<User> users;
+    if (members.isNotEmpty) {
+      users = members.values.take(3).map((e) => e.user.value);
+    } else {
+      users = chat.value.members.take(3).map((e) => e.user);
+    }
+
+    title.value = chat.value.getTitle(users, me);
   }
 
   /// Updates the [avatar].

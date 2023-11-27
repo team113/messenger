@@ -27,6 +27,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/chat_member.dart';
 import '/store/chat.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
@@ -644,6 +645,18 @@ extension EventChatMuted$DurationConversion
             as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
         .until);
   }
+}
+
+/// Extension adding models construction from a [ChatMemberMixin].
+extension ChatMemberConversion on ChatMemberMixin {
+  /// Constructs a new [ChatMember] from this [ChatMemberMixin].
+  ChatMember toModel() => ChatMember(user.toModel(), joinedAt);
+
+  /// Constructs a new [HiveChatMember] from this [ChatMemberMixin].
+  HiveChatMember toHive(ChatMembersCursor? cursor) => HiveChatMember(
+        toModel(),
+        cursor,
+      );
 }
 
 /// Constructs a new [Attachment] based on the [node].

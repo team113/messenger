@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -69,6 +70,9 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// [ScrollController] to pass to a members [ListView].
+  final ScrollController membersScrollController = ScrollController();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -96,6 +100,10 @@ class ChatInfoController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -107,8 +115,13 @@ class ChatInfoController extends GetxController {
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
 
+  /// Indicates whether the [Chat.members] have a next page.
+  RxBool get hasNext => chat?.membersHasNext ?? RxBool(false);
+
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     name = TextFieldState(
       approvable: true,
       text: chat?.chat.value.name?.val,
@@ -400,6 +413,26 @@ class ChatInfoController extends GetxController {
       );
 
       status.value = RxStatus.success();
+    }
+  }
+
+  /// Requests the next page of [ChatMember]s based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (membersScrollController.hasClients &&
+            hasNext.isTrue &&
+            chat?.membersNextLoading.value == false &&
+            membersScrollController.position.pixels >
+                membersScrollController.position.maxScrollExtent - 500) {
+          chat?.nextMembers();
+        }
+      });
     }
   }
 }

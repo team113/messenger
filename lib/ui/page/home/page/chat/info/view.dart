@@ -334,24 +334,46 @@ class ChatInfoView extends StatelessWidget {
                 AddChatMemberView.show(context, chatId: c.chat?.id ?? id),
           ),
           const SizedBox(height: 3),
-          ...members.map((e) {
-            final bool inCall = c.chat?.chat.value.ongoingCall?.members
-                    .any((u) => u.user.id == e.id) ==
-                true;
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 500),
+            child: ListView.builder(
+              controller: c.membersScrollController,
+              shrinkWrap: true,
+              itemBuilder: (_, i) {
+                RxUser member = members[i];
 
-            return MemberTile(
-              user: e,
-              canLeave: e.id == c.me,
-              inCall: e.id == c.me || c.chat?.chat.value.ongoingCall == null
-                  ? null
-                  : inCall,
-              onTap: () => router.user(e.id, push: true),
-              onCall: inCall
-                  ? () => c.removeChatCallMember(e.id)
-                  : () => c.redialChatCallMember(e.id),
-              onKick: () => c.removeChatMember(e.id),
-            );
-          }),
+                final bool inCall = c.chat?.chat.value.ongoingCall?.members
+                        .any((u) => u.user.id == member.id) ==
+                    true;
+
+                Widget child = MemberTile(
+                  user: member,
+                  canLeave: member.id == c.me,
+                  inCall: member.id == c.me ||
+                          c.chat?.chat.value.ongoingCall == null
+                      ? null
+                      : inCall,
+                  onTap: () => router.user(member.id, push: true),
+                  onCall: inCall
+                      ? () => c.removeChatCallMember(member.id)
+                      : () => c.redialChatCallMember(member.id),
+                  onKick: () => c.removeChatMember(member.id),
+                );
+
+                if (i == members.length - 1 && c.hasNext.isTrue) {
+                  child = Column(
+                    children: [
+                      child,
+                      const CustomProgressIndicator(),
+                    ],
+                  );
+                }
+
+                return child;
+              },
+              itemCount: members.length,
+            ),
+          ),
         ],
       );
     });

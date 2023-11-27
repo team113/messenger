@@ -55,11 +55,12 @@ import '/provider/gql/exceptions.dart'
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';
-import '/provider/hive/session_data.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/recent_chat.dart';
+import '/provider/hive/session_data.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
@@ -1047,6 +1048,36 @@ class ChatRepository extends DisposableInterface
     return Page(
       RxList(query.chat!.items.edges.map((e) => e.toHive()).toList()),
       query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
+    );
+  }
+
+  /// Fetches [ChatMember]s of the [Chat] with the provided [id] ordered by
+  /// their joining time with pagination.
+  Future<Page<HiveChatMember, ChatMembersCursor>> members(
+    ChatId id, {
+    int? first,
+    ChatMembersCursor? after,
+    int? last,
+    ChatMembersCursor? before,
+  }) async {
+    Log.debug(
+      'members($id, $first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
+    var query = await _graphQlProvider.chatMembers(
+      id,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+
+    return Page(
+      RxList(query.chat!.members.edges
+          .map((e) => e.node.toHive(e.cursor))
+          .toList()),
+      query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
     );
   }
 
