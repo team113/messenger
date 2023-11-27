@@ -46,24 +46,10 @@ class BlocklistService extends DisposableService {
   /// Indicator whether a next page of the [blocklist] is loading.
   RxBool get nextLoading => _blocklistRepo.nextLoading;
 
-  @override
-  void onInit() {
-    Log.debug('onInit()', '$runtimeType');
-    _blocklistRepo.init();
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    Log.debug('onClose()', '$runtimeType');
-    _blocklistRepo.dispose();
-    super.onClose();
-  }
-
   /// Fetches the initial [blocklist].
-  Future<void> fetchBlocklist() {
-    Log.debug('fetchBlocklist()', '$runtimeType');
-    return _blocklistRepo.fetchBlocklist();
+  Future<void> around() {
+    Log.debug('around()', '$runtimeType');
+    return _blocklistRepo.around();
   }
 
   /// Fetches the next [blocklist] page.

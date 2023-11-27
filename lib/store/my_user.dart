@@ -596,6 +596,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         return _myUserLocal.myUser?.ver;
       }),
     );
+
     await _remoteSubscription!.execute(_myUserRemoteEvent, onError: (e) async {
       if (e is StaleVersionException) {
         await _blocklistRepo.reset();

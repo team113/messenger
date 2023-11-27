@@ -783,7 +783,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
-    int blocklistCount = c.myUser.value?.blocklistCount ?? 0;
+    final int blocklistCount = c.myUser.value?.blocklistCount ?? 0;
 
     return Paddings.dense(
       FieldButton(

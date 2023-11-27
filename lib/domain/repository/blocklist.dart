@@ -37,14 +37,8 @@ abstract class AbstractBlocklistRepository {
   /// Indicator whether a next page of the [blocklist] is loading.
   RxBool get nextLoading;
 
-  /// Initializes the repository.
-  Future<void> init();
-
-  /// Disposes the repository.
-  void dispose();
-
-  /// Fetches the initial [blocklist].
-  Future<void> fetchBlocklist();
+  /// Fetches the initial [blocklist] page.
+  Future<void> around();
 
   /// Fetches the next [blocklist] page.
   Future<void> next();

@@ -105,7 +105,7 @@ class BlocklistController extends GetxController {
 
   @override
   Future<void> onReady() async {
-    await _blocklistService.fetchBlocklist();
+    await _blocklistService.around();
 
     _ensureScrollable();
     super.onReady();

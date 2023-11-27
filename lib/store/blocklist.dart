@@ -38,7 +38,8 @@ import 'pagination/graphql.dart';
 import 'user.dart';
 
 /// [MyUser]'s blocklist repository.
-class BlocklistRepository implements AbstractBlocklistRepository {
+class BlocklistRepository extends DisposableInterface
+    implements AbstractBlocklistRepository {
   BlocklistRepository(
     this._graphQlProvider,
     this._blocklistLocal,
@@ -76,25 +77,29 @@ class BlocklistRepository implements AbstractBlocklistRepository {
   RxBool get nextLoading => _pagination.nextLoading;
 
   @override
-  Future<void> init() async {
-    Log.debug('init()', '$runtimeType');
+  Future<void> onInit() async {
+    Log.debug('onInit()', '$runtimeType');
 
     _initLocalSubscription();
     _initRemotePagination();
+
+    super.onInit();
   }
 
   @override
-  void dispose() {
+  void onClose() {
     Log.debug('dispose()', '$runtimeType');
 
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();
     _pagination.dispose();
+
+    super.onClose();
   }
 
   @override
-  Future<void> fetchBlocklist() async {
-    Log.debug('fetchBlocklist()', '$runtimeType');
+  Future<void> around() async {
+    Log.debug('around()', '$runtimeType');
 
     if (blocklist.isEmpty && _pagination.hasNext.isTrue) {
       await _pagination.around();
