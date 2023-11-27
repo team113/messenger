@@ -452,6 +452,8 @@ class UserView extends StatelessWidget {
   }
 
   Widget _verification(BuildContext context, UserController c) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       return AnimatedSizeAndFade(
         fadeDuration: 300.milliseconds,
@@ -492,13 +494,8 @@ class UserView extends StatelessWidget {
                             email: c.myUser.value?.emails.unconfirmed,
                           );
                         },
-                        trailing: Icon(
-                          Icons.verified_outlined,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        trailing: const SvgIcon(SvgIcons.verifyEmail),
+                        style: TextStyle(color: style.colors.primary),
                       ),
                     ),
                   ),

@@ -1459,13 +1459,8 @@ Widget _verification(BuildContext context, MyProfileController c) {
                           email: c.myUser.value?.emails.unconfirmed,
                         );
                       },
-                      trailing: Icon(
-                        Icons.verified_outlined,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                      trailing: const SvgIcon(SvgIcons.verifyEmail),
+                      style: TextStyle(color: style.colors.primary),
                     ),
                   ),
                 ),

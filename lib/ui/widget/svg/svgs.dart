@@ -1617,14 +1617,14 @@ class SvgIcons {
 
   static const SvgData addContact16 = SvgData(
     'assets/icons/add_contact16.svg',
-    width: 19.07,
-    height: 17.48,
+    width: 18.74,
+    height: 17.33,
   );
 
   static const SvgData deleteContact16 = SvgData(
     'assets/icons/delete_contact16.svg',
-    width: 18.8,
-    height: 16.98,
+    width: 18,
+    height: 16.6,
   );
 
   static const SvgData favorite16 = SvgData(
@@ -1634,9 +1634,9 @@ class SvgIcons {
   );
 
   static const SvgData cleanHistory16 = SvgData(
-    'assets/icons/clean_history.svg',
-    width: 17.21,
-    height: 18,
+    'assets/icons/clean_history16.svg',
+    width: 15.28,
+    height: 16,
   );
 
   static const SvgData leave16 = SvgData(
@@ -1646,20 +1646,26 @@ class SvgIcons {
   );
 
   static const SvgData block16 = SvgData(
-    'assets/icons/block.svg',
-    width: 19,
-    height: 19,
+    'assets/icons/block16.svg',
+    width: 16,
+    height: 16,
   );
 
   static const SvgData report16 = SvgData(
-    'assets/icons/delete.svg',
-    width: 16.75,
-    height: 15.99,
+    'assets/icons/complaint16.svg',
+    width: 16,
+    height: 16,
   );
 
   static const SvgData unfavorite16 = SvgData(
     'assets/icons/unfavorite16.svg',
     width: 16.82,
+    height: 16,
+  );
+
+  static const SvgData verifyEmail = SvgData(
+    'assets/icons/verify_email.svg',
+    width: 13.89,
     height: 16,
   );
 }

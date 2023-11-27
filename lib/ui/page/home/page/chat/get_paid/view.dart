@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/add_email/view.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
@@ -38,6 +39,8 @@ class GetPaidView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: GetPaidController(Get.find(), mode: mode, user: user),
       builder: (GetPaidController c) {
@@ -77,7 +80,7 @@ class GetPaidView extends StatelessWidget {
                         email: c.myUser.value?.emails.unconfirmed,
                       );
                     },
-                    color: Theme.of(context).colorScheme.primary,
+                    color: style.colors.primary,
                   );
                 }
 
@@ -87,10 +90,8 @@ class GetPaidView extends StatelessWidget {
                     'btn_confirm'.l10n,
                     style: thin?.copyWith(color: Colors.white),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  color: Theme.of(context).colorScheme.primary,
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
                 );
               }),
             ),
