@@ -1105,11 +1105,14 @@ class _GalleryPopupState extends State<GalleryPopup>
       return;
     }
 
+    // Saves attachments and shows the message
     Future<void> saveItem() async {
       await PlatformUtils.saveToGallery(
         item.link,
         item.name,
         checksum: item.checksum,
+        size: item.size,
+        isImage: !item.isVideo,
       );
 
       if (mounted) {

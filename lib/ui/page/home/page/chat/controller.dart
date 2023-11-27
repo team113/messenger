@@ -1203,8 +1203,8 @@ class ChatController extends GetxController {
               )
               .future;
         } else {
-          // TODO: Implement [LocalAttachment] download
-          throw UnimplementedError('can_not_saving_local_attachments');
+          // TODO: Implement [LocalAttachment] download.
+          throw UnimplementedError();
         }
       }
 
@@ -1231,30 +1231,44 @@ class ChatController extends GetxController {
       return;
     }
 
+    // Saves attachments and shows the message
     Future<void> saveAttachments() async {
+      bool isSvgCaught = false;
+
       for (Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
             MessagePopup.success('label_video_downloading'.l10n);
           }
-          await PlatformUtils.saveToGallery(
-            attachment.original.url,
-            attachment.filename,
-            checksum: attachment.original.checksum,
-          );
+          try {
+            await PlatformUtils.saveToGallery(
+              attachment.original.url,
+              attachment.filename,
+              checksum: attachment.original.checksum,
+              size: attachment.original.size,
+              isImage: attachment is ImageAttachment,
+            );
+          } on GalException catch (e) {
+            if (e.type == GalExceptionType.notSupportedFormat) {
+              MessagePopup.error('err_unsupported_format'.l10n);
+              isSvgCaught = true;
+              continue;
+            }
+          }
         } else {
-          // TODO: Implement [LocalAttachment] download
-          throw UnimplementedError('can_not_saving_local_attachments');
+          // TODO: Implement [LocalAttachment] download.
+          throw UnimplementedError();
         }
       }
-
-      MessagePopup.success(
-        attachments.length > 1
-            ? 'label_files_saved_to_gallery'.l10n
-            : attachments.first is ImageAttachment
-                ? 'label_image_saved_to_gallery'.l10n
-                : 'label_video_saved_to_gallery'.l10n,
-      );
+      if (!isSvgCaught) {
+        MessagePopup.success(
+          attachments.length > 1
+              ? 'label_files_saved_to_gallery'.l10n
+              : attachments.first is ImageAttachment
+                  ? 'label_image_saved_to_gallery'.l10n
+                  : 'label_video_saved_to_gallery'.l10n,
+        );
+      }
     }
 
     try {

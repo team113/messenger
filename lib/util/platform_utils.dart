@@ -31,7 +31,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '/config.dart';
-import '/domain/model/native_file.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import 'backoff.dart';
@@ -88,33 +87,31 @@ class PlatformUtilsImpl {
   static const Duration _activityTimeout = Duration(seconds: 15);
 
   /// Indicates whether application is running in a web browser.
-  bool get isWeb => get_x.GetPlatform.isWeb;
+  bool get isWeb => GetPlatform.isWeb;
 
   // TODO: Remove when jonataslaw/getx#1936 is fixed:
   //       https://github.com/jonataslaw/getx/issues/1936
   /// Indicates whether device's OS is macOS.
-  bool get isMacOS => WebUtils.isMacOS || get_x.GetPlatform.isMacOS;
+  bool get isMacOS => WebUtils.isMacOS || GetPlatform.isMacOS;
 
   /// Indicates whether device's OS is Windows.
-  bool get isWindows => get_x.GetPlatform.isWindows;
+  bool get isWindows => GetPlatform.isWindows;
 
   /// Indicates whether device's OS is Linux.
-  bool get isLinux => get_x.GetPlatform.isLinux;
+  bool get isLinux => GetPlatform.isLinux;
 
   /// Indicates whether device's OS is Android.
-  bool get isAndroid => get_x.GetPlatform.isAndroid;
+  bool get isAndroid => GetPlatform.isAndroid;
 
   /// Indicates whether device's OS is iOS.
-  bool get isIOS => get_x.GetPlatform.isIOS;
+  bool get isIOS => GetPlatform.isIOS;
 
   /// Indicates whether device is running on a mobile OS.
-  bool get isMobile => get_x.GetPlatform.isIOS || get_x.GetPlatform.isAndroid;
+  bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
 
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>
-      PlatformUtils.isMacOS ||
-      get_x.GetPlatform.isWindows ||
-      get_x.GetPlatform.isLinux;
+      PlatformUtils.isMacOS || GetPlatform.isWindows || GetPlatform.isLinux;
 
   /// Indicates whether device is running on a Firebase Cloud Messaging
   /// supported OS, meaning it supports receiving push notifications.
@@ -149,10 +146,10 @@ class PlatformUtilsImpl {
         },
       );
     } else {
-      get_x.Worker? worker;
+      Worker? worker;
 
       _focusController = StreamController<bool>.broadcast(
-        onListen: () => worker = get_x.ever(
+        onListen: () => worker = ever(
           router.lifecycle,
           (AppLifecycleState a) => _focusController?.add(a.inForeground),
         ),
@@ -545,28 +542,27 @@ class PlatformUtilsImpl {
     String url,
     String name, {
     String? checksum,
+    int? size,
+    bool isImage = false,
   }) async {
-    final String path = '${(await temporaryDirectory).path}/$name';
-
-    final Response response = await (await dio).download(url, path);
-    final Map<String, List<String>> headers = response.headers.map;
-    final List<String>? type = headers['Content-Type']?[0].split('/');
-
-    bool? isImage;
-    if (type != null) {
-      final bool isSupportedType = NativeFile.images.any((e) => e == type[1]);
-      isImage = type[0] == 'image' && isSupportedType
-          ? true
-          : type[1] == 'svg+xml'
-              ? null
-              : false;
-    }
-
-    if (isImage != null) {
+    if (!name.endsWith('svg')) {
       if (isImage) {
-        await Gal.putImage(path);
+        final CacheEntry cache = await CacheWorker.instance.get(
+          url: url,
+          checksum: checksum,
+        );
+
+        await Gal.putImageBytes(cache.bytes!);
       } else {
-        await Gal.putVideo(path);
+        final File? file = await PlatformUtils.download(
+          url,
+          name,
+          size,
+          checksum: checksum,
+          temporary: true,
+        );
+
+        await Gal.putVideo(file?.path ?? '');
       }
     } else {
       throw GalException(

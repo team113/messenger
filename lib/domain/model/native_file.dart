@@ -118,7 +118,15 @@ class NativeFile {
   bool get isImage {
     // Best effort if [mime] is `null`.
     if (mime == null) {
-      return NativeFile.images.contains(extension.toLowerCase());
+      return [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'jfif',
+        'svg',
+        'webp',
+      ].contains(extension.toLowerCase());
     }
 
     return mime?.type == 'image';
@@ -138,7 +146,14 @@ class NativeFile {
   bool get isVideo {
     // Best effort if [mime] is `null`.
     if (mime == null) {
-      return NativeFile.videos.contains(extension.toLowerCase());
+      return [
+        'mp4',
+        'mov',
+        'webm',
+        'mkv',
+        'flv',
+        '3gp',
+      ].contains(extension.toLowerCase());
     }
 
     return mime?.type == 'video';
@@ -157,13 +172,6 @@ class NativeFile {
 
     return _mergedStream;
   }
-
-  /// Returns all the recognized image formats.
-  static List<String> get images =>
-      ['jpg', 'jpeg', 'png', 'gif', 'jfif', 'svg', 'webp'];
-
-  /// Returns all the recognized video formats.
-  static List<String> get videos => ['mp4', 'mov', 'webm', 'mkv', 'flv', '3gp'];
 
   /// Ensures [mime] is correctly assigned.
   ///
