@@ -479,8 +479,7 @@ class ContactsTabView extends StatelessWidget {
                                 return const SizedBox.shrink(key: Key('0'));
                               }
 
-                              final ContactEntry contact =
-                                  favorites[i];
+                              final ContactEntry contact = favorites[i];
 
                               if (contact.hidden.value) {
                                 return const SizedBox();

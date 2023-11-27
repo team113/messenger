@@ -131,7 +131,10 @@ class ContactsTabController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    contacts.value = _contactService.paginated.values.map((e) => ContactEntry(e)).toList()..sort();
+    contacts.value = _contactService.paginated.values
+        .map((e) => ContactEntry(e))
+        .toList()
+      ..sort();
 
     _initUsersUpdates();
 
@@ -405,7 +408,7 @@ class ContactsTabController extends GetxController {
     _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-        final entry = ContactEntry(e.value!);
+          final entry = ContactEntry(e.value!);
           contacts.add(entry);
           contacts.sort();
           listen(entry);
