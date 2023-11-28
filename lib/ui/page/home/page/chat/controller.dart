@@ -245,6 +245,9 @@ class ChatController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
+  /// Subscription for the [RxUser] changes.
+  StreamSubscription? _userSubscription;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -434,6 +437,7 @@ class ChatController extends GetxController {
     _chatWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
+    _userSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -446,10 +450,6 @@ class ChatController extends GetxController {
 
     send.onClose();
     edit.value?.onClose();
-
-    if (chat?.chat.value.isDialog == true) {
-      chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
-    }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -865,9 +865,10 @@ class ChatController extends GetxController {
       };
 
       if (chat?.chat.value.isDialog == true) {
-        chat?.members.values
+        _userSubscription = chat?.members.values
             .lastWhereOrNull((u) => u.id != me)
-            ?.listenUpdates();
+            ?.updates
+            .listen((_) {});
       }
 
       _readWorker ??= ever(_lastSeenItem, readChat);

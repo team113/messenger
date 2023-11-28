@@ -74,7 +74,7 @@ class ChatMemberHiveProvider extends HiveBaseProvider<HiveChatMember> {
     return getSafe(id.val);
   }
 
-  /// Removes an [User] from [Hive] by its [id].
+  /// Removes an [ChatMember] from [Hive] by its [id].
   Future<void> remove(UserId id) async {
     Log.debug('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

@@ -307,7 +307,7 @@ class ChatMember implements Comparable<ChatMember> {
 
   @override
   int compareTo(ChatMember other) {
-    int comparing =  joinedAt.compareTo(other.joinedAt);
+    int comparing = joinedAt.compareTo(other.joinedAt);
 
     if (comparing == 0) {
       comparing = user.id.compareTo(other.user.id);

@@ -114,6 +114,9 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
+  /// Subscription for the [user] changes.
+  StreamSubscription? _userSubscription;
+
   /// Indicates whether this [user] is blacklisted.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
@@ -180,9 +183,9 @@ class UserController extends GetxController {
 
   @override
   void onClose() {
-    user?.stopUpdates();
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    _userSubscription?.cancel();
     super.onClose();
   }
 
@@ -372,7 +375,7 @@ class UserController extends GetxController {
   Future<void> _fetchUser() async {
     try {
       user = await _userService.get(id);
-      user?.listenUpdates();
+      _userSubscription = user?.updates.listen((_) {});
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);

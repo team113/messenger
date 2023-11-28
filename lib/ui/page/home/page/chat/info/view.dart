@@ -334,7 +334,7 @@ class ChatInfoView extends StatelessWidget {
                 AddChatMemberView.show(context, chatId: c.chat?.id ?? id),
           ),
           const SizedBox(height: 3),
-          if(members.isEmpty) const CustomProgressIndicator(),
+          if (members.isEmpty) const CustomProgressIndicator(),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 500),
             child: ListView.builder(

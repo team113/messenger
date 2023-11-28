@@ -177,6 +177,9 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
+  /// Subscription for the [RxUser]s changes.
+  final Map<UserId, StreamSubscription> _userSubscriptions = {};
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
@@ -343,6 +346,10 @@ class HiveRxChat extends RxChat {
     _userWorker?.dispose();
     for (var e in _userWorkers.values) {
       e.dispose();
+    }
+
+    for (StreamSubscription s in _userSubscriptions.values) {
+      s.cancel();
     }
   }
 
@@ -956,8 +963,6 @@ class HiveRxChat extends RxChat {
   Future<void> _updateFields({Chat? previous}) async {
     Log.debug('_updateFields($previous)', '$runtimeType($id)');
 
-    _initTitleUpdating();
-
     if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
     }
@@ -976,6 +981,8 @@ class HiveRxChat extends RxChat {
       );
     }
 
+    await _initTitleUpdating();
+
     if (chat.value.unreadCount < unreadCount.value ||
         (chat.value.unreadCount != previous?.unreadCount &&
             _readTimer == null)) {
@@ -984,14 +991,27 @@ class HiveRxChat extends RxChat {
   }
 
   /// Initializes the [_userWorkers] updating the [title].
-  void _initTitleUpdating() {
+  Future<void> _initTitleUpdating() async {
     Log.debug('_initTitleUpdating()', '$runtimeType($id)');
 
     if (chat.value.name == null) {
-      var users = members.values.take(3);
+      final List<RxUser> users;
+      if (members.length < 3) {
+        users = [];
+        for (var m in chat.value.members.take(3)) {
+          var user = await _chatRepository.getUser(m.user.id);
+          if (user != null) {
+            users.add(user);
+          }
+        }
+      } else {
+        users = members.values.take(3).toList();
+      }
+
       _userWorkers.removeWhere((k, v) {
         if (users.none((u) => u.id == k)) {
           v.dispose();
+          _userSubscriptions[k]?.cancel();
           return true;
         }
 
@@ -1003,6 +1023,7 @@ class HiveRxChat extends RxChat {
           // TODO: Title should be updated only if [User.name] had actually
           // changed.
           _userWorkers[u.id] = ever(u.user, (_) => _updateTitle());
+          _userSubscriptions[u.id] = u.updates.listen((_) {});
         }
       }
 
@@ -1011,14 +1032,20 @@ class HiveRxChat extends RxChat {
   }
 
   /// Updates the [title].
-  void _updateTitle() {
+  Future<void> _updateTitle() async {
     Log.debug('_updateTitle()', '$runtimeType($id)');
 
-    Iterable<User> users;
+    final List<User> users;
     if (members.isNotEmpty) {
-      users = members.values.take(3).map((e) => e.user.value);
+      users = members.values.take(3).map((e) => e.user.value).toList();
     } else {
-      users = chat.value.members.take(3).map((e) => e.user);
+      users = [];
+      for (var u in chat.value.members.take(3)) {
+        User? user = (await _chatRepository.getUser(u.user.id))?.user.value;
+        if (user != null) {
+          users.add(user);
+        }
+      }
     }
 
     title.value = chat.value.getTitle(users, me);
@@ -1477,6 +1504,12 @@ class HiveRxChat extends RxChat {
 
                   case ChatInfoActionKind.memberAdded:
                     final action = msg.action as ChatInfoActionMemberAdded;
+                    if (chatEntity.value.members.length < 3) {
+                      chatEntity.value.members.add(
+                        ChatMember(action.user, msg.at),
+                      );
+                    }
+
                     _membersPagination.put(
                       HiveChatMember(ChatMember(action.user, msg.at), null),
                     );
