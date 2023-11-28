@@ -81,6 +81,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   @override
   void initState() {
     if (widget.withActivities) {
+      _updateTimer(widget.chat.chat.value);
       _chatWorker = ever(widget.chat.chat, _updateTimer);
     }
     super.initState();

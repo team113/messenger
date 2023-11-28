@@ -15,44 +15,36 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
-import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
-import '../parameters/position_status.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [ChatContact] with the provided name is displayed at the
-/// specified [PositionStatus].
+/// Indicates whether a [ChatContact] with the provided name is indeed deleted.
 ///
 /// Examples:
-/// - Then I see "Bob" contact first in contacts list
-/// - Then I see "Bob" contact last in contacts list
-final StepDefinitionGeneric seeContactPosition =
-    then2<String, PositionStatus, CustomWorld>(
-  'I see {string} contact {position} in contacts list',
-  (name, status, context) async {
+/// - And "Name" chat is indeed deleted
+final StepDefinitionGeneric contactIsIndeedDeleted =
+    given1<String, CustomWorld>(
+  '{string} contact is indeed deleted',
+  (String name, context) async {
+    final provider = GraphQlProvider();
+    final AuthService authService = Get.find();
+    provider.token = authService.credentials.value!.session.token;
+
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        final controller = Get.find<ContactsTabController>();
-        final ChatContactId contactId = context.world.contacts[name]!;
-
-        final List<ContactEntry> contacts = [
-          ...controller.favorites,
-          ...controller.contacts,
-        ];
-
-        switch (status) {
-          case PositionStatus.first:
-            return contacts.first.id == contactId;
-
-          case PositionStatus.last:
-            return contacts.last.id == contactId;
-        }
+        // TODO: Wait for backend to support querying single [ChatContact].
+        final response = await provider.chatContacts();
+        return response.edges.none((e) => e.node.name.val == name);
       },
+      timeout: const Duration(seconds: 30),
     );
   },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
