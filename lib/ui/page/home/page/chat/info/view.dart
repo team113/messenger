@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -334,7 +335,10 @@ class ChatInfoView extends StatelessWidget {
                 AddChatMemberView.show(context, chatId: c.chat?.id ?? id),
           ),
           const SizedBox(height: 3),
-          if (members.isEmpty) const CustomProgressIndicator(),
+          if (members.isEmpty)
+            CustomProgressIndicator(
+              value: Config.disableInfiniteAnimations ? 0 : null,
+            ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 500),
             child: ListView.builder(

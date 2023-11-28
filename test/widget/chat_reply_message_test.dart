@@ -354,6 +354,23 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
+  when(graphQlProvider.chatMembers(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    first: anyNamed('first'),
+  )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
+        'chat': {
+          'members': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            }
+          }
+        }
+      })));
+
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();

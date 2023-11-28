@@ -1026,24 +1026,26 @@ class HiveRxChat extends RxChat {
           _userSubscriptions[u.id] = u.updates.listen((_) {});
         }
       }
-
-      _updateTitle();
     }
+
+    _updateTitle();
   }
 
   /// Updates the [title].
   Future<void> _updateTitle() async {
     Log.debug('_updateTitle()', '$runtimeType($id)');
 
-    final List<User> users;
-    if (members.isNotEmpty) {
-      users = members.values.take(3).map((e) => e.user.value).toList();
-    } else {
-      users = [];
-      for (var u in chat.value.members.take(3)) {
-        User? user = (await _chatRepository.getUser(u.user.id))?.user.value;
-        if (user != null) {
-          users.add(user);
+    List<User> users = [];
+    if (chat.value.name == null) {
+      if (members.isNotEmpty) {
+        users = members.values.take(3).map((e) => e.user.value).toList();
+      } else {
+        users = [];
+        for (var u in chat.value.members.take(3)) {
+          User? user = (await _chatRepository.getUser(u.user.id))?.user.value;
+          if (user != null) {
+            users.add(user);
+          }
         }
       }
     }

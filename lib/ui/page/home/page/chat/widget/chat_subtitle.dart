@@ -173,10 +173,12 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     }
 
     if (chat.isGroup) {
-      return Text(
-        chat.getSubtitle()!,
-        style: style.fonts.small.regular.secondary,
-      );
+      return Obx(() {
+        return Text(
+          chat.getSubtitle(members: widget.chat.members.values)!,
+          style: style.fonts.small.regular.secondary,
+        );
+      });
     } else if (chat.isDialog) {
       final RxUser? member = widget.chat.members.values
           .firstWhereOrNull((u) => u.user.value.id != widget.me);

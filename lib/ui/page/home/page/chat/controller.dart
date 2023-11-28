@@ -1642,13 +1642,15 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({RxUser? partner}) {
+  String? getSubtitle({RxUser? partner, Iterable<RxUser>? members}) {
     switch (kind) {
       case ChatKind.dialog:
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
+      // TODO: [Chat.membersCount] should be used.
       case ChatKind.group:
-        return 'label_subtitle_participants'.l10nfmt({'count': members.length});
+        return 'label_subtitle_participants'
+            .l10nfmt({'count': members?.length ?? this.members.length});
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:

@@ -52,6 +52,7 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/model/user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
@@ -599,6 +600,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               '__typename': 'SubscriptionInitialized',
               'ok': true
             }
+          },
+          parserFn: (_) => null,
+        ),
+      );
+
+  @override
+  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) =>
+      Stream.value(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'userEvents': {'__typename': 'SubscriptionInitialized', 'ok': true}
           },
           parserFn: (_) => null,
         ),

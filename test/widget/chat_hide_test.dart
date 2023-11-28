@@ -354,6 +354,23 @@ void main() async {
           .favoriteChatContacts),
     );
 
+    when(graphQlProvider.chatMembers(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      first: anyNamed('first'),
+    )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
+          'chat': {
+            'members': {
+              'edges': [],
+              'pageInfo': {
+                'endCursor': 'endCursor',
+                'hasNextPage': false,
+                'startCursor': 'startCursor',
+                'hasPreviousPage': false,
+              }
+            }
+          }
+        })));
+
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);
     Get.put(UserService(userRepository));
