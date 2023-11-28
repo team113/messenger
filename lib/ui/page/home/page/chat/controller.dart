@@ -332,30 +332,6 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
 
-  List<ChatItem> get selectedAsItems {
-    final List<ChatItem> items = [];
-
-    for (var e in selected) {
-      if (e is ChatMessageElement) {
-        items.add(e.item.value);
-      } else if (e is ChatCallElement) {
-        items.add(e.item.value);
-      } else if (e is ChatInfoElement) {
-        items.add(e.item.value);
-      } else if (e is ChatForwardElement) {
-        if (e.note.value != null) {
-          items.add(e.note.value!.value);
-        }
-
-        for (var f in e.forwards) {
-          items.add(f.value);
-        }
-      }
-    }
-
-    return items;
-  }
-
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
       listController.hasClients && listController.position.pixels < 500;
@@ -1751,6 +1727,34 @@ extension IsChatItemEditable on ChatItem {
     }
 
     return false;
+  }
+}
+
+/// Extension adding conversion on [ListElement] to [ChatItem]s.
+extension SelectedToItemsExtension on RxList<ListElement> {
+  /// Returns the [ChatItem]s this list of [ListElement] represents.
+  List<ChatItem> get asItems {
+    final List<ChatItem> items = [];
+
+    for (var e in this) {
+      if (e is ChatMessageElement) {
+        items.add(e.item.value);
+      } else if (e is ChatCallElement) {
+        items.add(e.item.value);
+      } else if (e is ChatInfoElement) {
+        items.add(e.item.value);
+      } else if (e is ChatForwardElement) {
+        if (e.note.value != null) {
+          items.add(e.note.value!.value);
+        }
+
+        for (var f in e.forwards) {
+          items.add(f.value);
+        }
+      }
+    }
+
+    return items;
   }
 }
 

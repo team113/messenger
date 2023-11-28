@@ -235,7 +235,22 @@ class _ChatViewState extends State<ChatView>
 
                           final List<Widget> children;
 
-                          if (c.chat!.chat.value.ongoingCall == null) {
+                          if (c.selecting.value) {
+                            children = [
+                              AnimatedButton(
+                                decorator: (c) => Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(12, 0, 2, 0),
+                                  height: double.infinity,
+                                  child: c,
+                                ),
+                                onPressed: c.selecting.value
+                                    ? c.selecting.toggle
+                                    : null,
+                                child: const SvgIcon(SvgIcons.closePrimary),
+                              ),
+                            ];
+                          } else if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
@@ -899,7 +914,6 @@ class _ChatViewState extends State<ChatView>
 
         return SafeArea(
           child: Container(
-            margin: const EdgeInsets.only(left: 8, right: 8),
             decoration: BoxDecoration(
               borderRadius: style.cardRadius,
               boxShadow: [
@@ -924,12 +938,17 @@ class _ChatViewState extends State<ChatView>
                     enabled: canForward,
                     onPressed: canForward
                         ? () async {
+                            final items = c.selected.asItems
+                                .map((e) => ChatItemQuoteInput(item: e))
+                                .toList();
+
+                            items
+                                .sort((a, b) => b.item.at.compareTo(a.item.at));
+
                             final result = await ChatForwardView.show(
                               router.context!,
                               c.id,
-                              c.selectedAsItems
-                                  .map((e) => ChatItemQuoteInput(item: e))
-                                  .toList(),
+                              items,
                             );
 
                             if (result == true) {
@@ -991,7 +1010,7 @@ class _ChatViewState extends State<ChatView>
                                   label: 'label_delete_for_me'.l10n,
                                   onProceed: () async {
                                     return await Future.wait(
-                                      c.selectedAsItems.map(c.hideChatItem),
+                                      c.selected.asItems.map(c.hideChatItem),
                                     );
                                   },
                                 ),
@@ -1001,7 +1020,7 @@ class _ChatViewState extends State<ChatView>
                                     label: 'label_delete_for_everyone'.l10n,
                                     onProceed: () async {
                                       return await Future.wait(
-                                        c.selectedAsItems.map(c.deleteMessage),
+                                        c.selected.asItems.map(c.deleteMessage),
                                       );
                                     },
                                   )
@@ -1123,6 +1142,7 @@ class _ChatViewState extends State<ChatView>
     });
   }
 
+  /// Builds a selectable clickable overlay over the provided [child].
   Widget _selectable(
     BuildContext context,
     ChatController c, {
@@ -1133,49 +1153,44 @@ class _ChatViewState extends State<ChatView>
     return Obx(() {
       final bool selected = c.selected.contains(item);
 
-      return GestureDetector(
-        onTapDown: (_) {},
-        child: WidgetButton(
-          onPressed: c.selecting.value
-              ? selected
-                  ? () => c.selected.remove(item)
-                  : () => c.selected.add(item)
-              : null,
-          child: Stack(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: IgnorePointer(
-                      ignoring: c.selecting.value,
-                      child: child,
-                    ),
-                  ),
-                  if (!overlay)
-                    AnimatedSize(
-                      duration: 150.milliseconds,
-                      child: c.selecting.value
-                          ? const SizedBox(key: Key('Expanded'), width: 32)
-                          : const SizedBox(),
-                    ),
-                ],
-              ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.centerRight,
+      return WidgetButton(
+        onPressed: c.selecting.value
+            ? selected
+                ? () => c.selected.remove(item)
+                : () => c.selected.add(item)
+            : null,
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
                   child: c.selecting.value
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: SelectedDot(
-                            selected: selected,
-                            darken: 0.1,
-                          ),
+                      ? SelectionContainer.disabled(
+                          child: IgnorePointer(child: child),
                         )
-                      : const SizedBox(),
+                      : child,
                 ),
+                if (!overlay)
+                  AnimatedSize(
+                    duration: 150.milliseconds,
+                    child: c.selecting.value
+                        ? const SizedBox(key: Key('Expanded'), width: 32)
+                        : const SizedBox(),
+                  ),
+              ],
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: c.selecting.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SelectedDot(selected: selected, darken: 0.1),
+                      )
+                    : const SizedBox(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     });

@@ -161,6 +161,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
 
+  /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
 
   @override
