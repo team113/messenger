@@ -86,6 +86,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    this.onSelect,
   });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -159,6 +160,8 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  final void Function()? onSelect;
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
@@ -1146,6 +1149,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   ],
                                 );
                               },
+                            ),
+                            ContextMenuButton(
+                              label: 'btn_select_messages'.l10n,
+                              trailing: const SvgIcon(SvgIcons.select),
+                              onPressed: widget.onSelect,
                             ),
                           ],
                           builder: PlatformUtils.isMobile

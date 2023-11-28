@@ -93,6 +93,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    this.onSelect,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -165,6 +166,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  final void Function()? onSelect;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1493,7 +1496,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     // Builds the provided [builder] and the [avatars], if any.
-    Widget child(bool menu, constraints) {
+    Widget child(bool menu, BoxConstraints constraints) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -1802,13 +1805,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 );
                               },
                             ),
-                            ContextMenuButton(
-                              label: PlatformUtils.isMobile
-                                  ? 'btn_select'.l10n
-                                  : 'btn_select_messages'.l10n,
-                              trailing: const SvgIcon(SvgIcons.select),
-                            ),
                           ],
+                          ContextMenuButton(
+                            label: 'btn_select_messages'.l10n,
+                            trailing: const SvgIcon(SvgIcons.select),
+                            onPressed: widget.onSelect,
+                          ),
                         ],
                         builder: PlatformUtils.isMobile
                             ? (menu) => child(menu, itemConstraints)

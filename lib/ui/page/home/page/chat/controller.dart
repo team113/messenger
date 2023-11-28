@@ -206,6 +206,9 @@ class ChatController extends GetxController {
   /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
+  final RxBool selecting = RxBool(false);
+  final RxList<ListElement> selected = RxList();
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -289,6 +292,8 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
+  Worker? _selectingWorker;
+
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
@@ -326,6 +331,30 @@ class ChatController extends GetxController {
 
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
+
+  List<ChatItem> get selectedAsItems {
+    final List<ChatItem> items = [];
+
+    for (var e in selected) {
+      if (e is ChatMessageElement) {
+        items.add(e.item.value);
+      } else if (e is ChatCallElement) {
+        items.add(e.item.value);
+      } else if (e is ChatInfoElement) {
+        items.add(e.item.value);
+      } else if (e is ChatForwardElement) {
+        if (e.note.value != null) {
+          items.add(e.note.value!.value);
+        }
+
+        for (var f in e.forwards) {
+          items.add(f.value);
+        }
+      }
+    }
+
+    return items;
+  }
 
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
@@ -415,6 +444,12 @@ class ChatController extends GetxController {
       }
     });
 
+    _selectingWorker = ever(selecting, (bool value) {
+      if (!value) {
+        selected.clear();
+      }
+    });
+
     super.onInit();
   }
 
@@ -432,6 +467,7 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
+    _selectingWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _onActivityChanged?.cancel();
