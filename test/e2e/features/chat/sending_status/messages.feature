@@ -23,7 +23,6 @@ Feature: Chat messages have correct sending status
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
-    And I pause for 5 second
 
   Scenario: User sends message
     When I fill `MessageField` field with "123"
