@@ -359,6 +359,10 @@ class _ChatViewState extends State<ChatView>
                                 Obx(() {
                                   final bool muted =
                                       c.chat?.chat.value.muted != null;
+                                  final bool dialog =
+                                      c.chat?.chat.value.isDialog == true;
+                                  final bool monolog =
+                                      c.chat?.chat.value.isMonolog == true;
 
                                   final bool favorite =
                                       c.chat?.chat.value.favoritePosition !=
@@ -424,8 +428,7 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                           ),
                                         ],
-                                        if (c.chat?.chat.value.isDialog ==
-                                            true) ...[
+                                        if (dialog) ...[
                                           ContextMenuButton(
                                             label: 'btn_set_price'.l10n,
                                             onPressed: () => GetPaidView.show(
@@ -467,22 +470,24 @@ class _ChatViewState extends State<ChatView>
                                                 : SvgIcons.unfavoriteSmall,
                                           ),
                                         ),
-                                        ContextMenuButton(
-                                          label: muted
-                                              ? PlatformUtils.isMobile
-                                                  ? 'btn_unmute'.l10n
-                                                  : 'btn_unmute_chat'.l10n
-                                              : PlatformUtils.isMobile
-                                                  ? 'btn_mute'.l10n
-                                                  : 'btn_mute_chat'.l10n,
-                                          onPressed:
-                                              muted ? c.unmuteChat : c.muteChat,
-                                          trailing: SvgIcon(
-                                            muted
-                                                ? SvgIcons.unmuteSmall
-                                                : SvgIcons.muteSmall,
+                                        if (!monolog)
+                                          ContextMenuButton(
+                                            label: muted
+                                                ? PlatformUtils.isMobile
+                                                    ? 'btn_unmute'.l10n
+                                                    : 'btn_unmute_chat'.l10n
+                                                : PlatformUtils.isMobile
+                                                    ? 'btn_mute'.l10n
+                                                    : 'btn_mute_chat'.l10n,
+                                            onPressed: muted
+                                                ? c.unmuteChat
+                                                : c.muteChat,
+                                            trailing: SvgIcon(
+                                              muted
+                                                  ? SvgIcons.unmuteSmall
+                                                  : SvgIcons.muteSmall,
+                                            ),
                                           ),
-                                        ),
                                         ContextMenuButton(
                                           label: 'btn_clear_history'.l10n,
                                           trailing: const SvgIcon(
@@ -490,12 +495,35 @@ class _ChatViewState extends State<ChatView>
                                           ),
                                           onPressed: () {},
                                         ),
+                                        if (!monolog && !dialog)
+                                          ContextMenuButton(
+                                            onPressed: () {},
+                                            label: 'btn_leave_group'.l10n,
+                                            trailing: const SvgIcon(
+                                              SvgIcons.leaveGroup16,
+                                            ),
+                                          ),
                                         ContextMenuButton(
-                                          label: 'btn_block'.l10n,
-                                          trailing:
-                                              const SvgIcon(SvgIcons.block),
+                                          label: 'btn_delete_chat'.l10n,
+                                          trailing: const SvgIcon(
+                                            SvgIcons.cleanHistory,
+                                          ),
                                           onPressed: () {},
                                         ),
+                                        if (!monolog) ...[
+                                          ContextMenuButton(
+                                            label: 'btn_block'.l10n,
+                                            trailing:
+                                                const SvgIcon(SvgIcons.block),
+                                            onPressed: () {},
+                                          ),
+                                          ContextMenuButton(
+                                            onPressed: () {},
+                                            label: 'btn_report'.l10n,
+                                            trailing: const SvgIcon(
+                                                SvgIcons.report16),
+                                          ),
+                                        ],
                                         ContextMenuButton(
                                           label: 'btn_select_messages'.l10n,
                                           onPressed: c.selecting.toggle,

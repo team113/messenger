@@ -68,6 +68,8 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -415,6 +417,9 @@ class ChatInfoController extends GetxController {
   Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
     await _chatService.createChatDirectLink(chatId, slug!);
   }
+
+  Future<void> addToContacts() async {}
+  Future<void> removeFromContacts() async {}
 
   /// Fetches the [chat].
   void _fetchChat() async {

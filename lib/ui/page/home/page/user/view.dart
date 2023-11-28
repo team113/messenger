@@ -18,11 +18,14 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -90,9 +93,7 @@ class UserView extends StatelessWidget {
 
           return LayoutBuilder(builder: (context, constraints) {
             return Scaffold(
-              appBar: CustomAppBar(
-                title: _bar(c, context),
-              ),
+              appBar: CustomAppBar(title: _bar(c, context)),
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
@@ -221,10 +222,10 @@ class UserView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Block(
-                      title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
-                    ),
+                    // Block(
+                    //   title: 'label_actions'.l10n,
+                    //   children: [_actions(c, context)],
+                    // ),
                   ];
 
                   return ScrollablePositionedList.builder(
@@ -257,6 +258,190 @@ class UserView extends StatelessWidget {
 
   Widget _bar(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
+
+    return Center(
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          const StyledBackButton(),
+          Material(
+            elevation: 6,
+            type: MaterialType.circle,
+            shadowColor: style.colors.onBackgroundOpacity27,
+            color: style.colors.onPrimary,
+            child: Center(
+              child: AvatarWidget.fromRxUser(
+                c.user,
+                radius: AvatarRadius.medium,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: DefaultTextStyle.merge(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: Obx(() {
+                final String? status = c.user?.user.value.getStatus();
+                final UserTextStatus? text = c.user?.user.value.status;
+                final StringBuffer buffer = StringBuffer();
+
+                if (status != null || text != null) {
+                  buffer.write(text ?? '');
+
+                  if (status != null && text != null) {
+                    buffer.write('space_vertical_space'.l10n);
+                  }
+
+                  buffer.write(status ?? '');
+                }
+
+                final String subtitle = buffer.toString();
+
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
+                    if (subtitle.isNotEmpty)
+                      Text(
+                        subtitle,
+                        style: style.fonts.small.regular.secondary,
+                      )
+                  ],
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 40),
+          AnimatedButton(
+            onPressed: c.openChat,
+            child: const SvgIcon(SvgIcons.chat),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            onPressed: () => c.call(true),
+            child: const SvgIcon(SvgIcons.chatVideoCall),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            onPressed: () => c.call(false),
+            child: const SvgIcon(SvgIcons.chatAudioCall),
+          ),
+          Obx(() {
+            final bool contact = c.inContacts.value;
+            final bool favorite = c.inFavorites.value;
+            final bool blocked = c.isBlocked != null;
+
+            final RxChat? dialog = c.user?.user.value.dialog.isLocal == false
+                ? c.user?.dialog.value
+                : null;
+
+            final bool muted = dialog?.chat.value.muted != null;
+
+            return ContextMenuRegion(
+              key: c.moreKey,
+              selector: c.moreKey,
+              alignment: Alignment.topRight,
+              enablePrimaryTap: true,
+              margin: const EdgeInsets.only(
+                bottom: 4,
+                left: 20,
+              ),
+              actions: [
+                ContextMenuButton(
+                  label: 'btn_set_price'.l10n,
+                  onPressed: () => GetPaidView.show(
+                    context,
+                    mode: GetPaidMode.user,
+                    user: c.user,
+                  ),
+                  trailing: const SvgIcon(SvgIcons.coin),
+                ),
+                ContextMenuButton(
+                  label: contact
+                      ? 'btn_delete_from_contacts'.l10n
+                      : 'btn_add_to_contacts'.l10n,
+                  onPressed: contact ? c.removeFromContacts : c.addToContacts,
+                  trailing: SvgIcon(
+                    contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+                  ),
+                ),
+                ContextMenuButton(
+                  label: favorite
+                      ? 'btn_delete_from_favorites'.l10n
+                      : 'btn_add_to_favorites'.l10n,
+                  onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
+                  trailing: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmall
+                        : SvgIcons.unfavoriteSmall,
+                  ),
+                ),
+                if (dialog != null) ...[
+                  ContextMenuButton(
+                    label: muted
+                        ? PlatformUtils.isMobile
+                            ? 'btn_unmute'.l10n
+                            : 'btn_unmute_chat'.l10n
+                        : PlatformUtils.isMobile
+                            ? 'btn_mute'.l10n
+                            : 'btn_mute_chat'.l10n,
+                    onPressed: muted ? c.unmuteChat : c.muteChat,
+                    trailing: SvgIcon(
+                      muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                    ),
+                  ),
+                  ContextMenuButton(
+                    label: 'btn_clear_history'.l10n,
+                    trailing: const SvgIcon(SvgIcons.cleanHistory),
+                    onPressed: () => _clearChat(c, context),
+                  ),
+                  ContextMenuButton(
+                    label: 'btn_delete_chat'.l10n,
+                    trailing: const SvgIcon(SvgIcons.cleanHistory),
+                    onPressed: () => _hideChat(c, context),
+                  ),
+                ],
+                ContextMenuButton(
+                  label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+                  trailing: Obx(() {
+                    final Widget child;
+                    if (c.blacklistStatus.value.isEmpty) {
+                      child = const SvgIcon(SvgIcons.block);
+                    } else {
+                      child = const CustomProgressIndicator();
+                    }
+
+                    return SafeAnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: child,
+                    );
+                  }),
+                  onPressed: blocked
+                      ? c.unblacklist
+                      : () => _blacklistUser(c, context),
+                ),
+                ContextMenuButton(
+                  onPressed: () {},
+                  label: 'btn_report'.l10n,
+                  trailing: const SvgIcon(SvgIcons.report16),
+                ),
+              ],
+              child: Container(
+                padding: const EdgeInsets.only(
+                  left: 21 + 10,
+                  right: 4 + 21,
+                ),
+                height: double.infinity,
+                child: const SvgIcon(SvgIcons.more),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
 
     return LayoutBuilder(builder: (context, constraints) {
       final List<Widget> buttons = [

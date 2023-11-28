@@ -101,6 +101,8 @@ class UserController extends GetxController {
   /// [TextFieldState] for blacklisting reason.
   final TextFieldState reason = TextFieldState();
 
+  final GlobalKey moreKey = GlobalKey();
+
   /// Status of a [blacklist] progression.
   ///
   /// May be:

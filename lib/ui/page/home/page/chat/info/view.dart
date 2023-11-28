@@ -17,7 +17,11 @@
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
+import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_subtitle.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
@@ -50,8 +54,6 @@ class ChatInfoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
       init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
@@ -91,10 +93,7 @@ class ChatInfoView extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   const SizedBox(height: 0),
-                  if (false) _quick(c, context),
-                  // const SizedBox(height: 4),
                   Block(
-                    // title: 'label_public_information'.l10n,
                     children: [
                       BigAvatarWidget.chat(
                         c.chat,
@@ -124,10 +123,10 @@ class ChatInfoView extends StatelessWidget {
                       ],
                     ),
                   ],
-                  Block(
-                    title: 'label_actions'.l10n,
-                    children: [_actions(c, context)],
-                  ),
+                  // Block(
+                  //   title: 'label_actions'.l10n,
+                  //   children: [_actions(c, context)],
+                  // ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -186,8 +185,6 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
-      final style = Theme.of(context).style;
-
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -227,21 +224,6 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(() {
-          final bool favorited = c.chat?.chat.value.favoritePosition != null;
-          return ActionButton(
-            key: Key(
-              favorited ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
-            ),
-            onPressed: favorited ? c.unfavoriteChat : c.favoriteChat,
-            text: favorited
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            trailing: SvgIcon(
-              favorited ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
-            ),
-          );
-        }),
         if (!c.isMonolog)
           Obx(() {
             final bool muted = c.chat?.chat.value.muted != null;
@@ -298,146 +280,180 @@ class ChatInfoView extends StatelessWidget {
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final bool small = constraints.maxWidth <= 460;
+    final bool contact = false;
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
+    final bool muted = c.chat?.chat.value.muted != null;
 
-      final List<Widget> buttons = [
-        AnimatedButton(
-          onPressed: () => router.chat(c.chat?.id ?? id),
-          child: const SvgIcon(SvgIcons.chat),
-        ),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        AnimatedButton(
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
-        if (constraints.maxWidth >= 460)
+    return Center(
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          const StyledBackButton(),
+          Material(
+            elevation: 6,
+            type: MaterialType.circle,
+            shadowColor: style.colors.onBackgroundOpacity27,
+            color: style.colors.onPrimary,
+            child: Center(
+              child: AvatarWidget.fromRxChat(
+                c.chat,
+                radius: AvatarRadius.medium,
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: DefaultTextStyle.merge(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(() {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            c.chat!.title.value,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        Obx(() {
+                          if (c.chat?.chat.value.muted == null) {
+                            return const SizedBox();
+                          }
+
+                          return const Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: SvgIcon(SvgIcons.muted),
+                          );
+                        }),
+                      ],
+                    );
+                  }),
+                  if (!c.isMonolog && c.chat != null)
+                    ChatSubtitle(c.chat!, c.me),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 40),
+          AnimatedButton(
+            onPressed: () => router.chat(c.chat?.id ?? id),
+            child: const SvgIcon(SvgIcons.chat),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            onPressed: () => c.call(true),
+            child: const SvgIcon(SvgIcons.chatVideoCall),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            onPressed: () => c.call(false),
+            child: const SvgIcon(SvgIcons.chatAudioCall),
+          ),
           Obx(() {
-            final bool muted = c.chat?.chat.value.muted != null;
-
-            return AnimatedButton(
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              child: SvgIcon(
-                muted ? SvgIcons.notificationsOff : SvgIcons.notificationsOn,
+            return ContextMenuRegion(
+              key: c.moreKey,
+              selector: c.moreKey,
+              alignment: Alignment.topRight,
+              enablePrimaryTap: true,
+              margin: const EdgeInsets.only(
+                bottom: 4,
+                left: 20,
+              ),
+              actions: [
+                if (c.chat?.chat.value.isDialog == true) ...[
+                  ContextMenuButton(
+                    label: 'btn_set_price'.l10n,
+                    onPressed: () => GetPaidView.show(
+                      context,
+                      mode: GetPaidMode.user,
+                      user: c.chat!.members.values.firstWhere(
+                        (e) => e.id != c.me,
+                      ),
+                    ),
+                    trailing: const SvgIcon(SvgIcons.coin),
+                  ),
+                  ContextMenuButton(
+                    label: contact
+                        ? 'btn_delete_from_contacts'.l10n
+                        : 'btn_add_to_contacts'.l10n,
+                    onPressed: contact ? c.removeFromContacts : c.addToContacts,
+                    trailing: SvgIcon(
+                      contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+                    ),
+                  ),
+                ],
+                ContextMenuButton(
+                  label: favorite
+                      ? 'btn_delete_from_favorites'.l10n
+                      : 'btn_add_to_favorites'.l10n,
+                  onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+                  trailing: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmall
+                        : SvgIcons.unfavoriteSmall,
+                  ),
+                ),
+                if (!c.isMonolog)
+                  ContextMenuButton(
+                    label: muted
+                        ? PlatformUtils.isMobile
+                            ? 'btn_unmute'.l10n
+                            : 'btn_unmute_chat'.l10n
+                        : PlatformUtils.isMobile
+                            ? 'btn_mute'.l10n
+                            : 'btn_mute_chat'.l10n,
+                    onPressed: muted ? c.unmuteChat : c.muteChat,
+                    trailing: SvgIcon(
+                      muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                    ),
+                  ),
+                ContextMenuButton(
+                  label: 'btn_clear_history'.l10n,
+                  trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  onPressed: () => _clearChat(c, context),
+                ),
+                if (!c.isMonolog)
+                  ContextMenuButton(
+                    onPressed: () => _leaveGroup(c, context),
+                    label: 'btn_leave_group'.l10n,
+                    trailing: const SvgIcon(SvgIcons.leaveGroup16),
+                  ),
+                ContextMenuButton(
+                  label: 'btn_delete_chat'.l10n,
+                  trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  onPressed: () => _hideChat(c, context),
+                ),
+                if (!c.isMonolog) ...[
+                  ContextMenuButton(
+                    label: 'btn_block'.l10n,
+                    trailing: const SvgIcon(SvgIcons.block),
+                    onPressed: () {},
+                  ),
+                  ContextMenuButton(
+                    onPressed: () {},
+                    label: 'btn_report'.l10n,
+                    trailing: const SvgIcon(SvgIcons.report16),
+                  ),
+                ],
+              ],
+              child: Container(
+                padding: const EdgeInsets.only(
+                  left: 21 + 10,
+                  right: 4 + 21,
+                ),
+                height: double.infinity,
+                child: SvgIcon(SvgIcons.more),
               ),
             );
           }),
-        if (constraints.maxWidth >= 560)
-          AnimatedButton(
-            onPressed: () {},
-            child: const SvgIcon(SvgIcons.favorite),
-          ),
-      ];
-
-      return Center(
-        child: Row(
-          children: [
-            const SizedBox(width: 8),
-            const StyledBackButton(),
-            Material(
-              elevation: 6,
-              type: MaterialType.circle,
-              shadowColor: style.colors.onBackgroundOpacity27,
-              color: style.colors.onPrimary,
-              child: Center(
-                child: AvatarWidget.fromRxChat(
-                  c.chat,
-                  radius: AvatarRadius.medium,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Obx(() {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              c.chat!.title.value,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                          Obx(() {
-                            if (c.chat?.chat.value.muted == null) {
-                              return const SizedBox();
-                            }
-
-                            return const Padding(
-                              padding: EdgeInsets.only(left: 5),
-                              child: SvgIcon(SvgIcons.muted),
-                            );
-                          }),
-                        ],
-                      );
-                    }),
-                    if (!c.isMonolog && c.chat != null)
-                      ChatSubtitle(c.chat!, c.me),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 40),
-            ...buttons.expand((e) {
-              return [e, const SizedBox(width: 28)];
-            }),
-          ],
-        ),
-      );
-    });
-  }
-
-  /// Returns the action buttons to do with this [Chat].
-  Widget _quick(ChatInfoController c, BuildContext context) {
-    Widget button({
-      required SvgData icon,
-      Color color = Colors.yellow,
-    }) {
-      return AnimatedButton(
-        onPressed: () {},
-        child: Container(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Center(child: SvgIcon(icon)),
-        ),
-      );
-    }
-
-    return Center(
-      child: SizedBox(
-        width: 400,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            button(icon: SvgIcons.chat, color: Colors.indigo),
-            button(icon: SvgIcons.chatAudioCall, color: Colors.orange),
-            button(icon: SvgIcons.chatVideoCall, color: Colors.pink),
-            button(icon: SvgIcons.chat, color: Colors.teal),
-            button(icon: SvgIcons.chat, color: Colors.green),
-          ]
-              .map((e) => Expanded(
-                      child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: e,
-                  )))
-              .toList(),
-        ),
+        ],
       ),
     );
   }

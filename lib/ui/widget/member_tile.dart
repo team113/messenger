@@ -99,32 +99,37 @@ class MemberTile extends StatelessWidget {
           const SizedBox(width: 16),
         ],
         AnimatedButton(
-          onPressed: () async {
-            final bool? result = await MessagePopup.alert(
-              canLeave ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
-              description: [
-                if (canLeave)
-                  TextSpan(text: 'alert_you_will_leave_group'.l10n)
-                else ...[
-                  TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-                  TextSpan(
-                    text: user.user.value.name?.val ??
-                        user.user.value.num.toString(),
-                    style: style.fonts.normal.regular.onBackground,
-                  ),
-                  TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-                ],
-              ],
-            );
+          enabled: !canLeave,
+          onPressed: canLeave
+              ? null
+              : () async {
+                  final bool? result = await MessagePopup.alert(
+                    canLeave
+                        ? 'label_leave_group'.l10n
+                        : 'label_remove_member'.l10n,
+                    description: [
+                      if (canLeave)
+                        TextSpan(text: 'alert_you_will_leave_group'.l10n)
+                      else ...[
+                        TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+                        TextSpan(
+                          text: user.user.value.name?.val ??
+                              user.user.value.num.toString(),
+                          style: style.fonts.normal.regular.onBackground,
+                        ),
+                        TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+                      ],
+                    ],
+                  );
 
-            if (result == true) {
-              await onKick?.call();
-            }
-          },
+                  if (result == true) {
+                    await onKick?.call();
+                  }
+                },
           child: canLeave
               ? Text(
-                  'btn_leave'.l10n,
-                  style: style.fonts.normal.regular.primary,
+                  'label_you'.l10n,
+                  style: style.fonts.normal.regular.secondary,
                 )
               : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
         ),

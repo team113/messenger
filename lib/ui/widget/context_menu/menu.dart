@@ -202,7 +202,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                 widget.label,
                 style: (widget.onPressed == null
                         ? style.fonts.normal.regular.secondaryHighlightDarkest
-                        : (isMouseOver && !context.isMobile
+                        : (isMouseOver && !isMobile
                             ? style.fonts.normal.regular.onPrimary
                             : style.fonts.normal.regular.onBackground))
                     .copyWith(
@@ -211,7 +211,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
-              if ((isMobile || widget.showTrailing) &&
+              if (/*(isMobile || widget.showTrailing) &&*/
                   widget.trailing != null) ...[
                 const SizedBox(width: 36),
                 const Spacer(),
@@ -220,7 +220,10 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                     iconTheme:
                         IconThemeData(color: style.colors.primaryHighlight),
                   ),
-                  child: widget.trailing!,
+                  child: Transform.scale(
+                    scale: isMobile ? 1 : 0.8,
+                    child: widget.trailing!,
+                  ),
                 ),
               ],
             ],
