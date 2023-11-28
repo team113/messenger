@@ -532,12 +532,8 @@ class PlatformUtilsImpl {
     return result;
   }
 
-  // TODO: Add Linux support:
-  //       https://github.com/natsuk4ze/gal/issues/163
   /// Downloads a video or an image from the provided [url] and saves it to the
   /// gallery.
-  ///
-  /// Unsupported on [PlatformUtilsImpl.isLinux] and [PlatformUtilsImpl.isWeb].
   Future<void> saveToGallery(
     String url,
     String name, {
