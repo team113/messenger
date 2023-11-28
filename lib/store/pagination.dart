@@ -124,7 +124,7 @@ class Pagination<T, C, K> {
       if (items.isNotEmpty || hasNext.isFalse || hasPrevious.isFalse) {
         return;
       }
-      
+
       try {
         final Page<T, C>? page =
             await Backoff.run(() => provider.init(item, perPage), _cancelToken);
