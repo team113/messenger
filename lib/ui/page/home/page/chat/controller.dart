@@ -27,7 +27,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
-import 'package:gal/gal.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart'
@@ -1226,11 +1225,6 @@ class ChatController extends GetxController {
     List<Attachment> attachments,
     ChatItem item,
   ) async {
-    if (!await Gal.requestAccess()) {
-      MessagePopup.error('err_no_access_to_gallery'.l10n);
-      return;
-    }
-
     // Tries downloading the [attachments].
     Future<void> download() async {
       for (Attachment attachment in attachments) {
@@ -1246,11 +1240,9 @@ class ChatController extends GetxController {
               size: attachment.original.size,
               isImage: attachment is ImageAttachment,
             );
-          } on GalException catch (e) {
-            if (e.type == GalExceptionType.notSupportedFormat) {
-              MessagePopup.error('err_unsupported_format'.l10n);
-              continue;
-            }
+          } on UnsupportedError catch (_) {
+            MessagePopup.error('err_unsupported_format'.l10n);
+            continue;
           }
         } else {
           // TODO: Implement [LocalAttachment] download.
@@ -1278,19 +1270,9 @@ class ChatController extends GetxController {
         } else {
           rethrow;
         }
-      } on GalException catch (e) {
-        MessagePopup.error(switch (e.type) {
-          GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
-          GalExceptionType.notEnoughSpace =>
-            'err_no_space_left_in_gallery'.l10n,
-          GalExceptionType.notSupportedFormat => 'err_unsupported_format'.l10n,
-          GalExceptionType.unexpected => 'err_could_not_download'.l10n,
-        });
-
-        if (e.type == GalExceptionType.unexpected) {
-          rethrow;
-        }
       }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
       rethrow;

@@ -26,7 +26,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:gal/gal.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_view/photo_view.dart';
@@ -1096,11 +1095,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
-    if (!await Gal.requestAccess()) {
-      MessagePopup.error('err_no_access_to_gallery'.l10n);
-      return;
-    }
-
     // Tries downloading the [item].
     Future<void> download() async {
       await PlatformUtils.saveToGallery(
@@ -1129,19 +1123,9 @@ class _GalleryPopupState extends State<GalleryPopup>
         } else {
           rethrow;
         }
-      } on GalException catch (e) {
-        MessagePopup.error(switch (e.type) {
-          GalExceptionType.accessDenied => 'err_no_access_to_gallery'.l10n,
-          GalExceptionType.notEnoughSpace =>
-            'err_no_space_left_in_gallery'.l10n,
-          GalExceptionType.notSupportedFormat => 'err_unsupported_format'.l10n,
-          GalExceptionType.unexpected => 'err_could_not_download'.l10n,
-        });
-
-        if (e.type == GalExceptionType.unexpected) {
-          rethrow;
-        }
       }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
       rethrow;

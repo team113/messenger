@@ -1775,8 +1775,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   onPressed: () =>
                                       widget.onDownloadAs?.call(media),
                                 ),
-                              if (!PlatformUtils.isWeb &&
-                                  !PlatformUtils.isLinux)
+                              if (PlatformUtils.isMobile &&
+                                  !PlatformUtils.isWeb)
                                 ContextMenuButton(
                                   key: const Key('SaveButton'),
                                   label: media.length == 1

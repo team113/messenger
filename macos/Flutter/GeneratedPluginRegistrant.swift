@@ -12,7 +12,6 @@ import firebase_core
 import firebase_messaging
 import flutter_app_badger
 import flutter_local_notifications
-import gal
 import medea_flutter_webrtc
 import medea_jason
 import media_kit_libs_macos_video
@@ -36,7 +35,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTFirebaseMessagingPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseMessagingPlugin"))
   FlutterAppBadgerPlugin.register(with: registry.registrar(forPlugin: "FlutterAppBadgerPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
-  GalPlugin.register(with: registry.registrar(forPlugin: "GalPlugin"))
   MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
   MedeaJasonPlugin.register(with: registry.registrar(forPlugin: "MedeaJasonPlugin"))
   MediaKitLibsMacosVideoPlugin.register(with: registry.registrar(forPlugin: "MediaKitLibsMacosVideoPlugin"))
