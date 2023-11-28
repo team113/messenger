@@ -206,7 +206,10 @@ class ChatController extends GetxController {
   /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
+  /// Indicator whether the [elements] selection mode is enabled.
   final RxBool selecting = RxBool(false);
+
+  /// [ListElement]s selected during [selecting] mode.
   final RxList<ListElement> selected = RxList();
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
@@ -282,7 +285,7 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// Worker performing a [readChat] on [lastVisible] changes.
+  /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
   /// Worker performing a jump to the last read message on a successful
@@ -292,6 +295,7 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
+  /// Worker clearing [selected] on the [selected] changes.
   Worker? _selectingWorker;
 
   /// [Duration] of the highlighting.
@@ -1730,7 +1734,7 @@ extension IsChatItemEditable on ChatItem {
   }
 }
 
-/// Extension adding conversion on [ListElement] to [ChatItem]s.
+/// Extension adding conversion on [ListElement]s to [ChatItem]s.
 extension SelectedToItemsExtension on RxList<ListElement> {
   /// Returns the [ChatItem]s this list of [ListElement] represents.
   List<ChatItem> get asItems {

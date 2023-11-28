@@ -1089,10 +1089,6 @@ class _ChatViewState extends State<ChatView>
                         ),
                       );
                     }),
-                  // AnimatedButton(
-                  //   onPressed: c.selecting.toggle,
-                  //   child: const SvgIcon(SvgIcons.closePrimary),
-                  // ),
                   const SizedBox(width: 12),
                 ],
               ),
