@@ -40,18 +40,20 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
 
     await context.world.appDriver.scrollIntoVisible(
       context.world.appDriver.findByKeySkipOffstage(key.name),
-      find.descendant(
-        of: find.byKey(Key(list.name)),
-        matching: find.byWidgetPredicate((widget) {
-          // TODO: Find a proper way to differentiate [Scrollable]s from
-          //       [TextField]s:
-          //       https://github.com/flutter/flutter/issues/76981
-          if (widget is Scrollable) {
-            return widget.restorationId == null;
-          }
-          return false;
-        }),
-      ),
+      find
+          .descendant(
+            of: find.byKey(Key(list.name)),
+            matching: find.byWidgetPredicate((widget) {
+              // TODO: Find a proper way to differentiate [Scrollable]s from
+              //       [TextField]s:
+              //       https://github.com/flutter/flutter/issues/76981
+              if (widget is Scrollable) {
+                return widget.restorationId == null;
+              }
+              return false;
+            }),
+          )
+          .first,
       dy: 200,
     );
 

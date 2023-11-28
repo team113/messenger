@@ -121,7 +121,7 @@ class Pagination<T, C, K> {
     }
 
     return _guard.protect(() async {
-      if(items.isNotEmpty || hasNext.isFalse || hasPrevious.isFalse) {
+      if (items.isNotEmpty || hasNext.isFalse || hasPrevious.isFalse) {
         return;
       }
 
