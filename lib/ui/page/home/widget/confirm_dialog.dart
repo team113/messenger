@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
@@ -115,7 +117,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _selected = widget.variants[widget.initial];
+    _selected = widget
+        .variants[max(min(widget.initial, widget.variants.length - 1), 0)];
     super.initState();
   }
 
