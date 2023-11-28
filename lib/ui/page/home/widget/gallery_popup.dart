@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -598,8 +599,12 @@ class _GalleryPopupState extends State<GalleryPopup>
               onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
-              label: 'btn_save_as'.l10n,
-              onPressed: () => _saveAs(widget.children[_page]),
+              label: 'btn_download_as'.l10n,
+              onPressed: () => _downloadAs(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () => _saveToGallery(widget.children[_page]),
             ),
             ContextMenuButton(
               label: 'btn_info'.l10n,
@@ -1066,11 +1071,12 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] using `save as` dialog.
-  Future<void> _saveAs(GalleryItem item) async {
+  Future<void> _downloadAs(GalleryItem item) async {
     try {
       String? to = await FilePicker.platform.saveFile(
         fileName: item.name,
@@ -1083,38 +1089,46 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
-    try {
-      try {
-        await PlatformUtils.saveToGallery(
-          item.link,
-          item.name,
-          checksum: item.checksum,
-        );
-      } catch (_) {
-        if (item.onError != null) {
-          await item.onError?.call();
-          await PlatformUtils.saveToGallery(
-            item.link,
-            item.name,
-            checksum: item.checksum,
-          );
-        } else {
-          rethrow;
-        }
-      }
+    // Tries downloading the [item].
+    Future<void> download() async {
+      await PlatformUtils.saveToGallery(
+        item.link,
+        item.name,
+        checksum: item.checksum,
+        size: item.size,
+        isImage: !item.isVideo,
+      );
 
       if (mounted) {
         MessagePopup.success(item.isVideo
             ? 'label_video_saved_to_gallery'.l10n
             : 'label_image_saved_to_gallery'.l10n);
       }
+    }
+
+    try {
+      try {
+        await download();
+      } on DioException catch (e) {
+        if (item.onError != null && e.response?.statusCode == 403) {
+          await item.onError?.call();
+          await Future.delayed(Duration.zero);
+          await download();
+        } else {
+          rethrow;
+        }
+      }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
@@ -1141,6 +1155,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
