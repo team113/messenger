@@ -19,8 +19,6 @@ import 'package:hive/hive.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/file.dart';
-import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
@@ -84,7 +82,7 @@ class ChatMemberHiveProvider extends HiveBaseProvider<HiveChatMember> {
 }
 
 /// Persisted in [Hive] storage [ChatMember]'s [value].
-@HiveType(typeId: ModelTypeId.hiveMyUser)
+@HiveType(typeId: ModelTypeId.hiveChatMember)
 class HiveChatMember extends HiveObject {
   HiveChatMember(
     this.value,

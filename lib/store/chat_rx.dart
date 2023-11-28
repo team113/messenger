@@ -907,7 +907,6 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          print('added/updated: ${event.value!.value.joinedAt}');
           RxUser? user = await _chatRepository.getUser(event.key!);
 
           if (user != null) {
@@ -1138,7 +1137,10 @@ class HiveRxChat extends RxChat {
         onError: (e) async {
           if (e is StaleVersionException) {
             await _pagination.clear();
+            await _membersPagination.clear();
+
             await _pagination.around(cursor: _lastReadItemCursor);
+            await _membersPagination.around();
           }
         },
       );
@@ -1475,14 +1477,28 @@ class HiveRxChat extends RxChat {
 
                   case ChatInfoActionKind.memberAdded:
                     final action = msg.action as ChatInfoActionMemberAdded;
-                    chatEntity.value.members
-                        .add(ChatMember(action.user, msg.at));
+                    _membersPagination.put(
+                      HiveChatMember(ChatMember(action.user, msg.at), null),
+                    );
                     break;
 
                   case ChatInfoActionKind.memberRemoved:
                     final action = msg.action as ChatInfoActionMemberRemoved;
+                    await _membersPagination.remove(action.user.id);
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+                    if (chatEntity.value.members.length < 3) {
+                      if (_membersPagination.items.length < 3) {
+                        await nextMembers();
+                      }
+
+                      chatEntity.value.members.clear();
+                      for (HiveChatMember member
+                          in _membersPagination.items.values.take(3)) {
+                        chatEntity.value.members.add(member.value);
+                      }
+                    }
+
                     // TODO: https://github.com/team113/messenger/issues/627
                     chatEntity.value.lastReads
                         .removeWhere((e) => e.memberId == action.user.id);

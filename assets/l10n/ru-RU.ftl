@@ -876,7 +876,11 @@ label_sound_and_vibrations = Звук и вибрация
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
-label_subtitle_participants = участников
+label_subtitle_participants = {$count ->
+    [one] {$count} участник
+    [few] {$count} участника
+    *[other] {$count} участников
+}
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
