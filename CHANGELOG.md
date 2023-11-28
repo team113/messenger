@@ -41,9 +41,10 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid caller name in popup calls. ([#711])
 
 [#632]: /../../issues/632
+[#654]: /../../issues/654
 [#666]: /../../issues/666
 [#681]: /../../issues/681
-[#654]: /../../issues/654
+[#697]: /../../pull/697
 [#695]: /../../pull/695
 [#700]: /../../issues/700
 [#702]: /../../pull/702
@@ -51,7 +52,6 @@ All user visible changes to this project will be documented in this file. This p
 [#707]: /../../pull/707
 [#710]: /../../issues/710
 [#711]: /../../pull/711
-[#697]: /../../pull/697
 [#730]: /../../pull/730
 [#732]: /../../pull/732
 

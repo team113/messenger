@@ -1095,18 +1095,14 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
-  ///
-  /// Do not call this method on Linux and Web, since Gal does
-  /// not currently support these platforms. Follow this issue on
-  /// [GitHub](https://github.com/natsuk4ze/gal/issues/163).
   Future<void> _saveToGallery(GalleryItem item) async {
     if (!await Gal.requestAccess()) {
       MessagePopup.error('err_no_access_to_gallery'.l10n);
       return;
     }
 
-    // Saves attachments and shows the message
-    Future<void> saveItem() async {
+    // Tries downloading the [item].
+    Future<void> download() async {
       await PlatformUtils.saveToGallery(
         item.link,
         item.name,
@@ -1124,12 +1120,12 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     try {
       try {
-        await saveItem();
+        await download();
       } on DioException catch (e) {
         if (item.onError != null && e.response?.statusCode == 403) {
           await item.onError?.call();
           await Future.delayed(Duration.zero);
-          await saveItem();
+          await download();
         } else {
           rethrow;
         }

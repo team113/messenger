@@ -532,12 +532,12 @@ class PlatformUtilsImpl {
     return result;
   }
 
+  // TODO: Add Linux support:
+  //       https://github.com/natsuk4ze/gal/issues/163
   /// Downloads a video or an image from the provided [url] and saves it to the
   /// gallery.
   ///
-  /// Do not call this method on Linux and Web, since Gal does
-  /// not currently support these platforms. Follow this issue on
-  /// [GitHub](https://github.com/natsuk4ze/gal/issues/163).
+  /// Unsupported on [PlatformUtilsImpl.isLinux] and [PlatformUtilsImpl.isWeb].
   Future<void> saveToGallery(
     String url,
     String name, {
@@ -545,31 +545,30 @@ class PlatformUtilsImpl {
     int? size,
     bool isImage = false,
   }) async {
-    if (!name.endsWith('svg')) {
-      if (isImage) {
-        final CacheEntry cache = await CacheWorker.instance.get(
-          url: url,
-          checksum: checksum,
+    if (isImage) {
+      // SVGs can not be saved to the gallery.
+      if (name.endsWith('.svg')) {
+        throw GalException(
+          type: GalExceptionType.notSupportedFormat,
+          platformException: PlatformException(code: 'not_supported_format'),
+          stackTrace: StackTrace.current,
         );
-
-        await Gal.putImageBytes(cache.bytes!);
-      } else {
-        final File? file = await PlatformUtils.download(
-          url,
-          name,
-          size,
-          checksum: checksum,
-          temporary: true,
-        );
-
-        await Gal.putVideo(file?.path ?? '');
       }
+
+      final CacheEntry cache =
+          await CacheWorker.instance.get(url: url, checksum: checksum);
+
+      await Gal.putImageBytes(cache.bytes!);
     } else {
-      throw GalException(
-        type: GalExceptionType.notSupportedFormat,
-        platformException: PlatformException(code: 'not_supported_format'),
-        stackTrace: StackTrace.current,
+      final File? file = await PlatformUtils.download(
+        url,
+        name,
+        size,
+        checksum: checksum,
+        temporary: true,
       );
+
+      await Gal.putVideo(file!.path);
     }
   }
 

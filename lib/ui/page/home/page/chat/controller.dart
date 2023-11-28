@@ -1231,10 +1231,8 @@ class ChatController extends GetxController {
       return;
     }
 
-    // Saves attachments and shows the message
-    Future<void> saveAttachments() async {
-      bool isSvgCaught = false;
-
+    // Tries downloading the [attachments].
+    Future<void> download() async {
       for (Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
@@ -1251,7 +1249,6 @@ class ChatController extends GetxController {
           } on GalException catch (e) {
             if (e.type == GalExceptionType.notSupportedFormat) {
               MessagePopup.error('err_unsupported_format'.l10n);
-              isSvgCaught = true;
               continue;
             }
           }
@@ -1260,25 +1257,24 @@ class ChatController extends GetxController {
           throw UnimplementedError();
         }
       }
-      if (!isSvgCaught) {
-        MessagePopup.success(
-          attachments.length > 1
-              ? 'label_files_saved_to_gallery'.l10n
-              : attachments.first is ImageAttachment
-                  ? 'label_image_saved_to_gallery'.l10n
-                  : 'label_video_saved_to_gallery'.l10n,
-        );
-      }
+
+      MessagePopup.success(
+        attachments.length > 1
+            ? 'label_files_saved_to_gallery'.l10n
+            : attachments.first is ImageAttachment
+                ? 'label_image_saved_to_gallery'.l10n
+                : 'label_video_saved_to_gallery'.l10n,
+      );
     }
 
     try {
       try {
-        await saveAttachments();
+        await download();
       } on DioException catch (e) {
         if (e.response?.statusCode == 403) {
           await chat?.updateAttachments(item);
           await Future.delayed(Duration.zero);
-          await saveAttachments();
+          await download();
         } else {
           rethrow;
         }
@@ -1295,7 +1291,7 @@ class ChatController extends GetxController {
           rethrow;
         }
       }
-    } catch (e) {
+    } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
       rethrow;
     }
