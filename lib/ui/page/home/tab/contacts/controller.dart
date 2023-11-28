@@ -611,16 +611,5 @@ class ContactEntry implements Comparable<ContactEntry> {
   Rx<ChatContact> get contact => _contact.contact;
 
   @override
-  int compareTo(ContactEntry other) {
-    if (contact.value.favoritePosition != null) {
-      if (other.contact.value.favoritePosition == null) {
-        return 1;
-      } else {
-        return other.contact.value.favoritePosition!
-            .compareTo(contact.value.favoritePosition!);
-      }
-    }
-
-    return contact.value.name.val.compareTo(other.contact.value.name.val);
-  }
+  int compareTo(ContactEntry other) => _contact.compareTo(other._contact);
 }
