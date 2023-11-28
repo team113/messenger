@@ -214,7 +214,6 @@ class ChatController extends GetxController {
 
   Worker? _selectingWorker;
   final RxBool selecting = RxBool(false);
-  final RxList<ListElement> selected = RxList();
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -422,12 +421,6 @@ class ChatController extends GetxController {
 
       if (v) {
         readChat(_lastSeenItem.value);
-      }
-    });
-
-    _selectingWorker = ever(selecting, (bool value) {
-      if (!value) {
-        selected.clear();
       }
     });
 
