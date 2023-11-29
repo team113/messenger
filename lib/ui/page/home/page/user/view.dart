@@ -154,7 +154,28 @@ class UserView extends StatelessWidget {
                     ),
                     Block(
                       title: 'label_contact_information'.l10n,
-                      children: [UserNumCopyable(c.user!.user.value.num)],
+                      children: [
+                        UserNumCopyable(c.user!.user.value.num),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.black.withOpacity(0.05),
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Text(
+                                'E-mail',
+                                style: style.fonts.smaller.regular.secondary,
+                              ),
+                              const Spacer(),
+                              Text('dummy@common.com'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     Stack(
                       children: [
@@ -222,10 +243,10 @@ class UserView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    // Block(
-                    //   title: 'label_actions'.l10n,
-                    //   children: [_actions(c, context)],
-                    // ),
+                    Block(
+                      // title: 'label_actions'.l10n,
+                      children: [_actions(c, context)],
+                    ),
                   ];
 
                   return ScrollablePositionedList.builder(
@@ -423,11 +444,11 @@ class UserView extends StatelessWidget {
                       ? c.unblacklist
                       : () => _blacklistUser(c, context),
                 ),
-                ContextMenuButton(
-                  onPressed: () {},
-                  label: 'btn_report'.l10n,
-                  trailing: const SvgIcon(SvgIcons.report16),
-                ),
+                // ContextMenuButton(
+                //   onPressed: () {},
+                //   label: 'btn_report'.l10n,
+                //   trailing: const SvgIcon(SvgIcons.report),
+                // ),
               ],
               child: Container(
                 padding: const EdgeInsets.only(
@@ -545,89 +566,90 @@ class UserView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(() {
-          return ActionButton(
-            key: Key(c.inContacts.value
-                ? 'DeleteFromContactsButton'
-                : 'AddToContactsButton'),
-            text: c.inContacts.value
-                ? 'btn_delete_from_contacts'.l10n
-                : 'btn_add_to_contacts'.l10n,
-            trailing: SvgIcon(
-              c.inContacts.value
-                  ? SvgIcons.deleteContact16
-                  : SvgIcons.addContact16,
-            ),
-            onPressed: c.status.value.isLoadingMore
-                ? null
-                : c.inContacts.value
-                    ? () => _removeFromContacts(c, context)
-                    : c.addToContacts,
-          );
-        }),
-        Obx(() {
-          return ActionButton(
-            text: c.inFavorites.value
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            onPressed:
-                c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
-            trailing: SvgIcon(
-              c.inFavorites.value ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
-            ),
-          );
-        }),
-        if (c.user?.user.value.dialog.isLocal == false &&
-            c.user?.dialog.value != null) ...[
-          Obx(() {
-            if (c.isBlocked != null) {
-              return const SizedBox.shrink();
-            }
+        const SizedBox(height: 8),
+        // Obx(() {
+        //   return ActionButton(
+        //     key: Key(c.inContacts.value
+        //         ? 'DeleteFromContactsButton'
+        //         : 'AddToContactsButton'),
+        //     text: c.inContacts.value
+        //         ? 'btn_delete_from_contacts'.l10n
+        //         : 'btn_add_to_contacts'.l10n,
+        //     trailing: SvgIcon(
+        //       c.inContacts.value
+        //           ? SvgIcons.deleteContact16
+        //           : SvgIcons.addContact16,
+        //     ),
+        //     onPressed: c.status.value.isLoadingMore
+        //         ? null
+        //         : c.inContacts.value
+        //             ? () => _removeFromContacts(c, context)
+        //             : c.addToContacts,
+        //   );
+        // }),
+        // Obx(() {
+        //   return ActionButton(
+        //     text: c.inFavorites.value
+        //         ? 'btn_delete_from_favorites'.l10n
+        //         : 'btn_add_to_favorites'.l10n,
+        //     onPressed:
+        //         c.inFavorites.value ? c.unfavoriteContact : c.favoriteContact,
+        //     trailing: SvgIcon(
+        //       c.inFavorites.value ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+        //     ),
+        //   );
+        // }),
+        // if (c.user?.user.value.dialog.isLocal == false &&
+        //     c.user?.dialog.value != null) ...[
+        //   Obx(() {
+        //     if (c.isBlocked != null) {
+        //       return const SizedBox.shrink();
+        //     }
 
-            final chat = c.user!.dialog.value!.chat.value;
-            final bool isMuted = chat.muted != null;
+        //     final chat = c.user!.dialog.value!.chat.value;
+        //     final bool isMuted = chat.muted != null;
 
-            return ActionButton(
-              text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing:
-                  SvgIcon(isMuted ? SvgIcons.muted16 : SvgIcons.unmuted16),
-              onPressed: isMuted ? c.unmuteChat : c.muteChat,
-            );
-          }),
-          ActionButton(
-            text: 'btn_delete_chat'.l10n,
-            trailing: const SvgIcon(SvgIcons.delete),
-            onPressed: () => _hideChat(c, context),
-          ),
-          ActionButton(
-            key: const Key('ClearHistoryButton'),
-            text: 'btn_clear_history'.l10n,
-            trailing: const SvgIcon(SvgIcons.cleanHistory16),
-            onPressed: () => _clearChat(c, context),
-          ),
-        ],
-        Obx(() {
-          return ActionButton(
-            key: Key(c.isBlocked != null ? 'Unblock' : 'Block'),
-            text: c.isBlocked != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: c.isBlocked != null
-                ? c.unblacklist
-                : () => _blacklistUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
-                child = const SvgIcon(SvgIcons.block16);
-              } else {
-                child = const CustomProgressIndicator();
-              }
+        //     return ActionButton(
+        //       text: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+        //       trailing:
+        //           SvgIcon(isMuted ? SvgIcons.muted16 : SvgIcons.unmuted16),
+        //       onPressed: isMuted ? c.unmuteChat : c.muteChat,
+        //     );
+        //   }),
+        //   ActionButton(
+        //     text: 'btn_delete_chat'.l10n,
+        //     trailing: const SvgIcon(SvgIcons.delete),
+        //     onPressed: () => _hideChat(c, context),
+        //   ),
+        //   ActionButton(
+        //     key: const Key('ClearHistoryButton'),
+        //     text: 'btn_clear_history'.l10n,
+        //     trailing: const SvgIcon(SvgIcons.cleanHistory16),
+        //     onPressed: () => _clearChat(c, context),
+        //   ),
+        // ],
+        // Obx(() {
+        //   return ActionButton(
+        //     key: Key(c.isBlocked != null ? 'Unblock' : 'Block'),
+        //     text: c.isBlocked != null ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+        //     onPressed: c.isBlocked != null
+        //         ? c.unblacklist
+        //         : () => _blacklistUser(c, context),
+        //     trailing: Obx(() {
+        //       final Widget child;
+        //       if (c.blacklistStatus.value.isEmpty) {
+        //         child = const SvgIcon(SvgIcons.block16);
+        //       } else {
+        //         child = const CustomProgressIndicator();
+        //       }
 
-              return SafeAnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
-          );
-        }),
+        //       return SafeAnimatedSwitcher(
+        //         duration: 200.milliseconds,
+        //         child: child,
+        //       );
+        //     }),
+        //   );
+        // }),
         ActionButton(
           text: 'btn_report'.l10n,
           onPressed: () {},

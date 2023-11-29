@@ -1680,4 +1680,10 @@ class SvgIcons {
     width: 12.88,
     height: 16,
   );
+
+  static const SvgData report = SvgData(
+    'assets/icons/report.svg',
+    width: 19,
+    height: 19,
+  );
 }

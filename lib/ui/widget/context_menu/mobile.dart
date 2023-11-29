@@ -386,7 +386,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
 
     if (widget.alignment == Alignment.bottomLeft ||
         widget.alignment == Alignment.bottomRight) {
-      const double minWidth = 230;
+      const double minWidth = 260;
       final double menuWidth = _bounds.right - _bounds.left;
 
       if (widget.alignment == Alignment.bottomLeft) {

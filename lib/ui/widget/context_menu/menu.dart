@@ -188,16 +188,45 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.leading != null) ...[
+              if ((isMobile || widget.showTrailing) &&
+                  widget.trailing != null) ...[
                 Theme(
                   data: Theme.of(context).copyWith(
                     iconTheme:
                         IconThemeData(color: style.colors.primaryHighlight),
                   ),
-                  child: widget.leading!,
+                  child: SizedBox(
+                    width: 32,
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: widget.trailing!),
+                  ),
                 ),
-                const SizedBox(width: 14),
+                // const SizedBox(width: 36 * 0.5),
               ],
+              // if (widget.leading != null) ...[
+              //   Theme(
+              //     data: Theme.of(context).copyWith(
+              //       iconTheme:
+              //           IconThemeData(color: style.colors.primaryHighlight),
+              //     ),
+              //     child: widget.leading!,
+              //   ),
+              //   const SizedBox(width: 14),
+              // ],
+              // if (widget.trailing != null) ...[
+              //   Theme(
+              //     data: Theme.of(context).copyWith(
+              //       iconTheme:
+              //           IconThemeData(color: style.colors.primaryHighlight),
+              //     ),
+              //     child: Transform.scale(
+              //       scale: isMobile ? 1 : 0.9,
+              //       child: widget.trailing!,
+              //     ),
+              //   ),
+              //   const SizedBox(width: 12),
+              // ],
               Text(
                 widget.label,
                 style: (widget.onPressed == null
@@ -211,21 +240,19 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
-              if (/*(isMobile || widget.showTrailing) &&*/
-                  widget.trailing != null) ...[
-                const SizedBox(width: 36),
-                const Spacer(),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme:
-                        IconThemeData(color: style.colors.primaryHighlight),
-                  ),
-                  child: Transform.scale(
-                    scale: isMobile ? 1 : 0.8,
-                    child: widget.trailing!,
-                  ),
-                ),
-              ],
+
+              // if ((isMobile || widget.showTrailing) &&
+              //     widget.trailing != null) ...[
+              //   const SizedBox(width: 36 * 0.5),
+              //   const Spacer(),
+              //   Theme(
+              //     data: Theme.of(context).copyWith(
+              //       iconTheme:
+              //           IconThemeData(color: style.colors.primaryHighlight),
+              //     ),
+              //     child: widget.trailing!,
+              //   ),
+              // ],
             ],
           ),
         ),

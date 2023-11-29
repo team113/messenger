@@ -189,9 +189,6 @@ class _ChatViewState extends State<ChatView>
               child: Stack(
                 children: [
                   LayoutBuilder(builder: (context, constraints) {
-                    final bool narrow =
-                        context.isNarrow || constraints.maxWidth < 500;
-
                     return Scaffold(
                       resizeToAvoidBottomInset: true,
                       appBar: CustomAppBar(
@@ -521,7 +518,8 @@ class _ChatViewState extends State<ChatView>
                                             onPressed: () {},
                                             label: 'btn_report'.l10n,
                                             trailing: const SvgIcon(
-                                                SvgIcons.report16),
+                                              SvgIcons.report,
+                                            ),
                                           ),
                                         ],
                                         ContextMenuButton(

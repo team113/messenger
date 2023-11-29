@@ -1788,7 +1788,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
                               trailing: Transform.translate(
-                                offset: const Offset(-2, 0),
+                                offset: const Offset(2, 0),
                                 child: const SvgIcon(SvgIcons.copy18),
                               ),
                               onPressed: () => widget.onCopy
@@ -1844,7 +1844,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       ? 'btn_pin'.l10n
                                       : 'btn_pin_message'.l10n,
                               trailing: Transform.translate(
-                                offset: const Offset(-3, 0),
+                                offset: const Offset(3, 0),
                                 child: SvgIcon(
                                   widget.pinned
                                       ? SvgIcons.unpinOutlined

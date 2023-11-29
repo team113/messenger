@@ -123,10 +123,10 @@ class ChatInfoView extends StatelessWidget {
                       ],
                     ),
                   ],
-                  // Block(
-                  //   title: 'label_actions'.l10n,
-                  //   children: [_actions(c, context)],
-                  // ),
+                  Block(
+                    // title: 'label_actions'.l10n,
+                    children: [_actions(c, context)],
+                  ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -224,55 +224,56 @@ class ChatInfoView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!c.isMonolog)
-          Obx(() {
-            final bool muted = c.chat?.chat.value.muted != null;
-            return ActionButton(
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: muted
-                    ? const SvgIcon(SvgIcons.muted16)
-                    : const SvgIcon(SvgIcons.unmuted16),
-              ),
-            );
-          }),
+        const SizedBox(height: 8),
+        // if (!c.isMonolog)
+        //   Obx(() {
+        //     final bool muted = c.chat?.chat.value.muted != null;
+        //     return ActionButton(
+        //       onPressed: muted ? c.unmuteChat : c.muteChat,
+        //       text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+        //       trailing: Transform.translate(
+        //         offset: const Offset(0, -1),
+        //         child: muted
+        //             ? const SvgIcon(SvgIcons.muted16)
+        //             : const SvgIcon(SvgIcons.unmuted16),
+        //       ),
+        //     );
+        //   }),
+        // ActionButton(
+        //   key: const Key('HideChatButton'),
+        //   onPressed: () => _hideChat(c, context),
+        //   text: 'btn_delete_chat'.l10n,
+        //   trailing: Transform.translate(
+        //     offset: const Offset(0, -1),
+        //     child: const SvgIcon(SvgIcons.delete),
+        //   ),
+        // ),
+        // ActionButton(
+        //   key: const Key('ClearHistoryButton'),
+        //   onPressed: () => _clearChat(c, context),
+        //   text: 'btn_clear_history'.l10n,
+        //   trailing: const SvgIcon(SvgIcons.cleanHistory16),
+        // ),
+        // if (!c.isMonolog) ...[
+        //   ActionButton(
+        //     onPressed: () => _leaveGroup(c, context),
+        //     text: 'btn_leave_group'.l10n,
+        //     trailing: const SvgIcon(SvgIcons.leaveGroup16),
+        //   ),
+        //   ActionButton(
+        //     onPressed: () => _blacklistChat(c, context),
+        //     text: 'btn_block'.l10n,
+        //     trailing: const SvgIcon(SvgIcons.block16),
+        //   ),
         ActionButton(
-          key: const Key('HideChatButton'),
-          onPressed: () => _hideChat(c, context),
-          text: 'btn_delete_chat'.l10n,
+          onPressed: () {},
+          text: 'btn_report'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
-            child: const SvgIcon(SvgIcons.delete),
+            child: const SvgIcon(SvgIcons.report16),
           ),
         ),
-        ActionButton(
-          key: const Key('ClearHistoryButton'),
-          onPressed: () => _clearChat(c, context),
-          text: 'btn_clear_history'.l10n,
-          trailing: const SvgIcon(SvgIcons.cleanHistory16),
-        ),
-        if (!c.isMonolog) ...[
-          ActionButton(
-            onPressed: () => _leaveGroup(c, context),
-            text: 'btn_leave_group'.l10n,
-            trailing: const SvgIcon(SvgIcons.leaveGroup16),
-          ),
-          ActionButton(
-            onPressed: () => _blacklistChat(c, context),
-            text: 'btn_block'.l10n,
-            trailing: const SvgIcon(SvgIcons.block16),
-          ),
-          ActionButton(
-            onPressed: () {},
-            text: 'btn_report'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.report16),
-            ),
-          ),
-        ],
+        // ],
       ],
     );
   }
@@ -436,11 +437,11 @@ class ChatInfoView extends StatelessWidget {
                     trailing: const SvgIcon(SvgIcons.block),
                     onPressed: () {},
                   ),
-                  ContextMenuButton(
-                    onPressed: () {},
-                    label: 'btn_report'.l10n,
-                    trailing: const SvgIcon(SvgIcons.report16),
-                  ),
+                  // ContextMenuButton(
+                  //   onPressed: () {},
+                  //   label: 'btn_report'.l10n,
+                  //   trailing: const SvgIcon(SvgIcons.report16),
+                  // ),
                 ],
               ],
               child: Container(

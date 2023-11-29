@@ -39,6 +39,25 @@ class UserNumCopyable extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    // return Container(
+    //   width: double.infinity,
+    //   decoration: BoxDecoration(
+    //     borderRadius: BorderRadius.circular(8),
+    //     color: Colors.black.withOpacity(0.05),
+    //   ),
+    //   padding: const EdgeInsets.all(12),
+    //   child: Row(
+    //     children: [
+    //       Text(
+    //         'Gapopa ID',
+    //         style: style.fonts.smaller.regular.secondary,
+    //       ),
+    //       const Spacer(),
+    //       Text('${num?.toString()}'),
+    //     ],
+    //   ),
+    // );
+
     if (share) {
       return SharableTextField(
         text: num?.toString(),
