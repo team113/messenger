@@ -1808,6 +1808,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ),
                           ],
                           ContextMenuButton(
+                            key: const Key('Select'),
                             label: 'btn_select_messages'.l10n,
                             trailing: const SvgIcon(SvgIcons.select),
                             onPressed: widget.onSelect,

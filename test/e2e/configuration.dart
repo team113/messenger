@@ -173,6 +173,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInChatNamed,
         iAmInChatWith,
         iAmInMonolog,
+        iTapChatGroup,
         iTapChatWith,
         longPressChat,
         longPressContact,

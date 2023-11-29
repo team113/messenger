@@ -238,6 +238,7 @@ class _ChatViewState extends State<ChatView>
                           if (c.selecting.value) {
                             children = [
                               AnimatedButton(
+                                key: const Key('CloseButton'),
                                 decorator: (c) => Container(
                                   padding:
                                       const EdgeInsets.fromLTRB(12, 0, 2, 0),
@@ -935,6 +936,7 @@ class _ChatViewState extends State<ChatView>
                 children: [
                   const SizedBox(width: 20),
                   AnimatedButton(
+                    key: const Key('ForwardButton'),
                     enabled: canForward,
                     onPressed: canForward
                         ? () async {
@@ -968,6 +970,7 @@ class _ChatViewState extends State<ChatView>
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
+                    key: const Key('DeleteButton'),
                     enabled: canDelete,
                     onPressed: canDelete
                         ? () async {

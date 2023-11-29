@@ -126,6 +126,7 @@ enum WidgetKey {
   SearchSubmitButton,
   SearchTextField,
   SearchView,
+  Select,
   SelectChatsButton,
   SelectContactsButton,
   Selected,

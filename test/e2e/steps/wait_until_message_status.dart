@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
@@ -50,10 +51,21 @@ final StepDefinitionGeneric waitUntilMessageStatus =
                   (e) => e.chat.value.isRoute(router.route, context.world.me),
                 );
 
-        final ChatMessage? message = chat?.messages
+        ChatItem? message = chat?.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .firstWhereOrNull((e) => e.text?.val == text);
+
+        message ??= chat?.messages
+            .map((e) => e.value)
+            .whereType<ChatForward>()
+            .firstWhereOrNull((e) {
+          if (e.quote is ChatMessageQuote) {
+            return (e.quote as ChatMessageQuote).text?.val == text;
+          }
+
+          return false;
+        });
 
         final Finder finder = context.world.appDriver
             .findByKeySkipOffstage('MessageStatus_${message?.id}');
