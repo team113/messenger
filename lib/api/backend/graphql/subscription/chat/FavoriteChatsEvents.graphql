@@ -21,18 +21,6 @@ subscription FavoriteChatsEvents($ver: FavoriteChatsListVersion) {
         ... on SubscriptionInitialized {
             ok
         }
-        ... on FavoriteChatsList {
-            chats {
-                edges {
-                    node {
-                        __typename
-                        ...Chat
-                    }
-                    cursor
-                }
-                ver
-            }
-        }
         ... on FavoriteChatsEventsVersioned {
             ...FavoriteChatsEventsVersioned
         }

@@ -17,6 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -24,12 +25,27 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
+/// Creates a [Chat]-group with the the authenticated [MyUser].
+///
+/// Examples:
+/// - Given I have "Name" group.
+final StepDefinitionGeneric haveGroupNamed = given1<String, CustomWorld>(
+  'I have {string} group',
+  (String name, context) async {
+    final ChatService chatService = Get.find();
+    final chat = await chatService.createGroupChat([], name: ChatName(name));
+    context.world.groups[name] = chat.id;
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
 /// Creates a [Chat]-group with the provided [User] and the authenticated
 /// [MyUser].
 ///
 /// Examples:
 /// - Given I have "Name" group with Bob.
-final StepDefinitionGeneric haveGroupNamed =
+final StepDefinitionGeneric haveGroup1Named =
     given2<String, TestUser, CustomWorld>(
   'I have {string} group with {user}',
   (String name, TestUser user, context) async {
@@ -83,6 +99,32 @@ final StepDefinitionGeneric hasGroups = given2<TestUser, int, CustomWorld>(
 
     for (int i = 0; i < count; i++) {
       await provider.createGroupChat([]);
+    }
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates the specified amount of favorite [Chat]-groups for the provided
+/// [TestUser].
+///
+/// Examples:
+/// - Given Alice has 5 favorite groups.
+final StepDefinitionGeneric hasFavoriteGroups =
+    given2<TestUser, int, CustomWorld>(
+  '{user} has {int} favorite groups',
+  (TestUser user, int count, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    for (int i = 0; i < count; i++) {
+      ChatMixin chat = await provider.createGroupChat([]);
+      await provider.favoriteChat(
+        chat.id,
+        ChatFavoritePosition((i + 1).toDouble()),
+      );
     }
 
     provider.disconnect();

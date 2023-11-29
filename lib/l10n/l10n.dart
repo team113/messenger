@@ -165,7 +165,7 @@ extension L10nDateExtension on DateTime {
     } else if (differenceInDays < 1) {
       return hm;
     } else {
-      return e;
+      return 'label_days_short'.l10nfmt({'days': differenceInDays});
     }
   }
 
@@ -184,6 +184,10 @@ extension L10nDateExtension on DateTime {
       if (relative.day < local.day) {
         months--;
       }
+    }
+
+    if (days > 6) {
+      return yMd;
     }
 
     return 'label_ago_date'.l10nfmt({

@@ -18,7 +18,6 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../parameters/position_status.dart';
@@ -40,7 +39,7 @@ final StepDefinitionGeneric seeFavoriteChatPosition =
 
         final controller = Get.find<ChatsTabController>();
         final ChatId chatId = context.world.groups[name]!;
-        final Iterable<RxChat> favorites = controller.chats
+        final Iterable<ChatEntry> favorites = controller.chats
             .where((c) => c.chat.value.favoritePosition != null);
 
         switch (status) {

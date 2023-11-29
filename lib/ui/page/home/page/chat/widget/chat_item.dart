@@ -93,6 +93,9 @@ class ChatItemWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelecting,
+    this.onDownload,
+    this.onDownloadAs,
+    this.onSave,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -165,6 +168,17 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [Text] selection starts or ends.
   final void Function(bool)? onSelecting;
+
+  /// Callback, called when a download action of this [ChatItem] is triggered.
+  final void Function(List<Attachment>)? onDownload;
+
+  /// Callback, called when a `download as` action of this [ChatItem] is
+  /// triggered.
+  final void Function(List<Attachment>)? onDownloadAs;
+
+  /// Callback, called when a save to gallery action of this [ChatItem] is
+  /// triggered.
+  final void Function(List<Attachment>)? onSave;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -1417,9 +1431,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatItem item = widget.item.value;
 
+    final List<Attachment> media = [];
+
     String? copyable;
     if (item is ChatMessage) {
       copyable = item.text?.val;
+      media.addAll(item.attachments.where(
+        (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+      ));
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
@@ -1452,15 +1471,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 final RxUser? data =
                     snapshot.data ?? (member is RxUser? ? member : null);
 
-                if (data != null) {
-                  return AvatarWidget.fromRxUser(
-                    data,
-                    radius: AvatarRadius.smaller,
-                  );
-                }
-                return AvatarWidget.fromUser(
-                  user,
-                  radius: AvatarRadius.smaller,
+                return Tooltip(
+                  message: data?.user.value.name?.val ??
+                      data?.user.value.num.toString() ??
+                      user?.name?.val ??
+                      user?.num.toString(),
+                  verticalOffset: 15,
+                  padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                  decoration: BoxDecoration(
+                    color: style.colors.secondaryOpacity40,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: data != null
+                      ? AvatarWidget.fromRxUser(
+                          data,
+                          radius: AvatarRadius.smaller,
+                        )
+                      : AvatarWidget.fromUser(
+                          user,
+                          radius: AvatarRadius.smaller,
+                        ),
                 );
               },
             ),
@@ -1723,6 +1753,43 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 trailing: const SvgIcon(SvgIcons.edit),
                                 onPressed: widget.onEdit,
                               ),
+                            if (media.isNotEmpty) ...[
+                              if (PlatformUtils.isDesktop)
+                                ContextMenuButton(
+                                  key: const Key('DownloadButton'),
+                                  label: media.length == 1
+                                      ? 'btn_download'.l10n
+                                      : 'btn_download_all'.l10n,
+                                  trailing: const Icon(Icons.download),
+                                  onPressed: () =>
+                                      widget.onDownload?.call(media),
+                                ),
+                              if (PlatformUtils.isDesktop &&
+                                  !PlatformUtils.isWeb)
+                                ContextMenuButton(
+                                  key: const Key('DownloadAsButton'),
+                                  label: media.length == 1
+                                      ? 'btn_download_as'.l10n
+                                      : 'btn_download_all_as'.l10n,
+                                  trailing: const Icon(Icons.download),
+                                  onPressed: () =>
+                                      widget.onDownloadAs?.call(media),
+                                ),
+                              if (PlatformUtils.isMobile &&
+                                  !PlatformUtils.isWeb)
+                                ContextMenuButton(
+                                  key: const Key('SaveButton'),
+                                  label: media.length == 1
+                                      ? PlatformUtils.isMobile
+                                          ? 'btn_save'.l10n
+                                          : 'btn_save_to_gallery'.l10n
+                                      : PlatformUtils.isMobile
+                                          ? 'btn_save_all'.l10n
+                                          : 'btn_save_to_gallery_all'.l10n,
+                                  trailing: const Icon(Icons.download),
+                                  onPressed: () => widget.onSave?.call(media),
+                                ),
+                            ],
                             ContextMenuButton(
                               key: const Key('Delete'),
                               label: PlatformUtils.isMobile

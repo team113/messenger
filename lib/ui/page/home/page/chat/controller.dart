@@ -71,6 +71,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -1176,7 +1177,7 @@ class ChatController extends GetxController {
 
   /// Downloads the provided [FileAttachment], if not downloaded already, or
   /// otherwise opens it or cancels the download.
-  Future<void> download(ChatItem item, FileAttachment attachment) async {
+  Future<void> downloadFile(ChatItem item, FileAttachment attachment) async {
     if (attachment.isDownloading) {
       attachment.cancelDownload();
     } else if (await attachment.open() == false) {
@@ -1206,6 +1207,41 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Downloads the provided image or video [attachments].
+  Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
+    try {
+      for (Attachment attachment in attachments) {
+        if (attachment is! LocalAttachment) {
+          await CacheWorker.instance
+              .download(
+                attachment.original.url,
+                attachment.filename,
+                attachment.original.size,
+                checksum: attachment.original.checksum,
+                to: attachments.length > 1 && to != null
+                    ? '$to/${attachment.filename}'
+                    : to,
+              )
+              .future;
+        } else {
+          // TODO: Implement [LocalAttachment] download.
+          throw UnimplementedError();
+        }
+      }
+
+      MessagePopup.success(
+        attachments.length > 1
+            ? 'label_files_downloaded'.l10n
+            : attachments.first is ImageAttachment
+                ? 'label_image_downloaded'.l10n
+                : 'label_video_downloaded'.l10n,
+      );
+    } catch (e) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
   /// Mutes the [chat].
   Future<void> muteChat() async {
     try {
@@ -1230,6 +1266,65 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Saves the provided [attachments] to the gallery.
+  Future<void> saveToGallery(
+    List<Attachment> attachments,
+    ChatItem item,
+  ) async {
+    // Tries downloading the [attachments].
+    Future<void> download() async {
+      for (Attachment attachment in attachments) {
+        if (attachment is! LocalAttachment) {
+          if (attachment is FileAttachment && attachment.isVideo) {
+            MessagePopup.success('label_video_downloading'.l10n);
+          }
+          try {
+            await PlatformUtils.saveToGallery(
+              attachment.original.url,
+              attachment.filename,
+              checksum: attachment.original.checksum,
+              size: attachment.original.size,
+              isImage: attachment is ImageAttachment,
+            );
+          } on UnsupportedError catch (_) {
+            MessagePopup.error('err_unsupported_format'.l10n);
+            continue;
+          }
+        } else {
+          // TODO: Implement [LocalAttachment] download.
+          throw UnimplementedError();
+        }
+      }
+
+      MessagePopup.success(
+        attachments.length > 1
+            ? 'label_files_saved_to_gallery'.l10n
+            : attachments.first is ImageAttachment
+                ? 'label_image_saved_to_gallery'.l10n
+                : 'label_video_saved_to_gallery'.l10n,
+      );
+    }
+
+    try {
+      try {
+        await download();
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 403) {
+          await chat?.updateAttachments(item);
+          await Future.delayed(Duration.zero);
+          await download();
+        } else {
+          rethrow;
+        }
+      }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
   /// Removes the [chat] from the favorites.
   Future<void> unfavoriteChat() async {
     try {
@@ -1242,11 +1337,35 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Downloads the provided image or video [attachments] using `save as`
+  /// dialog.
+  Future<void> downloadMediaAs(List<Attachment> attachments) async {
+    try {
+      String? to = attachments.length > 1
+          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
+          : await FilePicker.platform.saveFile(
+              fileName: attachments.first.filename,
+              type: attachments.first is ImageAttachment
+                  ? FileType.image
+                  : FileType.video,
+              lockParentWindow: true,
+            );
+
+      if (to != null) {
+        await downloadMedia(attachments, to: to);
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
   final RxBool inContacts = RxBool(false);
 
   Future<void> addToContacts() async => inContacts.toggle();
 
   Future<void> removeFromContacts() async => inContacts.toggle();
+
 
   /// Highlights the item with the provided [index].
   Future<void> _highlight(int index) async {

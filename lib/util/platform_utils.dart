@@ -23,10 +23,10 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -532,18 +532,35 @@ class PlatformUtilsImpl {
     return result;
   }
 
-  /// Downloads an image from the provided [url] and saves it to the gallery.
+  /// Downloads a video or an image from the provided [url] and saves it to the
+  /// gallery.
   Future<void> saveToGallery(
     String url,
     String name, {
     String? checksum,
+    int? size,
+    bool isImage = false,
   }) async {
-    if (isMobile && !isWeb) {
-      Uint8List? data =
-          (await CacheWorker.instance.get(checksum: checksum, url: url)).bytes;
-      if (data != null) {
-        ImageGallerySaver.saveImage(data, name: name);
+    if (isImage) {
+      // SVGs can not be saved to the gallery.
+      if (name.endsWith('.svg')) {
+        throw UnsupportedError('SVGs are not supported in gallery.');
       }
+
+      final CacheEntry cache =
+          await CacheWorker.instance.get(url: url, checksum: checksum);
+
+      await ImageGallerySaver.saveImage(cache.bytes!, name: name);
+    } else {
+      final File? file = await PlatformUtils.download(
+        url,
+        name,
+        size,
+        checksum: checksum,
+        temporary: true,
+      );
+
+      await ImageGallerySaver.saveFile(file!.path, name: name);
     }
   }
 

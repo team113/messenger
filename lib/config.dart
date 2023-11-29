@@ -247,7 +247,7 @@ class Config {
           }
         }
       } catch (e) {
-        Log.info('Remote configuration fetch failed.', 'CONFIG');
+        Log.info('Remote configuration fetch failed.', 'Config');
       }
     }
 

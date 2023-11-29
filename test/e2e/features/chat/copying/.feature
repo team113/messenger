@@ -27,7 +27,10 @@ Feature: Text messages selection and copying
     And I tap `Send` button
     Then I wait until status of "For selection" message is sent
 
-    When I long press "For selection" message
+    # TODO: Remove pause when flutter/flutter#124787 is fixed:
+    #       https://github.com/flutter/flutter/issues/124787
+    When I pause for 2 seconds
+    And I long press "For selection" message
     And I tap `CopyButton` button
     Then copied text is "For selection"
 
