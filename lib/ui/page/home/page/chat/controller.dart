@@ -49,15 +49,18 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ClearChatException,
         ConnectionException,
         DeleteChatForwardException,
         DeleteChatMessageException,
@@ -71,6 +74,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -93,7 +97,8 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._contactService, {
     this.itemId,
     this.welcome,
   });
@@ -211,10 +216,12 @@ class ChatController extends GetxController {
   /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
+  /// [GlobalKey] of more options.
   final GlobalKey moreKey = GlobalKey();
 
-  Worker? _selectingWorker;
-  final RxBool selecting = RxBool(false);
+  /// Indicator whether this [user] is already in the contacts list of the
+  /// authenticated [MyUser].
+  late final RxBool inContacts;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -289,6 +296,12 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
+  /// [ContactService] maintaining [ChatContact]s of this [me].
+  final ContactService _contactService;
+
+  /// [TextFieldState] for blacklisting reason.
+  final TextFieldState reason = TextFieldState();
+
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -346,6 +359,10 @@ class ChatController extends GetxController {
       listController.hasClients &&
       listController.position.pixels >
           listController.position.maxScrollExtent - 500;
+
+  /// Returns [RxUser] from [Chat.members].
+  RxUser? get userFromMembers =>
+      chat?.members.values.firstWhereOrNull((e) => e.id != me);
 
   @override
   void onInit() {
@@ -453,7 +470,6 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
-    _selectingWorker?.dispose();
 
     send.onClose();
     edit.value?.onClose();
@@ -969,6 +985,14 @@ class ChatController extends GetxController {
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
       }
+
+      inContacts = RxBool(
+        _contactService.contacts.values.any(
+          (e) => e.contact.value.users.every(
+            (m) => m.id == userFromMembers?.id,
+          ),
+        ),
+      );
     }
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -1162,13 +1186,132 @@ class ChatController extends GetxController {
     });
   }
 
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    try {
+      await _chatService.favoriteChat(chat?.id ?? id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    try {
+      await _chatService.unfavoriteChat(chat?.id ?? id);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Adds the [user] to the contacts list of the authenticated [MyUser].
+  Future<void> addToContacts() async {
+    if (!inContacts.value) {
+      status.value = RxStatus.loadingMore();
+      try {
+        final RxUser? user = userFromMembers;
+        if (user != null) {
+          await _contactService.createChatContact(user.user.value);
+          inContacts.value = true;
+        }
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        status.value = RxStatus.success();
+      }
+    }
+  }
+
+  /// Removes the [user] from the contacts list of the authenticated [MyUser].
+  Future<void> removeFromContacts() async {
+    if (inContacts.value) {
+      status.value = RxStatus.loadingMore();
+      try {
+        final RxChatContact? contact =
+            _contactService.contacts.values.firstWhereOrNull(
+          (e) => e.contact.value.users.every(
+            (m) => m.id == userFromMembers?.id,
+          ),
+        );
+        if (contact != null) {
+          await _contactService.deleteContact(contact.contact.value.id);
+        }
+        inContacts.value = false;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        status.value = RxStatus.success();
+      }
+    }
+  }
+
+  /// Clears all the [ChatItem]s of the [chat].
+  Future<void> clearChat() async {
+    try {
+      await _chatService.clearChat(id);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Blacklists the [user] for the authenticated [MyUser].
+  Future<void> blacklist() async {
+    try {
+      final RxUser? user = userFromMembers;
+      if (user != null) {
+        await _userService.blockUser(
+          user.id,
+          reason.text.isEmpty ? null : BlocklistReason(reason.text),
+        );
+      }
+      reason.clear();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Removes a [User] being a recipient of this [chat] from the blacklist.
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> unblacklist() async {
     if (chat?.chat.value.isDialog == true) {
-      final RxUser? recipient =
-          chat!.members.values.firstWhereOrNull((e) => e.id != me);
+      final RxUser? recipient = userFromMembers;
       if (recipient != null) {
         await _userService.unblockUser(recipient.id);
       }
@@ -1192,18 +1335,6 @@ class ChatController extends GetxController {
         await Future.delayed(Duration.zero);
         await attachment.download();
       }
-    }
-  }
-
-  /// Unmutes the [chat].
-  Future<void> unmuteChat() async {
-    try {
-      await _chatService.toggleChatMute(chat?.id ?? id, null);
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 
@@ -1238,30 +1369,6 @@ class ChatController extends GetxController {
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
-      rethrow;
-    }
-  }
-
-  /// Mutes the [chat].
-  Future<void> muteChat() async {
-    try {
-      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Marks the [chat] as favorited.
-  Future<void> favoriteChat() async {
-    try {
-      await _chatService.favoriteChat(chat?.id ?? id);
-    } on FavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
       rethrow;
     }
   }
@@ -1325,18 +1432,6 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Removes the [chat] from the favorites.
-  Future<void> unfavoriteChat() async {
-    try {
-      await _chatService.unfavoriteChat(chat?.id ?? id);
-    } on UnfavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
   /// Downloads the provided image or video [attachments] using `save as`
   /// dialog.
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
@@ -1359,13 +1454,6 @@ class ChatController extends GetxController {
       rethrow;
     }
   }
-
-  final RxBool inContacts = RxBool(false);
-
-  Future<void> addToContacts() async => inContacts.toggle();
-
-  Future<void> removeFromContacts() async => inContacts.toggle();
-
 
   /// Highlights the item with the provided [index].
   Future<void> _highlight(int index) async {

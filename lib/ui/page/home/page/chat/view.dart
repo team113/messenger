@@ -48,6 +48,8 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/controller.dart';
@@ -109,6 +111,7 @@ class _ChatViewState extends State<ChatView>
       key: const Key('ChatView'),
       init: ChatController(
         widget.id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -302,108 +305,90 @@ class _ChatViewState extends State<ChatView>
 
                                 final Widget child;
 
-                                if (c.selecting.value) {
-                                  child = Container(
+                                child = ContextMenuRegion(
+                                  key: c.moreKey,
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 10,
+                                  ),
+                                  actions: [
+                                    if (c.chat?.chat.value.isDialog == true)
+                                      ContextMenuButton(
+                                        label: contact
+                                            ? 'btn_delete_from_contacts'.l10n
+                                            : 'btn_add_to_contacts'.l10n,
+                                        onPressed: contact
+                                            ? () =>
+                                                _removeFromContacts(c, context)
+                                            : c.addToContacts,
+                                        trailing: SvgIcon(
+                                          contact
+                                              ? SvgIcons.deleteContact
+                                              : SvgIcons.addContact,
+                                        ),
+                                      ),
+                                    ContextMenuButton(
+                                      label: favorite
+                                          ? 'btn_delete_from_favorites'.l10n
+                                          : 'btn_add_to_favorites'.l10n,
+                                      onPressed: favorite
+                                          ? c.unfavoriteChat
+                                          : c.favoriteChat,
+                                      trailing: SvgIcon(
+                                        favorite
+                                            ? SvgIcons.favoriteSmall
+                                            : SvgIcons.unfavoriteSmall,
+                                      ),
+                                    ),
+                                    ContextMenuButton(
+                                      label: muted
+                                          ? PlatformUtils.isMobile
+                                              ? 'btn_unmute'.l10n
+                                              : 'btn_unmute_chat'.l10n
+                                          : PlatformUtils.isMobile
+                                              ? 'btn_mute'.l10n
+                                              : 'btn_mute_chat'.l10n,
+                                      onPressed:
+                                          muted ? c.unmuteChat : c.muteChat,
+                                      trailing: SvgIcon(
+                                        muted
+                                            ? SvgIcons.unmuteSmall
+                                            : SvgIcons.muteSmall,
+                                      ),
+                                    ),
+                                    ContextMenuButton(
+                                      label: 'btn_clear_history'.l10n,
+                                      trailing: const SvgIcon(
+                                        SvgIcons.cleanHistory,
+                                      ),
+                                      onPressed: () => _clearChat(c, context),
+                                    ),
+                                    if (c.chat?.chat.value.isDialog == true)
+                                      ContextMenuButton(
+                                        label: 'btn_block'.l10n,
+                                        trailing: const SvgIcon(SvgIcons.block),
+                                        onPressed: () =>
+                                            _blacklistUser(c, context),
+                                      ),
+                                  ],
+                                  child: Container(
                                     padding: const EdgeInsets.only(
                                       left: 10,
                                       right: 0,
                                     ),
-                                    key: c.moreKey,
                                     height: double.infinity,
                                     child: const Padding(
                                       padding:
                                           EdgeInsets.fromLTRB(10, 0, 21, 0),
-                                      child: SvgIcon(SvgIcons.closePrimary),
+                                      child: SvgIcon(SvgIcons.more),
                                     ),
-                                  );
-                                } else {
-                                  child = ContextMenuRegion(
-                                    key: c.moreKey,
-                                    selector: c.moreKey,
-                                    alignment: Alignment.topRight,
-                                    enablePrimaryTap: true,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 10,
-                                    ),
-                                    actions: [
-                                      if (c.chat?.chat.value.isDialog ==
-                                          true) ...[
-                                        ContextMenuButton(
-                                          label: contact
-                                              ? 'btn_delete_from_contacts'.l10n
-                                              : 'btn_add_to_contacts'.l10n,
-                                          onPressed: contact
-                                              ? c.removeFromContacts
-                                              : c.addToContacts,
-                                          trailing: SvgIcon(
-                                            contact
-                                                ? SvgIcons.deleteContact
-                                                : SvgIcons.addContact,
-                                          ),
-                                        ),
-                                      ],
-                                      ContextMenuButton(
-                                        label: favorite
-                                            ? 'btn_delete_from_favorites'.l10n
-                                            : 'btn_add_to_favorites'.l10n,
-                                        onPressed: favorite
-                                            ? c.unfavoriteChat
-                                            : c.favoriteChat,
-                                        trailing: SvgIcon(
-                                          favorite
-                                              ? SvgIcons.favoriteSmall
-                                              : SvgIcons.unfavoriteSmall,
-                                        ),
-                                      ),
-                                      ContextMenuButton(
-                                        label: muted
-                                            ? PlatformUtils.isMobile
-                                                ? 'btn_unmute'.l10n
-                                                : 'btn_unmute_chat'.l10n
-                                            : PlatformUtils.isMobile
-                                                ? 'btn_mute'.l10n
-                                                : 'btn_mute_chat'.l10n,
-                                        onPressed:
-                                            muted ? c.unmuteChat : c.muteChat,
-                                        trailing: SvgIcon(
-                                          muted
-                                              ? SvgIcons.unmuteSmall
-                                              : SvgIcons.muteSmall,
-                                        ),
-                                      ),
-                                      ContextMenuButton(
-                                        label: 'btn_clear_history'.l10n,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.cleanHistory,
-                                        ),
-                                        onPressed: () {},
-                                      ),
-                                      ContextMenuButton(
-                                        label: 'btn_block'.l10n,
-                                        trailing: const SvgIcon(SvgIcons.block),
-                                        onPressed: () {},
-                                      ),
-                                    ],
-                                    child: Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 0,
-                                      ),
-                                      height: double.infinity,
-                                      child: const Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(10, 0, 21, 0),
-                                        child: SvgIcon(SvgIcons.more),
-                                      ),
-                                    ),
-                                  );
-                                }
+                                  ),
+                                );
 
                                 return AnimatedButton(
-                                  onPressed: c.selecting.value
-                                      ? c.selecting.toggle
-                                      : null,
                                   child: SafeAnimatedSwitcher(
                                     duration: 250.milliseconds,
                                     child: child,
@@ -989,6 +974,78 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox();
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup blacklisting the [User].
+  Future<void> _blacklistUser(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
+        TextSpan(
+          text: c.userFromMembers?.user.value.name?.val ??
+              c.userFromMembers?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.blacklist();
+    }
+  }
+
+  /// Opens a confirmation popup deleting the [User] from address book.
+  Future<void> _removeFromContacts(
+    ChatController c,
+    BuildContext context,
+  ) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text: c.userFromMembers?.user.value.name?.val ??
+              c.userFromMembers?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.removeFromContacts();
+    }
   }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
