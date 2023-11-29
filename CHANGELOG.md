@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Style page:
         - Icons tab. ([#730], [#710])
+    - Chat page:
+        - `Download` and `Save as` context menu options. ([#697], [#654])    
     - Chats tab:
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
@@ -39,8 +41,10 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid caller name in popup calls. ([#711])
 
 [#632]: /../../issues/632
+[#654]: /../../issues/654
 [#666]: /../../issues/666
 [#681]: /../../issues/681
+[#697]: /../../pull/697
 [#695]: /../../pull/695
 [#700]: /../../issues/700
 [#702]: /../../pull/702
@@ -50,6 +54,7 @@ All user visible changes to this project will be documented in this file. This p
 [#711]: /../../pull/711
 [#730]: /../../pull/730
 [#732]: /../../pull/732
+
 
 
 
