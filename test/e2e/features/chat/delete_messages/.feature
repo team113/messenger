@@ -22,8 +22,6 @@ Feature: Chat items are deleted correctly
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    # TODO: Investigate why messages may not be posted in chat
-    And I pause for 2 second
 
   Scenario: User deletes message
     When I fill `MessageField` field with "For deletion"

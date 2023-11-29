@@ -88,7 +88,7 @@ class BlocklistRepository extends DisposableInterface
 
   @override
   void onClose() {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug('onClose()', '$runtimeType');
 
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();

@@ -20,26 +20,31 @@ import 'package:messenger/api/backend/schema.graphql.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Blocks the provided count of the [User]s with provided name.
+/// Blocks the provided count of [User]s.
 ///
 /// Examples:
-/// - When Alice block 30 users with name "Dave"
+/// - When Alice has 30 blocked users
 final StepDefinitionGeneric blockedCountUsers =
     when3<TestUser, int, String, CustomWorld>(
-  '{user} block {int} users with name {string}',
+  '{user} has {int} blocked users',
   (user, count, userName, context) async {
     final GraphQlProvider provider = GraphQlProvider();
-    provider.token =
-        context.world.sessions[user.name]!.credentials.session.token;
 
-    SearchUsers$Query query =
-        await provider.searchUsers(name: UserName(userName), first: count);
+    List<Future> futures = [];
 
-    for (var e in query.searchUsers.edges) {
-      await provider.blockUser(e.node.id, null);
+    for (int i = 0; i < count; i++) {
+      futures.add(
+        Future(() async {
+          CustomUser user = await createUser();
+          await provider.blockUser(user.userId, null);
+        }),
+      );
     }
+
+    await Future.wait(futures);
   },
 );

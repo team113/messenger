@@ -121,6 +121,10 @@ class Pagination<T, C, K> {
     }
 
     return _guard.protect(() async {
+      if (items.isNotEmpty || hasNext.isFalse || hasPrevious.isFalse) {
+        return;
+      }
+
       try {
         final Page<T, C>? page =
             await Backoff.run(() => provider.init(item, perPage), _cancelToken);

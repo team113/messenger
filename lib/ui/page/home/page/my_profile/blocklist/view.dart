@@ -55,102 +55,102 @@ class BlocklistView extends StatelessWidget {
         pop: context.popModal,
       ),
       builder: (BlocklistController c) {
-        return Obx(() {
-          Iterable<RxUser> blocklist =
-              c.blocklist.where((e) => e.user.value.isBlocked != null);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            Obx(() {
+              return ModalPopupHeader(
+                text: 'label_users_count'
+                    .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
+              );
+            }),
+            const SizedBox(height: 4),
+            Flexible(
+              child: SafeAnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Obx(() {
+                  // Show only users with [User.isBlocked] for optimistic
+                  // deletion from blocklist.
+                  Iterable<RxUser> blocklist =
+                      c.blocklist.where((e) => e.user.value.isBlocked != null);
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 4),
-              Obx(() {
-                return ModalPopupHeader(
-                  text: 'label_users_count'
-                      .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
-                );
-              }),
-              const SizedBox(height: 4),
-              Flexible(
-                child: SafeAnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: c.status.value.isLoading
-                      ? SizedBox(
-                          height: (c.myUser.value?.blocklistCount ?? 0) * 95,
-                          child: const Center(
-                            child: CustomProgressIndicator.primary(),
-                          ),
-                        )
-                      : blocklist.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Text('label_no_users'.l10n),
-                            )
-                          : Scrollbar(
-                              controller: c.scrollController,
-                              child: ListView.builder(
-                                controller: c.scrollController,
-                                shrinkWrap: true,
-                                padding: ModalPopup.padding(context),
-                                itemBuilder: (context, i) {
-                                  RxUser? user = blocklist.elementAt(i);
+                  if (c.status.value.isLoading) {
+                    return SizedBox(
+                      height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+                      child: const Center(
+                        child: CustomProgressIndicator.primary(),
+                      ),
+                    );
+                  } else if (blocklist.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Text('label_no_users'.l10n),
+                    );
+                  } else {
+                    return Scrollbar(
+                      controller: c.scrollController,
+                      child: ListView.builder(
+                        controller: c.scrollController,
+                        shrinkWrap: true,
+                        padding: ModalPopup.padding(context),
+                        itemBuilder: (context, i) {
+                          RxUser? user = blocklist.elementAt(i);
 
-                                  Widget child = ContactTile(
-                                    user: user,
-                                    onTap: () {
-                                      Navigator.of(context).pop();
-                                      router.user(user.id, push: true);
-                                    },
-                                    darken: 0.03,
-                                    subtitle: [
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        user.user.value.isBlocked?.at.val.yMd ??
-                                            '',
-                                        style:
-                                            style.fonts.small.regular.secondary,
-                                      ),
-                                    ],
-                                    trailing: [
-                                      WidgetButton(
-                                        onPressed: () => c.unblock(user),
-                                        child: Text(
-                                          'btn_unblock_short'.l10n,
-                                          style:
-                                              style.fonts.small.regular.primary,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                    ],
-                                  );
-
-                                  if (i == c.blocklist.length - 1) {
-                                    if (c.hasNext.isTrue) {
-                                      child = Column(
-                                        children: [
-                                          child,
-                                          CustomProgressIndicator(
-                                            key: const Key('BlocklistLoading'),
-                                            value:
-                                                Config.disableInfiniteAnimations
-                                                    ? 0
-                                                    : null,
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                  }
-
-                                  return child;
-                                },
-                                itemCount: blocklist.length,
+                          Widget child = ContactTile(
+                            user: user,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              router.user(user.id, push: true);
+                            },
+                            darken: 0.03,
+                            subtitle: [
+                              const SizedBox(height: 5),
+                              Text(
+                                user.user.value.isBlocked?.at.val.yMd ?? '',
+                                style: style.fonts.small.regular.secondary,
                               ),
-                            ),
-                ),
+                            ],
+                            trailing: [
+                              WidgetButton(
+                                onPressed: () => c.unblock(user),
+                                child: Text(
+                                  'btn_unblock_short'.l10n,
+                                  style: style.fonts.small.regular.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                          );
+
+                          if (i == c.blocklist.length - 1) {
+                            if (c.hasNext.isTrue) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  CustomProgressIndicator(
+                                    key: const Key('BlocklistLoading'),
+                                    value: Config.disableInfiniteAnimations
+                                        ? 0
+                                        : null,
+                                  ),
+                                ],
+                              );
+                            }
+                          }
+
+                          return child;
+                        },
+                        itemCount: blocklist.length,
+                      ),
+                    );
+                  }
+                }),
               ),
-              const SizedBox(height: 8),
-            ],
-          );
-        });
+            ),
+            const SizedBox(height: 8),
+          ],
+        );
       },
     );
   }

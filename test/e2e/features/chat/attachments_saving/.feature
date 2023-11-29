@@ -22,7 +22,6 @@ Feature: Attachments downloading
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
-    And I pause for 2 second
 
   Scenario: Attachments can be downloaded
     When Bob sends "test.txt" attachment to me

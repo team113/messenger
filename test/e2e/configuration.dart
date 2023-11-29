@@ -49,7 +49,7 @@ import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
-import 'steps/block_users.dart';
+import 'steps/has_blocked_users.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_hidden.dart';
@@ -295,9 +295,9 @@ Future<void> appInitializationFn(World world) {
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<CustomUser> createUser(
-  TestUser user,
-  CustomWorld world, {
+Future<CustomUser> createUser({
+  TestUser? user,
+  CustomWorld? world,
   UserPassword? password,
 }) async {
   final provider = GraphQlProvider();
@@ -308,23 +308,26 @@ Future<CustomUser> createUser(
     result.createUser.user.num,
   );
 
-  world.sessions[user.name] = customUser;
+  if (user != null && world != null) {
+    world.sessions[user.name] = customUser;
 
-  provider.token = result.createUser.session.token;
-  await provider.updateUserName(UserName(user.name));
-  if (password != null) {
-    await provider.updateUserPassword(null, password);
+    provider.token = result.createUser.session.token;
+    await provider.updateUserName(UserName(user.name));
+    if (password != null) {
+      await provider.updateUserPassword(null, password);
 
-    final result = await provider.signIn(
-      password,
-      null,
-      customUser.userNum,
-      null,
-      null,
-      true,
-    );
-    world.sessions[user.name]?.credentials = result.toModel();
+      final result = await provider.signIn(
+        password,
+        null,
+        customUser.userNum,
+        null,
+        null,
+        true,
+      );
+      world.sessions[user.name]?.credentials = result.toModel();
+    }
   }
+
   provider.disconnect();
 
   return customUser;

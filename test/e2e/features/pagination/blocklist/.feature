@@ -19,8 +19,7 @@ Feature: Blocklist pagination
 
   Scenario: Blocklist pagination works correctly
     Given user Alice
-    And 16 users Dave
-    And Alice block 16 users with name "Dave"
+    And Alice has 16 blocked users
     And I sign in as Alice
     And I wait until `HomeView` is present
 
