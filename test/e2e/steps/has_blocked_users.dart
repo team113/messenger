@@ -28,10 +28,11 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - When Alice has 30 blocked users
 final StepDefinitionGeneric blockedCountUsers =
-    when3<TestUser, int, String, CustomWorld>(
+    when2<TestUser, int, CustomWorld>(
   '{user} has {int} blocked users',
-  (user, count, userName, context) async {
+  (user, count, context) async {
     final GraphQlProvider provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
 
     List<Future> futures = [];
 
