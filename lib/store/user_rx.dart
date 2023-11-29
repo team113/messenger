@@ -90,7 +90,12 @@ class HiveRxUser extends RxUser {
 
     final ChatId dialogId = user.value.dialog;
     if (_dialog.value == null) {
-      _userRepository.getChat?.call(dialogId).then((v) => _dialog.value = v);
+      final chat = _userRepository.getChat?.call(dialogId);
+      if (chat is Future<RxChat?>) {
+        chat.then((v) => _dialog.value = v);
+      } else {
+        _dialog.value = chat;
+      }
     }
 
     return _dialog;

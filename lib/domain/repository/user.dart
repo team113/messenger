@@ -45,7 +45,7 @@ abstract class AbstractUserRepository {
   });
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> get(UserId id);
+  FutureOr<RxUser?> get(UserId id);
 
   /// Blocks the specified [User] for the authenticated [MyUser].
   Future<void> blockUser(UserId id, BlocklistReason? reason);

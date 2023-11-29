@@ -59,7 +59,7 @@ class UserRepository extends DisposableInterface
   /// by this [UserRepository].
   ///
   /// Used to populate the [RxUser.dialog] values.
-  Future<RxChat?> Function(ChatId id)? getChat;
+  FutureOr<RxChat?> Function(ChatId id)? getChat;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -168,17 +168,15 @@ class UserRepository extends DisposableInterface
     return searchResult;
   }
 
-  // TODO: Should return [FutureOr<RxUser?>].
   @override
-  Future<RxUser?> get(UserId id) {
+  FutureOr<RxUser?> get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
 
-    RxUser? user = users[id];
-    if (user != null) {
-      return Future.value(user);
-    }
+    // Return stored user instance if it exists.
+    final user = users[id];
+    if (user != null) return user;
 
-    // If [user] doesn't exists, we should lock the [mutex] to avoid remote
+    // If [user] doesn't exist, we should lock the [mutex] to avoid remote
     // double invoking.
     Mutex? mutex = _locks[id];
     if (mutex == null) {
@@ -187,19 +185,13 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      user = users[id];
+      final response = (await _graphQlProvider.getUser(id)).user;
+      if (response == null) return null;
 
-      if (user == null) {
-        var query = (await _graphQlProvider.getUser(id)).user;
-        if (query != null) {
-          HiveUser stored = query.toHive();
-          put(stored);
-          var fetched = HiveRxUser(this, _userLocal, stored);
-          users[id] = fetched;
-          user = fetched;
-        }
-      }
-
+      final hiveUser = response.toHive();
+      put(hiveUser);
+      final user = HiveRxUser(this, _userLocal, hiveUser);
+      users[id] = user;
       return user;
     });
   }
@@ -409,7 +401,7 @@ class UserRepository extends DisposableInterface
     );
 
     const maxInt = 120;
-    var query = await _graphQlProvider.searchUsers(
+    var response = await _graphQlProvider.searchUsers(
       num: num,
       name: name,
       login: login,
@@ -418,20 +410,15 @@ class UserRepository extends DisposableInterface
       first: first ?? maxInt,
     );
 
-    final List<HiveUser> result =
-        query.searchUsers.edges.map((c) => c.node.toHive()).toList();
-
-    for (HiveUser user in result) {
+    final List<RxUser> users = response.searchUsers.edges.map((e) {
+      final HiveUser user = e.node.toHive();
       put(user);
-    }
-    await Future.delayed(Duration.zero);
-
-    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
-    List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
+      return HiveRxUser(this, _userLocal, user);
+    }).toList();
 
     return Page(
       RxList(users),
-      query.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
+      response.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
     );
   }
 

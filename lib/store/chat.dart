@@ -297,7 +297,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<HiveRxChat?> get(ChatId id) async {
+  FutureOr<HiveRxChat?> get(ChatId id) async {
     Log.debug('get($id)', '$runtimeType');
 
     HiveRxChat? chat = chats[id];
@@ -1124,9 +1124,10 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> getUser(UserId id) async {
+  FutureOr<RxUser?> getUser(UserId id) async {
     Log.debug('getUser($id)', '$runtimeType');
-    return await _userRepo.get(id);
+    final user = _userRepo.get(id);
+    return user is Future<RxUser?> ? await user : user;
   }
 
   @override

@@ -139,8 +139,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     if (!_blocklistLocal.isEmpty) {
-      final List<RxUser?> users =
-          await Future.wait(_blocklistLocal.blocked.map(_userRepo.get));
+      final List<RxUser?> users = await Future.wait(
+          _blocklistLocal.blocked.map((e) async => _userRepo.get(e)));
       blacklist.addAll(users.whereNotNull());
     }
 
@@ -692,7 +692,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    var userEntity = _myUserLocal.myUser;
+    final userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
       Log.debug(
@@ -701,21 +701,23 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
       return;
     }
-    userEntity.ver = versioned.ver;
-
     Log.debug(
       '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
       '$runtimeType',
     );
 
-    for (var event in versioned.events) {
+    for (final event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        _userRepo.get(event.userId).then((user) {
-          if (user != null) {
+        final user = _userRepo.get(event.userId);
+        if (user is RxUser) {
+          _userRepo.update(user.user.value);
+        } else if (user is Future<RxUser?>) {
+          user.then((user) {
+            if (user == null) return;
             _userRepo.update(convertor(user.user.value));
-          }
-        });
+          });
+        }
       }
 
       switch (event.kind) {
