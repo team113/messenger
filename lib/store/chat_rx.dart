@@ -449,7 +449,6 @@ class HiveRxChat extends RxChat {
   @override
   Future<void> nextMembers() async {
     Log.debug('nextMembers()', '$runtimeType($id)');
-
     await _membersPagination.next();
   }
 
@@ -981,7 +980,7 @@ class HiveRxChat extends RxChat {
       );
     }
 
-    await _initTitleUpdating();
+    await _initTitle();
 
     if (chat.value.unreadCount < unreadCount.value ||
         (chat.value.unreadCount != previous?.unreadCount &&
@@ -991,13 +990,14 @@ class HiveRxChat extends RxChat {
   }
 
   /// Initializes the [_userWorkers] updating the [title].
-  Future<void> _initTitleUpdating() async {
-    Log.debug('_initTitleUpdating()', '$runtimeType($id)');
+  Future<void> _initTitle() async {
+    Log.debug('_initTitle()', '$runtimeType($id)');
 
     if (chat.value.name == null) {
       final List<RxUser> users;
       if (members.length < 3) {
         users = [];
+
         for (var m in chat.value.members.take(3)) {
           var user = await _chatRepository.getUser(m.user.id);
           if (user != null) {
@@ -1506,6 +1506,7 @@ class HiveRxChat extends RxChat {
 
                   case ChatInfoActionKind.memberAdded:
                     final action = msg.action as ChatInfoActionMemberAdded;
+
                     if (chatEntity.value.members.length < 3) {
                       chatEntity.value.members.add(
                         ChatMember(action.user, msg.at),
@@ -1519,9 +1520,12 @@ class HiveRxChat extends RxChat {
 
                   case ChatInfoActionKind.memberRemoved:
                     final action = msg.action as ChatInfoActionMemberRemoved;
+
                     await _membersPagination.remove(action.user.id);
+
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+
                     if (chatEntity.value.members.length < 3) {
                       if (_membersPagination.items.length < 3) {
                         await nextMembers();

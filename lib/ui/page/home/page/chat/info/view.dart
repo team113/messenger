@@ -345,7 +345,7 @@ class ChatInfoView extends StatelessWidget {
               controller: c.membersScrollController,
               shrinkWrap: true,
               itemBuilder: (_, i) {
-                RxUser member = members[i];
+                final RxUser member = members[i];
 
                 final bool inCall = c.chat?.chat.value.ongoingCall?.members
                         .any((u) => u.user.id == member.id) ==
@@ -367,10 +367,7 @@ class ChatInfoView extends StatelessWidget {
 
                 if (i == members.length - 1 && c.hasNext.isTrue) {
                   child = Column(
-                    children: [
-                      child,
-                      const CustomProgressIndicator(),
-                    ],
+                    children: [child, const CustomProgressIndicator()],
                   );
                 }
 
