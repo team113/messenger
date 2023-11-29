@@ -64,6 +64,7 @@ class UserRepository extends DisposableInterface
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  // TODO: Make [UserHiveProvider] lazy.
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
@@ -170,7 +171,7 @@ class UserRepository extends DisposableInterface
 
   // TODO: Should return [FutureOr<RxUser?>].
   @override
-  Future<RxUser?> get(UserId id) {
+  Future<RxUser?> get(UserId id, {HiveUser? hiveUser}) {
     Log.debug('get($id)', '$runtimeType');
 
     RxUser? user = users[id];
@@ -190,9 +191,9 @@ class UserRepository extends DisposableInterface
       user = users[id];
 
       if (user == null) {
-        var query = (await _graphQlProvider.getUser(id)).user;
-        if (query != null) {
-          HiveUser stored = query.toHive();
+        HiveUser? stored =
+            hiveUser ?? (await _graphQlProvider.getUser(id)).user?.toHive();
+        if (stored != null) {
           put(stored);
           var fetched = HiveRxUser(this, _userLocal, stored);
           users[id] = fetched;

@@ -92,6 +92,7 @@ class BlocklistController extends GetxController {
 
         case OperationKind.removed:
           blocklist.removeWhere((c) => c.id == e.key);
+          _ensureScrollable();
           break;
 
         case OperationKind.updated:
