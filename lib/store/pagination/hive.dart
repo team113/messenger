@@ -196,7 +196,7 @@ class HivePageProvider<T extends Object, C, K>
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
-    if (!WebUtils.isPopup) {
+    if (WebUtils.isPopup) {
       return;
     }
 
