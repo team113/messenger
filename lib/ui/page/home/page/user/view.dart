@@ -379,6 +379,7 @@ class UserView extends StatelessWidget {
                     user: c.user,
                   ),
                   trailing: const SvgIcon(SvgIcons.coin),
+                  inverted: const SvgIcon(SvgIcons.coinWhite),
                 ),
                 ContextMenuButton(
                   label: contact
@@ -387,6 +388,11 @@ class UserView extends StatelessWidget {
                   onPressed: contact ? c.removeFromContacts : c.addToContacts,
                   trailing: SvgIcon(
                     contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+                  ),
+                  inverted: SvgIcon(
+                    contact
+                        ? SvgIcons.deleteContactWhite
+                        : SvgIcons.addContactWhite,
                   ),
                 ),
                 ContextMenuButton(
@@ -398,6 +404,11 @@ class UserView extends StatelessWidget {
                     favorite
                         ? SvgIcons.favoriteSmall
                         : SvgIcons.unfavoriteSmall,
+                  ),
+                  inverted: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmallWhite
+                        : SvgIcons.unfavoriteSmallWhite,
                   ),
                 ),
                 if (dialog != null) ...[
@@ -413,16 +424,23 @@ class UserView extends StatelessWidget {
                     trailing: SvgIcon(
                       muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
                     ),
+                    inverted: SvgIcon(
+                      muted
+                          ? SvgIcons.unmuteSmallWhite
+                          : SvgIcons.muteSmallWhite,
+                    ),
                   ),
                   ContextMenuButton(
                     label: 'btn_clear_history'.l10n,
-                    trailing: const SvgIcon(SvgIcons.cleanHistory),
                     onPressed: () => _clearChat(c, context),
+                    trailing: const SvgIcon(SvgIcons.cleanHistory),
+                    inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                   ),
                   ContextMenuButton(
                     label: 'btn_delete_chat'.l10n,
-                    trailing: const SvgIcon(SvgIcons.cleanHistory),
                     onPressed: () => _hideChat(c, context),
+                    trailing: const SvgIcon(SvgIcons.cleanHistory),
+                    inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
                   ),
                 ],
                 ContextMenuButton(
@@ -440,6 +458,7 @@ class UserView extends StatelessWidget {
                       child: child,
                     );
                   }),
+                  inverted: const SvgIcon(SvgIcons.blockWhite),
                   onPressed: blocked
                       ? c.unblacklist
                       : () => _blacklistUser(c, context),

@@ -438,6 +438,8 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                             trailing:
                                                 const SvgIcon(SvgIcons.coin),
+                                            inverted: const SvgIcon(
+                                                SvgIcons.coinWhite),
                                           ),
                                           ContextMenuButton(
                                             label: contact
@@ -452,6 +454,11 @@ class _ChatViewState extends State<ChatView>
                                                   ? SvgIcons.deleteContact
                                                   : SvgIcons.addContact,
                                             ),
+                                            inverted: SvgIcon(
+                                              contact
+                                                  ? SvgIcons.deleteContactWhite
+                                                  : SvgIcons.addContactWhite,
+                                            ),
                                           ),
                                         ],
                                         ContextMenuButton(
@@ -465,6 +472,11 @@ class _ChatViewState extends State<ChatView>
                                             favorite
                                                 ? SvgIcons.favoriteSmall
                                                 : SvgIcons.unfavoriteSmall,
+                                          ),
+                                          inverted: SvgIcon(
+                                            favorite
+                                                ? SvgIcons.favoriteSmallWhite
+                                                : SvgIcons.unfavoriteSmallWhite,
                                           ),
                                         ),
                                         if (!monolog)
@@ -484,11 +496,19 @@ class _ChatViewState extends State<ChatView>
                                                   ? SvgIcons.unmuteSmall
                                                   : SvgIcons.muteSmall,
                                             ),
+                                            inverted: SvgIcon(
+                                              muted
+                                                  ? SvgIcons.unmuteSmallWhite
+                                                  : SvgIcons.muteSmallWhite,
+                                            ),
                                           ),
                                         ContextMenuButton(
                                           label: 'btn_clear_history'.l10n,
                                           trailing: const SvgIcon(
                                             SvgIcons.cleanHistory,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.cleanHistoryWhite,
                                           ),
                                           onPressed: () {},
                                         ),
@@ -497,13 +517,18 @@ class _ChatViewState extends State<ChatView>
                                             onPressed: () {},
                                             label: 'btn_leave_group'.l10n,
                                             trailing: const SvgIcon(
-                                              SvgIcons.leaveGroup16,
+                                              SvgIcons.leaveGroup,
+                                            ),
+                                            inverted: const SvgIcon(
+                                              SvgIcons.leaveGroupWhite,
                                             ),
                                           ),
                                         ContextMenuButton(
                                           label: 'btn_delete_chat'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.cleanHistory,
+                                          trailing:
+                                              const SvgIcon(SvgIcons.delete19),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.delete19White,
                                           ),
                                           onPressed: () {},
                                         ),
@@ -512,21 +537,27 @@ class _ChatViewState extends State<ChatView>
                                             label: 'btn_block'.l10n,
                                             trailing:
                                                 const SvgIcon(SvgIcons.block),
-                                            onPressed: () {},
-                                          ),
-                                          ContextMenuButton(
-                                            onPressed: () {},
-                                            label: 'btn_report'.l10n,
-                                            trailing: const SvgIcon(
-                                              SvgIcons.report,
+                                            inverted: const SvgIcon(
+                                              SvgIcons.blockWhite,
                                             ),
+                                            onPressed: () {},
                                           ),
+                                          // ContextMenuButton(
+                                          //   onPressed: () {},
+                                          //   label: 'btn_report'.l10n,
+                                          //   trailing: const SvgIcon(
+                                          //     SvgIcons.report,
+                                          //   ),
+                                          // ),
                                         ],
                                         ContextMenuButton(
                                           label: 'btn_select_messages'.l10n,
                                           onPressed: c.selecting.toggle,
                                           trailing: const SvgIcon(
                                             SvgIcons.select,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.selectWhite,
                                           ),
                                         ),
                                       ],
@@ -677,11 +708,11 @@ class _ChatViewState extends State<ChatView>
                                                       ? 'btn_unpin'.l10n
                                                       : 'btn_unpin_message'
                                                           .l10n,
-                                                  trailing:
-                                                      const SvgImage.asset(
-                                                    'assets/icons/send_small.svg',
-                                                    width: 18.37,
-                                                    height: 16,
+                                                  trailing: const SvgIcon(
+                                                    SvgIcons.unpinOutlined,
+                                                  ),
+                                                  inverted: const SvgIcon(
+                                                    SvgIcons.unpinOutlinedWhite,
                                                   ),
                                                   onPressed: c.unpin,
                                                 ),

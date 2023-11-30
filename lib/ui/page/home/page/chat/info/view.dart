@@ -379,6 +379,7 @@ class ChatInfoView extends StatelessWidget {
                       ),
                     ),
                     trailing: const SvgIcon(SvgIcons.coin),
+                    inverted: const SvgIcon(SvgIcons.coinWhite),
                   ),
                   ContextMenuButton(
                     label: contact
@@ -387,6 +388,11 @@ class ChatInfoView extends StatelessWidget {
                     onPressed: contact ? c.removeFromContacts : c.addToContacts,
                     trailing: SvgIcon(
                       contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+                    ),
+                    inverted: SvgIcon(
+                      contact
+                          ? SvgIcons.deleteContactWhite
+                          : SvgIcons.addContactWhite,
                     ),
                   ),
                 ],
@@ -399,6 +405,11 @@ class ChatInfoView extends StatelessWidget {
                     favorite
                         ? SvgIcons.favoriteSmall
                         : SvgIcons.unfavoriteSmall,
+                  ),
+                  inverted: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmallWhite
+                        : SvgIcons.unfavoriteSmallWhite,
                   ),
                 ),
                 if (!c.isMonolog)
@@ -414,27 +425,36 @@ class ChatInfoView extends StatelessWidget {
                     trailing: SvgIcon(
                       muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
                     ),
+                    inverted: SvgIcon(
+                      muted
+                          ? SvgIcons.unmuteSmallWhite
+                          : SvgIcons.muteSmallWhite,
+                    ),
                   ),
                 ContextMenuButton(
                   label: 'btn_clear_history'.l10n,
                   trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                   onPressed: () => _clearChat(c, context),
                 ),
                 if (!c.isMonolog)
                   ContextMenuButton(
                     onPressed: () => _leaveGroup(c, context),
                     label: 'btn_leave_group'.l10n,
-                    trailing: const SvgIcon(SvgIcons.leaveGroup16),
+                    trailing: const SvgIcon(SvgIcons.leaveGroup),
+                    inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
                   ),
                 ContextMenuButton(
                   label: 'btn_delete_chat'.l10n,
-                  trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  trailing: const SvgIcon(SvgIcons.delete19),
+                  inverted: const SvgIcon(SvgIcons.delete19White),
                   onPressed: () => _hideChat(c, context),
                 ),
                 if (!c.isMonolog) ...[
                   ContextMenuButton(
                     label: 'btn_block'.l10n,
                     trailing: const SvgIcon(SvgIcons.block),
+                    inverted: const SvgIcon(SvgIcons.blockWhite),
                     onPressed: () {},
                   ),
                   // ContextMenuButton(

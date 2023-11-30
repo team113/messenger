@@ -118,6 +118,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     required this.label,
     this.leading,
     this.trailing,
+    this.inverted,
     this.showTrailing = false,
     this.enlarged,
     this.onPressed,
@@ -131,6 +132,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 
   /// Optional trailing widget.
   final Widget? trailing;
+  final Widget? inverted;
 
   /// Indicator whether the [trailing] should always be displayed.
   ///
@@ -172,8 +174,9 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
           padding: isMobile
-              ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
-              : const EdgeInsets.fromLTRB(11, 6, 11, 6),
+              ? EdgeInsets.fromLTRB(
+                  widget.trailing == null ? 18 : 5, 15, 18, 15)
+              : EdgeInsets.fromLTRB(widget.trailing == null ? 8 : 0, 6, 12, 6),
           margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
@@ -188,20 +191,39 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if ((isMobile || widget.showTrailing) &&
-                  widget.trailing != null) ...[
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme:
-                        IconThemeData(color: style.colors.primaryHighlight),
-                  ),
-                  child: SizedBox(
-                    width: 32,
+              if (widget.trailing != null) ...[
+                if (isMobile)
+                  SizedBox(
+                    width: 40,
                     child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: widget.trailing!),
-                  ),
-                ),
+                      alignment: Alignment.center,
+                      child: widget.trailing!,
+                    ),
+                  )
+                else
+                  Container(
+                    width: 36,
+                    child: Transform.scale(
+                      scale: 0.8,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: isMouseOver
+                            ? (widget.inverted ?? widget.trailing)
+                            : widget.trailing,
+                      ),
+                    ),
+                  )
+                // Transform.scale(
+                //   scale: 0.7,
+                //   child: SizedBox(
+                //     width: 24,
+                //     child: Align(
+                //       alignment: Alignment.centerLeft,
+                //       child: widget.trailing!,
+                //     ),
+                //   ),
+                // ),
+
                 // const SizedBox(width: 36 * 0.5),
               ],
               // if (widget.leading != null) ...[
