@@ -400,8 +400,6 @@ class HiveRxChat extends RxChat {
   Future<void> around() async {
     Log.debug('around()', '$runtimeType($id)');
 
-    _membersPagination.around();
-
     if (id.isLocal ||
         status.value.isSuccess ||
         (hasNext.isFalse && hasPrevious.isFalse)) {
@@ -444,6 +442,26 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+  }
+
+  @override
+  Future<void> aroundMembers() async {
+    Log.debug('aroundMembers()', '$runtimeType($id)');
+
+    if (id.isLocal || membersHasNext.isFalse) {
+      return;
+    }
+
+    if (chat.value.kind != ChatKind.group && chat.value.members.isNotEmpty) {
+      for (ChatMember member in chat.value.members) {
+        _putMember(HiveChatMember(member, null), pagination: true);
+      }
+
+      _membersPagination.hasNext.value = false;
+      _membersPagination.hasPrevious.value = false;
+    }
+
+    await _membersPagination.around();
   }
 
   @override
@@ -790,6 +808,22 @@ class HiveRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
+
+  /// Puts the provided [member] to [Pagination] and [members].
+  Future<void> _putMember(
+    HiveChatMember member, {
+    bool pagination = false,
+  }) async {
+    if (pagination) {
+      RxUser? user = await _chatRepository.getUser(member.value.user.id);
+
+      if (user != null) {
+        members[member.value.user.id] = user;
+      }
+    } else {
+      _membersPagination.put(member);
+    }
+  }
 
   /// Initializes the [_pagination].
   Future<void> _initMessagesPagination() async {
@@ -1513,7 +1547,7 @@ class HiveRxChat extends RxChat {
                       );
                     }
 
-                    _membersPagination.put(
+                    _putMember(
                       HiveChatMember(ChatMember(action.user, msg.at), null),
                     );
                     break;

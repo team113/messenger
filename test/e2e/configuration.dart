@@ -84,6 +84,7 @@ import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_dismissed.dart';
+import 'steps/see_chat_members.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
@@ -159,14 +160,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasDialogWithMe,
         hasFavoriteContacts,
         hasFavoriteGroups,
+        hasGroupWithMembers,
         hasGroups,
-
-        // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
-        // regular expression in the provided order.
-        haveGroup2Named,
         haveGroup1Named,
+        haveGroup2Named,
         haveGroupNamed,
-
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
@@ -198,6 +196,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
+        seeChatMembers,
         seeChatMessages,
         seeChatSelection,
         seeContactAsDismissed,
@@ -212,10 +211,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeMonologAsFavorite,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
+        seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
-        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,
@@ -291,9 +290,9 @@ Future<void> appInitializationFn(World world) {
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<CustomUser> createUser(
-  TestUser user,
-  CustomWorld world, {
+Future<CustomUser> createUser({
+  TestUser? user,
+  CustomWorld? world,
   UserPassword? password,
 }) async {
   final provider = GraphQlProvider();
@@ -304,23 +303,26 @@ Future<CustomUser> createUser(
     result.createUser.user.num,
   );
 
-  world.sessions[user.name] = customUser;
+  if (user != null && world != null) {
+    world.sessions[user.name] = customUser;
 
-  provider.token = result.createUser.session.token;
-  await provider.updateUserName(UserName(user.name));
-  if (password != null) {
-    await provider.updateUserPassword(null, password);
+    provider.token = result.createUser.session.token;
+    await provider.updateUserName(UserName(user.name));
+    if (password != null) {
+      await provider.updateUserPassword(null, password);
 
-    final result = await provider.signIn(
-      password,
-      null,
-      customUser.userNum,
-      null,
-      null,
-      true,
-    );
-    world.sessions[user.name]?.credentials = result.toModel();
+      final result = await provider.signIn(
+        password,
+        null,
+        customUser.userNum,
+        null,
+        null,
+        true,
+      );
+      world.sessions[user.name]?.credentials = result.toModel();
+    }
   }
+
   provider.disconnect();
 
   return customUser;

@@ -308,6 +308,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Fetches the previous [messages] page.
   Future<void> previous();
 
+  /// Fetches the initial [members] page;
+  Future<void> aroundMembers();
+
   /// Fetches the next [members] page.
   Future<void> nextMembers();
 

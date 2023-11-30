@@ -26,14 +26,13 @@ import 'package:messenger/routes.dart';
 
 import '../world/custom_world.dart';
 
-/// Waits until the [ChatAvatar] being displayed is indeed the provided image.
+/// Waits until the [Chat.members] count is indeed the provided count.
 ///
 /// Examples:
-/// - Then I see chat avatar as "test.jpg"
-final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
-  RegExp(r'I see chat avatar as {string}'),
-  // TODO: [filename] should be used.
-  (String filename, context) async {
+/// - Then I see 15 chat members
+final StepDefinitionGeneric seeChatMembers = then1<int, CustomWorld>(
+  RegExp(r'I see {int} chat members'),
+  (int count, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
@@ -41,45 +40,7 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
         final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-        final finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver
-              .findBy('ChatAvatar_${chat?.id}', FindType.key),
-          context.world.appDriver.findBy(
-            'Image_${chat?.avatar.value?.big.url}',
-            FindType.key,
-          ),
-          firstMatchOnly: true,
-        );
-
-        return context.world.appDriver.isPresent(finder);
-      },
-    );
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Waits until the [ChatAvatar] being displayed has no image in it.
-///
-/// Examples:
-/// - Then I see chat avatar as none
-final StepDefinitionGeneric seeChatAvatarAsNone = then<CustomWorld>(
-  RegExp(r'I see chat avatar as none'),
-  (context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
-
-        if (chat?.avatar.value == null) {
-          final finder = context.world.appDriver
-              .findBy('ChatAvatar_${chat?.id}', FindType.key);
-          return context.world.appDriver.isPresent(finder);
-        }
-
-        return false;
+        return chat?.members.length == count;
       },
     );
   },

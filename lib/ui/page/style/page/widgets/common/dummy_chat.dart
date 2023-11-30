@@ -113,6 +113,9 @@ class DummyRxChat extends RxChat {
   Future<void> previous() async {}
 
   @override
+  Future<void> aroundMembers() async {}
+
+  @override
   Future<void> nextMembers() async {}
 
   @override

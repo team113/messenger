@@ -342,6 +342,7 @@ class ChatInfoView extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 500),
             child: ListView.builder(
+              key: const Key('ChatMembers'),
               controller: c.membersScrollController,
               shrinkWrap: true,
               itemBuilder: (_, i) {
@@ -367,7 +368,10 @@ class ChatInfoView extends StatelessWidget {
 
                 if (i == members.length - 1 && c.hasNext.isTrue) {
                   child = Column(
-                    children: [child, const CustomProgressIndicator()],
+                    children: [
+                      child,
+                      const CustomProgressIndicator(key: Key('MembersLoading'))
+                    ],
                   );
                 }
 

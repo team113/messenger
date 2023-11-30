@@ -412,6 +412,8 @@ class ChatInfoController extends GetxController {
         },
       );
 
+      chat!.aroundMembers();
+
       status.value = RxStatus.success();
     }
   }
