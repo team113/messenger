@@ -769,6 +769,7 @@ class MessageFieldView extends StatelessWidget {
     bool edited = false,
   }) {
     final style = Theme.of(context).style;
+    final userOrFuture = c.getUser(item.author.id);
 
     final bool fromMe = item.author.id == c.me;
 
@@ -925,7 +926,8 @@ class MessageFieldView extends StatelessWidget {
     }
 
     final Widget expanded = FutureBuilder<RxUser?>(
-      future: c.getUser(item.author.id),
+      future: userOrFuture is Future<RxUser?> ? userOrFuture : null,
+      initialData: userOrFuture is Future<RxUser?> ? null : userOrFuture,
       builder: (context, snapshot) {
         final Color color = snapshot.data?.user.value.id == c.me
             ? style.colors.primary

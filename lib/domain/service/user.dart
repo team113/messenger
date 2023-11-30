@@ -57,9 +57,10 @@ class UserService extends DisposableService {
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> get(UserId id) async {
+  FutureOr<RxUser?> get(UserId id) async {
     Log.debug('get($id)', '$runtimeType');
-    return await _userRepository.get(id);
+    final user = _userRepository.get(id);
+    return user is Future<RxUser?> ? await user : user;
   }
 
   /// Blacklists the specified [User] for the authenticated [MyUser].

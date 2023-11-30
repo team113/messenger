@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/repository/chat.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -489,7 +490,9 @@ class OngoingCall {
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
-              calls.getChat(chatId.value).then((v) {
+              final curChat = calls.getChat(chatId.value);
+              // TODO: Give this callback a proper name
+              void callback(RxChat? v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
@@ -521,7 +524,13 @@ class OngoingCall {
                       break;
                   }
                 });
-              });
+              }
+
+              if (curChat is Future<RxChat?>) {
+                curChat.then(callback);
+              } else {
+                callback(curChat);
+              }
 
               members[_me]?.isHandRaised.value = node.call.members
                       .firstWhereOrNull((e) => e.user.id == _me.userId)

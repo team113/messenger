@@ -193,7 +193,8 @@ class CallWorker extends DisposableService {
               // Show a notification of an incoming call.
               if (!outgoing && !PlatformUtils.isMobile && !_focused) {
                 if (_myUser.value?.muted == null) {
-                  _chatService.get(c.chatId.value).then((RxChat? chat) {
+                  final chat = _chatService.get(c.chatId.value);
+                  void showIncomingCallNotification(RxChat? chat) {
                     if (chat?.chat.value.muted == null) {
                       String? title = chat?.title.value ??
                           c.caller?.name?.val ??
@@ -207,7 +208,13 @@ class CallWorker extends DisposableService {
                         tag: '${c.chatId}_${c.call.value?.id}',
                       );
                     }
-                  });
+                  }
+
+                  if (chat is Future<RxChat?>) {
+                    chat.then(showIncomingCallNotification);
+                  } else {
+                    showIncomingCallNotification(chat);
+                  }
                 }
               }
             }

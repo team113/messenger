@@ -223,10 +223,12 @@ class ParticipantController extends GetxController {
     }
   }
 
-  /// Fetches the [chat].
-  void _fetchChat() async {
-    chat.value = null;
-    chat.value = (await _chatService.get(chatId.value));
+  /// Updates [chat]s value and [pop]s if it's null.
+  Future<void> _fetchChat() async {
+    final fetchedChat = _chatService.get(chatId.value);
+    chat.value =
+        fetchedChat is Future<RxChat?> ? await fetchedChat : fetchedChat;
+
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();

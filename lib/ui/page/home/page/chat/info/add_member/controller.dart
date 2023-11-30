@@ -119,10 +119,12 @@ class AddChatMemberController extends GetxController {
     }
   }
 
-  /// Fetches the [chat].
+  /// Updates [chat]s value and [pop]s if it's null.
   void _fetchChat() async {
-    chat.value = null;
-    chat.value = await _chatService.get(chatId);
+    final fetchedChat = _chatService.get(chatId);
+    chat.value =
+        fetchedChat is Future<RxChat?> ? await fetchedChat : fetchedChat;
+
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();

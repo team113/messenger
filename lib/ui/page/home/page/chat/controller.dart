@@ -601,7 +601,8 @@ class ChatController extends GetxController {
     _ignorePositionChanges = true;
 
     status.value = RxStatus.loading();
-    chat = await _chatService.get(id);
+    final fetchedChat = _chatService.get(id);
+    chat = fetchedChat is Future<RxChat?> ? await fetchedChat : fetchedChat;
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
@@ -969,14 +970,7 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  FutureOr<RxUser?> getUser(UserId id) {
-    final RxUser? user = _userService.users[id];
-    if (user != null) {
-      return user;
-    }
-
-    return _userService.get(id);
-  }
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.

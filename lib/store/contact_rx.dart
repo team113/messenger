@@ -62,12 +62,13 @@ class HiveRxChatContact extends RxChatContact {
   }
 
   /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
-  void _updateUser(ChatContact c) async {
+  Future<void> _updateUser(ChatContact c) async {
     Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');
 
     if (user.value?.id != c.users.firstOrNull?.id) {
-      user.value =
-          c.users.isEmpty ? null : await _userRepository.get(c.users.first.id);
+      final fetched = _userRepository.get(c.users.first.id);
+      final firstUser = fetched is Future<RxUser?> ? await fetched : fetched;
+      user.value = c.users.isEmpty ? null : firstUser;
     }
   }
 }

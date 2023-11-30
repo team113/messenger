@@ -589,7 +589,14 @@ class CallController extends GetxController {
 
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(_updateChat),
+      (ChatId id) {
+        final fetchedChat = _chatService.get(id);
+        if (fetchedChat is Future<RxChat?>) {
+          fetchedChat.then(_updateChat);
+        } else {
+          _updateChat(fetchedChat);
+        }
+      },
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -1210,7 +1217,7 @@ class CallController extends GetxController {
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {
@@ -1900,9 +1907,13 @@ class CallController extends GetxController {
         audio: track?.kind == MediaKind.audio ? track : null,
       );
 
-      _userService
-          .get(member.id.userId)
-          .then((u) => participant.user.value = u ?? participant.user.value);
+      final user = _userService.get(member.id.userId);
+      if (user is Future<RxUser?>) {
+        user.then(
+            (user) => participant.user.value = user ?? participant.user.value);
+      } else {
+        participant.user.value = user ?? participant.user.value;
+      }
 
       switch (member.owner) {
         case MediaOwnerKind.local:
@@ -2019,7 +2030,12 @@ class CallController extends GetxController {
   /// Initializes the [chat] and adds the [CallMember] afterwards.
   Future<void> _initChat() async {
     try {
-      _updateChat(await _chatService.get(_currentCall.value.chatId.value));
+      final fetchedChat = _chatService.get(_currentCall.value.chatId.value);
+      if (fetchedChat is Future<RxChat?>) {
+        _updateChat(await fetchedChat);
+      } else {
+        _updateChat(fetchedChat);
+      }
     } finally {
       void onTracksChanged(
         CallMember member,
