@@ -66,9 +66,11 @@ import '/provider/gql/exceptions.dart'
         DeleteChatMessageException,
         EditChatMessageException,
         FavoriteChatException,
+        HideChatException,
         HideChatItemException,
         PostChatMessageException,
         ReadChatException,
+        RemoveChatMemberException,
         ToggleChatMuteException,
         UnfavoriteChatException,
         UploadAttachmentException;
@@ -1184,6 +1186,33 @@ class ChatController extends GetxController {
       _typingSubscription?.cancel();
       _typingSubscription = null;
     });
+  }
+
+  /// Removes [me] from the [chat].
+  Future<void> leaveGroup() async {
+    try {
+      await _chatService.removeChatMember(id, me!);
+      if (router.route.startsWith('${Routes.chats}/$id')) {
+        router.home();
+      }
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Hides the [chat].
+  Future<void> hideChat() async {
+    try {
+      await _chatService.hideChat(id);
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Mutes the [chat].

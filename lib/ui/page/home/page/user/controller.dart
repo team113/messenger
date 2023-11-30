@@ -84,6 +84,9 @@ class UserController extends GetxController {
   /// authenticated [MyUser].
   late final RxBool inContacts;
 
+  /// [GlobalKey] of more options.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [TextFieldState] for blacklisting reason.
   final TextFieldState reason = TextFieldState();
 

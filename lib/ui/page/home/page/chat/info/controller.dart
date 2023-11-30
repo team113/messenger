@@ -96,6 +96,9 @@ class ChatInfoController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
+  /// [GlobalKey] of more options.
+  final GlobalKey moreKey = GlobalKey();
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 

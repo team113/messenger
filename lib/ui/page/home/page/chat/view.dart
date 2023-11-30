@@ -298,6 +298,12 @@ class _ChatViewState extends State<ChatView>
                                 final bool muted =
                                     c.chat?.chat.value.muted != null;
 
+                                final bool dialog =
+                                    c.chat?.chat.value.isDialog == true;
+
+                                final bool monolog =
+                                    c.chat?.chat.value.isMonolog == true;
+
                                 final bool favorite =
                                     c.chat?.chat.value.favoritePosition != null;
 
@@ -315,50 +321,51 @@ class _ChatViewState extends State<ChatView>
                                     right: 10,
                                   ),
                                   actions: [
-                                    if (c.chat?.chat.value.isDialog == true)
+                                    if (dialog)
                                       ContextMenuButton(
                                         label: contact
                                             ? 'btn_delete_from_contacts'.l10n
                                             : 'btn_add_to_contacts'.l10n,
-                                        onPressed: contact
-                                            ? () =>
-                                                _removeFromContacts(c, context)
-                                            : c.addToContacts,
                                         trailing: SvgIcon(
                                           contact
                                               ? SvgIcons.deleteContact
                                               : SvgIcons.addContact,
                                         ),
+                                        onPressed: contact
+                                            ? () =>
+                                                _removeFromContacts(c, context)
+                                            : c.addToContacts,
                                       ),
                                     ContextMenuButton(
                                       label: favorite
                                           ? 'btn_delete_from_favorites'.l10n
                                           : 'btn_add_to_favorites'.l10n,
-                                      onPressed: favorite
-                                          ? c.unfavoriteChat
-                                          : c.favoriteChat,
                                       trailing: SvgIcon(
                                         favorite
                                             ? SvgIcons.favoriteSmall
                                             : SvgIcons.unfavoriteSmall,
                                       ),
+                                      onPressed: favorite
+                                          ? c.unfavoriteChat
+                                          : c.favoriteChat,
                                     ),
-                                    ContextMenuButton(
-                                      label: muted
-                                          ? PlatformUtils.isMobile
-                                              ? 'btn_unmute'.l10n
-                                              : 'btn_unmute_chat'.l10n
-                                          : PlatformUtils.isMobile
-                                              ? 'btn_mute'.l10n
-                                              : 'btn_mute_chat'.l10n,
-                                      onPressed:
-                                          muted ? c.unmuteChat : c.muteChat,
-                                      trailing: SvgIcon(
-                                        muted
-                                            ? SvgIcons.unmuteSmall
-                                            : SvgIcons.muteSmall,
+                                    if (!monolog)
+                                      ContextMenuButton(
+                                        label: muted
+                                            ? PlatformUtils.isMobile
+                                                ? 'btn_unmute'.l10n
+                                                : 'btn_unmute_chat'.l10n
+                                            : PlatformUtils.isMobile
+                                                ? 'btn_mute'.l10n
+                                                : 'btn_mute_chat'.l10n,
+                                        trailing: SvgIcon(
+                                          muted
+                                              ? SvgIcons.unmuteSmall
+                                              : SvgIcons.muteSmall,
+                                        ),
+                                        onPressed:
+                                            muted ? c.unmuteChat : c.muteChat,
                                       ),
-                                    ),
                                     ContextMenuButton(
                                       label: 'btn_clear_history'.l10n,
                                       trailing: const SvgIcon(
@@ -366,7 +373,23 @@ class _ChatViewState extends State<ChatView>
                                       ),
                                       onPressed: () => _clearChat(c, context),
                                     ),
-                                    if (c.chat?.chat.value.isDialog == true)
+                                    if (!monolog && !dialog)
+                                      ContextMenuButton(
+                                        label: 'btn_leave_group'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.leaveGroup16,
+                                        ),
+                                        onPressed: () =>
+                                            _leaveGroup(c, context),
+                                      ),
+                                    ContextMenuButton(
+                                      label: 'btn_hide_chat'.l10n,
+                                      trailing: const SvgIcon(
+                                        SvgIcons.cleanHistory,
+                                      ),
+                                      onPressed: () => _hideChat(c, context),
+                                    ),
+                                    if (dialog)
                                       ContextMenuButton(
                                         label: 'btn_block'.l10n,
                                         trailing: const SvgIcon(SvgIcons.block),
@@ -974,6 +997,39 @@ class _ChatViewState extends State<ChatView>
     }
 
     return const SizedBox();
+  }
+
+  /// Opens a confirmation popup leaving this [Chat].
+  Future<void> _leaveGroup(ChatController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_leave_group'.l10n,
+      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+    );
+
+    if (result == true) {
+      await c.leaveGroup();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_hide_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
   }
 
   /// Opens a confirmation popup clearing this [Chat].
