@@ -606,6 +606,7 @@ class ContactRepository extends DisposableInterface
       } else {
         final HiveRxChatContact? contact = contacts[contactId];
         final HiveChatContact value = event.value;
+
         if (contact == null || contact.ver <= value.ver) {
           _add(value);
         }

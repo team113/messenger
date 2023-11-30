@@ -124,7 +124,7 @@ class UserController extends GetxController {
   void onInit() {
     _fetchUser();
 
-    // TODO: Use [User.contacts] to recognize that user is in contacts list.
+    // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
     RxChatContact? contact = _contactService.paginated.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );

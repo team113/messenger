@@ -57,7 +57,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
     final remote = await graphQlProvider.around(item, cursor, count);
     for (T e in remote.edges) {
-      hiveProvider.put(e, ignoreBounds: true);
+      hiveProvider.put(e);
     }
 
     return remote;
@@ -74,7 +74,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
     final remote = await graphQlProvider.after(item, cursor, count);
     if (remote != null) {
       for (T e in remote.edges) {
-        await hiveProvider.put(e, ignoreBounds: true);
+        await hiveProvider.put(e);
       }
     }
 
@@ -92,7 +92,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
     final remote = await graphQlProvider.before(item, cursor, count);
     if (remote != null) {
       for (T e in remote.edges) {
-        await hiveProvider.put(e, ignoreBounds: true);
+        await hiveProvider.put(e);
       }
     }
 
@@ -100,12 +100,8 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   }
 
   @override
-  Future<void> put(
-    T item, {
-    bool ignoreBounds = false,
-    int Function(T, T)? compare,
-  }) =>
-      hiveProvider.put(item, ignoreBounds: ignoreBounds, compare: compare);
+  Future<void> put(T item, {int Function(T, T)? compare}) =>
+      hiveProvider.put(item, compare: compare);
 
   @override
   Future<void> remove(K key) => hiveProvider.remove(key);

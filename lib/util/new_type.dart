@@ -55,8 +55,8 @@ extension NewTypeComparable<T extends Comparable> on NewType<T> {
       other != null && val.compareTo(other.val) <= 0;
 }
 
-/// Adds converting to string without scientific notation.
+/// Adds [NewType]s conversion to [String] with no scientific notation.
 extension NewTypeToExactString<T extends Comparable> on NewType<double> {
-  /// Converts this [NewType] to a [String] without scientific notation.
-  String toExactString() => NumberFormat('${'0' * 40}.${'0' * 40}').format(val);
+  /// Converts this [NewType] to a [String] with no scientific notation.
+  String toPlainString() => NumberFormat('${'0' * 40}.${'0' * 40}').format(val);
 }

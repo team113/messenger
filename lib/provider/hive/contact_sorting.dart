@@ -47,7 +47,7 @@ class ContactSortingHiveProvider extends HiveBaseProvider<ChatContactId> {
   /// Puts the provided [ChatContactId] by the provided [name] and [id] to
   /// [Hive].
   Future<void> put(UserName name, ChatContactId id, ChatContactId item) async {
-    String key = '${name}_$id';
+    final String key = '${name}_$id';
 
     Log.debug('put($key, $item)', '$runtimeType');
 

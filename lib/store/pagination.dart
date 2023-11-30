@@ -317,27 +317,19 @@ class Pagination<T, C, K> {
 
     Log.debug('put($item)', '$runtimeType');
 
-    bool put = false;
-
     // Bypasses the bounds check.
     //
     // Intended to be used to forcefully add items, e.g. when items are
     // migrating from one source to another.
-    if (ignoreBounds) {
-      put = true;
-    } else {
+    bool put = ignoreBounds;
+
+    if (!put) {
       if (items.isEmpty) {
-        if (hasNext.isFalse && hasPrevious.isFalse) {
-          put = true;
-        }
+        put = hasNext.isFalse && hasPrevious.isFalse;
       } else if (compare?.call(item, items.last) == 1) {
-        if (hasNext.isFalse) {
-          put = true;
-        }
+        put = hasNext.isFalse;
       } else if (compare?.call(item, items.first) == -1) {
-        if (hasPrevious.isFalse) {
-          put = true;
-        }
+        put = hasPrevious.isFalse;
       } else {
         put = true;
       }
@@ -345,10 +337,9 @@ class Pagination<T, C, K> {
 
     if (put) {
       items[onKey(item)] = item;
-      await provider.put(item, compare: compare, ignoreBounds: true);
-    } else {
-      await provider.put(item, compare: compare);
     }
+
+    await provider.put(item, compare: put ? null : compare);
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
@@ -415,11 +406,7 @@ abstract class PageProvider<T, C, K> {
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count);
 
   /// Adds the provided [item] to this [PageProvider].
-  Future<void> put(
-    T item, {
-    bool ignoreBounds = false,
-    int Function(T, T)? compare,
-  });
+  Future<void> put(T item, {int Function(T, T)? compare});
 
   /// Removes the item specified by its [key] from this [PageProvider].
   Future<void> remove(K key);

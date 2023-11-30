@@ -48,7 +48,7 @@ class FavoriteContactHiveProvider extends HiveBaseProvider<ChatContactId> {
   Future<void> put(ChatContactFavoritePosition key, ChatContactId item) async {
     Log.debug('put($key, $item)', '$runtimeType');
 
-    final String i = key.toExactString();
+    final String i = key.toPlainString();
 
     if (getSafe(i) != item) {
       await _mutex.protect(() async {
