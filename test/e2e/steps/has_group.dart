@@ -138,7 +138,7 @@ final StepDefinitionGeneric hasFavoriteGroups =
 /// count of members.
 ///
 /// Examples:
-/// - Given Alice has "Name" group with {int} members.
+/// - Given Alice has "Name" group with 30 members.
 final StepDefinitionGeneric hasGroupWithMembers =
     given3<TestUser, String, int, CustomWorld>(
   '{user} has {string} group with {int} members',
@@ -146,7 +146,7 @@ final StepDefinitionGeneric hasGroupWithMembers =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    List<CustomUser> users =
+    final List<CustomUser> users =
         await Future.wait(List.generate(count - 1, (_) => createUser()));
 
     final chat = await provider.createGroupChat(

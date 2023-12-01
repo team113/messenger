@@ -205,7 +205,7 @@ class HiveRxChat extends RxChat {
   RxBool get previousLoading => _pagination.previousLoading;
 
   @override
-  RxBool get membersHasNext => _membersPagination.hasNext;
+  RxBool get membersHaveNext => _membersPagination.hasNext;
 
   @override
   RxBool get membersNextLoading => _membersPagination.nextLoading;
@@ -445,14 +445,14 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> aroundMembers() async {
-    Log.debug('aroundMembers()', '$runtimeType($id)');
+  Future<void> membersAround() async {
+    Log.debug('membersAround()', '$runtimeType($id)');
 
-    if (id.isLocal || membersHasNext.isFalse) {
+    if (id.isLocal || membersHaveNext.isFalse) {
       return;
     }
 
-    if (chat.value.kind != ChatKind.group && chat.value.members.isNotEmpty) {
+    if (!chat.value.isGroup && chat.value.members.isNotEmpty) {
       for (ChatMember member in chat.value.members) {
         _putMember(HiveChatMember(member, null), pagination: true);
       }
@@ -465,8 +465,8 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> nextMembers() async {
-    Log.debug('nextMembers()', '$runtimeType($id)');
+  Future<void> membersNext() async {
+    Log.debug('membersNext()', '$runtimeType($id)');
     await _membersPagination.next();
   }
 
@@ -947,7 +947,7 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          RxUser? user = await _chatRepository.getUser(event.key!);
+          final RxUser? user = await _chatRepository.getUser(event.key!);
 
           if (user != null) {
             members[event.key!] = user;
@@ -1069,14 +1069,14 @@ class HiveRxChat extends RxChat {
   Future<void> _updateTitle() async {
     Log.debug('_updateTitle()', '$runtimeType($id)');
 
-    List<User> users = [];
+    final List<User> users = [];
+
     if (chat.value.name == null) {
       if (members.isNotEmpty) {
-        users = members.values.take(3).map((e) => e.user.value).toList();
+        users.addAll(members.values.take(3).map((e) => e.user.value));
       } else {
-        users = [];
         for (var u in chat.value.members.take(3)) {
-          User? user = (await _chatRepository.getUser(u.user.id))?.user.value;
+          final user = (await _chatRepository.getUser(u.user.id))?.user.value;
           if (user != null) {
             users.add(user);
           }
@@ -1562,13 +1562,12 @@ class HiveRxChat extends RxChat {
 
                     if (chatEntity.value.members.length < 3) {
                       if (_membersPagination.items.length < 3) {
-                        await nextMembers();
+                        await membersNext();
                       }
 
                       chatEntity.value.members.clear();
-                      for (HiveChatMember member
-                          in _membersPagination.items.values.take(3)) {
-                        chatEntity.value.members.add(member.value);
+                      for (var m in _membersPagination.items.values.take(3)) {
+                        chatEntity.value.members.add(m.value);
                       }
                     }
 

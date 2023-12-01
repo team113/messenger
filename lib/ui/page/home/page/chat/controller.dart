@@ -1765,10 +1765,13 @@ extension ChatViewExt on Chat {
       case ChatKind.dialog:
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
-      // TODO: [Chat.membersCount] should be used.
+      // TODO: `Chat.membersCount` should be used, when implemented.
       case ChatKind.group:
-        return 'label_subtitle_participants'
-            .l10nfmt({'count': members?.length ?? this.members.length});
+        return 'label_subtitle_participants'.l10nfmt({
+          'count': members?.isNotEmpty == true
+              ? members?.length
+              : this.members.length,
+        });
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:

@@ -260,7 +260,7 @@ abstract class RxChat implements Comparable<RxChat> {
   RxBool get nextLoading;
 
   /// Indicates whether the [members] have next page.
-  RxBool get membersHasNext;
+  RxBool get membersHaveNext;
 
   /// Indicates whether a next page of the [members] is loading.
   RxBool get membersNextLoading;
@@ -309,10 +309,10 @@ abstract class RxChat implements Comparable<RxChat> {
   Future<void> previous();
 
   /// Fetches the initial [members] page;
-  Future<void> aroundMembers();
+  Future<void> membersAround();
 
   /// Fetches the next [members] page.
-  Future<void> nextMembers();
+  Future<void> membersNext();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

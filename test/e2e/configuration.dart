@@ -289,7 +289,7 @@ Future<void> appInitializationFn(World world) {
   return Future.sync(app.main);
 }
 
-/// Creates a new [Session] for an [User] identified by the provided [name].
+/// Creates a new [Session] for an [User] identified by the provided [user].
 Future<CustomUser> createUser({
   TestUser? user,
   CustomWorld? world,

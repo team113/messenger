@@ -116,7 +116,7 @@ class ChatInfoController extends GetxController {
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
 
   /// Indicates whether the [Chat.members] have a next page.
-  RxBool get hasNext => chat?.membersHasNext ?? RxBool(false);
+  RxBool get hasNext => chat?.membersHaveNext ?? RxBool(false);
 
   @override
   void onInit() {
@@ -412,7 +412,7 @@ class ChatInfoController extends GetxController {
         },
       );
 
-      chat!.aroundMembers();
+      chat!.membersAround();
 
       status.value = RxStatus.success();
     }
@@ -432,7 +432,7 @@ class ChatInfoController extends GetxController {
             chat?.membersNextLoading.value == false &&
             membersScrollController.position.pixels >
                 membersScrollController.position.maxScrollExtent - 500) {
-          chat?.nextMembers();
+          chat?.membersNext();
         }
       });
     }
