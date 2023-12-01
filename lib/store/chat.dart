@@ -1571,10 +1571,12 @@ class ChatRepository extends DisposableInterface
           _add(event.value);
         }
 
-        _recentLocal.put(event.value.value.updatedAt, chatId);
-
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
+          _recentLocal.remove(chatId);
+        } else {
+          _recentLocal.put(event.value.value.updatedAt, chatId);
+          _favoriteLocal.remove(chatId);
         }
       }
     }
