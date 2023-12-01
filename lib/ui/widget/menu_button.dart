@@ -33,6 +33,8 @@ class MenuButton extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.inverted = false,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10),
+    this.trailing,
   });
 
   MenuButton.tab(
@@ -40,6 +42,8 @@ class MenuButton extends StatelessWidget {
     Key? key,
     this.inverted = false,
     this.onPressed,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10),
+    this.trailing,
   })  : icon = null,
         title = switch (tab) {
           ProfileTab.public => 'label_profile'.l10n,
@@ -153,12 +157,15 @@ class MenuButton extends StatelessWidget {
   /// Indicator whether this [MenuButton] should have its contents inverted.
   final bool inverted;
 
+  final Widget? trailing;
+  final EdgeInsets padding;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: padding,
       child: SizedBox(
         height: 73,
         child: Container(
@@ -213,7 +220,12 @@ class MenuButton extends StatelessWidget {
                               style: inverted
                                   ? style.fonts.small.regular.onPrimary
                                   : style.fonts.small.regular.onBackground,
-                              child: Text(subtitle!),
+                              child: Row(
+                                children: [
+                                  Expanded(child: Text(subtitle!)),
+                                  if (trailing != null) trailing!,
+                                ],
+                              ),
                             ),
                         ],
                       ),

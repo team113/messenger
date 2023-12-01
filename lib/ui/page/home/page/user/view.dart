@@ -22,10 +22,12 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
+import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -49,6 +51,7 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
+import 'widget/contact_info.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -152,31 +155,103 @@ class UserView extends StatelessWidget {
                         //   ),
                       ],
                     ),
+
                     Block(
-                      title: 'label_contact_information'.l10n,
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                       children: [
-                        UserNumCopyable(c.user!.user.value.num),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.black.withOpacity(0.05),
+                        ContactInfoContents(
+                          padding: EdgeInsets.zero,
+                          title: 'Gapopa ID',
+                          content: c.user!.user.value.num.toString(),
+                          icon: const SvgImage.asset(
+                            'assets/icons/gapopa_purple.svg',
+                            height: 32,
                           ),
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              Text(
-                                'E-mail',
-                                style: style.fonts.smaller.regular.secondary,
-                              ),
-                              const Spacer(),
-                              Text('dummy@common.com'),
-                            ],
+                          trailing: WidgetButton(
+                            onPressed: () {},
+                            child: const SvgIcon(SvgIcons.copy),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        ContactInfoContents(
+                          padding: EdgeInsets.zero,
+                          title: 'E-mail',
+                          content: 'hello@example.com',
+                          icon: const SvgImage.asset(
+                            'assets/icons/gapopa_blue.svg',
+                            height: 32,
+                          ),
+                          trailing: WidgetButton(
+                            onPressed: () {},
+                            child: const SvgIcon(SvgIcons.copy),
                           ),
                         ),
                       ],
                     ),
+                    ContactInfoWidget(
+                      title: 'Gapopa ID',
+                      content: c.user!.user.value.num.toString(),
+                      icon: const SvgImage.asset(
+                        'assets/icons/gapopa_yellow.svg',
+                        height: 32,
+                      ),
+                      trailing: WidgetButton(
+                        onPressed: () {},
+                        child: const SvgIcon(SvgIcons.copy),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    ContactInfoWidget(
+                      title: 'E-mail',
+                      content: 'hello@example.com',
+                      icon: const SvgImage.asset(
+                        'assets/icons/gapopa_green.svg',
+                        height: 32,
+                      ),
+                      trailing: WidgetButton(
+                        onPressed: () {},
+                        child: const SvgIcon(SvgIcons.copy),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    ContactInfoWidget(
+                      title: 'E-mail',
+                      content: 'hello@example.com',
+                      icon: const SvgImage.asset(
+                        'assets/icons/gapopa_violet.svg',
+                        height: 32,
+                      ),
+                      trailing: WidgetButton(
+                        onPressed: () {},
+                        child: const SvgIcon(SvgIcons.copy),
+                      ),
+                    ),
+
+                    // Block(
+                    //   title: 'label_contact_information'.l10n,
+                    //   children: [
+                    //     UserNumCopyable(c.user!.user.value.num),
+                    //     const SizedBox(height: 8),
+                    //     Container(
+                    //       width: double.infinity,
+                    //       decoration: BoxDecoration(
+                    //         borderRadius: BorderRadius.circular(8),
+                    //         color: Colors.black.withOpacity(0.05),
+                    //       ),
+                    //       padding: const EdgeInsets.all(12),
+                    //       child: Row(
+                    //         children: [
+                    //           Text(
+                    //             'E-mail',
+                    //             style: style.fonts.smaller.regular.secondary,
+                    //           ),
+                    //           const Spacer(),
+                    //           const Text('dummy@common.com'),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                     Stack(
                       children: [
                         Block(
@@ -249,14 +324,16 @@ class UserView extends StatelessWidget {
                     ),
                   ];
 
-                  return ScrollablePositionedList.builder(
-                    key: const Key('UserScrollable'),
-                    itemCount: blocks.length,
-                    itemBuilder: (_, i) => blocks[i],
-                    scrollController: c.scrollController,
-                    itemScrollController: c.itemScrollController,
-                    itemPositionsListener: c.positionsListener,
-                    initialScrollIndex: c.initialScrollIndex,
+                  return SelectionArea(
+                    child: ScrollablePositionedList.builder(
+                      key: const Key('UserScrollable'),
+                      itemCount: blocks.length,
+                      itemBuilder: (_, i) => blocks[i],
+                      scrollController: c.scrollController,
+                      itemScrollController: c.itemScrollController,
+                      itemPositionsListener: c.positionsListener,
+                      initialScrollIndex: c.initialScrollIndex,
+                    ),
                   );
                 }),
               ),

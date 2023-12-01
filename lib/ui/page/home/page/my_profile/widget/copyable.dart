@@ -69,6 +69,7 @@ class CopyableTextField extends StatelessWidget {
           child: ReactiveTextField(
             prefix: leading,
             state: state,
+            fillColor: Colors.black.withOpacity(.01),
             onSuffixPressed: state.text.isNotEmpty ? _copy : null,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
