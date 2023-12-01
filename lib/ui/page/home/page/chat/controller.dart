@@ -60,6 +60,7 @@ import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        BlockUserException,
         ClearChatException,
         ConnectionException,
         DeleteChatForwardException,
@@ -72,6 +73,7 @@ import '/provider/gql/exceptions.dart'
         ReadChatException,
         RemoveChatMemberException,
         ToggleChatMuteException,
+        UnblockUserException,
         UnfavoriteChatException,
         UploadAttachmentException;
 import '/routes.dart';
@@ -1322,15 +1324,12 @@ class ChatController extends GetxController {
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
     if (inContacts?.value == false) {
-      status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(user!.user.value);
         inContacts!.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
-      } finally {
-        status.value = RxStatus.success();
       }
     }
   }
@@ -1340,7 +1339,6 @@ class ChatController extends GetxController {
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
     if (inContacts?.value == true) {
-      status.value = RxStatus.loadingMore();
       try {
         final RxChatContact? contact =
             _contactService.contacts.values.firstWhereOrNull(
@@ -1354,8 +1352,6 @@ class ChatController extends GetxController {
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
-      } finally {
-        status.value = RxStatus.success();
       }
     }
   }
@@ -1384,6 +1380,8 @@ class ChatController extends GetxController {
         );
       }
       reason.clear();
+    } on BlockUserException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -1394,10 +1392,15 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> unblacklist() async {
-    if (chat?.chat.value.isDialog == true) {
+    try {
       if (user != null) {
         await _userService.unblockUser(user!.id);
       }
+    } on UnblockUserException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
