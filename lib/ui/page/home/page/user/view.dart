@@ -866,15 +866,15 @@ class UserView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_deleted1'.l10n),
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.normal.regular.onBackground,
         ),
-        TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_deleted2'.l10n),
       ],
     );
 
