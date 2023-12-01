@@ -247,6 +247,7 @@ class _ChatViewState extends State<ChatView>
                                 onPressed: () => c.call(false),
                                 child: const SvgIcon(SvgIcons.chatAudioCall),
                               ),
+                              const SizedBox(width: 10),
                             ];
                           } else {
                             final Widget child;
@@ -307,7 +308,8 @@ class _ChatViewState extends State<ChatView>
                                 final bool favorite =
                                     c.chat?.chat.value.favoritePosition != null;
 
-                                final bool contact = c.inContacts.value;
+                                final bool contact =
+                                    c.inContacts?.value == true;
 
                                 final Widget child;
 
@@ -399,15 +401,11 @@ class _ChatViewState extends State<ChatView>
                                   ],
                                   child: Container(
                                     padding: const EdgeInsets.only(
-                                      left: 10,
-                                      right: 0,
+                                      left: 20,
+                                      right: 21,
                                     ),
                                     height: double.infinity,
-                                    child: const Padding(
-                                      padding:
-                                          EdgeInsets.fromLTRB(10, 0, 21, 0),
-                                      child: SvgIcon(SvgIcons.more),
-                                    ),
+                                    child: const SvgIcon(SvgIcons.more),
                                   ),
                                 );
 
@@ -1062,8 +1060,8 @@ class _ChatViewState extends State<ChatView>
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.userFromMembers?.user.value.name?.val ??
-              c.userFromMembers?.user.value.num.toString(),
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
@@ -1091,8 +1089,8 @@ class _ChatViewState extends State<ChatView>
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-          text: c.userFromMembers?.user.value.name?.val ??
-              c.userFromMembers?.user.value.num.toString(),
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),

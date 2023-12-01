@@ -33,6 +33,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/member_tile.dart';
@@ -277,7 +278,7 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Returns an information about [Chat] and the action buttons in
+  /// Returns information about the [Chat] and action buttons in the
   /// [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
@@ -357,64 +358,67 @@ class ChatInfoView extends StatelessWidget {
             child: const SvgIcon(SvgIcons.chatAudioCall),
             onPressed: () => c.call(false),
           ),
+          const SizedBox(width: 10),
           Obx(() {
-            return ContextMenuRegion(
-              key: c.moreKey,
-              selector: c.moreKey,
-              alignment: Alignment.topRight,
-              enablePrimaryTap: true,
-              margin: const EdgeInsets.only(bottom: 4, left: 20),
-              actions: [
-                ContextMenuButton(
-                  label: favorite
-                      ? 'btn_delete_from_favorites'.l10n
-                      : 'btn_add_to_favorites'.l10n,
-                  trailing: SvgIcon(
-                    favorite
-                        ? SvgIcons.favoriteSmall
-                        : SvgIcons.unfavoriteSmall,
-                  ),
-                  onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                ),
-                if (!c.isMonolog)
-                  ContextMenuButton(
-                    label: muted
-                        ? PlatformUtils.isMobile
-                            ? 'btn_unmute'.l10n
-                            : 'btn_unmute_chat'.l10n
-                        : PlatformUtils.isMobile
-                            ? 'btn_mute'.l10n
-                            : 'btn_mute_chat'.l10n,
-                    trailing: SvgIcon(
-                      muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+            return AnimatedButton(
+              child: SafeAnimatedSwitcher(
+                duration: 250.milliseconds,
+                child: ContextMenuRegion(
+                  key: c.moreKey,
+                  selector: c.moreKey,
+                  alignment: Alignment.topRight,
+                  enablePrimaryTap: true,
+                  margin: const EdgeInsets.only(bottom: 4, left: 20),
+                  actions: [
+                    ContextMenuButton(
+                      label: favorite
+                          ? 'btn_delete_from_favorites'.l10n
+                          : 'btn_add_to_favorites'.l10n,
+                      trailing: SvgIcon(
+                        favorite
+                            ? SvgIcons.favoriteSmall
+                            : SvgIcons.unfavoriteSmall,
+                      ),
+                      onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
                     ),
-                    onPressed: muted ? c.unmuteChat : c.muteChat,
+                    if (!c.isMonolog)
+                      ContextMenuButton(
+                        label: muted
+                            ? PlatformUtils.isMobile
+                                ? 'btn_unmute'.l10n
+                                : 'btn_unmute_chat'.l10n
+                            : PlatformUtils.isMobile
+                                ? 'btn_mute'.l10n
+                                : 'btn_mute_chat'.l10n,
+                        trailing: SvgIcon(
+                          muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                        ),
+                        onPressed: muted ? c.unmuteChat : c.muteChat,
+                      ),
+                    ContextMenuButton(
+                      label: 'btn_clear_history'.l10n,
+                      trailing: const SvgIcon(SvgIcons.cleanHistory),
+                      onPressed: () => _clearChat(c, context),
+                    ),
+                    if (!c.isMonolog)
+                      ContextMenuButton(
+                        label: 'btn_leave_group'.l10n,
+                        trailing: const SvgIcon(SvgIcons.leaveGroup16),
+                        onPressed: () => _leaveGroup(c, context),
+                      ),
+                    ContextMenuButton(
+                      label: 'btn_hide_chat'.l10n,
+                      trailing: const SvgIcon(
+                        SvgIcons.cleanHistory,
+                      ),
+                      onPressed: () => _hideChat(c, context),
+                    ),
+                  ],
+                  child: Container(
+                    padding: const EdgeInsets.only(left: 20, right: 21),
+                    height: double.infinity,
+                    child: const SvgIcon(SvgIcons.more),
                   ),
-                ContextMenuButton(
-                  label: 'btn_clear_history'.l10n,
-                  trailing: const SvgIcon(SvgIcons.cleanHistory),
-                  onPressed: () => _clearChat(c, context),
-                ),
-                if (!c.isMonolog)
-                  ContextMenuButton(
-                    label: 'btn_leave_group'.l10n,
-                    trailing: const SvgIcon(SvgIcons.leaveGroup16),
-                    onPressed: () => _leaveGroup(c, context),
-                  ),
-                ContextMenuButton(
-                  label: 'btn_hide_chat'.l10n,
-                  trailing: const SvgIcon(
-                    SvgIcons.cleanHistory,
-                  ),
-                  onPressed: () => _hideChat(c, context),
-                ),
-              ],
-              child: Container(
-                padding: const EdgeInsets.only(left: 10),
-                height: double.infinity,
-                child: const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 21, 0),
-                  child: SvgIcon(SvgIcons.more),
                 ),
               ),
             );
