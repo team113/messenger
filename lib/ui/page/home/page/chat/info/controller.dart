@@ -381,7 +381,7 @@ class ChatInfoController extends GetxController {
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
     final fetchedChat = _chatService.get(chatId);
-    chat = fetchedChat is Future<RxChat?> ? await fetchedChat : fetchedChat;
+    chat = fetchedChat is RxChat? ? fetchedChat : await fetchedChat;
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {

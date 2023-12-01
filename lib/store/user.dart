@@ -186,12 +186,16 @@ class UserRepository extends DisposableInterface
 
     return mutex.protect(() async {
       final response = (await _graphQlProvider.getUser(id)).user;
-      if (response == null) return null;
+      if (response == null) {
+        return null;
+      }
 
       final hiveUser = response.toHive();
       put(hiveUser);
+
       final user = HiveRxUser(this, _userLocal, hiveUser);
       users[id] = user;
+
       return user;
     });
   }
@@ -401,7 +405,7 @@ class UserRepository extends DisposableInterface
     );
 
     const maxInt = 120;
-    var response = await _graphQlProvider.searchUsers(
+    final response = await _graphQlProvider.searchUsers(
       num: num,
       name: name,
       login: login,

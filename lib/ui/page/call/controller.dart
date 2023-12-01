@@ -591,10 +591,9 @@ class CallController extends GetxController {
       _currentCall.value.chatId,
       (ChatId id) {
         final fetchedChat = _chatService.get(id);
-        if (fetchedChat is Future<RxChat?>) {
-          fetchedChat.then(_updateChat);
+        if (fetchedChat is RxChat?) {
         } else {
-          _updateChat(fetchedChat);
+          fetchedChat.then(_updateChat);
         }
       },
     );
@@ -1908,11 +1907,11 @@ class CallController extends GetxController {
       );
 
       final user = _userService.get(member.id.userId);
-      if (user is Future<RxUser?>) {
+      if (user is RxUser?) {
+        participant.user.value = user ?? participant.user.value;
+      } else {
         user.then(
             (user) => participant.user.value = user ?? participant.user.value);
-      } else {
-        participant.user.value = user ?? participant.user.value;
       }
 
       switch (member.owner) {
@@ -2031,10 +2030,10 @@ class CallController extends GetxController {
   Future<void> _initChat() async {
     try {
       final fetchedChat = _chatService.get(_currentCall.value.chatId.value);
-      if (fetchedChat is Future<RxChat?>) {
-        _updateChat(await fetchedChat);
-      } else {
+      if (fetchedChat is RxChat?) {
         _updateChat(fetchedChat);
+      } else {
+        _updateChat(await fetchedChat);
       }
     } finally {
       void onTracksChanged(

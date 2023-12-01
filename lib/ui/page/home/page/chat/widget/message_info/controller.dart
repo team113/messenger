@@ -57,7 +57,7 @@ class MessageInfoController extends GetxController {
     final futures = reads
         .map((read) async {
           final fetched = _userService.get(read.memberId);
-          final user = fetched is Future<RxUser?> ? await fetched : fetched;
+          final user = fetched is RxUser? ? fetched : await fetched;
           if (user != null) users.add(user);
         })
         .whereNotNull()

@@ -140,7 +140,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     if (!_blocklistLocal.isEmpty) {
       final List<RxUser?> users = await Future.wait(
-          _blocklistLocal.blocked.map((e) async => _userRepo.get(e)));
+        _blocklistLocal.blocked.map((e) async => _userRepo.get(e)),
+      );
       blacklist.addAll(users.whereNotNull());
     }
 

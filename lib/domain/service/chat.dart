@@ -91,7 +91,7 @@ class ChatService extends DisposableService {
   FutureOr<RxChat?> get(ChatId id) async {
     Log.debug('get($id)', '$runtimeType');
     final chat = _chatRepository.get(id);
-    return chat is Future<RxChat?> ? await chat : chat;
+    return chat is RxChat? ? chat : await chat;
   }
 
   /// Fetches the next [paginated] page.

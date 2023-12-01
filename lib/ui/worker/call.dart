@@ -210,10 +210,10 @@ class CallWorker extends DisposableService {
                     }
                   }
 
-                  if (chat is Future<RxChat?>) {
-                    chat.then(showIncomingCallNotification);
-                  } else {
+                  if (chat is RxChat?) {
                     showIncomingCallNotification(chat);
+                  } else {
+                    chat.then(showIncomingCallNotification);
                   }
                 }
               }

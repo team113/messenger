@@ -21,10 +21,10 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/repository/chat.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../repository/chat.dart';
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
 import '/store/event/chat_call.dart';
@@ -490,15 +490,14 @@ class OngoingCall {
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
-              final curChat = calls.getChat(chatId.value);
-              // TODO: Give this callback a proper name
-              void callback(RxChat? v) {
+              final chatOrFuture = calls.getChat(chatId.value);
+              void redialAndResubscribe(RxChat? v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
                   return;
                 }
-
+                // Redial every chat memeber who is not me and haven't answered yet
                 if (dialed is ChatMembersDialedAll) {
                   for (var m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
@@ -526,10 +525,10 @@ class OngoingCall {
                 });
               }
 
-              if (curChat is Future<RxChat?>) {
-                curChat.then(callback);
+              if (chatOrFuture is RxChat?) {
+                redialAndResubscribe(chatOrFuture);
               } else {
-                callback(curChat);
+                chatOrFuture.then(redialAndResubscribe);
               }
 
               members[_me]?.isHandRaised.value = node.call.members
