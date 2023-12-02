@@ -114,6 +114,12 @@ class FileAttachment extends Attachment {
         file.endsWith('.3gp');
   }
 
+  bool get isAudio {
+    final String file = filename.toLowerCase();
+    return file.endsWith('.mp3') ||
+        file.endsWith('.wav');
+  }
+
   /// Initializes this [FileAttachment].
   Future<void> init() async {
     if (_initialized) {

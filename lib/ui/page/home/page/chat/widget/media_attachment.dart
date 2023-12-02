@@ -90,6 +90,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
+    final bool isAudio = (attachment is FileAttachment && (attachment.isAudio)) ||
+        (attachment is LocalAttachment && (attachment.file.isAudio));
 
     final Widget child;
 
@@ -145,6 +147,9 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           autoLoad: widget.autoLoad,
         );
       }
+    } else if (isAudio) {
+      child = Container();
+
     } else {
       if (attachment is LocalAttachment) {
         if (attachment.file.path == null) {

@@ -782,16 +782,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
-          (e is FileAttachment && e.isVideo) ||
-          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+          (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo || e.file.isAudio)));
     }).toList();
 
     final Iterable<GalleryAttachment> galleries =
         media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
 
     final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+      return ((e is FileAttachment && !e.isVideo && !e.isAudio) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo && !e.file.isAudio));
     }).toList();
 
     final Color color = _fromMe
@@ -1437,7 +1437,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     if (item is ChatMessage) {
       copyable = item.text?.val;
       media.addAll(item.attachments.where(
-        (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+        (e) => e is ImageAttachment || (e is FileAttachment && (e.isVideo || e.isAudio)),
       ));
     }
 
@@ -1942,8 +1942,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _galleryKeys = msg.attachments
           .where((e) =>
               e is ImageAttachment ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+              (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo || e.file.isAudio)))
           .map((e) => GlobalKey())
           .toList();
     } else if (msg is ChatForward) {
