@@ -38,6 +38,7 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
+import '/domain/service/my_user.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/routes.dart';
@@ -56,6 +57,7 @@ class ContactsTabController extends GetxController {
     this._contactService,
     this._calls,
     this._userService,
+    this._myUserService,
   );
 
   /// Reactive list of sorted [ChatContact]s.
@@ -104,6 +106,9 @@ class ContactsTabController extends GetxController {
 
   /// [User]s service used in [SearchController].
   final UserService _userService;
+
+  /// [MyUserService] searching [myUser].
+  final MyUserService _myUserService;
 
   /// Call service used to start a [ChatCall].
   final CallService _calls;
@@ -291,6 +296,7 @@ class ContactsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
+        _myUserService,
         categories: const [
           SearchCategory.contact,
           SearchCategory.user,

@@ -640,6 +640,7 @@ class ChatsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
+        _myUserService,
         categories: [
           SearchCategory.recent,
           if (groupCreating.isFalse) SearchCategory.chat,

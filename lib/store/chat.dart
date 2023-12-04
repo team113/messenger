@@ -1439,6 +1439,7 @@ class ChatRepository extends DisposableInterface
   }
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
+
   /// Puts the provided [chat] to [Pagination] and [Hive].
   Future<HiveRxChat> put(
     HiveChat chat, {

@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/domain/service/my_user.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
@@ -55,7 +56,8 @@ class SearchController extends GetxController {
   SearchController(
     this._chatService,
     this._userService,
-    this._contactService, {
+    this._contactService,
+    this._myUserService, {
     required this.categories,
     this.chat,
     this.onSelected,
@@ -150,6 +152,9 @@ class SearchController extends GetxController {
 
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
+
+  /// [MyUserService] searching [myUser].
+  final MyUserService _myUserService;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -449,12 +454,42 @@ class SearchController extends GetxController {
     }
   }
 
+  /// Adds [monolog] to [chats] if it matches the [query].
+  Future<void> _addMonologToResult() async {
+    final monologId = _chatService.monolog;
+    final monologOrFuture = _chatService.get(monologId) as FutureOr<RxChat?>;
+
+    // Monolog of the authenticated user. Cannot be null
+    final monolog =
+        monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
+    if (monolog == null) return;
+
+    // Authenticated [User]. Cannot be null
+    final myUser = _myUserService.myUser.value;
+    if (myUser == null) return;
+
+    final queryString = query.value.toLowerCase().split(' ').join();
+    if (queryString.isEmpty) return;
+
+    // Parameters which can be used to find monolog
+    final title = monolog.title.value;
+    final myName = myUser.name?.val;
+    final myNum = myUser.num.val;
+    final myLogin = myUser.login?.val;
+
+    for (var param in [title, myName, myNum, myLogin]) {
+      param = param?.toLowerCase().split(' ').join();
+      if (param?.contains(queryString) ?? false) {
+        return chats.addAll({monologId: monolog});
+      }
+    }
+  }
+
   /// Updates the [chats] according to the [query].
   void _populateChats() {
     if (categories.contains(SearchCategory.chat)) {
-      final List<RxChat> sorted = _chatService.paginated.values.toList();
-
-      sorted.sort();
+      final List<RxChat> sorted = _chatService.paginated.values.toList()
+        ..sort();
 
       chats.value = {
         for (var c in sorted.where((p) {
@@ -470,6 +505,7 @@ class SearchController extends GetxController {
         }))
           c.chat.value.id: c,
       };
+      _addMonologToResult();
     }
   }
 
@@ -635,9 +671,11 @@ class SearchController extends GetxController {
 
   /// Fetches the next [contactsSearch] page.
   Future<void> _nextUsers() async {
+    // If there's no more contacts to fetch:
     if ((contactsSearch.value == null ||
             contactsSearch.value!.hasNext.isFalse) &&
         categories.contains(SearchCategory.user)) {
+      // Then search for users
       if (usersSearch.value == null) {
         _searchUsers(query.value);
       } else if (usersSearch.value!.hasNext.isTrue &&
