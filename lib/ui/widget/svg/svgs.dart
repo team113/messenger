@@ -1824,4 +1824,34 @@ class SvgIcons {
     width: 19.22,
     height: 16.5,
   );
+
+  static const SvgData profileNum = SvgData(
+    'assets/icons/profile_num.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData profileEmail = SvgData(
+    'assets/icons/profile_email.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData profilePhone = SvgData(
+    'assets/icons/profile_phone.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData profileLink = SvgData(
+    'assets/icons/profile_link.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData profileLogin = SvgData(
+    'assets/icons/profile_login.svg',
+    width: 32,
+    height: 32,
+  );
 }

@@ -163,10 +163,41 @@ class UserView extends StatelessWidget {
                           padding: EdgeInsets.zero,
                           title: 'Gapopa ID',
                           content: c.user!.user.value.num.toString(),
-                          icon: const SvgImage.asset(
-                            'assets/icons/gapopa_purple.svg',
-                            height: 32,
+                          icon: const SvgIcon(SvgIcons.profileNum),
+                          trailing: WidgetButton(
+                            onPressed: () {},
+                            child: const SvgIcon(SvgIcons.copy),
                           ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Container(
+                        //   color: style.colors.onBackgroundOpacity7,
+                        //   height: 1,
+                        //   width: double.infinity,
+                        //   margin: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                        // ),
+                        ContactInfoContents(
+                          padding: EdgeInsets.zero,
+                          title: 'E-mail',
+                          content: 'hello@example.com',
+                          icon: const SvgIcon(SvgIcons.profileEmail),
+                          trailing: WidgetButton(
+                            onPressed: () {},
+                            child: const SvgIcon(SvgIcons.copy),
+                          ),
+                        ),
+                        // Container(
+                        //   color: style.colors.onBackgroundOpacity7,
+                        //   height: 1,
+                        //   width: double.infinity,
+                        //   margin: const EdgeInsets.fromLTRB(6, 12, 6, 12),
+                        // ),
+                        const SizedBox(height: 24),
+                        ContactInfoContents(
+                          padding: EdgeInsets.zero,
+                          title: 'Phone',
+                          content: '+1 234 5678 90',
+                          icon: const SvgIcon(SvgIcons.profilePhone),
                           trailing: WidgetButton(
                             onPressed: () {},
                             child: const SvgIcon(SvgIcons.copy),
@@ -175,12 +206,20 @@ class UserView extends StatelessWidget {
                         const SizedBox(height: 24),
                         ContactInfoContents(
                           padding: EdgeInsets.zero,
-                          title: 'E-mail',
-                          content: 'hello@example.com',
-                          icon: const SvgImage.asset(
-                            'assets/icons/gapopa_blue.svg',
-                            height: 32,
+                          title: 'Login',
+                          content: 'alice',
+                          icon: const SvgIcon(SvgIcons.profileLogin),
+                          trailing: WidgetButton(
+                            onPressed: () {},
+                            child: const SvgIcon(SvgIcons.copy),
                           ),
+                        ),
+                        const SizedBox(height: 24),
+                        ContactInfoContents(
+                          padding: EdgeInsets.zero,
+                          title: 'Direct link',
+                          content: 'kLFJKjkw14j23JDMwW',
+                          icon: const SvgIcon(SvgIcons.profileLink),
                           trailing: WidgetButton(
                             onPressed: () {},
                             child: const SvgIcon(SvgIcons.copy),
@@ -188,44 +227,47 @@ class UserView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    ContactInfoWidget(
-                      title: 'Gapopa ID',
-                      content: c.user!.user.value.num.toString(),
-                      icon: const SvgImage.asset(
-                        'assets/icons/gapopa_yellow.svg',
-                        height: 32,
-                      ),
-                      trailing: WidgetButton(
-                        onPressed: () {},
-                        child: const SvgIcon(SvgIcons.copy),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    ContactInfoWidget(
-                      title: 'E-mail',
-                      content: 'hello@example.com',
-                      icon: const SvgImage.asset(
-                        'assets/icons/gapopa_green.svg',
-                        height: 32,
-                      ),
-                      trailing: WidgetButton(
-                        onPressed: () {},
-                        child: const SvgIcon(SvgIcons.copy),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    ContactInfoWidget(
-                      title: 'E-mail',
-                      content: 'hello@example.com',
-                      icon: const SvgImage.asset(
-                        'assets/icons/gapopa_violet.svg',
-                        height: 32,
-                      ),
-                      trailing: WidgetButton(
-                        onPressed: () {},
-                        child: const SvgIcon(SvgIcons.copy),
-                      ),
-                    ),
+                    // ContactInfoWidget(
+                    //   title: 'Gapopa ID',
+                    //   content: c.user!.user.value.num.toString(),
+                    //   icon: const SvgIcon(SvgIcons.gapopaId),
+                    //   // icon: const SvgImage.asset(
+                    //   //   'assets/icons/gapopa_yellow.svg',
+                    //   //   height: 32,
+                    //   // ),
+                    //   trailing: WidgetButton(
+                    //     onPressed: () {},
+                    //     child: const SvgIcon(SvgIcons.copy),
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 5),
+                    // ContactInfoWidget(
+                    //   title: 'E-mail',
+                    //   content: 'hello@example.com',
+                    //   icon: const SvgIcon(SvgIcons.gapopaId),
+                    //   // icon: const SvgImage.asset(
+                    //   //   'assets/icons/gapopa_green.svg',
+                    //   //   height: 32,
+                    //   // ),
+                    //   trailing: WidgetButton(
+                    //     onPressed: () {},
+                    //     child: const SvgIcon(SvgIcons.copy),
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 5),
+                    // ContactInfoWidget(
+                    //   title: 'E-mail',
+                    //   content: 'hello@example.com',
+                    //   icon: const SvgIcon(SvgIcons.gapopaId),
+                    //   // icon: const SvgImage.asset(
+                    //   //   'assets/icons/gapopa_violet.svg',
+                    //   //   height: 32,
+                    //   // ),
+                    //   trailing: WidgetButton(
+                    //     onPressed: () {},
+                    //     child: const SvgIcon(SvgIcons.copy),
+                    //   ),
+                    // ),
 
                     // Block(
                     //   title: 'label_contact_information'.l10n,
@@ -830,6 +872,8 @@ class UserView extends StatelessWidget {
 
   /// Returns a [User.name] copyable field.
   Widget _paid(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       return Column(
         children: [
@@ -852,16 +896,16 @@ class UserView extends StatelessWidget {
                   },
                   style: TextStyle(
                     color: c.verified.value
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.secondary,
+                        ? style.colors.primary
+                        : style.colors.secondary,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 21, bottom: 4),
+                  padding: const EdgeInsets.only(left: 21, bottom: 0),
                   child: Text(
-                    ' ¤',
+                    '¤',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.primary,
                       fontSize: 15,
                     ),
                   ),
@@ -888,18 +932,18 @@ class UserView extends StatelessWidget {
                   },
                   style: TextStyle(
                     color: c.verified.value
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.secondary,
+                        ? style.colors.primary
+                        : style.colors.secondary,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 21, bottom: 4),
+                  padding: const EdgeInsets.only(left: 21, bottom: 0),
                   child: Text(
-                    ' ¤',
+                    '¤',
                     style: TextStyle(
-                      fontFamily: 'Gapopa',
+                      // fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: style.colors.primary,
                       fontSize: 15,
                     ),
                   ),

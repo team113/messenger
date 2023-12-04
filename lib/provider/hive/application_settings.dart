@@ -31,8 +31,8 @@ class ApplicationSettingsHiveProvider
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
     Hive.maybeRegisterAdapter(MediaButtonsPositionAdapter());
+    Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].

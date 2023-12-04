@@ -177,7 +177,7 @@ class ContactInfoContents extends StatelessWidget {
                   style: style.fonts.small.regular.secondary,
                   child: Text(title),
                 ),
-                const SizedBox(height: 4),
+                // const SizedBox(height: 4),
                 DefaultTextStyle.merge(
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
