@@ -464,6 +464,9 @@ class HiveRxChat extends RxChat {
       return;
     }
 
+    // Ensure [_local] storage is initialized.
+    await _local.init(userId: me);
+
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
