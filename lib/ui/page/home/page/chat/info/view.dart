@@ -285,6 +285,7 @@ class ChatInfoView extends StatelessWidget {
 
     final bool favorite = c.chat?.chat.value.favoritePosition != null;
     final bool muted = c.chat?.chat.value.muted != null;
+    final bool isLocal = c.chat?.chat.value.id.isLocal == true;
 
     return Center(
       child: Row(
@@ -399,12 +400,13 @@ class ChatInfoView extends StatelessWidget {
                         ),
                         onPressed: muted ? c.unmuteChat : c.muteChat,
                       ),
-                    ContextMenuButton(
-                      key: const Key('ClearHistoryButton'),
-                      label: 'btn_clear_history'.l10n,
-                      trailing: const SvgIcon(SvgIcons.cleanHistory),
-                      onPressed: () => _clearChat(c, context),
-                    ),
+                    if (!isLocal)
+                      ContextMenuButton(
+                        key: const Key('ClearHistoryButton'),
+                        label: 'btn_clear_history'.l10n,
+                        trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        onPressed: () => _clearChat(c, context),
+                      ),
                     if (!c.isMonolog)
                       ContextMenuButton(
                         key: const Key('LeaveGroupButton'),

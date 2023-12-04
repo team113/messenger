@@ -302,6 +302,9 @@ class _ChatViewState extends State<ChatView>
                                 final bool dialog =
                                     c.chat?.chat.value.isDialog == true;
 
+                                final bool isLocal =
+                                    c.chat?.chat.value.id.isLocal == true;
+
                                 final bool monolog =
                                     c.chat?.chat.value.isMonolog == true;
 
@@ -357,34 +360,36 @@ class _ChatViewState extends State<ChatView>
                                           ? c.unfavoriteChat
                                           : c.favoriteChat,
                                     ),
-                                    if (!monolog)
-                                      ContextMenuButton(
-                                        key: Key(muted
-                                            ? 'UnmuteChatButton'
-                                            : 'MuteChatButton'),
-                                        label: muted
-                                            ? PlatformUtils.isMobile
-                                                ? 'btn_unmute'.l10n
-                                                : 'btn_unmute_chat'.l10n
-                                            : PlatformUtils.isMobile
-                                                ? 'btn_mute'.l10n
-                                                : 'btn_mute_chat'.l10n,
-                                        trailing: SvgIcon(
-                                          muted
-                                              ? SvgIcons.unmuteSmall
-                                              : SvgIcons.muteSmall,
+                                    if (!isLocal) ...[
+                                      if (!monolog)
+                                        ContextMenuButton(
+                                          key: Key(muted
+                                              ? 'UnmuteChatButton'
+                                              : 'MuteChatButton'),
+                                          label: muted
+                                              ? PlatformUtils.isMobile
+                                                  ? 'btn_unmute'.l10n
+                                                  : 'btn_unmute_chat'.l10n
+                                              : PlatformUtils.isMobile
+                                                  ? 'btn_mute'.l10n
+                                                  : 'btn_mute_chat'.l10n,
+                                          trailing: SvgIcon(
+                                            muted
+                                                ? SvgIcons.unmuteSmall
+                                                : SvgIcons.muteSmall,
+                                          ),
+                                          onPressed:
+                                              muted ? c.unmuteChat : c.muteChat,
                                         ),
-                                        onPressed:
-                                            muted ? c.unmuteChat : c.muteChat,
+                                      ContextMenuButton(
+                                        key: const Key('ClearHistoryButton'),
+                                        label: 'btn_clear_history'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () => _clearChat(c, context),
                                       ),
-                                    ContextMenuButton(
-                                      key: const Key('ClearHistoryButton'),
-                                      label: 'btn_clear_history'.l10n,
-                                      trailing: const SvgIcon(
-                                        SvgIcons.cleanHistory,
-                                      ),
-                                      onPressed: () => _clearChat(c, context),
-                                    ),
+                                    ],
                                     if (!monolog && !dialog)
                                       ContextMenuButton(
                                         key: const Key('LeaveGroupButton'),
@@ -395,14 +400,15 @@ class _ChatViewState extends State<ChatView>
                                         onPressed: () =>
                                             _leaveGroup(c, context),
                                       ),
-                                    ContextMenuButton(
-                                      key: const Key('HideChatButton'),
-                                      label: 'btn_delete_chat'.l10n,
-                                      trailing: const SvgIcon(
-                                        SvgIcons.cleanHistory,
+                                    if (!isLocal || monolog)
+                                      ContextMenuButton(
+                                        key: const Key('HideChatButton'),
+                                        label: 'btn_delete_chat'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () => _hideChat(c, context),
                                       ),
-                                      onPressed: () => _hideChat(c, context),
-                                    ),
                                     if (dialog)
                                       ContextMenuButton(
                                         key: const Key('Block'),
