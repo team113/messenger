@@ -406,12 +406,12 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    // Ensure [_local] storage is initialized.
-    await _local.init(userId: me);
-
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
+
+    // Ensure [_local] storage is initialized.
+    await _local.init(userId: me);
 
     HiveChatItem? item;
     if (chat.value.lastReadItem != null) {
@@ -429,7 +429,10 @@ class HiveRxChat extends RxChat {
   Future<void> next() async {
     Log.debug('next()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.next();
     status.value = RxStatus.success();
 
@@ -440,7 +443,10 @@ class HiveRxChat extends RxChat {
   Future<void> previous() async {
     Log.debug('previous()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.previous();
     status.value = RxStatus.success();
 
