@@ -122,7 +122,7 @@ class BlocklistRepository extends DisposableInterface
     if (!pagination) {
       await _pagination.put(user);
     } else {
-      _add(user.value.id, hiveUser: user);
+      _add(user.value.id);
 
       // TODO: https://github.com/team113/messenger/issues/27
       // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
@@ -163,19 +163,24 @@ class BlocklistRepository extends DisposableInterface
       before: before,
     );
 
+    final users = RxList(query.edges.map((e) => e.node.user.toHive()).toList());
+    for (var e in users) {
+      await _userRepo.put(e);
+    }
+
     return Page(
-      query.edges.map((e) => e.node.user.toHive()).toList(),
+      users,
       query.pageInfo.toModel((c) => BlocklistCursor(c)),
     );
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
-  Future<void> _add(UserId userId, {HiveUser? hiveUser}) async {
+  Future<void> _add(UserId userId) async {
     Log.debug('_add($userId)', '$runtimeType');
 
     final RxUser? user = blocklist[userId];
     if (user == null) {
-      final RxUser? user = await _userRepo.get(userId, hiveUser: hiveUser);
+      final RxUser? user = await _userRepo.get(userId);
       if (user != null) {
         blocklist[userId] = user;
       }

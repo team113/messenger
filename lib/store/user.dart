@@ -171,7 +171,7 @@ class UserRepository extends DisposableInterface
 
   // TODO: Should return [FutureOr<RxUser?>].
   @override
-  Future<RxUser?> get(UserId id, {HiveUser? hiveUser}) {
+  Future<RxUser?> get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
 
     RxUser? user = users[id];
@@ -191,9 +191,9 @@ class UserRepository extends DisposableInterface
       user = users[id];
 
       if (user == null) {
-        HiveUser? stored =
-            hiveUser ?? (await _graphQlProvider.getUser(id)).user?.toHive();
-        if (stored != null) {
+        var query = (await _graphQlProvider.getUser(id)).user;
+        if (query != null) {
+          HiveUser stored = query.toHive();
           put(stored);
           var fetched = HiveRxUser(this, _userLocal, stored);
           users[id] = fetched;
@@ -267,7 +267,7 @@ class UserRepository extends DisposableInterface
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user, {bool ignoreVersion = false}) async {
+  Future<void> put(HiveUser user, {bool ignoreVersion = false}) async {
     Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
     // If the provided [user] doesn't exist in the [users] yet, then we should
