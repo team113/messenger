@@ -959,6 +959,8 @@ class HiveRxChat extends RxChat {
           break;
       }
     });
+
+    await membersAround();
   }
 
   /// Adds the provided [ChatItem] to the [messages] list, initializing the
