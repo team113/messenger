@@ -40,7 +40,9 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
     Hive.maybeRegisterAdapter(ChatContactAdapter());
     Hive.maybeRegisterAdapter(ChatContactFavoritePositionAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
+    Hive.maybeRegisterAdapter(ChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatContactVersionAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(HiveChatContactAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
@@ -65,7 +67,7 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 /// Persisted in [Hive] storage [ChatContact]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatContact)
 class HiveChatContact extends HiveObject {
-  HiveChatContact(this.value, this.ver,this.cursor,this.favoriteCursor);
+  HiveChatContact(this.value, this.ver, this.cursor, this.favoriteCursor);
 
   /// Persisted [ChatContact].
   @HiveField(0)
