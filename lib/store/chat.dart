@@ -275,11 +275,13 @@ class ChatRepository extends DisposableInterface
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
-    if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
-      await (_localPagination?.next ?? _pagination?.next)?.call();
-
-      _initMonolog();
+    if (_localPagination?.hasNext.value == true) {
+      await _localPagination?.next();
+    } else {
+      await _pagination?.next();
     }
+
+    _initMonolog();
   }
 
   @override
