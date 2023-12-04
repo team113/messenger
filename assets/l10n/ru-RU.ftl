@@ -647,6 +647,7 @@ label_danger_zone = Опасная зона
 label_date = Дата
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт
+label_delete_chat = Удалить чат
 label_delete_chats = Удалить чаты
 label_delete_contact = Удалить контакт
 label_delete_contacts = Удалить контакты

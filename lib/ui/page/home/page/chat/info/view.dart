@@ -371,6 +371,9 @@ class ChatInfoView extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 4, left: 20),
                   actions: [
                     ContextMenuButton(
+                      key: Key(favorite
+                          ? 'UnfavoriteChatButton'
+                          : 'FavoriteChatButton'),
                       label: favorite
                           ? 'btn_delete_from_favorites'.l10n
                           : 'btn_add_to_favorites'.l10n,
@@ -383,6 +386,7 @@ class ChatInfoView extends StatelessWidget {
                     ),
                     if (!c.isMonolog)
                       ContextMenuButton(
+                        key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
                         label: muted
                             ? PlatformUtils.isMobile
                                 ? 'btn_unmute'.l10n
@@ -396,18 +400,21 @@ class ChatInfoView extends StatelessWidget {
                         onPressed: muted ? c.unmuteChat : c.muteChat,
                       ),
                     ContextMenuButton(
+                      key: const Key('ClearHistoryButton'),
                       label: 'btn_clear_history'.l10n,
                       trailing: const SvgIcon(SvgIcons.cleanHistory),
                       onPressed: () => _clearChat(c, context),
                     ),
                     if (!c.isMonolog)
                       ContextMenuButton(
+                        key: const Key('LeaveGroupButton'),
                         label: 'btn_leave_group'.l10n,
                         trailing: const SvgIcon(SvgIcons.leaveGroup16),
                         onPressed: () => _leaveGroup(c, context),
                       ),
                     ContextMenuButton(
-                      label: 'btn_hide_chat'.l10n,
+                      key: const Key('HideChatButton'),
+                      label: 'btn_delete_chat'.l10n,
                       trailing: const SvgIcon(
                         SvgIcons.cleanHistory,
                       ),
@@ -415,6 +422,7 @@ class ChatInfoView extends StatelessWidget {
                     ),
                   ],
                   child: Container(
+                    key: const Key('MoreOptionsButton'),
                     padding: const EdgeInsets.only(left: 20, right: 21),
                     height: double.infinity,
                     child: const SvgIcon(SvgIcons.more),
@@ -445,7 +453,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(

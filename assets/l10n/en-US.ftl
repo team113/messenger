@@ -622,6 +622,7 @@ label_danger_zone = Danger zone
 label_date = Date
 label_days_short = {$days} d
 label_delete_account = Delete account
+label_delete_chat = Delete chat
 label_delete_chats = Delete chats
 label_delete_contact = Delete contact
 label_delete_contacts = Delete contacts

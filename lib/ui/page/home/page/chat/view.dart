@@ -325,6 +325,9 @@ class _ChatViewState extends State<ChatView>
                                   actions: [
                                     if (dialog)
                                       ContextMenuButton(
+                                        key: Key(contact
+                                            ? 'DeleteFromContactsButton'
+                                            : 'AddToContactsButton'),
                                         label: contact
                                             ? 'btn_delete_from_contacts'.l10n
                                             : 'btn_add_to_contacts'.l10n,
@@ -339,6 +342,9 @@ class _ChatViewState extends State<ChatView>
                                             : c.addToContacts,
                                       ),
                                     ContextMenuButton(
+                                      key: Key(favorite
+                                          ? 'UnfavoriteChatButton'
+                                          : 'FavoriteChatButton'),
                                       label: favorite
                                           ? 'btn_delete_from_favorites'.l10n
                                           : 'btn_add_to_favorites'.l10n,
@@ -353,6 +359,9 @@ class _ChatViewState extends State<ChatView>
                                     ),
                                     if (!monolog)
                                       ContextMenuButton(
+                                        key: Key(muted
+                                            ? 'UnmuteChatButton'
+                                            : 'MuteChatButton'),
                                         label: muted
                                             ? PlatformUtils.isMobile
                                                 ? 'btn_unmute'.l10n
@@ -369,6 +378,7 @@ class _ChatViewState extends State<ChatView>
                                             muted ? c.unmuteChat : c.muteChat,
                                       ),
                                     ContextMenuButton(
+                                      key: const Key('ClearHistoryButton'),
                                       label: 'btn_clear_history'.l10n,
                                       trailing: const SvgIcon(
                                         SvgIcons.cleanHistory,
@@ -377,6 +387,7 @@ class _ChatViewState extends State<ChatView>
                                     ),
                                     if (!monolog && !dialog)
                                       ContextMenuButton(
+                                        key: const Key('LeaveGroupButton'),
                                         label: 'btn_leave_group'.l10n,
                                         trailing: const SvgIcon(
                                           SvgIcons.leaveGroup16,
@@ -385,7 +396,8 @@ class _ChatViewState extends State<ChatView>
                                             _leaveGroup(c, context),
                                       ),
                                     ContextMenuButton(
-                                      label: 'btn_hide_chat'.l10n,
+                                      key: const Key('HideChatButton'),
+                                      label: 'btn_delete_chat'.l10n,
                                       trailing: const SvgIcon(
                                         SvgIcons.cleanHistory,
                                       ),
@@ -393,6 +405,7 @@ class _ChatViewState extends State<ChatView>
                                     ),
                                     if (dialog)
                                       ContextMenuButton(
+                                        key: const Key('Block'),
                                         label: 'btn_block'.l10n,
                                         trailing: const SvgIcon(SvgIcons.block),
                                         onPressed: () =>
@@ -400,6 +413,7 @@ class _ChatViewState extends State<ChatView>
                                       ),
                                   ],
                                   child: Container(
+                                    key: const Key('MoreOptionsButton'),
                                     padding: const EdgeInsets.only(
                                       left: 20,
                                       right: 21,
@@ -1014,7 +1028,7 @@ class _ChatViewState extends State<ChatView>
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chat'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
         TextSpan(

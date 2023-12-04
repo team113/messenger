@@ -188,7 +188,7 @@ class UserView extends StatelessWidget {
                   children: [
                     Text(
                         '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
-                    if (!monolog) ChatSubtitle(chat!, c.me),
+                    if (!monolog && chat != null) ChatSubtitle(chat, c.me),
                   ],
                 );
               }),
@@ -232,6 +232,9 @@ class UserView extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 4, left: 20),
                   actions: [
                     ContextMenuButton(
+                      key: Key(contact
+                          ? 'DeleteFromContactsButton'
+                          : 'AddToContactsButton'),
                       label: contact
                           ? 'btn_delete_from_contacts'.l10n
                           : 'btn_add_to_contacts'.l10n,
@@ -243,6 +246,9 @@ class UserView extends StatelessWidget {
                           : c.addToContacts,
                     ),
                     ContextMenuButton(
+                      key: Key(favorite
+                          ? 'UnfavoriteContactButton'
+                          : 'FavoriteContactButton'),
                       label: favorite
                           ? 'btn_delete_from_favorites'.l10n
                           : 'btn_add_to_favorites'.l10n,
@@ -256,6 +262,7 @@ class UserView extends StatelessWidget {
                     ),
                     if (dialog != null) ...[
                       ContextMenuButton(
+                        key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
                         label: muted
                             ? PlatformUtils.isMobile
                                 ? 'btn_unmute'.l10n
@@ -269,17 +276,20 @@ class UserView extends StatelessWidget {
                         onPressed: muted ? c.unmuteChat : c.muteChat,
                       ),
                       ContextMenuButton(
+                        key: const Key('ClearHistoryButton'),
                         label: 'btn_clear_history'.l10n,
                         trailing: const SvgIcon(SvgIcons.cleanHistory),
                         onPressed: () => _clearChat(c, context),
                       ),
                       ContextMenuButton(
-                        label: 'btn_hide_chat'.l10n,
+                        key: const Key('HideChatButton'),
+                        label: 'btn_delete_chat'.l10n,
                         trailing: const SvgIcon(SvgIcons.cleanHistory),
                         onPressed: () => _hideChat(c, context),
                       ),
                     ],
                     ContextMenuButton(
+                      key: Key(blocked ? 'Unblock' : 'Block'),
                       label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
                       trailing: Obx(() {
                         final Widget child;
@@ -300,6 +310,7 @@ class UserView extends StatelessWidget {
                     ),
                   ],
                   child: Container(
+                    key: const Key('MoreOptionsButton'),
                     padding: const EdgeInsets.only(left: 20, right: 21),
                     height: double.infinity,
                     child: const SvgIcon(SvgIcons.more),
@@ -358,7 +369,7 @@ class UserView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chat'.l10n,
       description: [
         TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
         TextSpan(
