@@ -490,7 +490,10 @@ class HiveRxChat extends RxChat {
   Future<void> next() async {
     Log.debug('next()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.next();
     status.value = RxStatus.success();
 
@@ -501,7 +504,10 @@ class HiveRxChat extends RxChat {
   Future<void> previous() async {
     Log.debug('previous()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.previous();
     status.value = RxStatus.success();
 
