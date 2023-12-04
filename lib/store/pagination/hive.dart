@@ -204,7 +204,7 @@ class HivePageProvider<T extends Object, C, K>
       return _provider.put(item);
     }
 
-    final Iterable<K> ordered = orderBy(_provider.keys);
+    final Iterable<K> ordered = orderBy(_provider.keys).toList();
 
     if (ordered.isNotEmpty) {
       final firstItem = await _provider.get(ordered.first);
