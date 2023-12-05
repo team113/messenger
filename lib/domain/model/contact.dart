@@ -82,15 +82,18 @@ class ChatContact extends HiveObject implements Comparable<ChatContact> {
 
   @override
   int compareTo(ChatContact other) {
+    int? result;
+
     if (favoritePosition != null && other.favoritePosition == null) {
       return -1;
     } else if (favoritePosition == null && other.favoritePosition != null) {
       return 1;
     } else if (favoritePosition != null && other.favoritePosition != null) {
-      return other.favoritePosition!.compareTo(favoritePosition!);
+      result ??= other.favoritePosition!.compareTo(favoritePosition!);
     }
 
-    int result = name.val.compareTo(other.name.val);
+    result ??= name.val.compareTo(other.name.val);
+    
     if (result == 0) {
       return id.val.compareTo(other.id.val);
     }
