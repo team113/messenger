@@ -56,14 +56,16 @@ class MessageInfoController extends GetxController {
 
   /// Fetches the [users] from the [UserService].
   Future<void> _fetchUsers() async {
-    final futures = reads
-        .map((read) async {
-          final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
-          final user = fetched is RxUser? ? fetched : await fetched;
-          if (user != null) {
-            users.add(user);
-          }
-        })
+    final List<Future<void>> futures = reads
+        .map(
+          (read) async {
+            final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
+            final RxUser? user = fetched is RxUser? ? fetched : await fetched;
+            if (user != null) {
+              users.add(user);
+            }
+          },
+        )
         .whereNotNull()
         .toList();
 

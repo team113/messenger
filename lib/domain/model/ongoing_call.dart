@@ -524,7 +524,8 @@ class OngoingCall {
                 });
               }
 
-              final chatOrFuture = calls.getChat(chatId.value);
+              final FutureOr<RxChat?> chatOrFuture =
+                  calls.getChat(chatId.value);
               if (chatOrFuture is RxChat?) {
                 redialAndResubscribe(chatOrFuture);
               } else {

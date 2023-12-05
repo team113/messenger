@@ -68,10 +68,10 @@ class HiveRxChatContact extends RxChatContact {
     Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');
 
     if (user.value?.id != c.users.firstOrNull?.id) {
-      final FutureOr<RxUser?> fetched =
+      final FutureOr<RxUser?> userOrFuture =
           c.users.isNotEmpty ? _userRepository.get(c.users.first.id) : null;
-      final RxUser? first = fetched is RxUser? ? fetched : await fetched;
-      user.value = first;
+
+      user.value = userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
     }
   }
 }

@@ -454,7 +454,7 @@ class RecentChatTile extends StatelessWidget {
           }
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
-          final userOrFuture = getUser?.call(item.author.id);
+          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
 
           if (item.text != null) {
             desc.write(item.text!.val);
@@ -525,7 +525,7 @@ class RecentChatTile extends StatelessWidget {
             if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
           ];
         } else if (item is ChatForward) {
-          final userOrFuture = getUser?.call(item.author.id);
+          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
 
           subtitle = [
             if (chat.isGroup)
@@ -556,7 +556,7 @@ class RecentChatTile extends StatelessWidget {
             UserId id,
             Widget Function(BuildContext context, User? user) builder,
           ) {
-            final userOrFuture = getUser?.call(id);
+            final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
 
             return FutureBuilder(
               future: userOrFuture is RxUser? ? null : userOrFuture,
