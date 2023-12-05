@@ -25,7 +25,6 @@ import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -35,6 +34,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'api/backend/schema.dart';
@@ -44,10 +44,11 @@ import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
+import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
-import 'provider/hive/download.dart';
 import 'provider/hive/credentials.dart';
+import 'provider/hive/download.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -56,6 +57,7 @@ import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
+import 'util/backoff.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -65,7 +67,12 @@ Future<void> main() async {
   await Config.init();
   MediaKit.ensureInitialized();
 
-  me.Log.options = me.LogOptions(level: Config.logLevel);
+  me.Log.options = me.LogOptions(
+    level: Config.logLevel,
+
+    // Browsers collect timestamps for log themselves.
+    timeStamp: !PlatformUtils.isWeb,
+  );
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
@@ -107,6 +114,8 @@ Future<void> main() async {
 
     WebUtils.deleteLoader();
 
+    Future.delayed(5.seconds, () => throw Exception('Planned'));
+
     runApp(
       DefaultAssetBundle(
         key: UniqueKey(),
@@ -118,7 +127,7 @@ Future<void> main() async {
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty || kDebugMode) {
+  if (Config.sentryDsn.isEmpty /*|| kDebugMode*/) {
     return appRunner();
   }
 
@@ -126,11 +135,32 @@ Future<void> main() async {
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
-      options.release = '${Pubspec.name}@${Config.version ?? Pubspec.version}',
+      options.release =
+          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}',
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
-      options.integrations.add(OnErrorIntegration()),
+      options.maxBreadcrumbs = 512,
+      options.beforeSend = (SentryEvent event, {Hint? hint}) {
+        final exception = event.exceptions?.firstOrNull?.throwable;
+
+        // Connection related exceptions shouldn't be logged.
+        if (exception is ConnectionException ||
+            exception is SocketException ||
+            exception is WebSocketException ||
+            exception is WebSocketChannelException ||
+            exception is HttpException) {
+          return null;
+        }
+
+        // [Backoff] related exceptions shouldn't be logged.
+        if (exception is OperationCanceledException ||
+            exception.toString() == 'Data is not loaded') {
+          return null;
+        }
+
+        return event;
+      },
       options.logger = (
         SentryLevel level,
         String message, {
@@ -139,7 +169,8 @@ Future<void> main() async {
         StackTrace? stackTrace,
       }) {
         if (exception != null) {
-          StringBuffer buf = StringBuffer('$exception');
+          final StringBuffer buf = StringBuffer('$exception');
+
           if (stackTrace != null) {
             buf.write(
               '\n\nWhen the exception was thrown, this was the stack:\n',

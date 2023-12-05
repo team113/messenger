@@ -169,7 +169,8 @@ flutter:
           weight: 700
 
 sentry:
-  upload_native_symbols: true
+  upload_debug_symbols: true
   upload_source_maps: true
-  include_native_sources: true
+  upload_sources: true
   wait_for_processing: true
+  ignore_missing: true

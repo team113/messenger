@@ -45,6 +45,8 @@ FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
 FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
 
+SENTRY_RELEASE = $(strip $(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
+
 
 
 
@@ -152,9 +154,8 @@ else
 #       2) Linux/Windows `--split-debug-info` can be tracked here:
 #          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
-		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
+		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,--split-debug-info=symbols) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
-		    --split-debug-info=symbols \
 		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
 		) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
@@ -830,6 +831,27 @@ endif
 
 
 
+###################
+# Sentry commands #
+###################
+
+# Upload debug symbols to Sentry.
+#
+# Usage:
+#	make sentry.upload [project=($(SENTRY_PROJECT)|<project>)]
+#	                   [org=($(SENTRY_ORG)|<org>)]
+#	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
+
+sentry.upload:
+	SENTRY_PROJECT=$(or $(project),$(SENTRY_PROJECT)) \
+	SENTRY_ORG=$(or $(org),$(SENTRY_ORG)) \
+	SENTRY_AUTH_TOKEN=$(or $(token),$(SENTRY_AUTH_TOKEN)) \
+	SENTRY_RELEASE=messenger@$(or $(release),$(SENTRY_RELEASE)) \
+	dart run sentry_dart_plugin
+
+
+
+
 ##################
 # .PHONY section #
 ##################
@@ -847,4 +869,5 @@ endif
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
         minikube.boot \
+        sentry.upload \
         test.e2e test.unit
