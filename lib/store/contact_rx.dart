@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -66,9 +68,10 @@ class HiveRxChatContact extends RxChatContact {
     Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');
 
     if (user.value?.id != c.users.firstOrNull?.id) {
-      final fetched = _userRepository.get(c.users.first.id);
-      final firstUser = fetched is Future<RxUser?> ? await fetched : fetched;
-      user.value = c.users.isEmpty ? null : firstUser;
+      final FutureOr<RxUser?> fetched = _userRepository.get(c.users.first.id);
+      final RxUser? first =
+          fetched is Future<RxUser?> ? await fetched : fetched;
+      user.value = c.users.isEmpty ? null : first;
     }
   }
 }

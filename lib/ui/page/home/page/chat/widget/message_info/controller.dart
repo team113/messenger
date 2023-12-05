@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -56,12 +58,15 @@ class MessageInfoController extends GetxController {
   Future<void> _fetchUsers() async {
     final futures = reads
         .map((read) async {
-          final fetched = _userService.get(read.memberId);
+          final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
           final user = fetched is RxUser? ? fetched : await fetched;
-          if (user != null) users.add(user);
+          if (user != null) {
+            users.add(user);
+          }
         })
         .whereNotNull()
         .toList();
+
     await Future.wait(futures);
   }
 }

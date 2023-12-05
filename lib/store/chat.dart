@@ -301,7 +301,9 @@ class ChatRepository extends DisposableInterface
     Log.debug('get($id)', '$runtimeType');
 
     HiveRxChat? chat = chats[id];
-    if (chat != null) return chat;
+    if (chat != null) {
+      return chat;
+    }
 
     // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
     // double invoking.
@@ -1124,7 +1126,8 @@ class ChatRepository extends DisposableInterface
   /// Returns an [User] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) async {
     Log.debug('getUser($id)', '$runtimeType');
-    final user = _userRepo.get(id);
+
+    final FutureOr<RxUser?> user = _userRepo.get(id);
     return user is RxUser? ? user : await user;
   }
 
@@ -2158,8 +2161,8 @@ class ChatRepository extends DisposableInterface
 
     final ChatId chatId = ChatId.local(responderId);
 
-    final myUser = _userRepo.get(me);
-    final responder = _userRepo.get(responderId);
+    final FutureOr<RxUser?> myUser = _userRepo.get(me);
+    final FutureOr<RxUser?> responder = _userRepo.get(responderId);
 
     final List<RxUser?> users = [
       myUser is RxUser? ? myUser : await myUser,

@@ -926,8 +926,8 @@ class MessageFieldView extends StatelessWidget {
     }
 
     final Widget expanded = FutureBuilder<RxUser?>(
-      future: userOrFuture is Future<RxUser?> ? userOrFuture : null,
-      initialData: userOrFuture is Future<RxUser?> ? null : userOrFuture,
+      future: userOrFuture is RxUser? ? null : userOrFuture,
+      initialData: userOrFuture is RxUser? ? userOrFuture : null,
       builder: (context, snapshot) {
         final Color color = snapshot.data?.user.value.id == c.me
             ? style.colors.primary

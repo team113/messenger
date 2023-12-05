@@ -527,6 +527,7 @@ class RecentChatTile extends StatelessWidget {
           ];
         } else if (item is ChatForward) {
           final userOrFuture = getUser?.call(item.author.id);
+
           subtitle = [
             if (chat.isGroup)
               Padding(
@@ -558,6 +559,7 @@ class RecentChatTile extends StatelessWidget {
             Widget Function(BuildContext context, User? user) builder,
           ) {
             final user = getUser?.call(id);
+
             return FutureBuilder(
               future: user is Future<RxUser?> ? user : null,
               initialData: user is Future<RxUser?> ? null : user,

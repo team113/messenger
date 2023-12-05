@@ -172,9 +172,11 @@ class UserRepository extends DisposableInterface
   FutureOr<RxUser?> get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
 
-    // Return stored user instance if it exists.
-    final user = users[id];
-    if (user != null) return user;
+    // Return the stored user instance, if it exists.
+    final HiveRxUser? user = users[id];
+    if (user != null) {
+      return user;
+    }
 
     // If [user] doesn't exist, we should lock the [mutex] to avoid remote
     // double invoking.
@@ -190,10 +192,10 @@ class UserRepository extends DisposableInterface
         return null;
       }
 
-      final hiveUser = response.toHive();
+      final HiveUser hiveUser = response.toHive();
       put(hiveUser);
 
-      final user = HiveRxUser(this, _userLocal, hiveUser);
+      final HiveRxUser user = HiveRxUser(this, _userLocal, hiveUser);
       users[id] = user;
 
       return user;

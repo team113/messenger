@@ -90,7 +90,8 @@ class ChatService extends DisposableService {
   /// Returns a [RxChat] by the provided [id].
   FutureOr<RxChat?> get(ChatId id) async {
     Log.debug('get($id)', '$runtimeType');
-    final chat = _chatRepository.get(id);
+
+    final FutureOr<RxChat?> chat = _chatRepository.get(id);
     return chat is RxChat? ? chat : await chat;
   }
 

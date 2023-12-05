@@ -590,10 +590,11 @@ class CallController extends GetxController {
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) {
-        final fetchedChat = _chatService.get(id);
-        if (fetchedChat is RxChat?) {
+        final FutureOr<RxChat?> chat = _chatService.get(id);
+
+        if (chat is RxChat?) {
         } else {
-          fetchedChat.then(_updateChat);
+          chat.then(_updateChat);
         }
       },
     );
@@ -1906,12 +1907,13 @@ class CallController extends GetxController {
         audio: track?.kind == MediaKind.audio ? track : null,
       );
 
-      final user = _userService.get(member.id.userId);
+      final FutureOr<RxUser?> user = _userService.get(member.id.userId);
       if (user is RxUser?) {
         participant.user.value = user ?? participant.user.value;
       } else {
         user.then(
-            (user) => participant.user.value = user ?? participant.user.value);
+          (user) => participant.user.value = user ?? participant.user.value,
+        );
       }
 
       switch (member.owner) {
@@ -2029,11 +2031,11 @@ class CallController extends GetxController {
   /// Initializes the [chat] and adds the [CallMember] afterwards.
   Future<void> _initChat() async {
     try {
-      final fetchedChat = _chatService.get(_currentCall.value.chatId.value);
-      if (fetchedChat is RxChat?) {
-        _updateChat(fetchedChat);
+      final FutureOr<RxChat?> chat = _chatService.get(chatId.value);
+      if (chat is RxChat?) {
+        _updateChat(chat);
       } else {
-        _updateChat(await fetchedChat);
+        _updateChat(await chat);
       }
     } finally {
       void onTracksChanged(

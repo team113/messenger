@@ -693,7 +693,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    final userEntity = _myUserLocal.myUser;
+    final HiveMyUser? userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
       Log.debug(
@@ -710,13 +710,15 @@ class MyUserRepository implements AbstractMyUserRepository {
     for (final event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        final user = _userRepo.get(event.userId);
+        final FutureOr<RxUser?> user = _userRepo.get(event.userId);
+
         if (user is RxUser) {
           _userRepo.update(user.user.value);
         } else if (user is Future<RxUser?>) {
           user.then((user) {
-            if (user == null) return;
-            _userRepo.update(convertor(user.user.value));
+            if (user != null) {
+              _userRepo.update(convertor(user.user.value));
+            }
           });
         }
       }

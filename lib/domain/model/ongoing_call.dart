@@ -490,7 +490,6 @@ class OngoingCall {
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
-              final chatOrFuture = calls.getChat(chatId.value);
               void redialAndResubscribe(RxChat? v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
@@ -525,6 +524,7 @@ class OngoingCall {
                 });
               }
 
+              final chatOrFuture = calls.getChat(chatId.value);
               if (chatOrFuture is RxChat?) {
                 redialAndResubscribe(chatOrFuture);
               } else {
