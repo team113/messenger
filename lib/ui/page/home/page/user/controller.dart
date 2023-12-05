@@ -114,6 +114,7 @@ class UserController extends GetxController {
   late final TextFieldState callsCost;
 
   final RxBool verified = RxBool(false);
+  // final RxBool verified = RxBool(true);
   final RxBool hintVerified = RxBool(false);
 
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
@@ -214,8 +215,9 @@ class UserController extends GetxController {
       initialScrollIndex = 0;
     }
 
-    verified.value =
-        _myUserService.myUser.value?.emails.confirmed.isNotEmpty == true;
+    verified.value = true;
+    // verified.value =
+    //     _myUserService.myUser.value?.emails.confirmed.isNotEmpty == true;
 
     _myUserWorker = ever(
       _myUserService.myUser,
@@ -428,6 +430,7 @@ class UserController extends GetxController {
 
       if (user != null) {
         messageCost = TextFieldState(
+          approvable: true,
           text: user!.user.value.messageCost == 0
               ? '0.00'
               : '${user!.user.value.messageCost.toString()}.00',
@@ -448,6 +451,7 @@ class UserController extends GetxController {
         });
 
         callsCost = TextFieldState(
+          approvable: true,
           text: user!.user.value.callCost == 0
               ? '0.00'
               : '${user!.user.value.callCost.toString()}.00',

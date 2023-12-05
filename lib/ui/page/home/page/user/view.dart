@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
@@ -100,24 +101,31 @@ class UserView extends StatelessWidget {
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
-                  final String? onlineStatus = c.user?.user.value.getStatus();
-                  final UserTextStatus? textStatus = c.user?.user.value.status;
+                  // final String? status = c.user?.user.value.getStatus();
+                  final UserTextStatus? status = c.user?.user.value.status;
                   Widget? subtitle;
 
-                  if (textStatus != null || onlineStatus != null) {
-                    final StringBuffer buffer = StringBuffer(textStatus ?? '');
-
-                    if (textStatus != null && onlineStatus != null) {
-                      buffer.write('space_vertical_space'.l10n);
-                    }
-
-                    buffer.write(onlineStatus ?? '');
-
+                  if (status != null) {
                     subtitle = Text(
-                      buffer.toString(),
+                      status.toString(),
                       style: style.fonts.small.regular.secondary,
                     );
                   }
+
+                  // if (textStatus != null || onlineStatus != null) {
+                  //   final StringBuffer buffer = StringBuffer(textStatus ?? '');
+
+                  //   if (textStatus != null && onlineStatus != null) {
+                  //     buffer.write('space_vertical_space'.l10n);
+                  //   }
+
+                  //   buffer.write(onlineStatus ?? '');
+
+                  //   subtitle = Text(
+                  //     buffer.toString(),
+                  //     style: style.fonts.small.regular.secondary,
+                  //   );
+                  // }
 
                   final List<Widget> blocks = [
                     const SizedBox(height: 8),
@@ -157,72 +165,77 @@ class UserView extends StatelessWidget {
                     ),
 
                     Block(
-                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                      // padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                       children: [
-                        ContactInfoContents(
-                          padding: EdgeInsets.zero,
-                          title: 'Gapopa ID',
-                          content: c.user!.user.value.num.toString(),
-                          icon: const SvgIcon(SvgIcons.profileNum),
-                          trailing: WidgetButton(
-                            onPressed: () {},
-                            child: const SvgIcon(SvgIcons.copy),
+                        Paddings.basic(
+                          ContactInfoContents(
+                            padding: EdgeInsets.zero,
+                            title: 'Login',
+                            content: 'alice',
+                            icon: const SvgIcon(SvgIcons.profileLogin),
+                            trailing: WidgetButton(
+                              onPressed: () {},
+                              child: const SvgIcon(SvgIcons.copy),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        // Container(
-                        //   color: style.colors.onBackgroundOpacity7,
-                        //   height: 1,
-                        //   width: double.infinity,
-                        //   margin: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                        // ),
-                        ContactInfoContents(
-                          padding: EdgeInsets.zero,
-                          title: 'E-mail',
-                          content: 'hello@example.com',
-                          icon: const SvgIcon(SvgIcons.profileEmail),
-                          trailing: WidgetButton(
-                            onPressed: () {},
-                            child: const SvgIcon(SvgIcons.copy),
+                        const SizedBox(height: 8),
+                        Paddings.basic(
+                          ContactInfoContents(
+                            padding: EdgeInsets.zero,
+                            title: 'Gapopa ID',
+                            content: c.user!.user.value.num.toString(),
+                            icon: const SvgIcon(SvgIcons.profileNum),
+                            trailing: WidgetButton(
+                              onPressed: () {},
+                              child: const SvgIcon(SvgIcons.copy),
+                            ),
                           ),
                         ),
-                        // Container(
-                        //   color: style.colors.onBackgroundOpacity7,
-                        //   height: 1,
-                        //   width: double.infinity,
-                        //   margin: const EdgeInsets.fromLTRB(6, 12, 6, 12),
-                        // ),
-                        const SizedBox(height: 24),
-                        ContactInfoContents(
-                          padding: EdgeInsets.zero,
-                          title: 'Phone',
-                          content: '+1 234 5678 90',
-                          icon: const SvgIcon(SvgIcons.profilePhone),
-                          trailing: WidgetButton(
-                            onPressed: () {},
-                            child: const SvgIcon(SvgIcons.copy),
+                        const SizedBox(height: 8),
+                        Paddings.basic(
+                          ContactInfoContents(
+                            padding: EdgeInsets.zero,
+                            title: 'E-mail',
+                            content: 'hello@example.com',
+                            icon: const SvgIcon(SvgIcons.profileEmail),
+                            trailing: WidgetButton(
+                              onPressed: () {},
+                              child: const SvgIcon(SvgIcons.copy),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        ContactInfoContents(
-                          padding: EdgeInsets.zero,
-                          title: 'Login',
-                          content: 'alice',
-                          icon: const SvgIcon(SvgIcons.profileLogin),
-                          trailing: WidgetButton(
-                            onPressed: () {},
-                            child: const SvgIcon(SvgIcons.copy),
+                        const SizedBox(height: 8),
+                        Paddings.basic(
+                          ContactInfoContents(
+                            padding: EdgeInsets.zero,
+                            title: 'Phone',
+                            content: '+1 234 5678 90',
+                            icon: const SvgIcon(SvgIcons.profilePhone),
+                            trailing: WidgetButton(
+                              onPressed: () {},
+                              child: const SvgIcon(SvgIcons.copy),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 24),
-                        ContactInfoContents(
-                          padding: EdgeInsets.zero,
-                          title: 'Direct link',
-                          content: 'kLFJKjkw14j23JDMwW',
-                          icon: const SvgIcon(SvgIcons.profileLink),
-                          trailing: WidgetButton(
-                            onPressed: () {},
-                            child: const SvgIcon(SvgIcons.copy),
+                      ],
+                    ),
+
+                    Block(
+                      title: 'Direct link',
+                      children: [
+                        Paddings.basic(
+                          ContactInfoContents(
+                            padding: EdgeInsets.zero,
+                            title: '${Config.origin}/',
+                            content: 'kLFJKjkw14j23JDMwW',
+                            // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
+                            icon: const SvgIcon(SvgIcons.profileLink),
+                            maxLines: null,
+                            trailing: WidgetButton(
+                              onPressed: () {},
+                              child: const SvgIcon(SvgIcons.copy),
+                            ),
                           ),
                         ),
                       ],
@@ -299,7 +312,7 @@ class UserView extends StatelessWidget {
                         Block(
                           title: 'label_get_paid_for_incoming_from'.l10nfmt({
                             'user': c.user!.user.value.name?.val ??
-                                c.user!.user.value.num.val,
+                                c.user!.user.value.num.toString(),
                           }),
                           children: [_paid(c, context)],
                         ),
@@ -342,11 +355,16 @@ class UserView extends StatelessWidget {
                                           16,
                                         ),
                                         margin: const EdgeInsets.fromLTRB(
-                                            8, 4, 8, 4),
+                                          8,
+                                          4,
+                                          8,
+                                          4,
+                                        ),
                                         constraints: context.isNarrow
                                             ? null
                                             : const BoxConstraints(
-                                                maxWidth: 400),
+                                                maxWidth: 400,
+                                              ),
                                         child: Column(
                                           children: [
                                             const Spacer(),
@@ -423,18 +441,21 @@ class UserView extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               child: Obx(() {
                 final String? status = c.user?.user.value.getStatus();
-                final UserTextStatus? text = c.user?.user.value.status;
+                // final UserTextStatus? text = c.user?.user.value.status;
                 final StringBuffer buffer = StringBuffer();
 
-                if (status != null || text != null) {
-                  buffer.write(text ?? '');
-
-                  if (status != null && text != null) {
-                    buffer.write('space_vertical_space'.l10n);
-                  }
-
-                  buffer.write(status ?? '');
+                if (status != null) {
+                  buffer.write(status);
                 }
+                // if (status != null || text != null) {
+                //   buffer.write(text ?? '');
+
+                //   if (status != null && text != null) {
+                //     buffer.write('space_vertical_space'.l10n);
+                //   }
+
+                //   buffer.write(status ?? '');
+                // }
 
                 final String subtitle = buffer.toString();
 
@@ -589,10 +610,7 @@ class UserView extends StatelessWidget {
                 // ),
               ],
               child: Container(
-                padding: const EdgeInsets.only(
-                  left: 21 + 10,
-                  right: 4 + 21,
-                ),
+                padding: const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
                 height: double.infinity,
                 child: const SvgIcon(SvgIcons.more),
               ),
@@ -601,102 +619,6 @@ class UserView extends StatelessWidget {
         ],
       ),
     );
-
-    return LayoutBuilder(builder: (context, constraints) {
-      final List<Widget> buttons = [
-        AnimatedButton(
-          onPressed: c.openChat,
-          child: const SvgIcon(SvgIcons.chat),
-        ),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        AnimatedButton(
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
-        if (constraints.maxWidth >= 460)
-          Obx(() {
-            final bool muted = c.user?.dialog.value?.chat.value.muted != null;
-
-            return AnimatedButton(
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              child: SvgIcon(
-                muted ? SvgIcons.notificationsOff : SvgIcons.notificationsOn,
-              ),
-            );
-          }),
-        if (constraints.maxWidth >= 560)
-          AnimatedButton(
-            onPressed: () {},
-            child: const SvgIcon(SvgIcons.favorite),
-          ),
-      ];
-
-      return Center(
-        child: Row(
-          children: [
-            const SizedBox(width: 8),
-            const StyledBackButton(),
-            Material(
-              elevation: 6,
-              type: MaterialType.circle,
-              shadowColor: style.colors.onBackgroundOpacity27,
-              color: style.colors.onPrimary,
-              child: Center(
-                child: AvatarWidget.fromRxUser(
-                  c.user,
-                  radius: AvatarRadius.medium,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                child: Obx(() {
-                  final String? status = c.user?.user.value.getStatus();
-                  final UserTextStatus? text = c.user?.user.value.status;
-                  final StringBuffer buffer = StringBuffer();
-
-                  if (status != null || text != null) {
-                    buffer.write(text ?? '');
-
-                    if (status != null && text != null) {
-                      buffer.write('space_vertical_space'.l10n);
-                    }
-
-                    buffer.write(status ?? '');
-                  }
-
-                  final String subtitle = buffer.toString();
-
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
-                      if (subtitle.isNotEmpty)
-                        Text(
-                          subtitle,
-                          style: style.fonts.small.regular.secondary,
-                        )
-                    ],
-                  );
-                }),
-              ),
-            ),
-            const SizedBox(width: 40),
-            ...buttons.expand((e) {
-              return [e, const SizedBox(width: 28)];
-            }),
-          ],
-        ),
-      );
-    });
   }
 
   /// Returns the action buttons to do with this [User].
@@ -874,6 +796,56 @@ class UserView extends StatelessWidget {
   Widget _paid(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
+    return Column(
+      children: [
+        Paddings.basic(
+          ReactiveTextField(
+            state: c.messageCost,
+            style: style.fonts.medium.regular.secondary.copyWith(
+              color: style.colors.acceptAuxiliary,
+            ),
+            prefix: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+              child: Transform.translate(
+                offset: const Offset(0, -0.7),
+                child: Text(
+                  '\$',
+                  style: style.fonts.medium.regular.secondary.copyWith(
+                    color: style.colors.acceptAuxiliary,
+                    // fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            label: 'Входящие сообщения, за 1 сообщение',
+          ),
+        ),
+        Paddings.basic(
+          ReactiveTextField(
+            state: c.callsCost,
+            style: style.fonts.medium.regular.secondary.copyWith(
+              color: style.colors.acceptAuxiliary,
+            ),
+            prefix: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+              child: Transform.translate(
+                offset: const Offset(0, -0.7),
+                child: Text(
+                  '\$',
+                  style: style.fonts.medium.regular.secondary.copyWith(
+                    color: style.colors.acceptAuxiliary,
+                    // fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            label: 'Входящие звонки, за 1 минуту',
+          ),
+        ),
+        Opacity(opacity: 0, child: _verification(context, c)),
+      ],
+    );
+
     return Obx(() {
       return Column(
         children: [
@@ -903,7 +875,8 @@ class UserView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 21, bottom: 0),
                   child: Text(
-                    '¤',
+                    // '¤',
+                    'G',
                     style: TextStyle(
                       color: style.colors.primary,
                       fontSize: 15,
@@ -939,7 +912,8 @@ class UserView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 21, bottom: 0),
                   child: Text(
-                    '¤',
+                    // '¤',
+                    'G',
                     style: TextStyle(
                       // fontFamily: 'Gapopa',
                       fontWeight: FontWeight.w400,

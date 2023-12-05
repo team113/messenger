@@ -185,20 +185,21 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         if (member != null) {
           return Obx(() {
             final String? subtitle = chat.getSubtitle(partner: member);
-            final UserTextStatus? status = member.user.value.status;
+            // final UserTextStatus? status = member.user.value.status;
             final Widget child;
 
-            if (status != null || subtitle != null) {
-              final StringBuffer buffer = StringBuffer(status ?? '');
+            // if (status != null || subtitle != null) {
+            if (subtitle != null) {
+              // final StringBuffer buffer = StringBuffer(status ?? '');
 
-              if (status != null && subtitle != null) {
-                buffer.write('space_vertical_space'.l10n);
-              }
+              // if (status != null && subtitle != null) {
+              //   buffer.write('space_vertical_space'.l10n);
+              // }
 
-              buffer.write(subtitle ?? '');
+              // buffer.write(subtitle ?? '');
 
               child = Text(
-                buffer.toString(),
+                subtitle,
                 style: style.fonts.small.regular.secondary,
               );
             } else {

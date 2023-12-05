@@ -366,6 +366,8 @@ class ChatsTabView extends StatelessWidget {
                                       label: 'btn_create_group'.l10n,
                                       onPressed: c.startGroupCreating,
                                       trailing: const SvgIcon(SvgIcons.group),
+                                      inverted:
+                                          const SvgIcon(SvgIcons.groupWhite),
                                     ),
                                     ContextMenuButton(
                                       label: c.withPrices.value
@@ -373,12 +375,16 @@ class ChatsTabView extends StatelessWidget {
                                           : 'label_show_incoming_prices'.l10n,
                                       onPressed: c.withPrices.toggle,
                                       trailing: const SvgIcon(SvgIcons.coin),
+                                      inverted:
+                                          const SvgIcon(SvgIcons.coinWhite),
                                     ),
                                     ContextMenuButton(
                                       key: const Key('SelectChatButton'),
                                       label: 'btn_select_and_delete'.l10n,
                                       onPressed: c.toggleSelecting,
                                       trailing: const SvgIcon(SvgIcons.select),
+                                      inverted:
+                                          const SvgIcon(SvgIcons.selectWhite),
                                     ),
                                     if (c.monolog.value.isHidden)
                                       ContextMenuButton(

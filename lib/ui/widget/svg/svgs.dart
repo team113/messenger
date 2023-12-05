@@ -1515,6 +1515,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData groupWhite = SvgData(
+    'assets/icons/group_white.svg',
+    width: 21.29,
+    height: 18,
+  );
+
   static const SvgData select = SvgData(
     'assets/icons/select.svg',
     width: 19,

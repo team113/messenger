@@ -181,15 +181,15 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           Paddings.basic(
                             Obx(() {
-                              return UserNumCopyable(c.myUser.value?.num);
-                            }),
-                          ),
-                          Paddings.basic(
-                            Obx(() {
                               return UserLoginField(
                                 c.myUser.value?.login,
                                 onSubmit: c.updateUserLogin,
                               );
+                            }),
+                          ),
+                          Paddings.basic(
+                            Obx(() {
+                              return UserNumCopyable(c.myUser.value?.num);
                             }),
                           ),
                           _emails(context, c),
