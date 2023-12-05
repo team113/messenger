@@ -93,7 +93,7 @@ class ChatContact extends HiveObject implements Comparable<ChatContact> {
     }
 
     result ??= name.val.compareTo(other.name.val);
-    
+
     if (result == 0) {
       return id.val.compareTo(other.id.val);
     }
