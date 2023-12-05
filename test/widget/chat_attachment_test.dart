@@ -40,6 +40,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -64,6 +65,7 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -137,6 +139,32 @@ void main() async {
     }
   };
 
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var favoriteChatContacts = {
+    'favoriteChatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
   var blacklist = {
     'edges': [],
     'pageInfo': {
@@ -162,6 +190,11 @@ void main() async {
     any,
   )).thenAnswer((_) => const Stream.empty());
 
+  final StreamController<QueryResult> contactEvents = StreamController();
+  when(
+    graphQlProvider.contactsEvents(any),
+  ).thenAnswer((_) => contactEvents.stream);
+
   when(graphQlProvider
           .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer(
@@ -176,6 +209,25 @@ void main() async {
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
       .thenAnswer((_) => Future.value(null));
+
+  when(graphQlProvider.favoriteChatContacts(
+    first: anyNamed('first'),
+    before: null,
+    after: null,
+    last: null,
+  )).thenAnswer(
+    (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
+        .favoriteChatContacts),
+  );
+
+  when(graphQlProvider.chatContacts(
+    first: anyNamed('first'),
+    noFavorite: true,
+    before: null,
+    after: null,
+    last: null,
+  )).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
 
   when(graphQlProvider.readChat(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -447,6 +499,16 @@ void main() async {
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));
+
+    final contactRepository = Get.put(
+      ContactRepository(
+        graphQlProvider,
+        contactProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
+    Get.put(ContactService(contactRepository));
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
