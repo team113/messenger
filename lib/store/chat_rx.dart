@@ -1100,7 +1100,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.event:
         final HiveChat? chatEntity = await _chatLocal.get(id);
-        final versioned = (event as ChatEventsEvent).event;
+        final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           Log.debug(
             '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
@@ -1170,8 +1170,7 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.hidden:
               event as EventChatHidden;
               chatEntity.value.isHidden = true;
-              // _chatRepository.remove(event.chatId);
-              putChat = true;
+              putChat = false;
               continue;
 
             case ChatEventKind.itemDeleted:
