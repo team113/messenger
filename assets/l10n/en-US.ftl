@@ -28,8 +28,8 @@ alert_chat_will_be_blocked1 = Chat{" "}
 alert_chat_will_be_blocked2 = {" "}will be blocked.
 alert_chat_will_be_cleared1 = Chat{" "}
 alert_chat_will_be_cleared2 = {" "}will be cleared.
-alert_chat_will_be_hidden1 = Chat{" "}
-alert_chat_will_be_hidden2 = {" "}will be hidden.
+alert_chat_will_be_deleted1 = Chat{" "}
+alert_chat_will_be_deleted2 = {" "}will be deleted.
 
     To restore the chat, please, use the search.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
@@ -38,8 +38,8 @@ alert_contact_will_be_removed2 = {" "}will be deleted.
 alert_contacts_will_be_deleted = Contacts ({$count}) will be deleted. Continue?
 alert_dialog_will_be_cleared1 = Dialog with user{" "}
 alert_dialog_will_be_cleared2 = {" "}will be cleared.
-alert_dialog_will_be_hidden1 = Dialog with user{" "}
-alert_dialog_will_be_hidden2 = {" "}will be hidden.
+alert_dialog_will_be_deleted1 = Dialog with user{" "}
+alert_dialog_will_be_deleted2 = {" "}will be deleted.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}will be deleted.
 alert_phone_will_be_deleted1 = Phone{" "}
@@ -622,6 +622,7 @@ label_danger_zone = Danger zone
 label_date = Date
 label_days_short = {$days} d
 label_delete_account = Delete account
+label_delete_chat = Delete chat
 label_delete_chats = Delete chats
 label_delete_contact = Delete contact
 label_delete_contacts = Delete contacts
@@ -854,7 +855,10 @@ label_sound_and_vibrations = Sound and vibration
 label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
 label_storage = Storage
-label_subtitle_participants = participants
+label_subtitle_participants = {$count} {$count ->
+    [1] participant
+    *[other] participants
+}
 label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts

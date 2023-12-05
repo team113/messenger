@@ -30,7 +30,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Subtitle visual representation of a [RxChat].
@@ -185,33 +184,22 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         return Obx(() {
           final String? subtitle = chat.getSubtitle(partner: member);
           final UserTextStatus? status = member.user.value.status;
-          final Widget child;
 
-          if (status != null || subtitle != null) {
-            final StringBuffer buffer = StringBuffer(status ?? '');
-
-            if (status != null && subtitle != null) {
-              buffer.write('space_vertical_space'.l10n);
-            }
-
-            buffer.write(subtitle ?? '');
-
-            child = Text(
-              buffer.toString(),
-              style: style.fonts.small.regular.secondary,
-            );
-          } else {
-            child = const SizedBox();
+          if (status == null && subtitle == null) {
+            return const SizedBox();
           }
 
-          return Row(
-            children: [
-              if (chat.muted != null) ...[
-                const SvgIcon(SvgIcons.mutedSmall),
-                const SizedBox(width: 5),
-              ],
-              Flexible(child: child),
-            ],
+          final StringBuffer buffer = StringBuffer(status ?? '');
+
+          if (status != null && subtitle != null) {
+            buffer.write('space_vertical_space'.l10n);
+          }
+
+          buffer.write(subtitle ?? '');
+
+          return Text(
+            buffer.toString(),
+            style: style.fonts.small.regular.secondary,
           );
         });
       }
