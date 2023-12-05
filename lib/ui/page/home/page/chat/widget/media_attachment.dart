@@ -28,6 +28,7 @@ import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/worker/cache.dart';
+import 'AudioPlayer.dart';
 
 /// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {
@@ -148,9 +149,47 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         );
       }
     } else if (isAudio) {
-      child = Container();
+      if (attachment is LocalAttachment) {
+        if (attachment.file.path == null) {
+          child = Obx(() {
+            if (attachment.file.bytes.value == null) {
+              return const Center(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            } else {
+              return AudioPlayer.bytes(
+                attachment.file.bytes.value!,
+                height: widget.height,
+                width: widget.width,
+                friendly_name: attachment.filename,
+              );
+            }
+          });
+        } else {
+          child = AudioPlayer.file(
+            attachment.file.path!,
+            height: widget.height,
+            width: widget.width,
+            friendly_name: attachment.filename
+          );
+        }
+      } else {
+        child = AudioPlayer.url(
+          attachment.original.url,
+          checksum: attachment.original.checksum,
+          height: widget.height,
+          width: widget.width,
+          friendly_name: attachment.filename,
+          onError: widget.onError,
+        );
+      }
 
     } else {
+      // isVideo
       if (attachment is LocalAttachment) {
         if (attachment.file.path == null) {
           child = Obx(() {

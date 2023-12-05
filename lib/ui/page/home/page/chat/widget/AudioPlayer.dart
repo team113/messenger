@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-
+import 'package:path/path.dart';
 import '/config.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
@@ -27,22 +27,79 @@ import '/util/audio_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Playable [asset] with the player.
-class PlayableAsset extends StatefulWidget {
-  const PlayableAsset(this.asset, {super.key, this.once = true});
+class AudioPlayer extends StatefulWidget {
 
-  /// Audio asset to play.
-  final String asset;
+  /// Optional height this [AudioPlayer] occupies.
+  final double? height;
 
-  /// Indicator whether the sound should be played once.
-  final bool once;
+  /// Optional width this [AudioPlayer] occupies.
+  final double? width;
+
+  /// Callback, called on the video loading errors.
+  final Future<void> Function()? onError;
+
+  /// Constructs a [AudioPlayer] from the provided [url].
+  const AudioPlayer.url(
+      this.url, {
+        super.key,
+        this.checksum,
+        this.height,
+        this.width,
+        this.friendly_name,
+        this.onError,
+      })  : bytes = null,
+        path = null;
+
+  /// Constructs a [AudioPlayer] from the provided [bytes].
+  const AudioPlayer.bytes(
+      this.bytes, {
+        super.key,
+        this.height,
+        this.width,
+        this.friendly_name,
+        this.onError,
+      })  : url = null,
+        checksum = null,
+        path = null;
+
+  /// Constructs a [AudioPlayer] from the provided file [path].
+  const AudioPlayer.file(
+      this.path, {
+        super.key,
+        this.height,
+        this.width,
+        this.friendly_name,
+        this.onError,
+      })  : url = null,
+        checksum = null,
+        bytes = null;
+
+  /// URL of the video to display.
+  final String? url;
+
+  /// SHA-256 checksum of the video to display.
+  final String? checksum;
+
+  /// Byte data of the video to display.
+  final Uint8List? bytes;
+
+  /// Path to the audio [File].
+  final String? path;
+
+  /// Name of [File] to display.
+  final String? friendly_name;
+
+  String get path_or_url {
+    return path != null ? path! : url!;
+  }
 
   @override
-  State<PlayableAsset> createState() => PlayableAssetState();
+  State<AudioPlayer> createState() => _AudioPlayerState();
+
 }
 
-/// State of a [PlayableAsset] maintaining the [_audio].
-class PlayableAssetState extends State<PlayableAsset> {
+class _AudioPlayerState extends State<AudioPlayer> {
+
   /// Indicator whether this [PlayableAsset] is hovered.
   bool _hovered = false;
 
@@ -67,7 +124,7 @@ class PlayableAssetState extends State<PlayableAsset> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color:
-                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
+                _hovered ? style.colors.backgroundAuxiliaryLighter : null,
                 border: Border.all(
                   width: 2,
                   color: style.colors.primary,
@@ -90,7 +147,7 @@ class PlayableAssetState extends State<PlayableAsset> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${widget.asset}.mp3',
+              widget.friendly_name??"<no name>",
               style: style.fonts.medium.regular.onBackground,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -102,11 +159,12 @@ class PlayableAssetState extends State<PlayableAsset> {
                 label: 'Download',
                 style: style.fonts.smaller.regular.primary,
                 onPressed: () async {
+                  var bn = widget.friendly_name??"audio.mp3";
                   final file = await PlatformUtils.saveTo(
-                    '${Config.origin}/assets/assets/audio/${widget.asset}.mp3',
+                    '${Config.downloads}/${bn}',
                   );
                   if (file != null) {
-                    MessagePopup.success('${widget.asset}.mp3 downloaded');
+                    MessagePopup.success('${widget.path_or_url} downloaded to ${Config.downloads}/${bn}');
                   }
                 },
               ),
@@ -117,14 +175,10 @@ class PlayableAssetState extends State<PlayableAsset> {
     );
   }
 
-  /// Plays the audio.
   void _playAudio() {
-    if (widget.once) {
-      AudioUtils.once(AudioSource.asset('audio/${widget.asset}.mp3'));
-    } else {
-      _audio = AudioUtils.play(AudioSource.asset('audio/${widget.asset}.mp3'));
-      setState(() {});
-    }
+    var asrc = widget.path != null ? AudioSource.file(widget.path!) : AudioSource.url(widget.url!);
+    _audio = AudioUtils.play(asrc);
+    setState(() {});
   }
 
   /// Stops the audio.
@@ -133,4 +187,5 @@ class PlayableAssetState extends State<PlayableAsset> {
     _audio = null;
     setState(() {});
   }
+
 }

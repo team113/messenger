@@ -202,7 +202,7 @@ class ChatItemWidget extends StatefulWidget {
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
-      isVideo = e is FileAttachment;
+      isVideo = (e is FileAttachment && e.isVideo);
     }
 
     Widget attachment;
@@ -265,9 +265,14 @@ class ChatItemWidget extends StatefulWidget {
                   final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
-                  int initial = attachments.indexed
+                  var attachments_list = attachments.toList();
+                  int initial = attachments_list.isEmpty ? -2 : attachments_list.indexed
                       .firstWhere((a) => a.$2.attachment == e)
                       .$1;
+                  if (initial == -2) {
+                    // in case there are no video or image attachments to display in gallery, do nothing
+                    return;
+                  }
                   if (initial == -1) {
                     initial = 0;
                   }
