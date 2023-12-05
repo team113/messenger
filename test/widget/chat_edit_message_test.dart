@@ -36,6 +36,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -61,6 +62,7 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -133,6 +135,32 @@ void main() async {
     }
   };
 
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var favoriteChatContacts = {
+    'favoriteChatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
   var blocklist = {
     'edges': [],
     'pageInfo': {
@@ -150,6 +178,30 @@ void main() async {
 
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
+
+  final StreamController<QueryResult> contactEvents = StreamController();
+  when(
+    graphQlProvider.contactsEvents(any),
+  ).thenAnswer((_) => contactEvents.stream);
+
+  when(graphQlProvider.favoriteChatContacts(
+    first: anyNamed('first'),
+    before: null,
+    after: null,
+    last: null,
+  )).thenAnswer(
+    (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
+        .favoriteChatContacts),
+  );
+
+  when(graphQlProvider.chatContacts(
+    first: anyNamed('first'),
+    noFavorite: true,
+    before: null,
+    after: null,
+    last: null,
+  )).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
 
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
@@ -408,6 +460,16 @@ void main() async {
         me: const UserId('me'),
       ),
     );
+
+    final contactRepository = Get.put(
+      ContactRepository(
+        graphQlProvider,
+        contactProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
+    Get.put(ContactService(contactRepository));
 
     MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,

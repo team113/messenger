@@ -874,12 +874,12 @@ class RecentChatTile extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
           text: rxChat.title.value,
           style: style.fonts.normal.regular.onBackground,
         ),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
       ],
     );
 

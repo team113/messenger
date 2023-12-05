@@ -84,6 +84,9 @@ class UserController extends GetxController {
   /// authenticated [MyUser].
   late final RxBool inContacts;
 
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 

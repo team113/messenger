@@ -28,8 +28,8 @@ alert_chat_will_be_blocked1 = Чат{" "}
 alert_chat_will_be_blocked2 = {" "}будет заблокирован.
 alert_chat_will_be_cleared1 = Чат{" "}
 alert_chat_will_be_cleared2 = {" "}будет очищен.
-alert_chat_will_be_hidden1 = Чат{" "}
-alert_chat_will_be_hidden2 = {" "}будет скрыт.
+alert_chat_will_be_deleted1 = Чат{" "}
+alert_chat_will_be_deleted2 = {" "}будет удалён.
 
     Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
@@ -38,8 +38,8 @@ alert_contact_will_be_removed2 = {" "}будет удалён.
 alert_contacts_will_be_deleted = Контакты ({$count}) будут удалены. Продолжить?
 alert_dialog_will_be_cleared1 = Диалог с пользователем{" "}
 alert_dialog_will_be_cleared2 = {" "}будет очищен.
-alert_dialog_will_be_hidden1 = Диалог с пользователем{" "}
-alert_dialog_will_be_hidden2 = {" "}будет скрыт.
+alert_dialog_will_be_deleted1 = Диалог с пользователем{" "}
+alert_dialog_will_be_deleted2 = {" "}будет удалён.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}будет удалён.
 alert_phone_will_be_deleted1 = Телефон{" "}
@@ -232,7 +232,7 @@ btn_save_to_gallery = Сохранить в галерею
 btn_save_to_gallery_all = Сохранить всё в галерею
 btn_select = Выбрать
 btn_select_and_delete = Выбрать и удалить
-btn_select_messages = Select messages
+btn_select_messages = Выбрать сообщения
 btn_send = Отправить
 btn_set_password = Задать пароль
 btn_settings = Настройки
@@ -647,6 +647,7 @@ label_danger_zone = Опасная зона
 label_date = Дата
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт
+label_delete_chat = Удалить чат
 label_delete_chats = Удалить чаты
 label_delete_contact = Удалить контакт
 label_delete_contacts = Удалить контакты
@@ -885,7 +886,11 @@ label_sound_and_vibrations = Звук и вибрация
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
-label_subtitle_participants = участников
+label_subtitle_participants = {$count} {$count ->
+    [1] участник
+    [few] участника
+    *[other] участников
+}
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты

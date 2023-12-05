@@ -96,6 +96,7 @@ enum WidgetKey {
   MenuTab,
   MessageField,
   MonologButton,
+  MoreButton,
   MuteChatButton,
   MuteChatsButton,
   Muted,
