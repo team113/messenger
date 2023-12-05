@@ -593,6 +593,7 @@ class CallController extends GetxController {
         final FutureOr<RxChat?> chat = _chatService.get(id);
 
         if (chat is RxChat?) {
+          _updateChat(chat);
         } else {
           chat.then(_updateChat);
         }

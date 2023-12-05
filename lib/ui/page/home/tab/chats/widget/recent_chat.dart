@@ -497,9 +497,8 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: userOrFuture is Future<RxUser?> ? userOrFuture : null,
-                  initialData:
-                      userOrFuture is Future<RxUser?> ? null : userOrFuture,
+                  future: userOrFuture is RxUser? ? null : userOrFuture,
+                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(
                           snapshot.data,
@@ -533,9 +532,8 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: userOrFuture is Future<RxUser?> ? userOrFuture : null,
-                  initialData:
-                      userOrFuture is Future<RxUser?> ? null : userOrFuture,
+                  future: userOrFuture is RxUser? ? null : userOrFuture,
+                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(
                           snapshot.data,
@@ -558,11 +556,11 @@ class RecentChatTile extends StatelessWidget {
             UserId id,
             Widget Function(BuildContext context, User? user) builder,
           ) {
-            final user = getUser?.call(id);
+            final userOrFuture = getUser?.call(id);
 
             return FutureBuilder(
-              future: user is Future<RxUser?> ? user : null,
-              initialData: user is Future<RxUser?> ? null : user,
+              future: userOrFuture is RxUser? ? null : userOrFuture,
+              initialData: userOrFuture is RxUser? ? userOrFuture : null,
               builder: (context, snapshot) {
                 if (snapshot.data != null) {
                   return Obx(() => builder(context, snapshot.data!.user.value));

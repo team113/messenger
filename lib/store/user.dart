@@ -187,6 +187,10 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
+      if (users[id] != null) {
+        return users[id];
+      }
+
       final response = (await _graphQlProvider.getUser(id)).user;
       if (response == null) {
         return null;
@@ -264,7 +268,7 @@ class UserRepository extends DisposableInterface
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user, {bool ignoreVersion = false}) async {
+  Future<void> put(HiveUser user, {bool ignoreVersion = false}) async {
     Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
     // If the provided [user] doesn't exist in the [users] yet, then we should
@@ -416,11 +420,30 @@ class UserRepository extends DisposableInterface
       first: first ?? maxInt,
     );
 
-    final List<RxUser> users = response.searchUsers.edges.map((e) {
-      final HiveUser user = e.node.toHive();
-      put(user);
-      return HiveRxUser(this, _userLocal, user);
-    }).toList();
+    final List<HiveUser> hiveUsers =
+        response.searchUsers.edges.map((c) => c.node.toHive()).toList();
+
+    // We are waiting for a dummy [Future] here because [put] updates
+    // [boxEvents] by scheduling a microtask, so we can use [get] method
+    // after this `await` expression on the next Event Loop iteration
+    hiveUsers.forEach(put);
+    await Future.delayed(Duration.zero);
+
+    final users = <RxUser>[];
+    final futures = <Future<RxUser?>>[];
+
+    for (final hiveUser in hiveUsers) {
+      final FutureOr<RxUser?> rxUser = get(hiveUser.value.id);
+      if (rxUser is RxUser?) {
+        if (rxUser != null) {
+          users.add(rxUser);
+        }
+      } else {
+        futures.add(rxUser);
+      }
+    }
+
+    users.addAll((await Future.wait(futures)).whereNotNull());
 
     return Page(
       RxList(users),

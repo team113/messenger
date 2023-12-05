@@ -139,9 +139,19 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     if (!_blocklistLocal.isEmpty) {
-      final List<RxUser?> users = await Future.wait(
-        _blocklistLocal.blocked.map((e) async => _userRepo.get(e)),
-      );
+      final users = <RxUser?>[];
+      final futures = <Future<RxUser?>>[];
+
+      for (final UserId id in _blocklistLocal.blocked) {
+        final FutureOr<RxUser?> user = _userRepo.get(id);
+        if (user is RxUser?) {
+          users.add(user);
+        } else {
+          futures.add(user);
+        }
+      }
+
+      users.addAll(await Future.wait(futures));
       blacklist.addAll(users.whereNotNull());
     }
 
@@ -702,23 +712,29 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
       return;
     }
+    userEntity.ver = versioned.ver;
+
     Log.debug(
       '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
       '$runtimeType',
     );
 
-    for (final event in versioned.events) {
+    for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
         final FutureOr<RxUser?> user = _userRepo.get(event.userId);
 
-        if (user is RxUser) {
-          _userRepo.update(user.user.value);
-        } else if (user is Future<RxUser?>) {
+        if (user is RxUser?) {
+          if (user == null) {
+            return;
+          }
+          _userRepo.update(convertor(user.user.value));
+        } else {
           user.then((user) {
-            if (user != null) {
-              _userRepo.update(convertor(user.user.value));
+            if (user == null) {
+              return;
             }
+            _userRepo.update(convertor(user.user.value));
           });
         }
       }
