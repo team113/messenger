@@ -304,6 +304,10 @@ void main() async {
           .hideChat as HideChat$Mutation$HideChat$ChatEventsVersioned);
     });
 
+    when(graphQlProvider.unfavoriteChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    )).thenAnswer((_) => Future.value(null));
+
     when(graphQlProvider.recentChats(
       first: anyNamed('first'),
       after: null,
