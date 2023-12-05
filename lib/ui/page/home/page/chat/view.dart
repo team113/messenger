@@ -225,7 +225,7 @@ class _ChatViewState extends State<ChatView>
                           const SizedBox(width: 10),
                         ],
                       ),
-                      padding: const EdgeInsets.only(left: 4, right: 0),
+                      padding: const EdgeInsets.only(left: 4),
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
@@ -311,8 +311,7 @@ class _ChatViewState extends State<ChatView>
                                 final bool favorite =
                                     c.chat?.chat.value.favoritePosition != null;
 
-                                final bool contact =
-                                    c.inContacts?.value == true;
+                                final bool contact = c.inContacts.value;
 
                                 final Widget child;
 
@@ -328,9 +327,11 @@ class _ChatViewState extends State<ChatView>
                                   actions: [
                                     if (dialog)
                                       ContextMenuButton(
-                                        key: Key(contact
-                                            ? 'DeleteFromContactsButton'
-                                            : 'AddToContactsButton'),
+                                        key: Key(
+                                          contact
+                                              ? 'DeleteFromContactsButton'
+                                              : 'AddToContactsButton',
+                                        ),
                                         label: contact
                                             ? 'btn_delete_from_contacts'.l10n
                                             : 'btn_add_to_contacts'.l10n,
@@ -345,9 +346,11 @@ class _ChatViewState extends State<ChatView>
                                             : c.addToContacts,
                                       ),
                                     ContextMenuButton(
-                                      key: Key(favorite
-                                          ? 'UnfavoriteChatButton'
-                                          : 'FavoriteChatButton'),
+                                      key: Key(
+                                        favorite
+                                            ? 'UnfavoriteChatButton'
+                                            : 'FavoriteChatButton',
+                                      ),
                                       label: favorite
                                           ? 'btn_delete_from_favorites'.l10n
                                           : 'btn_add_to_favorites'.l10n,
@@ -363,9 +366,11 @@ class _ChatViewState extends State<ChatView>
                                     if (!isLocal) ...[
                                       if (!monolog)
                                         ContextMenuButton(
-                                          key: Key(muted
-                                              ? 'UnmuteChatButton'
-                                              : 'MuteChatButton'),
+                                          key: Key(
+                                            muted
+                                                ? 'UnmuteChatButton'
+                                                : 'MuteChatButton',
+                                          ),
                                           label: muted
                                               ? PlatformUtils.isMobile
                                                   ? 'btn_unmute'.l10n
@@ -395,7 +400,7 @@ class _ChatViewState extends State<ChatView>
                                         key: const Key('LeaveGroupButton'),
                                         label: 'btn_leave_group'.l10n,
                                         trailing: const SvgIcon(
-                                          SvgIcons.leaveGroup16,
+                                          SvgIcons.leaveGroup,
                                         ),
                                         onPressed: () =>
                                             _leaveGroup(c, context),
@@ -414,12 +419,11 @@ class _ChatViewState extends State<ChatView>
                                         key: const Key('Block'),
                                         label: 'btn_block'.l10n,
                                         trailing: const SvgIcon(SvgIcons.block),
-                                        onPressed: () =>
-                                            _blacklistUser(c, context),
+                                        onPressed: () => _blockUser(c, context),
                                       ),
                                   ],
                                   child: Container(
-                                    key: const Key('MoreOptionsButton'),
+                                    key: const Key('MoreButton'),
                                     padding: const EdgeInsets.only(
                                       left: 20,
                                       right: 21,
@@ -1036,12 +1040,12 @@ class _ChatViewState extends State<ChatView>
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
           style: style.fonts.normal.regular.onBackground,
         ),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
       ],
     );
 
@@ -1071,8 +1075,8 @@ class _ChatViewState extends State<ChatView>
     }
   }
 
-  /// Opens a confirmation popup blacklisting the [User].
-  Future<void> _blacklistUser(ChatController c, BuildContext context) async {
+  /// Opens a confirmation popup blocking the [User].
+  Future<void> _blockUser(ChatController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
@@ -1093,7 +1097,7 @@ class _ChatViewState extends State<ChatView>
     );
 
     if (result == true) {
-      await c.blacklist();
+      await c.block();
     }
   }
 
@@ -1126,7 +1130,7 @@ class _ChatViewState extends State<ChatView>
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
     if (c.chat?.blacklisted == true) {
-      return SafeArea(child: UnblockButton(c.unblacklist));
+      return SafeArea(child: UnblockButton(c.unblock));
     }
 
     return Obx(() {

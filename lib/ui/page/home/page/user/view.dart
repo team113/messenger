@@ -125,9 +125,7 @@ class UserView extends StatelessWidget {
                           )
                         ],
                       ),
-                      Block(
-                        children: [_actions(c, context)],
-                      ),
+                      Block(children: [_actions(c, context)]),
                       const SizedBox(height: 8),
                     ],
                   );
@@ -150,8 +148,8 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns information about the [User] and action buttons in the
-  /// [CustomAppBar].
+  /// Returns information about the [User] and related to it action buttons in
+  /// the [CustomAppBar].
   Widget _bar(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -232,9 +230,11 @@ class UserView extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 4, left: 20),
                   actions: [
                     ContextMenuButton(
-                      key: Key(contact
-                          ? 'DeleteFromContactsButton'
-                          : 'AddToContactsButton'),
+                      key: Key(
+                        contact
+                            ? 'DeleteFromContactsButton'
+                            : 'AddToContactsButton',
+                      ),
                       label: contact
                           ? 'btn_delete_from_contacts'.l10n
                           : 'btn_add_to_contacts'.l10n,
@@ -246,9 +246,11 @@ class UserView extends StatelessWidget {
                           : c.addToContacts,
                     ),
                     ContextMenuButton(
-                      key: Key(favorite
-                          ? 'UnfavoriteContactButton'
-                          : 'FavoriteContactButton'),
+                      key: Key(
+                        favorite
+                            ? 'UnfavoriteContactButton'
+                            : 'FavoriteContactButton',
+                      ),
                       label: favorite
                           ? 'btn_delete_from_favorites'.l10n
                           : 'btn_add_to_favorites'.l10n,
@@ -310,7 +312,7 @@ class UserView extends StatelessWidget {
                     ),
                   ],
                   child: Container(
-                    key: const Key('MoreOptionsButton'),
+                    key: const Key('MoreButton'),
                     padding: const EdgeInsets.only(left: 20, right: 21),
                     height: double.infinity,
                     child: const SvgIcon(SvgIcons.more),
@@ -332,7 +334,7 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 8),
         ActionButton(
           text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report16),
+          trailing: const SvgIcon(SvgIcons.report),
           onPressed: () {},
         ),
       ],
@@ -371,13 +373,13 @@ class UserView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_dialog_will_be_hidden1'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_deleted1'.l10n),
         TextSpan(
           text:
               c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
           style: style.fonts.normal.regular.onBackground,
         ),
-        TextSpan(text: 'alert_dialog_will_be_hidden2'.l10n),
+        TextSpan(text: 'alert_dialog_will_be_deleted2'.l10n),
       ],
     );
 

@@ -28,8 +28,8 @@ alert_chat_will_be_blocked1 = Chat{" "}
 alert_chat_will_be_blocked2 = {" "}will be blocked.
 alert_chat_will_be_cleared1 = Chat{" "}
 alert_chat_will_be_cleared2 = {" "}will be cleared.
-alert_chat_will_be_hidden1 = Chat{" "}
-alert_chat_will_be_hidden2 = {" "}will be hidden.
+alert_chat_will_be_deleted1 = Chat{" "}
+alert_chat_will_be_deleted2 = {" "}will be deleted.
 
     To restore the chat, please, use the search.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
@@ -38,8 +38,8 @@ alert_contact_will_be_removed2 = {" "}will be deleted.
 alert_contacts_will_be_deleted = Contacts ({$count}) will be deleted. Continue?
 alert_dialog_will_be_cleared1 = Dialog with user{" "}
 alert_dialog_will_be_cleared2 = {" "}will be cleared.
-alert_dialog_will_be_hidden1 = Dialog with user{" "}
-alert_dialog_will_be_hidden2 = {" "}will be hidden.
+alert_dialog_will_be_deleted1 = Dialog with user{" "}
+alert_dialog_will_be_deleted2 = {" "}will be deleted.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}will be deleted.
 alert_phone_will_be_deleted1 = Phone{" "}

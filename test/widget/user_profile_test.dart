@@ -498,12 +498,12 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('5769space2360space9862space1822'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('MoreOptionsButton')));
+    await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('MoreOptionsButton')));
+    await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
     expect(deleteFromContacts, findsOneWidget);
@@ -513,7 +513,7 @@ void main() async {
     await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 3));
 
-    await tester.tap(find.byKey(const Key('MoreOptionsButton')));
+    await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);
 

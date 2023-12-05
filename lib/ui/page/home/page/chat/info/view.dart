@@ -112,10 +112,7 @@ class ChatInfoView extends StatelessWidget {
                       ],
                     ),
                   ],
-                  if (!c.isMonolog)
-                    Block(
-                      children: [_actions(c, context)],
-                    ),
+                  if (!c.isMonolog) Block(children: [_actions(c, context)]),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -271,15 +268,15 @@ class ChatInfoView extends StatelessWidget {
           text: 'btn_report'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
-            child: const SvgIcon(SvgIcons.report16),
+            child: const SvgIcon(SvgIcons.report),
           ),
         ),
       ],
     );
   }
 
-  /// Returns information about the [Chat] and action buttons in the
-  /// [CustomAppBar].
+  /// Returns information about the [Chat] and related to it action buttons in
+  /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -372,9 +369,11 @@ class ChatInfoView extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 4, left: 20),
                   actions: [
                     ContextMenuButton(
-                      key: Key(favorite
-                          ? 'UnfavoriteChatButton'
-                          : 'FavoriteChatButton'),
+                      key: Key(
+                        favorite
+                            ? 'UnfavoriteChatButton'
+                            : 'FavoriteChatButton',
+                      ),
                       label: favorite
                           ? 'btn_delete_from_favorites'.l10n
                           : 'btn_add_to_favorites'.l10n,
@@ -411,7 +410,7 @@ class ChatInfoView extends StatelessWidget {
                       ContextMenuButton(
                         key: const Key('LeaveGroupButton'),
                         label: 'btn_leave_group'.l10n,
-                        trailing: const SvgIcon(SvgIcons.leaveGroup16),
+                        trailing: const SvgIcon(SvgIcons.leaveGroup),
                         onPressed: () => _leaveGroup(c, context),
                       ),
                     ContextMenuButton(
@@ -424,7 +423,7 @@ class ChatInfoView extends StatelessWidget {
                     ),
                   ],
                   child: Container(
-                    key: const Key('MoreOptionsButton'),
+                    key: const Key('MoreButton'),
                     padding: const EdgeInsets.only(left: 20, right: 21),
                     height: double.infinity,
                     child: const SvgIcon(SvgIcons.more),
@@ -457,12 +456,12 @@ class ChatInfoView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
       description: [
-        TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
           text: c.chat?.title.value,
           style: style.fonts.normal.regular.onBackground,
         ),
-        TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
       ],
     );
 

@@ -1476,14 +1476,14 @@ class SvgIcons {
     height: 16,
   );
 
-  static const SvgData leaveGroup16 = SvgData(
-    'assets/icons/leave_group16.svg',
-    width: 12.88,
-    height: 16,
+  static const SvgData leaveGroup = SvgData(
+    'assets/icons/leave_group.svg',
+    width: 16.28,
+    height: 19,
   );
 
-  static const SvgData report16 = SvgData(
-    'assets/icons/complaint16.svg',
+  static const SvgData report = SvgData(
+    'assets/icons/report.svg',
     width: 16,
     height: 16,
   );

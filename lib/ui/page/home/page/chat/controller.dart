@@ -220,15 +220,12 @@ class ChatController extends GetxController {
   /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
-  /// [GlobalKey] of more options.
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// Indicator whether this [User] is already in the contacts list of the
-  /// authenticated [MyUser].
-  RxBool? inContacts;
-
-  /// [RxUser] of this [chat].
-  RxUser? user;
+  /// Indicator whether the [user] has a [ChatContact] associated with them in
+  /// the address book of the authenticated [MyUser].
+  final RxBool inContacts = RxBool(false);
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -364,6 +361,13 @@ class ChatController extends GetxController {
 
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
+
+  /// Returns [RxUser] being recipient of this [chat].
+  ///
+  /// Only meaningful, if the [chat] is a dialog.
+  RxUser? get user => chat?.chat.value.isDialog == true
+      ? chat?.members.values.firstWhereOrNull((e) => e.id != me)
+      : null;
 
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
@@ -1000,16 +1004,12 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog == true) {
-        user = chat?.members.values.firstWhereOrNull((e) => e.id != me);
-
-        inContacts = RxBool(
-          _contactService.contacts.values.any(
-                (e) => e.contact.value.users.every((m) => m.id == user?.id),
-              ) ||
-              _contactService.favorites.values.any(
-                (e) => e.contact.value.users.every((m) => m.id == user?.id),
-              ),
-        );
+        inContacts.value = _contactService.contacts.values.any(
+              (e) => e.contact.value.users.every((m) => m.id == user?.id),
+            ) ||
+            _contactService.favorites.values.any(
+              (e) => e.contact.value.users.every((m) => m.id == user?.id),
+            );
 
         _contactsSubscription = _contactService.contacts.changes.listen((e) {
           switch (e.op) {
@@ -1017,14 +1017,14 @@ class ChatController extends GetxController {
             case OperationKind.updated:
               if (e.value!.contact.value.users.isNotEmpty &&
                   e.value!.contact.value.users.any((e) => e.id == user?.id)) {
-                inContacts!.value = true;
+                inContacts.value = true;
               }
               break;
 
             case OperationKind.removed:
               if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
                   true) {
-                inContacts!.value = false;
+                inContacts.value = false;
               }
               break;
           }
@@ -1035,16 +1035,17 @@ class ChatController extends GetxController {
             case OperationKind.added:
               if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
                   true) {
-                inContacts!.value = true;
+                inContacts.value = true;
               }
               break;
 
             case OperationKind.removed:
               if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
                   true) {
-                inContacts!.value = false;
+                inContacts.value = false;
               }
               break;
+
             case OperationKind.updated:
               // No-op.
               break;
@@ -1323,10 +1324,10 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
-    if (inContacts?.value == false) {
+    if (!inContacts.value) {
       try {
         await _contactService.createChatContact(user!.user.value);
-        inContacts!.value = true;
+        inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -1338,7 +1339,7 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
-    if (inContacts?.value == true) {
+    if (inContacts.value) {
       try {
         final RxChatContact? contact =
             _contactService.contacts.values.firstWhereOrNull(
@@ -1348,7 +1349,7 @@ class ChatController extends GetxController {
                   (e) => e.contact.value.users.every((m) => m.id == user?.id),
                 );
         await _contactService.deleteContact(contact!.contact.value.id);
-        inContacts!.value = false;
+        inContacts.value = false;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -1368,10 +1369,10 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Blacklists the [user] for the authenticated [MyUser].
+  /// Blocks the [user] for the authenticated [MyUser].
   ///
   /// Only meaningful, if this [chat] is a dialog.
-  Future<void> blacklist() async {
+  Future<void> block() async {
     try {
       if (user != null) {
         await _userService.blockUser(
@@ -1388,10 +1389,10 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Removes a [User] being a recipient of this [chat] from the blacklist.
+  /// Removes a [User] being a recipient of this [chat] from the blocklist.
   ///
   /// Only meaningful, if this [chat] is a dialog.
-  Future<void> unblacklist() async {
+  Future<void> unblock() async {
     try {
       if (user != null) {
         await _userService.unblockUser(user!.id);

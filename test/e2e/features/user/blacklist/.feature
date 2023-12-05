@@ -24,11 +24,11 @@ Feature: Blacklist
     And I wait until `HomeView` is present
 
     When I go to Bob's page
-    And I tap `MoreOptionsButton` button
+    And I tap `MoreButton` button
     And I tap `Block` button
     And I tap `Proceed` button
     Then Bob sends message to me and receives blacklisted exception
 
-    And I tap `MoreOptionsButton` button
+    And I tap `MoreButton` button
     And I tap `Unblock` button
     Then Bob sends message to me and receives no exception

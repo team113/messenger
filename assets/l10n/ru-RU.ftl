@@ -28,8 +28,8 @@ alert_chat_will_be_blocked1 = Чат{" "}
 alert_chat_will_be_blocked2 = {" "}будет заблокирован.
 alert_chat_will_be_cleared1 = Чат{" "}
 alert_chat_will_be_cleared2 = {" "}будет очищен.
-alert_chat_will_be_hidden1 = Чат{" "}
-alert_chat_will_be_hidden2 = {" "}будет скрыт.
+alert_chat_will_be_deleted1 = Чат{" "}
+alert_chat_will_be_deleted2 = {" "}будет удалён.
 
     Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
@@ -38,8 +38,8 @@ alert_contact_will_be_removed2 = {" "}будет удалён.
 alert_contacts_will_be_deleted = Контакты ({$count}) будут удалены. Продолжить?
 alert_dialog_will_be_cleared1 = Диалог с пользователем{" "}
 alert_dialog_will_be_cleared2 = {" "}будет очищен.
-alert_dialog_will_be_hidden1 = Диалог с пользователем{" "}
-alert_dialog_will_be_hidden2 = {" "}будет скрыт.
+alert_dialog_will_be_deleted1 = Диалог с пользователем{" "}
+alert_dialog_will_be_deleted2 = {" "}будет удалён.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}будет удалён.
 alert_phone_will_be_deleted1 = Телефон{" "}
