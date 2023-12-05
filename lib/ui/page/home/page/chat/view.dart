@@ -209,13 +209,30 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Obx(() {
-                                      return Text(
-                                        c.chat!.title.value,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      );
-                                    }),
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Obx(() {
+                                            return Text(
+                                              c.chat!.title.value,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            );
+                                          }),
+                                        ),
+                                        Obx(() {
+                                          if (c.chat?.chat.value.muted ==
+                                              null) {
+                                            return const SizedBox();
+                                          }
+
+                                          return const Padding(
+                                            padding: EdgeInsets.only(left: 5),
+                                            child: SvgIcon(SvgIcons.muted),
+                                          );
+                                        }),
+                                      ],
+                                    ),
                                     if (!isMonolog) ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),

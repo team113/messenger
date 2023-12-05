@@ -184,8 +184,25 @@ class UserView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                        '${c.user?.user.value.name?.val ?? c.user?.user.value.num}'),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '${c.user?.user.value.name?.val ?? c.user?.user.value.num}',
+                          ),
+                        ),
+                        Obx(() {
+                          if (c.user?.dialog.value?.chat.value.muted == null) {
+                            return const SizedBox();
+                          }
+
+                          return const Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: SvgIcon(SvgIcons.muted),
+                          );
+                        }),
+                      ],
+                    ),
                     if (!monolog && chat != null) ChatSubtitle(chat, c.me),
                   ],
                 );
@@ -227,7 +244,7 @@ class UserView extends StatelessWidget {
                   selector: c.moreKey,
                   alignment: Alignment.topRight,
                   enablePrimaryTap: true,
-                  margin: const EdgeInsets.only(bottom: 4, left: 20),
+                  margin: const EdgeInsets.only(bottom: 4, right: 12),
                   actions: [
                     ContextMenuButton(
                       key: Key(
@@ -245,23 +262,24 @@ class UserView extends StatelessWidget {
                           ? () => _removeFromContacts(c, context)
                           : c.addToContacts,
                     ),
-                    ContextMenuButton(
-                      key: Key(
-                        favorite
-                            ? 'UnfavoriteContactButton'
-                            : 'FavoriteContactButton',
+                    if (contact)
+                      ContextMenuButton(
+                        key: Key(
+                          favorite
+                              ? 'UnfavoriteContactButton'
+                              : 'FavoriteContactButton',
+                        ),
+                        label: favorite
+                            ? 'btn_delete_from_favorites'.l10n
+                            : 'btn_add_to_favorites'.l10n,
+                        trailing: SvgIcon(
+                          favorite
+                              ? SvgIcons.favoriteSmall
+                              : SvgIcons.unfavoriteSmall,
+                        ),
+                        onPressed:
+                            favorite ? c.unfavoriteContact : c.favoriteContact,
                       ),
-                      label: favorite
-                          ? 'btn_delete_from_favorites'.l10n
-                          : 'btn_add_to_favorites'.l10n,
-                      trailing: SvgIcon(
-                        favorite
-                            ? SvgIcons.favoriteSmall
-                            : SvgIcons.unfavoriteSmall,
-                      ),
-                      onPressed:
-                          favorite ? c.unfavoriteContact : c.favoriteContact,
-                    ),
                     if (dialog != null) ...[
                       ContextMenuButton(
                         key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),

@@ -366,7 +366,7 @@ class ChatInfoView extends StatelessWidget {
                   selector: c.moreKey,
                   alignment: Alignment.topRight,
                   enablePrimaryTap: true,
-                  margin: const EdgeInsets.only(bottom: 4, left: 20),
+                  margin: const EdgeInsets.only(bottom: 4, right: 12),
                   actions: [
                     ContextMenuButton(
                       key: Key(

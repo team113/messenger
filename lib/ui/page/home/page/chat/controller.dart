@@ -2005,7 +2005,7 @@ extension ChatViewExt on Chat {
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
-        return '${members.length} ${'label_subtitle_participants'.l10n}';
+        return 'label_subtitle_participants'.l10nfmt({'count': members.length});
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:
