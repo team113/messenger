@@ -425,7 +425,7 @@ class UserRepository extends DisposableInterface
 
     // We are waiting for a dummy [Future] here because [put] updates
     // [boxEvents] by scheduling a microtask, so we can use [get] method
-    // after this `await` expression on the next Event Loop iteration
+    // after this `await` expression on the next Event Loop iteration.
     hiveUsers.forEach(put);
     await Future.delayed(Duration.zero);
 
