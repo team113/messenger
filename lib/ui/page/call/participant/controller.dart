@@ -188,7 +188,7 @@ class ParticipantController extends GetxController {
     status.value = RxStatus.loading();
 
     try {
-      if (chat.value?.chat.value.isGroup != false) {
+      if (chat.value?.chat.value.isGroup ?? true) {
         List<Future> futures = ids
             .map((e) => _chatService.addChatMember(chatId.value, e))
             .toList();
@@ -225,6 +225,7 @@ class ParticipantController extends GetxController {
 
   /// Fetches the [chat], or [pop]s, if it's `null`.
   Future<void> _fetchChat() async {
+    chat.value = null;
     final FutureOr<RxChat?> fetched = _chatService.get(chatId.value);
     chat.value = fetched is RxChat? ? fetched : await fetched;
 
