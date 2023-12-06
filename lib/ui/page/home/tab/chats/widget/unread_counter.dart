@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Circle representation of the provided [count] being unread.
+/// Circle representation of the provided [text] being unread.
 class UnreadCounter extends StatelessWidget {
   const UnreadCounter(
     this.text, {
