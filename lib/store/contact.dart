@@ -524,10 +524,7 @@ class ContactRepository extends DisposableInterface
     HiveChatContact contact, {
     bool pagination = false,
   }) async {
-    Log.debug(
-      '_putChatContact($contact, $pagination)',
-      '$runtimeType',
-    );
+    Log.debug('_putChatContact($contact, $pagination)', '$runtimeType');
 
     final ChatContactId contactId = contact.value.id;
     final HiveRxChatContact? saved = contacts[contactId];
