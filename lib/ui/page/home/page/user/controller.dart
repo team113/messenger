@@ -128,7 +128,8 @@ class UserController extends GetxController {
     _fetchUser();
 
     // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
-    RxChatContact? contact = _contactService.paginated.values.firstWhereOrNull(
+    final RxChatContact? contact =
+        _contactService.paginated.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );
 
@@ -254,7 +255,7 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      RxChatContact? contact =
+      final RxChatContact? contact =
           _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
@@ -272,7 +273,7 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      RxChatContact? contact =
+      final RxChatContact? contact =
           _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
