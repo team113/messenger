@@ -34,12 +34,12 @@ final StepDefinitionGeneric blockedCountUsers =
     final GraphQlProvider provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    List<Future> futures = [];
+    final List<Future> futures = [];
 
     for (int i = 0; i < count; i++) {
       futures.add(
         Future(() async {
-          CustomUser user = await createUser();
+          final CustomUser user = await createUser();
           await provider.blockUser(user.userId, null);
         }),
       );

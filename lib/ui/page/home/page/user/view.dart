@@ -313,7 +313,7 @@ class UserView extends StatelessWidget {
                       label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
                       trailing: Obx(() {
                         final Widget child;
-                        if (c.blacklistStatus.value.isEmpty) {
+                        if (c.blocklistStatus.value.isEmpty) {
                           child = const SvgIcon(SvgIcons.block);
                         } else {
                           child = const CustomProgressIndicator();

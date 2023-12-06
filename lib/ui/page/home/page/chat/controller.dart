@@ -1245,15 +1245,92 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Removes a [User] being a recipient of this [chat] from the blocklist.
+  /// Removes [me] from the [chat].
+  Future<void> leaveGroup() async {
+    try {
+      await _chatService.removeChatMember(id, me!);
+      if (router.route.startsWith('${Routes.chats}/$id')) {
+        router.home();
+      }
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Hides the [chat].
+  Future<void> hideChat() async {
+    try {
+      await _chatService.hideChat(id);
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    try {
+      await _chatService.favoriteChat(chat?.id ?? id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    try {
+      await _chatService.unfavoriteChat(chat?.id ?? id);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Adds the [user] to the contacts list of the authenticated [MyUser].
   ///
   /// Only meaningful, if this [chat] is a dialog.
-  Future<void> unblock() async {
-    if (chat?.chat.value.isDialog == true) {
-      final RxUser? recipient =
-          chat!.members.values.firstWhereOrNull((e) => e.id != me);
-      if (recipient != null) {
-        await _userService.unblockUser(recipient.id);
+  Future<void> addToContacts() async {
+    if (!inContacts.value) {
+      try {
+        await _contactService.createChatContact(user!.user.value);
+        inContacts.value = true;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
       }
     }
   }

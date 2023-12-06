@@ -164,16 +164,11 @@ class BlocklistRepository extends DisposableInterface
     );
 
     final users = RxList(query.edges.map((e) => e.node.user.toHive()).toList());
-    users.forEach(_userRepo.put);
-    // Ensure all [users] are stored in [_userRepo].
-    for (var e in users) {
-      await _userRepo.get(e.value.id);
-    }
 
-    return Page(
-      users,
-      query.pageInfo.toModel((c) => BlocklistCursor(c)),
-    );
+    // Ensure all [users] are stored in [_userRepo].
+    await Future.wait(users.map(_userRepo.put));
+
+    return Page(users, query.pageInfo.toModel((c) => BlocklistCursor(c)));
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].

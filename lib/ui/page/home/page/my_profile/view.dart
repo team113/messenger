@@ -85,7 +85,7 @@ class MyProfileView extends StatelessWidget {
               leading: const [StyledBackButton()],
             ),
             body: Builder(builder: (context) {
-              Widget child = ScrollablePositionedList.builder(
+              final Widget child = ScrollablePositionedList.builder(
                 key: const Key('MyProfileScrollable'),
                 initialScrollIndex: c.listInitIndex,
                 scrollController: c.scrollController,
@@ -285,10 +285,7 @@ class MyProfileView extends StatelessWidget {
               );
 
               if (PlatformUtils.isMobile) {
-                return Scrollbar(
-                  controller: c.scrollController,
-                  child: child,
-                );
+                return Scrollbar(controller: c.scrollController, child: child);
               }
 
               return child;
@@ -783,15 +780,14 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
-    final int blocklistCount = c.myUser.value?.blocklistCount ?? 0;
+    final int count = c.myUser.value?.blocklistCount ?? 0;
 
     return Paddings.dense(
       FieldButton(
         key: const Key('ShowBlocklist'),
-        text: 'label_users_count'.l10nfmt({'count': blocklistCount}),
-        onPressed:
-            blocklistCount == 0 ? null : () => BlocklistView.show(context),
-        style: blocklistCount == 0
+        text: 'label_users_count'.l10nfmt({'count': count}),
+        onPressed: count == 0 ? null : () => BlocklistView.show(context),
+        style: count == 0
             ? style.fonts.normal.regular.onBackground
             : style.fonts.normal.regular.primary,
       ),

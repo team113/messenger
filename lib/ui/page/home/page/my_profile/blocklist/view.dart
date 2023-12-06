@@ -72,7 +72,7 @@ class BlocklistView extends StatelessWidget {
                 child: Obx(() {
                   // Show only users with [User.isBlocked] for optimistic
                   // deletion from blocklist.
-                  Iterable<RxUser> blocklist =
+                  final Iterable<RxUser> blocklist =
                       c.blocklist.where((e) => e.user.value.isBlocked != null);
 
                   if (c.status.value.isLoading) {
@@ -84,7 +84,7 @@ class BlocklistView extends StatelessWidget {
                     );
                   } else if (blocklist.isEmpty) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
+                      padding: const EdgeInsets.only(bottom: 8),
                       child: Text('label_no_users'.l10n),
                     );
                   } else {
@@ -95,7 +95,7 @@ class BlocklistView extends StatelessWidget {
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         itemBuilder: (context, i) {
-                          RxUser? user = blocklist.elementAt(i);
+                          final RxUser user = blocklist.elementAt(i);
 
                           Widget child = ContactTile(
                             user: user,
