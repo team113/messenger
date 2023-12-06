@@ -27,7 +27,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 
 /// [Chat] visual representation.
-class ChatTile extends StatelessWidget {
+class ChatTile extends StatefulWidget {
   const ChatTile({
     super.key,
     this.chat,
@@ -37,9 +37,10 @@ class ChatTile extends StatelessWidget {
     this.leading = const [],
     this.trailing = const [],
     this.actions = const [],
+    this.active = false,
     this.selected = false,
     this.onTap,
-    this.height = 94,
+    this.height = 80,
     this.darken = 0,
     this.dimmed = false,
     Widget Function(Widget)? titleBuilder,
@@ -72,6 +73,9 @@ class ChatTile extends StatelessWidget {
   /// Indicator whether this [ChatTile] is selected.
   final bool selected;
 
+  /// Indicator whether this [ChatTile] is active.
+  final bool active;
+
   /// Callback, called when this [ChatTile] is pressed.
   final void Function()? onTap;
 
@@ -99,92 +103,132 @@ class ChatTile extends StatelessWidget {
   final bool dimmed;
 
   @override
+  State<ChatTile> createState() => _ChatTileState();
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(Widget child) => child;
+}
+
+class _ChatTileState extends State<ChatTile> {
+  /// [GlobalKey] of an [AvatarWidget] preventing its redraws.
+  final GlobalKey _avatarKey = GlobalKey();
+
+  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return ContextMenuRegion(
-      key: Key('Chat_${chat?.chat.value.id}'),
+      key: Key('Chat_${widget.chat?.chat.value.id}'),
       preventContextMenu: false,
-      actions: actions,
+      actions: widget.actions,
       indicateOpenedMenu: true,
-      enabled: enableContextMenu,
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: InkWellWithHover(
-            selectedColor: style.colors.primary,
-            unselectedColor: dimmed
-                ? style.colors.onPrimaryOpacity50
-                : style.cardColor.darken(darken),
-            selected: selected,
-            hoveredBorder:
-                selected ? style.cardSelectedBorder : style.cardHoveredBorder,
-            border: selected ? style.cardSelectedBorder : style.cardBorder,
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
-            selectedHoverColor: style.colors.primary,
-            folded: chat?.chat.value.favoritePosition != null,
-            child: Padding(
-              key: chat?.chat.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
-                  : null,
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-              child: Row(
-                children: [
-                  avatarBuilder(
-                    AvatarWidget.fromRxChat(chat, radius: AvatarRadius.large),
-                  ),
-                  const SizedBox(width: 12),
-                  ...leading,
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+      enabled: widget.enableContextMenu,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
+        child: InkWellWithHover(
+          selectedColor: style.colors.primary,
+          unselectedColor: widget.dimmed
+              ? style.colors.onPrimaryOpacity50
+              : style.cardColor.darken(widget.darken),
+          selected: widget.selected,
+          hoveredBorder: widget.selected
+              ? style.cardSelectedBorder
+              : style.cardHoveredBorder,
+          border: widget.selected ? style.cardSelectedBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: widget.onTap,
+          unselectedHoverColor: style.cardHoveredColor,
+          selectedHoverColor: style.colors.primary,
+          folded: widget.chat?.chat.value.favoritePosition != null,
+          child: Column(
+            children: [
+              SizedBox(
+                height: widget.height,
+                child: Padding(
+                  key: widget.chat?.chat.value.favoritePosition != null
+                      ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')
+                      : null,
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                  child: Row(
+                    children: [
+                      widget.avatarBuilder(
+                        AvatarWidget.fromRxChat(
+                          widget.chat,
+                          key: _avatarKey,
+                          radius: AvatarRadius.large,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ...widget.leading,
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: titleBuilder(
-                                      Obx(() {
-                                        return Text(
-                                          chat?.title.value ?? ('dot'.l10n * 3),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: selected
-                                              ? style
-                                                  .fonts.big.regular.onPrimary
-                                              : style.fonts.big.regular
-                                                  .onBackground,
-                                        );
-                                      }),
-                                    ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: widget.titleBuilder(
+                                          widget.chat == null
+                                              ? Text(
+                                                  ('dot'.l10n * 3),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                  style: style.fonts.big.regular
+                                                      .onBackground
+                                                      .copyWith(
+                                                    color: widget.selected ||
+                                                            widget.active
+                                                        ? style.colors.onPrimary
+                                                        : style.colors
+                                                            .onBackground,
+                                                  ),
+                                                )
+                                              : Obx(() {
+                                                  return Text(
+                                                    widget.chat?.title.value ??
+                                                        ('dot'.l10n * 3),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                    style: style.fonts.big
+                                                        .regular.onBackground
+                                                        .copyWith(
+                                                      color: widget.selected ||
+                                                              widget.active
+                                                          ? style
+                                                              .colors.onPrimary
+                                                          : style.colors
+                                                              .onBackground,
+                                                    ),
+                                                  );
+                                                }),
+                                        ),
+                                      ),
+                                      ...widget.title,
+                                    ],
                                   ),
-                                  ...title,
-                                ],
-                              ),
+                                ),
+                                ...widget.status,
+                              ],
                             ),
-                            ...status,
+                            ...widget.subtitle,
                           ],
                         ),
-                        ...subtitle,
-                      ],
-                    ),
+                      ),
+                      ...widget.trailing,
+                    ],
                   ),
-                  ...trailing,
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
-
-  /// Returns the [child].
-  static Widget _defaultBuilder(Widget child) => child;
 }

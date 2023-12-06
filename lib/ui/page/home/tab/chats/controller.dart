@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -369,11 +370,19 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Hides the [Chat] identified by the provided [id].
-  Future<void> hideChat(ChatId id) async {
+  /// Hides the [Chat] identified by the provided [id] and clearing their
+  /// histories as well if [clear] is `true`.
+  Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
-      await _chatService.hideChat(id);
+      final Iterable<Future> futures = [
+        if (clear) _chatService.clearChat(id),
+        _chatService.hideChat(id)
+      ];
+
+      await Future.wait(futures);
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on ClearChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -469,6 +478,72 @@ class ChatsTabController extends GetxController {
     }
 
     return _callService.calls[id] != null;
+  }
+
+  bool inContacts(RxChat chat) {
+    if (chat.chat.value.isDialog != true) {
+      return false;
+    }
+
+    final UserId? userId =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.id;
+    if (userId == null) {
+      return false;
+    }
+
+    return _contactService.contacts.values
+            .any((e) => e.contact.value.users.every((m) => m.id == userId)) ||
+        _contactService.favorites.values
+            .any((e) => e.contact.value.users.every((m) => m.id == userId));
+  }
+
+  /// Adds the [user] to the contacts list of the authenticated [MyUser].
+  Future<void> addToContacts(RxChat chat) async {
+    if (inContacts(chat)) {
+      return;
+    }
+
+    final User? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      await _contactService.createChatContact(user);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [user] from the contacts list of the authenticated [MyUser].
+  Future<void> removeFromContacts(RxChat chat) async {
+    if (!inContacts(chat)) {
+      return;
+    }
+
+    final User? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      final RxChatContact? contact =
+          _contactService.contacts.values.firstWhereOrNull(
+                (e) => e.contact.value.users.every((m) => m.id == user.id),
+              ) ??
+              _contactService.favorites.values.firstWhereOrNull(
+                (e) => e.contact.value.users.every((m) => m.id == user.id),
+              );
+      if (contact != null) {
+        await _contactService.deleteContact(contact.contact.value.id);
+      }
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
