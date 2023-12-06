@@ -139,8 +139,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     if (!_blocklistLocal.isEmpty) {
-      final users = <RxUser?>[];
-      final futures = <Future<RxUser?>>[];
+      final List<RxUser?> users = [];
+      final List<Future<RxUser?>> futures = [];
 
       for (final UserId id in _blocklistLocal.blocked) {
         final FutureOr<RxUser?> user = _userRepo.get(id);
@@ -725,16 +725,14 @@ class MyUserRepository implements AbstractMyUserRepository {
         final FutureOr<RxUser?> user = _userRepo.get(event.userId);
 
         if (user is RxUser?) {
-          if (user == null) {
-            return;
+          if (user != null) {
+            _userRepo.update(convertor(user.user.value));
           }
-          _userRepo.update(convertor(user.user.value));
         } else {
           user.then((user) {
-            if (user == null) {
-              return;
+            if (user != null) {
+              _userRepo.update(convertor(user.user.value));
             }
-            _userRepo.update(convertor(user.user.value));
           });
         }
       }
