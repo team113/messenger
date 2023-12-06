@@ -307,7 +307,7 @@ class ContactsTabView extends StatelessWidget {
                   key: UniqueKey(),
                   child: ColoredBox(
                     key: const Key('Loading'),
-                    color: style.colors.transparent,
+                    color: style.colors.almostTransparent,
                     child: const CustomProgressIndicator(),
                   ),
                 );

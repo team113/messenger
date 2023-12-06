@@ -156,9 +156,5 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             count
         }
     }
-    myUser {
-        __typename
-        ...MyUser
-    }
     ver
 }

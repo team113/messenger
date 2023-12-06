@@ -28,6 +28,7 @@ import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
@@ -40,8 +41,8 @@ void main() async {
   await myUserProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -53,13 +54,19 @@ void main() async {
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+          graphQlProvider, blockedUsersProvider, userRepository),
+    );
+
     var profileService = Get.put(
       MyUserService(
         Get.find(),
         MyUserRepository(
           graphQlProvider,
           myUserProvider,
-          blacklistedUsersProvider,
+          blocklistRepository,
           userRepository,
         ),
       ),
@@ -91,7 +98,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -126,6 +133,6 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
   }
 }
