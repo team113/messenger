@@ -73,7 +73,7 @@ class AuthService extends GetxService {
   final Duration _refreshTaskInterval = const Duration(minutes: 1);
 
   /// Minimal allowed [_session] TTL.
-  final Duration _accessTokenMinTtl = const Duration(minutes: 2);
+  final Duration _accessTokenMinTtl = const Duration(minutes: 3);
 
   /// Guard used to track [renewSession] completion.
   final Mutex _tokenGuard = Mutex();
