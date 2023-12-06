@@ -59,6 +59,12 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   late final Rx<MyUser?> myUser;
 
+  /// Callback that is called when [MyUser] is deleted.
+  late final void Function() onUserDeleted;
+
+  /// Callback that is called when [MyUser]'s password is changed.
+  late final void Function() onPasswordUpdated;
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -86,11 +92,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onFocusChanged;
 
-  /// Callback that is called when [MyUser] is deleted.
-  late final void Function() onUserDeleted;
-
-  /// Callback that is called when [MyUser]'s password is changed.
-  late final void Function() onPasswordUpdated;
+  /// Indicator whether this [MyUserRepository] has been disposed, meaning no
+  /// requests should be made.
+  bool _disposed = false;
 
   @override
   Future<void> init({
@@ -129,6 +133,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
+    _disposed = true;
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
@@ -582,6 +587,10 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [_myUserRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (_disposed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _remoteSubscription?.close(immediate: true);

@@ -1605,6 +1605,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _subscribedAt = DateTime.now();
@@ -1730,6 +1734,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
@@ -2041,6 +2049,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initFavoriteSubscription()', '$runtimeType');
 
     _favoriteChatsSubscription?.cancel();
