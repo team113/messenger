@@ -122,7 +122,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
           return Text.rich(
             TextSpan(
-                children: spans, style: style.fonts.small.regular.secondary),
+              children: spans,
+              style: style.fonts.small.regular.secondary,
+            ),
           );
         }
 
