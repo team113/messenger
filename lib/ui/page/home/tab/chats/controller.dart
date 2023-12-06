@@ -370,8 +370,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Hides the [Chat] identified by the provided [id] and clearing their
-  /// histories as well if [clear] is `true`.
+  /// Hides the [Chat] identified by the provided [id] and clears its
+  /// history as well if [clear] is `true`.
   Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
       final Iterable<Future> futures = [
@@ -480,6 +480,9 @@ class ChatsTabController extends GetxController {
     return _callService.calls[id] != null;
   }
 
+  /// Indicates whether [User] from this [chat] is already in contacts.
+  ///
+  /// Only meaningful, if [chat] is dialog.
   bool inContacts(RxChat chat) {
     if (chat.chat.value.isDialog != true) {
       return false;
@@ -497,7 +500,10 @@ class ChatsTabController extends GetxController {
             .any((e) => e.contact.value.users.every((m) => m.id == userId));
   }
 
-  /// Adds the [user] to the contacts list of the authenticated [MyUser].
+  /// Adds the [User] from this [chat] to the contacts list of the authenticated
+  /// [MyUser].
+  ///
+  /// Only meaningful, if [chat] is dialog.
   Future<void> addToContacts(RxChat chat) async {
     if (inContacts(chat)) {
       return;
@@ -517,7 +523,10 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Removes the [user] from the contacts list of the authenticated [MyUser].
+  /// Removes the [User] from this [chat] from the contacts list of the
+  /// authenticated [MyUser].
+  ///
+  /// Only meaningful, if [chat] is dialog.
   Future<void> removeFromContacts(RxChat chat) async {
     if (!inContacts(chat)) {
       return;

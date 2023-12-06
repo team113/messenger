@@ -47,7 +47,7 @@ class RectangleButton extends StatelessWidget {
   /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
 
-  /// Indicator whether [onPressed] shouldn't be invoked when [selected].
+  /// Indicator whether [onPressed] can be invoked when [selected].
   final bool tappable;
 
   /// [Color] of the trailing background, when [selected] is `true`.

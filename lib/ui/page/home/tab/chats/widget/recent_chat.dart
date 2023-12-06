@@ -108,7 +108,7 @@ class RecentChatTile extends StatelessWidget {
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
   final bool Function()? inCall;
 
-  /// Callback, called to check whether this [user] is already in the contacts
+  /// Callback, called to check whether this [User] is already in the contacts
   /// list of the authenticated [MyUser].
   final bool Function()? inContacts;
 
@@ -142,7 +142,7 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] select action is triggered.
   final void Function()? onSelect;
 
-  /// Callback, called when this [rxChat] add or remove to contacts action is
+  /// Callback, called when this [rxChat] add or remove contact action is
   /// triggered.
   final void Function(bool)? onContact;
 
