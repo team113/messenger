@@ -177,7 +177,8 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session] and generates a new [RefreshToken].
   Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
-    Log.debug('renewSession($token)', '$runtimeType');
+    final Stopwatch watch = Stopwatch()..start();
+    Log.debug('renewSession($token) [debug][STARTED]', '$runtimeType');
 
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
@@ -191,6 +192,13 @@ mixin AuthGraphQlMixin {
               .code),
       raw: const RawClientOptions(),
     );
+
+    Log.debug(
+      'renewSession($token) [debug][DONE for ${watch.elapsed}]',
+      '$runtimeType',
+    );
+    watch.stop();
+
     return RenewSession$Mutation.fromJson(result.data!);
   }
 
