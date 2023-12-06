@@ -17,6 +17,7 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -307,76 +308,79 @@ class UserView extends StatelessWidget {
                     //     ),
                     //   ],
                     // ),
-                    Stack(
-                      children: [
-                        Block(
-                          title: 'label_get_paid_for_incoming_from'.l10nfmt({
-                            'user': c.user!.user.value.name?.val ??
-                                c.user!.user.value.num.toString(),
-                          }),
-                          children: [_paid(c, context)],
-                        ),
-                        Positioned.fill(
-                          child: Obx(() {
-                            return IgnorePointer(
-                              ignoring: c.verified.value,
-                              child: Center(
-                                child: AnimatedContainer(
-                                  margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                                  duration: 200.milliseconds,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: c.verified.value
-                                        ? const Color(0x00000000)
-                                        : const Color(0x0A000000),
-                                  ),
-                                  constraints: context.isNarrow
-                                      ? null
-                                      : const BoxConstraints(maxWidth: 400),
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                        Positioned.fill(
-                          child: Center(
+                    SelectionContainer.disabled(
+                      child: Stack(
+                        children: [
+                          Block(
+                            title: 'label_get_paid_for_incoming_from'.l10nfmt({
+                              'user': c.user!.user.value.name?.val ??
+                                  c.user!.user.value.num.toString(),
+                            }),
+                            children: [_paid(c, context)],
+                          ),
+                          Positioned.fill(
                             child: Obx(() {
-                              return AnimatedSwitcher(
-                                duration: 200.milliseconds,
-                                child: c.verified.value
-                                    ? const SizedBox()
-                                    : Container(
-                                        key: const Key('123'),
-                                        alignment: Alignment.bottomCenter,
-                                        padding: const EdgeInsets.fromLTRB(
-                                          32,
-                                          16,
-                                          32,
-                                          16,
-                                        ),
-                                        margin: const EdgeInsets.fromLTRB(
-                                          8,
-                                          4,
-                                          8,
-                                          4,
-                                        ),
-                                        constraints: context.isNarrow
-                                            ? null
-                                            : const BoxConstraints(
-                                                maxWidth: 400,
-                                              ),
-                                        child: Column(
-                                          children: [
-                                            const Spacer(),
-                                            _verification(context, c),
-                                          ],
-                                        ),
-                                      ),
+                              return IgnorePointer(
+                                ignoring: c.verified.value,
+                                child: Center(
+                                  child: AnimatedContainer(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                    duration: 200.milliseconds,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: c.verified.value
+                                          ? const Color(0x00000000)
+                                          : const Color(0x0A000000),
+                                    ),
+                                    constraints: context.isNarrow
+                                        ? null
+                                        : const BoxConstraints(maxWidth: 400),
+                                  ),
+                                ),
                               );
                             }),
                           ),
-                        ),
-                      ],
+                          Positioned.fill(
+                            child: Center(
+                              child: Obx(() {
+                                return AnimatedSwitcher(
+                                  duration: 200.milliseconds,
+                                  child: c.verified.value
+                                      ? const SizedBox()
+                                      : Container(
+                                          key: const Key('123'),
+                                          alignment: Alignment.bottomCenter,
+                                          padding: const EdgeInsets.fromLTRB(
+                                            32,
+                                            16,
+                                            32,
+                                            16,
+                                          ),
+                                          margin: const EdgeInsets.fromLTRB(
+                                            8,
+                                            4,
+                                            8,
+                                            4,
+                                          ),
+                                          constraints: context.isNarrow
+                                              ? null
+                                              : const BoxConstraints(
+                                                  maxWidth: 400,
+                                                ),
+                                          child: Column(
+                                            children: [
+                                              const Spacer(),
+                                              _verification(context, c),
+                                            ],
+                                          ),
+                                        ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     Block(
                       // title: 'label_actions'.l10n,
@@ -712,7 +716,7 @@ class UserView extends StatelessWidget {
         // }),
         ActionButton(
           text: 'btn_report'.l10n,
-          onPressed: () {},
+          onPressed: c.report,
           trailing: const SvgIcon(SvgIcons.report16),
         ),
       ],
@@ -801,19 +805,18 @@ class UserView extends StatelessWidget {
         Paddings.basic(
           ReactiveTextField(
             state: c.messageCost,
-            style: style.fonts.medium.regular.secondary.copyWith(
-              color: style.colors.acceptAuxiliary,
-            ),
+            style: style.fonts.medium.regular.onBackground,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            formatters: [FilteringTextInputFormatter.digitsOnly],
+            hint: '0',
             prefix: Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
               child: Transform.translate(
                 offset: const Offset(0, -0.7),
                 child: Text(
-                  '\$',
-                  style: style.fonts.medium.regular.secondary.copyWith(
-                    color: style.colors.acceptAuxiliary,
-                    // fontWeight: FontWeight.bold,
-                  ),
+                  // '\$',
+                  'G',
+                  style: style.fonts.medium.regular.onBackground,
                 ),
               ),
             ),
@@ -823,19 +826,19 @@ class UserView extends StatelessWidget {
         Paddings.basic(
           ReactiveTextField(
             state: c.callsCost,
-            style: style.fonts.medium.regular.secondary.copyWith(
-              color: style.colors.acceptAuxiliary,
-            ),
+            style: style.fonts.medium.regular.onBackground,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            formatters: [FilteringTextInputFormatter.digitsOnly],
+            hint: '0',
             prefix: Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
               child: Transform.translate(
                 offset: const Offset(0, -0.7),
                 child: Text(
-                  '\$',
-                  style: style.fonts.medium.regular.secondary.copyWith(
-                    color: style.colors.acceptAuxiliary,
-                    // fontWeight: FontWeight.bold,
-                  ),
+                  // '\$',
+
+                  'G',
+                  style: style.fonts.medium.regular.onBackground,
                 ),
               ),
             ),

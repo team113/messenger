@@ -56,7 +56,13 @@ class ChatInfoView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
-      init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
+      init: ChatInfoController(
+        id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       tag: id.val,
       global: !Get.isRegistered<ChatInfoController>(tag: id.val),
       builder: (c) {
@@ -266,7 +272,7 @@ class ChatInfoView extends StatelessWidget {
         //     trailing: const SvgIcon(SvgIcons.block16),
         //   ),
         ActionButton(
-          onPressed: () {},
+          onPressed: c.report,
           text: 'btn_report'.l10n,
           trailing: Transform.translate(
             offset: const Offset(0, -1),
@@ -470,7 +476,7 @@ class ChatInfoView extends StatelessWidget {
                   right: 4 + 21,
                 ),
                 height: double.infinity,
-                child: SvgIcon(SvgIcons.more),
+                child: const SvgIcon(SvgIcons.more),
               ),
             );
           }),

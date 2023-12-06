@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -422,6 +423,12 @@ class UserController extends GetxController {
     }
   }
 
+  Future<void> report() async {
+    const userId = UserId('2ff2211b-ab11-4f36-a51e-06b0c6bc3dba');
+    final user = await _userService.get(userId);
+    router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
+  }
+
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
@@ -431,45 +438,91 @@ class UserController extends GetxController {
       if (user != null) {
         messageCost = TextFieldState(
           approvable: true,
-          text: user!.user.value.messageCost == 0
-              ? '0.00'
-              : '${user!.user.value.messageCost.toString()}.00',
+          allowable: true,
+          // text: user!.user.value.messageCost == 0
+          //     ? '0.00'
+          //     : '${user!.user.value.messageCost.toString()}.00',
+          text: user!.user.value.messageCost.toString(),
           onChanged: (s) {
             user?.user.value.messageCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
+          onSubmitted: (s) {
+            // if (!s.text.contains('.')) {
+            //   s.unchecked = '${s.text}.00';
+            // }
+          },
         );
 
         messageCost.isFocused.listen((b) {
-          if (b) {
-            messageCost.unchecked = messageCost.text.replaceAll('.00', '');
-          } else if (messageCost.text.isNotEmpty) {
-            if (!messageCost.text.contains('.')) {
-              messageCost.text = '${messageCost.text}.00';
-            }
+          if (!b && messageCost.text.isEmpty) {
+            messageCost.unchecked = '0';
           }
         });
 
+        // messageCost.isFocused.listen((b) {
+        //   if (b) {
+        //     if (messageCost.hasAllowance.value) {
+        //       messageCost.unchecked = messageCost.text.replaceAll('.00', '');
+        //     }
+        //   } else if (messageCost.text.isNotEmpty) {
+        //     print('messageCost.text.isNotEmpty: `${messageCost.text}`');
+
+        //     if (!messageCost.text.contains('.')) {
+        //       messageCost.unchecked = '${messageCost.text}.00';
+        //     } else if (messageCost.text.startsWith('.')) {
+        //       messageCost.unchecked = '0${messageCost.text}';
+        //     }
+
+        //     int signs = messageCost.text.indexOf('.');
+        //     if (signs != -1) {
+        //       messageCost.unchecked = messageCost.text.substring(
+        //         0,
+        //         signs + max(2, messageCost.text.length - signs),
+        //       );
+        //     }
+        //   } else {
+        //     messageCost.unchecked = '0.00';
+        //   }
+        // });
+
         callsCost = TextFieldState(
           approvable: true,
-          text: user!.user.value.callCost == 0
-              ? '0.00'
-              : '${user!.user.value.callCost.toString()}.00',
+          allowable: true,
+          text: user!.user.value.callCost.toString(),
+          // text: user!.user.value.callCost == 0
+          //     ? '0.00'
+          //     : '${user!.user.value.callCost.toString()}.00',
           onChanged: (s) {
             user?.user.value.callCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
           },
+          onSubmitted: (s) {
+            // if (!s.text.contains('.')) {
+            //   s.unchecked = '${s.text}.00';
+            // }
+          },
         );
 
         callsCost.isFocused.listen((b) {
-          if (b) {
-            callsCost.unchecked = callsCost.text.replaceAll('.00', '');
-          } else if (callsCost.text.isNotEmpty) {
-            if (!callsCost.text.contains('.')) {
-              callsCost.text = '${callsCost.text}.00';
-            }
+          if (!b && callsCost.text.isEmpty) {
+            callsCost.unchecked = '0';
           }
         });
+
+        // callsCost.isFocused.listen((b) {
+        //   if (b) {
+        //     if (callsCost.hasAllowance.value) {
+        //       callsCost.unchecked = callsCost.text.replaceAll('.00', '');
+        //     }
+        //   } else if (callsCost.text.isNotEmpty) {
+        //     if (!callsCost.text.contains('.')) {
+        //       callsCost.unchecked = '${callsCost.text}.00';
+        //     }
+        //   } else {
+        //     callsCost.text = '0.00';
+        //   }
+        // });
       }
 
       status.value = user == null ? RxStatus.empty() : RxStatus.success();

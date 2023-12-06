@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
@@ -46,6 +47,7 @@ class ChatInfoController extends GetxController {
     this._chatService,
     this._authService,
     this._callService,
+    this._userService,
   );
 
   /// ID of the [Chat] this page is about.
@@ -78,6 +80,8 @@ class ChatInfoController extends GetxController {
 
   /// [CallService] used to start a call in the [chat].
   final CallService _callService;
+
+  final UserService _userService;
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
@@ -420,6 +424,12 @@ class ChatInfoController extends GetxController {
 
   Future<void> addToContacts() async {}
   Future<void> removeFromContacts() async {}
+
+  Future<void> report() async {
+    const userId = UserId('2ff2211b-ab11-4f36-a51e-06b0c6bc3dba');
+    final user = await _userService.get(userId);
+    router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
+  }
 
   /// Fetches the [chat].
   void _fetchChat() async {

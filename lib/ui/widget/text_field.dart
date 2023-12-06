@@ -227,11 +227,17 @@ class ReactiveTextField extends StatelessWidget {
             !state.status.value.isEmpty;
 
         return AnimatedButton(
-          onPressed: state.approvable && state.changed.value
+          onPressed: state.approvable &&
+                  (state.changed.value || state.hasAllowance.value)
               ? state.isEmpty.value && !clearable
                   ? null
                   : state.submit
-              : onSuffixPressed,
+              : (state.allowable && !state.hasAllowance.value)
+                  ? () {
+                      state.hasAllowance.value = true;
+                      state.focus.requestFocus();
+                    }
+                  : onSuffixPressed,
           decorator: (child) {
             if (!hasSuffix) {
               return child;
@@ -256,7 +262,9 @@ class ReactiveTextField extends StatelessWidget {
                                   width: 24,
                                   child: SvgIcon(SvgIcons.errorBig),
                                 )
-                              : (state.approvable && state.changed.value)
+                              : (state.approvable &&
+                                      (state.changed.value ||
+                                          state.hasAllowance.value))
                                   ? AllowOverflow(
                                       key: const ValueKey('Approve'),
                                       child: Text(
@@ -265,21 +273,33 @@ class ReactiveTextField extends StatelessWidget {
                                             style.fonts.small.regular.primary,
                                       ),
                                     )
-                                  : SizedBox(
-                                      key: const ValueKey('Icon'),
-                                      width: trailingWidth == null
-                                          ? null
-                                          : (trailingWidth! +
-                                              (PlatformUtils.isWeb ? 6 : 0)),
-                                      child: Transform.translate(
-                                        offset: const Offset(5, 0),
-                                        child: suffix != null
-                                            ? Icon(suffix)
-                                            : trailing == null
-                                                ? Container()
-                                                : trailing!,
-                                      ),
-                                    ),
+                                  : (state.allowable &&
+                                          !state.hasAllowance.value)
+                                      ? AllowOverflow(
+                                          key: const ValueKey('Allow'),
+                                          child: Text(
+                                            'Изменить'.l10n,
+                                            style: style
+                                                .fonts.small.regular.primary,
+                                          ),
+                                        )
+                                      : SizedBox(
+                                          key: const ValueKey('Icon'),
+                                          width: trailingWidth == null
+                                              ? null
+                                              : (trailingWidth! +
+                                                  (PlatformUtils.isWeb
+                                                      ? 6
+                                                      : 0)),
+                                          child: Transform.translate(
+                                            offset: const Offset(5, 0),
+                                            child: suffix != null
+                                                ? Icon(suffix)
+                                                : trailing == null
+                                                    ? Container()
+                                                    : trailing!,
+                                          ),
+                                        ),
                     ),
                   )
                 : const SizedBox(width: 1, height: 0),
@@ -291,27 +311,44 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(() {
       final style = Theme.of(context).style;
 
+      final decoration = Theme.of(context).inputDecorationTheme;
+
+      final border = state.allowable
+          ? state.hasAllowance.value
+              ? decoration.border?.copyWith(
+                  borderSide: BorderSide(color: style.colors.primary))
+              : decoration.border
+          : null;
+
+      final floatingLabel = state.error.value?.isNotEmpty == true
+          ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
+          : state.allowable && state.hasAllowance.value
+              ? decoration.floatingLabelStyle
+                  ?.copyWith(color: style.colors.primary)
+              : state.isFocused.value && !state.allowable
+                  ? decoration.floatingLabelStyle
+                      ?.copyWith(color: style.colors.primary)
+                  : null;
+
       return Theme(
         data: Theme.of(context).copyWith(
-          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-                floatingLabelStyle: state.error.value?.isNotEmpty == true
-                    ? Theme.of(context)
-                        .inputDecorationTheme
-                        .floatingLabelStyle
-                        ?.copyWith(color: style.colors.danger)
-                    : state.isFocused.value
-                        ? Theme.of(context)
-                            .inputDecorationTheme
-                            .floatingLabelStyle
-                            ?.copyWith(color: style.colors.primary)
-                        : null,
-              ),
+          inputDecorationTheme: decoration.copyWith(
+            floatingLabelStyle: floatingLabel,
+            border: border,
+            enabledBorder: border,
+            focusedBorder: border,
+            focusedErrorBorder: border,
+            disabledBorder: border,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              enableInteractiveSelection: selectable,
+              enableInteractiveSelection:
+                  (state.allowable && !state.hasAllowance.value)
+                      ? false
+                      : selectable,
               selectionControls: PlatformUtils.isAndroid
                   ? MaterialTextSelectionControls()
                   : PlatformUtils.isIOS
@@ -327,7 +364,9 @@ class ReactiveTextField extends StatelessWidget {
               textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
-              readOnly: readOnly || (!enabled || !state.editable.value),
+              readOnly: (state.allowable && !state.hasAllowance.value) ||
+                  readOnly ||
+                  (!enabled || !state.editable.value),
               enabled: enabled,
               decoration: InputDecoration(
                 floatingLabelBehavior: floatingLabelBehavior,
@@ -488,8 +527,12 @@ abstract class ReactiveFieldState {
   /// Indicator whether [controller]'s text was changed.
   RxBool get changed;
 
+  RxBool get hasAllowance;
+
   /// Indicator whether [controller]'s text should be approved.
   bool approvable = false;
+
+  bool allowable = false;
 
   /// Reactive [FocusNode.hasFocus] of this [ReactiveFieldState].
   final RxBool isFocused = RxBool(false);
@@ -513,6 +556,7 @@ class TextFieldState extends ReactiveFieldState {
     RxStatus? status,
     FocusNode? focus,
     bool approvable = false,
+    bool allowable = false,
     bool editable = true,
     bool submitted = true,
     bool revalidateOnUnfocus = false,
@@ -524,6 +568,7 @@ class TextFieldState extends ReactiveFieldState {
     this.editable = RxBool(editable);
     this.status = Rx(status ?? RxStatus.empty());
     this.approvable = approvable;
+    this.allowable = allowable;
     this.error.value = error;
 
     if (submitted) {
@@ -550,6 +595,10 @@ class TextFieldState extends ReactiveFieldState {
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
       print('[listener] ${this.focus.hasFocus}');
+
+      // if (!isFocused.value) {
+      //   hasAllowance.value = false;
+      // }
 
       if (onChanged != null) {
         if (controller.text != _previousText &&
@@ -597,6 +646,9 @@ class TextFieldState extends ReactiveFieldState {
   @override
   late final FocusNode focus;
 
+  @override
+  final RxBool hasAllowance = RxBool(false);
+
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.
   String? _previousText;
@@ -634,6 +686,11 @@ class TextFieldState extends ReactiveFieldState {
   @override
   void submit() {
     if (editable.value) {
+      if (hasAllowance.value) {
+        hasAllowance.value = false;
+        focus.unfocus();
+      }
+
       if (controller.text != _previousSubmit) {
         if (_previousText != controller.text) {
           _previousText = controller.text;

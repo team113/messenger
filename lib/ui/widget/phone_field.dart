@@ -291,6 +291,9 @@ class PhoneFieldState extends ReactiveFieldState {
     _previousSubmit = null;
     changed.value = false;
   }
+
+  @override
+  final RxBool hasAllowance = RxBool(false);
 }
 
 class _CountrySelectorNavigator extends CountrySelectorNavigator {
