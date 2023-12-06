@@ -178,6 +178,10 @@ class HiveRxChat extends RxChat {
   /// [CancelToken] for cancelling the [Pagination.around] query.
   final CancelToken _aroundToken = CancelToken();
 
+  /// Indicator whether this [HiveRxChat] has been disposed, meaning no requests
+  /// should be made.
+  bool _disposed = false;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -391,6 +395,7 @@ class HiveRxChat extends RxChat {
   Future<void> dispose() async {
     Log.debug('dispose()', '$runtimeType($id)');
 
+    _disposed = true;
     status.value = RxStatus.loading();
     messages.clear();
     reads.clear();
@@ -1060,6 +1065,10 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (_disposed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
     if (!id.isLocal) {

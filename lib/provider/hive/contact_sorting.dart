@@ -18,13 +18,14 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mutex/mutex.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
+import '/domain/model/user.dart';
 import '/util/log.dart';
-import '/util/new_type.dart';
 import 'base.dart';
 
-/// [Hive] storage for [ChatId]s sorted by the [ChatFavoritePosition]s.
-class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
+/// [Hive] storage for [ChatContactId]s sorted by the [UserName]s and secondary
+/// by [ChatContactId].
+class ContactSortingHiveProvider extends HiveBaseProvider<ChatContactId> {
   /// [Mutex] guarding synchronized access to the [put] and [remove].
   final Mutex _mutex = Mutex();
 
@@ -32,37 +33,37 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'favorite_chat';
+  String get boxName => 'contact_sorting';
 
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
-    Hive.maybeRegisterAdapter(ChatIdAdapter());
+    Hive.maybeRegisterAdapter(ChatContactIdAdapter());
   }
 
-  /// Returns a list of [ChatId]s from [Hive].
-  Iterable<ChatId> get values => valuesSafe;
+  /// Returns a list of [ChatContactId]s from [Hive].
+  Iterable<ChatContactId> get values => valuesSafe;
 
-  /// Puts the provided [ChatId] by the provided [key] to [Hive].
-  Future<void> put(ChatFavoritePosition key, ChatId item) async {
-    Log.debug('put($key, $item)', '$runtimeType');
+  /// Puts the provided [ChatContactId] by the provided [name] to [Hive].
+  Future<void> put(UserName name, ChatContactId item) async {
+    Log.debug('put($name, $item)', '$runtimeType');
 
-    final String i = '${key.toPlainString()}_$item';
+    final String key = '${name}_$item';
 
-    if (getSafe(i) != item) {
+    if (getSafe(key) != item) {
       await _mutex.protect(() async {
         final int index = values.toList().indexOf(item);
         if (index != -1) {
           await deleteAtSafe(index);
         }
 
-        await putSafe(i, item);
+        await putSafe(key, item);
       });
     }
   }
 
-  /// Removes the provided [ChatId] from [Hive].
-  Future<void> remove(ChatId item) async {
+  /// Removes the provided [ChatContactId] from [Hive].
+  Future<void> remove(ChatContactId item) async {
     Log.debug('remove($item)', '$runtimeType');
 
     await _mutex.protect(() async {

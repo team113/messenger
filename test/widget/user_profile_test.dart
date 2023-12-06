@@ -40,8 +40,10 @@ import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -222,6 +224,10 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  await favoriteContactHiveProvider.init();
+  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  await contactSortingHiveProvider.init();
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
@@ -461,6 +467,8 @@ void main() async {
       ContactRepository(
         graphQlProvider,
         contactProvider,
+        favoriteContactHiveProvider,
+        contactSortingHiveProvider,
         userRepository,
         sessionProvider,
       ),
