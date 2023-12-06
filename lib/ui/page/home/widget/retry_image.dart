@@ -55,6 +55,7 @@ class RetryImage extends StatefulWidget {
     this.cancelable = false,
     this.autoLoad = true,
     this.displayProgress = true,
+    this.backgroundBuilder,
   });
 
   /// Constructs a [RetryImage] from the provided [attachment] loading the
@@ -151,6 +152,9 @@ class RetryImage extends StatefulWidget {
 
   /// Indicator whether the image fetching progress should be displayed.
   final bool displayProgress;
+
+  /// Optional background constructor that is shown under the loader
+  final Widget Function()? backgroundBuilder;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -281,40 +285,46 @@ class _RetryImageState extends State<RetryImage> {
           height: widget.height,
           constraints: const BoxConstraints(minWidth: 200),
           alignment: Alignment.center,
-          child: Container(
-            constraints: const BoxConstraints(
-              maxHeight: 46,
-              maxWidth: 46,
-              minWidth: 10,
-              minHeight: 10,
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (!_canceled && widget.displayProgress)
-                  CustomProgressIndicator.primary(
-                    value: _progress == 0 ? null : _progress.clamp(0, 1),
-                  ),
-                if (widget.cancelable)
-                  Center(
-                    child: _canceled
-                        ? Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: style.colors.onBackgroundOpacity20,
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer.workaround,
+          child: Stack(
+            children: [
+              if (widget.backgroundBuilder != null)
+                widget.backgroundBuilder!.call(),
+              Container(
+                constraints: const BoxConstraints(
+                  maxHeight: 46,
+                  maxWidth: 46,
+                  minWidth: 10,
+                  minHeight: 10,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (!_canceled && widget.displayProgress)
+                      CustomProgressIndicator.primary(
+                        value: _progress == 0 ? null : _progress.clamp(0, 1),
+                      ),
+                    if (widget.cancelable)
+                      Center(
+                        child: _canceled
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: style.colors.onBackgroundOpacity20,
+                                      blurRadius: 8,
+                                      blurStyle: BlurStyle.outer.workaround,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: const SvgIcon(SvgIcons.download),
-                          )
-                        : const SvgIcon(SvgIcons.closePrimary),
-                  ),
-              ],
-            ),
+                                child: const SvgIcon(SvgIcons.download),
+                              )
+                            : const SvgIcon(SvgIcons.closePrimary),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       );

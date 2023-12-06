@@ -386,76 +386,88 @@ class AvatarWidget extends StatelessWidget {
                   ? avatar?.medium
                   : avatar?.small;
 
-      return Badge(
-        largeSize: badgeSize * 1.16,
-        isLabelVisible: isOnline,
-        alignment: Alignment.bottomRight,
-        backgroundColor: style.colors.onPrimary,
-        padding: EdgeInsets.all(badgeSize / 12),
-        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
-        label: SizedBox(
-          width: badgeSize,
-          height: badgeSize,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color:
-                  isAway ? style.colors.warning : style.colors.acceptAuxiliary,
+      final Widget defaultAvatar = Container(
+        margin: const EdgeInsets.all(0.5),
+        constraints: BoxConstraints(
+          minHeight: minHeight,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        ),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [gradient.lighten(), gradient],
+          ),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: label ??
+              SelectionContainer.disabled(
+                child: Text(
+                  (title ?? '??').initials(),
+                  style: style.fonts.normal.bold.onPrimary.copyWith(
+                    fontSize: style.fonts.normal.bold.onPrimary.fontSize! *
+                        (maxWidth / 40.0),
+                  ),
+
+                  // Disable the accessibility size settings for this [Text].
+                  textScaler: const TextScaler.linear(1),
+                ),
+              ),
+        ),
+      );
+
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: minWidth,
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        ),
+        child: Badge(
+          largeSize: badgeSize * 1.16,
+          isLabelVisible: isOnline,
+          alignment: Alignment.bottomRight,
+          backgroundColor: style.colors.onPrimary,
+          padding: EdgeInsets.all(badgeSize / 12),
+          offset:
+              maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
+          label: SizedBox(
+            width: badgeSize,
+            height: badgeSize,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isAway
+                    ? style.colors.warning
+                    : style.colors.acceptAuxiliary,
+              ),
             ),
           ),
-        ),
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(0.5),
-              constraints: BoxConstraints(
-                minHeight: minHeight,
-                minWidth: minWidth,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [gradient.lighten(), gradient],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: label ??
-                    SelectionContainer.disabled(
-                      child: Text(
-                        (title ?? '??').initials(),
-                        style: style.fonts.normal.bold.onPrimary.copyWith(
-                          fontSize:
-                              style.fonts.normal.bold.onPrimary.fontSize! *
-                                  (maxWidth / 40.0),
+          child: Stack(
+            children: [
+              if (avatar == null) defaultAvatar,
+              if (avatar != null || child != null)
+                Positioned.fill(
+                  child: ClipOval(
+                    child: child ??
+                        RetryImage(
+                          image!.url,
+                          checksum: image.checksum,
+                          thumbhash: image.thumbhash,
+                          fit: BoxFit.cover,
+                          height: double.infinity,
+                          width: double.infinity,
+                          displayProgress: false,
+                          onForbidden: onForbidden,
+                          backgroundBuilder: () => defaultAvatar,
                         ),
-
-                        // Disable the accessibility size settings for this [Text].
-                        textScaler: const TextScaler.linear(1),
-                      ),
-                    ),
-              ),
-            ),
-            if (avatar != null || child != null)
-              Positioned.fill(
-                child: ClipOval(
-                  child: child ??
-                      RetryImage(
-                        image!.url,
-                        checksum: image.checksum,
-                        thumbhash: image.thumbhash,
-                        fit: BoxFit.cover,
-                        height: double.infinity,
-                        width: double.infinity,
-                        displayProgress: false,
-                        onForbidden: onForbidden,
-                      ),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     });
