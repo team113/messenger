@@ -222,7 +222,10 @@ class RecentChatTile extends StatelessWidget {
               ] else ...[
                 if (chat.muted != null) ...[
                   const SizedBox(width: 10),
-                  SvgIcon(inverted ? SvgIcons.mutedWhite : SvgIcons.muted),
+                  SvgIcon(
+                    inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                    key: Key('MuteIndicator_${chat.id}'),
+                  ),
                 ],
                 const SizedBox(key: Key('NoUnreadMessages')),
               ],
