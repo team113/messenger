@@ -612,7 +612,7 @@ class ContactRepository extends DisposableInterface
           _favoriteLocal.put(value.value.favoritePosition!, contactId);
           _contactSortingLocal.remove(contactId);
         } else {
-          _contactSortingLocal.put(value.value.name, value.value.id, contactId);
+          _contactSortingLocal.put(value.value.name, contactId);
           _favoriteLocal.remove(contactId);
         }
       }

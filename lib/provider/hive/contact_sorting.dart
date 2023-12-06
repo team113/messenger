@@ -44,12 +44,11 @@ class ContactSortingHiveProvider extends HiveBaseProvider<ChatContactId> {
   /// Returns a list of [ChatContactId]s from [Hive].
   Iterable<ChatContactId> get values => valuesSafe;
 
-  /// Puts the provided [ChatContactId] by the provided [name] and [id] to
-  /// [Hive].
-  Future<void> put(UserName name, ChatContactId id, ChatContactId item) async {
-    final String key = '${name}_$id';
+  /// Puts the provided [ChatContactId] by the provided [name] to [Hive].
+  Future<void> put(UserName name, ChatContactId item) async {
+    Log.debug('put($name, $item)', '$runtimeType');
 
-    Log.debug('put($key, $item)', '$runtimeType');
+    final String key = '${name}_$item';
 
     if (getSafe(key) != item) {
       await _mutex.protect(() async {
