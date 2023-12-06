@@ -364,15 +364,12 @@ class HiveRxChat extends RxChat {
     _paginationSubscription = _pagination.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
+        case OperationKind.updated:
           _add(event.value!.value);
           break;
 
         case OperationKind.removed:
           messages.removeWhere((e) => e.value.id == event.value?.value.id);
-          break;
-
-        case OperationKind.updated:
-          _add(event.value!.value);
           break;
       }
     });
@@ -471,6 +468,9 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
+    // Ensure [_local] storage is initialized.
+    await _local.init(userId: me);
+
     HiveChatItem? item;
     if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
@@ -487,7 +487,10 @@ class HiveRxChat extends RxChat {
   Future<void> next() async {
     Log.debug('next()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.next();
     status.value = RxStatus.success();
 
@@ -498,7 +501,10 @@ class HiveRxChat extends RxChat {
   Future<void> previous() async {
     Log.debug('previous()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.previous();
     status.value = RxStatus.success();
 

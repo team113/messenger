@@ -63,6 +63,7 @@ import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
@@ -257,7 +258,7 @@ void main() async {
                   'num': '1234567890123456',
                   'mutualContactsCount': 0,
                   'isDeleted': false,
-                  'isBlocked': {'blacklisted': false, 'ver': '0'},
+                  'isBlocked': {'ver': '0'},
                   'presence': 'AWAY',
                   'ver': '0',
                 },
@@ -389,7 +390,7 @@ void main() async {
   );
 
   when(graphQlProvider.getBlocklist(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
@@ -438,8 +439,8 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
   var cacheInfoProvider = CacheInfoHiveProvider();
@@ -492,6 +493,13 @@ void main() async {
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        userRepository,
+      ),
+    );
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
@@ -540,7 +548,7 @@ void main() async {
           MyUserRepository(
             graphQlProvider,
             myUserProvider,
-            blacklistedUsersProvider,
+            blocklistRepository,
             userRepository,
           ),
         ),

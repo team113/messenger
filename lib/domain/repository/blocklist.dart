@@ -15,20 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:gherkin/gherkin.dart';
+import 'package:get/get.dart';
 
-/// Exception types available in a [ExceptionParameter].
-enum ExceptionType { blocked, no }
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
+import '/util/obs/obs.dart';
 
-/// [CustomParameter] representing a thrown [Exception].
-class ExceptionParameter extends CustomParameter<ExceptionType> {
-  ExceptionParameter()
-      : super(
-          'exception',
-          RegExp(
-            '(${ExceptionType.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => ExceptionType.values.firstWhere((e) => e.name == c),
-        );
+/// [MyUser]'s blocklist repository interface.
+abstract class AbstractBlocklistRepository {
+  /// Returns [User]s blocked by the authenticated [MyUser].
+  RxObsMap<UserId, RxUser> get blocklist;
+
+  /// Returns the initialization [RxStatus] of this repository and its
+  /// [blocklist].
+  Rx<RxStatus> get status;
+
+  /// Indicates whether the [blocklist] have next page.
+  RxBool get hasNext;
+
+  /// Indicator whether a next page of the [blocklist] is loading.
+  RxBool get nextLoading;
+
+  /// Fetches the initial [blocklist] page.
+  Future<void> around();
+
+  /// Fetches the next [blocklist] page.
+  Future<void> next();
 }

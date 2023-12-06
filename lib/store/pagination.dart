@@ -94,6 +94,9 @@ class Pagination<T, C, K> {
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
+  /// Indicator whether this [Pagination] is empty.
+  bool get isEmpty => items.isEmpty && hasNext.isTrue && hasPrevious.isTrue;
+
   /// Disposes this [Pagination].
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
@@ -121,6 +124,10 @@ class Pagination<T, C, K> {
     }
 
     return _guard.protect(() async {
+      if (!isEmpty) {
+        return;
+      }
+
       try {
         final Page<T, C>? page =
             await Backoff.run(() => provider.init(item, perPage), _cancelToken);
@@ -162,7 +169,7 @@ class Pagination<T, C, K> {
     final bool locked = _guard.isLocked;
 
     return _guard.protect(() async {
-      if (locked || _disposed) {
+      if ((locked && !isEmpty) || _disposed) {
         return;
       }
 

@@ -52,7 +52,7 @@ final StepDefinitionGeneric sendsMessageToMe =
 /// their [Chat]-dialog ensuring the thrown exception is of the provided kind.
 ///
 /// Examples:
-/// - Bob sends message to me and receives blacklisted exception
+/// - Bob sends message to me and receives blocked exception
 /// - Charlie sends message to me and receives no exception
 final StepDefinitionGeneric sendsMessageWithException =
     and2<TestUser, ExceptionType, CustomWorld>(
@@ -73,7 +73,7 @@ final StepDefinitionGeneric sendsMessageWithException =
     }
 
     switch (type) {
-      case ExceptionType.blacklisted:
+      case ExceptionType.blocked:
         assert(
           exception is PostChatMessageException &&
               exception.code == PostChatMessageErrorCode.blocked,

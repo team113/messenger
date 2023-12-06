@@ -64,6 +64,7 @@ class UserRepository extends DisposableInterface
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  // TODO: Make [UserHiveProvider] lazy.
   /// [User]s local [Hive] storage.
   final UserHiveProvider _userLocal;
 
@@ -266,7 +267,7 @@ class UserRepository extends DisposableInterface
   }
 
   /// Puts the provided [user] into the local [Hive] storage.
-  void put(HiveUser user, {bool ignoreVersion = false}) async {
+  Future<void> put(HiveUser user, {bool ignoreVersion = false}) async {
     Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
     // If the provided [user] doesn't exist in the [users] yet, then we should
@@ -364,7 +365,7 @@ class UserRepository extends DisposableInterface
 
     if (saved == null ||
         saved.ver < user.ver ||
-        saved.blacklistedVer < user.blacklistedVer ||
+        saved.blockedVer < user.blockedVer ||
         ignoreVersion) {
       await _userLocal.put(user);
     }

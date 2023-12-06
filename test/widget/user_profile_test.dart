@@ -51,6 +51,7 @@ import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
@@ -124,7 +125,7 @@ void main() async {
     'status': null,
     'isDeleted': false,
     'dialog': {'id': '004ac2ab-911e-4d67-8671-ebba02758807'},
-    'isBlocked': {'blacklisted': false, 'ver': '2'},
+    'isBlocked': {'ver': '2'},
     'ver': '1'
   };
 
@@ -209,8 +210,8 @@ void main() async {
   await backgroundProvider.init();
   var callCredentialsProvider = ChatCallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
@@ -295,7 +296,7 @@ void main() async {
         (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
     when(graphQlProvider.getBlocklist(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
@@ -361,7 +362,7 @@ void main() async {
           'status': null,
           'isDeleted': false,
           'dialog': null,
-          'isBlocked': {'blacklisted': false, 'ver': '5'},
+          'isBlocked': {'ver': '5'},
           'ver': '4'
         },
       };
@@ -430,12 +431,19 @@ void main() async {
 
     final userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        userRepository,
+      ),
+    );
     Get.put(UserService(userRepository));
     final myUserRepository = Get.put(
       MyUserRepository(
         graphQlProvider,
         myUserProvider,
-        blacklistedUsersProvider,
+        blocklistRepository,
         userRepository,
       ),
     );

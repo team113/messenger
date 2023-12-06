@@ -87,15 +87,15 @@ class UserController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// [TextFieldState] for blacklisting reason.
+  /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
-  /// Status of a [blacklist] progression.
+  /// Status of a [block] progression.
   ///
   /// May be:
-  /// - `status.isLoading`, meaning [blacklist] is executing.
-  /// - `status.isEmpty`, meaning no [blacklist] is executing.
-  final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
+  /// - `status.isLoading`, meaning [block] is executing.
+  /// - `status.isEmpty`, meaning no [block] is executing.
+  final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -117,7 +117,7 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
-  /// Indicates whether this [user] is blacklisted.
+  /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
   /// Returns [MyUser]'s [UserId].
@@ -128,10 +128,12 @@ class UserController extends GetxController {
     _fetchUser();
 
     inContacts = RxBool(
-      _contactService.contacts.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
-          _contactService.favorites.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)),
+      _contactService.contacts.values.any((e) =>
+              e.contact.value.users.isNotEmpty &&
+              e.contact.value.users.every((m) => m.id == id)) ||
+          _contactService.favorites.values.any((e) =>
+              e.contact.value.users.isNotEmpty &&
+              e.contact.value.users.every((m) => m.id == id)),
     );
 
     inFavorites = RxBool(
@@ -248,9 +250,9 @@ class UserController extends GetxController {
     }
   }
 
-  /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> blacklist() async {
-    blacklistStatus.value = RxStatus.loading();
+  /// Blocks the [user] for the authenticated [MyUser].
+  Future<void> block() async {
+    blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.blockUser(
         id,
@@ -258,17 +260,17 @@ class UserController extends GetxController {
       );
       reason.clear();
     } finally {
-      blacklistStatus.value = RxStatus.empty();
+      blocklistStatus.value = RxStatus.empty();
     }
   }
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist() async {
-    blacklistStatus.value = RxStatus.loading();
+  /// Removes the [user] from the blocklist of the authenticated [MyUser].
+  Future<void> unblock() async {
+    blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.unblockUser(id);
     } finally {
-      blacklistStatus.value = RxStatus.empty();
+      blocklistStatus.value = RxStatus.empty();
     }
   }
 

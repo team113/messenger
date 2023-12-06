@@ -15,41 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation SignIn(
-    $email: UserEmail
-    $phone: UserPhone
-    $login: UserLogin
-    $num: UserNum
-    $password: UserPassword!
-    $remember: Boolean
-) {
-    createSession(
-        email: $email
-        login: $login
-        num: $num
-        password: $password
-        remember: $remember
-        phone: $phone
-    ) {
-        __typename
-        ... on CreateSessionOk {
-            user {
-                __typename
-                id
-            }
-            session {
-                expireAt
-                token
-                ver
-            }
-            remembered {
-                expireAt
-                token
-                ver
-            }
-        }
-        ... on CreateSessionError {
-            code
-        }
-    }
-}
+Feature: Blocklist
+
+  Scenario: Blocked user cannot send me a message
+    Given I am Alice
+    And user Bob
+    And Bob has dialog with me
+    And I wait until `HomeView` is present
+
+    When I go to Bob's page
+    And I tap `MoreButton` button
+    And I tap `Block` button
+    And I tap `Proceed` button
+    Then Bob sends message to me and receives blocked exception
+
+    And I tap `MoreButton` button
+    And I tap `Unblock` button
+    Then Bob sends message to me and receives no exception

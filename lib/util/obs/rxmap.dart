@@ -93,6 +93,9 @@ class RxObsMap<K, V> extends MapMixin<K, V>
   Iterable<K> get keys => value.keys;
 
   @override
+  Iterable<V> get values => value.values;
+
+  @override
   V? remove(Object? key) {
     final val = _value.remove(key);
     refresh();
