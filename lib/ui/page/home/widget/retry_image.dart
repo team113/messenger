@@ -55,6 +55,7 @@ class RetryImage extends StatefulWidget {
     this.cancelable = false,
     this.autoLoad = true,
     this.displayProgress = true,
+    this.loadingBuilder,
   });
 
   /// Constructs a [RetryImage] from the provided [attachment] loading the
@@ -151,6 +152,10 @@ class RetryImage extends StatefulWidget {
 
   /// Indicator whether the image fetching progress should be displayed.
   final bool displayProgress;
+
+  /// Builder, building the background of this [RetryImage] in its loading
+  /// state, when the [url] or [thumbhash] isn't displayed yet.
+  final Widget Function()? loadingBuilder;
 
   @override
   State<RetryImage> createState() => _RetryImageState();
@@ -326,41 +331,46 @@ class _RetryImageState extends State<RetryImage> {
       );
     }
 
-    if (widget.thumbhash != null && !_imageInitialized) {
-      Widget thumbhash = Image(
-        image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
-        key: const Key('Thumbhash'),
-        height: widget.height,
-        width: widget.width,
-        fit: BoxFit.cover,
-      );
+    if (!_imageInitialized) {
+      if (widget.thumbhash != null) {
+        Widget thumbhash = Image(
+          image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
+          key: const Key('Thumbhash'),
+          height: widget.height,
+          width: widget.width,
+          fit: BoxFit.cover,
+        );
 
-      if (widget.aspectRatio != null && widget.fit == BoxFit.contain) {
-        thumbhash =
-            AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
-      }
+        if (widget.aspectRatio != null && widget.fit == BoxFit.contain) {
+          thumbhash =
+              AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
+        }
 
-      return SizedBox(
-        height: widget.height,
-        width: widget.width,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            thumbhash,
-            Positioned.fill(
-              child: Center(
-                child: SafeAnimatedSwitcher(
-                  duration: const Duration(milliseconds: 150),
-                  child: KeyedSubtree(
-                    key: Key('Image_${widget.url}'),
-                    child: child,
+        return SizedBox(
+          height: widget.height,
+          width: widget.width,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (widget.loadingBuilder != null) widget.loadingBuilder!(),
+              thumbhash,
+              Positioned.fill(
+                child: Center(
+                  child: SafeAnimatedSwitcher(
+                    duration: const Duration(milliseconds: 150),
+                    child: KeyedSubtree(
+                      key: Key('Image_${widget.url}'),
+                      child: child,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      );
+            ],
+          ),
+        );
+      } else if (widget.loadingBuilder != null) {
+        return Stack(children: [widget.loadingBuilder!(), child]);
+      }
     }
 
     return ConstrainedBox(

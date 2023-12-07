@@ -121,6 +121,7 @@ dependencies:
   mobile_scanner: ^3.4.1
   pdfx: ^2.4.0
   flag:
+  expandable_text: ^2.3.0
 
 dev_dependencies:
   artemis: ^7.13.1
@@ -200,6 +201,12 @@ flutter:
         - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
         - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+    - family: RobotoGapopa
+      fonts:
+        - asset: assets/fonts/RobotoGapopa-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/RobotoGapopa-Regular.ttf
           weight: 400
     - family: InterRoboto
       fonts:

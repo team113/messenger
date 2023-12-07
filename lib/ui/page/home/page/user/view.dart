@@ -29,6 +29,7 @@ import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:messenger/ui/widget/expandable_text.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -54,6 +55,7 @@ import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
 import 'widget/contact_info.dart';
+import 'widget/copy_or_share.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -108,9 +110,53 @@ class UserView extends StatelessWidget {
 
                   if (status != null) {
                     subtitle = Text(
-                      status.toString(),
-                      style: style.fonts.small.regular.secondary,
+                      status.toString() * 20,
+                      // 'a' * 500,
+                      style: style.fonts.normal.regular.secondary,
                     );
+
+                    // subtitle = ExpandableText(
+                    //   status.toString() * 10,
+                    //   expandText: '...'.l10n,
+                    //   expandOnTextTap: true,
+                    //   collapseText: '',
+                    //   maxLines: 3,
+                    //   linkColor: style.colors.primary,
+                    //   style: style.fonts.normal.regular.secondary,
+                    // );
+                    // subtitle = Stack(
+                    //   children: [
+                    //     Text(
+                    //       status.toString() * 10,
+                    //       style: style.fonts.normal.regular.secondary,
+                    //       maxLines: 3,
+                    //       overflow: TextOverflow.ellipsis,
+                    //     ),
+                    //     Positioned.fill(child: child),
+                    //   ],
+                    // );
+
+                    // subtitle = RichText(
+                    //   text: TextSpan(
+                    //     children: [
+                    //       WidgetSpan(
+                    //         child: Text(
+                    //           status.toString() * 10,
+                    //           style: style.fonts.normal.regular.secondary,
+                    //           maxLines: 3,
+                    //           overflow: TextOverflow.ellipsis,
+                    //         ),
+                    //       ),
+                    //       WidgetSpan(
+                    //         child: Text(
+                    //           '...',
+                    //           style: style.fonts.normal.regular.secondary,
+                    //           maxLines: 1,
+                    //         ),
+                    //       )
+                    //     ],
+                    //   ),
+                    // );
                   }
 
                   // if (textStatus != null || onlineStatus != null) {
@@ -141,15 +187,15 @@ class UserView extends StatelessWidget {
                       //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
                       children: [
                         BigAvatarWidget.user(c.user),
-                        const SizedBox(height: 12), const SizedBox(height: 12),
+                        const SizedBox(height: 12), const SizedBox(height: 6),
                         Text(
                           '${c.user!.user.value.name ?? c.user!.user.value.num}',
                           style: style.fonts.big.regular.onBackground,
                         ),
-                        if (subtitle != null) ...[
-                          const SizedBox(height: 4),
-                          subtitle,
-                        ],
+                        // if (subtitle != null) ...[
+                        //   const SizedBox(height: 12),
+                        //   subtitle,
+                        // ],
                         // const SizedBox(height: 12),
                         // UserNameCopyable(
                         //   c.user!.user.value.name,
@@ -164,20 +210,22 @@ class UserView extends StatelessWidget {
                         //   ),
                       ],
                     ),
+                    if (subtitle != null) Block(children: [subtitle]),
 
                     Block(
                       // padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                       children: [
                         Paddings.basic(
-                          ContactInfoContents(
+                          const ContactInfoContents(
                             padding: EdgeInsets.zero,
                             title: 'Login',
                             content: 'alice',
-                            icon: const SvgIcon(SvgIcons.profileLogin),
-                            trailing: WidgetButton(
-                              onPressed: () {},
-                              child: const SvgIcon(SvgIcons.copy),
-                            ),
+                            icon: SvgIcon(SvgIcons.profileLogin),
+                            trailing: CopyOrShareButton('alice'),
+                            // trailing: WidgetButton(
+                            //   onPressed: () {},
+                            //   child: const SvgIcon(SvgIcons.copy),
+                            // ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -187,36 +235,37 @@ class UserView extends StatelessWidget {
                             title: 'Gapopa ID',
                             content: c.user!.user.value.num.toString(),
                             icon: const SvgIcon(SvgIcons.profileNum),
-                            trailing: WidgetButton(
-                              onPressed: () {},
-                              child: const SvgIcon(SvgIcons.copy),
+                            trailing: CopyOrShareButton(
+                              c.user!.user.value.num.toString(),
                             ),
+                            // trailing: WidgetButton(
+                            //   onPressed: () {},
+                            //   child: const SvgIcon(SvgIcons.copy),
+                            // ),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Paddings.basic(
-                          ContactInfoContents(
+                          const ContactInfoContents(
                             padding: EdgeInsets.zero,
                             title: 'E-mail',
                             content: 'hello@example.com',
-                            icon: const SvgIcon(SvgIcons.profileEmail),
-                            trailing: WidgetButton(
-                              onPressed: () {},
-                              child: const SvgIcon(SvgIcons.copy),
-                            ),
+                            icon: SvgIcon(SvgIcons.profileEmail),
+                            trailing: CopyOrShareButton('hello@example.com'),
+                            // trailing: WidgetButton(
+                            //   onPressed: () {},
+                            //   child: const SvgIcon(SvgIcons.copy),
+                            // ),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Paddings.basic(
-                          ContactInfoContents(
+                          const ContactInfoContents(
                             padding: EdgeInsets.zero,
                             title: 'Phone',
                             content: '+1 234 5678 90',
-                            icon: const SvgIcon(SvgIcons.profilePhone),
-                            trailing: WidgetButton(
-                              onPressed: () {},
-                              child: const SvgIcon(SvgIcons.copy),
-                            ),
+                            trailing: CopyOrShareButton('+1 234 5678 90'),
+                            icon: SvgIcon(SvgIcons.profilePhone),
                           ),
                         ),
                       ],
@@ -233,10 +282,13 @@ class UserView extends StatelessWidget {
                             // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
                             icon: const SvgIcon(SvgIcons.profileLink),
                             maxLines: null,
-                            trailing: WidgetButton(
-                              onPressed: () {},
-                              child: const SvgIcon(SvgIcons.copy),
+                            trailing: CopyOrShareButton(
+                              '${Config.origin}/kLFJKjkw14j23JDMwW',
                             ),
+                            // trailing: WidgetButton(
+                            //   onPressed: () {},
+                            //   child: const SvgIcon(SvgIcons.copy),
+                            // ),
                           ),
                         ),
                       ],
@@ -382,9 +434,8 @@ class UserView extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Block(
-                      // title: 'label_actions'.l10n,
-                      children: [_actions(c, context)],
+                    SelectionContainer.disabled(
+                      child: Block(children: [_actions(c, context)]),
                     ),
                   ];
 
@@ -803,46 +854,76 @@ class UserView extends StatelessWidget {
     return Column(
       children: [
         Paddings.basic(
-          ReactiveTextField(
-            state: c.messageCost,
-            style: style.fonts.medium.regular.onBackground,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-            hint: '0',
-            prefix: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-              child: Transform.translate(
-                offset: const Offset(0, -0.7),
+          Stack(
+            children: [
+              ReactiveTextField(
+                state: c.messageCost,
+                style: style.fonts.medium.regular.onBackground,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                hint: '0', prefixText: '    ',
+                prefixStyle: TextStyle(fontSize: 12),
+                // prefixText: 'G',
+                // prefixStyle: style.fonts.medium.regular.onBackground,
+                // prefix: Padding(
+                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                //   child: Transform.translate(
+                //     offset: const Offset(0, -0.7),
+                //     child: Text(
+                //       // '\$',
+                //       'G',
+                //       style: style.fonts.medium.regular.onBackground,
+                //     ),
+                //   ),
+                // ),
+                label: 'Входящие сообщения, за 1 сообщение',
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
                 child: Text(
-                  // '\$',
                   'G',
-                  style: style.fonts.medium.regular.onBackground,
+                  style: style.fonts.medium.regular.onBackground.copyWith(
+                    fontFamily: 'RobotoGapopa',
+                  ),
                 ),
               ),
-            ),
-            label: 'Входящие сообщения, за 1 сообщение',
+            ],
           ),
         ),
         Paddings.basic(
-          ReactiveTextField(
-            state: c.callsCost,
-            style: style.fonts.medium.regular.onBackground,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-            hint: '0',
-            prefix: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-              child: Transform.translate(
-                offset: const Offset(0, -0.7),
+          Stack(
+            children: [
+              ReactiveTextField(
+                state: c.callsCost,
+                style: style.fonts.medium.regular.onBackground,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                hint: '0',
+                prefixText: '    ',
+                prefixStyle: TextStyle(fontSize: 12),
+                // prefix: Padding(
+                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                //   child: Transform.translate(
+                //     offset: const Offset(0, -0.7),
+                //     child: Text(
+                //       // '\$',
+                //       'G',
+                //       style: style.fonts.medium.regular.onBackground,
+                //     ),
+                //   ),
+                // ),
+                label: 'Входящие звонки, за 1 минуту',
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
                 child: Text(
-                  // '\$',
-
-                  'G',
-                  style: style.fonts.medium.regular.onBackground,
+                  '¤',
+                  style: style.fonts.medium.regular.onBackground.copyWith(
+                    fontFamily: 'RobotoGapopa',
+                  ),
                 ),
               ),
-            ),
-            label: 'Входящие звонки, за 1 минуту',
+            ],
           ),
         ),
         Opacity(opacity: 0, child: _verification(context, c)),

@@ -393,92 +393,95 @@ class _AvatarWidgetState extends State<AvatarWidget> {
               : maxWidth / 5
           : maxWidth / 3.75;
 
-      return Badge(
-        largeSize: badgeSize * 1.16,
-        isLabelVisible: widget.isOnline,
-        alignment: Alignment.bottomRight,
-        backgroundColor: style.colors.onPrimary,
-        padding: EdgeInsets.all(badgeSize / 12),
-        offset: maxWidth >= 40
-            ? maxWidth >= 70
-                ? const Offset(-18, -18)
-                : const Offset(-2.5, -2.5)
-            : const Offset(0, 0),
-        label: SizedBox(
-          width: badgeSize,
-          height: badgeSize,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: widget.isAway
-                  ? style.colors.warning
-                  : style.colors.acceptAuxiliary,
+      final Widget defaultAvatar = Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [gradient.lighten(), gradient],
+          ),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: widget.label ??
+              SelectionContainer.disabled(
+                child: Text(
+                  (widget.title ?? '??').initials(),
+                  style: style.fonts.normal.bold.onPrimary.copyWith(
+                    fontSize: style.fonts.normal.bold.onPrimary.fontSize! *
+                        (maxWidth / 40.0),
+                  ),
+
+                  // Disable the accessibility size settings for this [Text].
+                  textScaler: const TextScaler.linear(1),
+                ),
+              ),
+        ),
+      );
+
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: minWidth,
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        ),
+        child: Badge(
+          largeSize: badgeSize * 1.16,
+          isLabelVisible: widget.isOnline,
+          alignment: Alignment.bottomRight,
+          backgroundColor: style.colors.onPrimary,
+          padding: EdgeInsets.all(badgeSize / 12),
+          offset: maxWidth >= 40
+              ? maxWidth >= 70
+                  ? const Offset(-18, -18)
+                  : const Offset(-2.5, -2.5)
+              : const Offset(0, 0),
+          label: SizedBox(
+            width: badgeSize,
+            height: badgeSize,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.isAway
+                    ? style.colors.warning
+                    : style.colors.acceptAuxiliary,
+              ),
             ),
           ),
-        ),
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(0.5),
-              constraints: BoxConstraints(
-                minHeight: minHeight,
-                minWidth: minWidth,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [gradient.lighten(), gradient],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: widget.label ??
-                    SelectionContainer.disabled(
-                      child: Text(
-                        (widget.title ?? '??').initials(),
-                        style: style.fonts.normal.bold.onPrimary.copyWith(
-                          fontSize:
-                              style.fonts.normal.bold.onPrimary.fontSize! *
-                                  (maxWidth / 40.0),
+          child: Stack(
+            children: [
+              if (widget.avatar == null) defaultAvatar,
+              if (widget.avatar != null || widget.child != null)
+                Positioned.fill(
+                  child: ClipOval(
+                    child: widget.child ??
+                        RetryImage(
+                          key: _imageKey,
+                          maxWidth > 250
+                              ? widget.avatar!.full.url
+                              : maxWidth > 100
+                                  ? widget.avatar!.big.url
+                                  : maxWidth > 46
+                                      ? widget.avatar!.medium.url
+                                      : widget.avatar!.small.url,
+                          checksum: maxWidth > 250
+                              ? widget.avatar!.full.checksum
+                              : maxWidth > 100
+                                  ? widget.avatar!.big.checksum
+                                  : maxWidth > 46
+                                      ? widget.avatar!.medium.checksum
+                                      : widget.avatar!.small.checksum,
+                          fit: BoxFit.cover,
+                          height: double.infinity,
+                          width: double.infinity,
+                          displayProgress: false,
+                          loadingBuilder: () => defaultAvatar,
                         ),
-
-                        // Disable the accessibility size settings for this [Text].
-                        textScaleFactor: 1,
-                      ),
-                    ),
-              ),
-            ),
-            if (widget.avatar != null || widget.child != null)
-              Positioned.fill(
-                child: ClipOval(
-                  child: widget.child ??
-                      RetryImage(
-                        key: _imageKey,
-                        maxWidth > 250
-                            ? widget.avatar!.full.url
-                            : maxWidth > 100
-                                ? widget.avatar!.big.url
-                                : maxWidth > 46
-                                    ? widget.avatar!.medium.url
-                                    : widget.avatar!.small.url,
-                        checksum: maxWidth > 250
-                            ? widget.avatar!.full.checksum
-                            : maxWidth > 100
-                                ? widget.avatar!.big.checksum
-                                : maxWidth > 46
-                                    ? widget.avatar!.medium.checksum
-                                    : widget.avatar!.small.checksum,
-                        fit: BoxFit.cover,
-                        height: double.infinity,
-                        width: double.infinity,
-                        displayProgress: false,
-                      ),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     });

@@ -163,7 +163,6 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
-                          _presence(context, c),
                           Paddings.basic(
                             Obx(() {
                               return UserTextStatusField(
@@ -172,6 +171,7 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
+                          _presence(context, c),
                         ],
                       );
 

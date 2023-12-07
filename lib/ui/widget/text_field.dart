@@ -344,6 +344,8 @@ class ReactiveTextField extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Stack(
+            //   children: [
             TextField(
               enableInteractiveSelection:
                   (state.allowable && !state.hasAllowance.value)
@@ -471,6 +473,21 @@ class ReactiveTextField extends StatelessWidget {
                 );
               },
             ),
+            //     if (dense != true && withTrailing)
+            //       Positioned.fill(
+            //         child: Align(
+            //           alignment: Alignment.bottomRight,
+            //           child: Padding(
+            //             padding: const EdgeInsets.only(
+            //               right: 8,
+            //               bottom: 16,
+            //             ),
+            //             child: buildSuffix(),
+            //           ),
+            //         ),
+            //       ),
+            //   ],
+            // ),
 
             // Displays the [subtitle] or an error, if any.
             AnimatedSize(

@@ -646,6 +646,7 @@ class MyProfileController extends GetxController {
   /// Updates or resets the [MyUser.status] field of the authenticated
   /// [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
+    print('updateUserStatus(${status?.val})');
     await _myUserService.updateUserStatus(status);
   }
 

@@ -1860,4 +1860,10 @@ class SvgIcons {
     width: 32,
     height: 32,
   );
+
+  static const SvgData cent = SvgData(
+    'assets/icons/cent.svg',
+    width: 18,
+    height: 18,
+  );
 }

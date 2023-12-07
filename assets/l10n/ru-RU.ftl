@@ -1146,3 +1146,5 @@ label_media_buttons_in_bottom = В чате снизу
 label_media_buttons_in_more = В поле сообщения
 label_hide_incoming_prices = Скрыть стоимость входящих
 label_show_incoming_prices = Отображать стоимость входящих
+label_about = О себе
+label_show_more = показать больше

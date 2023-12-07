@@ -1114,3 +1114,5 @@ label_media_buttons_in_bottom = In the chat below
 label_media_buttons_in_more = In the message field
 label_hide_incoming_prices = Hide price for incoming
 label_show_incoming_prices = Show price for incoming
+label_about = About
+label_show_more = show more

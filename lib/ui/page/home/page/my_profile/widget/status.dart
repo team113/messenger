@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -47,22 +49,13 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.status?.val ?? '',
-    approvable: true,
+    // approvable: true,
     onChanged: (s) {
       s.error.value = null;
 
       try {
         if (s.text.isNotEmpty) {
-          UserTextStatus(s.text);
-        }
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_input'.l10n;
-      }
-    },
-    onSubmitted: (s) async {
-      try {
-        if (s.text.isNotEmpty) {
-          UserTextStatus(s.text);
+          UserTextStatus(s.text.substring(0, min(s.text.length, 25)));
         }
       } on FormatException catch (_) {
         s.error.value = 'err_incorrect_input'.l10n;
@@ -74,7 +67,9 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
 
         try {
           widget.onSubmit?.call(
-            s.text.isNotEmpty ? UserTextStatus(s.text) : null,
+            s.text.isNotEmpty
+                ? UserTextStatus(s.text.substring(0, min(s.text.length, 25)))
+                : null,
           );
           s.status.value = RxStatus.empty();
         } catch (e) {
@@ -106,22 +101,35 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
     return ReactiveTextField(
       key: const Key('StatusField'),
       state: _state,
-      label: 'label_status'.l10n,
+      label: 'label_about'.l10n,
       filled: true,
-      maxLength: 25,
-      onSuffixPressed: _state.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: _state.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: _state.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.copy),
-            ),
+      maxLines: null,
+      maxLength: 500,
+      // onSuffixPressed: _state.text.isEmpty
+      //     ? null
+      //     : () {
+      //         PlatformUtils.copy(text: _state.text);
+      //         MessagePopup.success('label_copied'.l10n);
+      //       },
+      // trailing: _state.text.isEmpty
+      //     ? null
+      //     : Transform.translate(
+      //         offset: const Offset(0, -1),
+      //         child: const SvgIcon(SvgIcons.copy),
+      //       ),
       style: style.fonts.normal.regular.onBackground,
+      // subtitle: Row(
+      //   children: [
+      //     const Spacer(),
+      //     AnimatedButton(
+      //       onPressed: () {},
+      //       child: Text(
+      //         'btn_save'.l10n,
+      //         style: style.fonts.small.regular.primary,
+      //       ),
+      //     ),
+      //   ],
+      // ),
     );
   }
 }
