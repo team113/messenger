@@ -363,7 +363,7 @@ class _RetryImageState extends State<RetryImage> {
           ),
         );
       } else if (widget.loadingBuilder != null) {
-        child = Stack(children: [widget.loadingBuilder!(), child]);
+        return Stack(children: [widget.loadingBuilder!(), child]);
       }
     }
 
