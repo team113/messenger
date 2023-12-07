@@ -497,8 +497,8 @@ class OngoingCall {
                   return;
                 }
 
-                // Redial every chat member who is not me
-                // and hasn't answered yet.
+                // Redial every chat member who is not me and hasn't answered
+                // yet.
                 if (dialed is ChatMembersDialedAll) {
                   for (var m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
