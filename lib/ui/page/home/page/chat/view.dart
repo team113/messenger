@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
@@ -58,6 +59,7 @@ import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
+import 'widget/square_button.dart';
 import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
@@ -163,6 +165,7 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
+          final bool hasCall = c.chat?.chat.value.ongoingCall != null;
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
           return CustomDropTarget(
@@ -254,17 +257,21 @@ class _ChatViewState extends State<ChatView>
 
                           if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
-                              AnimatedButton(
-                                onPressed: () => c.call(true),
-                                child: const SvgIcon(SvgIcons.chatVideoCall),
-                              ),
-                              const SizedBox(width: 28),
-                              AnimatedButton(
-                                key: const Key('AudioCall'),
-                                onPressed: () => c.call(false),
-                                child: const SvgIcon(SvgIcons.chatAudioCall),
-                              ),
-                              const SizedBox(width: 10),
+                              if (c.mediaButtons == null ||
+                                  c.mediaButtons ==
+                                      MediaButtonsPosition.appBar) ...[
+                                AnimatedButton(
+                                  onPressed: () => c.call(true),
+                                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                                ),
+                                const SizedBox(width: 28),
+                                AnimatedButton(
+                                  key: const Key('AudioCall'),
+                                  onPressed: () => c.call(false),
+                                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                                ),
+                                const SizedBox(width: 10),
+                              ]
                             ];
                           } else {
                             final Widget child;
@@ -342,6 +349,33 @@ class _ChatViewState extends State<ChatView>
                                     right: 10,
                                   ),
                                   actions: [
+                                    if (c.mediaButtons ==
+                                        MediaButtonsPosition.contextMenu) ...[
+                                      ContextMenuButton(
+                                        label: 'btn_audio_call'.l10n,
+                                        onPressed: hasCall
+                                            ? null
+                                            : () => c.call(false),
+                                        trailing: SvgIcon(
+                                          hasCall
+                                              ? SvgIcons.makeAudioCallDisabled
+                                              : SvgIcons.makeAudioCall,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_video_call'.l10n,
+                                        onPressed:
+                                            hasCall ? null : () => c.call(true),
+                                        trailing: Transform.translate(
+                                          offset: const Offset(2, 1),
+                                          child: SvgIcon(
+                                            hasCall
+                                                ? SvgIcons.makeVideoCallDisabled
+                                                : SvgIcons.makeVideoCall,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                     if (dialog)
                                       ContextMenuButton(
                                         key: Key(
@@ -462,194 +496,242 @@ class _ChatViewState extends State<ChatView>
                         }),
                       ],
                     ),
-                    body: Listener(
-                      onPointerSignal: c.settings.value?.timelineEnabled == true
-                          ? (s) {
-                              if (s is PointerScrollEvent) {
-                                if ((s.scrollDelta.dy.abs() < 3 &&
-                                        s.scrollDelta.dx.abs() > 3) ||
-                                    c.isHorizontalScroll.value) {
-                                  double value =
-                                      _animation.value + s.scrollDelta.dx / 100;
-                                  _animation.value = value.clamp(0, 1);
+                    body: Stack(
+                      children: [
+                        Listener(
+                          onPointerSignal:
+                              c.settings.value?.timelineEnabled == true
+                                  ? (s) {
+                                      if (s is PointerScrollEvent) {
+                                        if ((s.scrollDelta.dy.abs() < 3 &&
+                                                s.scrollDelta.dx.abs() > 3) ||
+                                            c.isHorizontalScroll.value) {
+                                          double value = _animation.value +
+                                              s.scrollDelta.dx / 100;
+                                          _animation.value = value.clamp(0, 1);
 
-                                  if (_animation.value == 0 ||
-                                      _animation.value == 1) {
-                                    _resetHorizontalScroll(c, 10.milliseconds);
-                                  } else {
-                                    _resetHorizontalScroll(c);
-                                  }
-                                }
-                              }
+                                          if (_animation.value == 0 ||
+                                              _animation.value == 1) {
+                                            _resetHorizontalScroll(
+                                                c, 10.milliseconds);
+                                          } else {
+                                            _resetHorizontalScroll(c);
+                                          }
+                                        }
+                                      }
+                                    }
+                                  : null,
+                          onPointerPanZoomUpdate: (s) {
+                            if (c.scrollOffset.dx.abs() < 7 &&
+                                c.scrollOffset.dy.abs() < 7) {
+                              c.scrollOffset = c.scrollOffset.translate(
+                                s.panDelta.dx.abs(),
+                                s.panDelta.dy.abs(),
+                              );
                             }
-                          : null,
-                      onPointerPanZoomUpdate: (s) {
-                        if (c.scrollOffset.dx.abs() < 7 &&
-                            c.scrollOffset.dy.abs() < 7) {
-                          c.scrollOffset = c.scrollOffset.translate(
-                            s.panDelta.dx.abs(),
-                            s.panDelta.dy.abs(),
-                          );
-                        }
-                      },
-                      onPointerMove: (d) {
-                        if (c.scrollOffset.dx.abs() < 7 &&
-                            c.scrollOffset.dy.abs() < 7) {
-                          c.scrollOffset = c.scrollOffset.translate(
-                            d.delta.dx.abs(),
-                            d.delta.dy.abs(),
-                          );
-                        }
-                      },
-                      onPointerUp: (_) => c.scrollOffset = Offset.zero,
-                      onPointerCancel: (_) => c.scrollOffset = Offset.zero,
-                      child: RawGestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        gestures: {
-                          if (c.settings.value?.timelineEnabled == true &&
-                              c.isSelecting.isFalse)
-                            AllowMultipleHorizontalDragGestureRecognizer:
-                                GestureRecognizerFactoryWithHandlers<
-                                    AllowMultipleHorizontalDragGestureRecognizer>(
-                              () =>
-                                  AllowMultipleHorizontalDragGestureRecognizer(),
-                              (AllowMultipleHorizontalDragGestureRecognizer
-                                  instance) {
-                                instance.onUpdate = (d) {
-                                  if (!c.isItemDragged.value &&
-                                      c.scrollOffset.dy.abs() < 7 &&
-                                      c.scrollOffset.dx.abs() > 7 &&
-                                      c.isSelecting.isFalse) {
-                                    double value =
-                                        (_animation.value - d.delta.dx / 100)
+                          },
+                          onPointerMove: (d) {
+                            if (c.scrollOffset.dx.abs() < 7 &&
+                                c.scrollOffset.dy.abs() < 7) {
+                              c.scrollOffset = c.scrollOffset.translate(
+                                d.delta.dx.abs(),
+                                d.delta.dy.abs(),
+                              );
+                            }
+                          },
+                          onPointerUp: (_) => c.scrollOffset = Offset.zero,
+                          onPointerCancel: (_) => c.scrollOffset = Offset.zero,
+                          child: RawGestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            gestures: {
+                              if (c.settings.value?.timelineEnabled == true &&
+                                  c.isSelecting.isFalse)
+                                AllowMultipleHorizontalDragGestureRecognizer:
+                                    GestureRecognizerFactoryWithHandlers<
+                                        AllowMultipleHorizontalDragGestureRecognizer>(
+                                  () =>
+                                      AllowMultipleHorizontalDragGestureRecognizer(),
+                                  (AllowMultipleHorizontalDragGestureRecognizer
+                                      instance) {
+                                    instance.onUpdate = (d) {
+                                      if (!c.isItemDragged.value &&
+                                          c.scrollOffset.dy.abs() < 7 &&
+                                          c.scrollOffset.dx.abs() > 7 &&
+                                          c.isSelecting.isFalse) {
+                                        double value = (_animation.value -
+                                                d.delta.dx / 100)
                                             .clamp(0, 1);
 
-                                    if (_animation.value != 1 && value == 1 ||
-                                        _animation.value != 0 && value == 0) {
-                                      HapticFeedback.selectionClick();
-                                    }
+                                        if (_animation.value != 1 &&
+                                                value == 1 ||
+                                            _animation.value != 0 &&
+                                                value == 0) {
+                                          HapticFeedback.selectionClick();
+                                        }
 
-                                    _animation.value = value.clamp(0, 1);
-                                  }
-                                };
+                                        _animation.value = value.clamp(0, 1);
+                                      }
+                                    };
 
-                                instance.onEnd = (d) async {
-                                  c.scrollOffset = Offset.zero;
-                                  if (!c.isItemDragged.value &&
-                                      _animation.value != 1 &&
-                                      _animation.value != 0) {
-                                    if (_animation.value >= 0.5) {
-                                      await _animation.forward();
-                                      HapticFeedback.selectionClick();
-                                    } else {
-                                      await _animation.reverse();
-                                      HapticFeedback.selectionClick();
-                                    }
-                                  }
-                                };
-                              },
-                            )
-                        },
-                        child: Stack(
-                          children: [
-                            // Required for the [Stack] to take [Scaffold]'s
-                            // size.
-                            IgnorePointer(
-                              child: ContextMenuInterceptor(child: Container()),
-                            ),
-                            Obx(() {
-                              final Widget child = FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isHorizontalScroll.isTrue ||
-                                        (PlatformUtils.isDesktop &&
-                                            c.isItemDragged.isTrue)
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const BouncingScrollPhysics(),
-                                reverse: true,
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  stickyAtTailer: true,
-                                  keepPosition: true,
-                                  keepPositionOffset: c.active.isTrue
-                                      ? c.keepPositionOffset.value
-                                      : 1,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: false,
-                                  disableCacheItems: kDebugMode ? true : false,
+                                    instance.onEnd = (d) async {
+                                      c.scrollOffset = Offset.zero;
+                                      if (!c.isItemDragged.value &&
+                                          _animation.value != 1 &&
+                                          _animation.value != 0) {
+                                        if (_animation.value >= 0.5) {
+                                          await _animation.forward();
+                                          HapticFeedback.selectionClick();
+                                        } else {
+                                          await _animation.reverse();
+                                          HapticFeedback.selectionClick();
+                                        }
+                                      }
+                                    };
+                                  },
+                                )
+                            },
+                            child: Stack(
+                              children: [
+                                // Required for the [Stack] to take [Scaffold]'s
+                                // size.
+                                IgnorePointer(
+                                  child: ContextMenuInterceptor(
+                                      child: Container()),
                                 ),
-                              );
-
-                              if (PlatformUtils.isMobile) {
-                                if (!PlatformUtils.isWeb) {
-                                  return Scrollbar(
+                                Obx(() {
+                                  final Widget child = FlutterListView(
+                                    key: const Key('MessagesList'),
                                     controller: c.listController,
-                                    child: child,
+                                    physics: c.isHorizontalScroll.isTrue ||
+                                            (PlatformUtils.isDesktop &&
+                                                c.isItemDragged.isTrue)
+                                        ? const NeverScrollableScrollPhysics()
+                                        : const BouncingScrollPhysics(),
+                                    reverse: true,
+                                    delegate: FlutterListViewDelegate(
+                                      (context, i) =>
+                                          _listElement(context, c, i),
+                                      // ignore: invalid_use_of_protected_member
+                                      childCount: c.elements.value.length,
+                                      stickyAtTailer: true,
+                                      keepPosition: true,
+                                      keepPositionOffset: c.active.isTrue
+                                          ? c.keepPositionOffset.value
+                                          : 1,
+                                      onItemKey: (i) => c.elements.values
+                                          .elementAt(i)
+                                          .id
+                                          .toString(),
+                                      onItemSticky: (i) => c.elements.values
+                                          .elementAt(i) is DateTimeElement,
+                                      initIndex: c.initIndex,
+                                      initOffset: c.initOffset,
+                                      initOffsetBasedOnBottom: false,
+                                      disableCacheItems:
+                                          kDebugMode ? true : false,
+                                    ),
                                   );
-                                } else {
-                                  return child;
-                                }
-                              }
 
-                              return SelectionArea(
-                                onSelectionChanged: (a) =>
-                                    c.selection.value = a,
-                                contextMenuBuilder: (_, __) => const SizedBox(),
-                                selectionControls: EmptyTextSelectionControls(),
-                                child: ContextMenuInterceptor(child: child),
-                              );
-                            }),
-                            Obx(() {
-                              if ((c.chat!.status.value.isSuccess ||
-                                      c.chat!.status.value.isEmpty) &&
-                                  c.chat!.messages.isEmpty) {
-                                return Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      border: style.systemMessageBorder,
-                                      color: style.systemMessageColor,
-                                    ),
-                                    child: Text(
-                                      key: const Key('NoMessages'),
-                                      isMonolog
-                                          ? 'label_chat_monolog_description'
-                                              .l10n
-                                          : 'label_no_messages'.l10n,
-                                      textAlign: TextAlign.center,
-                                      style: style
-                                          .fonts.small.regular.onBackground,
-                                    ),
-                                  ),
-                                );
-                              }
-                              if (c.chat!.status.value.isLoading) {
-                                return const Center(
-                                  child: CustomProgressIndicator(),
-                                );
-                              }
+                                  if (PlatformUtils.isMobile) {
+                                    if (!PlatformUtils.isWeb) {
+                                      return Scrollbar(
+                                        controller: c.listController,
+                                        child: child,
+                                      );
+                                    } else {
+                                      return child;
+                                    }
+                                  }
 
-                              return const SizedBox();
-                            }),
-                          ],
+                                  return SelectionArea(
+                                    onSelectionChanged: (a) =>
+                                        c.selection.value = a,
+                                    contextMenuBuilder: (_, __) =>
+                                        const SizedBox(),
+                                    selectionControls:
+                                        EmptyTextSelectionControls(),
+                                    child: ContextMenuInterceptor(child: child),
+                                  );
+                                }),
+                                Obx(() {
+                                  if ((c.chat!.status.value.isSuccess ||
+                                          c.chat!.status.value.isEmpty) &&
+                                      c.chat!.messages.isEmpty) {
+                                    return Center(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          border: style.systemMessageBorder,
+                                          color: style.systemMessageColor,
+                                        ),
+                                        child: Text(
+                                          key: const Key('NoMessages'),
+                                          isMonolog
+                                              ? 'label_chat_monolog_description'
+                                                  .l10n
+                                              : 'label_no_messages'.l10n,
+                                          textAlign: TextAlign.center,
+                                          style: style
+                                              .fonts.small.regular.onBackground,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  if (c.chat!.status.value.isLoading) {
+                                    return const Center(
+                                      child: CustomProgressIndicator(),
+                                    );
+                                  }
+
+                                  return const SizedBox();
+                                }),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        if (c.mediaButtons == MediaButtonsPosition.top ||
+                            c.mediaButtons == MediaButtonsPosition.bottom)
+                          Positioned(
+                            top: c.mediaButtons == MediaButtonsPosition.top
+                                ? 8
+                                : null,
+                            bottom:
+                                c.mediaButtons == MediaButtonsPosition.bottom
+                                    ? 8
+                                    : null,
+                            right: 12,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 8),
+                                SquareButton(
+                                  hasCall
+                                      ? SvgIcons.chatAudioCallDisabled
+                                      : SvgIcons.chatVideoCall,
+                                  onPressed:
+                                      hasCall ? null : () => c.call(false),
+                                ),
+                                const SizedBox(height: 8),
+                                SquareButton(
+                                  hasCall
+                                      ? SvgIcons.chatVideoCallDisabled
+                                      : SvgIcons.chatVideoCall,
+                                  onPressed:
+                                      hasCall ? null : () => c.call(true),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
                     floatingActionButton: Obx(() {
                       return SizedBox(

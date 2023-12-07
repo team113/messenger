@@ -202,6 +202,12 @@ class SettingsRepository extends DisposableInterface
     await _settingsLocal.setPinnedActions(buttons);
   }
 
+  @override
+  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) async {
+    Log.debug('setMediaButtonsPosition($position)', '$runtimeType');
+    await _settingsLocal.setMediaButtonsPosition(position);
+  }
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     Log.debug('_initMediaSubscription()', '$runtimeType');

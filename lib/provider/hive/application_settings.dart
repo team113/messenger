@@ -33,6 +33,7 @@ class ApplicationSettingsHiveProvider
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
+    Hive.maybeRegisterAdapter(MediaButtonsPositionAdapter());
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
   }
 
@@ -147,6 +148,15 @@ class ApplicationSettingsHiveProvider
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
+    );
+  }
+
+  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) async {
+    Log.debug('setMediaButtonsPosition($position)', '$runtimeType');
+
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..mediaButtonsPosition = position,
     );
   }
 }

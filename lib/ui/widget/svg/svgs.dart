@@ -67,8 +67,20 @@ class SvgIcons {
     height: 21.02,
   );
 
+  static const SvgData chatAudioCallDisabled = SvgData(
+    'assets/icons/chat_audio_call_disabled.svg',
+    width: 21,
+    height: 21.02,
+  );
+
   static const SvgData chatVideoCall = SvgData(
     'assets/icons/chat_video_call.svg',
+    width: 27.71,
+    height: 19,
+  );
+
+  static const SvgData chatVideoCallDisabled = SvgData(
+    'assets/icons/chat_video_call_disabled.svg',
     width: 27.71,
     height: 19,
   );
@@ -1302,10 +1314,22 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData makeAudioCallDisabled = SvgData(
+    'assets/icons/make_audio_call_disabled.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData makeVideoCall = SvgData(
     'assets/icons/make_video_call.svg',
     width: 21.93,
     height: 15,
+  );
+
+  static const SvgData makeVideoCallDisabled = SvgData(
+    'assets/icons/make_video_call_disabled.svg',
+    width: 22.92,
+    height: 18,
   );
 
   static const SvgData favoriteSmall = SvgData(

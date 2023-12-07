@@ -35,6 +35,9 @@ abstract class ChatButton {
   /// Asset name of this [ChatButton].
   SvgData get asset;
 
+  /// Disabled asset name of this [ChatButton].
+  SvgData? get disabled => null;
+
   /// Asset offset of this [ChatButton].
   Offset get offset => Offset.zero;
 
@@ -193,3 +196,30 @@ class StickerButton extends ChatButton {
   @override
   SvgData get assetMini => SvgIcons.smileSmall;
 }
+
+class AudioCallButton extends ChatButton {
+  const AudioCallButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_audio_call'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatAudioCall;
+
+  @override
+  SvgData get disabled => SvgIcons.chatAudioCallDisabled;
+}
+
+class VideoCallButton extends ChatButton {
+  const VideoCallButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_video_call'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatVideoCall;
+
+  @override
+  SvgData get disabled => SvgIcons.chatVideoCallDisabled;
+}
+

@@ -188,6 +188,10 @@ class MessageFieldController extends GetxController {
       FileButton(pickFile),
     ] else
       AttachmentButton(pickFile),
+    if (settings?.value?.mediaButtonsPosition == MediaButtonsPosition.more) ...[
+      const AudioCallButton(),
+      const VideoCallButton(),
+    ]
   ]);
 
   /// [ChatButton]s displayed (pinned) in the text field.
@@ -230,6 +234,9 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
+
+  Rx<ApplicationSettings?>? get settings =>
+      _settingsRepository?.applicationSettings;
 
   @override
   void onInit() {
