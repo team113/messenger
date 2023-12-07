@@ -24,6 +24,7 @@ import 'package:hive/hive.dart';
 import '/provider/hive/base.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
+import '/util/web/web_utils.dart';
 
 /// [PageProvider] fetching items from the [Hive].
 ///
@@ -190,7 +191,40 @@ class HivePageProvider<T extends Object, C, K>
   }
 
   @override
-  Future<void> put(T item) => _provider.put(item);
+  Future<void> put(T item, {int Function(T, T)? compare}) async {
+    // TODO: https://github.com/team113/messenger/issues/27
+    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+    // synchronization, thus writes from multiple applications may lead to
+    // missing events.
+    if (WebUtils.isPopup) {
+      return;
+    }
+
+    if (compare == null) {
+      return _provider.put(item);
+    }
+
+    final Iterable<K> ordered = orderBy(_provider.keys).toList();
+
+    if (ordered.isNotEmpty) {
+      final firstItem = await _provider.get(ordered.first);
+      final lastItem = await _provider.get(ordered.last);
+
+      if (firstItem != null && lastItem != null) {
+        if (compare(item, lastItem) == 1) {
+          if (isLast?.call(item) == true) {
+            await _provider.put(item);
+          }
+        } else if (compare(item, firstItem) == -1) {
+          if (isFirst?.call(item) == true) {
+            await _provider.put(item);
+          }
+        } else {
+          await _provider.put(item);
+        }
+      }
+    }
+  }
 
   @override
   Future<void> remove(K key) => _provider.remove(key);

@@ -49,7 +49,7 @@ class ContextMenuOverlay extends StatefulWidget {
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
   /// Controller animating [FadeTransition].
-  late AnimationController _controller;
+  AnimationController? _controller;
 
   /// Animation of [FadeTransition].
   late Animation<double> _animation;
@@ -61,14 +61,15 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
       vsync: this,
     )..forward();
 
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _animation = CurvedAnimation(parent: _controller!, curve: Curves.easeIn);
 
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
+    _controller = null;
     super.dispose();
   }
 
@@ -84,7 +85,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
 
       return Listener(
         onPointerUp: (_) async {
-          await _controller.reverse();
+          await _controller?.reverse();
           widget.onDismissed?.call();
         },
         child: FadeTransition(

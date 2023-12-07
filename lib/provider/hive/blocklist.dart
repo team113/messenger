@@ -22,7 +22,7 @@ import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for blocked [UserId]s of the authenticated [MyUser].
-class BlocklistHiveProvider extends HiveBaseProvider<bool> {
+class BlocklistHiveProvider extends HiveLazyProvider<bool> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -42,9 +42,9 @@ class BlocklistHiveProvider extends HiveBaseProvider<bool> {
   }
 
   /// Indicates whether the provided [id] is stored in [Hive].
-  bool get(UserId id) {
+  Future<bool> get(UserId id) async {
     Log.debug('get($id)', '$runtimeType');
-    return getSafe(id.val) ?? false;
+    return (await getSafe(id.val)) ?? false;
   }
 
   /// Removes the provided [UserId] from [Hive].

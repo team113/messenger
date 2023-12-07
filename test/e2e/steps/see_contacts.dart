@@ -35,7 +35,7 @@ final StepDefinitionGeneric seeCountContacts = then1<int, CustomWorld>(
         await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
         final controller = Get.find<ContactsTabController>();
-        if (controller.contacts.length + controller.favorites.length == count) {
+        if (controller.contacts.length == count) {
           return true;
         } else {
           return false;

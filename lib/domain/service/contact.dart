@@ -34,24 +34,20 @@ class ContactService extends DisposableService {
   /// Repository to fetch [ChatContact]s from.
   final AbstractContactRepository _contactRepository;
 
-  /// Returns the [RxStatus] of the [contacts] and [favorites] initialization.
+  /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _contactRepository.status;
 
-  /// Indicates whether the [contacts] or [favorites] have next page.
+  /// Indicates whether the [paginated] have next page.
   RxBool get hasNext => _contactRepository.hasNext;
 
-  /// Indicates whether a next page of the [contacts] or [favorites] is loading.
+  /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
-  /// Returns the current reactive observable map of [ChatContact]s.
-  RxObsMap<ChatContactId, RxChatContact> get contacts =>
-      _contactRepository.contacts;
+  /// Returns the reactive map the currently paginated [ChatContact]s.
+  RxObsMap<ChatContactId, RxChatContact> get paginated =>
+      _contactRepository.paginated;
 
-  /// Returns the current reactive map of favorite [ChatContact]s.
-  RxObsMap<ChatContactId, RxChatContact> get favorites =>
-      _contactRepository.favorites;
-
-  /// Fetches the next [contacts] page.
+  /// Fetches the next [paginated] page.
   FutureOr<void> next() {
     Log.debug('next()', '$runtimeType');
     return _contactRepository.next();

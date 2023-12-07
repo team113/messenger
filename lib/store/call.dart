@@ -705,6 +705,10 @@ class CallRepository extends DisposableInterface
 
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_subscribe($count)', '$runtimeType');
 
     _events?.cancel();
