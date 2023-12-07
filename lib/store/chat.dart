@@ -121,8 +121,8 @@ class ChatRepository extends DisposableInterface
   /// storage.
   final RecentChatHiveProvider _recentLocal;
 
-  /// [ChatId]s sorted by [PreciseDateTime] representing favorite [Chat]s [Hive]
-  /// storage.
+  /// [ChatId]s sorted by [ChatFavoritePosition] representing favorite [Chat]s
+  /// [Hive] storage.
   final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
@@ -276,11 +276,13 @@ class ChatRepository extends DisposableInterface
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
-    if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
-      await (_localPagination?.next ?? _pagination?.next)?.call();
-
-      _initMonolog();
+    if (_localPagination?.hasNext.value == true) {
+      await _localPagination?.next();
+    } else {
+      await _pagination?.next();
     }
+
+    _initMonolog();
   }
 
   @override
@@ -1634,6 +1636,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _subscribedAt = DateTime.now();
@@ -1759,6 +1765,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
@@ -2070,6 +2080,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initFavoriteSubscription()', '$runtimeType');
 
     _favoriteChatsSubscription?.cancel();
@@ -2084,6 +2098,7 @@ class ChatRepository extends DisposableInterface
 
           await _pagination?.clear();
           await _favoriteLocal.clear();
+          await _sessionLocal.setFavoriteChatsSynchronized(false);
 
           await _pagination?.around();
 

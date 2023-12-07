@@ -100,7 +100,8 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   }
 
   @override
-  Future<void> put(T item) => hiveProvider.put(item);
+  Future<void> put(T item, {int Function(T, T)? compare}) =>
+      hiveProvider.put(item, compare: compare);
 
   @override
   Future<void> remove(K key) => hiveProvider.remove(key);

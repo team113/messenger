@@ -87,14 +87,14 @@ class UserEventsInitialized extends UserEvents {
   UserEventsKind get kind => UserEventsKind.initialized;
 }
 
-/// Information about some [User] being present in [MyUser]'s blacklist of the
+/// Information about some [User] being present in [MyUser]'s blocklist of the
 /// authenticated [MyUser].
 class UserEventsIsBlocked extends UserEvents {
   UserEventsIsBlocked(this.record, this.ver);
 
-  /// [BlocklistRecord] of the [User] in blacklist.
+  /// [BlocklistRecord] of the [User] in blocklist.
   ///
-  /// `null` if the [User] is not blacklisted by the authenticated [MyUser].
+  /// `null` if the [User] is not blocked by the authenticated [MyUser].
   final BlocklistRecord? record;
 
   /// Version of the authenticated [MyUser]'s state.

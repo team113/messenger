@@ -215,9 +215,7 @@ void main() async {
                     'num': '1234123412341234',
                     'isDeleted': false,
                     'mutualContactsCount': 0,
-                    'isBlocked': {
-                      'ver': '0',
-                    },
+                    'isBlocked': {'ver': '0'},
                     'ver': '0',
                   },
                   'at': '2022-01-27T11:34:37.191440+00:00',
@@ -231,9 +229,7 @@ void main() async {
                         'num': '1234123412341234',
                         'isDeleted': false,
                         'mutualContactsCount': 0,
-                        'isBlocked': {
-                          'ver': '0',
-                        },
+                        'isBlocked': {'ver': '0'},
                         'ver': '0',
                       },
                       'text': '123',

@@ -225,7 +225,7 @@ class HiveRxUser extends RxUser {
         var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
-        if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
+        if (userEntity != null && userEntity.blockedVer > versioned.ver) {
           break;
         }
 
@@ -240,12 +240,12 @@ class HiveRxUser extends RxUser {
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
-          if (userEntity.blacklistedVer > versioned.ver) {
+          if (userEntity.blockedVer > versioned.ver) {
             break;
           }
 
           userEntity.value.isBlocked = versioned.record;
-          userEntity.blacklistedVer = versioned.ver;
+          userEntity.blockedVer = versioned.ver;
           _userLocal.put(userEntity);
         }
         break;

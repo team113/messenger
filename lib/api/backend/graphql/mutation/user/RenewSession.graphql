@@ -21,7 +21,7 @@ mutation RenewSession($token: RefreshToken!) {
         ... on RenewSessionOk {
             user {
                 __typename
-                ...MyUser
+                id
             }
             session {
                 expireAt

@@ -43,9 +43,13 @@ import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'message_field/controller.dart';
@@ -107,6 +111,7 @@ class _ChatViewState extends State<ChatView>
       key: const Key('ChatView'),
       init: ChatController(
         widget.id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -204,13 +209,30 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Obx(() {
-                                      return Text(
-                                        c.chat!.title.value,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      );
-                                    }),
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Obx(() {
+                                            return Text(
+                                              c.chat!.title.value,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            );
+                                          }),
+                                        ),
+                                        Obx(() {
+                                          if (c.chat?.chat.value.muted ==
+                                              null) {
+                                            return const SizedBox();
+                                          }
+
+                                          return const Padding(
+                                            padding: EdgeInsets.only(left: 5),
+                                            child: SvgIcon(SvgIcons.muted),
+                                          );
+                                        }),
+                                      ],
+                                    ),
                                     if (!isMonolog) ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),
@@ -220,11 +242,11 @@ class _ChatViewState extends State<ChatView>
                           const SizedBox(width: 10),
                         ],
                       ),
-                      padding: const EdgeInsets.only(left: 4, right: 20),
+                      padding: const EdgeInsets.only(left: 4),
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
-                          if (c.chat?.blacklisted == true) {
+                          if (c.chat?.blocked == true) {
                             return const SizedBox.shrink();
                           }
 
@@ -242,6 +264,7 @@ class _ChatViewState extends State<ChatView>
                                 onPressed: () => c.call(false),
                                 child: const SvgIcon(SvgIcons.chatAudioCall),
                               ),
+                              const SizedBox(width: 10),
                             ];
                           } else {
                             final Widget child;
@@ -286,7 +309,156 @@ class _ChatViewState extends State<ChatView>
                             ];
                           }
 
-                          return Row(children: children);
+                          return Row(
+                            children: [
+                              ...children,
+                              Obx(() {
+                                final bool muted =
+                                    c.chat?.chat.value.muted != null;
+
+                                final bool dialog =
+                                    c.chat?.chat.value.isDialog == true;
+
+                                final bool isLocal =
+                                    c.chat?.chat.value.id.isLocal == true;
+
+                                final bool monolog =
+                                    c.chat?.chat.value.isMonolog == true;
+
+                                final bool favorite =
+                                    c.chat?.chat.value.favoritePosition != null;
+
+                                final bool contact = c.inContacts.value;
+
+                                final Widget child;
+
+                                child = ContextMenuRegion(
+                                  key: c.moreKey,
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 10,
+                                  ),
+                                  actions: [
+                                    if (dialog)
+                                      ContextMenuButton(
+                                        key: Key(
+                                          contact
+                                              ? 'DeleteFromContactsButton'
+                                              : 'AddToContactsButton',
+                                        ),
+                                        label: contact
+                                            ? 'btn_delete_from_contacts'.l10n
+                                            : 'btn_add_to_contacts'.l10n,
+                                        trailing: SvgIcon(
+                                          contact
+                                              ? SvgIcons.deleteContact
+                                              : SvgIcons.addContact,
+                                        ),
+                                        onPressed: contact
+                                            ? () =>
+                                                _removeFromContacts(c, context)
+                                            : c.addToContacts,
+                                      ),
+                                    ContextMenuButton(
+                                      key: Key(
+                                        favorite
+                                            ? 'UnfavoriteChatButton'
+                                            : 'FavoriteChatButton',
+                                      ),
+                                      label: favorite
+                                          ? 'btn_delete_from_favorites'.l10n
+                                          : 'btn_add_to_favorites'.l10n,
+                                      trailing: SvgIcon(
+                                        favorite
+                                            ? SvgIcons.favoriteSmall
+                                            : SvgIcons.unfavoriteSmall,
+                                      ),
+                                      onPressed: favorite
+                                          ? c.unfavoriteChat
+                                          : c.favoriteChat,
+                                    ),
+                                    if (!isLocal) ...[
+                                      if (!monolog)
+                                        ContextMenuButton(
+                                          key: Key(
+                                            muted
+                                                ? 'UnmuteChatButton'
+                                                : 'MuteChatButton',
+                                          ),
+                                          label: muted
+                                              ? PlatformUtils.isMobile
+                                                  ? 'btn_unmute'.l10n
+                                                  : 'btn_unmute_chat'.l10n
+                                              : PlatformUtils.isMobile
+                                                  ? 'btn_mute'.l10n
+                                                  : 'btn_mute_chat'.l10n,
+                                          trailing: SvgIcon(
+                                            muted
+                                                ? SvgIcons.unmuteSmall
+                                                : SvgIcons.muteSmall,
+                                          ),
+                                          onPressed:
+                                              muted ? c.unmuteChat : c.muteChat,
+                                        ),
+                                      ContextMenuButton(
+                                        key: const Key('ClearHistoryButton'),
+                                        label: 'btn_clear_history'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () => _clearChat(c, context),
+                                      ),
+                                    ],
+                                    if (!monolog && !dialog)
+                                      ContextMenuButton(
+                                        key: const Key('LeaveGroupButton'),
+                                        label: 'btn_leave_group'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.leaveGroup,
+                                        ),
+                                        onPressed: () =>
+                                            _leaveGroup(c, context),
+                                      ),
+                                    if (!isLocal || monolog)
+                                      ContextMenuButton(
+                                        key: const Key('HideChatButton'),
+                                        label: 'btn_delete_chat'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () => _hideChat(c, context),
+                                      ),
+                                    if (dialog)
+                                      ContextMenuButton(
+                                        key: const Key('Block'),
+                                        label: 'btn_block'.l10n,
+                                        trailing: const SvgIcon(SvgIcons.block),
+                                        onPressed: () => _blockUser(c, context),
+                                      ),
+                                  ],
+                                  child: Container(
+                                    key: const Key('MoreButton'),
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 21,
+                                    ),
+                                    height: double.infinity,
+                                    child: const SvgIcon(SvgIcons.more),
+                                  ),
+                                );
+
+                                return AnimatedButton(
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                );
+                              }),
+                            ],
+                          );
                         }),
                       ],
                     ),
@@ -837,7 +1009,7 @@ class _ChatViewState extends State<ChatView>
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Center(
                   child: ColoredBox(
-                    color: style.colors.transparent,
+                    color: style.colors.almostTransparent,
                     child: const CustomProgressIndicator(),
                   ),
                 ),
@@ -866,11 +1038,116 @@ class _ChatViewState extends State<ChatView>
     return const SizedBox();
   }
 
+  /// Opens a confirmation popup leaving this [Chat].
+  Future<void> _leaveGroup(ChatController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_leave_group'.l10n,
+      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+    );
+
+    if (result == true) {
+      await c.leaveGroup();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup blocking the [User].
+  Future<void> _blockUser(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
+        TextSpan(
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.block();
+    }
+  }
+
+  /// Opens a confirmation popup deleting the [User] from address book.
+  Future<void> _removeFromContacts(
+    ChatController c,
+    BuildContext context,
+  ) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.removeFromContacts();
+    }
+  }
+
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
-    if (c.chat?.blacklisted == true) {
-      return SafeArea(child: UnblockButton(c.unblacklist));
+    if (c.chat?.blocked == true) {
+      return SafeArea(child: UnblockButton(c.unblock));
     }
 
     return Obx(() {

@@ -15,20 +15,24 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blacklist
+Feature: Blocklist pagination
 
-  Scenario: Blacklisted user cannot send me a message
-    Given I am Alice
-    And user Bob
-    And Bob has dialog with me
+  Scenario: Blocklist pagination works correctly
+    Given user Alice
+    And Alice has 16 blocked users
+    And I sign in as Alice
     And I wait until `HomeView` is present
 
-    When I go to Bob's page
-    And I scroll `UserScrollable` until `Block` is present
-    And I tap `Block` button
-    And I tap `Proceed` button
-    Then Bob sends message to me and receives blacklisted exception
+    When I tap `CloseButton` button
+    And I tap `MenuButton` button
+    And I scroll `MenuListView` until `Blocklist` is present
+    And I tap `Blocklist` button
+    And I tap `ShowBlocklist` button
+    Then I wait until `BlocklistView` is present
+    And I see 15 blocked users
 
-    When I scroll `UserScrollable` until `Unblock` is present
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    Given I have Internet with delay of 3 seconds
+    When I scroll `BlocklistView` to bottom
+    Then I wait until `BlocklistLoading` is present
+    Then I wait until `BlocklistLoading` is absent
+    And I see 16 blocked users

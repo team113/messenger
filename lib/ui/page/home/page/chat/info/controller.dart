@@ -73,6 +73,9 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a members [ListView].
   final ScrollController membersScrollController = ScrollController();
 
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 

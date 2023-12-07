@@ -40,17 +40,12 @@ final StepDefinitionGeneric seeContactPosition =
         final controller = Get.find<ContactsTabController>();
         final ChatContactId contactId = context.world.contacts[name]!;
 
-        final List<ContactEntry> contacts = [
-          ...controller.favorites,
-          ...controller.contacts,
-        ];
-
         switch (status) {
           case PositionStatus.first:
-            return contacts.first.id == contactId;
+            return controller.contacts.first.id == contactId;
 
           case PositionStatus.last:
-            return contacts.last.id == contactId;
+            return controller.contacts.last.id == contactId;
         }
       },
     );

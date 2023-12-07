@@ -28,7 +28,9 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
@@ -54,6 +56,10 @@ void main() async {
   await chatHiveProvider.init();
   var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
   await sessionDataHiveProvider.init();
+  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  await favoriteContactHiveProvider.init();
+  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  await contactSortingHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -134,6 +140,8 @@ void main() async {
       ContactRepository(
         graphQlProvider,
         contactProvider,
+        favoriteContactHiveProvider,
+        contactSortingHiveProvider,
         userRepo,
         sessionDataHiveProvider,
       ),
