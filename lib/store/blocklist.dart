@@ -77,7 +77,7 @@ class BlocklistRepository extends DisposableInterface
   RxBool get nextLoading => _pagination.nextLoading;
 
   @override
-  Future<void> onInit() async {
+  void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
     _initLocalSubscription();
@@ -98,7 +98,7 @@ class BlocklistRepository extends DisposableInterface
   }
 
   @override
-  Future<void> around() async {
+  FutureOr<void> around() async {
     Log.debug('around()', '$runtimeType');
 
     if (blocklist.isEmpty && _pagination.hasNext.isTrue) {
@@ -108,7 +108,7 @@ class BlocklistRepository extends DisposableInterface
   }
 
   @override
-  Future<void> next() {
+  FutureOr<void> next() {
     Log.debug('next()', '$runtimeType');
     return _pagination.next();
   }
@@ -172,12 +172,14 @@ class BlocklistRepository extends DisposableInterface
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
-  Future<void> _add(UserId userId) async {
+  FutureOr<void> _add(UserId userId) async {
     Log.debug('_add($userId)', '$runtimeType');
 
     final RxUser? user = blocklist[userId];
     if (user == null) {
-      final RxUser? user = await _userRepo.get(userId);
+      final FutureOr<RxUser?> futureOrUser = _userRepo.get(userId);
+      final RxUser? user =
+          futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
       if (user != null) {
         blocklist[userId] = user;
       }
@@ -196,14 +198,17 @@ class BlocklistRepository extends DisposableInterface
         blocklist.remove(userId);
       } else {
         if (blocklist[userId] == null) {
-          await _add(userId);
+          final FutureOr<void> futureOrVoid = _add(userId);
+          if (futureOrVoid != null) {
+            await futureOrVoid;
+          }
         }
       }
     }
   }
 
   /// Initializes the [_pagination].
-  Future<void> _initRemotePagination() async {
+  void _initRemotePagination() {
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     _pagination = Pagination(
@@ -226,7 +231,7 @@ class BlocklistRepository extends DisposableInterface
       },
     );
 
-    _paginationSubscription = _pagination.changes.listen((event) async {
+    _paginationSubscription = _pagination.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:

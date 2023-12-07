@@ -71,10 +71,10 @@ class HivePageProvider<T extends Object, C, K>
   set provider(IterableHiveProvider<T, K> value) => _provider = value;
 
   @override
-  Future<Page<T, C>?> init(T? item, int count) => around(item, null, count);
+  FutureOr<Page<T, C>?> init(T? item, int count) => around(item, null, count);
 
   @override
-  Future<Page<T, C>?> around(T? item, C? cursor, int count) async {
+  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
     final Iterable<K> ordered = orderBy(_provider.keys);
 
     if (ordered.isEmpty) {
@@ -115,7 +115,8 @@ class HivePageProvider<T extends Object, C, K>
 
     List<T> items = [];
     for (var k in keys) {
-      final T? item = await _provider.get(k);
+      final FutureOr<T?> futureOrItem = _provider.get(k);
+      final T? item = futureOrItem is T ? futureOrItem : await futureOrItem;
       if (item != null) {
         items.add(item);
       }
@@ -145,7 +146,8 @@ class HivePageProvider<T extends Object, C, K>
     if (index != -1 && index < ordered.length - 1) {
       List<T> items = [];
       for (var k in ordered.after(index, count)) {
-        final T? item = await _provider.get(k);
+        final FutureOr<T?> futureOrItem = _provider.get(k);
+        final T? item = futureOrItem is T ? futureOrItem : await futureOrItem;
         if (item != null) {
           items.add(item);
         }
@@ -178,7 +180,8 @@ class HivePageProvider<T extends Object, C, K>
     if (index > 0) {
       final List<T> items = [];
       for (var i in ordered.before(index, count)) {
-        final T? item = await _provider.get(i);
+        final FutureOr<T?> futureOrItem = _provider.get(i);
+        final T? item = futureOrItem is T ? futureOrItem : await futureOrItem;
         if (item != null) {
           items.add(item);
         }
@@ -207,8 +210,13 @@ class HivePageProvider<T extends Object, C, K>
     final Iterable<K> ordered = orderBy(_provider.keys).toList();
 
     if (ordered.isNotEmpty) {
-      final firstItem = await _provider.get(ordered.first);
-      final lastItem = await _provider.get(ordered.last);
+      final FutureOr<T?> futureOrFirstItem = _provider.get(ordered.first);
+      final FutureOr<T?> futureOrLastItem = _provider.get(ordered.last);
+
+      final T? firstItem =
+          futureOrFirstItem is T? ? futureOrFirstItem : await futureOrFirstItem;
+      final T? lastItem =
+          futureOrLastItem is T? ? futureOrLastItem : await futureOrLastItem;
 
       if (firstItem != null && lastItem != null) {
         if (compare(item, lastItem) == 1) {

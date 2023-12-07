@@ -118,9 +118,9 @@ class Pagination<T, C, K> {
   }
 
   /// Fetches the initial [Page] of [items].
-  Future<void> init(T? item) {
+  FutureOr<void> init(T? item) {
     if (_disposed) {
-      return Future.value();
+      return null;
     }
 
     return _guard.protect(() async {
@@ -161,9 +161,9 @@ class Pagination<T, C, K> {
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  Future<void> around({T? item, C? cursor}) {
+  FutureOr<void> around({T? item, C? cursor}) {
     if (_disposed) {
-      return Future.value();
+      return null;
     }
 
     final bool locked = _guard.isLocked;
@@ -211,9 +211,9 @@ class Pagination<T, C, K> {
   }
 
   /// Fetches a next page of the [items].
-  Future<void> next() async {
+  FutureOr<void> next() async {
     if (_disposed) {
-      return Future.value();
+      return null;
     }
 
     final bool locked = _nextGuard.isLocked;
@@ -261,9 +261,9 @@ class Pagination<T, C, K> {
   }
 
   /// Fetches a previous page of the [items].
-  Future<void> previous() async {
+  FutureOr<void> previous() async {
     if (_disposed) {
-      return Future.value();
+      return null;
     }
 
     final bool locked = _previousGuard.isLocked;
@@ -313,9 +313,9 @@ class Pagination<T, C, K> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(T item, {bool ignoreBounds = false}) async {
+  FutureOr<void> put(T item, {bool ignoreBounds = false}) async {
     if (_disposed) {
-      return;
+      return null;
     }
 
     Log.debug('put($item)', '$runtimeType');
@@ -346,11 +346,11 @@ class Pagination<T, C, K> {
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
-  Future<void> remove(K key) {
+  FutureOr<void> remove(K key) {
     Log.debug('remove($K)', '$runtimeType');
 
     if (_disposed) {
-      return Future.value();
+      return null;
     }
 
     items.remove(key);
@@ -395,7 +395,7 @@ class Page<T, C> {
 /// Utility providing the [Page]s.
 abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
-  Future<Page<T, C>?> init(T? item, int count);
+  FutureOr<Page<T, C>?> init(T? item, int count);
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///

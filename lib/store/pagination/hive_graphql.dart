@@ -43,19 +43,22 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
       hiveProvider.provider = provider;
 
   @override
-  Future<Page<T, C>?> init(T? item, int count) =>
+  FutureOr<Page<T, C>?> init(T? item, int count) =>
       hiveProvider.init(item, count);
 
   @override
   FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    final cached = await hiveProvider.around(item, cursor, count);
+    final FutureOr<Page<T, C>?> futureOrCached =
+        hiveProvider.around(item, cursor, count);
+    final Page<T, C>? cached =
+        futureOrCached is Page<T, C>? ? futureOrCached : await futureOrCached;
 
     if (cached != null &&
         (cached.edges.length >= count || !cached.info.hasNext)) {
       return cached;
     }
 
-    final remote = await graphQlProvider.around(item, cursor, count);
+    final Page<T, C> remote = await graphQlProvider.around(item, cursor, count);
     for (T e in remote.edges) {
       hiveProvider.put(e);
     }
@@ -65,7 +68,10 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
   @override
   FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
-    final cached = await hiveProvider.after(item, cursor, count);
+    final FutureOr<Page<T, C>?> futureOrCached =
+        hiveProvider.after(item, cursor, count);
+    final Page<T, C>? cached =
+        futureOrCached is Page<T, C>? ? futureOrCached : await futureOrCached;
 
     if (cached != null && cached.edges.isNotEmpty) {
       return cached;
@@ -83,13 +89,17 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
   @override
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
-    final cached = await hiveProvider.before(item, cursor, count);
+    final FutureOr<Page<T, C>?> futureOrCached =
+        hiveProvider.before(item, cursor, count);
+    final Page<T, C>? cached =
+        futureOrCached is Page<T, C>? ? futureOrCached : await futureOrCached;
 
     if (cached != null && cached.edges.isNotEmpty) {
       return cached;
     }
 
-    final remote = await graphQlProvider.before(item, cursor, count);
+    final Page<T, C>? remote =
+        await graphQlProvider.before(item, cursor, count);
     if (remote != null) {
       for (T e in remote.edges) {
         await hiveProvider.put(e);

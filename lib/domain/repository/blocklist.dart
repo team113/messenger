@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -38,8 +40,8 @@ abstract class AbstractBlocklistRepository {
   RxBool get nextLoading;
 
   /// Fetches the initial [blocklist] page.
-  Future<void> around();
+  FutureOr<void> around();
 
   /// Fetches the next [blocklist] page.
-  Future<void> next();
+  FutureOr<void> next();
 }
