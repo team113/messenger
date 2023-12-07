@@ -47,6 +47,7 @@ class MyUser extends HiveObject {
     required this.presenceIndex,
     required this.online,
     this.muted,
+    this.blocklistCount,
   });
 
   /// Unique ID of this [MyUser].
@@ -139,6 +140,10 @@ class MyUser extends HiveObject {
   /// Mute duration of this [MyUser].
   @HiveField(14)
   MuteDuration? muted;
+
+  /// Total count of blocked users.
+  @HiveField(15)
+  int? blocklistCount;
 }
 
 /// List of [UserPhone]s associated with [MyUser].

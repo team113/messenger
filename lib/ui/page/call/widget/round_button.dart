@@ -154,7 +154,9 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
     Widget button = Container(
       constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
-      color: style.colors.transparent,
+      // Use [Palette.almostTransparent] instead of [Palette.transparent] to
+      // allow [ConditionalBackdropFilter] animate transparency correctly.
+      color: style.colors.almostTransparent,
       child: ConditionalBackdropFilter(
         condition: !WebUtils.isSafari && widget.withBlur,
         borderRadius: BorderRadius.circular(300),

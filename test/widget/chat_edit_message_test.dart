@@ -48,8 +48,10 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -59,6 +61,7 @@ import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
@@ -160,7 +163,7 @@ void main() async {
     }
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -240,7 +243,7 @@ void main() async {
                     'num': '1234567890123456',
                     'mutualContactsCount': 0,
                     'isDeleted': false,
-                    'isBlocked': {'blacklisted': false, 'ver': '0'},
+                    'isBlocked': {'ver': '0'},
                     'presence': 'AWAY',
                     'ver': '0',
                   },
@@ -322,12 +325,12 @@ void main() async {
       .thenAnswer((realInvocation) => const Stream.empty());
 
   when(graphQlProvider.getBlocklist(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
   );
 
   when(graphQlProvider.getUser(any))
@@ -379,8 +382,8 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
   var recentChatProvider = RecentChatHiveProvider();
@@ -389,6 +392,10 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  await favoriteContactHiveProvider.init();
+  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  await contactSortingHiveProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -431,6 +438,13 @@ void main() async {
     );
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        userRepository,
+      ),
+    );
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
@@ -457,6 +471,8 @@ void main() async {
       ContactRepository(
         graphQlProvider,
         contactProvider,
+        favoriteContactHiveProvider,
+        contactSortingHiveProvider,
         userRepository,
         sessionProvider,
       ),
@@ -466,7 +482,7 @@ void main() async {
     MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

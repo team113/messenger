@@ -396,7 +396,7 @@ class ChatsTabView extends StatelessWidget {
                         center = Center(
                           key: UniqueKey(),
                           child: ColoredBox(
-                            color: style.colors.transparent,
+                            color: style.colors.almostTransparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -544,7 +544,7 @@ class ChatsTabView extends StatelessWidget {
                         key: UniqueKey(),
                         child: ColoredBox(
                           key: const Key('Loading'),
-                          color: style.colors.transparent,
+                          color: style.colors.almostTransparent,
                           child: const CustomProgressIndicator(),
                         ),
                       );
@@ -573,7 +573,7 @@ class ChatsTabView extends StatelessWidget {
                                       chat,
                                       key: Key('SearchChat_${chat.id}'),
                                       me: c.me,
-                                      blocked: chat.blacklisted,
+                                      blocked: chat.blocked,
                                       getUser: c.getUser,
                                       onCall: (video) => c.call(chat.id, video),
                                       onJoin: () => c.joinCall(chat.id),
@@ -684,7 +684,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: style.colors.transparent,
+                            color: style.colors.almostTransparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -739,7 +739,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? const Key('ChatMonolog')
                                     : Key('RecentChat_${e.id}'),
                                 me: c.me,
-                                blocked: e.blacklisted,
+                                blocked: e.blocked,
                                 selected: selected,
                                 getUser: c.getUser,
                                 avatarBuilder: c.selecting.value
