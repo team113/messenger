@@ -63,6 +63,10 @@ class HiveRxChatContact extends RxChatContact {
     _worker.dispose();
   }
 
+  @override
+  int compareTo(RxChatContact other) =>
+      contact.value.compareTo(other.contact.value);
+
   /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
   Future<void> _updateUser(ChatContact c) async {
     Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');

@@ -825,15 +825,15 @@ class RecentChatTile extends StatelessWidget {
                     ? inverted
                         ? SvgIcons.deliveredWhite
                         : SvgIcons.delivered
-                    : isSending
-                        ? isError
-                            ? SvgIcons.error
-                            : inverted
+                    : isError
+                        ? SvgIcons.error
+                        : isSending
+                            ? inverted
                                 ? SvgIcons.sendingWhite
                                 : SvgIcons.sending
-                        : inverted
-                            ? SvgIcons.sentWhite
-                            : SvgIcons.sent,
+                            : inverted
+                                ? SvgIcons.sentWhite
+                                : SvgIcons.sent,
           ),
         );
       }

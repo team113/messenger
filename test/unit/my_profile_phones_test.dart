@@ -33,6 +33,7 @@ import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -43,7 +44,7 @@ import 'my_profile_phones_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/my_profile_phones_unit');
-  var userData = {
+  var myUserData = {
     'id': '12345',
     'num': '1234567890123456',
     'login': 'login',
@@ -55,9 +56,10 @@ void main() async {
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -77,8 +79,8 @@ void main() async {
   await myUserProvider.clear();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -97,7 +99,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         )
       ]),
@@ -117,7 +119,7 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver':
               '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
@@ -139,7 +141,7 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
         }
       }).confirmUserPhone
@@ -159,19 +161,19 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
         }
       }).deleteUserPhone),
     );
 
     when(graphQlProvider.getBlocklist(
-      first: 120,
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
     );
 
     AuthService authService = Get.put(
@@ -182,10 +184,16 @@ void main() async {
     );
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+          graphQlProvider, blockedUsersProvider, userRepository),
+    );
+
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
@@ -215,7 +223,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         ),
       ]),
@@ -244,10 +252,16 @@ void main() async {
     );
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+          graphQlProvider, blockedUsersProvider, userRepository),
+    );
+
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
