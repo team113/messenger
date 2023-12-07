@@ -35,8 +35,8 @@ class ChatDirectLinkVersion extends Version {
   ChatDirectLinkVersion(super.val);
 }
 
-/// Cursor of blacklisted [User]s.
-@HiveType(typeId: ModelTypeId.blacklistCursor)
+/// Cursor of blocked [User]s.
+@HiveType(typeId: ModelTypeId.blocklistCursor)
 class BlocklistCursor extends NewType<String> {
   BlocklistCursor(super.val);
 }

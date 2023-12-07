@@ -22,15 +22,11 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
   /// Returns stored [MyUser] value.
   Rx<MyUser?> get myUser;
-
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist;
 
   /// Initializes the repository.
   ///

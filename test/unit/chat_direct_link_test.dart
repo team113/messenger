@@ -47,6 +47,7 @@ import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/my_user.dart';
@@ -84,8 +85,8 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
@@ -159,9 +160,10 @@ void main() async {
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -190,12 +192,12 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.getBlocklist(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
   );
 
   AuthService authService = Get.put(
@@ -208,10 +210,15 @@ void main() async {
 
   UserRepository userRepository =
       Get.put(UserRepository(graphQlProvider, userProvider));
+
+  BlocklistRepository blocklistRepository = Get.put(
+    BlocklistRepository(graphQlProvider, blockedUsersProvider, userRepository),
+  );
+
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
-    blacklistedUsersProvider,
+    blocklistRepository,
     userRepository,
   );
   MyUserService myUserService =

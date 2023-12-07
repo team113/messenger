@@ -266,13 +266,9 @@ class ChatController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
-  /// [StreamSubscription] to [ContactService.contacts] determining the
+  /// [StreamSubscription] to [ContactService.paginated] determining the
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
-
-  /// [StreamSubscription] to [ContactService.favorites] determining the
-  /// [inContacts] indicator.
-  StreamSubscription? _favoritesSubscription;
 
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
@@ -477,7 +473,6 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _contactsSubscription?.cancel();
-    _favoritesSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -1004,14 +999,11 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog == true) {
-        inContacts.value = _contactService.contacts.values.any(
-              (e) => e.contact.value.users.every((m) => m.id == user?.id),
-            ) ||
-            _contactService.favorites.values.any(
-              (e) => e.contact.value.users.every((m) => m.id == user?.id),
-            );
+        inContacts.value = _contactService.paginated.values.any(
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
 
-        _contactsSubscription = _contactService.contacts.changes.listen((e) {
+        _contactsSubscription = _contactService.paginated.changes.listen((e) {
           switch (e.op) {
             case OperationKind.added:
             case OperationKind.updated:
@@ -1026,28 +1018,6 @@ class ChatController extends GetxController {
                   true) {
                 inContacts.value = false;
               }
-              break;
-          }
-        });
-
-        _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-          switch (e.op) {
-            case OperationKind.added:
-              if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
-                  true) {
-                inContacts.value = true;
-              }
-              break;
-
-            case OperationKind.removed:
-              if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
-                  true) {
-                inContacts.value = false;
-              }
-              break;
-
-            case OperationKind.updated:
-              // No-op.
               break;
           }
         });
@@ -1342,12 +1312,9 @@ class ChatController extends GetxController {
     if (inContacts.value) {
       try {
         final RxChatContact? contact =
-            _contactService.contacts.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                ) ??
-                _contactService.favorites.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                );
+            _contactService.paginated.values.firstWhereOrNull(
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
         await _contactService.deleteContact(contact!.contact.value.id);
         inContacts.value = false;
       } catch (e) {

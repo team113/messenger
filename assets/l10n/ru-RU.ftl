@@ -271,7 +271,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
-err_blacklisted = Пользователь добавил Вас в чёрный список
+err_blocked = Пользователь добавил Вас в чёрный список
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
@@ -365,7 +365,7 @@ err_you_already_add_this_email = Вы уже добавили указанный
 err_you_already_add_this_phone = Вы уже добавили указанный номер телефона.
 err_you_already_has_unconfirmed_email = Вы имеете неподтвержденный E-mail.
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
-err_you_are_blacklisted = Вы в чёрном списке
+err_you_are_blocked = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 fcm_dialog_title =
     {$userName ->
@@ -940,7 +940,7 @@ label_was_removed2 = {" "}покинул(а) группу
 label_work_with_us = Работайте с нами
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
-label_your_blacklist = Ваш чёрный список
+label_your_blocklist = Ваш чёрный список
 label_your_direct_link = Прямая ссылка на чат с Вами
 plus = +
 space = {" "}
