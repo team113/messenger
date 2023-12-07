@@ -829,7 +829,7 @@ class HiveRxChat extends RxChat {
     bool pagination = false,
   }) async {
     if (pagination) {
-      RxUser? user = await _chatRepository.getUser(member.value.user.id);
+      final RxUser? user = await _chatRepository.getUser(member.value.user.id);
 
       if (user != null) {
         members[member.value.user.id] = user;
@@ -903,15 +903,12 @@ class HiveRxChat extends RxChat {
     _paginationSubscription = _pagination.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
+        case OperationKind.updated:
           _add(event.value!.value);
           break;
 
         case OperationKind.removed:
           messages.removeWhere((e) => e.value.id == event.value?.value.id);
-          break;
-
-        case OperationKind.updated:
-          _add(event.value!.value);
           break;
       }
     });
