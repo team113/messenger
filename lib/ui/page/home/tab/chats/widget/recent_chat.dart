@@ -886,10 +886,7 @@ class RecentChatTile extends StatelessWidget {
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(
-            border: Border.all(
-              color: style.colors.onPrimary,
-              width: 0.5,
-            ),
+            border: Border.all(color: style.colors.onPrimary, width: 0.5),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Material(

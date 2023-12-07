@@ -484,7 +484,7 @@ class ChatsTabController extends GetxController {
   ///
   /// Only meaningful, if [chat] is dialog.
   bool inContacts(RxChat chat) {
-    if (chat.chat.value.isDialog != true) {
+    if (!chat.chat.value.isDialog) {
       return false;
     }
 
@@ -494,10 +494,9 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    return _contactService.contacts.values
-            .any((e) => e.contact.value.users.every((m) => m.id == userId)) ||
-        _contactService.favorites.values
-            .any((e) => e.contact.value.users.every((m) => m.id == userId));
+    return _contactService.paginated.values.any((e) =>
+        e.contact.value.users.length == 1 &&
+        e.contact.value.users.every((m) => m.id == userId));
   }
 
   /// Adds the [User] from this [chat] to the contacts list of the authenticated
@@ -540,12 +539,11 @@ class ChatsTabController extends GetxController {
 
     try {
       final RxChatContact? contact =
-          _contactService.contacts.values.firstWhereOrNull(
-                (e) => e.contact.value.users.every((m) => m.id == user.id),
-              ) ??
-              _contactService.favorites.values.firstWhereOrNull(
-                (e) => e.contact.value.users.every((m) => m.id == user.id),
-              );
+          _contactService.paginated.values.firstWhereOrNull(
+        (e) =>
+            e.contact.value.users.length == 1 &&
+            e.contact.value.users.every((m) => m.id == user.id),
+      );
       if (contact != null) {
         await _contactService.deleteContact(contact.contact.value.id);
       }
