@@ -387,13 +387,6 @@ class AvatarWidget extends StatelessWidget {
                   : avatar?.small;
 
       final Widget defaultAvatar = Container(
-        margin: const EdgeInsets.all(0.5),
-        constraints: BoxConstraints(
-          minHeight: minHeight,
-          minWidth: minWidth,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -462,7 +455,7 @@ class AvatarWidget extends StatelessWidget {
                           width: double.infinity,
                           displayProgress: false,
                           onForbidden: onForbidden,
-                          backgroundBuilder: () => defaultAvatar,
+                          loadingBuilder: () => defaultAvatar,
                         ),
                   ),
                 ),
