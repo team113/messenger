@@ -72,5 +72,3 @@ Feature: Messages selection
     Then I wait until "01" message is absent
     And I wait until "02" message is absent
     And I wait until "03" message is absent
-
-
