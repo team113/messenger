@@ -257,6 +257,7 @@ class AvatarWidget extends StatefulWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    monolog = true,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -267,7 +268,7 @@ class AvatarWidget extends StatefulWidget {
     }
 
     return Obx(() {
-      if (chat.chat.value.isMonolog) {
+      if (chat.chat.value.isMonolog && monolog) {
         return AvatarWidget.fromMonolog(
           key: key,
           chat.chat.value,
@@ -277,15 +278,20 @@ class AvatarWidget extends StatefulWidget {
         );
       }
 
-      RxUser? user =
+      final RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
         key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
         isAway: user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
-        title: chat.title.value,
-        color: chat.chat.value.colorDiscriminant(chat.me).sum(),
+        title: chat.chat.value.isMonolog && !monolog
+            ? (chat.members.values.firstOrNull?.user.value.name?.val ??
+                chat.members.values.firstOrNull?.user.value.num.toString())
+            : chat.title.value,
+        color: chat.chat.value.isMonolog && !monolog
+            ? chat.members.values.firstOrNull?.user.value.num.val.sum()
+            : chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,
       );

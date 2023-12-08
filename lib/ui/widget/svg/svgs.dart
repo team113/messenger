@@ -1866,4 +1866,10 @@ class SvgIcons {
     width: 18,
     height: 18,
   );
+
+  static const SvgData editField = SvgData(
+    'assets/icons/edit_field.svg',
+    width: 17,
+    height: 17,
+  );
 }

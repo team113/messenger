@@ -54,6 +54,7 @@ class ChatTile extends StatefulWidget {
     this.dimmed = false,
     this.basement,
     this.onBasementPressed,
+    this.monolog = true,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -113,6 +114,8 @@ class ChatTile extends StatefulWidget {
   final bool dimmed;
 
   final bool highlight;
+
+  final bool monolog;
 
   final Widget? basement;
   final void Function()? onBasementPressed;
@@ -215,6 +218,7 @@ class _ChatTileState extends State<ChatTile> {
                           widget.chat,
                           key: _avatarKey,
                           radius: AvatarRadius.large,
+                          monolog: widget.monolog,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -248,6 +252,47 @@ class _ChatTileState extends State<ChatTile> {
                                                   ),
                                                 )
                                               : Obx(() {
+                                                  if (widget.chat?.chat.value
+                                                              .isMonolog ==
+                                                          true &&
+                                                      !widget.monolog) {
+                                                    return Text(
+                                                      widget
+                                                              .chat
+                                                              ?.members
+                                                              .values
+                                                              .firstOrNull
+                                                              ?.user
+                                                              .value
+                                                              .name
+                                                              ?.val ??
+                                                          widget
+                                                              .chat
+                                                              ?.members
+                                                              .values
+                                                              .firstOrNull
+                                                              ?.user
+                                                              .value
+                                                              .num
+                                                              .toString() ??
+                                                          ('dot'.l10n * 3),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                      style: style.fonts.big
+                                                          .regular.onBackground
+                                                          .copyWith(
+                                                        color: widget
+                                                                    .selected ||
+                                                                widget.active
+                                                            ? style.colors
+                                                                .onPrimary
+                                                            : style.colors
+                                                                .onBackground,
+                                                      ),
+                                                    );
+                                                  }
+
                                                   return Text(
                                                     widget.chat?.title.value ??
                                                         ('dot'.l10n * 3),

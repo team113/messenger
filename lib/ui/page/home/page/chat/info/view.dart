@@ -98,7 +98,6 @@ class ChatInfoView extends StatelessWidget {
                 key: const Key('ChatInfoScrollable'),
                 children: [
                   const SizedBox(height: 8),
-                  const SizedBox(height: 0),
                   Block(
                     children: [
                       BigAvatarWidget.chat(
@@ -116,6 +115,8 @@ class ChatInfoView extends StatelessWidget {
                   ),
                   if (!c.isMonolog) ...[
                     Block(
+                      padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                      background: const Color.fromARGB(255, 240, 242, 244),
                       title: 'label_chat_members'.l10n,
                       children: [_members(c, context)],
                     ),
@@ -129,10 +130,7 @@ class ChatInfoView extends StatelessWidget {
                       ],
                     ),
                   ],
-                  Block(
-                    // title: 'label_actions'.l10n,
-                    children: [_actions(c, context)],
-                  ),
+                  Block(children: [_actions(c, context)]),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -213,7 +211,13 @@ class ChatInfoView extends StatelessWidget {
               inCall: e.id == c.me || c.chat?.chat.value.ongoingCall == null
                   ? null
                   : inCall,
-              onTap: () => router.user(e.id, push: true),
+              onTap: () {
+                if (e.dialog.value != null) {
+                  router.chat(e.dialog.value!.id, push: true);
+                } else {
+                  router.user(e.id, push: true);
+                }
+              },
               onCall: inCall
                   ? () => c.removeChatCallMember(e.id)
                   : () => c.redialChatCallMember(e.id),
@@ -271,6 +275,7 @@ class ChatInfoView extends StatelessWidget {
         //     text: 'btn_block'.l10n,
         //     trailing: const SvgIcon(SvgIcons.block16),
         //   ),
+
         ActionButton(
           onPressed: c.report,
           text: 'btn_report'.l10n,
@@ -279,6 +284,13 @@ class ChatInfoView extends StatelessWidget {
             child: const SvgIcon(SvgIcons.report16),
           ),
         ),
+        if (!c.isMonolog) ...[
+          ActionButton(
+            onPressed: () => _leaveGroup(c, context),
+            text: 'btn_leave_group'.l10n,
+            trailing: const SvgIcon(SvgIcons.leaveGroup16),
+          ),
+        ],
         // ],
       ],
     );
@@ -599,7 +611,8 @@ class _BigButtonState extends State<BigButton> {
           child: Material(
             type: MaterialType.card,
             borderRadius: style.cardRadius,
-            color: style.cardColor.darken(0.05),
+            // color: style.cardColor.darken(0.05),
+            color: style.cardColor,
             child: InkWell(
               borderRadius: style.cardRadius,
               onTap: widget.onPressed,

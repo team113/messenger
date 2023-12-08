@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -44,13 +45,13 @@ class ContactTile extends StatelessWidget {
     this.active = false,
     this.subtitle = const [],
     this.darken = 0,
-    this.height = 86,
+    this.height = 80,
     this.radius = AvatarRadius.large,
     this.actions,
     this.folded = false,
     this.dense = false,
     this.preventContextMenu = false,
-    this.margin = const EdgeInsets.symmetric(vertical: 3),
+    this.margin = const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.title,
@@ -151,67 +152,71 @@ class ContactTile extends StatelessWidget {
           unselectedHoverColor: style.cardHoveredColor,
           selectedHoverColor: chosen,
           folded: contact?.contact.value.favoritePosition != null,
-          child: Padding(
-            key: contact?.contact.value.favoritePosition != null
-                ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                : null,
-            padding: EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: dense ? 11 : 14,
-            ),
-            child: Row(
-              children: [
-                ...leading,
-                avatarBuilder(
-                  contact != null
-                      ? AvatarWidget.fromRxContact(
-                          contact,
-                          radius: dense ? AvatarRadius.medium : radius,
-                        )
-                      : user != null
-                          ? AvatarWidget.fromRxUser(
-                              user,
-                              radius: dense ? AvatarRadius.medium : radius,
-                            )
-                          : AvatarWidget.fromMyUser(
-                              myUser,
-                              radius: dense ? AvatarRadius.medium : radius,
-                            ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title ??
-                                  contact?.contact.value.name.val ??
-                                  user?.user.value.name?.val ??
-                                  user?.user.value.num.toString() ??
-                                  myUser?.name?.val ??
-                                  myUser?.num.toString() ??
-                                  (myUser == null
-                                      ? '...'
-                                      : 'btn_your_profile'.l10n),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: selected
-                                  ? style.fonts.big.regular.onPrimary
-                                  : style.fonts.big.regular.onBackground,
-                            ),
-                          ),
-                        ],
-                      ),
-                      ...subtitle,
-                    ],
+          child: SizedBox(
+            height: height,
+            child: Padding(
+              key: contact?.contact.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                  : null,
+              // padding: EdgeInsets.symmetric(
+              //   horizontal: 12,
+              //   vertical: dense ? 11 : 14,
+              // ),
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+              child: Row(
+                children: [
+                  ...leading,
+                  avatarBuilder(
+                    contact != null
+                        ? AvatarWidget.fromRxContact(
+                            contact,
+                            radius: dense ? AvatarRadius.medium : radius,
+                          )
+                        : user != null
+                            ? AvatarWidget.fromRxUser(
+                                user,
+                                radius: dense ? AvatarRadius.medium : radius,
+                              )
+                            : AvatarWidget.fromMyUser(
+                                myUser,
+                                radius: dense ? AvatarRadius.medium : radius,
+                              ),
                   ),
-                ),
-                ...trailing,
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title ??
+                                    contact?.contact.value.name.val ??
+                                    user?.user.value.name?.val ??
+                                    user?.user.value.num.toString() ??
+                                    myUser?.name?.val ??
+                                    myUser?.num.toString() ??
+                                    (myUser == null
+                                        ? '...'
+                                        : 'btn_your_profile'.l10n),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: selected
+                                    ? style.fonts.big.regular.onPrimary
+                                    : style.fonts.big.regular.onBackground,
+                              ),
+                            ),
+                          ],
+                        ),
+                        ...subtitle,
+                      ],
+                    ),
+                  ),
+                  ...trailing,
+                ],
+              ),
             ),
           ),
         ),

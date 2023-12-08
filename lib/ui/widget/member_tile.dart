@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
+import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -63,78 +65,106 @@ class MemberTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return ContactTile(
-      user: user,
-      dense: true,
-      onTap: onTap,
-      darken: 0.05,
-      trailing: [
-        if (inCall != null) ...[
-          const SizedBox(width: 8),
-          SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: Material(
-              key: Key(inCall == true ? 'InCall' : 'NotInCall'),
-              color: inCall == true
-                  ? onCall == null
-                      ? style.colors.primaryHighlightLightest
-                      : style.colors.danger
-                  : style.colors.primary,
-              type: MaterialType.circle,
-              child: InkWell(
-                onTap: onCall,
-                borderRadius: BorderRadius.circular(60),
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: Center(
-                    child: inCall == true
-                        ? const SvgIcon(SvgIcons.callEndSmall)
-                        : const SvgIcon(SvgIcons.callStartSmall),
-                  ),
+    final trailing = [
+      const SizedBox(width: 12),
+      if (inCall != null) ...[
+        const SizedBox(width: 8),
+        SafeAnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Material(
+            key: Key(inCall == true ? 'InCall' : 'NotInCall'),
+            color: inCall == true
+                ? onCall == null
+                    ? style.colors.primaryHighlightLightest
+                    : style.colors.danger
+                : style.colors.primary,
+            type: MaterialType.circle,
+            child: InkWell(
+              onTap: onCall,
+              borderRadius: BorderRadius.circular(60),
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: Center(
+                  child: inCall == true
+                      ? const SvgIcon(SvgIcons.callEndSmall)
+                      : const SvgIcon(SvgIcons.callStartSmall),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
-        ],
-        AnimatedButton(
-          enabled: !canLeave,
-          onPressed: canLeave
-              ? null
-              : () async {
-                  final bool? result = await MessagePopup.alert(
-                    canLeave
-                        ? 'label_leave_group'.l10n
-                        : 'label_remove_member'.l10n,
-                    description: [
-                      if (canLeave)
-                        TextSpan(text: 'alert_you_will_leave_group'.l10n)
-                      else ...[
-                        TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-                        TextSpan(
-                          text: user.user.value.name?.val ??
-                              user.user.value.num.toString(),
-                          style: style.fonts.normal.regular.onBackground,
-                        ),
-                        TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-                      ],
-                    ],
-                  );
-
-                  if (result == true) {
-                    await onKick?.call();
-                  }
-                },
-          child: canLeave
-              ? Text(
-                  'label_you'.l10n,
-                  style: style.fonts.normal.regular.secondary,
-                )
-              : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 16),
       ],
+      AnimatedButton(
+        enabled: !canLeave,
+        onPressed: canLeave
+            ? null
+            : () async {
+                final bool? result = await MessagePopup.alert(
+                  canLeave
+                      ? 'label_leave_group'.l10n
+                      : 'label_remove_member'.l10n,
+                  description: [
+                    if (canLeave)
+                      TextSpan(text: 'alert_you_will_leave_group'.l10n)
+                    else ...[
+                      TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+                      TextSpan(
+                        text: user.user.value.name?.val ??
+                            user.user.value.num.toString(),
+                        style: style.fonts.normal.regular.onBackground,
+                      ),
+                      TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+                    ],
+                  ],
+                );
+
+                if (result == true) {
+                  await onKick?.call();
+                }
+              },
+        child: canLeave
+            ? Text(
+                'label_you'.l10n,
+                style: style.fonts.normal.regular.secondary,
+              )
+            : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
+      ),
+      const SizedBox(width: 6),
+    ];
+
+    if (user.dialog.value != null && !canLeave) {
+      return RecentChatTile(
+        user.dialog.value!,
+        onTap: onTap,
+        trailing: trailing,
+        appendTrailing: true,
+        monolog: false,
+      );
+    }
+
+    return ContactTile(
+      user: user,
+      onTap: canLeave ? null : onTap,
+      // subtitle: [
+      //   const SizedBox(height: 8),
+      //   Text(
+      //     'label_no_messages'.l10n,
+      //     maxLines: 1,
+      //     style: style.fonts.normal.regular.secondary,
+      //   ),
+      // ],
+      trailing: trailing,
+      // trailing: [
+      //   Column(
+      //     children: [
+      //       const SizedBox(height: 13),
+      //       ...trailing,
+      //       const Spacer(),
+      //     ],
+      //   ),
+      // ],
     );
   }
 }

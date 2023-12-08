@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 
@@ -104,7 +105,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
       label: 'label_about'.l10n,
       filled: true,
       maxLines: null,
-      maxLength: 500,
+      formatters: [LengthLimitingTextInputFormatter(4096)],
       // onSuffixPressed: _state.text.isEmpty
       //     ? null
       //     : () {

@@ -63,6 +63,7 @@ class RecentChatTile extends StatelessWidget {
     this.selected = false,
     this.active = false,
     this.trailing,
+    this.appendTrailing = false,
     this.getUser,
     this.inCall,
     this.inContacts,
@@ -80,6 +81,7 @@ class RecentChatTile extends StatelessWidget {
     this.onCreateGroup,
     this.onContact,
     this.onTap,
+    this.monolog = true,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
@@ -104,6 +106,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// [Widget]s to display in the trailing instead of the defaults.
   final List<Widget>? trailing;
+  final bool appendTrailing;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -167,6 +170,8 @@ class RecentChatTile extends StatelessWidget {
   /// [RecentChatTile].
   final bool enableContextMenu;
 
+  final bool monolog;
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -204,6 +209,7 @@ class RecentChatTile extends StatelessWidget {
           chat: rxChat,
           avatarBuilder: avatarBuilder,
           dimmed: blocked,
+          monolog: monolog,
           titleBuilder: (t) {
             return Row(
               children: [
@@ -251,7 +257,7 @@ class RecentChatTile extends StatelessWidget {
               : null,
           status: [
             const SizedBox(height: 28),
-            if (trailing == null) ...[
+            if (trailing == null || appendTrailing) ...[
               _ongoingCall(context),
               if (blocked) ...[
                 const SizedBox(width: 8),
@@ -298,8 +304,8 @@ class RecentChatTile extends StatelessWidget {
                 ],
                 const SizedBox(key: Key('NoUnreadMessages')),
               ],
-            ] else
-              ...trailing!,
+            ],
+            if (trailing != null) ...trailing!,
           ],
           subtitle: [
             const SizedBox(height: 5),
@@ -311,7 +317,7 @@ class RecentChatTile extends StatelessWidget {
                   Expanded(child: _subtitle(context, selected, inverted)),
                   const SizedBox(width: 3),
                   _status(context, inverted),
-                  if (!chat.id.isLocalWith(me))
+                  if (!chat.id.isLocalWith(me) && rxChat.lastItem != null)
                     Text(
                       chat.updatedAt.val.toLocal().short,
                       style: inverted
@@ -903,11 +909,7 @@ class RecentChatTile extends StatelessWidget {
     if (content != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(5),
-        child: SizedBox(
-          width: 30,
-          height: 30,
-          child: content,
-        ),
+        child: SizedBox(width: 30, height: 30, child: content),
       );
     }
 
