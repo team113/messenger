@@ -52,6 +52,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -851,38 +852,39 @@ class _ChatViewState extends State<ChatView>
                   onReply: () {
                     final field = c.edit.value ?? c.send;
 
-                  if (field.replied.any((i) => i.id == e.value.id)) {
-                    field.replied.removeWhere((i) => i.id == e.value.id);
-                  } else {
-                    field.replied.add(e.value);
-                  }
-                },
-                onCopy: (text) {
-                  if (c.selection.value?.plainText.isNotEmpty == true) {
-                    c.copyText(c.selection.value!.plainText);
-                  } else {
-                    c.copyText(text);
-                  }
-                },
-                onRepliedTap: (q) async {
-                  if (q.original != null) {
-                    await c.animateTo(q.original!.id);
-                  }
-                },
-                onGallery: c.calculateGallery,
-                onResend: () => c.resendItem(e.value),
-                onEdit: () => c.editMessage(e.value),
-                onDrag: (d) => c.isItemDragged.value = d,
-                onFileTap: (a) => c.downloadFile(e.value, a),
-                onAttachmentError: () async {
-                  await c.chat?.updateAttachments(e.value);
-                  await Future.delayed(Duration.zero);
-                },
-                onSelecting: (s) => c.isSelecting.value = s,
-                onDownload: c.downloadMedia,
-                onDownloadAs: c.downloadMediaAs,
-                onSave: (a) => c.saveToGallery(a, e.value),
+                    if (field.replied.any((i) => i.id == e.value.id)) {
+                      field.replied.removeWhere((i) => i.id == e.value.id);
+                    } else {
+                      field.replied.add(e.value);
+                    }
+                  },
+                  onCopy: (text) {
+                    if (c.selection.value?.plainText.isNotEmpty == true) {
+                      c.copyText(c.selection.value!.plainText);
+                    } else {
+                      c.copyText(text);
+                    }
+                  },
+                  onRepliedTap: (q) async {
+                    if (q.original != null) {
+                      await c.animateTo(q.original!.id);
+                    }
+                  },
+                  onGallery: c.calculateGallery,
+                  onResend: () => c.resendItem(e.value),
+                  onEdit: () => c.editMessage(e.value),
+                  onDrag: (d) => c.isItemDragged.value = d,
+                  onFileTap: (a) => c.downloadFile(e.value, a),
+                  onAttachmentError: () async {
+                    await c.chat?.updateAttachments(e.value);
+                    await Future.delayed(Duration.zero);
+                  },
+                  onSelecting: (s) => c.isSelecting.value = s,
+                  onDownload: c.downloadMedia,
+                  onDownloadAs: c.downloadMediaAs,
+                  onSave: (a) => c.saveToGallery(a, e.value),
                   onSelect: c.selecting.toggle,
+                ),
               ),
             );
           }),
@@ -973,42 +975,42 @@ class _ChatViewState extends State<ChatView>
                         field.replied.add(element.note.value!.value);
                       }
 
-                    for (Rx<ChatItem> e in element.forwards) {
-                      field.replied.add(e.value);
+                      for (Rx<ChatItem> e in element.forwards) {
+                        field.replied.add(e.value);
+                      }
                     }
-                  }
-                },
-                onCopy: (text) {
-                  if (c.selection.value?.plainText.isNotEmpty == true) {
-                    c.copyText(c.selection.value!.plainText);
-                  } else {
-                    c.copyText(text);
-                  }
-                },
-                onGallery: c.calculateGallery,
-                onEdit: () => c.editMessage(element.note.value!.value),
-                onDrag: (d) => c.isItemDragged.value = d,
-                onForwardedTap: (quote) {
-                  if (quote.original != null) {
-                    if (quote.original!.chatId == c.id) {
-                      c.animateTo(quote.original!.id);
+                  },
+                  onCopy: (text) {
+                    if (c.selection.value?.plainText.isNotEmpty == true) {
+                      c.copyText(c.selection.value!.plainText);
                     } else {
-                      router.chat(
-                        quote.original!.chatId,
-                        itemId: quote.original!.id,
-                        push: true,
-                      );
+                      c.copyText(text);
                     }
-                  }
-                },
-                onFileTap: c.downloadFile,
-                onAttachmentError: () async {
-                  for (ChatItem item in [
-                    element.note.value?.value,
-                    ...element.forwards.map((e) => e.value),
-                  ].whereNotNull()) {
-                    await c.chat?.updateAttachments(item);
-                  }
+                  },
+                  onGallery: c.calculateGallery,
+                  onEdit: () => c.editMessage(element.note.value!.value),
+                  onDrag: (d) => c.isItemDragged.value = d,
+                  onForwardedTap: (quote) {
+                    if (quote.original != null) {
+                      if (quote.original!.chatId == c.id) {
+                        c.animateTo(quote.original!.id);
+                      } else {
+                        router.chat(
+                          quote.original!.chatId,
+                          itemId: quote.original!.id,
+                          push: true,
+                        );
+                      }
+                    }
+                  },
+                  onFileTap: c.downloadFile,
+                  onAttachmentError: () async {
+                    for (ChatItem item in [
+                      element.note.value?.value,
+                      ...element.forwards.map((e) => e.value),
+                    ].whereNotNull()) {
+                      await c.chat?.updateAttachments(item);
+                    }
 
                     await Future.delayed(Duration.zero);
                   },
@@ -1379,8 +1381,8 @@ class _ChatViewState extends State<ChatView>
       }
 
       if (c.chat?.blocked == true) {
-      return SafeArea(child: UnblockButton(c.unblock));
-    }
+        return SafeArea(child: UnblockButton(c.unblock));
+      }
 
       if (c.edit.value != null) {
         return MessageFieldView(

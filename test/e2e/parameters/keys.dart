@@ -68,6 +68,7 @@ enum WidgetKey {
   Delete,
   DeleteAccount,
   DeleteAvatar,
+  DeleteButton,
   DeleteChats,
   DeleteContacts,
   DeleteEmail,

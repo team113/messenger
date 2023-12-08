@@ -24,6 +24,7 @@ import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
@@ -51,24 +52,67 @@ final StepDefinitionGeneric waitUntilMessageStatus =
                   (e) => e.chat.value.isRoute(router.route, context.world.me),
                 );
 
-        ChatItem? message = chat?.messages
+        final ChatItem? message = chat?.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .firstWhereOrNull((e) => e.text?.val == text);
 
-        message ??= chat?.messages
-            .map((e) => e.value)
-            .whereType<ChatForward>()
-            .firstWhereOrNull((e) {
-          if (e.quote is ChatMessageQuote) {
-            return (e.quote as ChatMessageQuote).text?.val == text;
-          }
+        ChatItemId? id;
 
-          return false;
-        });
+        if (message == null) {
+          final forward = chat?.messages
+              .map((e) => e.value)
+              .whereType<ChatForward>()
+              .firstWhereOrNull((e) {
+            if (e.quote is ChatMessageQuote) {
+              return (e.quote as ChatMessageQuote).text?.val == text;
+            }
+
+            return false;
+          });
+
+          if (forward != null) {
+            final ChatController controller =
+                Get.find<ChatController>(tag: chat?.id.val);
+
+            final ListElement? element =
+                controller.elements.values.firstWhereOrNull((e) {
+              bool result = false;
+
+              if (e is ChatForwardElement) {
+                if (e.note.value?.value is ChatMessage) {
+                  result =
+                      (e.note.value?.value as ChatMessage).text?.val == text;
+                }
+
+                if (!result) {
+                  result = e.forwards.any((e) {
+                    if (e.value is ChatForward) {
+                      if ((e.value as ChatForward).quote is ChatMessageQuote) {
+                        return ((e.value as ChatForward).quote
+                                    as ChatMessageQuote)
+                                .text
+                                ?.val ==
+                            text;
+                      }
+                    }
+                    return false;
+                  });
+                }
+              }
+
+              return result;
+            });
+
+            if (element != null) {
+              final e = (element as ChatForwardElement);
+              id = e.note.value?.value.id ?? e.forwards.first.value.id;
+            }
+          }
+        }
 
         final Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('MessageStatus_${message?.id}');
+            .findByKeySkipOffstage('MessageStatus_${message?.id ?? id}');
 
         if (await context.world.appDriver.isPresent(finder)) {
           return context.world.appDriver.isPresent(

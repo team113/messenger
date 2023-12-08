@@ -23,6 +23,9 @@ Feature: Messages selection
     And Bob has dialog with me
     And I am in chat with Bob
 
+  Scenario: User selects and forwards messages
+    Given I have "Forwards" group
+
     When I fill `MessageField` field with "01"
     And I tap `Send` button
     And I fill `MessageField` field with "02"
@@ -33,11 +36,9 @@ Feature: Messages selection
     And I wait until status of "02" message is sent
     And I wait until status of "03" message is sent
 
-  Scenario: User selects and forwards messages
-    Given I have "Forwards" group
-
     When I long press "01" message
     And I tap `Select` button
+    And I tap "01" message
     And I tap "02" message
     And I tap "03" message
     And I tap `ForwardButton` button
@@ -46,13 +47,24 @@ Feature: Messages selection
     And I tap on "Forwards" chat
     And I tap `SendForward` button
     And I am in "Forwards" chat
+    Then I wait until status of "01" message is read
+    And I wait until status of "02" message is read
+    And I wait until status of "03" message is read
+
+  Scenario: User selects and deletes messages
+    When I fill `MessageField` field with "01"
+    And I tap `Send` button
+    And I fill `MessageField` field with "02"
+    And I tap `Send` button
+    And I fill `MessageField` field with "03"
+    And I tap `Send` button
     Then I wait until status of "01" message is sent
     And I wait until status of "02" message is sent
     And I wait until status of "03" message is sent
 
-  Scenario: User selects and deletes messages
     When I long press "01" message
     And I tap `Select` button
+    And I tap "01" message
     And I tap "02" message
     And I tap "03" message
     And I tap `DeleteButton` button

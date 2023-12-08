@@ -58,7 +58,7 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
 /// Examples:
 /// - When I tap on "Group" chat
 final StepDefinitionGeneric iTapChatGroup = when1<String, CustomWorld>(
-  'I tap on {name} chat',
+  'I tap on {string} chat',
   (String name, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();

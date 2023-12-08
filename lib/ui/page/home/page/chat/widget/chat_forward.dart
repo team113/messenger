@@ -352,6 +352,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             children: [
                               const Spacer(),
                               MessageTimestamp(
+                                key: Key(
+                                  'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
+                                ),
                                 at: _at,
                                 status: SendingStatus.sent,
                                 read: _isRead,
