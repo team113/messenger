@@ -32,7 +32,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
-import '/domain/repository/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -112,9 +111,6 @@ class MyProfileController extends GetxController {
 
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
-
-  /// Returns the [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _myUserService.blacklist;
 
   @override
   void onInit() {

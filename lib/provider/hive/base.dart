@@ -215,8 +215,13 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// In order for this box to be linked with a certain [User], [userId] may be
   /// specified.
   Future<void> init({UserId? userId}) async {
-    registerAdapters();
     await _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        return;
+      }
+
+      registerAdapters();
+
       final String name = userId == null ? boxName : '${userId}_$boxName';
       try {
         _box = await Hive.openLazyBox(name);
