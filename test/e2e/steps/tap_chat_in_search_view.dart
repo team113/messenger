@@ -52,3 +52,33 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
     });
   },
 );
+
+/// Taps on a [Chat]-group with the provided name.
+///
+/// Examples:
+/// - When I tap on "Group" chat
+final StepDefinitionGeneric iTapChatGroup = when1<String, CustomWorld>(
+  'I tap on {string} chat',
+  (String name, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+
+      final finder = context.world.appDriver
+          .findByKeySkipOffstage('Chat_${context.world.groups[name]}')
+          .last;
+
+      if (await context.world.appDriver.isPresent(finder)) {
+        await context.world.appDriver.scrollIntoView(finder);
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.tap(
+          finder,
+          timeout: context.configuration.timeout,
+        );
+        await context.world.appDriver.waitForAppToSettle();
+        return true;
+      }
+
+      return false;
+    });
+  },
+);
