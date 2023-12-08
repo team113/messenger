@@ -86,7 +86,6 @@ import 'steps/scroll_until.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_dismissed.dart';
-import 'steps/see_chat_members.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
@@ -163,11 +162,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasDialogWithMe,
         hasFavoriteContacts,
         hasFavoriteGroups,
-        hasGroupWithMembers,
         hasGroups,
-        haveGroup1Named,
+
+        // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
+        // regular expression in the provided order.
         haveGroup2Named,
+        haveGroup1Named,
         haveGroupNamed,
+
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
@@ -201,7 +203,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
-        seeChatMembers,
         seeChatMessages,
         seeChatSelection,
         seeContactAsDismissed,
@@ -216,10 +217,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeMonologAsFavorite,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
-        seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,

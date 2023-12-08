@@ -22,9 +22,13 @@ fragment Chat on Chat {
         ...ChatAvatar
     }
     name
-    members(first: 3) {
+    members {
         nodes {
-            ...ChatMember
+            user {
+                __typename
+                ...User
+            }
+            joinedAt
         }
     }
     kind

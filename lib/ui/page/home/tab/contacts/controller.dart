@@ -117,9 +117,6 @@ class ContactsTabController extends GetxController {
   /// Subscription for the [ContactService.status] changes.
   StreamSubscription? _statusSubscription;
 
-  /// Subscription for the [RxUser]s changes.
-  final Map<UserId, StreamSubscription> _userSubscriptions = {};
-
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
   bool _scrollIsInvoked = false;
@@ -393,19 +390,11 @@ class ContactsTabController extends GetxController {
   void _initUsersUpdates() {
     /// States an interest in updates of the specified [RxChatContact.user].
     void listen(ContactEntry c) {
-      RxUser? rxUser = c.user.value;
-
-      if (rxUser != null) {
-        _userSubscriptions[rxUser.id] = rxUser.updates.listen((_) {});
-      }
-
+      RxUser? rxUser = c.user.value?..listenUpdates();
       _rxUserWorkers[c.id] = ever(c.user, (RxUser? user) {
         if (rxUser?.id != user?.id) {
-          _userSubscriptions.remove(rxUser?.id)?.cancel();
-
-          if (user != null) {
-            _userSubscriptions[user.id] = user.updates.listen((_) {});
-          }
+          rxUser?.stopUpdates();
+          rxUser = user?..listenUpdates();
         }
 
         if (user != null) {
@@ -426,7 +415,7 @@ class ContactsTabController extends GetxController {
           break;
 
         case OperationKind.removed:
-          _userSubscriptions.remove(e.value?.user.value?.id)?.cancel();
+          e.value?.user.value?.stopUpdates();
           contacts.removeWhere((c) => c.id == e.key);
           _rxUserWorkers.remove(e.key)?.dispose();
           break;

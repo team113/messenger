@@ -224,7 +224,7 @@ class SettingsRepository extends DisposableInterface
 
     _settingsSubscription = StreamIterator(_settingsLocal.boxEvents);
     while (await _settingsSubscription!.moveNext()) {
-      final BoxEvent event = _settingsSubscription!.current;
+      BoxEvent event = _settingsSubscription!.current;
       if (event.deleted) {
         applicationSettings.value = null;
       } else {

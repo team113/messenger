@@ -18,7 +18,6 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -235,51 +234,24 @@ class ChatInfoView extends StatelessWidget {
                 AddChatMemberView.show(context, chatId: c.chat?.id ?? id),
           ),
           const SizedBox(height: 3),
-          if (members.isEmpty)
-            CustomProgressIndicator(
-              value: Config.disableInfiniteAnimations ? 0 : null,
-            ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 500),
-            child: ListView.builder(
-              key: const Key('ChatMembers'),
-              controller: c.membersScrollController,
-              shrinkWrap: true,
-              itemBuilder: (_, i) {
-                final RxUser member = members[i];
+          ...members.map((e) {
+            final bool inCall = c.chat?.chat.value.ongoingCall?.members
+                    .any((u) => u.user.id == e.id) ==
+                true;
 
-                final bool inCall = c.chat?.chat.value.ongoingCall?.members
-                        .any((u) => u.user.id == member.id) ==
-                    true;
-
-                Widget child = MemberTile(
-                  user: member,
-                  canLeave: member.id == c.me,
-                  inCall: member.id == c.me ||
-                          c.chat?.chat.value.ongoingCall == null
-                      ? null
-                      : inCall,
-                  onTap: () => router.user(member.id, push: true),
-                  onCall: inCall
-                      ? () => c.removeChatCallMember(member.id)
-                      : () => c.redialChatCallMember(member.id),
-                  onKick: () => c.removeChatMember(member.id),
-                );
-
-                if (i == members.length - 1 && c.hasNext.isTrue) {
-                  child = Column(
-                    children: [
-                      child,
-                      const CustomProgressIndicator(key: Key('MembersLoading'))
-                    ],
-                  );
-                }
-
-                return child;
-              },
-              itemCount: members.length,
-            ),
-          ),
+            return MemberTile(
+              user: e,
+              canLeave: e.id == c.me,
+              inCall: e.id == c.me || c.chat?.chat.value.ongoingCall == null
+                  ? null
+                  : inCall,
+              onTap: () => router.user(e.id, push: true),
+              onCall: inCall
+                  ? () => c.removeChatCallMember(e.id)
+                  : () => c.redialChatCallMember(e.id),
+              onKick: () => c.removeChatMember(e.id),
+            );
+          }),
         ],
       );
     });

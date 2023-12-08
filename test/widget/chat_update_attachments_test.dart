@@ -377,23 +377,6 @@ void main() async {
   )).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
-  when(graphQlProvider.chatMembers(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    first: anyNamed('first'),
-  )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
-        'chat': {
-          'members': {
-            'edges': [],
-            'pageInfo': {
-              'endCursor': 'endCursor',
-              'hasNextPage': false,
-              'startCursor': 'startCursor',
-              'hasPreviousPage': false,
-            }
-          }
-        }
-      })));
-
   when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
   when(graphQlProvider.incomingCallsTopEvents(3))

@@ -73,12 +73,6 @@ class DummyRxChat extends RxChat {
   RxBool get previousLoading => RxBool(false);
 
   @override
-  RxBool get membersHaveNext => RxBool(false);
-
-  @override
-  RxBool get membersNextLoading => RxBool(false);
-
-  @override
   RxList<LastChatRead> get reads => RxList();
 
   @override
@@ -111,12 +105,6 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<void> previous() async {}
-
-  @override
-  Future<void> membersAround() async {}
-
-  @override
-  Future<void> membersNext() async {}
 
   @override
   Future<void> remove(ChatItemId itemId) async {}

@@ -47,9 +47,3 @@ class FavoriteChatsCursor extends NewType<String> {
 class FavoriteChatsListVersion extends Version {
   FavoriteChatsListVersion(super.val);
 }
-
-/// Cursor of a [ChatMember].
-@HiveType(typeId: ModelTypeId.chatMembersCursor)
-class ChatMembersCursor extends NewType<String> {
-  ChatMembersCursor(super.val);
-}

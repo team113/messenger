@@ -502,6 +502,10 @@ class ChatController extends GetxController {
     send.onClose();
     edit.value?.onClose();
 
+    if (chat?.chat.value.isDialog == true) {
+      chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
+    }
+
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
@@ -916,10 +920,9 @@ class ChatController extends GetxController {
       };
 
       if (chat?.chat.value.isDialog == true) {
-        _userSubscription = chat?.members.values
+        chat?.members.values
             .lastWhereOrNull((u) => u.id != me)
-            ?.updates
-            .listen((_) {});
+            ?.listenUpdates();
       }
 
       _readWorker ??= ever(_lastSeenItem, readChat);
@@ -1979,12 +1982,11 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({RxUser? partner, Iterable<RxUser>? members}) {
+  String? getSubtitle({RxUser? partner}) {
     switch (kind) {
       case ChatKind.dialog:
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
-      // TODO: `Chat.membersCount` should be used, when implemented.
       case ChatKind.group:
         return 'label_subtitle_participants'.l10nfmt({'count': members.length});
 

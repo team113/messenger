@@ -69,20 +69,14 @@ class HiveRxUser extends RxUser {
   final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
 
   /// [UserRepository.userEvents] subscription.
+  ///
+  /// May be uninitialized if [_listeners] counter is equal to zero.
   StreamQueue<UserEvents>? _remoteSubscription;
 
-  /// [StreamController] for [updates] of this [HiveRxUser].
+  /// Reference counter for [_remoteSubscription]'s actuality.
   ///
-  /// Behaves like a reference counter: when [updates] are listened to, this
-  /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
-  /// cancels it.
-  late final StreamController<void> _controller = StreamController.broadcast(
-    onListen: _initRemoteSubscription,
-    onCancel: () {
-      _remoteSubscription?.close(immediate: true);
-      _remoteSubscription = null;
-    },
-  );
+  /// [_remoteSubscription] is up only if this counter is greater than zero.
+  int _listeners = 0;
 
   /// [Timer] refreshing the [lastSeen] to synchronize its updates.
   Timer? _lastSeenTimer;
@@ -102,15 +96,36 @@ class HiveRxUser extends RxUser {
     return _dialog;
   }
 
-  @override
-  Stream<void> get updates => _controller.stream;
-
   /// Disposes this [HiveRxUser].
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
 
     _lastSeenTimer?.cancel();
     _worker?.dispose();
+  }
+
+  @override
+  void listenUpdates() {
+    Log.debug('listenUpdates()', '$runtimeType($id)');
+
+    if (_listeners++ == 0) {
+      _initRemoteSubscription();
+    }
+  }
+
+  @override
+  void stopUpdates() {
+    Log.debug('stopUpdates()', '$runtimeType($id)');
+
+    if (--_listeners == 0) {
+      Log.debug(
+        '_remoteSubscription?.close(immediate: true)',
+        '$runtimeType($id)',
+      );
+
+      _remoteSubscription?.close(immediate: true);
+      _remoteSubscription = null;
+    }
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
