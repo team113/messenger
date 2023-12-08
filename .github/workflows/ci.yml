@@ -891,6 +891,12 @@ jobs:
           name: debug-windows-${{ github.run_number }}
           path: symbols/
 
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+
       - run: make sentry.upload project=${{ secrets.SENTRY_PROJECT }}
                   org=${{ secrets.SENTRY_ORG }}
                   token=${{ secrets.SENTRY_TOKEN }}
