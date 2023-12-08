@@ -98,7 +98,7 @@ class BlocklistRepository extends DisposableInterface
   }
 
   @override
-  FutureOr<void> around() async {
+  Future<void> around() async {
     Log.debug('around()', '$runtimeType');
 
     if (blocklist.isEmpty && _pagination.hasNext.isTrue) {
@@ -108,7 +108,7 @@ class BlocklistRepository extends DisposableInterface
   }
 
   @override
-  FutureOr<void> next() {
+  Future<void> next() {
     Log.debug('next()', '$runtimeType');
     return _pagination.next();
   }

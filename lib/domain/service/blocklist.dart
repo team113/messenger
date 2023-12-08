@@ -47,13 +47,13 @@ class BlocklistService extends DisposableService {
   RxBool get nextLoading => _blocklistRepo.nextLoading;
 
   /// Fetches the initial [blocklist].
-  FutureOr<void> around() {
+  Future<void> around() {
     Log.debug('around()', '$runtimeType');
     return _blocklistRepo.around();
   }
 
   /// Fetches the next [blocklist] page.
-  FutureOr<void> next() {
+  Future<void> next() {
     Log.debug('next()', '$runtimeType');
     return _blocklistRepo.next();
   }
