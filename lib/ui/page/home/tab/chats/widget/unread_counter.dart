@@ -17,19 +17,20 @@
 
 import 'package:flutter/material.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 
-/// Circle representation of the provided [text] being unread.
+/// Circle representation of the provided [count] being unread.
 class UnreadCounter extends StatelessWidget {
   const UnreadCounter(
-    this.text, {
+    this.count, {
     super.key,
     this.dimmed = false,
     this.inverted = false,
   });
 
   /// Count to display in this [UnreadCounter].
-  final String? text;
+  final int count;
 
   /// Indicator whether this [UnreadCounter] should be dimmed, or bright
   /// otherwise.
@@ -56,7 +57,7 @@ class UnreadCounter extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Text(
-        text ?? '',
+        count > 99 ? '99${'plus'.l10n}' : '$count',
         style: dimmed && inverted
             ? style.fonts.smaller.bold.secondary
             : style.fonts.smaller.bold.onPrimary,

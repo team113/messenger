@@ -59,7 +59,6 @@ class RecentChatTile extends StatelessWidget {
     this.me,
     this.blocked = false,
     this.selected = false,
-    this.active = false,
     this.trailing,
     this.getUser,
     this.inCall,
@@ -90,9 +89,6 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether this [RecentChatTile] should display a blocked icon in
   /// its trailing.
   final bool blocked;
-
-  /// Indicator whether this [RecentChatTile] is active.
-  final bool active;
 
   /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
@@ -172,7 +168,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
-      final bool inverted = isRoute || active || selected;
+      final bool inverted = isRoute || selected;
 
       return Slidable(
         key: Key(rxChat.id.val),
@@ -194,13 +190,6 @@ class RecentChatTile extends StatelessWidget {
         child: ChatTile(
           chat: rxChat,
           dimmed: blocked,
-          titleBuilder: (t) {
-            return Row(
-              children: [
-                Flexible(child: t),
-              ],
-            );
-          },
           status: [
             const SizedBox(height: 28),
             if (trailing == null) ...[
@@ -213,9 +202,7 @@ class RecentChatTile extends StatelessWidget {
                 const SizedBox(width: 10),
                 UnreadCounter(
                   key: const Key('UnreadMessages'),
-                  rxChat.unreadCount.value > 99
-                      ? '99${'plus'.l10n}'
-                      : '${rxChat.unreadCount.value}',
+                  rxChat.unreadCount.value,
                   inverted: inverted,
                   dimmed: chat.muted != null,
                 ),
@@ -310,7 +297,6 @@ class RecentChatTile extends StatelessWidget {
                 trailing: const SvgIcon(SvgIcons.deleteThick),
               ),
           ],
-          active: active || isRoute,
           selected: selected || inverted,
           avatarBuilder: avatarBuilder,
           enableContextMenu: enableContextMenu,
@@ -965,7 +951,7 @@ class RecentChatTile extends StatelessWidget {
             return RectangleButton(
               label: 'btn_clear_history'.l10n,
               selected: clear,
-              tappable: true,
+              toggleable: true,
               radio: true,
               onPressed: () => setState(() => clear = !clear),
             );

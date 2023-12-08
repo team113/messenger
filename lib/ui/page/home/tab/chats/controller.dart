@@ -370,8 +370,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Hides the [Chat] identified by the provided [id] and clears its
-  /// history as well if [clear] is `true`.
+  /// Hides the [Chat] identified by the provided [id] and clears its history as
+  /// well if [clear] is `true`.
   Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
       final Iterable<Future> futures = [

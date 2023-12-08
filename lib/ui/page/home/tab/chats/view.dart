@@ -262,14 +262,19 @@ class ChatsTabView extends StatelessWidget {
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
                           child = const SvgIcon(
-                            SvgIcons.searchExit,
+                            SvgIcons.clearSearch,
+                            key: Key('CloseSearch'),
+                          );
+                        } else {
+                          child = const SvgIcon(
+                            SvgIcons.closePrimary,
                             key: Key('CloseSearch'),
                           );
                         }
                       } else {
                         if (c.groupCreating.value || c.selecting.value) {
                           child = const SvgIcon(
-                            SvgIcons.searchExit,
+                            SvgIcons.closePrimary,
                             key: Key('CloseGroupSearching'),
                           );
                         }
@@ -1181,7 +1186,7 @@ class ChatsTabView extends StatelessWidget {
             label: 'btn_clear_history'.l10n,
             selected: clear,
             radio: true,
-            tappable: true,
+            toggleable: true,
             onPressed: () => setState(() => clear = !clear),
           );
         })
