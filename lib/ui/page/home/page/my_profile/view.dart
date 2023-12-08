@@ -52,7 +52,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
-import 'blacklist/view.dart';
+import 'blocklist/view.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -85,9 +85,8 @@ class MyProfileView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 4, right: 20),
               leading: const [StyledBackButton()],
             ),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: ScrollablePositionedList.builder(
+            body: Builder(builder: (context) {
+              final Widget child = ScrollablePositionedList.builder(
                 key: const Key('MyProfileScrollable'),
                 initialScrollIndex: c.listInitIndex,
                 scrollController: c.scrollController,
@@ -284,8 +283,14 @@ class MyProfileView extends StatelessWidget {
                       return const SizedBox();
                   }
                 },
-              ),
-            ),
+              );
+
+              if (PlatformUtils.isMobile) {
+                return Scrollbar(controller: c.scrollController, child: child);
+              }
+
+              return child;
+            }),
             floatingActionButton: Obx(() {
               if (c.myUser.value != null) {
                 return const SizedBox();
@@ -773,24 +778,24 @@ Widget _language(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.blacklist] section.
+/// Returns the contents of a [ProfileTab.blocklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  return Column(
-    children: [
-      Paddings.dense(
-        FieldButton(
-          text: 'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-          onPressed:
-              c.blacklist.isEmpty ? null : () => BlacklistView.show(context),
-          style: c.blacklist.isEmpty
-              ? style.fonts.normal.regular.onBackground
-              : style.fonts.normal.regular.primary,
-        ),
+  return Obx(() {
+    final int count = c.myUser.value?.blocklistCount ?? 0;
+
+    return Paddings.dense(
+      FieldButton(
+        key: const Key('ShowBlocklist'),
+        text: 'label_users_count'.l10nfmt({'count': count}),
+        onPressed: count == 0 ? null : () => BlocklistView.show(context),
+        style: count == 0
+            ? style.fonts.normal.regular.onBackground
+            : style.fonts.normal.regular.primary,
       ),
-    ],
-  );
+    );
+  });
 }
 
 /// Returns the contents of a [ProfileTab.download] section.

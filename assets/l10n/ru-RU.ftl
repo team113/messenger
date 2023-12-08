@@ -28,8 +28,8 @@ alert_chat_will_be_blocked1 = Чат{" "}
 alert_chat_will_be_blocked2 = {" "}будет заблокирован.
 alert_chat_will_be_cleared1 = Чат{" "}
 alert_chat_will_be_cleared2 = {" "}будет очищен.
-alert_chat_will_be_hidden1 = Чат{" "}
-alert_chat_will_be_hidden2 = {" "}будет скрыт.
+alert_chat_will_be_deleted1 = Чат{" "}
+alert_chat_will_be_deleted2 = {" "}будет удалён.
 
     Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
@@ -38,8 +38,8 @@ alert_contact_will_be_removed2 = {" "}будет удалён.
 alert_contacts_will_be_deleted = Контакты ({$count}) будут удалены. Продолжить?
 alert_dialog_will_be_cleared1 = Диалог с пользователем{" "}
 alert_dialog_will_be_cleared2 = {" "}будет очищен.
-alert_dialog_will_be_hidden1 = Диалог с пользователем{" "}
-alert_dialog_will_be_hidden2 = {" "}будет скрыт.
+alert_dialog_will_be_deleted1 = Диалог с пользователем{" "}
+alert_dialog_will_be_deleted2 = {" "}будет удалён.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}будет удалён.
 alert_phone_will_be_deleted1 = Телефон{" "}
@@ -232,7 +232,7 @@ btn_save_to_gallery = Сохранить в галерею
 btn_save_to_gallery_all = Сохранить всё в галерею
 btn_select = Выбрать
 btn_select_and_delete = Выбрать и удалить
-btn_select_messages = Select messages
+btn_select_messages = Выбрать сообщения
 btn_send = Отправить
 btn_set_password = Задать пароль
 btn_settings = Настройки
@@ -271,7 +271,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
-err_blacklisted = Пользователь добавил Вас в чёрный список
+err_blocked = Пользователь добавил Вас в чёрный список
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
@@ -365,7 +365,7 @@ err_you_already_add_this_email = Вы уже добавили указанный
 err_you_already_add_this_phone = Вы уже добавили указанный номер телефона.
 err_you_already_has_unconfirmed_email = Вы имеете неподтвержденный E-mail.
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
-err_you_are_blacklisted = Вы в чёрном списке
+err_you_are_blocked = Вы в чёрном списке
 err_you_are_not_member = Вы не состоите в чате
 fcm_dialog_title =
     {$userName ->
@@ -647,6 +647,7 @@ label_danger_zone = Опасная зона
 label_date = Дата
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт
+label_delete_chat = Удалить чат
 label_delete_chats = Удалить чаты
 label_delete_contact = Удалить контакт
 label_delete_contacts = Удалить контакты
@@ -885,10 +886,10 @@ label_sound_and_vibrations = Звук и вибрация
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
-label_subtitle_participants = {$count ->
-    [one] {$count} участник
-    [few] {$count} участника
-    *[other] {$count} участников
+label_subtitle_participants = {$count} {$count ->
+    [1] участник
+    [few] участника
+    *[other] участников
 }
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
@@ -939,7 +940,7 @@ label_was_removed2 = {" "}покинул(а) группу
 label_work_with_us = Работайте с нами
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
-label_your_blacklist = Ваш чёрный список
+label_your_blocklist = Ваш чёрный список
 label_your_direct_link = Прямая ссылка на чат с Вами
 plus = +
 space = {" "}

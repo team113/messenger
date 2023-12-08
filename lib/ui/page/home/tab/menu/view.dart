@@ -145,7 +145,7 @@ class MenuTabView extends StatelessWidget {
 
                 switch (tab) {
                   case ProfileTab.calls:
-                    if (PlatformUtils.isMobile) {
+                    if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                       return const SizedBox();
                     }
                     break;

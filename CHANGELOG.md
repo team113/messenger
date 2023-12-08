@@ -17,7 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Style page:
         - Icons tab. ([#730], [#710])
     - Chat page:
-        - `Download` and `Save as` context menu options. ([#697], [#654])    
+        - `Download` and `Save as` context menu options. ([#697], [#654])
+        - Multiple messages selection, forwarding and deletion. ([#735], [#584])
     - Chats tab:
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
@@ -31,6 +32,11 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned widgets tab. ([#695], [#632])
     - Chat page:
         - Display read partially message status in groups. ([#703], [#666])
+        - Actions moved to more button. ([#736], [#719])
+    - Chat info page:
+        - Actions moved to more button. ([#736], [#719])
+    - User page:
+        - Actions moved to more button. ([#736], [#719])
 
 ### Fixed
 
@@ -40,6 +46,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
+[#584]: /../../issues/584
 [#632]: /../../issues/632
 [#654]: /../../issues/654
 [#666]: /../../issues/666
@@ -52,8 +59,11 @@ All user visible changes to this project will be documented in this file. This p
 [#707]: /../../pull/707
 [#710]: /../../issues/710
 [#711]: /../../pull/711
+[#719]: /../../issues/719
 [#730]: /../../pull/730
 [#732]: /../../pull/732
+[#735]: /../../pull/735
+[#736]: /../../pull/736
 
 
 

@@ -27,8 +27,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -38,16 +39,24 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
@@ -107,6 +116,7 @@ class _ChatViewState extends State<ChatView>
       key: const Key('ChatView'),
       init: ChatController(
         widget.id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -204,13 +214,30 @@ class _ChatViewState extends State<ChatView>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Obx(() {
-                                      return Text(
-                                        c.chat!.title.value,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      );
-                                    }),
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Obx(() {
+                                            return Text(
+                                              c.chat!.title.value,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            );
+                                          }),
+                                        ),
+                                        Obx(() {
+                                          if (c.chat?.chat.value.muted ==
+                                              null) {
+                                            return const SizedBox();
+                                          }
+
+                                          return const Padding(
+                                            padding: EdgeInsets.only(left: 5),
+                                            child: SvgIcon(SvgIcons.muted),
+                                          );
+                                        }),
+                                      ],
+                                    ),
                                     if (!isMonolog) ChatSubtitle(c.chat!, c.me),
                                   ],
                                 ),
@@ -220,17 +247,33 @@ class _ChatViewState extends State<ChatView>
                           const SizedBox(width: 10),
                         ],
                       ),
-                      padding: const EdgeInsets.only(left: 4, right: 20),
+                      padding: const EdgeInsets.only(left: 4),
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
-                          if (c.chat?.blacklisted == true) {
+                          if (c.chat?.blocked == true) {
                             return const SizedBox.shrink();
                           }
 
                           final List<Widget> children;
 
-                          if (c.chat!.chat.value.ongoingCall == null) {
+                          if (c.selecting.value) {
+                            children = [
+                              AnimatedButton(
+                                key: const Key('CloseButton'),
+                                decorator: (c) => Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(12, 0, 2, 0),
+                                  height: double.infinity,
+                                  child: c,
+                                ),
+                                onPressed: c.selecting.value
+                                    ? c.selecting.toggle
+                                    : null,
+                                child: const SvgIcon(SvgIcons.closePrimary),
+                              ),
+                            ];
+                          } else if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
@@ -242,6 +285,7 @@ class _ChatViewState extends State<ChatView>
                                 onPressed: () => c.call(false),
                                 child: const SvgIcon(SvgIcons.chatAudioCall),
                               ),
+                              const SizedBox(width: 10),
                             ];
                           } else {
                             final Widget child;
@@ -286,7 +330,156 @@ class _ChatViewState extends State<ChatView>
                             ];
                           }
 
-                          return Row(children: children);
+                          return Row(
+                            children: [
+                              ...children,
+                              Obx(() {
+                                final bool muted =
+                                    c.chat?.chat.value.muted != null;
+
+                                final bool dialog =
+                                    c.chat?.chat.value.isDialog == true;
+
+                                final bool isLocal =
+                                    c.chat?.chat.value.id.isLocal == true;
+
+                                final bool monolog =
+                                    c.chat?.chat.value.isMonolog == true;
+
+                                final bool favorite =
+                                    c.chat?.chat.value.favoritePosition != null;
+
+                                final bool contact = c.inContacts.value;
+
+                                final Widget child;
+
+                                child = ContextMenuRegion(
+                                  key: c.moreKey,
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 10,
+                                  ),
+                                  actions: [
+                                    if (dialog)
+                                      ContextMenuButton(
+                                        key: Key(
+                                          contact
+                                              ? 'DeleteFromContactsButton'
+                                              : 'AddToContactsButton',
+                                        ),
+                                        label: contact
+                                            ? 'btn_delete_from_contacts'.l10n
+                                            : 'btn_add_to_contacts'.l10n,
+                                        trailing: SvgIcon(
+                                          contact
+                                              ? SvgIcons.deleteContact
+                                              : SvgIcons.addContact,
+                                        ),
+                                        onPressed: contact
+                                            ? () =>
+                                                _removeFromContacts(c, context)
+                                            : c.addToContacts,
+                                      ),
+                                    ContextMenuButton(
+                                      key: Key(
+                                        favorite
+                                            ? 'UnfavoriteChatButton'
+                                            : 'FavoriteChatButton',
+                                      ),
+                                      label: favorite
+                                          ? 'btn_delete_from_favorites'.l10n
+                                          : 'btn_add_to_favorites'.l10n,
+                                      trailing: SvgIcon(
+                                        favorite
+                                            ? SvgIcons.favoriteSmall
+                                            : SvgIcons.unfavoriteSmall,
+                                      ),
+                                      onPressed: favorite
+                                          ? c.unfavoriteChat
+                                          : c.favoriteChat,
+                                    ),
+                                    if (!isLocal) ...[
+                                      if (!monolog)
+                                        ContextMenuButton(
+                                          key: Key(
+                                            muted
+                                                ? 'UnmuteChatButton'
+                                                : 'MuteChatButton',
+                                          ),
+                                          label: muted
+                                              ? PlatformUtils.isMobile
+                                                  ? 'btn_unmute'.l10n
+                                                  : 'btn_unmute_chat'.l10n
+                                              : PlatformUtils.isMobile
+                                                  ? 'btn_mute'.l10n
+                                                  : 'btn_mute_chat'.l10n,
+                                          trailing: SvgIcon(
+                                            muted
+                                                ? SvgIcons.unmuteSmall
+                                                : SvgIcons.muteSmall,
+                                          ),
+                                          onPressed:
+                                              muted ? c.unmuteChat : c.muteChat,
+                                        ),
+                                      ContextMenuButton(
+                                        key: const Key('ClearHistoryButton'),
+                                        label: 'btn_clear_history'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () => _clearChat(c, context),
+                                      ),
+                                    ],
+                                    if (!monolog && !dialog)
+                                      ContextMenuButton(
+                                        key: const Key('LeaveGroupButton'),
+                                        label: 'btn_leave_group'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.leaveGroup,
+                                        ),
+                                        onPressed: () =>
+                                            _leaveGroup(c, context),
+                                      ),
+                                    if (!isLocal || monolog)
+                                      ContextMenuButton(
+                                        key: const Key('HideChatButton'),
+                                        label: 'btn_delete_chat'.l10n,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.cleanHistory,
+                                        ),
+                                        onPressed: () => _hideChat(c, context),
+                                      ),
+                                    if (dialog)
+                                      ContextMenuButton(
+                                        key: const Key('Block'),
+                                        label: 'btn_block'.l10n,
+                                        trailing: const SvgIcon(SvgIcons.block),
+                                        onPressed: () => _blockUser(c, context),
+                                      ),
+                                  ],
+                                  child: Container(
+                                    key: const Key('MoreButton'),
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 21,
+                                    ),
+                                    height: double.infinity,
+                                    child: const SvgIcon(SvgIcons.more),
+                                  ),
+                                );
+
+                                return AnimatedButton(
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
+                                );
+                              }),
+                            ],
+                          );
                         }),
                       ],
                     ),
@@ -629,60 +822,69 @@ class _ChatViewState extends State<ChatView>
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight: c.highlightIndex.value == i,
+              highlight:
+                  c.highlightIndex.value == i || c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-              child: ChatItemWidget(
-                chat: c.chat!.chat,
-                item: e,
-                me: c.me!,
-                avatar: !previousSame,
-                loadImages: c.settings.value?.loadImages != false,
-                reads: c.chat!.members.length > 10
-                    ? []
-                    : c.chat!.reads.where((m) =>
-                        m.at == e.value.at &&
-                        m.memberId != c.me &&
-                        m.memberId != e.value.author.id),
-                user: snapshot.data ?? (user is RxUser? ? user : null),
-                getUser: c.getUser,
-                animation: _animation,
-                timestamp: c.settings.value?.timelineEnabled != true,
-                onHide: () => c.hideChatItem(e.value),
-                onDelete: () => c.deleteMessage(e.value),
-                onReply: () {
-                  MessageFieldController field = c.edit.value ?? c.send;
+              child: _selectable(
+                context,
+                c,
+                item: element,
+                overlay:
+                    e.value.author.id != c.me || element is ChatInfoElement,
+                child: ChatItemWidget(
+                  chat: c.chat!.chat,
+                  item: e,
+                  me: c.me!,
+                  avatar: !previousSame,
+                  loadImages: c.settings.value?.loadImages != false,
+                  reads: c.chat!.members.length > 10
+                      ? []
+                      : c.chat!.reads.where((m) =>
+                          m.at == e.value.at &&
+                          m.memberId != c.me &&
+                          m.memberId != e.value.author.id),
+                  user: snapshot.data ?? (user is RxUser? ? user : null),
+                  getUser: c.getUser,
+                  animation: _animation,
+                  timestamp: c.settings.value?.timelineEnabled != true,
+                  onHide: () => c.hideChatItem(e.value),
+                  onDelete: () => c.deleteMessage(e.value),
+                  onReply: () {
+                    final field = c.edit.value ?? c.send;
 
-                  if (field.replied.any((i) => i.id == e.value.id)) {
-                    field.replied.removeWhere((i) => i.id == e.value.id);
-                  } else {
-                    field.replied.add(e.value);
-                  }
-                },
-                onCopy: (text) {
-                  if (c.selection.value?.plainText.isNotEmpty == true) {
-                    c.copyText(c.selection.value!.plainText);
-                  } else {
-                    c.copyText(text);
-                  }
-                },
-                onRepliedTap: (q) async {
-                  if (q.original != null) {
-                    await c.animateTo(q.original!.id);
-                  }
-                },
-                onGallery: c.calculateGallery,
-                onResend: () => c.resendItem(e.value),
-                onEdit: () => c.editMessage(e.value),
-                onDrag: (d) => c.isItemDragged.value = d,
-                onFileTap: (a) => c.downloadFile(e.value, a),
-                onAttachmentError: () async {
-                  await c.chat?.updateAttachments(e.value);
-                  await Future.delayed(Duration.zero);
-                },
-                onSelecting: (s) => c.isSelecting.value = s,
-                onDownload: c.downloadMedia,
-                onDownloadAs: c.downloadMediaAs,
-                onSave: (a) => c.saveToGallery(a, e.value),
+                    if (field.replied.any((i) => i.id == e.value.id)) {
+                      field.replied.removeWhere((i) => i.id == e.value.id);
+                    } else {
+                      field.replied.add(e.value);
+                    }
+                  },
+                  onCopy: (text) {
+                    if (c.selection.value?.plainText.isNotEmpty == true) {
+                      c.copyText(c.selection.value!.plainText);
+                    } else {
+                      c.copyText(text);
+                    }
+                  },
+                  onRepliedTap: (q) async {
+                    if (q.original != null) {
+                      await c.animateTo(q.original!.id);
+                    }
+                  },
+                  onGallery: c.calculateGallery,
+                  onResend: () => c.resendItem(e.value),
+                  onEdit: () => c.editMessage(e.value),
+                  onDrag: (d) => c.isItemDragged.value = d,
+                  onFileTap: (a) => c.downloadFile(e.value, a),
+                  onAttachmentError: () async {
+                    await c.chat?.updateAttachments(e.value);
+                    await Future.delayed(Duration.zero);
+                  },
+                  onSelecting: (s) => c.isSelecting.value = s,
+                  onDownload: c.downloadMedia,
+                  onDownloadAs: c.downloadMediaAs,
+                  onSave: (a) => c.saveToGallery(a, e.value),
+                  onSelect: c.selecting.toggle,
+                ),
               ),
             );
           }),
@@ -700,113 +902,121 @@ class _ChatViewState extends State<ChatView>
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight: c.highlightIndex.value == i,
+              highlight:
+                  c.highlightIndex.value == i || c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-              child: ChatForwardWidget(
-                key: Key('ChatForwardWidget_${element.id}'),
-                chat: c.chat!.chat,
-                forwards: element.forwards,
-                note: element.note,
-                authorId: element.authorId,
-                me: c.me!,
-                loadImages: c.settings.value?.loadImages != false,
-                reads: c.chat!.members.length > 10
-                    ? []
-                    : c.chat!.reads.where((m) =>
-                        m.at == element.forwards.last.value.at &&
-                        m.memberId != c.me &&
-                        m.memberId != element.authorId),
-                user: snapshot.data ?? (user is RxUser? ? user : null),
-                getUser: c.getUser,
-                animation: _animation,
-                timestamp: c.settings.value?.timelineEnabled != true,
-                onHide: () async {
-                  final List<Future> futures = [];
+              child: _selectable(
+                context,
+                c,
+                item: element,
+                overlay: element.authorId != c.me,
+                child: ChatForwardWidget(
+                  key: Key('ChatForwardWidget_${element.id}'),
+                  chat: c.chat!.chat,
+                  forwards: element.forwards,
+                  note: element.note,
+                  authorId: element.authorId,
+                  me: c.me!,
+                  loadImages: c.settings.value?.loadImages != false,
+                  reads: c.chat!.members.length > 10
+                      ? []
+                      : c.chat!.reads.where((m) =>
+                          m.at == element.forwards.last.value.at &&
+                          m.memberId != c.me &&
+                          m.memberId != element.authorId),
+                  user: snapshot.data ?? (user is RxUser? ? user : null),
+                  getUser: c.getUser,
+                  animation: _animation,
+                  timestamp: c.settings.value?.timelineEnabled != true,
+                  onHide: () async {
+                    final List<Future> futures = [];
 
-                  for (Rx<ChatItem> f in element.forwards) {
-                    futures.add(c.hideChatItem(f.value));
-                  }
-
-                  if (element.note.value != null) {
-                    futures.add(c.hideChatItem(element.note.value!.value));
-                  }
-
-                  await Future.wait(futures);
-                },
-                onDelete: () async {
-                  final List<Future> futures = [];
-
-                  for (Rx<ChatItem> f in element.forwards) {
-                    futures.add(c.deleteMessage(f.value));
-                  }
-
-                  if (element.note.value != null) {
-                    futures.add(c.deleteMessage(element.note.value!.value));
-                  }
-
-                  await Future.wait(futures);
-                },
-                onReply: () {
-                  final MessageFieldController field = c.edit.value ?? c.send;
-
-                  if (element.forwards.any((e) =>
-                          field.replied.any((i) => i.id == e.value.id)) ||
-                      field.replied
-                          .any((i) => i.id == element.note.value?.value.id)) {
-                    for (Rx<ChatItem> e in element.forwards) {
-                      field.replied.removeWhere((i) => i.id == e.value.id);
+                    for (Rx<ChatItem> f in element.forwards) {
+                      futures.add(c.hideChatItem(f.value));
                     }
 
                     if (element.note.value != null) {
-                      field.replied.removeWhere(
-                        (i) => i.id == element.note.value!.value.id,
-                      );
-                    }
-                  } else {
-                    if (element.note.value != null) {
-                      field.replied.add(element.note.value!.value);
+                      futures.add(c.hideChatItem(element.note.value!.value));
                     }
 
-                    for (Rx<ChatItem> e in element.forwards) {
-                      field.replied.add(e.value);
+                    await Future.wait(futures);
+                  },
+                  onDelete: () async {
+                    final List<Future> futures = [];
+
+                    for (Rx<ChatItem> f in element.forwards) {
+                      futures.add(c.deleteMessage(f.value));
                     }
-                  }
-                },
-                onCopy: (text) {
-                  if (c.selection.value?.plainText.isNotEmpty == true) {
-                    c.copyText(c.selection.value!.plainText);
-                  } else {
-                    c.copyText(text);
-                  }
-                },
-                onGallery: c.calculateGallery,
-                onEdit: () => c.editMessage(element.note.value!.value),
-                onDrag: (d) => c.isItemDragged.value = d,
-                onForwardedTap: (quote) {
-                  if (quote.original != null) {
-                    if (quote.original!.chatId == c.id) {
-                      c.animateTo(quote.original!.id);
+
+                    if (element.note.value != null) {
+                      futures.add(c.deleteMessage(element.note.value!.value));
+                    }
+
+                    await Future.wait(futures);
+                  },
+                  onReply: () {
+                    final MessageFieldController field = c.edit.value ?? c.send;
+
+                    if (element.forwards.any((e) =>
+                            field.replied.any((i) => i.id == e.value.id)) ||
+                        field.replied
+                            .any((i) => i.id == element.note.value?.value.id)) {
+                      for (Rx<ChatItem> e in element.forwards) {
+                        field.replied.removeWhere((i) => i.id == e.value.id);
+                      }
+
+                      if (element.note.value != null) {
+                        field.replied.removeWhere(
+                          (i) => i.id == element.note.value!.value.id,
+                        );
+                      }
                     } else {
-                      router.chat(
-                        quote.original!.chatId,
-                        itemId: quote.original!.id,
-                        push: true,
-                      );
-                    }
-                  }
-                },
-                onFileTap: c.downloadFile,
-                onAttachmentError: () async {
-                  for (ChatItem item in [
-                    element.note.value?.value,
-                    ...element.forwards.map((e) => e.value),
-                  ].whereNotNull()) {
-                    await c.chat?.updateAttachments(item);
-                  }
+                      if (element.note.value != null) {
+                        field.replied.add(element.note.value!.value);
+                      }
 
-                  await Future.delayed(Duration.zero);
-                },
-                onSelecting: (s) => c.isSelecting.value = s,
+                      for (Rx<ChatItem> e in element.forwards) {
+                        field.replied.add(e.value);
+                      }
+                    }
+                  },
+                  onCopy: (text) {
+                    if (c.selection.value?.plainText.isNotEmpty == true) {
+                      c.copyText(c.selection.value!.plainText);
+                    } else {
+                      c.copyText(text);
+                    }
+                  },
+                  onGallery: c.calculateGallery,
+                  onEdit: () => c.editMessage(element.note.value!.value),
+                  onDrag: (d) => c.isItemDragged.value = d,
+                  onForwardedTap: (quote) {
+                    if (quote.original != null) {
+                      if (quote.original!.chatId == c.id) {
+                        c.animateTo(quote.original!.id);
+                      } else {
+                        router.chat(
+                          quote.original!.chatId,
+                          itemId: quote.original!.id,
+                          push: true,
+                        );
+                      }
+                    }
+                  },
+                  onFileTap: c.downloadFile,
+                  onAttachmentError: () async {
+                    for (ChatItem item in [
+                      element.note.value?.value,
+                      ...element.forwards.map((e) => e.value),
+                    ].whereNotNull()) {
+                      await c.chat?.updateAttachments(item);
+                    }
+
+                    await Future.delayed(Duration.zero);
+                  },
+                  onSelecting: (s) => c.isSelecting.value = s,
+                  onSelect: c.selecting.toggle,
+                ),
               ),
             );
           }),
@@ -837,7 +1047,7 @@ class _ChatViewState extends State<ChatView>
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Center(
                   child: ColoredBox(
-                    color: style.colors.transparent,
+                    color: style.colors.almostTransparent,
                     child: const CustomProgressIndicator(),
                   ),
                 ),
@@ -866,14 +1076,314 @@ class _ChatViewState extends State<ChatView>
     return const SizedBox();
   }
 
+  /// Opens a confirmation popup leaving this [Chat].
+  Future<void> _leaveGroup(ChatController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_leave_group'.l10n,
+      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+    );
+
+    if (result == true) {
+      await c.leaveGroup();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup blocking the [User].
+  Future<void> _blockUser(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
+        TextSpan(
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.block();
+    }
+  }
+
+  /// Opens a confirmation popup deleting the [User] from address book.
+  Future<void> _removeFromContacts(
+    ChatController c,
+    BuildContext context,
+  ) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.removeFromContacts();
+    }
+  }
+
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c) {
-    if (c.chat?.blacklisted == true) {
-      return SafeArea(child: UnblockButton(c.unblacklist));
-    }
+    final style = Theme.of(context).style;
 
     return Obx(() {
+      if (c.selecting.value) {
+        final bool canForward = c.selected.isNotEmpty &&
+            !c.selected
+                .any((e) => e is ChatCallElement || e is ChatInfoElement);
+        final bool canDelete = c.selected.isNotEmpty;
+
+        return SafeArea(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: style.cardRadius,
+              boxShadow: [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: style.colors.onBackgroundOpacity13,
+                ),
+              ],
+            ),
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 57),
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                color: style.cardColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 20),
+                  AnimatedButton(
+                    key: const Key('ForwardButton'),
+                    enabled: canForward,
+                    onPressed: canForward
+                        ? () async {
+                            final items = c.selected.asItems
+                                .map((e) => ChatItemQuoteInput(item: e))
+                                .toList();
+
+                            items
+                                .sort((a, b) => b.item.at.compareTo(a.item.at));
+
+                            final result = await ChatForwardView.show(
+                              router.context!,
+                              c.id,
+                              items,
+                            );
+
+                            if (result == true) {
+                              c.selecting.value = false;
+                            }
+                          }
+                        : null,
+                    child: SafeAnimatedSwitcher(
+                      duration: 150.milliseconds,
+                      child: SvgIcon(
+                        key: Key(canForward ? '0' : '1'),
+                        canForward
+                            ? SvgIcons.forward
+                            : SvgIcons.forwardDisabled,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  AnimatedButton(
+                    key: const Key('DeleteButton'),
+                    enabled: canDelete,
+                    onPressed: canDelete
+                        ? () async {
+                            final bool deletable =
+                                c.chat?.chat.value.isMonolog == true ||
+                                    c.selected.every((e) {
+                                      if (e is ChatMessageElement) {
+                                        return e.item.value.author.id == c.me &&
+                                            c.chat?.chat.value.isRead(
+                                                  e.item.value,
+                                                  c.me,
+                                                ) ==
+                                                false;
+                                      } else if (e is ChatForwardElement) {
+                                        return e.authorId == c.me &&
+                                            c.chat?.chat.value.isRead(
+                                                  e.forwards.first.value,
+                                                  c.me,
+                                                ) ==
+                                                false;
+                                      } else if (e is ChatInfoElement) {
+                                        return false;
+                                      } else if (e is ChatCallElement) {
+                                        return false;
+                                      }
+
+                                      return false;
+                                    });
+
+                            final result = await ConfirmDialog.show(
+                              context,
+                              title: 'label_delete_message'.l10n,
+                              description: deletable
+                                  ? null
+                                  : 'label_message_will_deleted_for_you'.l10n,
+                              initial: 1,
+                              variants: [
+                                ConfirmDialogVariant(
+                                  key: const Key('HideForMe'),
+                                  label: 'label_delete_for_me'.l10n,
+                                  onProceed: () async {
+                                    return await Future.wait(
+                                      c.selected.asItems.map(c.hideChatItem),
+                                    );
+                                  },
+                                ),
+                                if (deletable)
+                                  ConfirmDialogVariant(
+                                    key: const Key('DeleteForAll'),
+                                    label: 'label_delete_for_everyone'.l10n,
+                                    onProceed: () async {
+                                      return await Future.wait(
+                                        c.selected.asItems.map(c.deleteMessage),
+                                      );
+                                    },
+                                  )
+                              ],
+                            );
+
+                            if (result != null) {
+                              c.selecting.value = false;
+                            }
+                          }
+                        : null,
+                    child: SafeAnimatedSwitcher(
+                      duration: 150.milliseconds,
+                      child: SvgIcon(
+                        key: Key(canDelete ? '0' : '1'),
+                        canDelete
+                            ? SvgIcons.deleteBig
+                            : SvgIcons.deleteBigDisabled,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  const SizedBox(width: 24),
+                  if (c.elements.isEmpty)
+                    const SelectedDot(
+                      selected: false,
+                      inverted: false,
+                      outlined: true,
+                      size: 21,
+                    )
+                  else
+                    Obx(() {
+                      final bool selected = c.elements.values.every((e) {
+                        if (e is ChatMessageElement ||
+                            e is ChatInfoElement ||
+                            e is ChatCallElement ||
+                            e is ChatForwardElement) {
+                          return c.selected.contains(e);
+                        }
+
+                        return true;
+                      });
+
+                      return AnimatedButton(
+                        onPressed: () {
+                          if (selected) {
+                            c.selected.clear();
+                          } else {
+                            for (var e in c.elements.values) {
+                              if (e is ChatMessageElement ||
+                                  e is ChatInfoElement ||
+                                  e is ChatCallElement ||
+                                  e is ChatForwardElement) {
+                                if (!c.selected.contains(e)) {
+                                  c.selected.add(e);
+                                }
+                              }
+                            }
+                          }
+                        },
+                        child: SelectedDot(
+                          selected: selected,
+                          inverted: false,
+                          outlined: !selected,
+                          size: 21,
+                        ),
+                      );
+                    }),
+                  const SizedBox(width: 12),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (c.chat?.blocked == true) {
+        return SafeArea(child: UnblockButton(c.unblock));
+      }
+
       if (c.edit.value != null) {
         return MessageFieldView(
           key: const Key('EditField'),
@@ -908,6 +1418,60 @@ class _ChatViewState extends State<ChatView>
       }
       c.isHorizontalScroll.value = false;
       c.horizontalScrollTimer.value = null;
+    });
+  }
+
+  /// Builds a selectable clickable overlay over the provided [child].
+  Widget _selectable(
+    BuildContext context,
+    ChatController c, {
+    required ListElement item,
+    required bool overlay,
+    required Widget child,
+  }) {
+    return Obx(() {
+      final bool selected = c.selected.contains(item);
+
+      return WidgetButton(
+        onPressed: c.selecting.value
+            ? selected
+                ? () => c.selected.remove(item)
+                : () => c.selected.add(item)
+            : null,
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: c.selecting.value
+                      ? SelectionContainer.disabled(
+                          child: IgnorePointer(child: child),
+                        )
+                      : child,
+                ),
+                if (!overlay)
+                  AnimatedSize(
+                    duration: 150.milliseconds,
+                    child: c.selecting.value
+                        ? const SizedBox(key: Key('Expanded'), width: 32)
+                        : const SizedBox(),
+                  ),
+              ],
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: c.selecting.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SelectedDot(selected: selected, darken: 0.1),
+                      )
+                    : const SizedBox(),
+              ),
+            ),
+          ],
+        ),
+      );
     });
   }
 }

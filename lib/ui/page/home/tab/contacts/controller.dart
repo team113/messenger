@@ -61,9 +61,6 @@ class ContactsTabController extends GetxController {
   /// Reactive list of sorted [ChatContact]s.
   final RxList<ContactEntry> contacts = RxList();
 
-  /// Reactive list of favorited [ChatContact]s.
-  final RxList<ContactEntry> favorites = RxList();
-
   /// [SearchController] for searching [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
@@ -84,8 +81,7 @@ class ContactsTabController extends GetxController {
   /// Reactive list of [ChatContactId]s of the selected [ChatContact]s.
   final RxList<ChatContactId> selectedContacts = RxList();
 
-  /// [Timer] displaying the [contacts] and [favorites] being fetched when it
-  /// becomes `null`.
+  /// [Timer] displaying the [contacts] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
   );
@@ -114,9 +110,6 @@ class ContactsTabController extends GetxController {
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
 
-  /// [StreamSubscription]s to the [favorites] updates.
-  StreamSubscription? _favoritesSubscription;
-
   /// Subscription for [SearchController.users] and [SearchController.contacts]
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
@@ -131,21 +124,17 @@ class ContactsTabController extends GetxController {
   /// current frame.
   bool _scrollIsInvoked = false;
 
-  /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
+  /// Returns the [RxStatus] of the [contacts] fetching.
   Rx<RxStatus> get status => _contactService.status;
 
-  /// Indicates whether the [favorites] or [contacts] have a next page.
+  /// Indicates whether the [contacts] have a next page.
   RxBool get hasNext => _contactService.hasNext;
 
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    contacts.value = _contactService.contacts.values
-        .map((e) => ContactEntry(e))
-        .toList()
-      ..sort();
-    favorites.value = _contactService.favorites.values
+    contacts.value = _contactService.paginated.values
         .map((e) => ContactEntry(e))
         .toList()
       ..sort();
@@ -174,12 +163,11 @@ class ContactsTabController extends GetxController {
 
   @override
   void onClose() {
-    for (StreamSubscription s in _userSubscriptions.values) {
-      s.cancel();
+    for (ContactEntry contact in contacts) {
+      contact.user.value?.stopUpdates();
     }
 
     _contactsSubscription?.cancel();
-    _favoritesSubscription?.cancel();
     _statusSubscription?.cancel();
     _rxUserWorkers.forEach((_, v) => v.dispose());
 
@@ -261,6 +249,10 @@ class ContactsTabController extends GetxController {
 
   /// Reorders a [ChatContact] from the [from] position to the [to] position.
   Future<void> reorderContact(int from, int to) async {
+    final List<ContactEntry> favorites = contacts
+        .where((e) => e.contact.value.favoritePosition != null)
+        .toList();
+
     double position;
 
     if (to <= 0) {
@@ -424,7 +416,7 @@ class ContactsTabController extends GetxController {
 
     contacts.forEach(listen);
 
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
+    _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
           final entry = ContactEntry(e.value!);
@@ -441,29 +433,6 @@ class ContactsTabController extends GetxController {
 
         case OperationKind.updated:
           contacts.sort();
-          break;
-      }
-    });
-
-    favorites.forEach(listen);
-
-    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          final entry = ContactEntry(e.value!);
-          favorites.add(entry);
-          favorites.sort();
-          listen(entry);
-          break;
-
-        case OperationKind.removed:
-          _userSubscriptions.remove(e.value?.user.value?.id)?.cancel();
-          _rxUserWorkers.remove(e.key)?.dispose();
-          favorites.removeWhere((c) => c.contact.value.id == e.key);
-          break;
-
-        case OperationKind.updated:
-          favorites.sort();
           break;
       }
     });
@@ -653,16 +622,5 @@ class ContactEntry implements Comparable<ContactEntry> {
   Rx<ChatContact> get contact => _contact.contact;
 
   @override
-  int compareTo(ContactEntry other) {
-    if (contact.value.favoritePosition != null) {
-      if (other.contact.value.favoritePosition == null) {
-        return 1;
-      } else {
-        return other.contact.value.favoritePosition!
-            .compareTo(contact.value.favoritePosition!);
-      }
-    }
-
-    return contact.value.name.val.compareTo(other.contact.value.name.val);
-  }
+  int compareTo(ContactEntry other) => _contact.compareTo(other._contact);
 }

@@ -1452,6 +1452,12 @@ class SvgIcons {
     height: 22,
   );
 
+  static const SvgData deleteBigDisabled = SvgData(
+    'assets/icons/delete_big_disabled.svg',
+    width: 23.01,
+    height: 22,
+  );
+
   static const SvgData callCameraFront = SvgData(
     'assets/icons/camera_front.svg',
     width: 27.57,
@@ -1473,6 +1479,18 @@ class SvgIcons {
   static const SvgData sendSmall = SvgData(
     'assets/icons/send_small.svg',
     width: 18.37,
+    height: 16,
+  );
+
+  static const SvgData leaveGroup = SvgData(
+    'assets/icons/leave_group.svg',
+    width: 16.28,
+    height: 19,
+  );
+
+  static const SvgData report = SvgData(
+    'assets/icons/report.svg',
+    width: 16,
     height: 16,
   );
 }

@@ -39,4 +39,14 @@ class SessionData extends HiveObject {
   /// Persisted [ChatContactsListVersion] data.
   @HiveField(2)
   ChatContactsListVersion? chatContactsListVersion;
+
+  /// Persisted indicator whether all favorite [ChatContact]s are synchronized
+  /// with the remote, meaning no queries should be made.
+  @HiveField(3)
+  bool? favoriteContactsSynchronized;
+
+  /// Persisted indicator whether all [ChatContact]s are synchronized with the
+  /// remote, meaning no queries should be made.
+  @HiveField(4)
+  bool? contactsSynchronized;
 }

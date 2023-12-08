@@ -189,6 +189,10 @@ class HiveRxChat extends RxChat {
   /// [CancelToken] for cancelling the [Pagination.around] query.
   final CancelToken _aroundToken = CancelToken();
 
+  /// Indicator whether this [HiveRxChat] has been disposed, meaning no requests
+  /// should be made.
+  bool _disposed = false;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -319,14 +323,96 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    _initMessagesPagination();
-    _initMembersPagination();
+    _provider = HiveGraphQlPageProvider(
+      graphQlProvider: GraphQlPageProvider(
+        reversed: true,
+        fetch: ({after, before, first, last}) async {
+          final Page<HiveChatItem, ChatItemsCursor> reversed =
+              await _chatRepository.messages(
+            chat.value.id,
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          );
+
+          final Page<HiveChatItem, ChatItemsCursor> page;
+          if (_provider.graphQlProvider.reversed) {
+            page = reversed.reversed();
+          } else {
+            page = reversed;
+          }
+
+          if (page.info.hasPrevious == false) {
+            final HiveChat? chatEntity = await _chatLocal.get(id);
+            final ChatItem? firstItem = page.edges.firstOrNull?.value;
+
+            if (chatEntity != null &&
+                firstItem != null &&
+                chatEntity.value.firstItem != firstItem) {
+              chatEntity.value.firstItem = firstItem;
+              _chatLocal.put(chatEntity);
+            }
+          }
+
+          return reversed;
+        },
+      ),
+      hiveProvider: HivePageProvider(
+        _local,
+        getCursor: (e) => e?.cursor,
+        getKey: (e) => e.value.key,
+        isFirst: (e) =>
+            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
+        isLast: (e) =>
+            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
+        strategy: PaginationStrategy.fromEnd,
+      ),
+    );
+
+    _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      onKey: (e) => e.value.key,
+      provider: _provider,
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
+    );
+
+    if (id.isLocal) {
+      _pagination.hasNext.value = false;
+      _pagination.hasPrevious.value = false;
+      status.value = RxStatus.success();
+    }
+
+    _paginationSubscription = _pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _add(event.value!.value);
+          break;
+
+        case OperationKind.removed:
+          messages.removeWhere((e) => e.value.id == event.value?.value.id);
+          break;
+      }
+    });
+
+    await _local.init(userId: me);
+
+    HiveChatItem? item;
+    if (chat.value.lastReadItem != null) {
+      item = await get(chat.value.lastReadItem!);
+    }
+
+    await _pagination.init(item);
+    if (_pagination.items.isNotEmpty) {
+      status.value = RxStatus.success();
+    }
   }
 
   /// Disposes this [HiveRxChat].
   Future<void> dispose() async {
     Log.debug('dispose()', '$runtimeType($id)');
 
+    _disposed = true;
     status.value = RxStatus.loading();
     messages.clear();
     reads.clear();
@@ -410,6 +496,9 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
+    // Ensure [_local] storage is initialized.
+    await _local.init(userId: me);
+
     HiveChatItem? item;
     if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
@@ -426,7 +515,10 @@ class HiveRxChat extends RxChat {
   Future<void> next() async {
     Log.debug('next()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.next();
     status.value = RxStatus.success();
 
@@ -437,7 +529,10 @@ class HiveRxChat extends RxChat {
   Future<void> previous() async {
     Log.debug('previous()', '$runtimeType($id)');
 
-    status.value = RxStatus.loadingMore();
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
     await _pagination.previous();
     status.value = RxStatus.success();
 
@@ -1187,6 +1282,10 @@ class HiveRxChat extends RxChat {
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (_disposed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
     if (!id.isLocal) {

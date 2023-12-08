@@ -36,6 +36,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -47,8 +48,10 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -58,8 +61,10 @@ import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -132,7 +137,33 @@ void main() async {
     }
   };
 
-  var blacklist = {
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var favoriteChatContacts = {
+    'favoriteChatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -149,6 +180,30 @@ void main() async {
 
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
+
+  final StreamController<QueryResult> contactEvents = StreamController();
+  when(
+    graphQlProvider.contactsEvents(any),
+  ).thenAnswer((_) => contactEvents.stream);
+
+  when(graphQlProvider.favoriteChatContacts(
+    first: anyNamed('first'),
+    before: null,
+    after: null,
+    last: null,
+  )).thenAnswer(
+    (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
+        .favoriteChatContacts),
+  );
+
+  when(graphQlProvider.chatContacts(
+    first: anyNamed('first'),
+    noFavorite: true,
+    before: null,
+    after: null,
+    last: null,
+  )).thenAnswer(
+      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
 
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
@@ -188,7 +243,7 @@ void main() async {
                     'num': '1234567890123456',
                     'mutualContactsCount': 0,
                     'isDeleted': false,
-                    'isBlocked': {'blacklisted': false, 'ver': '0'},
+                    'isBlocked': {'ver': '0'},
                     'presence': 'AWAY',
                     'ver': '0',
                   },
@@ -270,12 +325,12 @@ void main() async {
       .thenAnswer((realInvocation) => const Stream.empty());
 
   when(graphQlProvider.getBlocklist(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
   );
 
   when(graphQlProvider.getUser(any))
@@ -344,8 +399,8 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var blacklistedUsersProvider = BlocklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
   var recentChatProvider = RecentChatHiveProvider();
@@ -354,6 +409,10 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  await favoriteContactHiveProvider.init();
+  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  await contactSortingHiveProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -396,6 +455,13 @@ void main() async {
     );
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        userRepository,
+      ),
+    );
     AbstractCallRepository callRepository = CallRepository(
       graphQlProvider,
       userRepository,
@@ -418,10 +484,22 @@ void main() async {
       ),
     );
 
+    final contactRepository = Get.put(
+      ContactRepository(
+        graphQlProvider,
+        contactProvider,
+        favoriteContactHiveProvider,
+        contactSortingHiveProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
+    Get.put(ContactService(contactRepository));
+
     MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
+      blocklistRepository,
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));

@@ -100,9 +100,8 @@ class ChatInfoController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
-  /// Indicator whether the [_scrollListener] is already invoked during the
-  /// current frame.
-  bool _scrollIsInvoked = false;
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;

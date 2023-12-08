@@ -30,7 +30,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Subtitle visual representation of a [RxChat].
@@ -91,51 +90,80 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Chat chat = widget.chat.chat.value;
+    return Obx(() {
+      final Chat chat = widget.chat.chat.value;
 
-    final Set<UserId>? actualMembers = widget
-        .chat.chat.value.ongoingCall?.members
-        .map((k) => k.user.id)
-        .toSet();
+      final Set<UserId>? actualMembers = widget
+          .chat.chat.value.ongoingCall?.members
+          .map((k) => k.user.id)
+          .toSet();
 
-    if (widget.withActivities) {
-      if (chat.ongoingCall != null) {
-        final List<TextSpan> spans = [];
-        if (!context.isMobile) {
-          spans.add(TextSpan(text: 'label_call_active'.l10n));
-          spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+      if (widget.withActivities) {
+        if (chat.ongoingCall != null) {
+          final List<TextSpan> spans = [];
+          if (!context.isMobile) {
+            spans.add(TextSpan(text: 'label_call_active'.l10n));
+            spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+          }
+
+          spans.add(
+            TextSpan(
+              text: 'label_a_of_b'.l10nfmt({
+                'a': actualMembers?.length,
+                'b': widget.chat.members.length,
+              }),
+            ),
+          );
+
+          if (_duration != null) {
+            spans.add(TextSpan(text: 'space_vertical_space'.l10n));
+            spans.add(TextSpan(text: _duration?.hhMmSs()));
+          }
+
+          return Text.rich(
+            TextSpan(
+              children: spans,
+              style: style.fonts.small.regular.secondary,
+            ),
+          );
         }
 
-        spans.add(
-          TextSpan(
-            text: 'label_a_of_b'.l10nfmt({
-              'a': actualMembers?.length,
-              'b': widget.chat.members.length,
-            }),
-          ),
-        );
+        final bool isTyping =
+            widget.chat.typingUsers.any((e) => e.id != widget.me) == true;
+        if (isTyping) {
+          if (!chat.isGroup) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'label_typing'.l10n,
+                  style: style.fonts.small.regular.primary,
+                ),
+                const SizedBox(width: 2),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: AnimatedTyping(),
+                ),
+              ],
+            );
+          }
 
-        if (_duration != null) {
-          spans.add(TextSpan(text: 'space_vertical_space'.l10n));
-          spans.add(TextSpan(text: _duration?.hhMmSs()));
-        }
+          final Iterable<String> typings = widget.chat.typingUsers
+              .where((e) => e.id != widget.me)
+              .map((e) => e.name?.val ?? e.num.toString());
 
-        return Text.rich(
-          TextSpan(children: spans, style: style.fonts.small.regular.secondary),
-        );
-      }
-
-      final bool isTyping =
-          widget.chat.typingUsers.any((e) => e.id != widget.me) == true;
-      if (isTyping) {
-        if (!chat.isGroup) {
           return Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                'label_typing'.l10n,
-                style: style.fonts.small.regular.primary,
+              Flexible(
+                child: Text(
+                  typings.join('comma_space'.l10n),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.fonts.small.regular.primary,
+                ),
               ),
               const SizedBox(width: 2),
               const Padding(
@@ -145,51 +173,26 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             ],
           );
         }
-
-        final Iterable<String> typings = widget.chat.typingUsers
-            .where((e) => e.id != widget.me)
-            .map((e) => e.name?.val ?? e.num.toString());
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Text(
-                typings.join('comma_space'.l10n),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: style.fonts.small.regular.primary,
-              ),
-            ),
-            const SizedBox(width: 2),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 4),
-              child: AnimatedTyping(),
-            ),
-          ],
-        );
       }
-    }
 
-    if (chat.isGroup) {
-      return Obx(() {
+      if (chat.isGroup) {
         return Text(
-          chat.getSubtitle(members: widget.chat.members.values)!,
+          chat.getSubtitle()!,
           style: style.fonts.small.regular.secondary,
         );
-      });
-    } else if (chat.isDialog) {
-      final RxUser? member = widget.chat.members.values
-          .firstWhereOrNull((u) => u.user.value.id != widget.me);
+      } else if (chat.isDialog) {
+        final RxUser? member = widget.chat.members.values
+            .firstWhereOrNull((u) => u.user.value.id != widget.me);
 
-      if (member != null) {
-        return Obx(() {
-          final String? subtitle = chat.getSubtitle(partner: member);
-          final UserTextStatus? status = member.user.value.status;
-          final Widget child;
+        if (member != null) {
+          return Obx(() {
+            final String? subtitle = chat.getSubtitle(partner: member);
+            final UserTextStatus? status = member.user.value.status;
 
-          if (status != null || subtitle != null) {
+            if (status == null && subtitle == null) {
+              return const SizedBox();
+            }
+
             final StringBuffer buffer = StringBuffer(status ?? '');
 
             if (status != null && subtitle != null) {
@@ -198,28 +201,16 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
             buffer.write(subtitle ?? '');
 
-            child = Text(
+            return Text(
               buffer.toString(),
               style: style.fonts.small.regular.secondary,
             );
-          } else {
-            child = const SizedBox();
-          }
-
-          return Row(
-            children: [
-              if (chat.muted != null) ...[
-                const SvgIcon(SvgIcons.mutedSmall),
-                const SizedBox(width: 5),
-              ],
-              Flexible(child: child),
-            ],
-          );
-        });
+          });
+        }
       }
-    }
 
-    return const SizedBox();
+      return const SizedBox();
+    });
   }
 
   // Updates the [_durationTimer], if current [Chat.ongoingCall] differs
