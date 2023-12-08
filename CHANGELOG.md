@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Icons tab. ([#730], [#710])
     - Chat page:
         - `Download` and `Save as` context menu options. ([#697], [#654])
+        - Multiple messages selection, forwarding and deletion. ([#735])
     - Chats tab:
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
@@ -60,6 +61,7 @@ All user visible changes to this project will be documented in this file. This p
 [#719]: /../../issues/719
 [#730]: /../../pull/730
 [#732]: /../../pull/732
+[#735]: /../../pull/735
 [#736]: /../../pull/736
 
 
