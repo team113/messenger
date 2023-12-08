@@ -242,7 +242,7 @@ class RecentChatTile extends StatelessWidget {
           ],
           actions: [
             if (chat.isDialog && inContacts != null) ...[
-              if (inContacts?.call() == true)
+              if (inContacts!.call() == true)
                 ContextMenuButton(
                   label: 'btn_delete_from_contacts'.l10n,
                   onPressed: () => onContact?.call(false),

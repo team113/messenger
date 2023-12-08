@@ -174,26 +174,20 @@ class ContactTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                contact?.contact.value.name.val ??
-                                    user?.user.value.name?.val ??
-                                    user?.user.value.num.toString() ??
-                                    myUser?.name?.val ??
-                                    myUser?.num.toString() ??
-                                    (myUser == null
-                                        ? '...'
-                                        : 'btn_your_profile'.l10n),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: selected
-                                    ? style.fonts.big.regular.onPrimary
-                                    : style.fonts.big.regular.onBackground,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          contact?.contact.value.name.val ??
+                              user?.user.value.name?.val ??
+                              user?.user.value.num.toString() ??
+                              myUser?.name?.val ??
+                              myUser?.num.toString() ??
+                              (myUser == null
+                                  ? '...'
+                                  : 'btn_your_profile'.l10n),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: selected
+                              ? style.fonts.big.regular.onPrimary
+                              : style.fonts.big.regular.onBackground,
                         ),
                         ...subtitle,
                       ],
