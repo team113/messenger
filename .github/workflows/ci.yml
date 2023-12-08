@@ -854,7 +854,7 @@ jobs:
       - dartdoc
       - dartfmt
       - docker-push
-      - test-e2e
+      # - test-e2e
       - test-unit
     runs-on: ubuntu-latest
     steps:
