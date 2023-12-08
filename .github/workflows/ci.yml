@@ -237,6 +237,18 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ github.workspace }}/symbols.zip
+          directory: 'symbols'
+        if: ${{ contains('ios macos android windows', matrix.platform) }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: debug-${{ matrix.platform }}-${{ github.run_number }}
+          path: symbols.zip
+          if-no-files-found: error
+          retention-days: 1
+
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
@@ -316,6 +328,17 @@ jobs:
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
+          if-no-files-found: error
+          retention-days: 1
+
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ github.workspace }}/symbols.zip
+          directory: 'symbols'
+      - uses: actions/upload-artifact@v3
+        with:
+          name: debug-${{ matrix.platform }}-${{ github.run_number }}
+          path: ${{ github.workspace }}/symbols.zip
           if-no-files-found: error
           retention-days: 1
 
@@ -815,6 +838,56 @@ jobs:
             artifacts/*.sha256sum
           fail_on_unmatched_files: true
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+
+  upload-sentry:
+    name: sentry upload
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - build
+      - build-linux
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - docker-push
+      - test-e2e
+      - test-unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-apk-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-appbundle-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-ios-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-linux-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-macos-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-web-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-windows-${{ github.run_number }}
+          path: artifacts/
+
+      - run: make sentry.upload project=${{ secrets.SENTRY_PROJECT }}
+                  org=${{ secrets.SENTRY_ORG }}
+                  token=${{ secrets.SENTRY_TOKEN }}
 
 
 

@@ -154,7 +154,8 @@ else
 #       2) Linux/Windows `--split-debug-info` can be tracked here:
 #          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
-		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,--split-debug-info=symbols) \
+		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,\
+		                                --split-debug-info=symbols) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
 		) \
@@ -175,7 +176,7 @@ ifeq ($(dockerized),yes)
 			make flutter.clean dockerized=no
 else
 	flutter clean
-	rm -rf .cache/pub/ doc/ \
+	rm -rf .cache/pub/ doc/ symbols/ \
 	       lib/api/backend/*.dart \
 	       lib/api/backend/*.g.dart \
 	       lib/api/backend/*.graphql.dart \

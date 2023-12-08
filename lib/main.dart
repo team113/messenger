@@ -28,6 +28,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
@@ -149,7 +150,8 @@ Future<void> main() async {
             exception is SocketException ||
             exception is WebSocketException ||
             exception is WebSocketChannelException ||
-            exception is HttpException) {
+            exception is HttpException ||
+            exception is ClientException) {
           return null;
         }
 
