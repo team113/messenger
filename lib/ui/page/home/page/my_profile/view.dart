@@ -28,7 +28,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
+// import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
@@ -577,7 +577,7 @@ Widget _presence(BuildContext context, MyProfileController c) {
       FieldButton(
         // onPressed: () => StatusView.show(context, expanded: false),
         // onPressed: () => throw Exception('Planned'),
-        onPressed: () => throw ConnectionException(Exception('Planned')),
+        onPressed: () => throw Exception('Planned'),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),
         trailing:

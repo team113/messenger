@@ -151,7 +151,8 @@ Future<void> main() async {
             exception is WebSocketException ||
             exception is WebSocketChannelException ||
             exception is HttpException ||
-            exception is ClientException) {
+            exception is ClientException ||
+            exception is ResubscriptionRequiredException) {
           return null;
         }
 

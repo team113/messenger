@@ -845,7 +845,7 @@ jobs:
 
   upload-sentry:
     name: sentry upload
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    # if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs:
       - build
       - build-linux
