@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Icons tab. ([#730], [#710])
     - Chat page:
         - `Download` and `Save as` context menu options. ([#697], [#654])
-        - Multiple messages selection, forwarding and deletion. ([#735])
+        - Multiple messages selection, forwarding and deletion. ([#735], [#584])
     - Chats tab:
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
@@ -46,6 +46,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
+[#584]: /../../issues/584
 [#632]: /../../issues/632
 [#654]: /../../issues/654
 [#666]: /../../issues/666
