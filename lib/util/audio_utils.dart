@@ -64,15 +64,35 @@ class AudioUtilsImpl {
     }
   }
 
-  /// Plays the provided [music] looped with the specified [fade].
-  ///
-  /// Stopping the [music] means canceling the returned [StreamSubscription].
   StreamSubscription<void> play(
+      AudioSource music, {
+        Duration fade = Duration.zero,
+        bool loop = true,
+        bool stop_others = false,
+      }) {
+    var stream = createPlayStream(music, fade: fade, loop: loop, stop_others: stop_others);
+    return stream.listen((_) {});
+  }
+
+    /// Plays the provided [music] looped with the specified [fade].
+  /// [loop] forces the [music] to loop. It is true by default.
+  /// [stop_others] if true, stops other played streams. It is false by default.
+  /// [onDone] optional onDone handler for returned StreamSubscription.
+  /// Stopping the [music] means canceling the returned [StreamSubscription].
+  Stream<void> createPlayStream(
     AudioSource music, {
     Duration fade = Duration.zero,
+    bool loop = true,
+    bool stop_others = false,
   }) {
     StreamController? controller = _players[music];
     StreamSubscription? position;
+
+    if (stop_others) {
+      _players.forEach((key, value) {
+        value.close();
+      });
+    }
 
     if (controller == null) {
       Player? player;
@@ -96,13 +116,24 @@ class AudioUtilsImpl {
           await player?.open(music.media);
 
           // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-          if (PlatformUtils.isWeb) {
-            position = player?.stream.completed.listen((e) async {
-              await player?.seek(Duration.zero);
-              await player?.play();
-            });
+          if (loop) {
+            if (PlatformUtils.isWeb) {
+              position = player?.stream.completed.listen((e) async {
+                await player?.seek(Duration.zero);
+                await player?.play();
+              });
+            } else {
+              await player?.setPlaylistMode(PlaylistMode.loop);
+            }
           } else {
-            await player?.setPlaylistMode(PlaylistMode.loop);
+            player?.stream.completed.listen((e) {
+              Future.delayed(const Duration(milliseconds: 500), ()
+              {
+                if (player != null && player!.state.completed) {
+                  controller?.close();
+                }
+              });
+            });
           }
 
           if (fade != Duration.zero) {
@@ -133,7 +164,7 @@ class AudioUtilsImpl {
       _players[music] = controller;
     }
 
-    return controller.stream.listen((_) {});
+    return controller.stream;
   }
 }
 

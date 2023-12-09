@@ -110,8 +110,8 @@ class _AudioPlayerState extends State<AudioPlayer> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Row(
-      children: [
+    return Column(children: [
+      Row(children: [
         MouseRegion(
           onEnter: (_) => setState(() => _hovered = true),
           onExit: (_) => setState(() => _hovered = false),
@@ -124,7 +124,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color:
-                _hovered ? style.colors.backgroundAuxiliaryLighter : null,
+                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
                 border: Border.all(
                   width: 2,
                   color: style.colors.primary,
@@ -143,47 +143,77 @@ class _AudioPlayerState extends State<AudioPlayer> {
           ),
         ),
         const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.friendly_name??"<no name>",
-              style: style.fonts.medium.regular.onBackground,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            SelectionContainer.disabled(
-              child: StyledCupertinoButton(
-                padding: EdgeInsets.zero,
-                label: 'Download',
-                style: style.fonts.smaller.regular.primary,
-                onPressed: () async {
-                  var bn = widget.friendly_name??"audio.mp3";
-                  final file = await PlatformUtils.saveTo(
-                    '${Config.downloads}/${bn}',
-                  );
-                  if (file != null) {
-                    MessagePopup.success('${widget.path_or_url} downloaded to ${Config.downloads}/${bn}');
-                  }
-                },
+        SizedBox(
+          width: 300,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.friendly_name ?? "<no name>",
+                style: style.fonts.medium.regular.onBackground,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              SelectionContainer.disabled(
+                child: StyledCupertinoButton(
+                  padding: EdgeInsets.zero,
+                  label: 'Download',
+                  style: style.fonts.smaller.regular.primary,
+                  onPressed: () async {
+                    var bn = widget.friendly_name ?? "audio.mp3";
+                    final file = await PlatformUtils.saveTo(
+                      '${Config.downloads}/${bn}',
+                    );
+                    if (file != null) {
+                      MessagePopup.success(
+                          '${widget.path_or_url} downloaded to ${Config.downloads}/${bn}');
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
-    );
+      ]),
+      Row(children: [
+        Expanded(
+          child: Slider(
+              value: _currentSliderValue,
+              max: 100,
+              label: _currentSliderValue.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  _currentSliderValue = value;
+                });
+              }),
+        ),
+        Text(
+          "03:30",
+          style: style.fonts.medium.regular.onBackground,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ]),
+    ]);
   }
+
+  double _currentSliderValue = 20;
 
   void _playAudio() {
     var asrc = widget.path != null ? AudioSource.file(widget.path!) : AudioSource.url(widget.url!);
-    _audio = AudioUtils.play(asrc);
+    var audioStream = AudioUtils.createPlayStream(asrc, loop: false, stop_others: true);
+    _audio = audioStream.listen((_) { }, onDone: () => {
+      _stopAudio(external_call: true)
+    });
     setState(() {});
   }
 
   /// Stops the audio.
-  void _stopAudio() {
-    _audio?.cancel();
+  void _stopAudio({bool external_call=false}) {
+    if (!external_call) {
+      _audio?.cancel();
+    }
     _audio = null;
     setState(() {});
   }
