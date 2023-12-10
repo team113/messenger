@@ -197,8 +197,8 @@ class _AudioPlayerState extends State<AudioPlayer> {
               })),
         ),
         Obx(() => Text(
-          "${(_currentSliderValueMs/60000.0).floor()}:${((_currentSliderValueMs % 60000.0) / 1000.0).floor()}/"
-              "${(_maxSliderValueMs/60000.0).floor()}:${((_maxSliderValueMs % 60000.0) / 1000.0).floor()}",
+          "${(_currentSliderValueMs/60000.0).floor().toString().padLeft(2, '0')}:${((_currentSliderValueMs % 60000.0) / 1000.0).floor().toString().padLeft(2, '0')}/"
+              "${(_maxSliderValueMs/60000.0).floor().toString().padLeft(2, '0')}:${((_maxSliderValueMs % 60000.0) / 1000.0).floor().toString().padLeft(2, '0')}",
           style: style.fonts.medium.regular.onBackground,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
