@@ -1132,9 +1132,9 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = subscribed;
+        bool shouldPutChat = subscribed;
         for (var event in versioned.events) {
-          putChat = subscribed;
+          shouldPutChat = subscribed;
 
           // Subscription was already disposed while processing the events.
           if (!subscribed) {
@@ -1185,7 +1185,6 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.hidden:
               event as EventChatHidden;
               chatEntity.value.isHidden = true;
-              putChat = false;
               continue;
 
             case ChatEventKind.itemDeleted:
@@ -1481,7 +1480,7 @@ class HiveRxChat extends RxChat {
           }
         }
 
-        if (putChat) {
+        if (shouldPutChat) {
           await _chatRepository.put(chatEntity);
         }
         break;
