@@ -28,13 +28,40 @@ import 'platform_utils.dart';
 // ignore: non_constant_identifier_names
 AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
+
+class PlayerController {
+  late StreamController<void> _stream_controller;
+  Player ?_player;
+  Timer ?_timer;
+
+  StreamSubscription<void> beginPlay({void Function(void) ?onData = null, dynamic Function() ?onDone = null}) {
+    return _stream_controller.stream.listen(onData ?? (_) {}, onDone: onDone);
+  }
+
+  Stream<Duration> getPositionStream() {
+    return _player!.stream.position;
+  }
+
+  Stream<Duration> getDurationStream() {
+    return _player!.stream.duration;
+  }
+
+  void close() {
+    _stream_controller.close();
+  }
+
+  void seek(double milliseconds) {
+    _player?.seek(Duration(milliseconds: milliseconds.floor()));
+  }
+}
+
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
   /// [Player] lazily initialized to play sounds [once].
   Player? _player;
 
   /// [StreamController]s of [AudioSource]s added in [play].
-  final Map<AudioSource, StreamController<void>> _players = {};
+  final Map<AudioSource, PlayerController> _players = {};
 
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
@@ -71,7 +98,7 @@ class AudioUtilsImpl {
         bool stop_others = false,
       }) {
     var stream = createPlayStream(music, fade: fade, loop: loop, stop_others: stop_others);
-    return stream.listen((_) {});
+    return stream.beginPlay();
   }
 
     /// Plays the provided [music] looped with the specified [fade].
@@ -79,29 +106,31 @@ class AudioUtilsImpl {
   /// [stop_others] if true, stops other played streams. It is false by default.
   /// [onDone] optional onDone handler for returned StreamSubscription.
   /// Stopping the [music] means canceling the returned [StreamSubscription].
-  Stream<void> createPlayStream(
+  PlayerController createPlayStream(
     AudioSource music, {
     Duration fade = Duration.zero,
     bool loop = true,
     bool stop_others = false,
   }) {
-    StreamController? controller = _players[music];
+    PlayerController? controller = _players[music];
     StreamSubscription? position;
 
     if (stop_others) {
       _players.forEach((key, value) {
-        value.close();
+        if (key != music) {
+          value.close();
+        }
       });
     }
 
-    if (controller == null) {
-      Player? player;
-      Timer? timer;
+    if (controller == null || controller._player == null) {
 
-      controller = StreamController.broadcast(
+      controller = PlayerController();
+
+      var stream_controller = StreamController.broadcast(
         onListen: () async {
           try {
-            player = Player();
+            controller?._player = Player();
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -113,23 +142,23 @@ class AudioUtilsImpl {
             }
           }
 
-          await player?.open(music.media);
+          await controller?._player?.open(music.media);
 
           // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
           if (loop) {
             if (PlatformUtils.isWeb) {
-              position = player?.stream.completed.listen((e) async {
-                await player?.seek(Duration.zero);
-                await player?.play();
+              position = controller?._player?.stream.completed.listen((e) async {
+                await controller?._player?.seek(Duration.zero);
+                await controller?._player?.play();
               });
             } else {
-              await player?.setPlaylistMode(PlaylistMode.loop);
+              await controller?._player?.setPlaylistMode(PlaylistMode.loop);
             }
           } else {
-            player?.stream.completed.listen((e) {
+            controller?._player?.stream.completed.listen((e) {
               Future.delayed(const Duration(milliseconds: 500), ()
               {
-                if (player != null && player!.state.completed) {
+                if (controller?._player != null && controller!._player!.state.completed) {
                   controller?.close();
                 }
               });
@@ -137,34 +166,38 @@ class AudioUtilsImpl {
           }
 
           if (fade != Duration.zero) {
-            await player?.setVolume(0);
-            timer = Timer.periodic(
+            await controller?._player?.setVolume(0);
+            controller?._timer = Timer.periodic(
               Duration(microseconds: fade.inMicroseconds ~/ 10),
               (timer) async {
                 if (timer.tick > 9) {
                   timer.cancel();
                 } else {
-                  await player?.setVolume(100 * (timer.tick + 1) / 10);
+                  await controller?._player?.setVolume(100 * (timer.tick + 1) / 10);
                 }
               },
             );
           }
+
+          // Put something into the stream to trigger onData at other side.
+          // This is where listener may execute additional setup actions after player is started
+          controller?._stream_controller.add(null);
         },
         onCancel: () async {
           _players.remove(music);
           position?.cancel();
-          timer?.cancel();
+          controller?._timer?.cancel();
 
-          Future<void>? dispose = player?.dispose();
-          player = null;
+          Future<void>? dispose = controller?._player?.dispose();
+          controller?._player = null;
           await dispose;
         },
       );
-
+      controller._stream_controller = stream_controller;
       _players[music] = controller;
     }
 
-    return controller.stream;
+    return controller!;
   }
 }
 

@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:path/path.dart';
 import '/config.dart';
 import '/themes.dart';
@@ -106,6 +107,13 @@ class _AudioPlayerState extends State<AudioPlayer> {
   /// [StreamSubscription] for the audio playback.
   StreamSubscription? _audio;
 
+  /// rewind / forward slider limits
+  var _currentSliderValueMs = 0.0.obs;
+  var _maxSliderValueMs = 1000.0.obs;
+
+  /// current audio stream player
+  PlayerController? _audioStream;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -178,34 +186,42 @@ class _AudioPlayerState extends State<AudioPlayer> {
       ]),
       Row(children: [
         Expanded(
-          child: Slider(
-              value: _currentSliderValue,
-              max: 100,
-              label: _currentSliderValue.round().toString(),
+          child: Obx(() => Slider(
+              value: _currentSliderValueMs.value,
+              max: _maxSliderValueMs.value,
+              label: _currentSliderValueMs.round().toString(),
               onChanged: (double value) {
                 setState(() {
-                  _currentSliderValue = value;
+                  _audioStream?.seek(value);
                 });
-              }),
+              })),
         ),
-        Text(
-          "03:30",
+        Obx(() => Text(
+          "${(_currentSliderValueMs/60000.0).floor()}:${((_currentSliderValueMs % 60000.0) / 1000.0).floor()}/"
+              "${(_maxSliderValueMs/60000.0).floor()}:${((_maxSliderValueMs % 60000.0) / 1000.0).floor()}",
           style: style.fonts.medium.regular.onBackground,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-        ),
+        )),
       ]),
     ]);
   }
 
-  double _currentSliderValue = 20;
-
   void _playAudio() {
     var asrc = widget.path != null ? AudioSource.file(widget.path!) : AudioSource.url(widget.url!);
-    var audioStream = AudioUtils.createPlayStream(asrc, loop: false, stop_others: true);
-    _audio = audioStream.listen((_) { }, onDone: () => {
-      _stopAudio(external_call: true)
-    });
+    _audioStream = AudioUtils.createPlayStream(asrc, loop: false, stop_others: true);
+    _audio = _audioStream?.beginPlay(
+        onData: (_) => {
+            _audioStream?.getDurationStream().listen((event) {
+            _maxSliderValueMs.value = event.inMilliseconds.toDouble();
+            }),
+            _audioStream?.getPositionStream().listen((event) {
+              _currentSliderValueMs.value = event.inMilliseconds.toDouble();
+            })
+        },
+        onDone: () => {
+          _stopAudio(external_call: true)
+        });
     setState(() {});
   }
 
@@ -215,6 +231,8 @@ class _AudioPlayerState extends State<AudioPlayer> {
       _audio?.cancel();
     }
     _audio = null;
+    _audioStream = null;
+
     setState(() {});
   }
 
