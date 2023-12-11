@@ -72,6 +72,8 @@ class ChatInfoController extends GetxController {
 
   final GlobalKey moreKey = GlobalKey();
 
+  final RxBool editing = RxBool(false);
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 

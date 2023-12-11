@@ -140,9 +140,11 @@ class Block extends StatelessWidget {
                                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                 child: Center(
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      0,
+                                      12,
+                                      6,
                                     ),
                                     child: Text(
                                       title!,

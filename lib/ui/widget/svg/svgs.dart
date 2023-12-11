@@ -1872,4 +1872,10 @@ class SvgIcons {
     width: 17,
     height: 17,
   );
+
+  static const SvgData premium = SvgData(
+    'assets/icons/premium.svg',
+    width: 14.57,
+    height: 18,
+  );
 }

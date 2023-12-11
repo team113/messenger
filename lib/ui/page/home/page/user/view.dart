@@ -187,10 +187,10 @@ class UserView extends StatelessWidget {
                       //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
                       children: [
                         BigAvatarWidget.user(c.user),
-                        const SizedBox(height: 12), const SizedBox(height: 6),
+                        const SizedBox(height: 18),
                         Text(
                           '${c.user!.user.value.name ?? c.user!.user.value.num}',
-                          style: style.fonts.big.regular.onBackground,
+                          style: style.fonts.large.regular.onBackground,
                         ),
                         // if (subtitle != null) ...[
                         //   const SizedBox(height: 12),
@@ -272,7 +272,7 @@ class UserView extends StatelessWidget {
                     ),
 
                     Block(
-                      title: 'Direct link',
+                      title: 'label_direct_chat_link'.l10n,
                       children: [
                         Paddings.basic(
                           ContactInfoContents(
