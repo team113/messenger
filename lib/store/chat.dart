@@ -548,52 +548,40 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    HiveRxChat? chat = chats.remove(id);
-    final HiveRxChat? pagination = paginated.remove(id);
+    // Intended to make visual changes instant.
+    chats.remove(id);
+    paginated.remove(id);
+
     ChatData? monologChatData;
 
     try {
       if (id.isLocalWith(me)) {
         monologChatData = _chat(await _graphQlProvider.createMonologChat(null));
 
-        // Delete the local [Chat]-monolog from [Hive], since it will be
-        // replaced with a remote one right away.
-        await remove(id);
-
         // Put newly created remote [Chat]-monolog to [Hive].
-        chat = await _putEntry(monologChatData);
+        await _putEntry(monologChatData);
 
+        final ChatId oldId = id;
         id = monologChatData.chat.value.id;
         await _monologLocal.set(id);
+
+        // Delete old local [Chat]-monolog from [Hive], since it's just been
+        // replaced with a remote one.
+        await remove(oldId);
       }
 
-      // Update [Chat.isHidden] locally without waiting for the remote response.
-      chat?.chat.update((chat) => chat?.isHidden = true);
+      // Update [Chat.isHidden] locally without waiting for the remote
+      // response.
+      final HiveChat? storedChat = await _chatLocal.get(id);
+      storedChat!.value.isHidden = true;
+      put(storedChat);
 
       await _graphQlProvider.hideChat(id);
     } catch (_) {
       // Rollback local changes.
-      chat?.chat.update((chat) => chat?.isHidden = false);
-
-      // Whether the local monolog was replaced with a remote one.
-      final bool didHideMonolog = id == monologChatData?.chat.value.id;
-
-      // Put unchanged [HiveRxChat] back to the [chats] and [paginated].
-      if (didHideMonolog) {
-        // [didHideMonolog] implies that [chat] was set to created remote chat.
-        chat as HiveRxChat;
-
-        chats[id] = chat;
-        paginated[id] = chat;
-      } else {
-        if (chat != null) {
-          chats[id] = chat;
-        }
-
-        if (pagination != null) {
-          paginated[id] = pagination;
-        }
-      }
+      final HiveChat? localChat = await _chatLocal.get(id);
+      localChat!.value.isHidden = false;
+      put(localChat);
 
       rethrow;
     }
