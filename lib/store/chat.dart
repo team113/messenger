@@ -1129,8 +1129,8 @@ class ChatRepository extends DisposableInterface
   FutureOr<RxUser?> getUser(UserId id) async {
     Log.debug('getUser($id)', '$runtimeType');
 
-    final FutureOr<RxUser?> user = _userRepo.get(id);
-    return user is RxUser? ? user : await user;
+    final FutureOr<RxUser?> userOrFuture = _userRepo.get(id);
+    return userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
   }
 
   @override

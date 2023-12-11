@@ -57,10 +57,7 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
         }
       });
 
-      final FutureOr<void> futureOrVoid = pagination!.around();
-      if (futureOrVoid is Future) {
-        futures.add(futureOrVoid);
-      }
+      futures.add(pagination!.around());
     }
 
     if (futures.isEmpty) {

@@ -188,20 +188,18 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      if (users[id] != null) {
-        return users[id];
+      HiveRxUser? user = users[id];
+      if (user == null) {
+        final response = (await _graphQlProvider.getUser(id)).user;
+        if (response != null) {
+          final HiveUser hiveUser = response.toHive();
+          put(hiveUser);
+
+          final HiveRxUser hiveRxUser = HiveRxUser(this, _userLocal, hiveUser);
+          users[id] = hiveRxUser;
+          user = hiveRxUser;
+        }
       }
-
-      final response = (await _graphQlProvider.getUser(id)).user;
-      if (response == null) {
-        return null;
-      }
-
-      final HiveUser hiveUser = response.toHive();
-      put(hiveUser);
-
-      final HiveRxUser user = HiveRxUser(this, _userLocal, hiveUser);
-      users[id] = user;
 
       return user;
     });

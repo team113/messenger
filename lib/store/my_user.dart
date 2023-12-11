@@ -665,14 +665,14 @@ class MyUserRepository implements AbstractMyUserRepository {
     for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        final FutureOr<RxUser?> user = _userRepo.get(event.userId);
+        final FutureOr<RxUser?> userOrFuture = _userRepo.get(event.userId);
 
-        if (user is RxUser?) {
-          if (user != null) {
-            _userRepo.update(convertor(user.user.value));
+        if (userOrFuture is RxUser?) {
+          if (userOrFuture != null) {
+            _userRepo.update(convertor(userOrFuture.user.value));
           }
         } else {
-          user.then((user) {
+          userOrFuture.then((user) {
             if (user != null) {
               _userRepo.update(convertor(user.user.value));
             }

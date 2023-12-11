@@ -125,7 +125,7 @@ class HivePageProvider<T extends Object, C, K>
   }
 
   @override
-  Future<Page<T, C>?> after(
+  FutureOr<Page<T, C>?> after(
     T? item,
     C? cursor,
     int count, {

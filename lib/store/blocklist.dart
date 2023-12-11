@@ -177,9 +177,9 @@ class BlocklistRepository extends DisposableInterface
 
     final RxUser? user = blocklist[userId];
     if (user == null) {
-      final FutureOr<RxUser?> futureOrUser = _userRepo.get(userId);
+      final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
       final RxUser? user =
-          futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+          userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
       if (user != null) {
         blocklist[userId] = user;
       }
@@ -199,7 +199,7 @@ class BlocklistRepository extends DisposableInterface
       } else {
         if (blocklist[userId] == null) {
           final FutureOr<void> futureOrVoid = _add(userId);
-          if (futureOrVoid != null) {
+          if (futureOrVoid is Future) {
             await futureOrVoid;
           }
         }

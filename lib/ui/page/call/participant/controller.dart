@@ -226,8 +226,8 @@ class ParticipantController extends GetxController {
   /// Fetches the [chat], or [pop]s, if it's `null`.
   Future<void> _fetchChat() async {
     chat.value = null;
-    final FutureOr<RxChat?> fetched = _chatService.get(chatId.value);
-    chat.value = fetched is RxChat? ? fetched : await fetched;
+    final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId.value);
+    chat.value = chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
 
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);

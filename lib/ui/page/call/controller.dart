@@ -590,12 +590,12 @@ class CallController extends GetxController {
     _chatWorker = ever(
       _currentCall.value.chatId,
       (ChatId id) {
-        final FutureOr<RxChat?> chat = _chatService.get(id);
+        final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
 
-        if (chat is RxChat?) {
-          _updateChat(chat);
+        if (chatOrFuture is RxChat?) {
+          _updateChat(chatOrFuture);
         } else {
-          chat.then(_updateChat);
+          chatOrFuture.then(_updateChat);
         }
       },
     );
