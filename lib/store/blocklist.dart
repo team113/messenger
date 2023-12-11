@@ -77,7 +77,7 @@ class BlocklistRepository extends DisposableInterface
   RxBool get nextLoading => _pagination.nextLoading;
 
   @override
-  Future<void> onInit() async {
+  void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
     _initLocalSubscription();
@@ -172,14 +172,21 @@ class BlocklistRepository extends DisposableInterface
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
-  Future<void> _add(UserId userId) async {
+  FutureOr<void> _add(UserId userId) {
     Log.debug('_add($userId)', '$runtimeType');
 
     final RxUser? user = blocklist[userId];
     if (user == null) {
-      final RxUser? user = await _userRepo.get(userId);
-      if (user != null) {
-        blocklist[userId] = user;
+      final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
+
+      if (userOrFuture is RxUser?) {
+        if (userOrFuture != null) {
+          blocklist[userId] = userOrFuture;
+        }
+      } else {
+        return userOrFuture.then(
+          (user) => user != null ? blocklist[userId] = user : null,
+        );
       }
     }
   }
@@ -196,14 +203,17 @@ class BlocklistRepository extends DisposableInterface
         blocklist.remove(userId);
       } else {
         if (blocklist[userId] == null) {
-          await _add(userId);
+          final FutureOr<void> futureOrVoid = _add(userId);
+          if (futureOrVoid is Future) {
+            await futureOrVoid;
+          }
         }
       }
     }
   }
 
   /// Initializes the [_pagination].
-  Future<void> _initRemotePagination() async {
+  void _initRemotePagination() {
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     _pagination = Pagination(
@@ -226,7 +236,7 @@ class BlocklistRepository extends DisposableInterface
       },
     );
 
-    _paginationSubscription = _pagination.changes.listen((event) async {
+    _paginationSubscription = _pagination.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
