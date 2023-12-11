@@ -459,37 +459,26 @@ class SearchController extends GetxController {
   Future<void> _populateMonolog() async {
     final ChatId monologId = _chatService.monolog;
     final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
-
-    // Monolog of the authenticated user, cannot be null.
     final RxChat? monolog =
         monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
-    if (monolog == null) {
-      return;
-    }
 
-    // Authenticated [MyUser], cannot be null.
     final MyUser? myUser = _myUserService.myUser.value;
-    if (myUser == null) {
-      return;
-    }
 
-    // Formatted string representation of the current [query],
-    // cannot be null.
+    // Formatted string representation of the current [query].
     final String queryString = query.value.toLowerCase().split(' ').join();
-    if (queryString.isEmpty) {
-      return;
-    }
 
-    // Parameters which can be used to find the [monolog].
-    final String title = monolog.title.value;
-    final String? myName = myUser.name?.val;
-    final String myNum = myUser.num.val;
-    final String? myLogin = myUser.login?.val;
+    if (queryString.isNotEmpty && myUser != null && monolog != null) {
+      // Parameters which can be used to find the [monolog].
+      final String title = monolog.title.value;
+      final String? myName = myUser.name?.val;
+      final String myNum = myUser.num.val;
+      final String? myLogin = myUser.login?.val;
 
-    for (String? param in [title, myLogin, myName, myNum]) {
-      param = param?.toLowerCase().split(' ').join();
-      if (param?.contains(queryString) ?? false) {
-        return chats.addAll({monologId: monolog});
+      for (String? param in [title, myLogin, myName, myNum]) {
+        param = param?.toLowerCase().split(' ').join();
+        if (param?.contains(queryString) ?? false) {
+          return chats.addAll({monologId: monolog});
+        }
       }
     }
   }

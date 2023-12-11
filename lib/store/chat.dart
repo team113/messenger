@@ -552,11 +552,10 @@ class ChatRepository extends DisposableInterface
     chats.remove(id);
     paginated.remove(id);
 
-    ChatData? monologChatData;
-
     try {
       if (id.isLocalWith(me)) {
-        monologChatData = _chat(await _graphQlProvider.createMonologChat(null));
+        final ChatData monologChatData =
+            _chat(await _graphQlProvider.createMonologChat(null));
 
         // Put newly created remote [Chat]-monolog to [Hive].
         await _putEntry(monologChatData);
@@ -573,14 +572,14 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChat(id);
 
       // Update [Chat.isHidden] locally without waiting for the remote
-      // response.
+      // response and save the result to [Hive].
       final HiveChat? storedChat = await _chatLocal.get(id);
       if (storedChat != null) {
         storedChat.value.isHidden = true;
         await _chatLocal.put(storedChat);
       }
     } catch (_) {
-      // Rollback local changes.
+      // Rollback changes, save the result to [Hive], [chats] and [paginated].
       final HiveChat? storedChat = await _chatLocal.get(id);
       if (storedChat != null) {
         storedChat.value.isHidden = false;
