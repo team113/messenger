@@ -570,21 +570,21 @@ class ChatRepository extends DisposableInterface
         await remove(oldId);
       }
 
+      await _graphQlProvider.hideChat(id);
+
       // Update [Chat.isHidden] locally without waiting for the remote
       // response.
       final HiveChat? storedChat = await _chatLocal.get(id);
       if (storedChat != null) {
         storedChat.value.isHidden = true;
-        put(storedChat);
+        await _chatLocal.put(storedChat);
       }
-
-      await _graphQlProvider.hideChat(id);
     } catch (_) {
       // Rollback local changes.
       final HiveChat? storedChat = await _chatLocal.get(id);
       if (storedChat != null) {
         storedChat.value.isHidden = false;
-        put(storedChat);
+        await put(storedChat);
       }
 
       rethrow;
