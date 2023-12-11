@@ -1908,11 +1908,11 @@ class CallController extends GetxController {
         audio: track?.kind == MediaKind.audio ? track : null,
       );
 
-      final FutureOr<RxUser?> user = _userService.get(member.id.userId);
-      if (user is RxUser?) {
-        participant.user.value = user ?? participant.user.value;
+      final FutureOr<RxUser?> userOrFuture = _userService.get(member.id.userId);
+      if (userOrFuture is RxUser?) {
+        participant.user.value = userOrFuture ?? participant.user.value;
       } else {
-        user.then(
+        userOrFuture.then(
           (user) => participant.user.value = user ?? participant.user.value,
         );
       }
@@ -2032,11 +2032,11 @@ class CallController extends GetxController {
   /// Initializes the [chat] and adds the [CallMember] afterwards.
   Future<void> _initChat() async {
     try {
-      final FutureOr<RxChat?> chat = _chatService.get(chatId.value);
-      if (chat is RxChat?) {
-        _updateChat(chat);
+      final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId.value);
+      if (chatOrFuture is RxChat?) {
+        _updateChat(chatOrFuture);
       } else {
-        _updateChat(await chat);
+        _updateChat(await chatOrFuture);
       }
     } finally {
       void onTracksChanged(
