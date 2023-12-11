@@ -477,7 +477,10 @@ class SearchController extends GetxController {
       for (String? param in [title, myLogin, myName, myNum]) {
         param = param?.toLowerCase().split(' ').join();
         if (param?.contains(queryString) ?? false) {
-          return chats.addAll({monologId: monolog});
+          chats.value = {
+            monologId: monolog,
+            ...chats,
+          };
         }
       }
     }
