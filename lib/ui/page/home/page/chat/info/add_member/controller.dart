@@ -122,6 +122,7 @@ class AddChatMemberController extends GetxController {
   /// Fetches the [chat], or [pop]s, if it's `null`.
   Future<void> _fetchChat() async {
     chat.value = null;
+
     final FutureOr<RxChat?> fetched = _chatService.get(chatId);
     chat.value = fetched is RxChat? ? fetched : await fetched;
 

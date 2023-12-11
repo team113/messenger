@@ -329,10 +329,8 @@ class CallService extends DisposableService {
   }
 
   /// Returns a [RxChat] by the provided [id].
-  FutureOr<RxChat?> getChat(ChatId id) async {
+  FutureOr<RxChat?> getChat(ChatId id) {
     Log.debug('getChat($id)', '$runtimeType');
-
-    final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
-    return chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+    return _chatService.get(id);
   }
 }

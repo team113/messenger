@@ -172,16 +172,21 @@ class BlocklistRepository extends DisposableInterface
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
-  FutureOr<void> _add(UserId userId) async {
+  FutureOr<void> _add(UserId userId) {
     Log.debug('_add($userId)', '$runtimeType');
 
     final RxUser? user = blocklist[userId];
     if (user == null) {
       final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
-      final RxUser? user =
-          userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
-      if (user != null) {
-        blocklist[userId] = user;
+
+      if (userOrFuture is RxUser?) {
+        if (userOrFuture != null) {
+          blocklist[userId] = userOrFuture;
+        }
+      } else {
+        return userOrFuture.then(
+          (user) => user != null ? blocklist[userId] = user : null,
+        );
       }
     }
   }

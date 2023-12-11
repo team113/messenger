@@ -770,6 +770,7 @@ class MessageFieldView extends StatelessWidget {
     bool edited = false,
   }) {
     final style = Theme.of(context).style;
+
     final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
 
     final bool fromMe = item.author.id == c.me;

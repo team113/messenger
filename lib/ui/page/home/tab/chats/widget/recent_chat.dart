@@ -454,6 +454,7 @@ class RecentChatTile extends StatelessWidget {
           }
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
+
           final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
 
           if (item.text != null) {

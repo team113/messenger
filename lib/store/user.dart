@@ -189,6 +189,7 @@ class UserRepository extends DisposableInterface
 
     return mutex.protect(() async {
       HiveRxUser? user = users[id];
+
       if (user == null) {
         final response = (await _graphQlProvider.getUser(id)).user;
         if (response != null) {
@@ -425,8 +426,8 @@ class UserRepository extends DisposableInterface
     hiveUsers.forEach(put);
 
     // We are waiting for a dummy [Future] here because [put] updates
-    // [boxEvents] by scheduling a microtask, so we can use [get] method
-    // (after this `await` expression) on the next Event Loop iteration.
+    // [boxEvents] by scheduling a microtask, so we can use [get] method (after
+    // this `await` expression) on the next Event Loop iteration.
     await Future.delayed(Duration.zero);
 
     final List<RxUser> users = [];
