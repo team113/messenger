@@ -59,7 +59,7 @@ class UserRepository extends DisposableInterface
   /// by this [UserRepository].
   ///
   /// Used to populate the [RxUser.dialog] values.
-  Future<RxChat?> Function(ChatId id)? getChat;
+  FutureOr<RxChat?> Function(ChatId id)? getChat;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -169,17 +169,17 @@ class UserRepository extends DisposableInterface
     return searchResult;
   }
 
-  // TODO: Should return [FutureOr<RxUser?>].
   @override
-  Future<RxUser?> get(UserId id) {
+  FutureOr<RxUser?> get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
 
-    RxUser? user = users[id];
+    // Return the stored user instance, if it exists.
+    final HiveRxUser? user = users[id];
     if (user != null) {
-      return Future.value(user);
+      return user;
     }
 
-    // If [user] doesn't exists, we should lock the [mutex] to avoid remote
+    // If [user] doesn't exist, we should lock the [mutex] to avoid remote
     // double invoking.
     Mutex? mutex = _locks[id];
     if (mutex == null) {
@@ -188,16 +188,17 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      user = users[id];
+      HiveRxUser? user = users[id];
 
       if (user == null) {
-        var query = (await _graphQlProvider.getUser(id)).user;
-        if (query != null) {
-          HiveUser stored = query.toHive();
-          put(stored);
-          var fetched = HiveRxUser(this, _userLocal, stored);
-          users[id] = fetched;
-          user = fetched;
+        final response = (await _graphQlProvider.getUser(id)).user;
+        if (response != null) {
+          final HiveUser hiveUser = response.toHive();
+          put(hiveUser);
+
+          final HiveRxUser hiveRxUser = HiveRxUser(this, _userLocal, hiveUser);
+          users[id] = hiveRxUser;
+          user = hiveRxUser;
         }
       }
 
@@ -410,7 +411,7 @@ class UserRepository extends DisposableInterface
     );
 
     const maxInt = 120;
-    var query = await _graphQlProvider.searchUsers(
+    final response = await _graphQlProvider.searchUsers(
       num: num,
       name: name,
       login: login,
@@ -419,20 +420,35 @@ class UserRepository extends DisposableInterface
       first: first ?? maxInt,
     );
 
-    final List<HiveUser> result =
-        query.searchUsers.edges.map((c) => c.node.toHive()).toList();
+    final List<HiveUser> hiveUsers =
+        response.searchUsers.edges.map((c) => c.node.toHive()).toList();
 
-    for (HiveUser user in result) {
-      put(user);
-    }
+    hiveUsers.forEach(put);
+
+    // We are waiting for a dummy [Future] here because [put] updates
+    // [boxEvents] by scheduling a microtask, so we can use [get] method (after
+    // this `await` expression) on the next Event Loop iteration.
     await Future.delayed(Duration.zero);
 
-    Iterable<Future<RxUser?>> futures = result.map((e) => get(e.value.id));
-    List<RxUser> users = (await Future.wait(futures)).whereNotNull().toList();
+    final List<RxUser> users = [];
+    final List<Future<RxUser?>> futures = [];
+
+    for (final hiveUser in hiveUsers) {
+      final FutureOr<RxUser?> rxUser = get(hiveUser.value.id);
+      if (rxUser is RxUser?) {
+        if (rxUser != null) {
+          users.add(rxUser);
+        }
+      } else {
+        futures.add(rxUser);
+      }
+    }
+
+    users.addAll((await Future.wait(futures)).whereNotNull());
 
     return Page(
       RxList(users),
-      query.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
+      response.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
     );
   }
 
