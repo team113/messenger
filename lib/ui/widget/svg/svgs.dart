@@ -1452,6 +1452,12 @@ class SvgIcons {
     height: 22,
   );
 
+  static const SvgData deleteBigDisabled = SvgData(
+    'assets/icons/delete_big_disabled.svg',
+    width: 23.01,
+    height: 22,
+  );
+
   static const SvgData callCameraFront = SvgData(
     'assets/icons/camera_front.svg',
     width: 27.57,
