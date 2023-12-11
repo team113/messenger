@@ -62,7 +62,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   }
 
   @override
-  FutureOr<Page<T, C>> after(T? item, C? cursor, int count) async {
+  Future<Page<T, C>> after(T? item, C? cursor, int count) async {
     final Page<T, C>? cached = await hiveProvider.after(item, cursor, count);
 
     if (cached != null && cached.edges.isNotEmpty) {
@@ -79,7 +79,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   }
 
   @override
-  FutureOr<Page<T, C>> before(T? item, C? cursor, int count) async {
+  Future<Page<T, C>> before(T? item, C? cursor, int count) async {
     final Page<T, C>? cached = await hiveProvider.before(item, cursor, count);
 
     if (cached != null && cached.edges.isNotEmpty) {
