@@ -227,6 +227,12 @@ class ChatController extends GetxController {
   /// the address book of the authenticated [MyUser].
   final RxBool inContacts = RxBool(false);
 
+  /// Indicator whether the [elements] selection mode is enabled.
+  final RxBool selecting = RxBool(false);
+
+  /// [ListElement]s selected during [selecting] mode.
+  final RxList<ListElement> selected = RxList();
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -310,7 +316,7 @@ class ChatController extends GetxController {
   /// [TextFieldState] for blacklisting reason.
   final TextFieldState reason = TextFieldState();
 
-  /// Worker performing a [readChat] on [lastVisible] changes.
+  /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
   /// Worker performing a jump to the last read message on a successful
@@ -319,6 +325,9 @@ class ChatController extends GetxController {
 
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
+
+  /// Worker clearing [selected] on the [selected] changes.
+  Worker? _selectingWorker;
 
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
@@ -453,6 +462,12 @@ class ChatController extends GetxController {
       }
     });
 
+    _selectingWorker = ever(selecting, (bool value) {
+      if (!value) {
+        selected.clear();
+      }
+    });
+
     super.onInit();
   }
 
@@ -470,6 +485,7 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
+    _selectingWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _contactsSubscription?.cancel();
@@ -639,7 +655,10 @@ class ChatController extends GetxController {
     _ignorePositionChanges = true;
 
     status.value = RxStatus.loading();
-    chat = await _chatService.get(id);
+
+    final FutureOr<RxChat?> fetched = _chatService.get(id);
+    chat = fetched is RxChat? ? fetched : await fetched;
+
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
@@ -1032,14 +1051,7 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  FutureOr<RxUser?> getUser(UserId id) {
-    final RxUser? user = _userService.users[id];
-    if (user != null) {
-      return user;
-    }
-
-    return _userService.get(id);
-  }
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -2040,6 +2052,34 @@ extension IsChatItemEditable on ChatItem {
     }
 
     return false;
+  }
+}
+
+/// Extension adding conversion on [ListElement]s to [ChatItem]s.
+extension SelectedToItemsExtension on RxList<ListElement> {
+  /// Returns the [ChatItem]s this list of [ListElement] represents.
+  List<ChatItem> get asItems {
+    final List<ChatItem> items = [];
+
+    for (var e in this) {
+      if (e is ChatMessageElement) {
+        items.add(e.item.value);
+      } else if (e is ChatCallElement) {
+        items.add(e.item.value);
+      } else if (e is ChatInfoElement) {
+        items.add(e.item.value);
+      } else if (e is ChatForwardElement) {
+        if (e.note.value != null) {
+          items.add(e.note.value!.value);
+        }
+
+        for (var f in e.forwards) {
+          items.add(f.value);
+        }
+      }
+    }
+
+    return items;
   }
 }
 
