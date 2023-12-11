@@ -561,6 +561,7 @@ label_avatar_updated2 = {" "}updated avatar
 label_away = away
 label_background = Background
 label_block = Block
+label_blocked = Blocked
 label_blocked_users = Blocked users
 label_cache = Cache
 label_cache_and_downloads = Cache and downloads

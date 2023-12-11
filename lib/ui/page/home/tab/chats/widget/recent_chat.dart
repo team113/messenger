@@ -74,7 +74,6 @@ class RecentChatTile extends StatelessWidget {
     this.onFavorite,
     this.onUnfavorite,
     this.onSelect,
-    this.onCall,
     this.onContact,
     this.onTap,
     this.onDismissed,
@@ -106,8 +105,8 @@ class RecentChatTile extends StatelessWidget {
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
   final bool Function()? inCall;
 
-  /// Callback, called to check whether this [User] is already in the contacts
-  /// list of the authenticated [MyUser].
+  /// Callback, called to check whether the [rxChat] is considered to be in
+  /// contacts list of the authenticated [MyUser].
   final bool Function()? inContacts;
 
   /// Callback, called when this [rxChat] leave action is triggered.
@@ -143,9 +142,6 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] add or remove contact action is
   /// triggered.
   final void Function(bool)? onContact;
-
-  /// Callback, called when this [rxChat] call action is triggered.
-  final void Function(bool)? onCall;
 
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
@@ -299,7 +295,7 @@ class RecentChatTile extends StatelessWidget {
                 trailing: const SvgIcon(SvgIcons.deleteThick),
               ),
           ],
-          selected: selected || inverted,
+          selected: inverted,
           avatarBuilder: avatarBuilder,
           enableContextMenu: enableContextMenu,
           onTap: onTap ?? () => router.chat(chat.id),
@@ -315,10 +311,12 @@ class RecentChatTile extends StatelessWidget {
 
     if (blocked) {
       return Text(
-        'label_user_is_blocked'.l10n,
+        'label_blocked'.l10n,
         style: inverted
             ? style.fonts.normal.regular.onPrimary
             : style.fonts.normal.regular.secondary,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       );
     }
 
@@ -952,9 +950,7 @@ class RecentChatTile extends StatelessWidget {
 
     final bool? result = await MessagePopup.alert(
       'label_hide_chat'.l10n,
-      description: [
-        TextSpan(text: 'label_to_restore_chat_use_search'.l10n),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chat_use_search'.l10n)],
       additional: [
         const SizedBox(height: 21),
         StatefulBuilder(

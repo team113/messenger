@@ -580,13 +580,9 @@ class ChatsTabView extends StatelessWidget {
                                       me: c.me,
                                       blocked: chat.blocked,
                                       getUser: c.getUser,
-                                      onCall: (video) => c.call(chat.id, video),
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
                                       inCall: () => c.containsCall(chat.id),
-                                      onTap: c.selecting.value
-                                          ? () => c.selectChat(chat)
-                                          : null,
                                     );
                                   }),
                                 );
@@ -786,7 +782,6 @@ class ChatsTabView extends StatelessWidget {
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
                                     : null,
-                                onCall: (video) => c.call(e.id, video),
                                 onDismissed: () => c.dismiss(e),
                                 enableContextMenu: !c.selecting.value,
                                 trailing: c.selecting.value

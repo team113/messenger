@@ -66,7 +66,7 @@ class HiveRxUser extends RxUser {
   final UserHiveProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
-  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+  Rx<RxChat?>? _dialog;
 
   /// [UserRepository.userEvents] subscription.
   ///
@@ -89,18 +89,19 @@ class HiveRxUser extends RxUser {
     Log.debug('get dialog', '$runtimeType($id)');
 
     final ChatId dialogId = user.value.dialog;
-    if (_dialog.value == null) {
+    if (_dialog == null) {
       final FutureOr<RxChat?> chatOrFuture =
           _userRepository.getChat?.call(dialogId);
 
       if (chatOrFuture is RxChat?) {
-        _dialog.value = chatOrFuture;
+        _dialog = Rx(chatOrFuture);
       } else {
-        chatOrFuture.then((v) => _dialog.value = v);
+        _dialog = Rx(null);
+        chatOrFuture.then((v) => _dialog?.value = v);
       }
     }
 
-    return _dialog;
+    return _dialog!;
   }
 
   /// Disposes this [HiveRxUser].

@@ -108,7 +108,7 @@ class ChatTile extends StatelessWidget {
       actions: actions,
       indicateOpenedMenu: true,
       enabled: enableContextMenu,
-      child: Container(
+      child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
         child: InkWellWithHover(
           selectedColor: style.colors.primary,

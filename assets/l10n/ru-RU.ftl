@@ -585,6 +585,7 @@ label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
 label_background = Бэкграунд
 label_block = Заблокировать
+label_blocked = Заблокирован
 label_blocked_users = Заблокированные пользователи
 label_cache = Кэш
 label_cache_and_downloads = Кэш и загрузки
