@@ -949,7 +949,7 @@ class RecentChatTile extends StatelessWidget {
     bool clear = false;
 
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
+      'label_delete_chat'.l10n,
       description: [TextSpan(text: 'label_to_restore_chat_use_search'.l10n)],
       additional: [
         const SizedBox(height: 21),

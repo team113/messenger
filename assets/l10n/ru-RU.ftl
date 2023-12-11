@@ -720,7 +720,6 @@ label_group_created_by2 = {" "}создал(а) группу
 label_hello = Привет!
 label_hello_reply = Оу, привет :)
 label_hidden = Был(а) недавно
-label_hide_chat = Скрыть чат
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
 label_hint_drag_n_drop_video =
