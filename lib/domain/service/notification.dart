@@ -143,7 +143,7 @@ class NotificationService extends DisposableService {
           onBackground: onBackground,
         );
       } catch (e) {
-        Log.print(
+        Log.info(
           'Failed to initialize push notifications: $e',
           'NotificationService',
         );

@@ -47,7 +47,7 @@ class Config {
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
-  static late String sentryDsn;
+  static String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
   ///

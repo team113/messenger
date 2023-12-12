@@ -16,41 +16,66 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:log_me/log_me.dart' as me;
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+import '/config.dart';
 
 /// Utility logging messages to console.
 class Log {
   /// Prints the fatal [message] with [tag] to the [me.Log].
   static void fatal(String message, [String? tag]) {
     me.Log.fatal('${tag != null ? '[$tag]' : ''} $message');
+    _breadcrumb(message, tag, SentryLevel.fatal);
   }
 
   /// Prints the error [message] with [tag] to the [me.Log].
   static void error(String message, [String? tag]) {
     me.Log.error('${tag != null ? '[$tag]' : ''} $message');
+    _breadcrumb(message, tag, SentryLevel.error);
   }
 
   /// Prints the warning [message] with [tag] to the [me.Log].
   static void warning(String message, [String? tag]) {
     me.Log.warning('${tag != null ? '[$tag]' : ''} $message');
-  }
-
-  /// Prints the information [message] with [tag] to the [me.Log].
-  static void print(String message, [String? tag]) {
-    me.Log.info('${tag != null ? '[$tag]' : ''} $message');
+    _breadcrumb(message, tag, SentryLevel.warning);
   }
 
   /// Prints the information [message] with [tag] to the [me.Log].
   static void info(String message, [String? tag]) {
     me.Log.info('${tag != null ? '[$tag]' : ''} $message');
+    _breadcrumb(message, tag, SentryLevel.info);
   }
 
   /// Prints the debug [message] with [tag] to the [me.Log].
   static void debug(String message, [String? tag]) {
     me.Log.debug('${tag != null ? '[$tag]' : ''} $message');
+    _breadcrumb(message, tag, SentryLevel.debug);
   }
 
   /// Prints the trace [message] with [tag] to the [me.Log].
   static void trace(String message, [String? tag]) {
-    me.Log.trace('${tag != null ? '[$tag]' : ''} $message');
+    me.Log.trace(message, tag);
+    _breadcrumb(message, tag, SentryLevel.debug);
+  }
+
+  /// Reports a [Breadcrumb] with the provided details to the [Sentry], if
+  /// enabled.
+  static Future<void> _breadcrumb(
+    String message,
+    String? tag,
+    SentryLevel level,
+  ) async {
+    if (Config.sentryDsn.isNotEmpty) {
+      try {
+        await Sentry.addBreadcrumb(
+          Breadcrumb.console(
+            message: '[$tag] $message',
+            level: SentryLevel.debug,
+          ),
+        );
+      } catch (_) {
+        // No-op.
+      }
+    }
   }
 }

@@ -295,11 +295,13 @@ jobs:
 
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
+                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}'
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
@@ -361,6 +363,19 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ github.workspace }}/symbols.zip
+          directory: 'symbols'
+        if: ${{ contains('apk appbundle ios macos windows', matrix.platform) }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: debug-${{ matrix.platform }}-${{ github.run_number }}
+          path: symbols.zip
+          if-no-files-found: error
+          retention-days: 1
+        if: ${{ contains('apk appbundle ios macos windows', matrix.platform) }}
+
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
@@ -413,6 +428,7 @@ jobs:
       - run: make flutter.build platform=linux
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -442,6 +458,17 @@ jobs:
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
+          retention-days: 1
+
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ github.workspace }}/symbols.zip
+          directory: 'symbols'
+      - uses: actions/upload-artifact@v3
+        with:
+          name: debug-linux-${{ github.run_number }}
+          path: ${{ github.workspace }}/symbols.zip
+          if-no-files-found: error
           retention-days: 1
 
   # dartdoc:
@@ -848,6 +875,68 @@ jobs:
   #         git push --force origin gh-pages
   #       if: ${{ steps.skip.outputs.no == 'true' }}
 
+  upload-sentry:
+    name: sentry upload
+    # if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - build
+      - build-linux
+      - docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: build-web-${{ github.run_number }}
+      - run: mkdir -p build/web/
+      - run: unzip *.zip -d build/web/
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-apk-${{ github.run_number }}
+          path: symbols/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-appbundle-${{ github.run_number }}
+          path: symbols/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-ios-${{ github.run_number }}
+          path: symbols/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-linux-${{ github.run_number }}
+          path: symbols/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-macos-${{ github.run_number }}
+          path: symbols/
+      - uses: actions/download-artifact@v3
+        with:
+          name: debug-windows-${{ github.run_number }}
+          path: symbols/
+
+      # - name: Parse semver versions from Git tag
+      #   id: semver
+      #   uses: actions-ecosystem/action-regex-match@v2
+      #   with:
+      #     text: ${{ github.ref }}
+      #     regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+      #   if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+
+      - run: make flutter.gen only=lib/pubspec.g.dart
+
+      - run: make sentry.upload project=${{ secrets.SENTRY_PROJECT }}
+                  org=${{ secrets.SENTRY_ORG }}
+                  token=${{ secrets.SENTRY_TOKEN }}
+                  release=${{ steps.semver.outputs.group1 }}
 
 
 

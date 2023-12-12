@@ -102,7 +102,7 @@ class Pagination<T, C, K> {
 
   /// Resets this [Pagination] to its initial state.
   Future<void> clear() {
-    Log.print('clear()', 'Pagination');
+    Log.info('clear()', 'Pagination');
     items.clear();
     hasNext.value = true;
     hasPrevious.value = true;
@@ -121,7 +121,7 @@ class Pagination<T, C, K> {
       try {
         final Page<T, C>? page =
             await Backoff.run(() => provider.init(item, perPage), _cancelToken);
-        Log.print(
+        Log.info(
           'init(item: $item)... \n'
               '\tFetched ${page?.edges.length} items\n'
               '\tstartCursor: ${page?.info.startCursor}\n'
@@ -139,7 +139,7 @@ class Pagination<T, C, K> {
         endCursor = page?.info.endCursor;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.print('init(item: $item)... done', 'Pagination');
+        Log.info('init(item: $item)... done', 'Pagination');
       } catch (e) {
         if (e is! OperationCanceledException) {
           rethrow;
@@ -163,14 +163,14 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.print('around(item: $item, cursor: $cursor)...', 'Pagination');
+      Log.info('around(item: $item, cursor: $cursor)...', 'Pagination');
 
       try {
         final Page<T, C>? page = await Backoff.run(
           () => provider.around(item, cursor, perPage),
           _cancelToken,
         );
-        Log.print(
+        Log.info(
           'around(item: $item, cursor: $cursor)... \n'
               '\tFetched ${page?.edges.length} items\n'
               '\tstartCursor: ${page?.info.startCursor}\n'
@@ -188,7 +188,7 @@ class Pagination<T, C, K> {
         endCursor = page?.info.endCursor;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.print('around(item: $item, cursor: $cursor)... done', 'Pagination');
+        Log.info('around(item: $item, cursor: $cursor)... done', 'Pagination');
       } catch (e) {
         if (e is! OperationCanceledException) {
           rethrow;
@@ -210,7 +210,7 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.print('next()...', 'Pagination');
+      Log.info('next()...', 'Pagination');
 
       if (hasNext.isTrue && nextLoading.isFalse) {
         nextLoading.value = true;
@@ -221,7 +221,7 @@ class Pagination<T, C, K> {
               () => provider.after(items.last, endCursor, perPage),
               _cancelToken,
             );
-            Log.print(
+            Log.info(
               'next()... fetched ${page?.edges.length} items',
               'Pagination',
             );
@@ -232,7 +232,7 @@ class Pagination<T, C, K> {
 
             endCursor = page?.info.endCursor ?? endCursor;
             hasNext.value = page?.info.hasNext ?? hasNext.value;
-            Log.print('next()... done', 'Pagination');
+            Log.info('next()... done', 'Pagination');
           } catch (e) {
             if (e is! OperationCanceledException) {
               rethrow;
@@ -260,7 +260,7 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.print('previous()...', 'Pagination');
+      Log.info('previous()...', 'Pagination');
 
       if (hasPrevious.isTrue && previousLoading.isFalse) {
         previousLoading.value = true;
@@ -271,7 +271,7 @@ class Pagination<T, C, K> {
               () => provider.before(items.first, startCursor, perPage),
               _cancelToken,
             );
-            Log.print(
+            Log.info(
               'previous()... fetched ${page?.edges.length} items',
               'Pagination',
             );
@@ -282,7 +282,7 @@ class Pagination<T, C, K> {
 
             startCursor = page?.info.startCursor ?? startCursor;
             hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-            Log.print('previous()... done', 'Pagination');
+            Log.info('previous()... done', 'Pagination');
           } catch (e) {
             if (e is! OperationCanceledException) {
               rethrow;
@@ -305,7 +305,7 @@ class Pagination<T, C, K> {
       return;
     }
 
-    // Log.print('put($item)', 'Pagination');
+    // Log.info('put($item)', 'Pagination');
 
     Future<void> put() async {
       items[onKey(item)] = item;

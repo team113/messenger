@@ -1623,7 +1623,7 @@ class ChatController extends GetxController {
   /// Loads previous page of the [RxChat.messages], if [_atTop].
   Future<void> _loadPreviousPage() async {
     if (hasPrevious.isTrue && chat!.previousLoading.isFalse && _atTop) {
-      Log.print('Fetch previous page', 'ChatController');
+      Log.info('Fetch previous page', 'ChatController');
 
       keepPositionOffset.value = 0;
 
