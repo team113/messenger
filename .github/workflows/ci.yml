@@ -900,10 +900,10 @@ jobs:
         with:
           name: debug-appbundle-${{ github.run_number }}
           path: symbols/
-      - uses: actions/download-artifact@v3
-        with:
-          name: debug-ios-${{ github.run_number }}
-          path: symbols/
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: debug-ios-${{ github.run_number }}
+      #     path: symbols/
       - uses: actions/download-artifact@v3
         with:
           name: debug-linux-${{ github.run_number }}

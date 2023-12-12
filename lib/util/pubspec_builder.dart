@@ -69,7 +69,9 @@ class PubspecBuilder implements Builder {
           '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
         );
 
-        buffer.write('  static const String? ref = null;\n');
+        buffer.write(
+          '  static const String? ref = \'0.1.0-alpha.11-preview\';\n',
+        );
       }
     } catch (e) {
       // ignore: avoid_print
