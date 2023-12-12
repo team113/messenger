@@ -867,7 +867,7 @@ class _ChatViewState extends State<ChatView>
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(q.original!.id);
+                      await c.animateTo(e.value, reply: q.original!.id);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -990,14 +990,14 @@ class _ChatViewState extends State<ChatView>
                   onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
                   onDrag: (d) => c.isItemDragged.value = d,
-                  onForwardedTap: (quote) {
-                    if (quote.original != null) {
-                      if (quote.original!.chatId == c.id) {
-                        c.animateTo(quote.original!.id);
+                  onForwardedTap: (item) {
+                    if (item.quote.original != null) {
+                      if (item.quote.original!.chatId == c.id) {
+                        c.animateTo(item, forward: item.quote.original!.id);
                       } else {
                         router.chat(
-                          quote.original!.chatId,
-                          itemId: quote.original!.id,
+                          item.quote.original!.chatId,
+                          itemId: item.quote.original!.id,
                           push: true,
                         );
                       }
@@ -1389,7 +1389,7 @@ class _ChatViewState extends State<ChatView>
           key: const Key('EditField'),
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-          onItemPressed: (id) => c.animateTo(id),
+          onItemPressed: (item) => c.animateTo(item),
         );
       }
 
@@ -1397,7 +1397,7 @@ class _ChatViewState extends State<ChatView>
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-        onItemPressed: (id) => c.animateTo(id),
+        onItemPressed: (item) => c.animateTo(item),
         canForward: true,
       );
     });

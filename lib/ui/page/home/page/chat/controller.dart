@@ -346,6 +346,9 @@ class ChatController extends GetxController {
   /// current frame.
   bool _messagesAreLoading = false;
 
+  /// History of the transitions to return back on the [animateToBottom].
+  final List<ChatItem> _history = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -1079,17 +1082,23 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Animates [listController] to a [ChatItem] identified by the provided [id].
+  /// Animates [listController] to a [ChatItem] identified by the provided
+  /// [reply].
   Future<void> animateTo(
-    ChatItemId id, {
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
     bool offsetBasedOnBottom = true,
+    bool addToHistory = true,
     double offset = 50,
   }) async {
+    ChatItemId animateTo = reply ?? forward ?? item.id;
+
     int index = elements.values.toList().indexWhere((e) {
-      return e.id.id == id ||
+      return e.id.id == animateTo ||
           (e is ChatForwardElement &&
-              (e.forwards.any((e1) => e1.value.id == id) ||
-                  e.note.value?.value.id == id));
+              (e.forwards.any((e1) => e1.value.id == animateTo) ||
+                  e.note.value?.value.id == animateTo));
     });
 
     if (index != -1) {
@@ -1106,13 +1115,81 @@ class ChatController extends GetxController {
       } else {
         initIndex = index;
       }
+
+      if (addToHistory && (reply != null || forward != null)) {
+        _history.add(item);
+        canGoDown.value = true;
+      }
+    } else {
+      listController.sliverController.animateToIndex(
+        elements.length - 1,
+        offsetBasedOnBottom: true,
+        offset: 0,
+        duration: 300.milliseconds,
+        curve: Curves.ease,
+      );
+
+      if (_topLoader == null) {
+        _topLoader = LoaderElement.top();
+        elements[_topLoader!.id] = _topLoader!;
+      }
+
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+        _ignorePositionChanges = true;
+        listController.jumpTo(listController.offset);
+        await listController.sliverController.animateToIndex(
+          elements.length - 1,
+          offsetBasedOnBottom: true,
+          offset: 0,
+          duration: 300.milliseconds,
+          curve: Curves.ease,
+        );
+        _ignorePositionChanges = false;
+      });
+
+      await chat!.loadFragmentAround(item, reply: reply, forward: forward);
+
+      int index = elements.values.toList().indexWhere((e) {
+        return e.id.id == animateTo ||
+            (e is ChatForwardElement &&
+                (e.forwards.any((e1) => e1.value.id == animateTo) ||
+                    e.note.value?.value.id == animateTo));
+      });
+
+      if (index != -1) {
+        if (index == 0) {
+          initIndex = 1;
+          initOffset = 5000;
+        } else {
+          initIndex = index;
+          initOffset = offset;
+        }
+        _highlight(index);
+
+        if (addToHistory && (reply != null || forward != null)) {
+          _history.add(item);
+          canGoDown.value = true;
+        }
+      }
+
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        listController.jumpTo(listController.offset);
+        _ignorePositionChanges = false;
+
+        elements.remove(_topLoader?.id);
+        _topLoader = null;
+      });
     }
   }
 
-  /// Animates [listController] to the last [ChatItem] in the [RxChat.messages]
-  /// list.
+  /// Animates [listController] to the last [_history] if any or the last
+  /// [ChatItem] in the [RxChat.messages] list.
   Future<void> animateToBottom() async {
-    if (chat?.messages.isEmpty == false && listController.hasClients) {
+    if (_history.isNotEmpty) {
+      ChatItem item = _history.removeLast();
+      await animateTo(item, addToHistory: false);
+      _updateFabStates();
+    } else if (chat?.messages.isEmpty == false && listController.hasClients) {
       canGoDown.value = false;
 
       _itemToReturnTo = _topVisibleItem;
@@ -1550,8 +1627,13 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _updateFabStates() {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (listController.position.pixels >
-          MediaQuery.of(router.context!).size.height * 2 + 200) {
+      if (listController.position.pixels == 0 && hasNext.isFalse) {
+        _history.clear();
+      }
+
+      if (_history.isNotEmpty ||
+          listController.position.pixels >
+              MediaQuery.of(router.context!).size.height * 2 + 200) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;
@@ -1679,8 +1761,6 @@ class ChatController extends GetxController {
         _topLoader = LoaderElement.top();
         elements[_topLoader!.id] = _topLoader!;
       }
-
-      elements[_topLoader!.id] = _topLoader!;
 
       await chat!.previous();
 

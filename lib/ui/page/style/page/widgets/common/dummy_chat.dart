@@ -117,4 +117,11 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Future<void> loadFragmentAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {}
 }

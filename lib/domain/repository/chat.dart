@@ -302,6 +302,14 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Fetches the previous [messages] page.
   Future<void> previous();
 
+  /// Loads the [messages] page around the specified [item], [reply] or
+  /// [forward].
+  Future<void> loadFragmentAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  });
+
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///
   /// Intended to be used to update the [StorageFile.relativeRef] links.

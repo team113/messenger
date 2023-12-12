@@ -126,6 +126,9 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
+  /// [Pagination] loading a fragment of [messages] with pagination.
+  Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>? _fragment;
+
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
       _provider;
@@ -186,16 +189,17 @@ class HiveRxChat extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxBool get hasNext => _pagination.hasNext;
+  RxBool get hasNext => _fragment?.hasNext ?? _pagination.hasNext;
 
   @override
-  RxBool get nextLoading => _pagination.nextLoading;
+  RxBool get nextLoading => _fragment?.nextLoading ?? _pagination.nextLoading;
 
   @override
-  RxBool get hasPrevious => _pagination.hasPrevious;
+  RxBool get hasPrevious => _fragment?.hasPrevious ?? _pagination.hasPrevious;
 
   @override
-  RxBool get previousLoading => _pagination.previousLoading;
+  RxBool get previousLoading =>
+      _fragment?.previousLoading ?? _pagination.previousLoading;
 
   @override
   UserCallCover? get callCover {
@@ -365,18 +369,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.success();
     }
 
-    _paginationSubscription = _pagination.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          _add(event.value!.value);
-          break;
-
-        case OperationKind.removed:
-          messages.removeWhere((e) => e.value.id == event.value?.value.id);
-          break;
-      }
-    });
+    _subscribeFor(_pagination);
 
     await _local.init(userId: me);
 
@@ -385,7 +378,7 @@ class HiveRxChat extends RxChat {
       item = await get(chat.value.lastReadItem!);
     }
 
-    await _pagination.init(item);
+    await _pagination.init(item?.value.key);
     if (_pagination.items.isNotEmpty) {
       status.value = RxStatus.success();
     }
@@ -481,7 +474,7 @@ class HiveRxChat extends RxChat {
       item = await get(chat.value.lastReadItem!);
     }
 
-    await _pagination.around(cursor: _lastReadItemCursor, item: item);
+    await _pagination.around(cursor: _lastReadItemCursor, key: item?.value.key);
 
     status.value = RxStatus.success();
 
@@ -496,7 +489,9 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.next();
+    await (_fragment?.next ?? _pagination.next).call();
+    _mergeFragment();
+
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -510,10 +505,122 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.previous();
+    await (_fragment?.previous ?? _pagination.previous).call();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+  }
+
+  @override
+  Future<void> loadFragmentAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {
+    if (id.isLocal) {
+      return;
+    }
+
+    HiveChatItem? hiveItem =
+        _pagination.items[item.key] ?? await _local.get(item.key);
+
+    ChatItemsCursor? cursor;
+    ChatItemKey? key;
+
+    if (reply != null) {
+      if (hiveItem is! HiveChatMessage) {
+        return;
+      }
+
+      ChatMessage message = hiveItem.value as ChatMessage;
+      final int replyIndex =
+          message.repliesTo.indexWhere((e) => e.original?.id == reply);
+      if (replyIndex == -1) {
+        return;
+      }
+
+      cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
+      key = message.repliesTo.elementAt(replyIndex).original?.key;
+    } else if (forward != null) {
+      if (hiveItem is! HiveChatForward) {
+        return;
+      }
+
+      cursor = hiveItem.quoteCursor;
+      key = (hiveItem.value as ChatForward).quote.original?.key;
+    } else {
+      cursor = hiveItem?.cursor;
+      key = hiveItem?.value.key;
+    }
+
+    if (_pagination.items[key] != null) {
+      _fragment?.dispose();
+      _fragment = null;
+
+      messages.clear();
+      for (var e in _pagination.items.values) {
+        _add(e.value);
+      }
+
+      _subscribeFor(_pagination);
+      return;
+    }
+
+    if (cursor == null) {
+      return;
+    }
+
+    _fragment = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      onKey: (e) => e.value.key,
+      provider: HiveGraphQlPageProvider(
+        syncWithHive: _local.keys.contains(key),
+        hiveProvider: _provider.hiveProvider,
+        graphQlProvider: _provider.graphQlProvider,
+      ),
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
+    );
+
+    await _fragment!.around(cursor: cursor, key: key);
+
+    if (_fragment != null) {
+      _subscribeFor(_fragment!);
+
+      messages.clear();
+      _fragment?.items.values.forEach((e) => _add(e.value));
+    }
+  }
+
+  /// Merge the [_fragment] into the [_pagination] if their bounds touch.
+  void _mergeFragment() async {
+    if (_fragment != null && _pagination.merge(_fragment!)) {
+      for (var e in _pagination.items.values) {
+        _add(e.value);
+      }
+
+      _subscribeFor(_pagination);
+
+      _fragment?.dispose();
+      _fragment = null;
+    }
+  }
+
+  /// Subscribes to the the provided [pagination] changes.
+  void _subscribeFor(
+    Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination,
+  ) {
+    _paginationSubscription?.cancel();
+    _paginationSubscription = pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _add(event.value!.value);
+          break;
+
+        case OperationKind.removed:
+          messages.removeWhere((e) => e.value.id == event.value!.value.id);
+          break;
+      }
+    });
   }
 
   @override
@@ -716,6 +823,7 @@ class HiveRxChat extends RxChat {
   Future<void> put(HiveChatItem item) async {
     Log.debug('put($item)', '$runtimeType($id)');
     await _pagination.put(item);
+    await _fragment?.put(item);
   }
 
   @override
@@ -726,6 +834,7 @@ class HiveRxChat extends RxChat {
 
     if (key != null) {
       _pagination.remove(key);
+      _fragment?.remove(key);
 
       final HiveChat? chatEntity = await _chatLocal.get(id);
       if (chatEntity?.value.lastItem?.id == itemId) {
@@ -828,6 +937,7 @@ class HiveRxChat extends RxChat {
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
     await _pagination.clear();
+    await _fragment?.clear();
   }
 
   // TODO: Remove when backend supports welcome messages.
