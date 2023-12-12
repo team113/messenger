@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 
 /// Helper for implementing a "new-type" idiom.
 class NewType<T> {
@@ -52,4 +53,10 @@ extension NewTypeComparable<T extends Comparable> on NewType<T> {
 
   bool operator <=(NewType<T>? other) =>
       other != null && val.compareTo(other.val) <= 0;
+}
+
+/// Adds [NewType]s conversion to [String] with no scientific notation.
+extension NewTypeToExactString<T extends Comparable> on NewType<double> {
+  /// Converts this [NewType] to a [String] with no scientific notation.
+  String toPlainString() => NumberFormat('${'0' * 40}.${'0' * 40}').format(val);
 }

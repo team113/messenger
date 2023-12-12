@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
@@ -770,6 +771,8 @@ class MessageFieldView extends StatelessWidget {
   }) {
     final style = Theme.of(context).style;
 
+    final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
+
     final bool fromMe = item.author.id == c.me;
 
     if (edited) {
@@ -925,7 +928,8 @@ class MessageFieldView extends StatelessWidget {
     }
 
     final Widget expanded = FutureBuilder<RxUser?>(
-      future: c.getUser(item.author.id),
+      future: userOrFuture is RxUser? ? null : userOrFuture,
+      initialData: userOrFuture is RxUser? ? userOrFuture : null,
       builder: (context, snapshot) {
         final Color color = snapshot.data?.user.value.id == c.me
             ? style.colors.primary

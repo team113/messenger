@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Icons tab. ([#730], [#710])
     - Chat page:
         - `Download` and `Save as` context menu options. ([#697], [#654])
+        - Multiple messages selection, forwarding and deletion. ([#735], [#584])
     - Chats tab:
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
@@ -36,6 +37,8 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - User page:
         - Actions moved to more button. ([#736], [#719])
+    - Chats tab:
+        - Redesigned chat tile. ([#748], [#741])
 
 ### Fixed
 
@@ -45,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
+[#584]: /../../issues/584
 [#632]: /../../issues/632
 [#654]: /../../issues/654
 [#666]: /../../issues/666
@@ -60,7 +64,10 @@ All user visible changes to this project will be documented in this file. This p
 [#719]: /../../issues/719
 [#730]: /../../pull/730
 [#732]: /../../pull/732
+[#735]: /../../pull/735
 [#736]: /../../pull/736
+[#741]: /../../issues/741
+[#748]: /../../pull/748
 
 
 

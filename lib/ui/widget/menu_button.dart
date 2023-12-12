@@ -69,7 +69,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.storage => 'label_cache_and_downloads'.l10n,
           ProfileTab.language =>
             L10n.chosen.value?.name ?? 'label_current_language'.l10n,
-          ProfileTab.blocklist => 'label_your_blacklist'.l10n,
+          ProfileTab.blocklist => 'label_your_blocklist'.l10n,
           ProfileTab.download => 'label_application'.l10n,
           ProfileTab.danger => 'label_delete_account'.l10n,
           ProfileTab.logout => 'label_end_session'.l10n,

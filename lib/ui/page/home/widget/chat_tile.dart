@@ -39,7 +39,7 @@ class ChatTile extends StatelessWidget {
     this.actions = const [],
     this.selected = false,
     this.onTap,
-    this.height = 94,
+    this.height = 80,
     this.darken = 0,
     this.dimmed = false,
     Widget Function(Widget)? titleBuilder,
@@ -108,29 +108,29 @@ class ChatTile extends StatelessWidget {
       actions: actions,
       indicateOpenedMenu: true,
       enabled: enableContextMenu,
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: InkWellWithHover(
-            selectedColor: style.colors.primary,
-            unselectedColor: dimmed
-                ? style.colors.onPrimaryOpacity50
-                : style.cardColor.darken(darken),
-            selected: selected,
-            hoveredBorder:
-                selected ? style.cardSelectedBorder : style.cardHoveredBorder,
-            border: selected ? style.cardSelectedBorder : style.cardBorder,
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
-            selectedHoverColor: style.colors.primary,
-            folded: chat?.chat.value.favoritePosition != null,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
+        child: InkWellWithHover(
+          selectedColor: style.colors.primary,
+          unselectedColor: dimmed
+              ? style.colors.onPrimaryOpacity50
+              : style.cardColor.darken(darken),
+          selected: selected,
+          hoveredBorder:
+              selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+          border: selected ? style.cardSelectedBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: onTap,
+          unselectedHoverColor: style.cardHoveredColor,
+          selectedHoverColor: style.colors.primary,
+          folded: chat?.chat.value.favoritePosition != null,
+          child: SizedBox(
+            height: height,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${chat?.chat.value.id}')
                   : null,
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Row(
                 children: [
                   avatarBuilder(

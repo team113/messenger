@@ -120,8 +120,8 @@ class ChatRepository extends DisposableInterface
   /// storage.
   final RecentChatHiveProvider _recentLocal;
 
-  /// [ChatId]s sorted by [PreciseDateTime] representing favorite [Chat]s [Hive]
-  /// storage.
+  /// [ChatId]s sorted by [ChatFavoritePosition] representing favorite [Chat]s
+  /// [Hive] storage.
   final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
@@ -275,11 +275,13 @@ class ChatRepository extends DisposableInterface
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
-    if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
-      await (_localPagination?.next ?? _pagination?.next)?.call();
-
-      _initMonolog();
+    if (_localPagination?.hasNext.value == true) {
+      await _localPagination?.next();
+    } else {
+      await _pagination?.next();
     }
+
+    _initMonolog();
   }
 
   @override
@@ -297,12 +299,12 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<HiveRxChat?> get(ChatId id) async {
+  FutureOr<HiveRxChat?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
     HiveRxChat? chat = chats[id];
     if (chat != null) {
-      return Future.value(chat);
+      return chat;
     }
 
     // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
@@ -405,7 +407,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    HiveRxChat? rxChat = chats[chatId] ?? (await get(chatId));
+    HiveRxChat? rxChat = chats[chatId] ?? await get(chatId);
     ChatItem? local;
 
     if (chatId.isLocal) {
@@ -1125,9 +1127,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> getUser(UserId id) async {
+  FutureOr<RxUser?> getUser(UserId id) {
     Log.debug('getUser($id)', '$runtimeType');
-    return await _userRepo.get(id);
+    return _userRepo.get(id);
   }
 
   @override
@@ -1606,6 +1608,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _subscribedAt = DateTime.now();
@@ -1731,6 +1737,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
@@ -2042,6 +2052,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initFavoriteSubscription()', '$runtimeType');
 
     _favoriteChatsSubscription?.cancel();
@@ -2056,6 +2070,7 @@ class ChatRepository extends DisposableInterface
 
           await _pagination?.clear();
           await _favoriteLocal.clear();
+          await _sessionLocal.setFavoriteChatsSynchronized(false);
 
           await _pagination?.around();
 
@@ -2162,9 +2177,12 @@ class ChatRepository extends DisposableInterface
 
     final ChatId chatId = ChatId.local(responderId);
 
+    final FutureOr<RxUser?> myUser = _userRepo.get(me);
+    final FutureOr<RxUser?> responder = _userRepo.get(responderId);
+
     final List<RxUser?> users = [
-      await _userRepo.get(me),
-      if (responderId != me) await _userRepo.get(responderId)
+      myUser is RxUser? ? myUser : await myUser,
+      if (responderId != me) responder is RxUser? ? responder : await responder,
     ];
 
     final ChatData chatData = ChatData(

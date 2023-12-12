@@ -44,7 +44,7 @@ final StepDefinitionGeneric seeUserInSearchResults =
         switch (category) {
           case SearchCategory.contact:
             final ContactService contactService = Get.find<ContactService>();
-            final ChatContactId id = contactService.contacts.values
+            final ChatContactId id = contactService.paginated.values
                 .firstWhere((e) => e.contact.value.name.val == user.name)
                 .id;
             return context.world.appDriver.isPresent(

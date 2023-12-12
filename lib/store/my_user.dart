@@ -19,9 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -34,19 +32,18 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
-import '/provider/hive/user.dart';
-import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import 'blocklist.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
@@ -56,33 +53,33 @@ class MyUserRepository implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._myUserLocal,
-    this._blocklistLocal,
+    this._blocklistRepo,
     this._userRepo,
   );
 
   @override
   late final Rx<MyUser?> myUser;
 
-  @override
-  final RxList<RxUser> blacklist = RxList<RxUser>();
+  /// Callback that is called when [MyUser] is deleted.
+  late final void Function() onUserDeleted;
 
-  /// GraphQL's Endpoint provider.
+  /// Callback that is called when [MyUser]'s password is changed.
+  late final void Function() onPasswordUpdated;
+
+  /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
-  /// Blacklisted [User]s local [Hive] storage.
-  final BlocklistHiveProvider _blocklistLocal;
+  /// Blocked [User]s repository, used to update it on the appropriate events.
+  final BlocklistRepository _blocklistRepo;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
   final UserRepository _userRepo;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
-
-  /// [BlocklistHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _blocklistSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
@@ -96,14 +93,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onFocusChanged;
 
-  /// [CancelToken] for cancelling the [_fetchBlocklist].
-  final CancelToken _cancelToken = CancelToken();
-
-  /// Callback that is called when [MyUser] is deleted.
-  late final void Function() onUserDeleted;
-
-  /// Callback that is called when [MyUser]'s password is changed.
-  late final void Function() onPasswordUpdated;
+  /// Indicator whether this [MyUserRepository] has been disposed, meaning no
+  /// requests should be made.
+  bool _disposed = false;
 
   @override
   Future<void> init({
@@ -119,7 +111,6 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _initLocalSubscription();
     _initRemoteSubscription();
-    _initBlacklistSubscription();
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -137,43 +128,17 @@ class MyUserRepository implements AbstractMyUserRepository {
         }
       });
     }
-
-    if (!_blocklistLocal.isEmpty) {
-      final List<RxUser?> users =
-          await Future.wait(_blocklistLocal.blocked.map(_userRepo.get));
-      blacklist.addAll(users.whereNotNull());
-    }
-
-    try {
-      final List<HiveUser> blacklisted =
-          await Backoff.run(_fetchBlocklist, _cancelToken);
-
-      for (UserId c in _blocklistLocal.blocked) {
-        if (blacklisted.none((e) => e.value.id == c)) {
-          _blocklistLocal.remove(c);
-        }
-      }
-
-      for (HiveUser c in blacklisted) {
-        _blocklistLocal.put(c.value.id);
-      }
-    } catch (e) {
-      if (e is! OperationCanceledException) {
-        rethrow;
-      }
-    }
   }
 
   @override
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
+    _disposed = true;
     _localSubscription?.cancel();
-    _blocklistSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
     _onFocusChanged?.cancel();
-    _cancelToken.cancel();
   }
 
   @override
@@ -601,19 +566,6 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  // TODO: Blocklist can be huge, so we should implement pagination and
-  //       loading on demand.
-  /// Fetches __all__ blacklisted [User]s from the remote.
-  Future<List<HiveUser>> _fetchBlocklist() async {
-    Log.debug('_fetchBlocklist()', '$runtimeType');
-
-    final query = await _graphQlProvider.getBlocklist(first: 120);
-    final users = query.edges.map((e) => e.node.user.toHive()).toList();
-    users.forEach(_userRepo.put);
-
-    return users;
-  }
-
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
@@ -634,36 +586,32 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
-  Future<void> _initBlacklistSubscription() async {
-    Log.debug('_initBlacklistSubscription()', '$runtimeType');
-
-    _blocklistSubscription = StreamIterator(_blocklistLocal.boxEvents);
-    while (await _blocklistSubscription!.moveNext()) {
-      final BoxEvent event = _blocklistSubscription!.current;
-      if (event.deleted) {
-        blacklist.removeWhere((e) => e.user.value.id.val == event.key);
-      } else {
-        final RxUser? user =
-            blacklist.firstWhereOrNull((e) => e.user.value.id.val == event.key);
-        if (user == null) {
-          final RxUser? user = await _userRepo.get(UserId(event.key));
-          if (user != null) {
-            blacklist.add(user);
-          }
-        }
-      }
-    }
-  }
-
   /// Initializes [_myUserRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (_disposed) {
+      return;
+    }
+
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _remoteSubscription?.close(immediate: true);
-    _remoteSubscription =
-        StreamQueue(_myUserRemoteEvents(() => _myUserLocal.myUser?.ver));
-    await _remoteSubscription!.execute(_myUserRemoteEvent);
+    _remoteSubscription = StreamQueue(
+      _myUserRemoteEvents(() {
+        // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
+        // is `null`, to retrieve it.
+        if (_myUserLocal.myUser?.value.blocklistCount == null) {
+          return null;
+        }
+
+        return _myUserLocal.myUser?.ver;
+      }),
+    );
+
+    await _remoteSubscription!.execute(_myUserRemoteEvent, onError: (e) async {
+      if (e is StaleVersionException) {
+        await _blocklistRepo.reset();
+      }
+    });
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
@@ -685,14 +633,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
-    if (user.ver > _myUserLocal.myUser?.ver || ignoreVersion) {
+    // Update the stored [MyUser], if the provided [user] has non-`null`
+    // blocklist count, which is different from the stored one.
+    final bool blocklist = user.value.blocklistCount != null &&
+        user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
+
+    if (user.ver > _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
+      user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
       _myUserLocal.set(user);
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    var userEntity = _myUserLocal.myUser;
+    final HiveMyUser? userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
       Log.debug(
@@ -708,14 +662,22 @@ class MyUserRepository implements AbstractMyUserRepository {
       '$runtimeType',
     );
 
-    for (var event in versioned.events) {
+    for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        _userRepo.get(event.userId).then((user) {
-          if (user != null) {
-            _userRepo.update(convertor(user.user.value));
+        final FutureOr<RxUser?> userOrFuture = _userRepo.get(event.userId);
+
+        if (userOrFuture is RxUser?) {
+          if (userOrFuture != null) {
+            _userRepo.update(convertor(userOrFuture.user.value));
           }
-        });
+        } else {
+          userOrFuture.then((user) {
+            if (user != null) {
+              _userRepo.update(convertor(user.user.value));
+            }
+          });
+        }
       }
 
       switch (event.kind) {
@@ -880,12 +842,20 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.blocklistRecordAdded:
           event as EventBlocklistRecordAdded;
-          _blocklistLocal.put(event.user.value.id);
+          if (userEntity.value.blocklistCount != null) {
+            userEntity.value.blocklistCount =
+                userEntity.value.blocklistCount! + 1;
+          }
+          _blocklistRepo.put(event.user);
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:
           event as EventBlocklistRecordRemoved;
-          _blocklistLocal.remove(event.user.value.id);
+          if (userEntity.value.blocklistCount != null) {
+            userEntity.value.blocklistCount =
+                max(userEntity.value.blocklistCount! - 1, 0);
+          }
+          _blocklistRepo.remove(event.user.value.id);
           break;
       }
     }
@@ -919,7 +889,9 @@ class MyUserRepository implements AbstractMyUserRepository {
           '$runtimeType',
         );
 
-        _setMyUser((events as MyUserMixin).toHive());
+        events as MyUserEvents$Subscription$MyUserEvents$MyUser;
+
+        _setMyUser(events.toHive());
       } else if (events.$$typename == 'MyUserEventsVersioned') {
         var mixin = events as MyUserEventsVersionedMixin;
         yield MyUserEventsVersioned(

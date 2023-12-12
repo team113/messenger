@@ -314,7 +314,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) async => _userService?.get(id);
+  FutureOr<RxUser?> getUser(UserId id) async => _userService?.get(id);
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].

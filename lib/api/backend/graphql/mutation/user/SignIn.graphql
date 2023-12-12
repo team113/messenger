@@ -35,7 +35,7 @@ mutation SignIn(
         ... on CreateSessionOk {
             user {
                 __typename
-                ...MyUser
+                id
             }
             session {
                 expireAt

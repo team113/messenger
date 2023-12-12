@@ -26,7 +26,6 @@ import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
-import '/domain/repository/user.dart';
 import '/util/log.dart';
 import '/routes.dart';
 import 'auth.dart';
@@ -48,9 +47,6 @@ class MyUserService extends DisposableService {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
-
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _userRepo.blacklist;
 
   @override
   void onInit() {

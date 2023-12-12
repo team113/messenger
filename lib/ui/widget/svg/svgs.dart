@@ -1452,6 +1452,12 @@ class SvgIcons {
     height: 22,
   );
 
+  static const SvgData deleteBigDisabled = SvgData(
+    'assets/icons/delete_big_disabled.svg',
+    width: 23.01,
+    height: 22,
+  );
+
   static const SvgData callCameraFront = SvgData(
     'assets/icons/camera_front.svg',
     width: 27.57,
@@ -1462,6 +1468,24 @@ class SvgIcons {
     'assets/icons/camera_back.svg',
     width: 27.57,
     height: 23.8,
+  );
+
+  static const SvgData activeCallStart = SvgData(
+    'assets/icons/active_call_start.svg',
+    width: 8,
+    height: 8,
+  );
+
+  static const SvgData activeCallEnd = SvgData(
+    'assets/icons/active_call_end.svg',
+    width: 9.59,
+    height: 4.21,
+  );
+
+  static const SvgData clearSearch = SvgData(
+    'assets/icons/clear_search.svg',
+    width: 21.8,
+    height: 16.8,
   );
 
   static const SvgData deleteGallery = SvgData(

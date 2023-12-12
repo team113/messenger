@@ -104,6 +104,7 @@ class Themes {
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
+      almostTransparent: const Color(0x01000000),
       accept: const Color(0x7F34B139),
       acceptAuxiliary: const Color(0xFF4CAF50),
       acceptLight: const Color(0xFFBFE3B9),
@@ -677,6 +678,7 @@ class Palette {
     Color? onBackgroundOpacity50,
     Color? onBackgroundOpacity70,
     required this.transparent,
+    required this.almostTransparent,
     required this.accept,
     required this.acceptAuxiliary,
     required this.acceptLight,
@@ -937,6 +939,9 @@ class Palette {
   /// brightness.
   final Color transparent;
 
+  /// Almost transparent [Color].
+  final Color almostTransparent;
+
   /// Indicator of an affirmative color of confirmable elements.
   final Color accept;
 
@@ -1057,6 +1062,8 @@ class Palette {
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
+      almostTransparent:
+          Color.lerp(color.almostTransparent, other.almostTransparent, t)!,
       accept: Color.lerp(color.accept, other.accept, t)!,
       acceptAuxiliary:
           Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,

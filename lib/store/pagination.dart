@@ -94,6 +94,9 @@ class Pagination<T, C, K> {
   /// Returns a [Stream] of changes of the [items].
   Stream<MapChangeNotification<K, T>> get changes => items.changes;
 
+  /// Indicator whether this [Pagination] is empty.
+  bool get isEmpty => items.isEmpty && hasNext.isTrue && hasPrevious.isTrue;
+
   /// Disposes this [Pagination].
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
@@ -121,6 +124,10 @@ class Pagination<T, C, K> {
     }
 
     return _guard.protect(() async {
+      if (!isEmpty) {
+        return;
+      }
+
       try {
         final Page<T, C>? page =
             await Backoff.run(() => provider.init(item, perPage), _cancelToken);
@@ -162,7 +169,7 @@ class Pagination<T, C, K> {
     final bool locked = _guard.isLocked;
 
     return _guard.protect(() async {
-      if (locked || _disposed) {
+      if ((locked && !isEmpty) || _disposed) {
         return;
       }
 
@@ -313,35 +320,29 @@ class Pagination<T, C, K> {
 
     Log.debug('put($item)', '$runtimeType');
 
-    Future<void> put() async {
-      items[onKey(item)] = item;
-      await provider.put(item);
-    }
-
     // Bypasses the bounds check.
     //
     // Intended to be used to forcefully add items, e.g. when items are
     // migrating from one source to another.
-    if (ignoreBounds) {
-      await put();
-      return;
+    bool put = ignoreBounds;
+
+    if (!put) {
+      if (items.isEmpty) {
+        put = hasNext.isFalse && hasPrevious.isFalse;
+      } else if (compare?.call(item, items.last) == 1) {
+        put = hasNext.isFalse;
+      } else if (compare?.call(item, items.first) == -1) {
+        put = hasPrevious.isFalse;
+      } else {
+        put = true;
+      }
     }
 
-    if (items.isEmpty) {
-      if (hasNext.isFalse && hasPrevious.isFalse) {
-        await put();
-      }
-    } else if (compare?.call(item, items.last) == 1) {
-      if (hasNext.isFalse) {
-        await put();
-      }
-    } else if (compare?.call(item, items.first) == -1) {
-      if (hasPrevious.isFalse) {
-        await put();
-      }
-    } else {
-      await put();
+    if (put) {
+      items[onKey(item)] = item;
     }
+
+    await provider.put(item, compare: put ? null : compare);
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
@@ -408,7 +409,7 @@ abstract class PageProvider<T, C, K> {
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count);
 
   /// Adds the provided [item] to this [PageProvider].
-  Future<void> put(T item);
+  Future<void> put(T item, {int Function(T, T)? compare});
 
   /// Removes the item specified by its [key] from this [PageProvider].
   Future<void> remove(K key);

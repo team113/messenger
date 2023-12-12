@@ -87,15 +87,15 @@ class UserController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// [TextFieldState] for blacklisting reason.
+  /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
-  /// Status of a [blacklist] progression.
+  /// Status of a [block] progression.
   ///
   /// May be:
-  /// - `status.isLoading`, meaning [blacklist] is executing.
-  /// - `status.isEmpty`, meaning no [blacklist] is executing.
-  final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
+  /// - `status.isLoading`, meaning [block] is executing.
+  /// - `status.isEmpty`, meaning no [block] is executing.
+  final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -109,7 +109,7 @@ class UserController extends GetxController {
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
 
-  /// [StreamSubscription] to [ContactService.contacts] determining the
+  /// [StreamSubscription] to [ContactService.paginated] determining the
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
@@ -117,7 +117,7 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
-  /// Indicates whether this [user] is blacklisted.
+  /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
   /// Returns [MyUser]'s [UserId].
@@ -127,53 +127,36 @@ class UserController extends GetxController {
   void onInit() {
     _fetchUser();
 
-    inContacts = RxBool(
-      _contactService.contacts.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
-          _contactService.favorites.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)),
+    // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
+    final RxChatContact? contact =
+        _contactService.paginated.values.firstWhereOrNull(
+      (e) => e.contact.value.users.every((m) => m.id == id),
     );
 
-    inFavorites = RxBool(
-      _contactService.favorites.values
-          .any((e) => e.contact.value.users.every((m) => m.id == id)),
-    );
+    inContacts = RxBool(contact != null);
+    inFavorites = RxBool(contact?.contact.value.favoritePosition != null);
 
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
+    _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
         case OperationKind.updated:
           if (e.value!.contact.value.users.isNotEmpty &&
               e.value!.contact.value.users.every((e) => e.id == id)) {
             inContacts.value = true;
+
+            if (e.value!.contact.value.favoritePosition != null) {
+              inFavorites.value = true;
+            } else {
+              inFavorites.value = false;
+            }
           }
           break;
 
         case OperationKind.removed:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inContacts.value = false;
-          }
-          break;
-      }
-    });
-
-    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            inFavorites.value = true;
-            inContacts.value = true;
-          }
-          break;
-
-        case OperationKind.removed:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inFavorites.value = false;
           }
-          break;
-
-        case OperationKind.updated:
-          // No-op.
           break;
       }
     });
@@ -211,12 +194,9 @@ class UserController extends GetxController {
       status.value = RxStatus.loadingMore();
       try {
         final RxChatContact? contact =
-            _contactService.contacts.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                ) ??
-                _contactService.favorites.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                );
+            _contactService.paginated.values.firstWhereOrNull(
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
         if (contact != null) {
           await _contactService.deleteContact(contact.contact.value.id);
         }
@@ -248,9 +228,9 @@ class UserController extends GetxController {
     }
   }
 
-  /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> blacklist() async {
-    blacklistStatus.value = RxStatus.loading();
+  /// Blocks the [user] for the authenticated [MyUser].
+  Future<void> block() async {
+    blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.blockUser(
         id,
@@ -258,24 +238,25 @@ class UserController extends GetxController {
       );
       reason.clear();
     } finally {
-      blacklistStatus.value = RxStatus.empty();
+      blocklistStatus.value = RxStatus.empty();
     }
   }
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist() async {
-    blacklistStatus.value = RxStatus.loading();
+  /// Removes the [user] from the blocklist of the authenticated [MyUser].
+  Future<void> unblock() async {
+    blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.unblockUser(id);
     } finally {
-      blacklistStatus.value = RxStatus.empty();
+      blocklistStatus.value = RxStatus.empty();
     }
   }
 
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      RxChatContact? contact = _contactService.contacts.values.firstWhereOrNull(
+      final RxChatContact? contact =
+          _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
       if (contact != null) {
@@ -292,8 +273,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      RxChatContact? contact =
-          _contactService.favorites.values.firstWhereOrNull(
+      final RxChatContact? contact =
+          _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
       if (contact != null) {
@@ -374,7 +355,8 @@ class UserController extends GetxController {
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
-      user = await _userService.get(id);
+      final FutureOr<RxUser?> fetched = _userService.get(id);
+      user = fetched is RxUser? ? fetched : await fetched;
       user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
