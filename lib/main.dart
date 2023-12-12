@@ -115,8 +115,6 @@ Future<void> main() async {
 
     WebUtils.deleteLoader();
 
-    Future.delayed(5.seconds, () => throw Exception('Planned'));
-
     runApp(
       DefaultAssetBundle(
         key: UniqueKey(),

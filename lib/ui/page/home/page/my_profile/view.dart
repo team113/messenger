@@ -28,12 +28,11 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-// import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
-// import '/ui/page/home/tab/menu/status/view.dart';
+import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -575,9 +574,7 @@ Widget _presence(BuildContext context, MyProfileController c) {
 
     return Paddings.basic(
       FieldButton(
-        // onPressed: () => StatusView.show(context, expanded: false),
-        // onPressed: () => throw Exception('Planned'),
-        onPressed: () => throw Exception('Planned'),
+        onPressed: () => StatusView.show(context, expanded: false),
         hint: 'label_presence'.l10n,
         text: presence?.localizedString(),
         trailing:
