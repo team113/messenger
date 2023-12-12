@@ -399,6 +399,7 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
     _pagination.dispose();
+    _fragment?.dispose();
     _messagesSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
@@ -1170,6 +1171,7 @@ class HiveRxChat extends RxChat {
 
       stored.value = item;
       _pagination.put(stored);
+      _fragment?.put(stored);
     }
   }
 
@@ -1191,6 +1193,13 @@ class HiveRxChat extends RxChat {
         _chatEvent,
         onError: (e) async {
           if (e is StaleVersionException) {
+            _subscribeFor(_pagination);
+
+            _fragment?.dispose();
+            _fragment = null;
+
+            messages.clear();
+
             await _pagination.clear();
             await _pagination.around(cursor: _lastReadItemCursor);
           }
@@ -1263,6 +1272,7 @@ class HiveRxChat extends RxChat {
               chatEntity.lastReadItemCursor = null;
               _lastReadItemCursor = null;
               await _pagination.clear();
+              await _fragment?.clear();
               break;
 
             case ChatEventKind.itemHidden:
@@ -1311,7 +1321,12 @@ class HiveRxChat extends RxChat {
                 message.text =
                     event.text != null ? event.text!.newText : message.text;
                 message.attachments = event.attachments ?? message.attachments;
-                message.repliesTo = event.quotes ?? message.repliesTo;
+                message.repliesTo =
+                    event.quotes?.map((e) => e.value).toList() ??
+                        message.repliesTo;
+                (item as HiveChatMessage).repliesToCursors =
+                    event.quotes?.map((e) => e.cursor).toList() ??
+                        item.repliesToCursors;
                 put(item);
               }
 
@@ -1320,7 +1335,9 @@ class HiveRxChat extends RxChat {
                 message.text =
                     event.text != null ? event.text!.newText : message.text;
                 message.attachments = event.attachments ?? message.attachments;
-                message.repliesTo = event.quotes ?? message.repliesTo;
+                message.repliesTo =
+                    event.quotes?.map((e) => e.value).toList() ??
+                        message.repliesTo;
               }
               break;
 

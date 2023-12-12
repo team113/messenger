@@ -1315,7 +1315,7 @@ class ChatRepository extends DisposableInterface
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
-        node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
+        node.repliesTo?.changed.map((e) => e.toHive()).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
@@ -1764,7 +1764,7 @@ class ChatRepository extends DisposableInterface
           getCursor: (e) => e?.favoriteCursor,
           getKey: (e) => e.value.id,
           orderBy: (_) => _favoriteLocal.values,
-          isLast: (_) => true,
+          isLast: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           isFirst: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,

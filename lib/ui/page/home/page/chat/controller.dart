@@ -1079,7 +1079,7 @@ class ChatController extends GetxController {
   }
 
   /// Animates [listController] to a [ChatItem] identified by the provided
-  /// [reply].
+  /// [item], [reply] or [forward].
   Future<void> animateTo(
     ChatItem item, {
     ChatItemId? reply,
