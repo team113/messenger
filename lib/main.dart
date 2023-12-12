@@ -143,7 +143,7 @@ Future<void> main() async {
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty || kDebugMode) {
+  if (Config.sentryDsn.isEmpty || (kDebugMode && !kProfileMode)) {
     return appRunner();
   }
 
