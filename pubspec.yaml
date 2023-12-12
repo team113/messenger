@@ -200,7 +200,7 @@ flutter:
       fonts:
         - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Gapopa-Regular.ttf
           weight: 400
     - family: RobotoGapopa
       fonts:

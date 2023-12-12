@@ -1557,11 +1557,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 }
 
                 return Tooltip(
-                  message: user?.name?.val ?? user?.num.toString(),
-                  // decoration: BoxDecoration(
-                  //   border: style.systemMessageBorder,
-                  //   color: style.systemMessageColor,
-                  // ),
+                  message: user?.name?.val ?? user?.num.toString() ?? '...',
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
                     color: style.colors.secondaryOpacity40,

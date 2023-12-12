@@ -1389,6 +1389,18 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData gapopaCoin = SvgData(
+    'assets/icons/gapopa_coin.svg',
+    width: 15.44,
+    height: 21,
+  );
+
+  static const SvgData gapopaCoinWhite = SvgData(
+    'assets/icons/gapopa_coin_white.svg',
+    width: 15.44,
+    height: 21,
+  );
+
   static const SvgData makeAudioCall = SvgData(
     'assets/icons/make_audio_call.svg',
     width: 18,

@@ -374,9 +374,10 @@ class ChatsTabView extends StatelessWidget {
                                           ? 'label_hide_incoming_prices'.l10n
                                           : 'label_show_incoming_prices'.l10n,
                                       onPressed: c.withPrices.toggle,
-                                      trailing: const SvgIcon(SvgIcons.coin),
-                                      inverted:
-                                          const SvgIcon(SvgIcons.coinWhite),
+                                      trailing:
+                                          const SvgIcon(SvgIcons.gapopaCoin),
+                                      inverted: const SvgIcon(
+                                          SvgIcons.gapopaCoinWhite),
                                     ),
                                     ContextMenuButton(
                                       key: const Key('SelectChatButton'),

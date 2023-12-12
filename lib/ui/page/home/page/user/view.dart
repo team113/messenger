@@ -573,8 +573,8 @@ class UserView extends StatelessWidget {
                     mode: GetPaidMode.user,
                     user: c.user,
                   ),
-                  trailing: const SvgIcon(SvgIcons.coin),
-                  inverted: const SvgIcon(SvgIcons.coinWhite),
+                  trailing: const SvgIcon(SvgIcons.gapopaCoin),
+                  inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
                 ),
                 ContextMenuButton(
                   label: contact
@@ -631,33 +631,33 @@ class UserView extends StatelessWidget {
                     trailing: const SvgIcon(SvgIcons.cleanHistory),
                     inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                   ),
-                  ContextMenuButton(
-                    label: 'btn_delete_chat'.l10n,
-                    onPressed: () => _hideChat(c, context),
-                    trailing: const SvgIcon(SvgIcons.cleanHistory),
-                    inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
-                  ),
+                  // ContextMenuButton(
+                  //   label: 'btn_delete_chat'.l10n,
+                  //   onPressed: () => _hideChat(c, context),
+                  //   trailing: const SvgIcon(SvgIcons.delete19),
+                  //   inverted: const SvgIcon(SvgIcons.delete19White),
+                  // ),
                 ],
-                ContextMenuButton(
-                  label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                  trailing: Obx(() {
-                    final Widget child;
-                    if (c.blacklistStatus.value.isEmpty) {
-                      child = const SvgIcon(SvgIcons.block);
-                    } else {
-                      child = const CustomProgressIndicator();
-                    }
+                // ContextMenuButton(
+                //   label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+                //   trailing: Obx(() {
+                //     final Widget child;
+                //     if (c.blacklistStatus.value.isEmpty) {
+                //       child = const SvgIcon(SvgIcons.block);
+                //     } else {
+                //       child = const CustomProgressIndicator();
+                //     }
 
-                    return SafeAnimatedSwitcher(
-                      duration: 200.milliseconds,
-                      child: child,
-                    );
-                  }),
-                  inverted: const SvgIcon(SvgIcons.blockWhite),
-                  onPressed: blocked
-                      ? c.unblacklist
-                      : () => _blacklistUser(c, context),
-                ),
+                //     return SafeAnimatedSwitcher(
+                //       duration: 200.milliseconds,
+                //       child: child,
+                //     );
+                //   }),
+                //   inverted: const SvgIcon(SvgIcons.blockWhite),
+                //   onPressed: blocked
+                //       ? c.unblacklist
+                //       : () => _blacklistUser(c, context),
+                // ),
                 // ContextMenuButton(
                 //   onPressed: () {},
                 //   label: 'btn_report'.l10n,
@@ -765,11 +765,45 @@ class UserView extends StatelessWidget {
         //     }),
         //   );
         // }),
+
         ActionButton(
           text: 'btn_report'.l10n,
           onPressed: c.report,
           trailing: const SvgIcon(SvgIcons.report16),
         ),
+        Obx(() {
+          final bool blocked = c.isBlocked != null;
+
+          return ActionButton(
+            text: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+            onPressed:
+                blocked ? c.unblacklist : () => _blacklistUser(c, context),
+            trailing: Obx(() {
+              final Widget child;
+              if (c.blacklistStatus.value.isEmpty) {
+                child = const SvgIcon(SvgIcons.block16);
+              } else {
+                child = const CustomProgressIndicator();
+              }
+
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
+            }),
+          );
+        }),
+        Obx(() {
+          if (c.user?.dialog.value?.id.isLocal != false) {
+            return const SizedBox();
+          }
+
+          return ActionButton(
+            text: 'btn_delete_chat'.l10n,
+            onPressed: () => _hideChat(c, context),
+            trailing: const SvgIcon(SvgIcons.delete),
+          );
+        }),
       ],
     );
   }
@@ -861,8 +895,12 @@ class UserView extends StatelessWidget {
                 style: style.fonts.medium.regular.onBackground,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
-                hint: '0', prefixText: '    ',
-                prefixStyle: TextStyle(fontSize: 12),
+                hint: '0',
+                // prefixText: '    ',
+                prefixText: '¤',
+                prefixStyle: style.fonts.medium.regular.onBackground,
+
+                // prefixStyle: TextStyle(fontSize: 12),
                 // prefixText: 'G',
                 // prefixStyle: style.fonts.medium.regular.onBackground,
                 // prefix: Padding(
@@ -878,15 +916,14 @@ class UserView extends StatelessWidget {
                 // ),
                 label: 'Входящие сообщения, за 1 сообщение',
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
-                child: Text(
-                  'G',
-                  style: style.fonts.medium.regular.onBackground.copyWith(
-                    fontFamily: 'RobotoGapopa',
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
+              //   child: Text(
+              //     // 'G',
+              //     '¤',
+              //     style: style.fonts.medium.regular.onBackground,
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -899,8 +936,10 @@ class UserView extends StatelessWidget {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
                 hint: '0',
-                prefixText: '    ',
-                prefixStyle: TextStyle(fontSize: 12),
+                // prefixText: '    ',
+                // prefixStyle: TextStyle(fontSize: 12),
+                prefixText: '¤',
+                prefixStyle: style.fonts.medium.regular.onBackground,
                 // prefix: Padding(
                 //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
                 //   child: Transform.translate(
@@ -914,15 +953,15 @@ class UserView extends StatelessWidget {
                 // ),
                 label: 'Входящие звонки, за 1 минуту',
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
-                child: Text(
-                  '¤',
-                  style: style.fonts.medium.regular.onBackground.copyWith(
-                    fontFamily: 'RobotoGapopa',
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
+              //   child: Text(
+              //     '¤',
+              //     style: style.fonts.medium.regular.onBackground.copyWith(
+              //       fontFamily: 'RobotoGapopa',
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

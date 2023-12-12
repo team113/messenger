@@ -366,7 +366,6 @@ class ChatInfoView extends StatelessWidget {
         //     text: 'btn_block'.l10n,
         //     trailing: const SvgIcon(SvgIcons.block16),
         //   ),
-
         ActionButton(
           onPressed: c.report,
           text: 'btn_report'.l10n,
@@ -375,7 +374,19 @@ class ChatInfoView extends StatelessWidget {
             child: const SvgIcon(SvgIcons.report16),
           ),
         ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          onPressed: () => _hideChat(c, context),
+          text: 'btn_delete_chat'.l10n,
+          trailing: const SvgIcon(SvgIcons.delete),
+        ),
+
         if (!c.isMonolog) ...[
+          // ActionButton(
+          //   onPressed: () => _blacklistChat(c, context),
+          //   text: 'btn_block'.l10n,
+          //   trailing: const SvgIcon(SvgIcons.block16),
+          // ),
           ActionButton(
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
@@ -503,8 +514,8 @@ class ChatInfoView extends StatelessWidget {
                           (e) => e.id != c.me,
                         ),
                       ),
-                      trailing: const SvgIcon(SvgIcons.coin),
-                      inverted: const SvgIcon(SvgIcons.coinWhite),
+                      trailing: const SvgIcon(SvgIcons.gapopaCoin),
+                      inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
                     ),
                     ContextMenuButton(
                       label: contact
@@ -563,26 +574,26 @@ class ChatInfoView extends StatelessWidget {
                     inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                     onPressed: () => _clearChat(c, context),
                   ),
-                  if (!c.isMonolog)
-                    ContextMenuButton(
-                      onPressed: () => _leaveGroup(c, context),
-                      label: 'btn_leave_group'.l10n,
-                      trailing: const SvgIcon(SvgIcons.leaveGroup),
-                      inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
-                    ),
-                  ContextMenuButton(
-                    label: 'btn_delete_chat'.l10n,
-                    trailing: const SvgIcon(SvgIcons.delete19),
-                    inverted: const SvgIcon(SvgIcons.delete19White),
-                    onPressed: () => _hideChat(c, context),
-                  ),
+                  // if (!c.isMonolog)
+                  //   ContextMenuButton(
+                  //     onPressed: () => _leaveGroup(c, context),
+                  //     label: 'btn_leave_group'.l10n,
+                  //     trailing: const SvgIcon(SvgIcons.leaveGroup),
+                  //     inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
+                  //   ),
+                  // ContextMenuButton(
+                  //   label: 'btn_delete_chat'.l10n,
+                  //   trailing: const SvgIcon(SvgIcons.delete19),
+                  //   inverted: const SvgIcon(SvgIcons.delete19White),
+                  //   onPressed: () => _hideChat(c, context),
+                  // ),
                   if (!c.isMonolog) ...[
-                    ContextMenuButton(
-                      label: 'btn_block'.l10n,
-                      trailing: const SvgIcon(SvgIcons.block),
-                      inverted: const SvgIcon(SvgIcons.blockWhite),
-                      onPressed: () {},
-                    ),
+                    // ContextMenuButton(
+                    //   label: 'btn_block'.l10n,
+                    //   trailing: const SvgIcon(SvgIcons.block),
+                    //   inverted: const SvgIcon(SvgIcons.blockWhite),
+                    //   onPressed: () {},
+                    // ),
                     // ContextMenuButton(
                     //   onPressed: () {},
                     //   label: 'btn_report'.l10n,

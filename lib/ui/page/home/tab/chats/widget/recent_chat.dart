@@ -237,20 +237,58 @@ class RecentChatTile extends StatelessWidget {
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(width: 6),
-                    const Text('Total: \$123'),
-                    const Spacer(),
-                    SvgIcon(
-                      inverted ? SvgIcons.callsTinyWhite : SvgIcons.callsTiny,
+                    // const SizedBox(width: 6),
+                    // const Text('Total: ¤123'),
+
+                    // SvgIcon(
+                    //   inverted ? SvgIcons.callsTinyWhite : SvgIcons.callsTiny,
+                    // ),
+                    // const SizedBox(width: 3),
+                    // Text('Звонок: ¤123/мин'),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Звонок: ',
+                            style: inverted
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.secondary,
+                          ),
+                          TextSpan(
+                            text: '¤123/мин',
+                            style: inverted
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.primary,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 2),
-                    const Text('123\$'),
-                    const SizedBox(width: 8),
-                    SvgIcon(
-                      inverted ? SvgIcons.chatsTinyWhite : SvgIcons.chatsTiny,
+                    Spacer(),
+                    SizedBox(width: 12),
+                    // SvgIcon(
+                    //   inverted ? SvgIcons.chatsTinyWhite : SvgIcons.chatsTiny,
+                    // ),
+                    // const SizedBox(width: 3),
+                    // Text('Сообщение: ¤123'),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Сообщение: ',
+                            style: inverted
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.secondary,
+                          ),
+                          TextSpan(
+                            text: '¤123',
+                            style: inverted
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.primary,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 2),
-                    const Text('123\$'),
+
                     // const SizedBox(width: 5),
                   ],
                 )
@@ -338,8 +376,8 @@ class RecentChatTile extends StatelessWidget {
                   mode: GetPaidMode.user,
                   user: rxChat.members.values.firstWhere((e) => e.id != me),
                 ),
-                trailing: const SvgIcon(SvgIcons.coin),
-                inverted: const SvgIcon(SvgIcons.coinWhite),
+                trailing: const SvgIcon(SvgIcons.gapopaCoin),
+                inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
               ),
               if (inContacts != null) ...[
                 if (inContacts?.call() == true)

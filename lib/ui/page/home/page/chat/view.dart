@@ -436,10 +436,10 @@ class _ChatViewState extends State<ChatView>
                                                 (e) => e.id != c.me,
                                               ),
                                             ),
-                                            trailing:
-                                                const SvgIcon(SvgIcons.coin),
+                                            trailing: const SvgIcon(
+                                                SvgIcons.gapopaCoin),
                                             inverted: const SvgIcon(
-                                                SvgIcons.coinWhite),
+                                                SvgIcons.gapopaCoinWhite),
                                           ),
                                           ContextMenuButton(
                                             label: contact
@@ -533,15 +533,16 @@ class _ChatViewState extends State<ChatView>
                                           onPressed: () {},
                                         ),
                                         if (!monolog) ...[
-                                          ContextMenuButton(
-                                            label: 'btn_block'.l10n,
-                                            trailing:
-                                                const SvgIcon(SvgIcons.block),
-                                            inverted: const SvgIcon(
-                                              SvgIcons.blockWhite,
+                                          if (dialog)
+                                            ContextMenuButton(
+                                              label: 'btn_block'.l10n,
+                                              trailing:
+                                                  const SvgIcon(SvgIcons.block),
+                                              inverted: const SvgIcon(
+                                                SvgIcons.blockWhite,
+                                              ),
+                                              onPressed: () {},
                                             ),
-                                            onPressed: () {},
-                                          ),
                                           // ContextMenuButton(
                                           //   onPressed: () {},
                                           //   label: 'btn_report'.l10n,
