@@ -585,6 +585,7 @@ label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
 label_background = Бэкграунд
 label_block = Заблокировать
+label_blocked = Заблокирован
 label_blocked_users = Заблокированные пользователи
 label_cache = Кэш
 label_cache_and_downloads = Кэш и загрузки
@@ -719,7 +720,6 @@ label_group_created_by2 = {" "}создал(а) группу
 label_hello = Привет!
 label_hello_reply = Оу, привет :)
 label_hidden = Был(а) недавно
-label_hide_chat = Скрыть чат
 label_hint_drag_n_drop_buttons =
     Элементы панели управления могут быть добавлены и удалены простым перетаскиванием.
 label_hint_drag_n_drop_video =

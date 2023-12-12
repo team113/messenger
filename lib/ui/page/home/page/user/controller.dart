@@ -355,7 +355,8 @@ class UserController extends GetxController {
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
-      user = await _userService.get(id);
+      final FutureOr<RxUser?> fetched = _userService.get(id);
+      user = fetched is RxUser? ? fetched : await fetched;
       user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {

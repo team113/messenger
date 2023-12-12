@@ -589,7 +589,15 @@ class CallController extends GetxController {
 
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(_updateChat),
+      (ChatId id) {
+        final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
+
+        if (chatOrFuture is RxChat?) {
+          _updateChat(chatOrFuture);
+        } else {
+          chatOrFuture.then(_updateChat);
+        }
+      },
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -1210,7 +1218,7 @@ class CallController extends GetxController {
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {
@@ -1900,9 +1908,14 @@ class CallController extends GetxController {
         audio: track?.kind == MediaKind.audio ? track : null,
       );
 
-      _userService
-          .get(member.id.userId)
-          .then((u) => participant.user.value = u ?? participant.user.value);
+      final FutureOr<RxUser?> userOrFuture = _userService.get(member.id.userId);
+      if (userOrFuture is RxUser?) {
+        participant.user.value = userOrFuture ?? participant.user.value;
+      } else {
+        userOrFuture.then(
+          (user) => participant.user.value = user ?? participant.user.value,
+        );
+      }
 
       switch (member.owner) {
         case MediaOwnerKind.local:
@@ -2019,7 +2032,12 @@ class CallController extends GetxController {
   /// Initializes the [chat] and adds the [CallMember] afterwards.
   Future<void> _initChat() async {
     try {
-      _updateChat(await _chatService.get(_currentCall.value.chatId.value));
+      final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId.value);
+      if (chatOrFuture is RxChat?) {
+        _updateChat(chatOrFuture);
+      } else {
+        _updateChat(await chatOrFuture);
+      }
     } finally {
       void onTracksChanged(
         CallMember member,

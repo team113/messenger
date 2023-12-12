@@ -15,10 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -38,14 +41,15 @@ import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
-import 'rectangular_call_button.dart';
 import 'slidable_action.dart';
 import 'unread_counter.dart';
 
@@ -60,6 +64,7 @@ class RecentChatTile extends StatelessWidget {
     this.trailing,
     this.getUser,
     this.inCall,
+    this.inContacts,
     this.onLeave,
     this.onHide,
     this.onDrop,
@@ -69,7 +74,7 @@ class RecentChatTile extends StatelessWidget {
     this.onFavorite,
     this.onUnfavorite,
     this.onSelect,
-    this.onCall,
+    this.onContact,
     this.onTap,
     this.onDismissed,
     Widget Function(Widget)? avatarBuilder,
@@ -94,17 +99,21 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
-  final Future<RxUser?> Function(UserId id)? getUser;
+  final FutureOr<RxUser?> Function(UserId id)? getUser;
 
   /// Callback, called to check whether this device of the currently
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
   final bool Function()? inCall;
 
+  /// Callback, called to check whether the [rxChat] is considered to be in
+  /// contacts list of the authenticated [MyUser].
+  final bool Function()? inContacts;
+
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
 
   /// Callback, called when this [rxChat] hide action is triggered.
-  final void Function()? onHide;
+  final void Function(bool)? onHide;
 
   /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action is
   /// triggered.
@@ -130,8 +139,9 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] select action is triggered.
   final void Function()? onSelect;
 
-  /// Callback, called when this [rxChat] call action is triggered.
-  final void Function(bool)? onCall;
+  /// Callback, called when this [rxChat] add or remove contact action is
+  /// triggered.
+  final void Function(bool)? onContact;
 
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
@@ -178,25 +188,34 @@ class RecentChatTile extends StatelessWidget {
         child: ChatTile(
           chat: rxChat,
           dimmed: blocked,
-          title: chat.muted != null
-              ? [
-                  const SizedBox(width: 5),
+          status: [
+            const SizedBox(height: 28),
+            if (trailing == null) ...[
+              _ongoingCall(context),
+              if (blocked) ...[
+                const SizedBox(width: 8),
+                SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
+              ],
+              if (rxChat.unreadCount.value > 0) ...[
+                const SizedBox(width: 10),
+                UnreadCounter(
+                  key: const Key('UnreadMessages'),
+                  rxChat.unreadCount.value,
+                  inverted: inverted,
+                  dimmed: chat.muted != null,
+                ),
+              ] else ...[
+                if (chat.muted != null) ...[
+                  const SizedBox(width: 10),
                   SvgIcon(
                     inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
                     key: Key('MuteIndicator_${chat.id}'),
                   ),
-                  const SizedBox(width: 5),
-                ]
-              : [],
-          status: [
-            _status(context, inverted),
-            if (!chat.id.isLocalWith(me))
-              Text(
-                chat.updatedAt.val.toLocal().short,
-                style: inverted
-                    ? style.fonts.normal.regular.onPrimary
-                    : style.fonts.normal.regular.secondary,
-              ),
+                ],
+                const SizedBox(key: Key('NoUnreadMessages')),
+              ],
+            ] else
+              ...trailing!,
           ],
           subtitle: [
             const SizedBox(height: 5),
@@ -206,45 +225,34 @@ class RecentChatTile extends StatelessWidget {
                 children: [
                   const SizedBox(height: 3),
                   Expanded(child: _subtitle(context, selected, inverted)),
-                  if (trailing == null) ...[
-                    _ongoingCall(context),
-                    if (blocked) ...[
-                      const SizedBox(width: 5),
-                      SvgIcon(
-                        inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
-                      ),
-                      const SizedBox(width: 5),
-                    ],
-                    if (rxChat.unreadCount.value > 0) ...[
-                      const SizedBox(width: 4),
-                      UnreadCounter(
-                        key: const Key('UnreadMessages'),
-                        rxChat.unreadCount.value,
-                        inverted: inverted,
-                        dimmed: chat.muted != null,
-                      ),
-                    ] else
-                      const SizedBox(key: Key('NoUnreadMessages')),
-                  ] else
-                    ...trailing!,
+                  const SizedBox(width: 3),
+                  _status(context, inverted),
+                  if (!chat.id.isLocalWith(me))
+                    Text(
+                      chat.updatedAt.val.toLocal().short,
+                      style: inverted
+                          ? style.fonts.normal.regular.onPrimary
+                          : style.fonts.normal.regular.secondary,
+                    ),
                 ],
               ),
             ),
           ],
           actions: [
-            ContextMenuButton(
-              label: 'btn_audio_call'.l10n,
-              onPressed: () => onCall?.call(false),
-              trailing: const SvgIcon(SvgIcons.makeAudioCall),
-            ),
-            ContextMenuButton(
-              label: 'btn_video_call'.l10n,
-              onPressed: () => onCall?.call(true),
-              trailing: Transform.translate(
-                offset: const Offset(2, 0),
-                child: const SvgIcon(SvgIcons.makeVideoCall),
-              ),
-            ),
+            if (chat.isDialog && inContacts != null) ...[
+              if (inContacts!.call() == true)
+                ContextMenuButton(
+                  label: 'btn_delete_from_contacts'.l10n,
+                  onPressed: () => onContact?.call(false),
+                  trailing: const SvgIcon(SvgIcons.deleteContact),
+                )
+              else
+                ContextMenuButton(
+                  label: 'btn_add_to_contacts'.l10n,
+                  onPressed: () => onContact?.call(true),
+                  trailing: const SvgIcon(SvgIcons.addContact),
+                ),
+            ],
             if (chat.favoritePosition != null && onUnfavorite != null)
               ContextMenuButton(
                 key: const Key('UnfavoriteChatButton'),
@@ -303,8 +311,12 @@ class RecentChatTile extends StatelessWidget {
 
     if (blocked) {
       return Text(
-        'label_user_is_blocked'.l10n,
-        style: style.fonts.normal.regular.secondary,
+        'label_blocked'.l10n,
+        style: inverted
+            ? style.fonts.normal.regular.onPrimary
+            : style.fonts.normal.regular.secondary,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       );
     }
 
@@ -426,16 +438,24 @@ class RecentChatTile extends StatelessWidget {
         ];
       } else if (item != null) {
         if (item is ChatCall) {
+          final bool isMissed =
+              item.finishReason == ChatCallFinishReason.dropped ||
+                  item.finishReason == ChatCallFinishReason.unanswered;
+
           Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
             child: SvgIcon(
               item.withVideo
                   ? inverted
                       ? SvgIcons.callVideoWhite
-                      : SvgIcons.callVideoDisabled
+                      : isMissed
+                          ? SvgIcons.callVideoMissed
+                          : SvgIcons.callVideoDisabled
                   : inverted
                       ? SvgIcons.callAudioWhite
-                      : SvgIcons.callAudioDisabled,
+                      : isMissed
+                          ? SvgIcons.callAudioMissed
+                          : SvgIcons.callAudioDisabled,
             ),
           );
 
@@ -452,6 +472,8 @@ class RecentChatTile extends StatelessWidget {
           }
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
+
+          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
 
           if (item.text != null) {
             desc.write(item.text!.val);
@@ -494,7 +516,8 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.author.id),
+                  future: userOrFuture is RxUser? ? null : userOrFuture,
+                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(
                           snapshot.data,
@@ -521,12 +544,15 @@ class RecentChatTile extends StatelessWidget {
             if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
           ];
         } else if (item is ChatForward) {
+          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
+
           subtitle = [
             if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.author.id),
+                  future: userOrFuture is RxUser? ? null : userOrFuture,
+                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(
                           snapshot.data,
@@ -549,8 +575,11 @@ class RecentChatTile extends StatelessWidget {
             UserId id,
             Widget Function(BuildContext context, User? user) builder,
           ) {
+            final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
+
             return FutureBuilder(
-              future: getUser?.call(id),
+              future: userOrFuture is RxUser? ? null : userOrFuture,
+              initialData: userOrFuture is RxUser? ? userOrFuture : null,
               builder: (context, snapshot) {
                 if (snapshot.data != null) {
                   return Obx(() => builder(context, snapshot.data!.user.value));
@@ -795,7 +824,7 @@ class RecentChatTile extends StatelessWidget {
         final bool isSent = item.status.value == SendingStatus.sent;
         final bool isRead =
             chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
-        final bool isHalfRead = chat.isHalfRead(item, me);
+        final bool isHalfRead = isSent && chat.isHalfRead(item, me);
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
         final bool isSending = item.status.value == SendingStatus.sending;
@@ -834,6 +863,8 @@ class RecentChatTile extends StatelessWidget {
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
   Widget _ongoingCall(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
@@ -841,26 +872,72 @@ class RecentChatTile extends StatelessWidget {
         return const SizedBox();
       }
 
-      final bool isActive = inCall?.call() == true;
+      // Returns a rounded rectangular button representing an [OngoingCall]
+      // associated action.
+      Widget button(bool displayed) {
+        return DecoratedBox(
+          key: displayed
+              ? const Key('JoinCallButton')
+              : const Key('DropCallButton'),
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            border: Border.all(color: style.colors.onPrimary, width: 0.5),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Material(
+            elevation: 0,
+            type: MaterialType.button,
+            borderRadius: BorderRadius.circular(6),
+            color: displayed ? style.colors.danger : style.colors.primary,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: displayed ? onDrop : onJoin,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    PeriodicBuilder(
+                      period: Config.disableInfiniteAnimations
+                          ? const Duration(minutes: 1)
+                          : const Duration(seconds: 1),
+                      builder: (_) {
+                        final Duration duration =
+                            DateTime.now().difference(chat.ongoingCall!.at.val);
+                        final String text = duration.hhMmSs();
+
+                        return Text(
+                          text,
+                          style: style.fonts.smaller.regular.onPrimary,
+                        ).fixedDigits();
+                      },
+                    ),
+                    const SizedBox(width: 6),
+                    Transform.translate(
+                      offset: PlatformUtils.isWeb
+                          ? const Offset(0, -0.5)
+                          : Offset.zero,
+                      child: SvgIcon(
+                        displayed
+                            ? SvgIcons.activeCallEnd
+                            : SvgIcons.activeCallStart,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
 
       return Padding(
         padding: const EdgeInsets.only(left: 5),
-        child: SafeAnimatedSwitcher(
-          duration: 300.milliseconds,
-          child: PeriodicBuilder(
-            period: Config.disableInfiniteAnimations
-                ? const Duration(minutes: 1)
-                : const Duration(seconds: 1),
-            builder: (_) {
-              return RectangularCallButton(
-                key: isActive
-                    ? const Key('JoinCallButton')
-                    : const Key('DropCallButton'),
-                isActive: isActive,
-                onPressed: isActive ? onDrop : onJoin,
-                at: chat.ongoingCall!.at.val,
-              );
-            },
+        child: Transform.translate(
+          offset: const Offset(1, 0),
+          child: SafeAnimatedSwitcher(
+            duration: 300.milliseconds,
+            child: button(inCall?.call() == true),
           ),
         ),
       );
@@ -869,22 +946,29 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final style = Theme.of(context).style;
+    bool clear = false;
 
     final bool? result = await MessagePopup.alert(
-      'label_hide_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: rxChat.title.value,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      'label_delete_chat'.l10n,
+      description: [TextSpan(text: 'label_to_restore_chat_use_search'.l10n)],
+      additional: [
+        const SizedBox(height: 21),
+        StatefulBuilder(
+          builder: (context, setState) {
+            return RectangleButton(
+              label: 'btn_clear_history'.l10n,
+              selected: clear,
+              toggleable: true,
+              radio: true,
+              onPressed: () => setState(() => clear = !clear),
+            );
+          },
+        )
       ],
     );
 
     if (result == true) {
-      onHide?.call();
+      onHide?.call(clear);
     }
   }
 
