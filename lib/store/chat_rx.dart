@@ -590,39 +590,6 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Merge the [_fragment] into the [_pagination] if their bounds touch.
-  void _mergeFragment() async {
-    if (_fragment != null && _pagination.merge(_fragment!)) {
-      for (var e in _pagination.items.values) {
-        _add(e.value);
-      }
-
-      _subscribeFor(_pagination);
-
-      _fragment?.dispose();
-      _fragment = null;
-    }
-  }
-
-  /// Subscribes to the the provided [pagination] changes.
-  void _subscribeFor(
-    Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination,
-  ) {
-    _paginationSubscription?.cancel();
-    _paginationSubscription = pagination.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          _add(event.value!.value);
-          break;
-
-        case OperationKind.removed:
-          messages.removeWhere((e) => e.value.id == event.value!.value.id);
-          break;
-      }
-    });
-  }
-
   @override
   Future<void> updateAttachments(ChatItem item) async {
     Log.debug('updateAttachments($item)', '$runtimeType($id)');
@@ -994,6 +961,39 @@ class HiveRxChat extends RxChat {
     } else {
       messages[i].value = item;
     }
+  }
+
+  /// Merge the [_fragment] into the [_pagination] if their bounds touch.
+  void _mergeFragment() async {
+    if (_fragment != null && _pagination.merge(_fragment!)) {
+      for (var e in _pagination.items.values) {
+        _add(e.value);
+      }
+
+      _subscribeFor(_pagination);
+
+      _fragment?.dispose();
+      _fragment = null;
+    }
+  }
+
+  /// Subscribes to the the provided [pagination] changes.
+  void _subscribeFor(
+    Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination,
+  ) {
+    _paginationSubscription?.cancel();
+    _paginationSubscription = pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _add(event.value!.value);
+          break;
+
+        case OperationKind.removed:
+          messages.removeWhere((e) => e.value.id == event.value!.value.id);
+          break;
+      }
+    });
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.

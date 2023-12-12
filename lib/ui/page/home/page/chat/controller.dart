@@ -1113,8 +1113,7 @@ class ChatController extends GetxController {
       }
 
       if (addToHistory && (reply != null || forward != null)) {
-        _history.add(item);
-        canGoDown.value = true;
+        this.addToHistory(item);
       }
     } else {
       listController.sliverController.animateToIndex(
@@ -1163,8 +1162,7 @@ class ChatController extends GetxController {
         _highlight(index);
 
         if (addToHistory && (reply != null || forward != null)) {
-          _history.add(item);
-          canGoDown.value = true;
+          this.addToHistory(item);
         }
       }
 
@@ -1176,6 +1174,17 @@ class ChatController extends GetxController {
         _topLoader = null;
       });
     }
+  }
+
+  /// Adds the provided [item] to the [_history].
+  void addToHistory(ChatItem item) {
+    final int i = _history.indexWhere((e) => e.key == item.key);
+    if (i != -1) {
+      _history.removeAt(i);
+    }
+
+    _history.add(item);
+    canGoDown.value = true;
   }
 
   /// Animates [listController] to the last [_history] if any or the last

@@ -54,15 +54,14 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   FutureOr<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await hiveProvider.around(key, cursor, count);
 
-    if (cached != null &&
-        (cached.edges.length >= count ||
-            !cached.info.hasNext ||
-            !cached.info.hasPrevious)) {
+    if (cached.edges.length >= count ||
+        !cached.info.hasNext ||
+        !cached.info.hasPrevious) {
       return cached;
     }
 
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
-    
+
     if (syncWithHive) {
       for (T e in remote.edges) {
         hiveProvider.put(e);
@@ -81,7 +80,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
     }
 
     final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
-    
+
     if (syncWithHive) {
       for (T e in remote.edges) {
         await hiveProvider.put(e);
@@ -100,7 +99,7 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
     }
 
     final Page<T, C> remote = await graphQlProvider.before(key, cursor, count);
-    
+
     if (syncWithHive) {
       for (T e in remote.edges) {
         await hiveProvider.put(e);
