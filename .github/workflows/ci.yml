@@ -895,27 +895,27 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: debug-apk-${{ github.run_number }}
-          path: symbols/
+          path: symbols/apk/
       - uses: actions/download-artifact@v3
         with:
           name: debug-appbundle-${{ github.run_number }}
-          path: symbols/
+          path: symbols/appbundle/
       # - uses: actions/download-artifact@v3
       #   with:
       #     name: debug-ios-${{ github.run_number }}
-      #     path: symbols/
+      #     path: symbols/ios/
       - uses: actions/download-artifact@v3
         with:
           name: debug-linux-${{ github.run_number }}
-          path: symbols/
+          path: symbols/linux/
       - uses: actions/download-artifact@v3
         with:
           name: debug-macos-${{ github.run_number }}
-          path: symbols/
+          path: symbols/macos/
       - uses: actions/download-artifact@v3
         with:
           name: debug-windows-${{ github.run_number }}
-          path: symbols/
+          path: symbols/windows/
 
       # - name: Parse semver versions from Git tag
       #   id: semver
