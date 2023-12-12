@@ -561,6 +561,7 @@ label_avatar_updated2 = {" "}updated avatar
 label_away = away
 label_background = Background
 label_block = Block
+label_blocked = Blocked
 label_blocked_users = Blocked users
 label_cache = Cache
 label_cache_and_downloads = Cache and downloads
@@ -693,7 +694,6 @@ label_group_created_by2 = {" "}created the group
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
-label_hide_chat = Hide chat
 label_hint_drag_n_drop_buttons =
     Add and remove elements of the control panel by drag-and-drop.
 label_hint_drag_n_drop_video =

@@ -299,12 +299,12 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<HiveRxChat?> get(ChatId id) async {
+  FutureOr<HiveRxChat?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
     HiveRxChat? chat = chats[id];
     if (chat != null) {
-      return Future.value(chat);
+      return chat;
     }
 
     // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
@@ -407,7 +407,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    HiveRxChat? rxChat = chats[chatId] ?? (await get(chatId));
+    HiveRxChat? rxChat = chats[chatId] ?? await get(chatId);
     ChatItem? local;
 
     if (chatId.isLocal) {
@@ -1126,9 +1126,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> getUser(UserId id) async {
+  FutureOr<RxUser?> getUser(UserId id) {
     Log.debug('getUser($id)', '$runtimeType');
-    return await _userRepo.get(id);
+    return _userRepo.get(id);
   }
 
   @override
@@ -2174,9 +2174,12 @@ class ChatRepository extends DisposableInterface
 
     final ChatId chatId = ChatId.local(responderId);
 
+    final FutureOr<RxUser?> myUser = _userRepo.get(me);
+    final FutureOr<RxUser?> responder = _userRepo.get(responderId);
+
     final List<RxUser?> users = [
-      await _userRepo.get(me),
-      if (responderId != me) await _userRepo.get(responderId)
+      myUser is RxUser? ? myUser : await myUser,
+      if (responderId != me) responder is RxUser? ? responder : await responder,
     ];
 
     final ChatData chatData = ChatData(

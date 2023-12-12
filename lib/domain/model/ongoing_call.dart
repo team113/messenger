@@ -24,6 +24,7 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../repository/chat.dart';
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
 import '/store/event/chat_call.dart';
@@ -489,13 +490,14 @@ class OngoingCall {
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
               // [RxChat.members] list.
-              calls.getChat(chatId.value).then((v) {
+              void redialAndResubscribe(RxChat? v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
                   return;
                 }
 
+                // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
                   for (var m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
@@ -521,7 +523,15 @@ class OngoingCall {
                       break;
                   }
                 });
-              });
+              }
+
+              final FutureOr<RxChat?> chatOrFuture =
+                  calls.getChat(chatId.value);
+              if (chatOrFuture is RxChat?) {
+                redialAndResubscribe(chatOrFuture);
+              } else {
+                chatOrFuture.then(redialAndResubscribe);
+              }
 
               members[_me]?.isHandRaised.value = node.call.members
                       .firstWhereOrNull((e) => e.user.id == _me.userId)

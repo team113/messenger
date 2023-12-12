@@ -71,10 +71,10 @@ class HivePageProvider<T extends Object, C, K>
   set provider(IterableHiveProvider<T, K> value) => _provider = value;
 
   @override
-  Future<Page<T, C>?> init(K? key, int count) => around(key, null, count);
+  Future<Page<T, C>> init(K? key, int count) => around(key, null, count);
 
   @override
-  Future<Page<T, C>?> around(K? key, C? cursor, int count) async {
+  Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Iterable<K> ordered = orderBy(_provider.keys);
 
     if (ordered.isEmpty) {
@@ -204,8 +204,8 @@ class HivePageProvider<T extends Object, C, K>
     final Iterable<K> ordered = orderBy(_provider.keys).toList();
 
     if (ordered.isNotEmpty) {
-      final firstItem = await _provider.get(ordered.first);
-      final lastItem = await _provider.get(ordered.last);
+      final T? firstItem = await _provider.get(ordered.first);
+      final T? lastItem = await _provider.get(ordered.last);
 
       if (firstItem != null && lastItem != null) {
         if (compare(item, lastItem) == 1) {

@@ -35,6 +35,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
+import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/my_user.dart';
@@ -645,7 +646,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    var userEntity = _myUserLocal.myUser;
+    final HiveMyUser? userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
       Log.debug(
@@ -661,14 +662,22 @@ class MyUserRepository implements AbstractMyUserRepository {
       '$runtimeType',
     );
 
-    for (var event in versioned.events) {
+    for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        _userRepo.get(event.userId).then((user) {
-          if (user != null) {
-            _userRepo.update(convertor(user.user.value));
+        final FutureOr<RxUser?> userOrFuture = _userRepo.get(event.userId);
+
+        if (userOrFuture is RxUser?) {
+          if (userOrFuture != null) {
+            _userRepo.update(convertor(userOrFuture.user.value));
           }
-        });
+        } else {
+          userOrFuture.then((user) {
+            if (user != null) {
+              _userRepo.update(convertor(user.user.value));
+            }
+          });
+        }
       }
 
       switch (event.kind) {
