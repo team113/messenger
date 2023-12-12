@@ -37,6 +37,8 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - User page:
         - Actions moved to more button. ([#736], [#719])
+    - Chats tab:
+        - Redesigned chat tile. ([#748], [#741])
 
 ### Fixed
 
@@ -64,6 +66,8 @@ All user visible changes to this project will be documented in this file. This p
 [#732]: /../../pull/732
 [#735]: /../../pull/735
 [#736]: /../../pull/736
+[#741]: /../../issues/741
+[#748]: /../../pull/748
 
 
 

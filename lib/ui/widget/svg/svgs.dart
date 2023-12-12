@@ -1494,6 +1494,24 @@ class SvgIcons {
     height: 23.8,
   );
 
+  static const SvgData activeCallStart = SvgData(
+    'assets/icons/active_call_start.svg',
+    width: 8,
+    height: 8,
+  );
+
+  static const SvgData activeCallEnd = SvgData(
+    'assets/icons/active_call_end.svg',
+    width: 9.59,
+    height: 4.21,
+  );
+
+  static const SvgData clearSearch = SvgData(
+    'assets/icons/clear_search.svg',
+    width: 21.8,
+    height: 16.8,
+  );
+
   static const SvgData deleteGallery = SvgData(
     'assets/icons/delete_gallery.svg',
     width: 28.22,
