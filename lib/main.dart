@@ -25,6 +25,7 @@ import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -126,7 +127,7 @@ Future<void> main() async {
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty /*|| kDebugMode*/) {
+  if (Config.sentryDsn.isEmpty || kDebugMode) {
     return appRunner();
   }
 
