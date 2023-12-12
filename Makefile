@@ -45,7 +45,8 @@ FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
 FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
 
-SENTRY_RELEASE = $(strip $(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
+SENTRY_RELEASE = $(strip \
+	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
 
 
 
@@ -842,12 +843,13 @@ endif
 #	make sentry.upload [project=($(SENTRY_PROJECT)|<project>)]
 #	                   [org=($(SENTRY_ORG)|<org>)]
 #	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
+#	                   [release=($(SENTRY_RELEASE)|<release>)]
 
 sentry.upload:
 	SENTRY_PROJECT=$(or $(project),$(SENTRY_PROJECT)) \
 	SENTRY_ORG=$(or $(org),$(SENTRY_ORG)) \
 	SENTRY_AUTH_TOKEN=$(or $(token),$(SENTRY_AUTH_TOKEN)) \
-	SENTRY_RELEASE=messenger@$(or $(release),$(SENTRY_RELEASE)) \
+	SENTRY_RELEASE=$(NAME)@$(or $(release),$(SENTRY_RELEASE)) \
 	dart run sentry_dart_plugin
 
 
