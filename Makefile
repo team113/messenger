@@ -840,11 +840,20 @@ endif
 #	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
 #	                   [release=($(SENTRY_RELEASE)|<release>)]
 
+sentry-project=$(or $(SENTRY_PROJECT),\
+	           $(strip $(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
+sentry-org=$(or $(SENTRY_ORG),\
+	           $(strip $(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
+sentry-token=$(or $(SENTRY_AUTH_TOKEN),\
+	           $(strip $(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
+sentry-release=$(or $(SENTRY_RELEASE),\
+	           $(strip $(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2)))
+
 sentry.upload:
-	SENTRY_PROJECT=$(or $(project),$(SENTRY_PROJECT)) \
-	SENTRY_ORG=$(or $(org),$(SENTRY_ORG)) \
-	SENTRY_AUTH_TOKEN=$(or $(token),$(SENTRY_AUTH_TOKEN)) \
-	SENTRY_RELEASE=$(NAME)@$(or $(release),$(SENTRY_RELEASE)) \
+	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
+	SENTRY_ORG=$(or $(org),$(sentry-org)) \
+	SENTRY_AUTH_TOKEN=$(or $(token),$(sentry-token)) \
+	SENTRY_RELEASE=$(NAME)@$(or $(release),$(sentry-release)) \
 	dart run sentry_dart_plugin
 
 
