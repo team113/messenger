@@ -363,9 +363,9 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - run: tree build
-      - run: mv build/\*\*/\*.dSYM symbols/
-        if: ${{ contains('ios macos', matrix.platform) }}
+      - run: find build -print | sed -e "s;[^/]*/;|____;g;s;____|; |;g"
+      # - run: mv build/\*\*/\*.dSYM symbols/
+      #   if: ${{ contains('ios macos', matrix.platform) }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
