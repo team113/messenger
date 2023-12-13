@@ -916,7 +916,7 @@ jobs:
         with:
           name: debug-windows-${{ github.run_number }}
           path: symbols/
-      - run: unzip symbols/*.zip -d symbols/
+      - run: unzip symbols/\*.zip -d symbols/
 
       - run: tree symbols
 
