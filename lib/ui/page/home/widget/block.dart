@@ -38,6 +38,7 @@ class Block extends StatelessWidget {
     this.background,
     this.fade = false,
     this.maxWidth = 400,
+    this.overlay = const [],
   });
 
   /// Optional header of this [Block].
@@ -76,6 +77,8 @@ class Block extends StatelessWidget {
   final double maxWidth;
 
   final bool fade;
+
+  final List<Widget> overlay;
 
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
@@ -242,6 +245,7 @@ class Block extends StatelessWidget {
                       ],
                     ),
                   ),
+                ...overlay,
               ],
             ),
           ),

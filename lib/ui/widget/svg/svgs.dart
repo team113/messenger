@@ -1890,4 +1890,34 @@ class SvgIcons {
     width: 14.57,
     height: 18,
   );
+
+  static const SvgData muted22 = SvgData(
+    'assets/icons/muted22.svg',
+    width: 21.65,
+    height: 22,
+  );
+
+  static const SvgData unmuted22 = SvgData(
+    'assets/icons/unmuted22.svg',
+    width: 21.65,
+    height: 22,
+  );
+
+  static const SvgData unfavorite22 = SvgData(
+    'assets/icons/unfavorite22.svg',
+    width: 23.13,
+    height: 22,
+  );
+
+  static const SvgData favorite22 = SvgData(
+    'assets/icons/favorite22.svg',
+    width: 23.13,
+    height: 22,
+  );
+
+  static const SvgData edit22 = SvgData(
+    'assets/icons/edit22.svg',
+    width: 21,
+    height: 21,
+  );
 }

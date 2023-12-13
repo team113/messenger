@@ -921,12 +921,14 @@ extension RouteLinks on RouterState {
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
-  void chatInfo(ChatId id, {bool push = false}) {
+  void chatInfo(ChatId id, {bool push = false, bool edit = false}) {
     if (push) {
       this.push('${Routes.chats}/$id${Routes.chatInfo}');
     } else {
       go('${Routes.chats}/$id${Routes.chatInfo}');
     }
+
+    arguments = {'edit': edit};
   }
 
   /// Changes router location to the [Routes.public] page.

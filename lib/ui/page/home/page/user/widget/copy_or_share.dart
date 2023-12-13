@@ -27,10 +27,16 @@ import '/util/platform_utils.dart';
 /// [AnimatedButton] displaying a share or copy button, depending on the
 /// platform.
 class CopyOrShareButton extends StatelessWidget {
-  const CopyOrShareButton(this.share, {super.key});
+  const CopyOrShareButton(
+    this.share, {
+    super.key,
+    this.onCopy,
+  });
 
   /// Text to share or copy.
   final String share;
+
+  final void Function()? onCopy;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +47,8 @@ class CopyOrShareButton extends StatelessWidget {
       //   child: child,
       // ),
       onPressed: () async {
+        onCopy?.call();
+
         if (PlatformUtils.isMobile) {
           await Share.share(share);
         } else {

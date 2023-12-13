@@ -24,6 +24,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -116,6 +117,8 @@ class ChatsTabController extends GetxController {
   ///
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
+
+  final TextFieldState groupName = TextFieldState();
 
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
@@ -582,18 +585,20 @@ class ChatsTabController extends GetxController {
     creatingStatus.value = RxStatus.loading();
 
     try {
-      RxChat chat = await _chatService.createGroupChat(
+      final RxChat chat = await _chatService.createGroupChat(
         {
           ...search.value!.selectedRecent.map((e) => e.id),
           ...search.value!.selectedContacts
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: null,
+        name: groupName.text.isEmpty ? null : ChatName(groupName.text),
       );
 
+      groupName.clear();
+
       router.chat(chat.chat.value.id);
-      router.chatInfo(chat.chat.value.id, push: true);
+      // router.chatInfo(chat.chat.value.id, push: true, edit: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {

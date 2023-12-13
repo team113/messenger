@@ -75,7 +75,10 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         pages.add(CustomPage(
           key: ValueKey('ChatInfoPage$id'),
           name: '${Routes.chats}/$id${Routes.chatInfo}',
-          child: ChatInfoView(ChatId(id)),
+          child: ChatInfoView(
+            ChatId(id),
+            edit: _state.arguments?['edit'] == true,
+          ),
         ));
       } else if (route.startsWith('${Routes.chats}/')) {
         String id = route

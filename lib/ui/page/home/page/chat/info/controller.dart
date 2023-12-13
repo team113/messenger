@@ -47,8 +47,9 @@ class ChatInfoController extends GetxController {
     this._chatService,
     this._authService,
     this._callService,
-    this._userService,
-  );
+    this._userService, {
+    bool edit = false,
+  }) : editing = RxBool(edit);
 
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
@@ -72,7 +73,7 @@ class ChatInfoController extends GetxController {
 
   final GlobalKey moreKey = GlobalKey();
 
-  final RxBool editing = RxBool(false);
+  final RxBool editing;
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
