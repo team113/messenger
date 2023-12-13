@@ -67,7 +67,7 @@ import 'steps/go_to.dart';
 import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
-import 'steps/in_chat_with.dart';
+import 'steps/in_chat.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
@@ -78,6 +78,7 @@ import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
+import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
@@ -162,6 +163,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasDialogWithMe,
         hasFavoriteContacts,
         hasFavoriteGroups,
+        hasGroupNamed,
         hasGroups,
 
         // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
@@ -188,7 +190,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         popupWindows,
+        readsAllMessages,
         readsMessage,
+        repliesFirstMessage,
         restartApp,
         returnToPreviousPage,
         rightClickMessage,
@@ -214,15 +218,17 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeCountFavoriteChats,
         seeDraftInDialog,
         seeFavoriteChatPosition,
+        seeFirstMessage,
         seeMonologAsFavorite,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
+        seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
-        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
+        sendsCountMessages,
         sendsMessageToMe,
         sendsMessageWithException,
         signInAs,

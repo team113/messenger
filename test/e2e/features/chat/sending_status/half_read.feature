@@ -21,7 +21,7 @@ Feature: Half read status of messages in group chats
     Given I am Alice
     And users Bob and Charlie
     And I have "Group" group with Bob and Charlie
-    And I am in "Group" chat
+    And I am in "Group" group
 
   Scenario: User sees messages half read
     When I fill `MessageField` field with "123"

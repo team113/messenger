@@ -15,8 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.graphql.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../parameters/iterable_amount.dart';
@@ -50,4 +55,37 @@ final StepDefinitionGeneric seeChatMessages =
       },
     );
   },
+);
+
+/// Indicates whether the first [ChatItem]s is visible in the opened [Chat].
+///
+/// Examples:
+/// - I see first message.
+final StepDefinitionGeneric seeFirstMessage = when<CustomWorld>(
+  'I see first message',
+  (context) async {
+    GraphQlProvider provider = Get.find();
+
+    ChatId chatId = ChatId(router.route.split('/').last);
+
+    ChatMessageMixin firstMessage = (await provider.chatItems(chatId, last: 3))
+        .chat!
+        .items
+        .edges
+        .first
+        .node as ChatMessageMixin;
+
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver
+              .findByKeySkipOffstage('Message_${firstMessage.id}'),
+        );
+      },
+    );
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

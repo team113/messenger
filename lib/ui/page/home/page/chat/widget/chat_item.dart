@@ -1297,6 +1297,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style.colors.userColors.length];
 
         return ClipRRect(
+          key: const Key('RepliedMessage'),
           borderRadius: style.cardRadius,
           child: Container(
             decoration: BoxDecoration(

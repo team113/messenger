@@ -15,18 +15,17 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat avatar
+Feature: Chat transitions
 
-  Background: User is in group chat with Bob
-    Given I am Alice
-    And user Bob
-    And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" group
-    And I open chat's info
+  Scenario: Chats transitions works correctly
+    Given user Alice
+    And Alice has "Test" group
+    And Alice sends 100 messages to "Test" group
+    And Alice replies first message in "Test" group
+    And Alice reads all message in "Test" group
+    And I sign in as Alice
+    And I am in "Test" group
 
-  Scenario: User uploads and deletes chat avatar
-    When I update chat avatar with "test.jpg"
-    Then I see chat avatar as "test.jpg"
-
-    When I tap `DeleteAvatar` button
-    Then I see chat avatar as none
+    When I tap `CloseButton` button
+    And I tap `RepliedMessage` widget
+    Then I see first message

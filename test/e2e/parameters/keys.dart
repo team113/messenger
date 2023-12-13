@@ -121,6 +121,7 @@ enum WidgetKey {
   RecoveryField,
   RenameChatField,
   RepeatPasswordField,
+  RepliedMessage,
   Resend,
   Restore,
   Search,

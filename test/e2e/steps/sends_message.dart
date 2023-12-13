@@ -18,6 +18,7 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart'
     show PostChatMessageErrorCode;
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -84,6 +85,33 @@ final StepDefinitionGeneric sendsMessageWithException =
         assert(exception == null);
         break;
     }
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Sends the provided count of messages from the provided [TestUser] to the
+/// group with the provided name.
+///
+/// Examples:
+/// - Given Alice sends 100 messages to "Name" group.
+final StepDefinitionGeneric sendsCountMessages =
+    given3<TestUser, int, String, CustomWorld>(
+  '{user} sends {int} messages to {string} group',
+  (TestUser user, int count, String name, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    ChatId chatId = context.world.groups[name]!;
+
+    List<Future> futures = List.generate(
+      count,
+      (i) => provider.postChatMessage(chatId, text: ChatMessageText('$i')),
+    );
+
+    await Future.wait(futures);
 
     provider.disconnect();
   },

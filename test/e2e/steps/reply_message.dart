@@ -15,67 +15,41 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/routes.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Reads the current [Chat] until the specified message for the provided
-/// [User].
-///
-/// Examples:
-/// - Bob reads "Hello, Alice!" message
-/// - Charlie reads "dummy msg" message
-final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
-  '{user} reads {string} message',
-  (TestUser user, String msg, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
-
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final ChatMessage message = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhere((e) => e.text?.val == msg);
-
-    await provider.readChat(chat.id, message.id);
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
-
-/// Reads all messages by the specified [TestUser] in the [Group] with the
+/// Replies first message by the provided [TestUser] in the [Group] with the
 /// provided name.
 ///
 /// Examples:
-/// - When Alice reads all message in "Name" group.
-final StepDefinitionGeneric readsAllMessages =
+/// - When Alice replies first message in "Name" group.
+final StepDefinitionGeneric repliesFirstMessage =
     when2<TestUser, String, CustomWorld>(
-  '{user} reads all message in {string} group',
+  '{user} replies first message in {string} group',
   (TestUser user, String name, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
     ChatId chatId = context.world.groups[name]!;
 
-    ChatMessageMixin lastMessage = (await provider.chatItems(chatId, first: 1))
+    ChatMessageMixin firstMessage = (await provider.chatItems(chatId, last: 3))
         .chat!
         .items
         .edges
         .first
         .node as ChatMessageMixin;
 
-    await provider.readChat(chatId, lastMessage.id);
+    await provider.postChatMessage(
+      chatId,
+      text: const ChatMessageText('reply'),
+      repliesTo: [firstMessage.id],
+    );
 
     provider.disconnect();
   },
