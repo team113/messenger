@@ -104,9 +104,8 @@ final StepDefinitionGeneric sendsCountMessages =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    ChatId chatId = context.world.groups[name]!;
-
-    List<Future> futures = List.generate(
+    final ChatId chatId = context.world.groups[name]!;
+    final List<Future> futures = List.generate(
       count,
       (i) => provider.postChatMessage(chatId, text: ChatMessageText('$i')),
     );

@@ -1088,9 +1088,9 @@ class ChatController extends GetxController {
     bool addToHistory = true,
     double offset = 50,
   }) async {
-    ChatItemId animateTo = reply ?? forward ?? item.id;
+    final ChatItemId animateTo = reply ?? forward ?? item.id;
 
-    int index = elements.values.toList().indexWhere((e) {
+    final int index = elements.values.toList().indexWhere((e) {
       return e.id.id == animateTo ||
           (e is ChatForwardElement &&
               (e.forwards.any((e1) => e1.value.id == animateTo) ||
@@ -1135,7 +1135,7 @@ class ChatController extends GetxController {
 
       await chat!.around(item: item, reply: reply, forward: forward);
 
-      int index = elements.values.toList().indexWhere((e) {
+      final int index = elements.values.toList().indexWhere((e) {
         return e.id.id == animateTo ||
             (e is ChatForwardElement &&
                 (e.forwards.any((e1) => e1.value.id == animateTo) ||
@@ -1169,11 +1169,7 @@ class ChatController extends GetxController {
 
   /// Adds the provided [item] to the [_history].
   void addToHistory(ChatItem item) {
-    final int i = _history.indexWhere((e) => e.key == item.key);
-    if (i != -1) {
-      _history.removeAt(i);
-    }
-
+    _history.removeWhere((e) => e.key == item.key);
     _history.add(item);
     canGoDown.value = true;
   }
@@ -1182,7 +1178,7 @@ class ChatController extends GetxController {
   /// [ChatItem] in the [RxChat.messages] list.
   Future<void> animateToBottom() async {
     if (_history.isNotEmpty) {
-      ChatItem item = _history.removeLast();
+      final ChatItem item = _history.removeLast();
       await animateTo(item, addToHistory: false);
       _updateFabStates();
     } else if (chat?.messages.isEmpty == false && listController.hasClients) {

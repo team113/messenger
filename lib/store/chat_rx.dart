@@ -459,7 +459,7 @@ class HiveRxChat extends RxChat {
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
-    Log.debug('around()', '$runtimeType($id)');
+    Log.debug('around($item, $reply, $forward)', '$runtimeType($id)');
 
     if (item != null) {
       return _loadFragmentAround(item, reply: reply, forward: forward);
@@ -903,6 +903,11 @@ class HiveRxChat extends RxChat {
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
+    Log.debug(
+      '_loadFragmentAround($item, $reply, $forward)',
+      '$runtimeType($id)',
+    );
+
     if (id.isLocal) {
       return;
     }
@@ -918,7 +923,7 @@ class HiveRxChat extends RxChat {
         return;
       }
 
-      ChatMessage message = hiveItem.value as ChatMessage;
+      final ChatMessage message = hiveItem.value as ChatMessage;
       final int replyIndex =
           message.repliesTo.indexWhere((e) => e.original?.id == reply);
       if (replyIndex == -1) {
@@ -976,8 +981,10 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Merge the [_fragment] into the [_pagination] if their bounds touch.
+  /// Merges the [_fragment] into the [_pagination] if their bounds touch.
   void _mergeFragment() async {
+    Log.debug('_mergeFragment()', '$runtimeType($id)');
+
     if (_fragment != null && _pagination.merge(_fragment!)) {
       for (var e in _pagination.items.values) {
         _add(e.value);
@@ -994,6 +1001,8 @@ class HiveRxChat extends RxChat {
   void _subscribeFor(
     Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination,
   ) {
+    Log.debug('_subscribeFor($pagination)', '$runtimeType($id)');
+
     _paginationSubscription?.cancel();
     _paginationSubscription = pagination.changes.listen((event) {
       switch (event.op) {

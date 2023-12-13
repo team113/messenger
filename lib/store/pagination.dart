@@ -347,7 +347,7 @@ class Pagination<T, C, K> {
 
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
-    Log.debug('remove($K)', '$runtimeType');
+    Log.debug('remove($key)', '$runtimeType');
 
     if (_disposed) {
       return Future.value();
@@ -360,6 +360,8 @@ class Pagination<T, C, K> {
   /// Merges the provided [pagination] into this [Pagination] if their bounds
   /// touch.
   bool merge(Pagination<T, C, K> pagination) {
+    Log.debug('merge($pagination)', '$runtimeType');
+
     if (pagination.items.isNotEmpty &&
         (items[onKey(pagination.items.first)] != null ||
             items[onKey(pagination.items.last)] != null)) {

@@ -54,7 +54,7 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Reads all messages by the specified [TestUser] in the [Group] with the
+/// Reads all messages by the provided [TestUser] in the [Group] with the
 /// provided name.
 ///
 /// Examples:
@@ -66,14 +66,14 @@ final StepDefinitionGeneric readsAllMessages =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    ChatId chatId = context.world.groups[name]!;
-
-    ChatMessageMixin lastMessage = (await provider.chatItems(chatId, first: 1))
-        .chat!
-        .items
-        .edges
-        .first
-        .node as ChatMessageMixin;
+    final ChatId chatId = context.world.groups[name]!;
+    final ChatMessageMixin lastMessage =
+        (await provider.chatItems(chatId, first: 1))
+            .chat!
+            .items
+            .edges
+            .first
+            .node as ChatMessageMixin;
 
     await provider.readChat(chatId, lastMessage.id);
 

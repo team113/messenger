@@ -36,14 +36,10 @@ final StepDefinitionGeneric repliesFirstMessage =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    ChatId chatId = context.world.groups[name]!;
-
-    ChatMessageMixin firstMessage = (await provider.chatItems(chatId, last: 3))
-        .chat!
-        .items
-        .edges
-        .first
-        .node as ChatMessageMixin;
+    final ChatId chatId = context.world.groups[name]!;
+    final ChatMessageMixin firstMessage =
+        (await provider.chatItems(chatId, last: 3)).chat!.items.edges.first.node
+            as ChatMessageMixin;
 
     await provider.postChatMessage(
       chatId,

@@ -66,14 +66,10 @@ final StepDefinitionGeneric seeFirstMessage = when<CustomWorld>(
   (context) async {
     GraphQlProvider provider = Get.find();
 
-    ChatId chatId = ChatId(router.route.split('/').last);
-
-    ChatMessageMixin firstMessage = (await provider.chatItems(chatId, last: 3))
-        .chat!
-        .items
-        .edges
-        .first
-        .node as ChatMessageMixin;
+    final ChatId chatId = ChatId(router.route.split('/').last);
+    final ChatMessageMixin firstMessage =
+        (await provider.chatItems(chatId, last: 3)).chat!.items.edges.first.node
+            as ChatMessageMixin;
 
     await context.world.appDriver.waitUntil(
       () async {

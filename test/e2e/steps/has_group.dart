@@ -51,7 +51,8 @@ final StepDefinitionGeneric hasGroupNamed =
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    ChatMixin chat = await provider.createGroupChat([], name: ChatName(name));
+    final ChatMixin chat =
+        await provider.createGroupChat([], name: ChatName(name));
 
     context.world.groups[name] = chat.id;
     provider.disconnect();
