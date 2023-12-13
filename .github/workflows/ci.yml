@@ -916,7 +916,7 @@ jobs:
         with:
           name: debug-windows-${{ github.run_number }}
           path: symbols/
-      - run: unzip symbols/\*.zip -d symbols/
+      - run: for f in symbols/*.zip; do unzip "$f" -d "${f%.zip}"; done
 
       - run: tree symbols
 
