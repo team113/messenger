@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
         - Swipe to delete gesture. ([#732])
+    - Profile page:
+        - Change media buttons position. ([#750], [#718])
 
 ### Changed
 
@@ -61,6 +63,7 @@ All user visible changes to this project will be documented in this file. This p
 [#707]: /../../pull/707
 [#710]: /../../issues/710
 [#711]: /../../pull/711
+[#718]: /../../issues/718
 [#719]: /../../issues/719
 [#730]: /../../pull/730
 [#732]: /../../pull/732
@@ -68,6 +71,7 @@ All user visible changes to this project will be documented in this file. This p
 [#736]: /../../pull/736
 [#741]: /../../issues/741
 [#748]: /../../pull/748
+[#750]: /../../pull/750
 
 
 
