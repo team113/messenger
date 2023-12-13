@@ -917,6 +917,8 @@ jobs:
           name: debug-windows-${{ github.run_number }}
           path: symbols/windows/
 
+      - run: tree symbols
+
       # - name: Parse semver versions from Git tag
       #   id: semver
       #   uses: actions-ecosystem/action-regex-match@v2

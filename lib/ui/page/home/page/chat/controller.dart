@@ -1051,7 +1051,8 @@ class ChatController extends GetxController {
           final Map<ChatItemId, double> items = {};
 
           for (var e in positions) {
-            final ListElement element = elements.values.elementAt(e.index);
+            final ListElement? element =
+                elements.values.elementAtOrNull(e.index);
 
             if (element is ChatMessageElement) {
               items[element.id.id] = e.offset;

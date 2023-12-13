@@ -62,7 +62,7 @@ class SafeScrollbar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
       return MediaQuery(
-        data: MediaQuery.of(router.context!).copyWith(
+        data: MediaQuery.of(router.context ?? context).copyWith(
           padding: EdgeInsets.only(
             top: top ? CustomAppBar.height - 5 : 0,
             bottom: bottom ? CustomNavigationBar.height : 0,
