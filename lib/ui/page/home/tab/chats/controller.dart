@@ -384,6 +384,8 @@ class ChatsTabController extends GetxController {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -406,6 +408,8 @@ class ChatsTabController extends GetxController {
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
