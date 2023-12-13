@@ -895,27 +895,28 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: debug-apk-${{ github.run_number }}
-          path: symbols/apk/
+          path: symbols/
       - uses: actions/download-artifact@v3
         with:
           name: debug-appbundle-${{ github.run_number }}
-          path: symbols/appbundle/
+          path: symbols/
       # - uses: actions/download-artifact@v3
       #   with:
       #     name: debug-ios-${{ github.run_number }}
-      #     path: symbols/ios/
+      #     path: symbols/
       - uses: actions/download-artifact@v3
         with:
           name: debug-linux-${{ github.run_number }}
-          path: symbols/linux/
+          path: symbols/
       - uses: actions/download-artifact@v3
         with:
           name: debug-macos-${{ github.run_number }}
-          path: symbols/macos/
+          path: symbols/
       - uses: actions/download-artifact@v3
         with:
           name: debug-windows-${{ github.run_number }}
-          path: symbols/windows/
+          path: symbols/
+      - run: unzip symbols/*.zip -d symbols/
 
       - run: tree symbols
 
