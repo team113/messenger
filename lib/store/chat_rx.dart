@@ -454,8 +454,16 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> around() async {
+  Future<void> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {
     Log.debug('around()', '$runtimeType($id)');
+
+    if (item != null) {
+      return _loadFragmentAround(item, reply: reply, forward: forward);
+    }
 
     if (id.isLocal ||
         status.value.isSuccess ||
@@ -470,12 +478,15 @@ class HiveRxChat extends RxChat {
     // Ensure [_local] storage is initialized.
     await _local.init(userId: me);
 
-    HiveChatItem? item;
+    HiveChatItem? lastRead;
     if (chat.value.lastReadItem != null) {
-      item = await get(chat.value.lastReadItem!);
+      lastRead = await get(chat.value.lastReadItem!);
     }
 
-    await _pagination.around(cursor: _lastReadItemCursor, key: item?.value.key);
+    await _pagination.around(
+      cursor: _lastReadItemCursor,
+      key: lastRead?.value.key,
+    );
 
     status.value = RxStatus.success();
 
@@ -510,85 +521,6 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
-  }
-
-  @override
-  Future<void> loadFragmentAround(
-    ChatItem item, {
-    ChatItemId? reply,
-    ChatItemId? forward,
-  }) async {
-    if (id.isLocal) {
-      return;
-    }
-
-    HiveChatItem? hiveItem =
-        _pagination.items[item.key] ?? await _local.get(item.key);
-
-    ChatItemsCursor? cursor;
-    ChatItemKey? key;
-
-    if (reply != null) {
-      if (hiveItem is! HiveChatMessage) {
-        return;
-      }
-
-      ChatMessage message = hiveItem.value as ChatMessage;
-      final int replyIndex =
-          message.repliesTo.indexWhere((e) => e.original?.id == reply);
-      if (replyIndex == -1) {
-        return;
-      }
-
-      cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
-      key = message.repliesTo.elementAt(replyIndex).original?.key;
-    } else if (forward != null) {
-      if (hiveItem is! HiveChatForward) {
-        return;
-      }
-
-      cursor = hiveItem.quoteCursor;
-      key = (hiveItem.value as ChatForward).quote.original?.key;
-    } else {
-      cursor = hiveItem?.cursor;
-      key = hiveItem?.value.key;
-    }
-
-    if (_pagination.items[key] != null) {
-      _fragment?.dispose();
-      _fragment = null;
-
-      messages.clear();
-      for (var e in _pagination.items.values) {
-        _add(e.value);
-      }
-
-      _subscribeFor(_pagination);
-      return;
-    }
-
-    if (cursor == null) {
-      return;
-    }
-
-    _fragment = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
-      onKey: (e) => e.value.key,
-      provider: HiveGraphQlPageProvider(
-        syncWithHive: _local.keys.contains(key),
-        hiveProvider: _provider.hiveProvider,
-        graphQlProvider: _provider.graphQlProvider,
-      ),
-      compare: (a, b) => a.value.key.compareTo(b.value.key),
-    );
-
-    await _fragment!.around(cursor: cursor, key: key);
-
-    if (_fragment != null) {
-      _subscribeFor(_fragment!);
-
-      messages.clear();
-      _fragment?.items.values.forEach((e) => _add(e.value));
-    }
   }
 
   @override
@@ -961,6 +893,86 @@ class HiveRxChat extends RxChat {
       );
     } else {
       messages[i].value = item;
+    }
+  }
+
+  /// Loads the [messages] page around the specified [item], [reply] or
+  /// [forward].
+  Future<void> _loadFragmentAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {
+    if (id.isLocal) {
+      return;
+    }
+
+    final HiveChatItem? hiveItem =
+        _pagination.items[item.key] ?? await _local.get(item.key);
+
+    final ChatItemsCursor? cursor;
+    final ChatItemKey? key;
+
+    if (reply != null) {
+      if (hiveItem is! HiveChatMessage) {
+        return;
+      }
+
+      ChatMessage message = hiveItem.value as ChatMessage;
+      final int replyIndex =
+          message.repliesTo.indexWhere((e) => e.original?.id == reply);
+      if (replyIndex == -1) {
+        return;
+      }
+
+      cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
+      key = message.repliesTo.elementAt(replyIndex).original?.key;
+    } else if (forward != null) {
+      if (hiveItem is! HiveChatForward) {
+        return;
+      }
+
+      cursor = hiveItem.quoteCursor;
+      key = (hiveItem.value as ChatForward).quote.original?.key;
+    } else {
+      cursor = hiveItem?.cursor;
+      key = hiveItem?.value.key;
+    }
+
+    if (_pagination.items[key] != null) {
+      _fragment?.dispose();
+      _fragment = null;
+
+      messages.clear();
+      for (var e in _pagination.items.values) {
+        _add(e.value);
+      }
+
+      _subscribeFor(_pagination);
+      return;
+    }
+
+    if (cursor == null) {
+      return;
+    }
+
+    _fragment = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      onKey: (e) => e.value.key,
+      provider: HiveGraphQlPageProvider(
+        syncWithHive: _local.keys.contains(key),
+        hiveProvider: _provider.hiveProvider,
+        graphQlProvider: _provider.graphQlProvider,
+      ),
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
+    );
+
+    await _fragment!.around(cursor: cursor, key: key);
+
+    if (_fragment != null) {
+      _subscribeFor(_fragment!);
+
+      messages.clear();
+      _fragment?.items.values.forEach((e) => _add(e.value));
     }
   }
 

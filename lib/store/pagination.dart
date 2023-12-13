@@ -357,7 +357,7 @@ class Pagination<T, C, K> {
     return provider.remove(key);
   }
 
-  /// Merge the provided [pagination] into this [Pagination] if their bounds
+  /// Merges the provided [pagination] into this [Pagination] if their bounds
   /// touch.
   bool merge(Pagination<T, C, K> pagination) {
     if (pagination.items.isNotEmpty &&

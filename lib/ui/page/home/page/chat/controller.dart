@@ -1116,14 +1116,6 @@ class ChatController extends GetxController {
         this.addToHistory(item);
       }
     } else {
-      listController.sliverController.animateToIndex(
-        elements.length - 1,
-        offsetBasedOnBottom: true,
-        offset: 0,
-        duration: 300.milliseconds,
-        curve: Curves.ease,
-      );
-
       if (_topLoader == null) {
         _topLoader = LoaderElement.top();
         elements[_topLoader!.id] = _topLoader!;
@@ -1131,7 +1123,6 @@ class ChatController extends GetxController {
 
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
         _ignorePositionChanges = true;
-        listController.jumpTo(listController.offset);
         await listController.sliverController.animateToIndex(
           elements.length - 1,
           offsetBasedOnBottom: true,
@@ -1142,7 +1133,7 @@ class ChatController extends GetxController {
         _ignorePositionChanges = false;
       });
 
-      await chat!.loadFragmentAround(item, reply: reply, forward: forward);
+      await chat!.around(item: item, reply: reply, forward: forward);
 
       int index = elements.values.toList().indexWhere((e) {
         return e.id.id == animateTo ||

@@ -58,10 +58,10 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
 /// provided name.
 ///
 /// Examples:
-/// - When Alice reads all message in "Name" group.
+/// - When Alice reads all messages in "Name" group.
 final StepDefinitionGeneric readsAllMessages =
     when2<TestUser, String, CustomWorld>(
-  '{user} reads all message in {string} group',
+  '{user} reads all messages in {string} group',
   (TestUser user, String name, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
