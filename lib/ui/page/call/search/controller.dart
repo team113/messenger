@@ -475,12 +475,14 @@ class SearchController extends GetxController {
       final String? myLogin = myUser.login?.val;
 
       for (String? param in [title, myLogin, myName, myNum]) {
-        param = param?.toLowerCase().split(' ').join();
+        param = param?.toLowerCase();
         if (param?.contains(queryString) ?? false) {
           chats.value = {
             monologId: monolog,
             ...chats,
           };
+
+          break;
         }
       }
     }
@@ -507,6 +509,7 @@ class SearchController extends GetxController {
         }))
           c.chat.value.id: c,
       };
+
       _populateMonolog();
     }
   }
