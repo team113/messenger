@@ -144,7 +144,7 @@ class MessageFieldController extends GetxController {
   /// changes.
   final void Function()? onChanged;
 
-  /// Callback, called on [ongoingCall] action.
+  /// Callback, called on [Chat.ongoingCall] action is triggered.
   final void Function(bool)? onCall;
 
   /// Indicates whether this device of the currently authenticated [MyUser]

@@ -25,7 +25,7 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for updating the [ApplicationSetting.mediaButtonsPosition] value.
+/// View for updating the [ApplicationSettings.mediaButtonsPosition] value.
 ///
 /// Intended to be displayed with the [show] method.
 class MediaButtonsSwitchView extends StatelessWidget {
@@ -41,7 +41,7 @@ class MediaButtonsSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Duration duration = const Duration(milliseconds: 250);
+    const Duration duration = Duration(milliseconds: 250);
 
     return GetBuilder(
       init: MediaButtonsSwitchController(Get.find()),
