@@ -363,7 +363,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - run: mv build/**.dSYM symbols/
+      - run: mkdir symbols/ && mv build/**.dSYM symbols/
         if: ${{ contains('ios macos', matrix.platform) }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
