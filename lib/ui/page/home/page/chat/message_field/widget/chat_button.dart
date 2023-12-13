@@ -26,22 +26,33 @@ class ChatButtonWidget extends StatelessWidget {
   /// Constructs a [ChatButtonWidget] from the provided [ChatButton].
   ChatButtonWidget(ChatButton button, {super.key})
       : onPressed = button.onPressed,
+        inCall = button.inCall,
         onLongPress = null,
         icon = Transform.translate(
           offset: button.offset,
           child: SvgIcon(button.asset),
+        ),
+        disabledIcon = Transform.translate(
+          offset: button.offset,
+          child: SvgIcon(button.disabled ?? button.asset),
         );
 
   /// Constructs a send/forward [ChatButtonWidget].
   ChatButtonWidget.send({
     super.key,
     bool forwarding = false,
+    this.inCall,
     this.onPressed,
     this.onLongPress,
+    this.disabledIcon,
   }) : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send);
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  final bool Function()? inCall;
 
   /// Callback, called when this [ChatButtonWidget] is long-pressed.
   final void Function()? onLongPress;
@@ -49,12 +60,24 @@ class ChatButtonWidget extends StatelessWidget {
   /// Icon to display.
   final Widget icon;
 
+  /// Disabled icon to display.
+  final Widget? disabledIcon;
+
   @override
   Widget build(BuildContext context) {
+    final bool passive = inCall != null ? inCall!.call() : false;
+
     return AnimatedButton(
-      onPressed: onPressed,
+      onPressed: passive ? null : onPressed,
       onLongPress: onLongPress,
-      child: SizedBox(width: 50, height: 56, child: Center(child: icon)),
+      enabled: !passive,
+      child: SizedBox(
+        width: 50,
+        height: 56,
+        child: Center(
+          child: passive ? disabledIcon : icon,
+        ),
+      ),
     );
   }
 }

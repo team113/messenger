@@ -367,7 +367,9 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
 
-  MediaButtonsPosition? get mediaButtons => settings.value?.mediaButtonsPosition;
+  /// Returns the [MediaButtonsPosition].
+  MediaButtonsPosition? get mediaButtons =>
+      settings.value?.mediaButtonsPosition;
 
   /// Returns [RxUser] being recipient of this [chat].
   ///
@@ -397,6 +399,8 @@ class ChatController extends GetxController {
       _userService,
       _settingsRepository,
       onChanged: updateDraft,
+      onCall: call,
+      inCall: () => inCall,
       onSubmit: () async {
         if (chat == null) {
           return;

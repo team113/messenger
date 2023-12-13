@@ -24,10 +24,14 @@ import '/util/platform_utils.dart';
 
 /// Button in a [MessageFieldView].
 abstract class ChatButton {
-  const ChatButton([this.onPressed]);
+  const ChatButton([this.onPressed, this.inCall]);
 
   /// Callback, called when this [ChatButton] is pressed.
   final void Function()? onPressed;
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  final bool Function()? inCall;
 
   /// Returns a text-represented hint for this [ChatButton].
   String get hint;
@@ -197,8 +201,9 @@ class StickerButton extends ChatButton {
   SvgData get assetMini => SvgIcons.smileSmall;
 }
 
+/// [ChatButton] opening the audio call.
 class AudioCallButton extends ChatButton {
-  const AudioCallButton([super.onPressed]);
+  const AudioCallButton([super.onPressed, super.inCall]);
 
   @override
   String get hint => 'btn_audio_call'.l10n;
@@ -210,8 +215,9 @@ class AudioCallButton extends ChatButton {
   SvgData get disabled => SvgIcons.chatAudioCallDisabled;
 }
 
+/// [ChatButton] opening the video call.
 class VideoCallButton extends ChatButton {
-  const VideoCallButton([super.onPressed]);
+  const VideoCallButton([super.onPressed, super.inCall]);
 
   @override
   String get hint => 'btn_video_call'.l10n;
@@ -222,4 +228,3 @@ class VideoCallButton extends ChatButton {
   @override
   SvgData get disabled => SvgIcons.chatVideoCallDisabled;
 }
-

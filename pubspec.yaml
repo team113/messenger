@@ -159,6 +159,7 @@ flutter:
     - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
+    - assets/images/media_buttons/
     - assets/l10n/
   fonts:
     - family: NotoSansDisplay

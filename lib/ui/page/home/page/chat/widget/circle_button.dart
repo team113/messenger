@@ -22,15 +22,18 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svgs.dart';
 
-class SquareButton extends StatelessWidget {
-  const SquareButton(
+/// Circle button with [icon].
+class CircleButton extends StatelessWidget {
+  const CircleButton(
     this.icon, {
     super.key,
     this.onPressed,
   });
 
+  /// Icon to display.
   final SvgData icon;
 
+  /// Callback, when this [CircleButton] is pressed.
   final void Function()? onPressed;
 
   @override

@@ -57,6 +57,8 @@ class MessageFieldController extends GetxController {
     this._settingsRepository, {
     this.onSubmit,
     this.onChanged,
+    this.onCall,
+    this.inCall,
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
@@ -142,6 +144,13 @@ class MessageFieldController extends GetxController {
   /// changes.
   final void Function()? onChanged;
 
+  /// Callback, called on [ongoingCall] action.
+  final void Function(bool)? onCall;
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  final bool Function()? inCall;
+
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
 
@@ -189,9 +198,9 @@ class MessageFieldController extends GetxController {
     ] else
       AttachmentButton(pickFile),
     if (settings?.value?.mediaButtonsPosition == MediaButtonsPosition.more) ...[
-      const AudioCallButton(),
-      const VideoCallButton(),
-    ]
+      AudioCallButton(() => onCall?.call(false), inCall),
+      VideoCallButton(() => onCall?.call(true), inCall),
+    ],
   ]);
 
   /// [ChatButton]s displayed (pinned) in the text field.
@@ -235,6 +244,7 @@ class MessageFieldController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
 
+  /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?>? get settings =>
       _settingsRepository?.applicationSettings;
 

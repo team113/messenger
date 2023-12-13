@@ -151,6 +151,8 @@ class ApplicationSettingsHiveProvider
     );
   }
 
+  /// Stores a new [position] value of
+  /// [ApplicationSettings.mediaButtonsPosition] to [Hive].
   Future<void> setMediaButtonsPosition(MediaButtonsPosition position) async {
     Log.debug('setMediaButtonsPosition($position)', '$runtimeType');
 

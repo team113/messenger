@@ -34,13 +34,10 @@ class ChatMoreWidget extends StatefulWidget {
     this.onPin,
     void Function()? onPressed,
   })  : label = button.hint,
-        icon = Transform.translate(
-          offset: button.offsetMini,
-          child: Opacity(
-            opacity: button.onPressed == null ? 0.6 : 1,
-            child: SvgIcon(button.assetMini ?? button.asset),
-          ),
-        ) {
+        inCall = button.inCall,
+        offset = button.offsetMini,
+        icon = SvgIcon(button.assetMini ?? button.asset),
+        disabledIcon = SvgIcon(button.disabled ?? button.asset) {
     this.onPressed = button.onPressed == null
         ? null
         : () {
@@ -48,6 +45,10 @@ class ChatMoreWidget extends StatefulWidget {
             button.onPressed?.call();
           };
   }
+
+  /// Indicates whether this device of the currently authenticated [MyUser]
+  /// takes part in the [Chat.ongoingCall], if any.
+  final bool Function()? inCall;
 
   /// Callback, called when this [ChatMoreWidget] is pressed.
   late final void Function()? onPressed;
@@ -61,8 +62,14 @@ class ChatMoreWidget extends StatefulWidget {
   /// Label to display.
   final String label;
 
+  /// [Offset] for the [icon].
+  final Offset offset;
+
   /// Icon to display.
   final Widget icon;
+
+  /// Disabled icon to display.
+  final Widget? disabledIcon;
 
   @override
   State<ChatMoreWidget> createState() => _ChatMoreWidgetState();
@@ -78,6 +85,7 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
     final style = Theme.of(context).style;
 
     final bool disabled = widget.onPressed == null;
+    final bool passive = widget.inCall?.call() ?? false;
 
     return IgnorePointer(
       ignoring: disabled,
@@ -86,10 +94,12 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
         onExit: (_) => setState(() => _hovered = false),
         opaque: false,
         child: WidgetButton(
-          onPressed: widget.onPressed,
+          onPressed: !passive ? widget.onPressed : null,
           child: Container(
             width: double.infinity,
-            color: _hovered ? style.colors.onBackgroundOpacity2 : null,
+            color: (_hovered && !passive)
+                ? style.colors.onBackgroundOpacity2
+                : null,
             constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -99,8 +109,16 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                   width: 26,
                   child: AnimatedScale(
                     duration: const Duration(milliseconds: 100),
-                    scale: _hovered ? 1.05 : 1,
-                    child: widget.icon,
+                    scale: (_hovered && !passive) ? 1.05 : 1,
+                    child: Transform.translate(
+                      offset: widget.offset,
+                      child: Opacity(
+                        opacity: disabled || passive ? 0.6 : 1,
+                        child: passive
+                            ? widget.disabledIcon ?? widget.icon
+                            : widget.icon,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -108,7 +126,9 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                   widget.label,
                   style: disabled
                       ? style.fonts.medium.regular.primaryHighlightLightest
-                      : style.fonts.medium.regular.primary,
+                      : passive
+                          ? style.fonts.medium.regular.secondaryHighlightDarkest
+                          : style.fonts.medium.regular.primary,
                 ),
                 const Spacer(),
                 const SizedBox(width: 16),

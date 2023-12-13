@@ -31,7 +31,6 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -64,8 +63,8 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
+import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
-import 'widget/square_button.dart';
 import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
@@ -392,8 +391,9 @@ class _ChatViewState extends State<ChatView>
                                           offset: const Offset(2, 1),
                                           child: SvgIcon(
                                             hasCall
-                                                ? SvgIcons.makeVideoCallDisabled
-                                                : SvgIcons.makeVideoCall,
+                                                ? SvgIcons.chatVideoCallDisabled
+                                                : SvgIcons.chatVideoCall,
+                                            height: 15,
                                           ),
                                         ),
                                       ),
@@ -734,15 +734,15 @@ class _ChatViewState extends State<ChatView>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const SizedBox(height: 8),
-                                SquareButton(
+                                CircleButton(
                                   hasCall
                                       ? SvgIcons.chatAudioCallDisabled
-                                      : SvgIcons.chatVideoCall,
+                                      : SvgIcons.chatAudioCall,
                                   onPressed:
                                       hasCall ? null : () => c.call(false),
                                 ),
                                 const SizedBox(height: 8),
-                                SquareButton(
+                                CircleButton(
                                   hasCall
                                       ? SvgIcons.chatVideoCallDisabled
                                       : SvgIcons.chatVideoCall,
