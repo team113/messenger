@@ -45,7 +45,7 @@ FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
 FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
 
-SENTRY_RELEASE = $(strip \
+SENTRY_RELEASE ?= $(strip \
 	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
 
 

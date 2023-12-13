@@ -890,6 +890,7 @@ jobs:
         with:
           name: debug-windows-${{ github.run_number }}
           path: symbols/
+      - run: unzip symbols/*.zip -d symbols/
 
       - name: Parse semver versions from Git tag
         id: semver
