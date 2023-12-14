@@ -129,6 +129,7 @@ endif
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
+#	                   [profile=(no|yes)]
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -149,7 +150,8 @@ else
 			                   dockerized=no
 endif
 else
-	flutter build $(or $(platform),apk) --release \
+	flutter build $(or $(platform),apk) \
+		$(if $(call eq,$(profile),yes),--profile,--release)
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,\
 		                                --split-debug-info=symbols) \
 		$(if $(call eq,$(or $(platform),apk),apk),\

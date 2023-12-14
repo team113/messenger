@@ -178,6 +178,7 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}'
         if: ${{ matrix.platform == 'web' }}
       - run: make flutter.build platform=${{ matrix.platform }}
+                  profile=${{ matrix.platform == 'windows' && 'yes' | 'no' }} # Sentry doesn't decode Windows logs in release mode.
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
@@ -301,6 +302,7 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.build platform=linux
+                  profile=yes # Sentry doesn't decode Linux logs in release mode.
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
