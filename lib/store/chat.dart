@@ -551,21 +551,32 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    // If this [Chat] is local, make it remote first.
-    if (id.isLocalWith(me)) {
-      final HiveRxChat remoteMonolog = await ensureRemoteMonolog();
+    try {
+      // Intended to make visual changes instant.
+      chats[id]?.chat.update((c) => c?.isHidden = true);
 
-      // Dispose and delete local monolog from [Hive], since it's just been
-      // replaced with a remote one.
-      await remove(id);
+      // If this [Chat] is local, make it remote first.
+      if (id.isLocalWith(me)) {
+        final HiveRxChat remoteMonolog = await ensureRemoteMonolog();
 
-      id = remoteMonolog.chat.value.id;
+        // Dispose and delete local monolog from [Hive], since it's just been
+        // replaced with a remote one.
+        await remove(id);
+
+        id = remoteMonolog.chat.value.id;
+
+        // Don't let the newly created monolog to 'flicker'.
+        chats[id]?.chat.update((c) => c?.isHidden = true);
+      }
+
+      // [Chat.isHidden] will be changed by [HiveRxChat]'s own remote event
+      // handler. Chat will be removed from [paginated] on [BoxEvent] from the
+      // [_localSubscription].
+      await _graphQlProvider.hideChat(id);
+    } catch (_) {
+      chats[id]?.chat.update((c) => c?.isHidden = false);
+      rethrow;
     }
-
-    // [Chat.isHidden] will be changed by [HiveRxChat]'s own remote event
-    // handler. Chat will be removed from [paginated] on [BoxEvent] from the
-    // [_localSubscription].
-    await _graphQlProvider.hideChat(id);
   }
 
   @override
