@@ -245,7 +245,7 @@ jobs:
           retention-days: 1
 
       # Globstar is supported in Bash 4.0+, and `macos-12` runner uses Bash 3.2.
-      - run: find build -name "*.dSYM" -exec mv {} symbols/ \;
+      - run: find build -name "*.dSYM" -prune -exec mv {} symbols/ \;
         if: ${{ contains('ios macos', matrix.platform) }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
