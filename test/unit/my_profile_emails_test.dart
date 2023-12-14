@@ -29,8 +29,10 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -81,6 +83,10 @@ void main() async {
   await userProvider.init();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -185,7 +191,12 @@ void main() async {
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
-          graphQlProvider, blockedUsersProvider, userRepository),
+        graphQlProvider,
+        blockedUsersProvider,
+        blocklistSortingProvider,
+        userRepository,
+        sessionProvider,
+      ),
     );
 
     AbstractMyUserRepository myUserRepository = MyUserRepository(
@@ -248,7 +259,12 @@ void main() async {
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
-          graphQlProvider, blockedUsersProvider, userRepository),
+        graphQlProvider,
+        blockedUsersProvider,
+        blocklistSortingProvider,
+        userRepository,
+        sessionProvider,
+      ),
     );
 
     AbstractMyUserRepository myUserRepository = MyUserRepository(

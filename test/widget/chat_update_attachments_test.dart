@@ -46,6 +46,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/cache.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -457,6 +458,8 @@ void main() async {
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -503,7 +506,9 @@ void main() async {
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
+        blocklistSortingProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractSettingsRepository settingsRepository = Get.put(
