@@ -37,8 +37,8 @@ import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
-import '/domain/service/user.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/routes.dart';

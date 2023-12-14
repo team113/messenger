@@ -551,10 +551,10 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    try {
-      // Intended to make visual changes instant.
-      chats[id]?.chat.update((c) => c?.isHidden = true);
+    // Intended to make visual changes instant.
+    chats[id]?.chat.update((c) => c?.isHidden = true);
 
+    try {
       // If this [Chat] is local, make it remote first.
       if (id.isLocalWith(me)) {
         final HiveRxChat remoteMonolog = await ensureRemoteMonolog();
@@ -565,7 +565,7 @@ class ChatRepository extends DisposableInterface
 
         id = remoteMonolog.chat.value.id;
 
-        // Don't let the newly created monolog to 'flicker'.
+        // Don't let the newly created monolog to flicker.
         chats[id]?.chat.update((c) => c?.isHidden = true);
       }
 
@@ -575,6 +575,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChat(id);
     } catch (_) {
       chats[id]?.chat.update((c) => c?.isHidden = false);
+
       rethrow;
     }
   }
