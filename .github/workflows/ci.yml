@@ -182,7 +182,7 @@ jobs:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
-                  profile=${{ matrix.platform == 'windows' && 'yes' | 'no' }}
+                  profile=${{ matrix.platform == 'windows' && 'yes' || 'no' }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
