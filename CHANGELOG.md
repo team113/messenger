@@ -23,8 +23,6 @@ All user visible changes to this project will be documented in this file. This p
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
         - Swipe to delete gesture. ([#732])
-    - Profile page:
-        - Change media buttons position. ([#750], [#718])
 
 ### Changed
 
@@ -35,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Display read partially message status in groups. ([#703], [#666])
         - Actions moved to more button. ([#736], [#719])
+        - Call buttons position setting and adjusting. ([#750], [#718])
     - Chat info page:
         - Actions moved to more button. ([#736], [#719])
     - User page:
