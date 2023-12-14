@@ -571,7 +571,10 @@ class ChatRepository extends DisposableInterface
         await _monologLocal.set(id);
       }
 
-      await unfavoriteChat(id);
+      if (chat == null || chat.chat.value.favoritePosition != null) {
+        await unfavoriteChat(id);
+      }
+
       await _graphQlProvider.hideChat(id);
     } catch (_) {
       if (id == monolog?.chat.value.id) {
