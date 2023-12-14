@@ -72,6 +72,12 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     return getSafe(0)?.contactsSynchronized;
   }
 
+  /// Returns the stored [SessionData.blocklistSynchronized] from [Hive].
+  bool? getBlocklistSynchronized() {
+    Log.debug('getBlocklistSynchronized()', '$runtimeType');
+    return getSafe(0)?.blocklistSynchronized;
+  }
+
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
   Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) {
     Log.debug('setChatContactsListVersion($ver)', '$runtimeType');
@@ -99,7 +105,7 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     );
   }
 
-  /// Stores a new [SessionData.favoriteContactsSynchronized] from [Hive].
+  /// Stores a new [SessionData.favoriteContactsSynchronized] to [Hive].
   Future<void> setFavoriteContactsSynchronized(bool val) async {
     Log.debug('setFavoriteContactsSynchronized($val)', '$runtimeType');
     await putSafe(
@@ -108,12 +114,21 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     );
   }
 
-  /// Stores a new [SessionData.contactsSynchronized] from [Hive].
+  /// Stores a new [SessionData.contactsSynchronized] to [Hive].
   Future<void> setContactsSynchronized(bool val) async {
     Log.debug('setContactsSynchronized($val)', '$runtimeType');
     await putSafe(
       0,
       (box.get(0) ?? SessionData())..contactsSynchronized = val,
+    );
+  }
+
+  /// Stores a new [SessionData.blocklistSynchronized] to [Hive].
+  Future<void> setBlocklistSynchronized(bool val) async {
+    Log.debug('setBlocklistSynchronized()', '$runtimeType');
+    await putSafe(
+      0,
+      (box.get(0) ?? SessionData())..blocklistSynchronized = val,
     );
   }
 }

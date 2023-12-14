@@ -308,13 +308,13 @@ abstract class IterableHiveProvider<T extends Object, K> {
   Iterable<K> get keys;
 
   /// Returns a list of [T] items from [Hive].
-  FutureOr<Iterable<T>> get values;
+  Future<Iterable<T>> get values;
 
   /// Puts the provided [item] to [Hive].
   Future<void> put(T item);
 
   /// Returns a [T] item from [Hive] by its [key].
-  FutureOr<T?> get(K key);
+  Future<T?> get(K key);
 
   /// Removes a [T] item from [Hive] by the provided [key].
   Future<void> remove(K key);

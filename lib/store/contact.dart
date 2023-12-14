@@ -91,7 +91,7 @@ class ContactRepository extends DisposableInterface
   /// [User]s repository.
   final UserRepository _userRepo;
 
-  /// [SessionDataHiveProvider] used to store [ChatContactsEventsCursor].
+  /// [SessionDataHiveProvider] used to store [ChatContact]s list related data.
   final SessionDataHiveProvider _sessionLocal;
 
   /// [ContactHiveProvider.boxEvents] subscription.
@@ -395,7 +395,7 @@ class ContactRepository extends DisposableInterface
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
-            Page<HiveChatContact, FavoriteChatContactsCursor> page =
+            final Page<HiveChatContact, FavoriteChatContactsCursor> page =
                 await _favoriteContacts(
               after: after,
               first: first,
@@ -429,7 +429,7 @@ class ContactRepository extends DisposableInterface
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
-            Page<HiveChatContact, ChatContactsCursor> page =
+            final Page<HiveChatContact, ChatContactsCursor> page =
                 await _chatContacts(
               after: after,
               first: first,
@@ -601,12 +601,7 @@ class ContactRepository extends DisposableInterface
         _favoriteLocal.remove(contactId);
         _contactSortingLocal.remove(contactId);
       } else {
-        final HiveRxChatContact? contact = contacts[contactId];
         final HiveChatContact value = event.value;
-
-        if (contact == null || contact.ver <= value.ver) {
-          _add(value);
-        }
 
         if (value.value.favoritePosition != null) {
           _favoriteLocal.put(value.value.favoritePosition!, contactId);

@@ -32,12 +32,13 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -846,7 +847,9 @@ class MyUserRepository implements AbstractMyUserRepository {
             userEntity.value.blocklistCount =
                 userEntity.value.blocklistCount! + 1;
           }
-          _blocklistRepo.put(event.user);
+          _blocklistRepo.put(
+            HiveBlocklistRecord(event.user.value.isBlocked!, null),
+          );
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:
