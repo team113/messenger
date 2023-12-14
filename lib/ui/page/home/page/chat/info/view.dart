@@ -111,22 +111,6 @@ class ChatInfoView extends StatelessWidget {
                   children: [
                     const SizedBox(height: 8),
                     Block(
-                      overlay: [
-                        Positioned.fill(
-                          bottom: 2,
-                          // left: 0,
-                          // right: 0,
-                          // right: 2,
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Text(
-                              'Редактировать',
-                              style: style.fonts.smaller.regular.primary,
-                            ),
-                          ),
-                          // child: SvgIcon(SvgIcons.edit22),
-                        ),
-                      ],
                       children: [
                         BigAvatarWidget.chat(
                           c.chat,
@@ -141,29 +125,12 @@ class ChatInfoView extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         _name(c, context),
-                        const SizedBox(height: 16),
                       ],
                     ),
                     if (!c.isMonolog) ...[
                       // if (c.chat?.chat.value.directLink != null)
                       SelectionContainer.disabled(
                         child: Block(
-                          overlay: [
-                            Positioned.fill(
-                              bottom: 2,
-                              // left: 0,
-                              // right: 0,
-                              // right: 2,
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: Text(
-                                  'Редактировать',
-                                  style: style.fonts.smaller.regular.primary,
-                                ),
-                              ),
-                              // child: SvgIcon(SvgIcons.edit22),
-                            ),
-                          ],
                           title: 'label_direct_chat_link'.l10n,
                           children: [
                             // const SizedBox(height: 8),
@@ -199,15 +166,19 @@ class ChatInfoView extends StatelessWidget {
                                         //   child: const SvgIcon(SvgIcons.copy),
                                         // ),
                                       ),
-                                      // Padding(
-                                      //   padding:
-                                      //       const EdgeInsets.fromLTRB(6, 4, 8, 0),
-                                      //   child: Text(
-                                      //     'Что это такое? Подробнее',
-                                      //     style:
-                                      //         style.fonts.small.regular.primary,
-                                      //   ),
-                                      // ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          6,
+                                          24,
+                                          8,
+                                          0,
+                                        ),
+                                        child: Text(
+                                          'Пользователи, пришедшие по прямой ссылке группы, автоматически становятся полноправными участниками чата.',
+                                          style: style
+                                              .fonts.small.regular.secondary,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -220,7 +191,6 @@ class ChatInfoView extends StatelessWidget {
                                 child: child,
                               );
                             }),
-                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -319,14 +289,23 @@ class ChatInfoView extends StatelessWidget {
         members.insert(0, me);
       }
 
+      members.sort((a, b) {
+        final first = a.user.value.name?.val ?? a.user.value.num.val;
+        final second = b.user.value.name?.val ?? b.user.value.num.val;
+        return first.compareTo(second);
+      });
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           BigButton(
             key: const Key('AddMemberButton'),
             // leading: Icon(Icons.people, color: style.colors.primary),
-            leading: const SvgIcon(SvgIcons.addUser),
-            title: Text('btn_add_member'.l10n),
+            // leading: const SvgIcon(SvgIcons.addUser),
+
+            title:
+                Text('label_participants'.l10nfmt({'count': members.length})),
+            leading: Text('btn_add'.l10n),
             onPressed: () => AddChatMemberView.show(context, chatId: id),
           ),
           const SizedBox(height: 3),
@@ -542,31 +521,50 @@ class ChatInfoView extends StatelessWidget {
             // ),
             // const SizedBox(width: 28),
 
-            Obx(() {
-              final bool muted = c.chat?.chat.value.muted != null;
+            // Obx(() {
+            //   final bool muted = c.chat?.chat.value.muted != null;
 
-              return AnimatedButton(
-                onPressed: muted ? c.unmuteChat : c.muteChat,
-                child: SvgIcon(muted ? SvgIcons.muted22 : SvgIcons.unmuted22),
-              );
-            }),
-            const SizedBox(width: 28),
-            Obx(() {
-              final bool favorite = c.chat?.chat.value.favoritePosition != null;
+            //   return AnimatedButton(
+            //     onPressed: muted ? c.unmuteChat : c.muteChat,
+            //     child: SvgIcon(muted ? SvgIcons.muted22 : SvgIcons.unmuted22),
+            //   );
+            // }),
+            // const SizedBox(width: 28),
+            // Obx(() {
+            //   final bool favorite = c.chat?.chat.value.favoritePosition != null;
 
-              return AnimatedButton(
-                onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                child: SvgIcon(
-                  favorite ? SvgIcons.favorite22 : SvgIcons.unfavorite22,
-                ),
-              );
-            }),
-            const SizedBox(width: 28),
+            //   return AnimatedButton(
+            //     onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+            //     child: SvgIcon(
+            //       favorite ? SvgIcons.favorite22 : SvgIcons.unfavorite22,
+            //     ),
+            //   );
+            // }),
+            // const SizedBox(width: 28),
             AnimatedButton(
+              decorator: (child) => Padding(
+                padding: const EdgeInsets.only(bottom: 2, right: 16),
+                child: child,
+              ),
               onPressed: c.editing.toggle,
-              child: const SvgIcon(SvgIcons.edit22),
+              child: const SvgIcon(SvgIcons.editGroup),
             ),
-            const SizedBox(width: 21),
+            // AnimatedButton(
+            //   onPressed: c.editing.toggle,
+            //   child: const SvgIcon(SvgIcons.edit22),
+            // ),
+            // AnimatedButton(
+            //   onPressed: c.editing.toggle,
+            //   decorator: (child) => Padding(
+            //     padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            //     child: child,
+            //   ),
+            //   child: Text(
+            //     'Редактировать',
+            //     style: style.fonts.normal.regular.primary,
+            //   ),
+            // ),
+            // const SizedBox(width: 21),
             if (false)
               Obx(() {
                 return ContextMenuRegion(
@@ -832,19 +830,25 @@ class _BigButtonState extends State<BigButton> {
                       child: DefaultTextStyle(
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: style.fonts.normal.regular.onBackground.copyWith(
-                          color: style.colors.primary,
-                        ),
+                        style: style.fonts.normal.regular.secondary,
                         child: widget.title,
                       ),
                     ),
                     if (widget.leading != null) ...[
                       const SizedBox(width: 12),
-                      AnimatedScale(
-                        duration: const Duration(milliseconds: 100),
-                        scale: _hovered ? 1.05 : 1,
+                      DefaultTextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: style.fonts.normal.regular.onBackground.copyWith(
+                          color: style.colors.primary,
+                        ),
                         child: widget.leading!,
                       ),
+                      // AnimatedScale(
+                      //   duration: const Duration(milliseconds: 100),
+                      //   scale: _hovered ? 1.05 : 1,
+                      //   child: widget.leading!,
+                      // ),
                       const SizedBox(width: 4),
                     ],
                   ],

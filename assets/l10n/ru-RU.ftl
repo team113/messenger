@@ -1148,3 +1148,4 @@ label_hide_incoming_prices = Скрыть стоимость входящих
 label_show_incoming_prices = Отображать стоимость входящих
 label_about = О себе
 label_show_more = показать больше
+label_participants = Участников: {$count}

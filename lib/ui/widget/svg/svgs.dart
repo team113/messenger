@@ -1920,4 +1920,10 @@ class SvgIcons {
     width: 21,
     height: 21,
   );
+
+    static const SvgData editGroup = SvgData(
+    'assets/icons/edit_group.svg',
+    width: 24.97 ,
+    height: 23.95,
+  );
 }
