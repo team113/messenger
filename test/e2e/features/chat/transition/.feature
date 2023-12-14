@@ -20,12 +20,13 @@ Feature: Chat transitions
   Scenario: Chats transitions works correctly
     Given user Alice
     And Alice has "Test" group
+    And Alice sends "first message" message to "Test" group
     And Alice sends 100 messages to "Test" group
-    And Alice replies first message in "Test" group
+    And Alice replies "first message" message in "Test" group
     And Alice reads all messages in "Test" group
     And I sign in as Alice
     And I am in "Test" group
 
     When I tap `CloseButton` button
-    And I tap `RepliedMessage` widget
-    Then I see first message
+    And I tap "first message" reply
+    Then I see "first message" message

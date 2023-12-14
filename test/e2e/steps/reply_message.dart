@@ -16,35 +16,41 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/api/backend/extension/chat.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/chat_item.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Replies first message by the provided [TestUser] in the [Group] with the
-/// provided name.
+/// Replies a message with the provided text by the provided [TestUser] in the
+/// [Group] with the provided name.
 ///
 /// Examples:
-/// - When Alice replies first message in "Name" group.
-final StepDefinitionGeneric repliesFirstMessage =
-    when2<TestUser, String, CustomWorld>(
-  '{user} replies first message in {string} group',
-  (TestUser user, String name, context) async {
+/// - When Alice replies "dummy msg" message in "Name" group.
+final StepDefinitionGeneric repliesMessage =
+    when3<TestUser, String, String, CustomWorld>(
+  '{user} replies {string} message in {string} group',
+  (TestUser user, String text, String name, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
     final ChatId chatId = context.world.groups[name]!;
-    final ChatMessageMixin firstMessage =
-        (await provider.chatItems(chatId, last: 3)).chat!.items.edges.first.node
-            as ChatMessageMixin;
+    final HiveChatMessage message =
+        (await provider.chatItems(chatId, first: 120))
+            .chat!
+            .items
+            .edges
+            .map((e) => e.toHive())
+            .whereType<HiveChatMessage>()
+            .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
 
     await provider.postChatMessage(
       chatId,
       text: const ChatMessageText('reply'),
-      repliesTo: [firstMessage.id],
+      repliesTo: [message.value.id],
     );
 
     provider.disconnect();

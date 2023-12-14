@@ -49,6 +49,30 @@ final StepDefinitionGeneric sendsMessageToMe =
     ..timeout = const Duration(minutes: 5),
 );
 
+/// Sends a message from the specified [User] the group with the provided name
+/// with the provided text.
+///
+/// Examples:
+/// - Bob sends "Hello, Alice!" message to "Name" group
+/// - Charlie sends "dummy msg" message to "Name" group
+final StepDefinitionGeneric sendsMessageToGroup =
+    and3<TestUser, String, String, CustomWorld>(
+  '{user} sends {string} message to {string} group',
+  (TestUser user, String msg, String group, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    await provider.postChatMessage(
+      context.world.groups[group]!,
+      text: ChatMessageText(msg),
+    );
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
 /// their [Chat]-dialog ensuring the thrown exception is of the provided kind.
 ///
@@ -96,7 +120,7 @@ final StepDefinitionGeneric sendsMessageWithException =
 /// group with the provided name.
 ///
 /// Examples:
-/// - Given Alice sends 100 messages to "Name" group.
+/// - Given Alice sends 100 messages to "Name" group
 final StepDefinitionGeneric sendsCountMessages =
     given3<TestUser, int, String, CustomWorld>(
   '{user} sends {int} messages to {string} group',

@@ -15,12 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.graphql.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -60,24 +61,25 @@ final StepDefinitionGeneric seeChatMessages =
 /// Indicates whether the first [ChatItem]s is visible in the opened [Chat].
 ///
 /// Examples:
-/// - I see first message.
-final StepDefinitionGeneric seeFirstMessage = when<CustomWorld>(
-  'I see first message',
-  (context) async {
-    GraphQlProvider provider = Get.find();
-
-    final ChatId chatId = ChatId(router.route.split('/').last);
-    final ChatMessageMixin firstMessage =
-        (await provider.chatItems(chatId, last: 3)).chat!.items.edges.first.node
-            as ChatMessageMixin;
+/// - I see "dummy message" message.
+final StepDefinitionGeneric seeChatMessage = when1<String, CustomWorld>(
+  'I see {string} message',
+  (String text, context) async {
+    final RxChat chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)]!;
 
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
+        final ChatMessage? message = chat.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhereOrNull((e) => e.text?.val == text);
+
         return await context.world.appDriver.isPresent(
           context.world.appDriver
-              .findByKeySkipOffstage('Message_${firstMessage.id}'),
+              .findByKeySkipOffstage('Message_${message?.id}'),
         );
       },
     );

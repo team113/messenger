@@ -111,6 +111,7 @@ import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_message.dart';
+import 'steps/tap_reply.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -192,7 +193,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         popupWindows,
         readsAllMessages,
         readsMessage,
-        repliesFirstMessage,
+        repliesMessage,
         restartApp,
         returnToPreviousPage,
         rightClickMessage,
@@ -207,6 +208,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
+        seeChatMessage,
         seeChatMessages,
         seeChatSelection,
         seeContactAsDismissed,
@@ -218,7 +220,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeCountFavoriteChats,
         seeDraftInDialog,
         seeFavoriteChatPosition,
-        seeFirstMessage,
         seeMonologAsFavorite,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
@@ -229,6 +230,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         selectMessageText,
         sendsAttachmentToMe,
         sendsCountMessages,
+        sendsMessageToGroup,
         sendsMessageToMe,
         sendsMessageWithException,
         signInAs,
@@ -236,6 +238,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapContact,
         tapDropdownItem,
         tapMessage,
+        tapReply,
         tapText,
         tapUserInSearchResults,
         tapWidget,
