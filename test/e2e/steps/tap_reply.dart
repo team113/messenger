@@ -45,8 +45,8 @@ final StepDefinitionGeneric tapReply = then1<String, CustomWorld>(
         .mapMany((e) => e.repliesTo)
         .firstWhere((e) => (e.original as ChatMessage).text?.val == text);
 
-    final Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('Reply_${reply.original!.id}');
+    final Finder finder = context.world.appDriver
+        .findByKeySkipOffstage('Reply_${reply.original!.id}');
 
     await context.world.appDriver.nativeDriver.tap(finder);
     await context.world.appDriver.waitForAppToSettle();
