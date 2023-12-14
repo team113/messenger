@@ -78,10 +78,10 @@ extension MyUserEventsMyUserConversion
 extension BlocklistRecordConversion on BlocklistRecordMixin {
   /// Constructs a new [BlocklistRecord] from this [BlocklistRecordMixin].
   BlocklistRecord toModel() => BlocklistRecord(
-    userId: user.id,
-    reason: reason,
-    at: at,
-  );
+        userId: user.id,
+        reason: reason,
+        at: at,
+      );
 
   /// Constructs a new [HiveBlocklistRecord] from this [BlocklistRecordMixin].
   HiveBlocklistRecord toHive({BlocklistCursor? cursor}) =>
