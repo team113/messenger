@@ -1921,9 +1921,21 @@ class SvgIcons {
     height: 21,
   );
 
-    static const SvgData editGroup = SvgData(
+  static const SvgData editGroup = SvgData(
     'assets/icons/edit_group.svg',
-    width: 24.97 ,
-    height: 23.95,
+    width: 21.91,
+    height: 21.45,
+  );
+
+  static const SvgData emerald = SvgData(
+    'assets/icons/emerald.svg',
+    width: 13.79,
+    height: 18,
+  );
+
+  static const SvgData emeraldWhite = SvgData(
+    'assets/icons/emerald_white.svg',
+    width: 13.79,
+    height: 18,
   );
 }

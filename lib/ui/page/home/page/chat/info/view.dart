@@ -28,6 +28,7 @@ import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/animated_switcher.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
@@ -148,19 +149,37 @@ class ChatInfoView extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          6,
+                                          0,
+                                          8,
+                                          24,
+                                        ),
+                                        child: Text(
+                                          'Пользователи, пришедшие по прямой ссылке группы, автоматически становятся полноправными участниками чата.',
+                                          style: style
+                                              .fonts.small.regular.secondary,
+                                        ),
+                                      ),
                                       ContactInfoContents(
                                         padding: EdgeInsets.zero,
-                                        title: '${Config.origin}/',
+                                        // title: '${Config.origin}/',
+                                        // opaque: true,
+
                                         // content: 'kLFJKjkw14j23JDMwW',
-                                        content: c.link.text,
-                                        // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
+                                        // content: c.link.text,
+                                        content:
+                                            '${Config.origin}/${c.link.text}'
+                                                .split('')
+                                                .join('\ufeff'),
                                         icon:
                                             const SvgIcon(SvgIcons.profileLink),
                                         maxLines: null,
-                                        trailing: CopyOrShareButton(
-                                          '${Config.origin}/${c.chat?.chat.value.directLink}',
-                                          onCopy: c.link.submit,
-                                        ),
+                                        // status: CopyOrShareButton(
+                                        //   '${Config.origin}/${c.chat?.chat.value.directLink}',
+                                        //   onCopy: c.link.submit,
+                                        // ),
                                         // trailing: WidgetButton(
                                         //   onPressed: () {},
                                         //   child: const SvgIcon(SvgIcons.copy),
@@ -169,16 +188,55 @@ class ChatInfoView extends StatelessWidget {
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
                                           6,
-                                          24,
+                                          8,
                                           8,
                                           0,
                                         ),
-                                        child: Text(
-                                          'Пользователи, пришедшие по прямой ссылке группы, автоматически становятся полноправными участниками чата.',
-                                          style: style
-                                              .fonts.small.regular.secondary,
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          child: AnimatedButton(
+                                            onPressed: () async {
+                                              if (c.link.text !=
+                                                  c.chat?.chat.value.directLink
+                                                      ?.slug.val) {
+                                                c.link.submit();
+                                              }
+
+                                              final share =
+                                                  '${Config.origin}/${c.link.text}';
+
+                                              if (PlatformUtils.isMobile) {
+                                                await Share.share(share);
+                                              } else {
+                                                PlatformUtils.copy(text: share);
+                                                MessagePopup.success(
+                                                  'label_copied'.l10n,
+                                                );
+                                              }
+                                            },
+                                            child: Text(
+                                              PlatformUtils.isMobile
+                                                  ? 'Поделиться'
+                                                  : 'Скопировать',
+                                              style: style
+                                                  .fonts.small.regular.primary,
+                                            ),
+                                          ),
                                         ),
                                       ),
+                                      // Padding(
+                                      //   padding: const EdgeInsets.fromLTRB(
+                                      //     6,
+                                      //     24,
+                                      //     8,
+                                      //     0,
+                                      //   ),
+                                      //   child: Text(
+                                      //     'Пользователи, пришедшие по прямой ссылке группы, автоматически становятся полноправными участниками чата.',
+                                      //     style: style
+                                      //         .fonts.small.regular.secondary,
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 );
@@ -317,9 +375,11 @@ class ChatInfoView extends StatelessWidget {
             return MemberTile(
               user: e,
               canLeave: e.id == c.me,
-              inCall: e.id == c.me || c.chat?.chat.value.ongoingCall == null
+              inCall: c.chat?.chat.value.ongoingCall == null
                   ? null
-                  : inCall,
+                  : e.id == c.me
+                      ? c.inCall
+                      : inCall,
               onTap: () {
                 if (e.dialog.value != null) {
                   router.chat(e.dialog.value!.id, push: true);
@@ -329,7 +389,9 @@ class ChatInfoView extends StatelessWidget {
               },
               onCall: inCall
                   ? () => c.removeChatCallMember(e.id)
-                  : () => c.redialChatCallMember(e.id),
+                  : e.id == c.me
+                      ? c.joinCall
+                      : () => c.redialChatCallMember(e.id),
               onKick: () => c.removeChatMember(e.id),
             );
           }),

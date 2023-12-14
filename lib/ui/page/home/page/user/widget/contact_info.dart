@@ -55,8 +55,10 @@ class ContactInfoContents extends StatelessWidget {
     required this.content,
     this.icon,
     this.trailing,
+    this.status,
     this.padding = const EdgeInsets.all(12),
     this.maxLines = 1,
+    this.opaque = false,
   });
 
   final String? title;
@@ -64,9 +66,11 @@ class ContactInfoContents extends StatelessWidget {
 
   final Widget? icon;
   final Widget? trailing;
+  final Widget? status;
 
   final EdgeInsets padding;
   final int? maxLines;
+  final bool opaque;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +79,7 @@ class ContactInfoContents extends StatelessWidget {
     return Padding(
       padding: padding,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(width: 6.5),
           // if (icon != null) icon!,
@@ -88,7 +93,9 @@ class ContactInfoContents extends StatelessWidget {
                   DefaultTextStyle(
                     overflow: TextOverflow.ellipsis,
                     maxLines: maxLines,
-                    style: style.fonts.small.regular.secondary,
+                    style: opaque
+                        ? style.fonts.small.regular.onBackground
+                        : style.fonts.small.regular.secondary,
                     child: Text(title!),
                   ),
                 // const SizedBox(height: 4),
@@ -96,6 +103,7 @@ class ContactInfoContents extends StatelessWidget {
                   maxLines: maxLines,
                   overflow: maxLines == null ? null : TextOverflow.ellipsis,
                   style: style.fonts.big.regular.onBackground,
+                  textAlign: TextAlign.justify,
                   child: Row(
                     children: [
                       Expanded(child: Text(content)),
@@ -109,6 +117,10 @@ class ContactInfoContents extends StatelessWidget {
               ],
             ),
           ),
+          if (status != null) ...[
+            const SizedBox(width: 8),
+            status!,
+          ],
         ],
       ),
     );

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 
@@ -68,7 +69,7 @@ class MemberTile extends StatelessWidget {
     final trailing = [
       const SizedBox(width: 12),
       if (inCall != null) ...[
-        const SizedBox(width: 8),
+        // const SizedBox(width: 8),
         SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Material(
@@ -94,7 +95,7 @@ class MemberTile extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: canLeave ? 12 : 16),
       ],
       AnimatedButton(
         enabled: !canLeave,
@@ -135,18 +136,50 @@ class MemberTile extends StatelessWidget {
     ];
 
     if (user.dialog.value != null && !canLeave) {
-      return RecentChatTile(
-        user.dialog.value!,
-        onTap: onTap,
-        trailing: trailing,
-        appendTrailing: true,
-        monolog: false,
-      );
+      return Obx(() {
+        final muted = user.dialog.value?.chat.value.muted != null;
+        final bool paid = !canLeave &&
+            (user.user.value.name?.val.toLowerCase().contains('alex2') ==
+                    true ||
+                user.user.value.name?.val.toLowerCase().contains('kirey') ==
+                    true);
+
+        return ChatTile(
+          chat: user.dialog.value,
+          onTap: onTap,
+          trailing: trailing,
+          monolog: false,
+          height: 58,
+          avatarBuilder: (a) =>
+              Padding(padding: const EdgeInsets.all(4), child: a),
+          status: [
+            if (paid) ...[
+              const SizedBox(width: 8),
+              // const SvgIcon(SvgIcons.premium),
+              const SvgIcon(SvgIcons.emerald),
+            ],
+            if (muted) ...[
+              const SizedBox(width: 10),
+              const SvgIcon(SvgIcons.muted),
+            ],
+          ],
+        );
+      });
+
+      // return RecentChatTile(
+      //   user.dialog.value!,
+      //   onTap: onTap,
+      //   trailing: trailing,
+      //   appendTrailing: true,
+      //   monolog: false,
+      // );
     }
 
     return ContactTile(
       user: user,
       onTap: canLeave ? null : onTap,
+      height: 58,
+      avatarBuilder: (a) => Padding(padding: const EdgeInsets.all(4), child: a),
       // subtitle: [
       //   const SizedBox(height: 8),
       //   Text(
