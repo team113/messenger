@@ -263,24 +263,22 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
   @override
   int compareTo(Chat other, [UserId? me]) {
-    int? result;
-
     if (ongoingCall != null && other.ongoingCall == null) {
       return -1;
     } else if (ongoingCall == null && other.ongoingCall != null) {
       return 1;
     } else if (ongoingCall != null && other.ongoingCall != null) {
-      result = ongoingCall!.at.compareTo(other.ongoingCall!.at);
+      final result = ongoingCall!.at.compareTo(other.ongoingCall!.at);
+      return result == 0 ? id.compareTo(other.id) : result;
     }
 
-    if (result == null) {
-      if (favoritePosition != null && other.favoritePosition == null) {
-        return -1;
-      } else if (favoritePosition == null && other.favoritePosition != null) {
-        return 1;
-      } else if (favoritePosition != null && other.favoritePosition != null) {
-        result = other.favoritePosition!.compareTo(favoritePosition!);
-      }
+    if (favoritePosition != null && other.favoritePosition == null) {
+      return -1;
+    } else if (favoritePosition == null && other.favoritePosition != null) {
+      return 1;
+    } else if (favoritePosition != null && other.favoritePosition != null) {
+      final result = other.favoritePosition!.compareTo(favoritePosition!);
+      return result == 0 ? id.compareTo(other.id) : result;
     }
 
     if (id.isLocalWith(me) && !other.id.isLocalWith(me)) {
@@ -289,8 +287,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
       return -1;
     }
 
-    result ??= other.updatedAt.compareTo(updatedAt);
-
+    final result = other.updatedAt.compareTo(updatedAt);
     return result == 0 ? id.compareTo(other.id) : result;
   }
 
