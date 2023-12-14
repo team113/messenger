@@ -364,7 +364,7 @@ jobs:
           retention-days: 1
 
       - run: find build -print | sed -e "s;[^/]*/;|____;g;s;____|; |;g"
-      # - run: mv build/\*\*/\*.dSYM symbols/
+      - run: mv build/macOS/Build/Products/**/*.dSYM symbols/
       #   if: ${{ contains('ios macos', matrix.platform) }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
