@@ -357,12 +357,12 @@ jobs:
           retention-days: 1
 
       # Globstar is supported in Bash 4.0+, and `macos-12` runner uses Bash 3.2.
-      - run: find build -name "*.dSYM" -prune -exec mv {} symbols/ \;
+      - run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
         if: ${{ contains('ios macos', matrix.platform) }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
-          directory: 'symbols'
+          directory: 'debug'
         if: ${{ contains('apk appbundle ios macos windows', matrix.platform) }}
       - uses: actions/upload-artifact@v3
         with:
@@ -460,7 +460,7 @@ jobs:
       - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/debug-linux.zip
-          directory: 'symbols'
+          directory: 'debug'
       - uses: actions/upload-artifact@v3
         with:
           name: debug-linux-${{ github.run_number }}
@@ -892,30 +892,30 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: debug-apk-${{ github.run_number }}
-          path: symbols/
+          path: debug/
       - uses: actions/download-artifact@v3
         with:
           name: debug-appbundle-${{ github.run_number }}
-          path: symbols/
+          path: debug/
       # - uses: actions/download-artifact@v3
       #   with:
       #     name: debug-ios-${{ github.run_number }}
-      #     path: symbols/
+      #     path: debug/
       - uses: actions/download-artifact@v3
         with:
           name: debug-linux-${{ github.run_number }}
-          path: symbols/
+          path: debug/
       - uses: actions/download-artifact@v3
         with:
           name: debug-macos-${{ github.run_number }}
-          path: symbols/
+          path: debug/
       - uses: actions/download-artifact@v3
         with:
           name: debug-windows-${{ github.run_number }}
-          path: symbols/
-      - run: for f in symbols/*.zip; do unzip "$f" -d "${f%.zip}"; done
+          path: debug/
+      - run: for f in debug/*.zip; do unzip "$f" -d "${f%.zip}"; done
 
-      - run: tree symbols
+      - run: tree debug
 
       # - name: Parse semver versions from Git tag
       #   id: semver
