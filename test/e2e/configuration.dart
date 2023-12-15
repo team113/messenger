@@ -116,6 +116,7 @@ import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
+import 'steps/update_login.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
@@ -215,6 +216,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
+        seeMonologInSearchResults,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
         seesAs,
@@ -244,6 +246,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExistsWithin,
         updateAppVersion,
         updateAvatar,
+        updateLogin,
         updateName,
         user,
         waitForAppToSettle,

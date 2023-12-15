@@ -21,6 +21,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
 
@@ -88,6 +89,29 @@ final StepDefinitionGeneric seeChatInSearchResults =
         await context.world.appDriver.waitForAppToSettle();
 
         final ChatId chatId = context.world.groups[name]!;
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy(
+            'SearchChat_$chatId',
+            FindType.key,
+          ),
+        );
+      },
+      timeout: const Duration(seconds: 30),
+    );
+  },
+);
+
+/// Waits until the monolog is found and displayed in the ongoing search
+/// results.
+final StepDefinitionGeneric seeMonologInSearchResults = then<CustomWorld>(
+  'I see monolog in search results',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+
+        final ChatId chatId = Get.find<ChatService>().monolog;
+
         return context.world.appDriver.isPresent(
           context.world.appDriver.findBy(
             'SearchChat_$chatId',
