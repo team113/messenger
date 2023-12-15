@@ -446,7 +446,7 @@ void main() async {
       find.byKey(const Key('Chat_0d72d245-8425-467a-9ebd-082d4f47850b')),
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    await tester.tap(find.byKey(const Key('ButtonHideChat')));
+    await tester.tap(find.byKey(const Key('HideChatButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
