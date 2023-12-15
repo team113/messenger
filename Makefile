@@ -45,7 +45,7 @@ FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
 FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
 
-SENTRY_RELEASE = $(strip \
+SENTRY_RELEASE ?= $(strip \
 	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
 
 
@@ -129,6 +129,7 @@ endif
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
+#	                   [profile=(no|yes)]
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -150,7 +151,8 @@ else
 endif
 else
 	flutter build $(or $(platform),apk) \
-		$(if $(call eq,$(platform),web),--profile --web-renderer html --source-maps,\
+		$(if $(call eq,$(profile),yes),--profile,--release) \
+		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,\
 		                                --split-debug-info=symbols) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
@@ -261,6 +263,7 @@ endif
 #	              [gen=(yes|no)] [clean=(no|yes)]
 #	              [( [start-app=no]
 #	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
+#	              [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 
 test.e2e:
 ifeq ($(clean),yes)
@@ -284,7 +287,8 @@ else
 	flutter drive --headless -d $(or $(device),chrome) \
 		--web-renderer html --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
-		--target=test/e2e/suite.dart
+		--target=test/e2e/suite.dart \
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 endif
 ifeq ($(start-app),yes)
 	@make docker.down
