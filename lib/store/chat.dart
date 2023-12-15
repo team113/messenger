@@ -1562,7 +1562,7 @@ class ChatRepository extends DisposableInterface
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
         }
 
-        if (event.value.value.isHidden ?? false) {
+        if (event.value.value.isHidden) {
           paginated.remove(chatId);
         }
       }
