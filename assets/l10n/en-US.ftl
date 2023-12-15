@@ -339,9 +339,9 @@ err_unknown_forwarded_item = Unknown forwarded item
 err_unknown_gallery_item = Unknown gallery item
 err_unknown_replying_chat_item = Unknown replied message
 err_unknown_user = Unknown user
-err_unsupported_format = Unsupported format
+err_unsupported_format = Unsupported format.
 err_unsupported_forwarded_item = Unsupported forwarded item
-err_uploaded_file_malformed = File is malformed
+err_uploaded_file_malformed = File is malformed.
 err_use_monolog = Can't create dialog with yourself
 err_wrong_attachments_items_count = Wrong attachments count
 err_wrong_items_count = Wrong items count
@@ -596,7 +596,10 @@ label_chat_call_missed = Missed call
 label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
-label_chat_members = Members
+label_chat_members = {$count} {$count ->
+    [one] member
+    *[other] members
+}
 label_chat_monolog = Notes
 label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
 label_chat_monolog_subtitle = Write to yourself

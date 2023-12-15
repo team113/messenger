@@ -302,8 +302,9 @@ class ChatInfoController extends GetxController {
         () => avatar.value = RxStatus.empty(),
       );
     } on UpdateChatAvatarException catch (e) {
-      avatar.value = RxStatus.empty();
-      MessagePopup.error(e);
+      // avatar.value = RxStatus.error('err_unsupported_format'.l10n);
+      avatar.value = RxStatus.error(e.toMessage());
+      // MessagePopup.error(e);
     } catch (e) {
       avatar.value = RxStatus.empty();
       MessagePopup.error(e);

@@ -1923,8 +1923,8 @@ class SvgIcons {
 
   static const SvgData editGroup = SvgData(
     'assets/icons/edit_group.svg',
-    width: 21.91,
-    height: 21.45,
+    width: 21,
+    height: 21,
   );
 
   static const SvgData emerald = SvgData(

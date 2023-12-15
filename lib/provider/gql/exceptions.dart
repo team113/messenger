@@ -1299,7 +1299,7 @@ class UpdateChatAvatarException
   String toMessage() {
     switch (code) {
       case UpdateChatAvatarErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return 'err_data_transfer'.l10n;
       case UpdateChatAvatarErrorCode.invalidCropCoordinates:
         return 'err_invalid_crop_coordinates'.l10n;
       case UpdateChatAvatarErrorCode.invalidCropPoints:
@@ -1312,10 +1312,10 @@ class UpdateChatAvatarException
         return 'err_size_too_big'.l10n;
       case UpdateChatAvatarErrorCode.invalidDimensions:
         return 'err_dimensions_too_big'.l10n;
-      case UpdateChatAvatarErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
       case UpdateChatAvatarErrorCode.dialog:
-        return 'err_dialog'.l10n;
+        return 'err_data_transfer'.l10n;
+      case UpdateChatAvatarErrorCode.artemisUnknown:
+        return 'err_data_transfer'.l10n;
     }
   }
 }

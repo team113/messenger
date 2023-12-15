@@ -716,6 +716,8 @@ class TextFieldState extends ReactiveFieldState {
         _previousSubmit = controller.text;
         onSubmitted?.call(this);
         changed.value = false;
+
+        focus.unfocus();
       }
     }
   }

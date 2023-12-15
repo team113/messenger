@@ -40,6 +40,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onUpload,
     this.onDelete,
     this.loading = false,
+    this.error,
   })  : _mode = _BigAvatarMode.myUser,
         user = null,
         chat = null;
@@ -51,6 +52,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onUpload,
     this.onDelete,
     this.loading = false,
+    this.error,
   })  : _mode = _BigAvatarMode.chat,
         myUser = null,
         user = null;
@@ -62,6 +64,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onUpload,
     this.onDelete,
     this.loading = false,
+    this.error,
   })  : _mode = _BigAvatarMode.user,
         myUser = null,
         chat = null;
@@ -86,6 +89,8 @@ class BigAvatarWidget extends StatefulWidget {
 
   /// Callback, called when delete of [Avatar] is required.
   final void Function()? onDelete;
+
+  final String? error;
 
   @override
   State<BigAvatarWidget> createState() => _BigAvatarWidgetState();
@@ -135,13 +140,13 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onUpload,
                   child: Text(
                     'btn_upload'.l10n,
-                    style: style.fonts.smaller.regular.primary,
+                    style: style.fonts.small.regular.primary,
                   ),
                 ),
               if (widget.onUpload != null && widget.onDelete != null)
                 Text(
                   'space_or_space'.l10n,
-                  style: style.fonts.smaller.regular.onBackground,
+                  style: style.fonts.small.regular.onBackground,
                 ),
               if (widget.onDelete != null)
                 WidgetButton(
@@ -149,11 +154,23 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   onPressed: widget.onDelete,
                   child: Text(
                     'btn_delete'.l10n.toLowerCase(),
-                    style: style.fonts.smaller.regular.primary,
+                    style: style.fonts.small.regular.primary,
                   ),
                 ),
             ],
           ),
+          if (widget.error != null) ...[
+            const SizedBox(height: 4),
+            SizedBox(
+              width: AvatarRadius.largest.toDouble() * 2,
+              child: Text(
+                widget.error!,
+                style: style.fonts.small.regular.danger,
+                // textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
         ],
       ],
     );

@@ -22,7 +22,6 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
-import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/animated_switcher.dart';
@@ -35,7 +34,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -50,6 +48,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'add_member/view.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -113,39 +112,52 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(height: 8),
                     Block(
                       children: [
-                        BigAvatarWidget.chat(
-                          c.chat,
-                          key: Key('ChatAvatar_${c.chat!.id}'),
-                          loading: c.avatar.value.isLoading,
-                          onUpload: c.editing.value ? c.pickAvatar : null,
-                          onDelete: c.editing.value
-                              ? c.chat?.avatar.value != null
-                                  ? c.deleteAvatar
-                                  : null
-                              : null,
+                        const SizedBox(height: 8),
+                        SelectionContainer.disabled(
+                          child: Padding(
+                            padding: Insets.basic.copyWith(top: 0, bottom: 0),
+                            child: BigAvatarWidget.chat(
+                              c.chat,
+                              key: Key('ChatAvatar_${c.chat!.id}'),
+                              loading: c.avatar.value.isLoading,
+                              onUpload: c.editing.value ? c.pickAvatar : null,
+                              onDelete: c.editing.value
+                                  ? c.chat?.avatar.value != null
+                                      ? c.deleteAvatar
+                                      : null
+                                  : null,
+                              error: c.avatar.value.errorMessage,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         _name(c, context),
                       ],
                     ),
                     if (!c.isMonolog) ...[
-                      // if (c.chat?.chat.value.directLink != null)
                       SelectionContainer.disabled(
                         child: Block(
                           title: 'label_direct_chat_link'.l10n,
+                          padding: Block.defaultPadding.copyWith(bottom: 10),
+                          // padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                           children: [
-                            // const SizedBox(height: 8),
                             Obx(() {
                               final Widget child;
 
                               if (c.editing.value) {
-                                child = DirectLinkField(
-                                  c.chat?.chat.value.directLink,
-                                  onSubmit: c.createChatDirectLink,
+                                child = Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 4, bottom: 12),
+                                  child: DirectLinkField(
+                                    c.chat?.chat.value.directLink,
+                                    onSubmit: c.createChatDirectLink,
+                                    transitions: false,
+                                  ),
                                 );
                               } else {
-                                child = Paddings.basic(
-                                  Column(
+                                child = Padding(
+                                  padding: Insets.basic.copyWith(bottom: 0),
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
@@ -157,18 +169,13 @@ class ChatInfoView extends StatelessWidget {
                                           24,
                                         ),
                                         child: Text(
-                                          'Пользователи, пришедшие по прямой ссылке группы, автоматически становятся полноправными участниками чата.',
+                                          'Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.',
                                           style: style
                                               .fonts.small.regular.secondary,
                                         ),
                                       ),
                                       ContactInfoContents(
                                         padding: EdgeInsets.zero,
-                                        // title: '${Config.origin}/',
-                                        // opaque: true,
-
-                                        // content: 'kLFJKjkw14j23JDMwW',
-                                        // content: c.link.text,
                                         content:
                                             '${Config.origin}/${c.link.text}'
                                                 .split('')
@@ -176,20 +183,12 @@ class ChatInfoView extends StatelessWidget {
                                         icon:
                                             const SvgIcon(SvgIcons.profileLink),
                                         maxLines: null,
-                                        // status: CopyOrShareButton(
-                                        //   '${Config.origin}/${c.chat?.chat.value.directLink}',
-                                        //   onCopy: c.link.submit,
-                                        // ),
-                                        // trailing: WidgetButton(
-                                        //   onPressed: () {},
-                                        //   child: const SvgIcon(SvgIcons.copy),
-                                        // ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.fromLTRB(
-                                          6,
-                                          8,
-                                          8,
+                                          0,
+                                          10,
+                                          0,
                                           0,
                                         ),
                                         child: Align(
@@ -224,19 +223,6 @@ class ChatInfoView extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      // Padding(
-                                      //   padding: const EdgeInsets.fromLTRB(
-                                      //     6,
-                                      //     24,
-                                      //     8,
-                                      //     0,
-                                      //   ),
-                                      //   child: Text(
-                                      //     'Пользователи, пришедшие по прямой ссылке группы, автоматически становятся полноправными участниками чата.',
-                                      //     style: style
-                                      //         .fonts.small.regular.secondary,
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                 );
@@ -244,24 +230,25 @@ class ChatInfoView extends StatelessWidget {
 
                               return SafeAnimatedSwitcher(
                                 duration: const Duration(milliseconds: 250),
-                                // sizeDuration: const Duration(milliseconds: 250),
-                                // fadeDuration: const Duration(milliseconds: 250),
                                 child: child,
                               );
                             }),
                           ],
                         ),
                       ),
-                      // if (!c.editing.value)
-                      Block(
-                        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                        background: const Color.fromARGB(255, 240, 242, 244),
-                        // title: 'label_chat_members'.l10n,
-                        children: [_members(c, context)],
+                      SelectionContainer.disabled(
+                        child: Block(
+                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                          background: const Color.fromARGB(255, 240, 242, 244),
+                          title: 'label_chat_members'
+                              .l10nfmt({'count': c.chat!.members.length}),
+                          children: [_members(c, context)],
+                        ),
                       ),
                     ],
-                    // if (!c.editing.value)
-                    Block(children: [_actions(c, context)]),
+                    SelectionContainer.disabled(
+                      child: Block(children: [_actions(c, context)]),
+                    ),
                     const SizedBox(height: 8),
                   ],
                 ),
@@ -293,18 +280,18 @@ class ChatInfoView extends StatelessWidget {
                 ? c.chat?.title.value
                 : 'label_name'.l10n,
             hint: 'label_chat_name_hint'.l10n,
-            onSuffixPressed: c.name.text.isEmpty
-                ? null
-                : () {
-                    PlatformUtils.copy(text: c.name.text);
-                    MessagePopup.success('label_copied'.l10n);
-                  },
-            trailing: c.name.text.isEmpty
-                ? null
-                : Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: const SvgIcon(SvgIcons.copy),
-                  ),
+            // onSuffixPressed: c.name.text.isEmpty
+            //     ? null
+            //     : () {
+            //         PlatformUtils.copy(text: c.name.text);
+            //         MessagePopup.success('label_copied'.l10n);
+            //       },
+            // trailing: c.name.text.isEmpty
+            //     ? null
+            //     : Transform.translate(
+            //         offset: const Offset(0, -1),
+            //         child: const SvgIcon(SvgIcons.copy),
+            //       ),
           ),
         );
       } else {
@@ -333,6 +320,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a list of [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       final RxUser? me = c.chat!.members[c.me];
       final List<RxUser> members = [];
@@ -343,30 +332,30 @@ class ChatInfoView extends StatelessWidget {
         }
       }
 
-      if (me != null) {
-        members.insert(0, me);
-      }
-
       members.sort((a, b) {
         final first = a.user.value.name?.val ?? a.user.value.num.val;
         final second = b.user.value.name?.val ?? b.user.value.num.val;
         return first.compareTo(second);
       });
 
+      if (me != null) {
+        members.insert(0, me);
+      }
+
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          BigButton(
-            key: const Key('AddMemberButton'),
-            // leading: Icon(Icons.people, color: style.colors.primary),
-            // leading: const SvgIcon(SvgIcons.addUser),
+          // BigButton(
+          //   key: const Key('AddMemberButton'),
+          //   // leading: Icon(Icons.people, color: style.colors.primary),
+          //   // leading: const SvgIcon(SvgIcons.addUser),
 
-            title:
-                Text('label_participants'.l10nfmt({'count': members.length})),
-            leading: Text('btn_add'.l10n),
-            onPressed: () => AddChatMemberView.show(context, chatId: id),
-          ),
-          const SizedBox(height: 3),
+          //   title:
+          //       Text('label_participants'.l10nfmt({'count': members.length})),
+          //   leading: Text('btn_add'.l10n),
+          //   onPressed: () => AddChatMemberView.show(context, chatId: id),
+          // ),
+          // const SizedBox(height: 3),
           ...members.map((e) {
             final bool inCall = c.chat?.chat.value.ongoingCall?.members
                     .any((u) => u.user.id == e.id) ==
@@ -395,6 +384,20 @@ class ChatInfoView extends StatelessWidget {
               onKick: () => c.removeChatMember(e.id),
             );
           }),
+          Padding(
+            padding:
+                EdgeInsets.fromLTRB(0, 12, Block.defaultPadding.right + 8, 0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: AnimatedButton(
+                onPressed: () => AddChatMemberView.show(context, chatId: id),
+                child: Text(
+                  'Добавить участника',
+                  style: style.fonts.small.regular.primary,
+                ),
+              ),
+            ),
+          ),
         ],
       );
     });
@@ -605,7 +608,7 @@ class ChatInfoView extends StatelessWidget {
             // const SizedBox(width: 28),
             AnimatedButton(
               decorator: (child) => Padding(
-                padding: const EdgeInsets.only(bottom: 2, right: 16),
+                padding: const EdgeInsets.only(bottom: 1, right: 16),
                 child: child,
               ),
               onPressed: c.editing.toggle,

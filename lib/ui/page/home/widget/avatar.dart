@@ -60,7 +60,7 @@ enum AvatarRadius {
       AvatarRadius.big => 20,
       AvatarRadius.large => 30,
       AvatarRadius.larger => 32,
-      AvatarRadius.largest => 100,
+      AvatarRadius.largest => 200,
     };
   }
 }

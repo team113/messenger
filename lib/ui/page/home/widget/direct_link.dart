@@ -37,13 +37,20 @@ import '/util/platform_utils.dart';
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(this.link, {super.key, this.onSubmit});
+  const DirectLinkField(
+    this.link, {
+    super.key,
+    this.onSubmit,
+    this.transitions = true,
+  });
 
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
 
   /// Callback, called when [ChatDirectLinkSlug] is submitted.
   final FutureOr<void> Function(ChatDirectLinkSlug)? onSubmit;
+
+  final bool transitions;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -137,7 +144,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
-          onSuffixPressed: _state.isEmpty.value
+          onSuffixPressed: _state.isEmpty.value || !widget.transitions
               ? null
               : () {
                   PlatformUtils.copy(
@@ -146,33 +153,35 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   );
                   MessagePopup.success('label_copied'.l10n);
                 },
-          trailing: _state.isEmpty.value
+          trailing: _state.isEmpty.value || !widget.transitions
               ? null
               : Transform.translate(
                   offset: const Offset(0, -1),
                   child: const SvgIcon(SvgIcons.copy),
                 ),
           label: '${Config.origin}/',
-          subtitle: RichText(
-            text: TextSpan(
-              style: style.fonts.small.regular.onBackground,
-              children: [
-                TextSpan(
-                  text: 'label_transition_count'.l10nfmt({
-                        'count': widget.link?.usageCount ?? 0,
-                      }) +
-                      'dot_space'.l10n,
-                  style: style.fonts.small.regular.secondary,
-                ),
-                TextSpan(
-                  text: 'label_details'.l10n,
-                  style: style.fonts.small.regular.primary,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => LinkDetailsView.show(context),
-                ),
-              ],
-            ),
-          ),
+          subtitle: widget.transitions
+              ? RichText(
+                  text: TextSpan(
+                    style: style.fonts.small.regular.onBackground,
+                    children: [
+                      TextSpan(
+                        text: 'label_transition_count'.l10nfmt({
+                              'count': widget.link?.usageCount ?? 0,
+                            }) +
+                            'dot_space'.l10n,
+                        style: style.fonts.small.regular.secondary,
+                      ),
+                      TextSpan(
+                        text: 'label_details'.l10n,
+                        style: style.fonts.small.regular.primary,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () => LinkDetailsView.show(context),
+                      ),
+                    ],
+                  ),
+                )
+              : null,
         ),
       ],
     );
