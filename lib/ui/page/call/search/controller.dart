@@ -468,20 +468,14 @@ class SearchController extends GetxController {
     final String queryString = query.value.toLowerCase().split(' ').join();
 
     if (queryString.isNotEmpty && myUser != null && monolog != null) {
-      // Parameters which can be used to find the [monolog].
       final String title = monolog.title.value;
       final String? myName = myUser.name?.val;
       final String myNum = myUser.num.val;
       final String? myLogin = myUser.login?.val;
 
-      for (String? param in [title, myLogin, myName, myNum]) {
-        param = param?.toLowerCase();
-        if (param?.contains(queryString) ?? false) {
-          chats.value = {
-            monologId: monolog,
-            ...chats,
-          };
-
+      for (final param in [title, myLogin, myName, myNum].whereNotNull()) {
+        if (param.toLowerCase().contains(queryString)) {
+          chats.value = {monologId: monolog, ...chats};
           break;
         }
       }

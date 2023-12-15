@@ -551,7 +551,6 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    // Intended to make visual changes instant.
     chats[id]?.chat.update((c) => c?.isHidden = true);
 
     try {
@@ -2209,7 +2208,8 @@ class ChatRepository extends DisposableInterface
         final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
 
         if (maybeMonolog == null) {
-          // If there is no [monolog] on the server, then create a local one.
+          // If there is no [monolog] remotely available, then create a local
+          // one.
           await _createLocalDialog(me);
         } else {
           // If the [monolog] was fetched, then put it to [_monologLocal].
