@@ -41,17 +41,17 @@ class ChatButtonWidget extends StatelessWidget {
   ChatButtonWidget.send({
     super.key,
     bool forwarding = false,
-    this.inCall,
     this.onPressed,
     this.onLongPress,
-    this.disabledIcon,
-  }) : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send);
+  })  : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send),
+        inCall = null,
+        disabledIcon = null;
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
+  /// Callback, called to retrieve whether [OngoingCall] related buttons should
+  /// consider the call to be active right now.
   final bool Function()? inCall;
 
   /// Callback, called when this [ChatButtonWidget] is long-pressed.
@@ -65,18 +65,16 @@ class ChatButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool passive = inCall != null ? inCall!.call() : false;
+    final bool disabled = inCall != null ? inCall!.call() : false;
 
     return AnimatedButton(
-      onPressed: passive ? null : onPressed,
+      onPressed: disabled ? null : onPressed,
       onLongPress: onLongPress,
-      enabled: !passive,
+      enabled: !disabled,
       child: SizedBox(
         width: 50,
         height: 56,
-        child: Center(
-          child: passive ? disabledIcon : icon,
-        ),
+        child: Center(child: disabled ? (disabledIcon ?? icon) : icon),
       ),
     );
   }

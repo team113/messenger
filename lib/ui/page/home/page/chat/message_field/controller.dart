@@ -197,7 +197,7 @@ class MessageFieldController extends GetxController {
       FileButton(pickFile),
     ] else
       AttachmentButton(pickFile),
-    if (settings?.value?.mediaButtonsPosition == MediaButtonsPosition.more) ...[
+    if (settings?.value?.callButtonsPosition == CallButtonsPosition.more) ...[
       AudioCallButton(() => onCall?.call(false), inCall),
       VideoCallButton(() => onCall?.call(true), inCall),
     ],

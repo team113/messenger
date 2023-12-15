@@ -36,8 +36,8 @@ class MediaButtonsSwitchController extends GetxController {
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Sets the [ApplicationSettings.mediaButtonsPosition] value.
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) async {
-    _settingsRepository.setMediaButtonsPosition(position);
+  /// Sets the [ApplicationSettings.callButtonsPosition] value.
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    _settingsRepository.setCallButtonsPosition(position);
   }
 }

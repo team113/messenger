@@ -29,8 +29,8 @@ abstract class ChatButton {
   /// Callback, called when this [ChatButton] is pressed.
   final void Function()? onPressed;
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
+  /// Callback, called to retrieve whether [OngoingCall] related buttons should
+  /// consider the call to be active right now.
   final bool Function()? inCall;
 
   /// Returns a text-represented hint for this [ChatButton].
@@ -39,7 +39,7 @@ abstract class ChatButton {
   /// Asset name of this [ChatButton].
   SvgData get asset;
 
-  /// Disabled asset name of this [ChatButton].
+  /// Disabled asset name to display, when [onPressed] is `null`.
   SvgData? get disabled => null;
 
   /// Asset offset of this [ChatButton].
@@ -201,7 +201,7 @@ class StickerButton extends ChatButton {
   SvgData get assetMini => SvgIcons.smileSmall;
 }
 
-/// [ChatButton] opening the audio call.
+/// [ChatButton] making an audio call.
 class AudioCallButton extends ChatButton {
   const AudioCallButton([super.onPressed, super.inCall]);
 
@@ -215,7 +215,7 @@ class AudioCallButton extends ChatButton {
   SvgData get disabled => SvgIcons.chatAudioCallDisabled;
 }
 
-/// [ChatButton] opening the video call.
+/// [ChatButton] making a video call.
 class VideoCallButton extends ChatButton {
   const VideoCallButton([super.onPressed, super.inCall]);
 

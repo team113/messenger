@@ -278,9 +278,9 @@ class _ChatViewState extends State<ChatView>
                             ];
                           } else if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
-                              if (c.mediaButtons == null ||
-                                  c.mediaButtons ==
-                                      MediaButtonsPosition.appBar) ...[
+                              if (c.callPosition == null ||
+                                  c.callPosition ==
+                                      CallButtonsPosition.appBar) ...[
                                 AnimatedButton(
                                   onPressed: () => c.call(true),
                                   child: const SvgIcon(SvgIcons.chatVideoCall),
@@ -292,7 +292,7 @@ class _ChatViewState extends State<ChatView>
                                   child: const SvgIcon(SvgIcons.chatAudioCall),
                                 ),
                                 const SizedBox(width: 10),
-                              ]
+                              ],
                             ];
                           } else {
                             final Widget child;
@@ -370,8 +370,8 @@ class _ChatViewState extends State<ChatView>
                                     right: 10,
                                   ),
                                   actions: [
-                                    if (c.mediaButtons ==
-                                        MediaButtonsPosition.contextMenu) ...[
+                                    if (c.callPosition ==
+                                        CallButtonsPosition.contextMenu) ...[
                                       ContextMenuButton(
                                         label: 'btn_audio_call'.l10n,
                                         onPressed: hasCall
@@ -535,7 +535,9 @@ class _ChatViewState extends State<ChatView>
                                           if (_animation.value == 0 ||
                                               _animation.value == 1) {
                                             _resetHorizontalScroll(
-                                                c, 10.milliseconds);
+                                              c,
+                                              10.milliseconds,
+                                            );
                                           } else {
                                             _resetHorizontalScroll(c);
                                           }
@@ -719,16 +721,15 @@ class _ChatViewState extends State<ChatView>
                             ),
                           ),
                         ),
-                        if (c.mediaButtons == MediaButtonsPosition.top ||
-                            c.mediaButtons == MediaButtonsPosition.bottom)
+                        if (c.callPosition == CallButtonsPosition.top ||
+                            c.callPosition == CallButtonsPosition.bottom)
                           Positioned(
-                            top: c.mediaButtons == MediaButtonsPosition.top
+                            top: c.callPosition == CallButtonsPosition.top
                                 ? 8
                                 : null,
-                            bottom:
-                                c.mediaButtons == MediaButtonsPosition.bottom
-                                    ? 8
-                                    : null,
+                            bottom: c.callPosition == CallButtonsPosition.bottom
+                                ? 8
+                                : null,
                             right: 12,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,

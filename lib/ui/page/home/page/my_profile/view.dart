@@ -665,16 +665,16 @@ Widget _chats(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: switch (c.settings.value?.mediaButtonsPosition) {
-              MediaButtonsPosition.appBar ||
+            text: switch (c.settings.value?.callButtonsPosition) {
+              CallButtonsPosition.appBar ||
               null =>
                 'label_media_buttons_in_app_bar'.l10n,
-              MediaButtonsPosition.contextMenu =>
+              CallButtonsPosition.contextMenu =>
                 'label_media_buttons_in_context_menu'.l10n,
-              MediaButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
-              MediaButtonsPosition.bottom =>
+              CallButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
+              CallButtonsPosition.bottom =>
                 'label_media_buttons_in_bottom'.l10n,
-              MediaButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
+              CallButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
             },
             maxLines: null,
             onPressed: () => MediaButtonsSwitchView.show(context),

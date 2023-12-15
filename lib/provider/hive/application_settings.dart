@@ -33,8 +33,8 @@ class ApplicationSettingsHiveProvider
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
-    Hive.maybeRegisterAdapter(MediaButtonsPositionAdapter());
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
+    Hive.maybeRegisterAdapter(CallButtonsPositionAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -152,13 +152,13 @@ class ApplicationSettingsHiveProvider
   }
 
   /// Stores a new [position] value of
-  /// [ApplicationSettings.mediaButtonsPosition] to [Hive].
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) async {
-    Log.debug('setMediaButtonsPosition($position)', '$runtimeType');
+  /// [ApplicationSettings.callButtonsPosition] to [Hive].
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
 
     await putSafe(
       0,
-      (box.get(0) ?? ApplicationSettings())..mediaButtonsPosition = position,
+      (box.get(0) ?? ApplicationSettings())..callButtonsPosition = position,
     );
   }
 }

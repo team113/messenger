@@ -88,6 +88,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);
 
-  /// Sets the [ApplicationSettings.mediaButtonsPosition] value.
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position);
+  /// Sets the [ApplicationSettings.callButtonsPosition] value.
+  Future<void> setCallButtonsPosition(CallButtonsPosition position);
 }

@@ -35,7 +35,7 @@ class ApplicationSettings extends HiveObject {
     this.loadImages = true,
     this.timelineEnabled = false,
     this.pinnedActions = const [],
-    this.mediaButtonsPosition = MediaButtonsPosition.appBar,
+    this.callButtonsPosition = CallButtonsPosition.appBar,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -83,14 +83,14 @@ class ApplicationSettings extends HiveObject {
   @HiveField(9)
   List<String> pinnedActions;
 
-  /// Indicator of where the media buttons should be located.
+  /// [CallButtonsPosition] of the call buttons in [Chat].
   @HiveField(10)
-  MediaButtonsPosition? mediaButtonsPosition;
+  CallButtonsPosition? callButtonsPosition;
 }
 
-/// Media buttons position.
-@HiveType(typeId: ModelTypeId.mediaButtonsPosition)
-enum MediaButtonsPosition {
+/// Possible call buttons position.
+@HiveType(typeId: ModelTypeId.callButtonsPosition)
+enum CallButtonsPosition {
   /// [AppBar] position.
   @HiveField(0)
   appBar,

@@ -62,30 +62,30 @@ class MediaButtonsSwitchView extends StatelessWidget {
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
                   separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemCount: MediaButtonsPosition.values.length,
+                  itemCount: CallButtonsPosition.values.length,
                   itemBuilder: (_, i) {
-                    final MediaButtonsPosition position =
-                        MediaButtonsPosition.values[i];
+                    final CallButtonsPosition position =
+                        CallButtonsPosition.values[i];
 
                     return Obx(() {
                       return RectangleButton(
                         label: switch (position) {
-                          MediaButtonsPosition.appBar =>
+                          CallButtonsPosition.appBar =>
                             'label_media_buttons_in_app_bar'.l10n,
-                          MediaButtonsPosition.contextMenu =>
+                          CallButtonsPosition.contextMenu =>
                             'label_media_buttons_in_context_menu'.l10n,
-                          MediaButtonsPosition.top =>
+                          CallButtonsPosition.top =>
                             'label_media_buttons_in_top'.l10n,
-                          MediaButtonsPosition.bottom =>
+                          CallButtonsPosition.bottom =>
                             'label_media_buttons_in_bottom'.l10n,
-                          MediaButtonsPosition.more =>
+                          CallButtonsPosition.more =>
                             'label_media_buttons_in_more'.l10n,
                         },
                         selected: position ==
-                                c.settings.value?.mediaButtonsPosition ||
-                            (c.settings.value?.mediaButtonsPosition == null &&
-                                position == MediaButtonsPosition.appBar),
-                        onPressed: () => c.setMediaButtonsPosition(position),
+                                c.settings.value?.callButtonsPosition ||
+                            (c.settings.value?.callButtonsPosition == null &&
+                                position == CallButtonsPosition.appBar),
+                        onPressed: () => c.setCallButtonsPosition(position),
                       );
                     });
                   },
@@ -95,14 +95,12 @@ class MediaButtonsSwitchView extends StatelessWidget {
               Padding(
                 padding: ModalPopup.padding(context),
                 child: Obx(() {
-                  final asset =
-                      switch (c.settings.value?.mediaButtonsPosition) {
-                    MediaButtonsPosition.appBar => 'app_bar',
-                    MediaButtonsPosition.contextMenu => 'context_menu',
-                    MediaButtonsPosition.top => 'top',
-                    MediaButtonsPosition.bottom => 'bottom',
-                    MediaButtonsPosition.more => 'more',
-                    null => 'app_bar',
+                  final asset = switch (c.settings.value?.callButtonsPosition) {
+                    CallButtonsPosition.appBar || null => 'app_bar',
+                    CallButtonsPosition.contextMenu => 'context_menu',
+                    CallButtonsPosition.top => 'top',
+                    CallButtonsPosition.bottom => 'bottom',
+                    CallButtonsPosition.more => 'more',
                   };
 
                   return AspectRatio(
