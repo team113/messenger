@@ -48,19 +48,13 @@ jobs:
   copyright:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - run: |
-          MESSAGE=${{ github.event.head_commit.message }}
-          echo "$MESSAGE"
-          echo "$(contains(github.event.head_commit.message, 'build'))"
-
+      - uses: actions/checkout@v4
       - run: make copyright check=yes
 
   # dartanalyze:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: subosito/flutter-action@v2.6.1
   #       with:
   #         flutter-version: ${{ env.FLUTTER_VER }}
@@ -74,7 +68,7 @@ jobs:
   # dartfmt:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: subosito/flutter-action@v2.6.1
   #       with:
   #         flutter-version: ${{ env.FLUTTER_VER }}
@@ -92,7 +86,7 @@ jobs:
   #       chart: ["messenger"]
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: azure/setup-helm@v3
 
   #     - run: make helm.lint chart=${{ matrix.chart }}
@@ -100,7 +94,7 @@ jobs:
   # pubspec:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: subosito/flutter-action@v2.6.1
   #       with:
   #         flutter-version: ${{ env.FLUTTER_VER }}
@@ -130,14 +124,11 @@ jobs:
           - macos
           - web
           - windows
-    # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
-    runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
-                                               && 'macos-12')
-              || (matrix.platform == 'windows' && 'windows-latest')
-              || (matrix.platform == 'linux'   && 'ubuntu-22.04')
-              ||                                  'ubuntu-latest' }}
+    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
+              || (matrix.platform == 'windows'           && 'windows-latest')
+              ||                                            'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
@@ -234,7 +225,6 @@ jobs:
                         web-id=${{ secrets.FCM_WEB_APP_ID }} \
                         bundle-id=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ contains('apk appbundle ios web', matrix.platform) }}
-
       - name: Configure FCM (Firebase Cloud Messaging) service worker
         run: echo '${{ secrets.GOOGLE_SERVICES_JS }}'
              > web/firebase-messaging-sw.js
@@ -281,7 +271,7 @@ jobs:
       #   if: ${{ matrix.platform == 'macos' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ contains('linux macos windows', matrix.platform) }}
+        if: ${{ contains('macos windows', matrix.platform) }}
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -293,12 +283,17 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make flutter.build platform=${{ matrix.platform }}
+      - run: make flutter.build platform=${{ matrix.platform }} profile=yes
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}'
         if: ${{ matrix.platform == 'web' }}
+
+      # TODO: Remove `profile=yes` when Sentry supports capturing Windows logs.
+      #       https://github.com/getsentry/sentry-dart/issues/433
+      #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
+                  profile=${{ matrix.platform == 'windows' && 'yes' || 'no' }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
@@ -328,20 +323,18 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
-      - uses: thedoctor0/zip-release@0.7.1
+      - uses: thedoctor0/zip-release@0.7.6
         with:
           custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'ios'
                           && 'build/ios/iphoneos/dist')
-                      || (matrix.platform == 'linux'
-                          && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
-        if: ${{ contains('ios linux macos web windows', matrix.platform) }}
+        if: ${{ contains('ios macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
@@ -385,7 +378,7 @@ jobs:
     # Pin glibc to 2.31 version for better compatibility.
     container: debian:bullseye
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
@@ -415,7 +408,6 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
-
       - run: flutter config --enable-linux-desktop
 
       - name: Parse semver versions from Git tag
@@ -428,7 +420,9 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make flutter.build platform=linux
+      # TODO: Remove `profile=yes` when Sentry supports capturing Linux logs.
+      #       https://github.com/getsentry/sentry-dart/issues/433
+      - run: make flutter.build platform=linux profile=yes
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
@@ -444,11 +438,10 @@ jobs:
           regex: '^${{ github.repository_owner }}/(.+)$'
 
       - run: mkdir artifacts/
-
-      - uses: thedoctor0/zip-release@0.7.1
+      - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-linux.zip
-          directory: 'build/linux/x64/release/bundle'
+          directory: build/linux/x64/release/bundle
 
       - name: Generate SHA256 checksums
         run: ${{ 'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
@@ -461,6 +454,7 @@ jobs:
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
+          if-no-files-found: error
           retention-days: 1
 
       - uses: thedoctor0/zip-release@0.7.6
@@ -477,7 +471,7 @@ jobs:
   # dartdoc:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: subosito/flutter-action@v2.6.1
   #       with:
   #         flutter-version: ${{ env.FLUTTER_VER }}
@@ -502,7 +496,7 @@ jobs:
       - build-linux
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v2
 
       - uses: actions/download-artifact@v3
@@ -560,7 +554,7 @@ jobs:
   #   name: E2E tests
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: subosito/flutter-action@v2.6.1
   #       with:
   #         flutter-version: ${{ env.FLUTTER_VER }}
@@ -601,7 +595,7 @@ jobs:
   #   name: Unit tests
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #     - uses: subosito/flutter-action@v2.6.1
   #       with:
   #         flutter-version: ${{ env.FLUTTER_VER }}
@@ -646,7 +640,7 @@ jobs:
                     && secrets.DOCKERHUB_BOT_USER == ''))
              ) }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - uses: actions/download-artifact@v3
@@ -698,7 +692,7 @@ jobs:
   #     - test-unit
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
 
   #     - name: Parse semver versions from Git tag
   #       id: semver
@@ -792,7 +786,7 @@ jobs:
   #                           format('refs/tags/helm/{0}/', matrix.chart))
   #            }}
 
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #       if: ${{ steps.skip.outputs.no == 'true' }}
   #     - uses: azure/setup-helm@v3
   #       if: ${{ steps.skip.outputs.no == 'true' }}
@@ -957,7 +951,7 @@ jobs:
   #   needs: ["dartdoc"]
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #       with:
   #         ref: gh-pages
 
