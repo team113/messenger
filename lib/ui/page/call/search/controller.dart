@@ -457,26 +457,29 @@ class SearchController extends GetxController {
 
   /// Updates [chats] by adding the [monolog] chat if it matches the [query].
   Future<void> _populateMonolog() async {
-    final ChatId monologId = _chatService.monolog;
-    final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
-    final RxChat? monolog =
-        monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
-
-    final MyUser? myUser = _myUserService.myUser.value;
-
     // Formatted string representation of the current [query].
     final String queryString = query.value.toLowerCase().split(' ').join();
 
-    if (queryString.isNotEmpty && myUser != null && monolog != null) {
-      final String title = monolog.title.value;
-      final String? myName = myUser.name?.val;
-      final String myNum = myUser.num.val;
-      final String? myLogin = myUser.login?.val;
+    if (queryString.isNotEmpty) {
+      final ChatId monologId = _chatService.monolog;
 
-      for (final param in [title, myLogin, myName, myNum].whereNotNull()) {
-        if (param.toLowerCase().contains(queryString)) {
-          chats.value = {monologId: monolog, ...chats};
-          break;
+      final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
+      final RxChat? monolog =
+          monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
+
+      final MyUser? myUser = _myUserService.myUser.value;
+
+      if (myUser != null && monolog != null) {
+        final String title = monolog.title.value;
+        final String? myName = myUser.name?.val;
+        final String myNum = myUser.num.val;
+        final String? myLogin = myUser.login?.val;
+
+        for (final param in [title, myLogin, myName, myNum].whereNotNull()) {
+          if (param.toLowerCase().contains(queryString)) {
+            chats.value = {monologId: monolog, ...chats};
+            break;
+          }
         }
       }
     }

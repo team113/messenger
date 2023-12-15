@@ -17,26 +17,36 @@
 
 Feature: Searching deleted monolog
 
-    Background: User deletes monolog
-        Given I am Alice
-        And I wait until `ChatMonolog` is present
-        And I am in monolog
-        And I open chat's info
-        And I tap `MoreButton` button
-        And I tap `HideChatButton` button
-        And I tap `Proceed` button
-        And I wait until `ChatMonolog` is absent
-        Then I tap `SearchButton` button
+  Scenario: User searches deleted monolog and sees it
+    Given I am Alice
+    And Alice sets her login
+    And I wait until `ChatMonolog` is present
+    And I long press monolog
+    And I tap `HideChatButton` button
+    And I tap `Proceed` button
+    And I wait until `ChatMonolog` is absent
+    And I tap `SearchButton` button
 
-    Scenario Outline: User searches deleted local monolog
-        When I fill `SearchField` field with <query>
-        Then I see monolog in search results
+    When I fill `SearchField` field with "Alice"
+    Then I see monolog in search results
 
-        Examples:
-            | query   |
-            | "Alice" |
-            | "Notes" |
+    When I fill `SearchField` field with "Notes"
+    Then I see monolog in search results
 
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    And I wait until `MyProfileView` is present
+    And I scroll `MyProfileScrollable` until `NumCopyable` is present
+    And I copy from `NumCopyable` field
+    And I tap `ChatsButton` button
+    When I paste to `SearchField` field
+    Then I see monolog in search results
 
-
-
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    And I wait until `MyProfileView` is present
+    And I scroll `MyProfileScrollable` until `LoginField` is present
+    And I copy from `LoginField`
+    And I tap `ChatsButton` button
+    When I paste to `SearchField` field
+    Then I see monolog in search results

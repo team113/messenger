@@ -287,7 +287,7 @@ class RecentChatTile extends StatelessWidget {
               ),
             if (onHide != null)
               ContextMenuButton(
-                key: const Key('ButtonHideChat'),
+                key: const Key('HideChatButton'),
                 label: PlatformUtils.isMobile
                     ? 'btn_delete'.l10n
                     : 'btn_delete_chat'.l10n,

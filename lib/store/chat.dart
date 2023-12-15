@@ -2197,14 +2197,14 @@ class ChatRepository extends DisposableInterface
   Future<void> _initMonolog() async {
     Log.debug('_initMonolog()', '$runtimeType');
 
-    final bool isLocal = monolog.isLocal;
-    final bool isPaginated = paginated[monolog] != null;
-    final bool canFetchMore = _pagination?.hasNext.value ?? true;
+    await _getMonologGuard.protect(() async {
+      final bool isLocal = monolog.isLocal;
+      final bool isPaginated = paginated[monolog] != null;
+      final bool canFetchMore = _pagination?.hasNext.value ?? true;
 
-    // If a non-local [monolog] isn't stored and it won't appear from the
-    // [Pagination], then check if a hidden one exists on the server.
-    if (isLocal && !isPaginated && !canFetchMore) {
-      await _getMonologGuard.protect(() async {
+      // If a non-local [monolog] isn't stored and it won't appear from the
+      // [Pagination], then check if a hidden one exists on the server.
+      if (isLocal && !isPaginated && !canFetchMore) {
         final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
 
         if (maybeMonolog == null) {
@@ -2217,8 +2217,8 @@ class ChatRepository extends DisposableInterface
           final HiveRxChat monolog = await _putEntry(monologChatData);
           await _monologLocal.set(monolog.id);
         }
-      });
-    }
+      }
+    });
   }
 }
 
