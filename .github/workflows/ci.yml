@@ -363,14 +363,14 @@ jobs:
         with:
           filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
           directory: 'debug'
-        if: ${{ contains('apk appbundle ios macos windows', matrix.platform) }}
+        if: ${{ contains('apk appbundle ios macos', matrix.platform) }}
       - uses: actions/upload-artifact@v3
         with:
           name: debug-${{ matrix.platform }}-${{ github.run_number }}
           path: debug-${{ matrix.platform }}.zip
           if-no-files-found: error
           retention-days: 1
-        if: ${{ contains('apk appbundle ios macos windows', matrix.platform) }}
+        if: ${{ contains('apk appbundle ios macos', matrix.platform) }}
 
   build-linux:
     name: build (linux)
@@ -420,7 +420,7 @@ jobs:
 
       - run: make flutter.pub
 
-      # TODO: Remove `profile=yes` when Sentry supports capturing Linux logs.
+      # TODO: Remove `profile=yes` when Sentry supports Linux debug symbols.
       #       https://github.com/getsentry/sentry-dart/issues/433
       - run: make flutter.build platform=linux profile=yes
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
@@ -454,17 +454,6 @@ jobs:
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
-          if-no-files-found: error
-          retention-days: 1
-
-      - uses: thedoctor0/zip-release@0.7.6
-        with:
-          filename: ${{ github.workspace }}/debug-linux.zip
-          directory: 'debug'
-      - uses: actions/upload-artifact@v3
-        with:
-          name: debug-linux-${{ github.run_number }}
-          path: ${{ github.workspace }}/debug-linux.zip
           if-no-files-found: error
           retention-days: 1
 
@@ -903,15 +892,7 @@ jobs:
       #     path: debug/
       - uses: actions/download-artifact@v3
         with:
-          name: debug-linux-${{ github.run_number }}
-          path: debug/
-      - uses: actions/download-artifact@v3
-        with:
           name: debug-macos-${{ github.run_number }}
-          path: debug/
-      - uses: actions/download-artifact@v3
-        with:
-          name: debug-windows-${{ github.run_number }}
           path: debug/
       - run: for f in debug/*.zip; do unzip "$f" -d "${f%.zip}"; done
 
