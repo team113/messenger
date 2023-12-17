@@ -46,7 +46,7 @@ Feature: Searching deleted monolog
     And I tap `PublicInformation` button
     And I wait until `MyProfileView` is present
     And I scroll `MyProfileScrollable` until `LoginField` is present
-    And I copy from `LoginField`
+    And I copy from `LoginField` field
     And I tap `ChatsButton` button
     When I paste to `SearchField` field
     Then I see monolog in search results
