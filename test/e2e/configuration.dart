@@ -158,6 +158,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         dragContactDown,
         fillField,
         fillFieldN,
+        fillFieldWithUserCredential,
         goToUserPage,
         hasContacts,
         hasDialogWithMe,

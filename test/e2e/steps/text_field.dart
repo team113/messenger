@@ -25,6 +25,7 @@ import 'package:messenger/ui/widget/text_field.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -35,6 +36,32 @@ import '../world/custom_world.dart';
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the credential of the given [User] into the widget with the provided
+///  [WidgetKey].
+///
+/// Examples:
+/// - When I fill `SearchField` field with Bob's "id"
+/// - Then I fill `LoginField` field with Alice's "login"
+StepDefinitionGeneric fillFieldWithUserCredential =
+    when3<WidgetKey, TestUser, String, CustomWorld>(
+  'I fill {key} field with {user}\'s {string}',
+  (key, user, credential, context) async {
+    final CustomUser? customUser = context.world.sessions[user.name];
+    switch (credential) {
+      case 'id':
+        final String text = customUser?.userNum.val ?? '';
+        await _fillField(key, text, context);
+
+      case 'login':
+        final String text =
+            customUser != null ? 'lgn_${customUser.userNum.val}' : '';
+        await _fillField(key, text, context);
+    }
+  },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
 );

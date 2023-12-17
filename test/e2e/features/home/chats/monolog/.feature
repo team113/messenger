@@ -33,20 +33,8 @@ Feature: Searching deleted monolog
     When I fill `SearchField` field with "Notes"
     Then I see monolog in search results
 
-    When I tap `MenuButton` button
-    And I tap `PublicInformation` button
-    And I wait until `MyProfileView` is present
-    And I scroll `MyProfileScrollable` until `NumCopyable` is present
-    And I copy from `NumCopyable` field
-    And I tap `ChatsButton` button
-    When I paste to `SearchField` field
+    When I fill `SearchField` field with "id" of Alice
     Then I see monolog in search results
 
-    When I tap `MenuButton` button
-    And I tap `PublicInformation` button
-    And I wait until `MyProfileView` is present
-    And I scroll `MyProfileScrollable` until `LoginField` is present
-    And I copy from `LoginField` field
-    And I tap `ChatsButton` button
-    When I paste to `SearchField` field
+    When I fill `SearchField` field with "login" of Alice
     Then I see monolog in search results
