@@ -119,8 +119,8 @@ class UserView extends StatelessWidget {
                         children: [
                           Paddings.basic(
                             UserNumCopyable(
-                              key: const Key('NumCopyable'),
                               c.user!.user.value.num,
+                              key: const Key('NumCopyable'),
                             ),
                           )
                         ],
