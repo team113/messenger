@@ -49,7 +49,6 @@ class UserNumCopyable extends StatelessWidget {
     }
 
     return CopyableTextField(
-      key: key == null ? const Key('NumCopyable') : null,
       state: TextFieldState(text: num?.toString(), editable: false),
       label: 'label_num'.l10n,
     );
