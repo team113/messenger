@@ -45,9 +45,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Disabled incoming video being loaded indefinitely. ([#707], [#700])
+    - Deleted monolog can't be found in search. ([#745], [#582])
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
+[#582]: /../../issues/582
 [#584]: /../../issues/584
 [#632]: /../../issues/632
 [#654]: /../../issues/654
@@ -67,6 +69,7 @@ All user visible changes to this project will be documented in this file. This p
 [#735]: /../../pull/735
 [#736]: /../../pull/736
 [#741]: /../../issues/741
+[#745]: /../../pull/745
 [#748]: /../../pull/748
 
 
