@@ -24,6 +24,7 @@ import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import '../configuration.dart';
+import '../parameters/credentials.dart';
 import '../parameters/keys.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -46,17 +47,21 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 /// Examples:
 /// - When I fill `SearchField` field with Bob's "id"
 /// - Then I fill `LoginField` field with Alice's "login"
+///
+/// Note: using this step with `login` [credential] on a [user] that has not set
+/// their login will not throw an error, but will instead work as if it was set.
+/// Use `setLogin` step to set the login of a [user].
 StepDefinitionGeneric fillFieldWithUserCredential =
-    when3<WidgetKey, TestUser, String, CustomWorld>(
-  'I fill {key} field with {user}\'s {string}',
+    when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
+  'I fill {key} field with {user}\'s {credential}',
   (key, user, credential, context) async {
     final CustomUser? customUser = context.world.sessions[user.name];
     switch (credential) {
-      case 'id':
+      case TestCredential.id:
         final String text = customUser?.userNum.val ?? '';
         await _fillField(key, text, context);
 
-      case 'login':
+      case TestCredential.login:
         final String text =
             customUser != null ? 'lgn_${customUser.userNum.val}' : '';
         await _fillField(key, text, context);

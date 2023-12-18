@@ -33,8 +33,8 @@ Feature: Searching deleted monolog
     When I fill `SearchField` field with "Notes"
     Then I see monolog in search results
 
-    When I fill `SearchField` field with Alice's "id"
+    When I fill `SearchField` field with Alice's id
     Then I see monolog in search results
 
-    When I fill `SearchField` field with Alice's "login"
+    When I fill `SearchField` field with Alice's login
     Then I see monolog in search results
