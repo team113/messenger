@@ -151,7 +151,7 @@ else
 endif
 else
 	flutter build $(or $(platform),apk) \
-		$(if $(call eq,$(profile),yes),--profile,\
+		$(if $(call eq,$(profile),yes),--release,\
 		    $(if $(call eq,$(platform),web),,--split-debug-info=debug) \
 		    --release \
 		) \
