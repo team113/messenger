@@ -118,6 +118,23 @@ class UserController extends GetxController {
   // final RxBool verified = RxBool(true);
   final RxBool hintVerified = RxBool(false);
 
+  final RxBool editing = RxBool(false);
+  final TextFieldState name = TextFieldState(
+    approvable: true,
+    onChanged: (s) {
+      if (s.text.isNotEmpty) {
+        try {
+          UserName(s.text);
+        } catch (e) {
+          s.error.value = e.toString();
+        }
+      }
+    },
+    onSubmitted: (s) {
+      // TODO
+    },
+  );
+
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
@@ -145,6 +162,8 @@ class UserController extends GetxController {
 
   /// Worker to react on [myUser] changes.
   Worker? _myUserWorker;
+
+  Worker? _worker;
 
   /// Indicates whether this [user] is blacklisted.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
@@ -238,6 +257,7 @@ class UserController extends GetxController {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    _worker?.dispose();
     super.onClose();
   }
 
@@ -523,6 +543,15 @@ class UserController extends GetxController {
         //     callsCost.text = '0.00';
         //   }
         // });
+
+        name.unchecked =
+            user?.user.value.name?.val ?? user!.user.value.num.toString();
+
+        _worker = ever(user!.user, (user) {
+          if (!name.isFocused.value && !name.changed.value) {
+            name.unchecked = user.name?.val ?? user.num.toString();
+          }
+        });
       }
 
       status.value = user == null ? RxStatus.empty() : RxStatus.success();

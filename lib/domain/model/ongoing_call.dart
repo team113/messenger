@@ -1642,6 +1642,10 @@ class OngoingCall {
       _initRoom();
     }
 
+    if (creds == null) {
+      Log.error('`creds` are `null`', '$runtimeType');
+    }
+
     try {
       await _room?.join('$link?token=$creds');
     } on RpcClientException catch (e) {

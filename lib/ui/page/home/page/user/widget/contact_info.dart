@@ -105,11 +105,15 @@ class ContactInfoContents extends StatelessWidget {
                   style: style.fonts.big.regular.onBackground,
                   textAlign: TextAlign.justify,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(child: Text(content)),
                       if (trailing != null) ...[
-                        const SizedBox(width: 8),
-                        trailing!,
+                        const SizedBox(width: 24),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 3),
+                          child: trailing!,
+                        ),
                       ],
                     ],
                   ),

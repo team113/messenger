@@ -296,13 +296,14 @@ class RecentChatTile extends StatelessWidget {
           status: [
             const SizedBox(height: 28),
             if (trailing == null || appendTrailing) ...[
-              _ongoingCall(context),
+              _ongoingCall(context, inverted: inverted),
               if (blocked) ...[
                 const SizedBox(width: 8),
                 SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
               ] else if (paid) ...[
                 const SizedBox(width: 8),
-                SvgIcon(inverted ? SvgIcons.emeraldWhite : SvgIcons.emerald),
+                SvgIcon(inverted ? SvgIcons.sunWhite : SvgIcons.sun),
+                // SvgIcon(inverted ? SvgIcons.emeraldWhite : SvgIcons.emerald),
                 // const SvgIcon(SvgIcons.premium),
                 // const SvgIcon(SvgIcons.cent),
                 // SvgIcon(
@@ -1014,7 +1015,11 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
-  Widget _ongoingCall(BuildContext context, {bool paid = false}) {
+  Widget _ongoingCall(
+    BuildContext context, {
+    bool paid = false,
+    bool inverted = false,
+  }) {
     final style = Theme.of(context).style;
 
     return Obx(() {
@@ -1036,19 +1041,23 @@ class RecentChatTile extends StatelessWidget {
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(
-            border: Border.all(
-              color: paid ? paidColor : style.colors.onPrimary,
-              width: 0.5,
-            ),
+            // border: Border.all(
+            //   color: paid ? paidColor : style.colors.onPrimary,
+            //   width: 0.5,
+            // ),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Material(
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(6),
-            color: displayed ? style.colors.danger : style.colors.primary,
+            color: displayed
+                ? style.colors.danger
+                : inverted
+                    ? style.colors.onPrimary
+                    : style.colors.primary,
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(6),
               onTap: displayed ? onDrop : onJoin,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
@@ -1070,7 +1079,9 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: style.fonts.smaller.regular.onPrimary,
+                          style: !displayed && inverted
+                              ? style.fonts.smaller.regular.primary
+                              : style.fonts.smaller.regular.onPrimary,
                         ).fixedDigits();
                       },
                     ),
@@ -1082,7 +1093,9 @@ class RecentChatTile extends StatelessWidget {
                       child: SvgIcon(
                         displayed
                             ? SvgIcons.activeCallEnd
-                            : SvgIcons.activeCallStart,
+                            : inverted
+                                ? SvgIcons.activeCallStartBlue
+                                : SvgIcons.activeCallStart,
                       ),
                     ),
                   ],

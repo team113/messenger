@@ -440,7 +440,7 @@ class _AvatarWidgetState extends State<AvatarWidget> {
           padding: EdgeInsets.all(badgeSize / 12),
           offset: maxWidth >= 40
               ? maxWidth >= 70
-                  ? const Offset(-18, -18)
+                  ? Offset(-maxWidth * 0.085, -maxWidth * 0.085)
                   : const Offset(-2.5, -2.5)
               : const Offset(0, 0),
           label: SizedBox(

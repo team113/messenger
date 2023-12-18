@@ -22,6 +22,7 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
+import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/animated_switcher.dart';
@@ -176,53 +177,76 @@ class ChatInfoView extends StatelessWidget {
                                       ),
                                       ContactInfoContents(
                                         padding: EdgeInsets.zero,
-                                        content:
-                                            '${Config.origin}/${c.link.text}'
-                                                .split('')
-                                                .join('\ufeff'),
+                                        title: '${Config.origin}/',
+                                        content: c.link.text,
+                                        // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
                                         icon:
                                             const SvgIcon(SvgIcons.profileLink),
                                         maxLines: null,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          0,
-                                          10,
-                                          0,
-                                          0,
+                                        trailing: CopyOrShareButton(
+                                          '${Config.origin}/${c.link.text}',
+                                          onCopy: () {
+                                            if (c.link.text !=
+                                                c.chat?.chat.value.directLink
+                                                    ?.slug.val) {
+                                              c.link.submit();
+                                            }
+                                          },
                                         ),
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: AnimatedButton(
-                                            onPressed: () async {
-                                              if (c.link.text !=
-                                                  c.chat?.chat.value.directLink
-                                                      ?.slug.val) {
-                                                c.link.submit();
-                                              }
-
-                                              final share =
-                                                  '${Config.origin}/${c.link.text}';
-
-                                              if (PlatformUtils.isMobile) {
-                                                await Share.share(share);
-                                              } else {
-                                                PlatformUtils.copy(text: share);
-                                                MessagePopup.success(
-                                                  'label_copied'.l10n,
-                                                );
-                                              }
-                                            },
-                                            child: Text(
-                                              PlatformUtils.isMobile
-                                                  ? 'Поделиться'
-                                                  : 'Скопировать',
-                                              style: style
-                                                  .fonts.small.regular.primary,
-                                            ),
-                                          ),
-                                        ),
+                                        // trailing: WidgetButton(
+                                        //   onPressed: () {},
+                                        //   child: const SvgIcon(SvgIcons.copy),
+                                        // ),
                                       ),
+                                      // ContactInfoContents(
+                                      //   padding: EdgeInsets.zero,
+                                      //   content:
+                                      //       '${Config.origin}/${c.link.text}'
+                                      //           .split('')
+                                      //           .join('\ufeff'),
+                                      //   icon:
+                                      //       const SvgIcon(SvgIcons.profileLink),
+                                      //   maxLines: null,
+                                      // ),
+                                      // Padding(
+                                      //   padding: const EdgeInsets.fromLTRB(
+                                      //     0,
+                                      //     10,
+                                      //     0,
+                                      //     0,
+                                      //   ),
+                                      //   child: Align(
+                                      //     alignment: Alignment.centerRight,
+                                      //     child: AnimatedButton(
+                                      //       onPressed: () async {
+                                      //         if (c.link.text !=
+                                      //             c.chat?.chat.value.directLink
+                                      //                 ?.slug.val) {
+                                      //           c.link.submit();
+                                      //         }
+
+                                      //         final share =
+                                      //             '${Config.origin}/${c.link.text}';
+
+                                      //         if (PlatformUtils.isMobile) {
+                                      //           await Share.share(share);
+                                      //         } else {
+                                      //           PlatformUtils.copy(text: share);
+                                      //           MessagePopup.success(
+                                      //             'label_copied'.l10n,
+                                      //           );
+                                      //         }
+                                      //       },
+                                      //       child: Text(
+                                      //         PlatformUtils.isMobile
+                                      //             ? 'Поделиться'
+                                      //             : 'Скопировать',
+                                      //         style: style
+                                      //             .fonts.small.regular.primary,
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 );
@@ -238,11 +262,41 @@ class ChatInfoView extends StatelessWidget {
                       ),
                       SelectionContainer.disabled(
                         child: Block(
-                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                           background: const Color.fromARGB(255, 240, 242, 244),
-                          title: 'label_chat_members'
-                              .l10nfmt({'count': c.chat!.members.length}),
-                          children: [_members(c, context)],
+                          // title: 'label_chat_members'
+                          //     .l10nfmt({'count': c.chat!.members.length}),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                8 + 8,
+                                8,
+                                8 + 8,
+                                8 + 5,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'label_participants'.l10nfmt(
+                                        {'count': c.chat!.members.length},
+                                      ),
+                                      style:
+                                          style.fonts.big.regular.onBackground,
+                                    ),
+                                  ),
+                                  AnimatedButton(
+                                    onPressed: () => AddChatMemberView.show(
+                                      context,
+                                      chatId: id,
+                                    ),
+                                    child: const SvgIcon(SvgIcons.addMember),
+                                  )
+                                ],
+                              ),
+                            ),
+                            _members(c, context),
+                          ],
                         ),
                       ),
                     ],
@@ -384,20 +438,20 @@ class ChatInfoView extends StatelessWidget {
               onKick: () => c.removeChatMember(e.id),
             );
           }),
-          Padding(
-            padding:
-                EdgeInsets.fromLTRB(0, 12, Block.defaultPadding.right + 8, 0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: AnimatedButton(
-                onPressed: () => AddChatMemberView.show(context, chatId: id),
-                child: Text(
-                  'Добавить участника',
-                  style: style.fonts.small.regular.primary,
-                ),
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding:
+          //       EdgeInsets.fromLTRB(0, 12, Block.defaultPadding.right + 8, 0),
+          //   child: Align(
+          //     alignment: Alignment.centerRight,
+          //     child: AnimatedButton(
+          //       onPressed: () => AddChatMemberView.show(context, chatId: id),
+          //       child: Text(
+          //         'Добавить участника',
+          //         style: style.fonts.small.regular.primary,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       );
     });

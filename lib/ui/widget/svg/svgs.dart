@@ -1729,6 +1729,12 @@ class SvgIcons {
     height: 8,
   );
 
+  static const SvgData activeCallStartBlue = SvgData(
+    'assets/icons/active_call_start_blue.svg',
+    width: 8,
+    height: 8,
+  );
+
   static const SvgData activeCallEnd = SvgData(
     'assets/icons/active_call_end.svg',
     width: 9.59,
@@ -1937,5 +1943,23 @@ class SvgIcons {
     'assets/icons/emerald_white.svg',
     width: 13.79,
     height: 18,
+  );
+
+  static const SvgData sun = SvgData(
+    'assets/icons/sun.svg',
+    width: 17.32,
+    height: 18,
+  );
+
+  static const SvgData sunWhite = SvgData(
+    'assets/icons/sun_white.svg',
+    width: 17.32,
+    height: 18,
+  );
+
+  static const SvgData addMember = SvgData(
+    'assets/icons/add_member.svg',
+    width: 17,
+    height: 17,
   );
 }

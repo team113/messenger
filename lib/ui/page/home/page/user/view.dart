@@ -185,29 +185,58 @@ class UserView extends StatelessWidget {
                       // title: 'label_public_information'.l10n,
                       // title:
                       //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
-                      children: [
-                        BigAvatarWidget.user(c.user),
-                        const SizedBox(height: 18),
-                        Text(
-                          '${c.user!.user.value.name ?? c.user!.user.value.num}',
-                          style: style.fonts.large.regular.onBackground,
+
+                      overlay: [
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Obx(() {
+                            // if (!c.inContacts.value) {
+                            //   return const SizedBox();
+                            // }
+
+                            return AnimatedButton(
+                              onPressed: c.editing.toggle,
+                              child: c.editing.value
+                                  ? const SvgIcon(SvgIcons.closePrimary)
+                                  : const SvgIcon(SvgIcons.editGroup),
+                            );
+                          }),
                         ),
-                        // if (subtitle != null) ...[
-                        //   const SizedBox(height: 12),
-                        //   subtitle,
-                        // ],
-                        // const SizedBox(height: 12),
-                        // UserNameCopyable(
-                        //   c.user!.user.value.name,
-                        //   c.user!.user.value.num,
-                        // ),
-                        // if (c.user!.user.value.status != null)
-                        //   UserStatusCopyable(c.user!.user.value.status!),
-                        // if (c.user!.user.value.presence != null)
-                        //   UserPresenceField(
-                        //     c.user!.user.value.presence!,
-                        //     c.user!.user.value.getStatus(),
-                        //   ),
+                      ],
+                      children: [
+                        SelectionContainer.disabled(
+                          child: BigAvatarWidget.user(
+                            c.user,
+                            onUpload: c.editing.value ? () {} : null,
+                            onDelete: c.editing.value &&
+                                    c.user?.user.value.avatar != null
+                                ? () {}
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Obx(() {
+                          if (c.editing.value) {
+                            return SelectionContainer.disabled(
+                              child: ReactiveTextField(
+                                state: c.name,
+                                label: 'Name',
+                                hint: c.user!.user.value.name?.val ??
+                                    c.user!.user.value.num.toString(),
+                              ),
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Text(
+                              c.name.text,
+                              // '${c.user!.user.value.name ?? c.user!.user.value.num}',
+                              style: style.fonts.large.regular.onBackground,
+                            ),
+                          );
+                        }),
                       ],
                     ),
                     if (subtitle != null) Block(children: [subtitle]),
@@ -566,6 +595,12 @@ class UserView extends StatelessWidget {
                 left: 20,
               ),
               actions: [
+                // ContextMenuButton(
+                //   label: 'btn_edit'.l10n,
+                //   onPressed: () {},
+                //   trailing: const SvgIcon(SvgIcons.edit),
+                //   inverted: const SvgIcon(SvgIcons.editWhite),
+                // ),
                 ContextMenuButton(
                   label: 'btn_set_price'.l10n,
                   onPressed: () => GetPaidView.show(
@@ -590,10 +625,13 @@ class UserView extends StatelessWidget {
                         : SvgIcons.addContactWhite,
                   ),
                 ),
+
                 ContextMenuButton(
                   label: favorite
                       ? 'btn_delete_from_favorites'.l10n
                       : 'btn_add_to_favorites'.l10n,
+
+                  // TODO: ADD TO CONTACTS AND THEN FAVORITE.
                   onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
                   trailing: SvgIcon(
                     favorite
@@ -607,30 +645,30 @@ class UserView extends StatelessWidget {
                   ),
                 ),
                 if (dialog != null) ...[
-                  ContextMenuButton(
-                    label: muted
-                        ? PlatformUtils.isMobile
-                            ? 'btn_unmute'.l10n
-                            : 'btn_unmute_chat'.l10n
-                        : PlatformUtils.isMobile
-                            ? 'btn_mute'.l10n
-                            : 'btn_mute_chat'.l10n,
-                    onPressed: muted ? c.unmuteChat : c.muteChat,
-                    trailing: SvgIcon(
-                      muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                    ),
-                    inverted: SvgIcon(
-                      muted
-                          ? SvgIcons.unmuteSmallWhite
-                          : SvgIcons.muteSmallWhite,
-                    ),
-                  ),
-                  ContextMenuButton(
-                    label: 'btn_clear_history'.l10n,
-                    onPressed: () => _clearChat(c, context),
-                    trailing: const SvgIcon(SvgIcons.cleanHistory),
-                    inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-                  ),
+                  // ContextMenuButton(
+                  //   label: muted
+                  //       ? PlatformUtils.isMobile
+                  //           ? 'btn_unmute'.l10n
+                  //           : 'btn_unmute_chat'.l10n
+                  //       : PlatformUtils.isMobile
+                  //           ? 'btn_mute'.l10n
+                  //           : 'btn_mute_chat'.l10n,
+                  //   onPressed: muted ? c.unmuteChat : c.muteChat,
+                  //   trailing: SvgIcon(
+                  //     muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                  //   ),
+                  //   inverted: SvgIcon(
+                  //     muted
+                  //         ? SvgIcons.unmuteSmallWhite
+                  //         : SvgIcons.muteSmallWhite,
+                  //   ),
+                  // ),
+                  // ContextMenuButton(
+                  //   label: 'btn_clear_history'.l10n,
+                  //   onPressed: () => _clearChat(c, context),
+                  //   trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  //   inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
+                  // ),
                   // ContextMenuButton(
                   //   label: 'btn_delete_chat'.l10n,
                   //   onPressed: () => _hideChat(c, context),
@@ -793,17 +831,17 @@ class UserView extends StatelessWidget {
             }),
           );
         }),
-        Obx(() {
-          if (c.user?.dialog.value?.id.isLocal != false) {
-            return const SizedBox();
-          }
+        // Obx(() {
+        //   if (c.user?.dialog.value?.id.isLocal != false) {
+        //     return const SizedBox();
+        //   }
 
-          return ActionButton(
-            text: 'btn_delete_chat'.l10n,
-            onPressed: () => _hideChat(c, context),
-            trailing: const SvgIcon(SvgIcons.delete),
-          );
-        }),
+        //   return ActionButton(
+        //     text: 'btn_delete_chat'.l10n,
+        //     onPressed: () => _hideChat(c, context),
+        //     trailing: const SvgIcon(SvgIcons.delete),
+        //   );
+        // }),
       ],
     );
   }

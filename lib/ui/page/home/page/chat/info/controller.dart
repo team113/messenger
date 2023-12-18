@@ -458,9 +458,8 @@ class ChatInfoController extends GetxController {
               name.editable.value) {
             name.unchecked = chat.name?.val;
           }
-          if (!link.focus.hasFocus &&
-              !link.changed.value &&
-              link.editable.value) {
+
+          if (!link.focus.hasFocus && !link.changed.value) {
             link.unchecked = chat.directLink?.slug.val;
           }
         },
