@@ -139,17 +139,6 @@ jobs:
           channel: stable
           cache: true
 
-      - run: sudo apt-get update -y
-        if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install -y
-                          ninja-build
-                          libunwind-dev
-                          libgtk-3-dev
-                          libpulse-dev
-                          libmpv-dev
-                          mpv
-        if: ${{ matrix.platform == 'linux' }}
-
       # - name: Fetch Mac App Development certificates
       #   env:
       #     APP_STORE_KEY: ${{ secrets.APP_STORE_KEY }}
@@ -332,7 +321,7 @@ jobs:
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
-                          && 'build/windows/x64/runner/Profile')
+                          && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
         if: ${{ contains('ios macos web windows', matrix.platform) }}
 
@@ -441,7 +430,7 @@ jobs:
       - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-linux.zip
-          directory: build/linux/x64/profile/bundle
+          directory: build/linux/x64/release/bundle
 
       - name: Generate SHA256 checksums
         run: ${{ 'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
