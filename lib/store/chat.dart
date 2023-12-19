@@ -551,8 +551,6 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    chats[id]?.chat.update((c) => c?.isHidden = true);
-
     try {
       // If this [Chat] is local, make it remote first.
       if (id.isLocalWith(me)) {
@@ -563,10 +561,9 @@ class ChatRepository extends DisposableInterface
         await remove(id);
 
         id = remoteMonolog.chat.value.id;
-
-        // Don't let the newly created monolog to flicker.
-        chats[id]?.chat.update((c) => c?.isHidden = true);
       }
+
+      chats[id]?.chat.update((c) => c?.isHidden = true);
 
       // [Chat.isHidden] will be changed by [HiveRxChat]'s own remote event
       // handler. Chat will be removed from [paginated] on [BoxEvent] from the
@@ -2198,24 +2195,34 @@ class ChatRepository extends DisposableInterface
     Log.debug('_initMonolog()', '$runtimeType');
 
     await _monologGuard.protect(() async {
-      final bool isLocal = monolog.isLocal;
+      final bool isStored = _monologLocal.get() != null;
       final bool isPaginated = paginated[monolog] != null;
       final bool canFetchMore = _pagination?.hasNext.value ?? true;
 
       // If a non-local [monolog] isn't stored and it won't appear from the
       // [Pagination], then check if a hidden one exists on the server.
-      if (isLocal && !isPaginated && !canFetchMore) {
+      if (!isStored && !isPaginated && !canFetchMore) {
         final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
 
         if (maybeMonolog == null) {
           // If there is no [monolog] remotely available, then create a local
           // one.
-          await _createLocalDialog(me);
+          final HiveRxChat localMonolog = await _createLocalDialog(me);
+          await _monologLocal.set(localMonolog.id);
         } else {
           // If the [monolog] was fetched, then put it to [_monologLocal].
           final ChatData monologChatData = _chat(maybeMonolog);
           final HiveRxChat monolog = await _putEntry(monologChatData);
           await _monologLocal.set(monolog.id);
+        }
+        // If [monolog] is stored, is not paginated and won't appear there, then
+        // make it visible if not [isHidden].
+      } else if (isStored && !isPaginated && !canFetchMore) {
+        final FutureOr<HiveRxChat?> chatOrFuture = get(monolog);
+        final HiveRxChat? chat =
+            chatOrFuture is HiveRxChat? ? chatOrFuture : await chatOrFuture;
+        if (chat != null && !chat.chat.value.isHidden) {
+          paginated[monolog] = chat;
         }
       }
     });
