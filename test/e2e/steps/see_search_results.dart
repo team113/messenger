@@ -113,10 +113,7 @@ final StepDefinitionGeneric seeMonologInSearchResults = then<CustomWorld>(
         final ChatId chatId = Get.find<ChatService>().monolog;
 
         return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy(
-            'SearchChat_$chatId',
-            FindType.key,
-          ),
+          context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
         );
       },
       timeout: const Duration(seconds: 30),

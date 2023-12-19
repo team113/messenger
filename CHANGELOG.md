@@ -39,13 +39,13 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - Chats tab:
         - Redesigned chat tile. ([#748], [#741])
+        - Monolog searching. ([#745], [#582])
 
 ### Fixed
 
 - UI:
     - Media panel:
         - Disabled incoming video being loaded indefinitely. ([#707], [#700])
-    - Deleted monolog can't be found in search. ([#745], [#582])
 - Web:
     - Invalid caller name in popup calls. ([#711])
 

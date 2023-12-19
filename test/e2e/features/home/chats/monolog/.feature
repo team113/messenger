@@ -21,13 +21,14 @@ Feature: Searching deleted monolog
     Given I am Alice
     And Alice sets her login
     And I wait until `ChatMonolog` is present
-    And I long press monolog
+
+    When I long press monolog
     And I tap `HideChatButton` button
     And I tap `Proceed` button
-    And I wait until `ChatMonolog` is absent
-    And I tap `SearchButton` button
+    Then I wait until `ChatMonolog` is absent
 
-    When I fill `SearchField` field with "Alice"
+    When I tap `SearchButton` button
+    And I fill `SearchField` field with "Alice"
     Then I see monolog in search results
 
     When I fill `SearchField` field with "Notes"

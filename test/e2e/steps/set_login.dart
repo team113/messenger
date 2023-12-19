@@ -30,10 +30,13 @@ final StepDefinitionGeneric setLogin = then1<TestUser, CustomWorld>(
   RegExp(r'{user} sets (?:his|her) login'),
   (TestUser user, context) async {
     final provider = GraphQlProvider();
+
     final CustomUser? customUser = context.world.sessions[user.name];
     provider.token = customUser?.token;
+
     final String newLogin = 'lgn_${customUser?.userNum.val}';
     await provider.updateUserLogin(UserLogin(newLogin));
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

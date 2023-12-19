@@ -180,7 +180,7 @@ class ChatRepository extends DisposableInterface
   final Map<ChatId, Mutex> _putEntryGuards = {};
 
   /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
-  final Mutex _getMonologGuard = Mutex();
+  final Mutex _monologGuard = Mutex();
 
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
@@ -2197,7 +2197,7 @@ class ChatRepository extends DisposableInterface
   Future<void> _initMonolog() async {
     Log.debug('_initMonolog()', '$runtimeType');
 
-    await _getMonologGuard.protect(() async {
+    await _monologGuard.protect(() async {
       final bool isLocal = monolog.isLocal;
       final bool isPaginated = paginated[monolog] != null;
       final bool canFetchMore = _pagination?.hasNext.value ?? true;
