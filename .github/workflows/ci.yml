@@ -178,7 +178,7 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}'
         if: ${{ matrix.platform == 'web' }}
 
-      # TODO: Use `split-debug-info` for Windows when Sentry supports its debug symbols.
+      # TODO: Use `split-debug-info` for Windows when Sentry supports it.
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
@@ -244,7 +244,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      # Globstar is supported in Bash 4.0+, and `macos-latest` runner uses Bash 3.2.
+      # Globstar is supported in Bash 4.0+, `macos-latest` runner uses Bash 3.2.
       - run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
         if: ${{ contains('ios macos', matrix.platform) }}
       - uses: thedoctor0/zip-release@0.7.6

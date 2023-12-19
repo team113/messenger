@@ -46,10 +46,6 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 # Application build
 add_subdirectory("runner")
 
-# TODO: Remove when firebase/flutterfire#12051 is fixed:
-#       https://github.com/firebase/flutterfire/issues/12051
-set(CMAKE_BUILD_TYPE "Release")
-
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)

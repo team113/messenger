@@ -844,9 +844,9 @@ endif
 sentry-project=$(or $(SENTRY_PROJECT),\
 	           $(strip $(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
 sentry-org=$(or $(SENTRY_ORG),\
-	           $(strip $(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
+	       $(strip $(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
 sentry-token=$(or $(SENTRY_AUTH_TOKEN),\
-	           $(strip $(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
+	         $(strip $(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
 sentry-release=$(or $(SENTRY_RELEASE),\
 	           $(strip $(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2)))
 

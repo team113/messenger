@@ -24,6 +24,7 @@ library main;
 import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -151,6 +152,7 @@ Future<void> main() async {
             exception is WebSocketChannelException ||
             exception is HttpException ||
             exception is ClientException ||
+            exception is DioException ||
             exception is ResubscriptionRequiredException) {
           return null;
         }
