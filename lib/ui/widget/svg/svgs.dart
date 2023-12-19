@@ -39,17 +39,20 @@ class SvgData {
 
 /// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
-  const SvgIcon(this.data, {super.key, this.height});
+  const SvgIcon(this.data, {super.key, this.width, this.height});
 
   /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional width to display [data] of.
+  final double? width;
 
   /// Optional height to display [data] of.
   final double? height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.icon(data, height: height);
+    return SvgImage.icon(data, width: width, height: height);
   }
 }
 
@@ -1407,6 +1410,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData makeAudioCallWhite = SvgData(
+    'assets/icons/make_audio_call_white.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData makeAudioCallDisabled = SvgData(
     'assets/icons/make_audio_call_disabled.svg',
     width: 18,
@@ -1415,6 +1424,12 @@ class SvgIcons {
 
   static const SvgData makeVideoCall = SvgData(
     'assets/icons/make_video_call.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData makeVideoCallWhite = SvgData(
+    'assets/icons/make_video_call_white.svg',
     width: 21.93,
     height: 15,
   );

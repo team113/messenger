@@ -498,14 +498,15 @@ class ChatInfoView extends StatelessWidget {
         //     text: 'btn_block'.l10n,
         //     trailing: const SvgIcon(SvgIcons.block16),
         //   ),
-        ActionButton(
-          onPressed: c.report,
-          text: 'btn_report'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: const SvgIcon(SvgIcons.report16),
+        if (!c.isMonolog)
+          ActionButton(
+            onPressed: c.report,
+            text: 'btn_report'.l10n,
+            trailing: Transform.translate(
+              offset: const Offset(0, -1),
+              child: const SvgIcon(SvgIcons.report16),
+            ),
           ),
-        ),
         ActionButton(
           key: const Key('ClearHistoryButton'),
           onPressed: () => _clearChat(c, context),
@@ -615,10 +616,10 @@ class ChatInfoView extends StatelessWidget {
             //   onPressed: () {},
             //   child: const SvgIcon(SvgIcons.edit),
             // ),
-            // AnimatedButton(
-            //   onPressed: () => router.chat(c.chat?.id ?? id),
-            //   child: const SvgIcon(SvgIcons.chat),
-            // ),
+            AnimatedButton(
+              onPressed: () => router.chat(c.chat?.id ?? id),
+              child: const SvgIcon(SvgIcons.chat),
+            ),
             // const SizedBox(width: 28),
             // AnimatedButton(
             //   onPressed: () => c.call(true),
@@ -660,14 +661,14 @@ class ChatInfoView extends StatelessWidget {
             //   );
             // }),
             // const SizedBox(width: 28),
-            AnimatedButton(
-              decorator: (child) => Padding(
-                padding: const EdgeInsets.only(bottom: 1, right: 16),
-                child: child,
-              ),
-              onPressed: c.editing.toggle,
-              child: const SvgIcon(SvgIcons.editGroup),
-            ),
+            // AnimatedButton(
+            //   decorator: (child) => Padding(
+            //     padding: const EdgeInsets.only(bottom: 1, right: 16),
+            //     child: child,
+            //   ),
+            //   onPressed: c.editing.toggle,
+            //   child: const SvgIcon(SvgIcons.editGroup),
+            // ),
             // AnimatedButton(
             //   onPressed: c.editing.toggle,
             //   child: const SvgIcon(SvgIcons.edit22),
@@ -684,6 +685,50 @@ class ChatInfoView extends StatelessWidget {
             //   ),
             // ),
             // const SizedBox(width: 21),
+            ContextMenuRegion(
+              key: c.moreKey,
+              selector: c.moreKey,
+              alignment: Alignment.topRight,
+              enablePrimaryTap: true,
+              margin: const EdgeInsets.only(
+                bottom: 4,
+                left: 20,
+              ),
+              actions: [
+                ContextMenuButton(
+                  label: 'btn_edit'.l10n,
+                  onPressed: c.editing.toggle,
+                  trailing: const SvgIcon(SvgIcons.edit),
+                  inverted: const SvgIcon(SvgIcons.editWhite),
+                ),
+                ContextMenuButton(
+                  label: 'btn_audio_call'.l10n,
+                  onPressed: () => c.call(false),
+                  trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                  inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
+                ),
+                ContextMenuButton(
+                  label: 'btn_video_call'.l10n,
+                  onPressed: () => c.call(true),
+                  trailing: Transform.translate(
+                    offset: const Offset(2, 0),
+                    child: const SvgIcon(SvgIcons.makeVideoCall),
+                  ),
+                  inverted: Transform.translate(
+                    offset: const Offset(2, 0),
+                    child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                  ),
+                ),
+              ],
+              child: Container(
+                padding: const EdgeInsets.only(
+                  left: 21 + 10,
+                  right: 4 + 21,
+                ),
+                height: double.infinity,
+                child: const SvgIcon(SvgIcons.more),
+              ),
+            ),
             if (false)
               Obx(() {
                 return ContextMenuRegion(

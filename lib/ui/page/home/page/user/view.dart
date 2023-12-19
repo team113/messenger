@@ -186,24 +186,24 @@ class UserView extends StatelessWidget {
                       // title:
                       //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
 
-                      overlay: [
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Obx(() {
-                            // if (!c.inContacts.value) {
-                            //   return const SizedBox();
-                            // }
+                      // overlay: [
+                      //   Positioned(
+                      //     top: 8,
+                      //     right: 8,
+                      //     child: Obx(() {
+                      //       // if (!c.inContacts.value) {
+                      //       //   return const SizedBox();
+                      //       // }
 
-                            return AnimatedButton(
-                              onPressed: c.editing.toggle,
-                              child: c.editing.value
-                                  ? const SvgIcon(SvgIcons.closePrimary)
-                                  : const SvgIcon(SvgIcons.editGroup),
-                            );
-                          }),
-                        ),
-                      ],
+                      //       return AnimatedButton(
+                      //         onPressed: c.editing.toggle,
+                      //         child: c.editing.value
+                      //             ? const SvgIcon(SvgIcons.closePrimary)
+                      //             : const SvgIcon(SvgIcons.editGroup),
+                      //       );
+                      //     }),
+                      //   ),
+                      // ],
                       children: [
                         SelectionContainer.disabled(
                           child: BigAvatarWidget.user(
@@ -560,155 +560,219 @@ class UserView extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 40),
-          AnimatedButton(
-            onPressed: c.openChat,
-            child: const SvgIcon(SvgIcons.chat),
-          ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            onPressed: () => c.call(true),
-            child: const SvgIcon(SvgIcons.chatVideoCall),
-          ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            onPressed: () => c.call(false),
-            child: const SvgIcon(SvgIcons.chatAudioCall),
-          ),
           Obx(() {
-            final bool contact = c.inContacts.value;
-            final bool favorite = c.inFavorites.value;
-            final bool blocked = c.isBlocked != null;
+            final Widget child;
 
-            final RxChat? dialog = c.user?.user.value.dialog.isLocal == false
-                ? c.user?.dialog.value
-                : null;
-
-            final bool muted = dialog?.chat.value.muted != null;
-
-            return ContextMenuRegion(
-              key: c.moreKey,
-              selector: c.moreKey,
-              alignment: Alignment.topRight,
-              enablePrimaryTap: true,
-              margin: const EdgeInsets.only(
-                bottom: 4,
-                left: 20,
-              ),
-              actions: [
-                // ContextMenuButton(
-                //   label: 'btn_edit'.l10n,
-                //   onPressed: () {},
-                //   trailing: const SvgIcon(SvgIcons.edit),
-                //   inverted: const SvgIcon(SvgIcons.editWhite),
-                // ),
-                ContextMenuButton(
-                  label: 'btn_set_price'.l10n,
-                  onPressed: () => GetPaidView.show(
-                    context,
-                    mode: GetPaidMode.user,
-                    user: c.user,
-                  ),
-                  trailing: const SvgIcon(SvgIcons.gapopaCoin),
-                  inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
+            if (c.editing.value) {
+              child = AnimatedButton(
+                onPressed: c.editing.toggle,
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 18, 0),
+                  child: child,
                 ),
-                ContextMenuButton(
-                  label: contact
-                      ? 'btn_delete_from_contacts'.l10n
-                      : 'btn_add_to_contacts'.l10n,
-                  onPressed: contact ? c.removeFromContacts : c.addToContacts,
-                  trailing: SvgIcon(
-                    contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+                child: const SvgIcon(SvgIcons.closePrimary),
+              );
+            } else {
+              child = Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedButton(
+                    onPressed: c.openChat,
+                    child: const SvgIcon(SvgIcons.chat),
                   ),
-                  inverted: SvgIcon(
-                    contact
-                        ? SvgIcons.deleteContactWhite
-                        : SvgIcons.addContactWhite,
-                  ),
-                ),
+                  Obx(() {
+                    final bool contact = c.inContacts.value;
+                    final bool favorite = c.inFavorites.value;
+                    final bool blocked = c.isBlocked != null;
 
-                ContextMenuButton(
-                  label: favorite
-                      ? 'btn_delete_from_favorites'.l10n
-                      : 'btn_add_to_favorites'.l10n,
+                    final RxChat? dialog =
+                        c.user?.user.value.dialog.isLocal == false
+                            ? c.user?.dialog.value
+                            : null;
 
-                  // TODO: ADD TO CONTACTS AND THEN FAVORITE.
-                  onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
-                  trailing: SvgIcon(
-                    favorite
-                        ? SvgIcons.favoriteSmall
-                        : SvgIcons.unfavoriteSmall,
-                  ),
-                  inverted: SvgIcon(
-                    favorite
-                        ? SvgIcons.favoriteSmallWhite
-                        : SvgIcons.unfavoriteSmallWhite,
-                  ),
-                ),
-                if (dialog != null) ...[
-                  // ContextMenuButton(
-                  //   label: muted
-                  //       ? PlatformUtils.isMobile
-                  //           ? 'btn_unmute'.l10n
-                  //           : 'btn_unmute_chat'.l10n
-                  //       : PlatformUtils.isMobile
-                  //           ? 'btn_mute'.l10n
-                  //           : 'btn_mute_chat'.l10n,
-                  //   onPressed: muted ? c.unmuteChat : c.muteChat,
-                  //   trailing: SvgIcon(
-                  //     muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                  //   ),
-                  //   inverted: SvgIcon(
-                  //     muted
-                  //         ? SvgIcons.unmuteSmallWhite
-                  //         : SvgIcons.muteSmallWhite,
-                  //   ),
-                  // ),
-                  // ContextMenuButton(
-                  //   label: 'btn_clear_history'.l10n,
-                  //   onPressed: () => _clearChat(c, context),
-                  //   trailing: const SvgIcon(SvgIcons.cleanHistory),
-                  //   inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-                  // ),
-                  // ContextMenuButton(
-                  //   label: 'btn_delete_chat'.l10n,
-                  //   onPressed: () => _hideChat(c, context),
-                  //   trailing: const SvgIcon(SvgIcons.delete19),
-                  //   inverted: const SvgIcon(SvgIcons.delete19White),
-                  // ),
+                    final bool muted = dialog?.chat.value.muted != null;
+
+                    return ContextMenuRegion(
+                      key: c.moreKey,
+                      selector: c.moreKey,
+                      alignment: Alignment.topRight,
+                      enablePrimaryTap: true,
+                      margin: const EdgeInsets.only(bottom: 4, left: 20),
+                      actions: [
+                        // ContextMenuButton(
+                        //   label: 'btn_set_price'.l10n,
+                        //   onPressed: () => GetPaidView.show(
+                        //     context,
+                        //     mode: GetPaidMode.user,
+                        //     user: c.user,
+                        //   ),
+                        //   trailing: const SvgIcon(SvgIcons.gapopaCoin),
+                        //   inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
+                        // ),
+                        if (c.inContacts.value)
+                          ContextMenuButton(
+                            label: 'btn_edit'.l10n,
+                            onPressed: c.editing.toggle,
+                            trailing: const SvgIcon(SvgIcons.edit),
+                            inverted: const SvgIcon(SvgIcons.editWhite),
+                          ),
+                        ContextMenuButton(
+                          label: 'btn_audio_call'.l10n,
+                          onPressed: () => c.call(false),
+                          trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                          inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
+                        ),
+                        ContextMenuButton(
+                          label: 'btn_video_call'.l10n,
+                          onPressed: () => c.call(true),
+                          trailing: Transform.translate(
+                            offset: const Offset(2, 0),
+                            child: const SvgIcon(SvgIcons.makeVideoCall),
+                          ),
+                          inverted: Transform.translate(
+                            offset: const Offset(2, 0),
+                            child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                          ),
+                        ),
+                        ContextMenuButton(
+                          label: contact
+                              ? 'btn_delete_from_contacts'.l10n
+                              : 'btn_add_to_contacts'.l10n,
+                          onPressed:
+                              contact ? c.removeFromContacts : c.addToContacts,
+                          trailing: SvgIcon(
+                            contact
+                                ? SvgIcons.deleteContact
+                                : SvgIcons.addContact,
+                          ),
+                          inverted: SvgIcon(
+                            contact
+                                ? SvgIcons.deleteContactWhite
+                                : SvgIcons.addContactWhite,
+                          ),
+                        ),
+
+                        ContextMenuButton(
+                          label: favorite
+                              ? 'btn_delete_from_favorites'.l10n
+                              : 'btn_add_to_favorites'.l10n,
+
+                          // TODO: ADD TO CONTACTS AND THEN FAVORITE.
+                          onPressed: favorite
+                              ? c.unfavoriteContact
+                              : c.favoriteContact,
+                          trailing: SvgIcon(
+                            favorite
+                                ? SvgIcons.favoriteSmall
+                                : SvgIcons.unfavoriteSmall,
+                          ),
+                          inverted: SvgIcon(
+                            favorite
+                                ? SvgIcons.favoriteSmallWhite
+                                : SvgIcons.unfavoriteSmallWhite,
+                          ),
+                        ),
+                        if (dialog != null) ...[
+                          // ContextMenuButton(
+                          //   label: muted
+                          //       ? PlatformUtils.isMobile
+                          //           ? 'btn_unmute'.l10n
+                          //           : 'btn_unmute_chat'.l10n
+                          //       : PlatformUtils.isMobile
+                          //           ? 'btn_mute'.l10n
+                          //           : 'btn_mute_chat'.l10n,
+                          //   onPressed: muted ? c.unmuteChat : c.muteChat,
+                          //   trailing: SvgIcon(
+                          //     muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                          //   ),
+                          //   inverted: SvgIcon(
+                          //     muted
+                          //         ? SvgIcons.unmuteSmallWhite
+                          //         : SvgIcons.muteSmallWhite,
+                          //   ),
+                          // ),
+                          // ContextMenuButton(
+                          //   label: 'btn_clear_history'.l10n,
+                          //   onPressed: () => _clearChat(c, context),
+                          //   trailing: const SvgIcon(SvgIcons.cleanHistory),
+                          //   inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
+                          // ),
+                          // ContextMenuButton(
+                          //   label: 'btn_delete_chat'.l10n,
+                          //   onPressed: () => _hideChat(c, context),
+                          //   trailing: const SvgIcon(SvgIcons.delete19),
+                          //   inverted: const SvgIcon(SvgIcons.delete19White),
+                          // ),
+                        ],
+                        // ContextMenuButton(
+                        //   label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+                        //   trailing: Obx(() {
+                        //     final Widget child;
+                        //     if (c.blacklistStatus.value.isEmpty) {
+                        //       child = const SvgIcon(SvgIcons.block);
+                        //     } else {
+                        //       child = const CustomProgressIndicator();
+                        //     }
+
+                        //     return SafeAnimatedSwitcher(
+                        //       duration: 200.milliseconds,
+                        //       child: child,
+                        //     );
+                        //   }),
+                        //   inverted: const SvgIcon(SvgIcons.blockWhite),
+                        //   onPressed: blocked
+                        //       ? c.unblacklist
+                        //       : () => _blacklistUser(c, context),
+                        // ),
+                        // ContextMenuButton(
+                        //   onPressed: () {},
+                        //   label: 'btn_report'.l10n,
+                        //   trailing: const SvgIcon(SvgIcons.report),
+                        // ),
+                      ],
+                      child: Container(
+                        padding:
+                            const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
+                        height: double.infinity,
+                        child: const SvgIcon(SvgIcons.more),
+                      ),
+                    );
+                  }),
                 ],
-                // ContextMenuButton(
-                //   label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                //   trailing: Obx(() {
-                //     final Widget child;
-                //     if (c.blacklistStatus.value.isEmpty) {
-                //       child = const SvgIcon(SvgIcons.block);
-                //     } else {
-                //       child = const CustomProgressIndicator();
-                //     }
+              );
+            }
 
-                //     return SafeAnimatedSwitcher(
-                //       duration: 200.milliseconds,
-                //       child: child,
-                //     );
-                //   }),
-                //   inverted: const SvgIcon(SvgIcons.blockWhite),
-                //   onPressed: blocked
-                //       ? c.unblacklist
-                //       : () => _blacklistUser(c, context),
-                // ),
-                // ContextMenuButton(
-                //   onPressed: () {},
-                //   label: 'btn_report'.l10n,
-                //   trailing: const SvgIcon(SvgIcons.report),
-                // ),
-              ],
-              child: Container(
-                padding: const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
-                height: double.infinity,
-                child: const SvgIcon(SvgIcons.more),
-              ),
+            return AnimatedSizeAndFade(
+              fadeDuration: const Duration(milliseconds: 200),
+              sizeDuration: const Duration(milliseconds: 200),
+              child: child,
             );
           }),
+          // if (c.editing.value) ...[
+          //   AnimatedButton(
+          //     onPressed: c.editing.toggle,
+          //     decorator: (child) => Padding(
+          //       padding: const EdgeInsets.fromLTRB(0, 0, 18, 0),
+          //       child: child,
+          //     ),
+          //     child: const SvgIcon(SvgIcons.closePrimary),
+          //   ),
+          // ] else ...[
+          //   // AnimatedButton(
+          //   //   onPressed: c.openChat,
+          //   //   child: const SvgIcon(SvgIcons.chat),
+          //   // ),
+          //   // const SizedBox(width: 28),
+          //   // AnimatedButton(
+          //   //   onPressed: () => c.call(true),
+          //   //   child: const SvgIcon(SvgIcons.chatVideoCall),
+          //   // ),
+          //   // const SizedBox(width: 28),
+          //   // AnimatedButton(
+          //   //   onPressed: () => c.call(false),
+          //   //   child: const SvgIcon(SvgIcons.chatAudioCall),
+          //   // ),
+          // ],
         ],
       ),
     );
@@ -935,23 +999,21 @@ class UserView extends StatelessWidget {
                 formatters: [FilteringTextInputFormatter.digitsOnly],
                 hint: '0',
                 // prefixText: '    ',
-                prefixText: '¤',
-                prefixStyle: style.fonts.medium.regular.onBackground,
-
-                // prefixStyle: TextStyle(fontSize: 12),
-                // prefixText: 'G',
+                // prefixText: '¤',
                 // prefixStyle: style.fonts.medium.regular.onBackground,
-                // prefix: Padding(
-                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                //   child: Transform.translate(
-                //     offset: const Offset(0, -0.7),
-                //     child: Text(
-                //       // '\$',
-                //       'G',
-                //       style: style.fonts.medium.regular.onBackground,
-                //     ),
-                //   ),
-                // ),
+
+                prefix: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                  child: Transform.translate(
+                    offset: PlatformUtils.isWeb
+                        ? const Offset(0, -0)
+                        : const Offset(0, -0.5),
+                    child: Text(
+                      '¤',
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
+                  ),
+                ),
                 label: 'Входящие сообщения, за 1 сообщение',
               ),
               // Padding(
@@ -976,19 +1038,20 @@ class UserView extends StatelessWidget {
                 hint: '0',
                 // prefixText: '    ',
                 // prefixStyle: TextStyle(fontSize: 12),
-                prefixText: '¤',
-                prefixStyle: style.fonts.medium.regular.onBackground,
-                // prefix: Padding(
-                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                //   child: Transform.translate(
-                //     offset: const Offset(0, -0.7),
-                //     child: Text(
-                //       // '\$',
-                //       'G',
-                //       style: style.fonts.medium.regular.onBackground,
-                //     ),
-                //   ),
-                // ),
+                // prefixText: '¤',
+                // prefixStyle: style.fonts.medium.regular.onBackground,
+                prefix: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                  child: Transform.translate(
+                    offset: PlatformUtils.isWeb
+                        ? const Offset(0, -0)
+                        : const Offset(0, -1),
+                    child: Text(
+                      '¤',
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
+                  ),
+                ),
                 label: 'Входящие звонки, за 1 минуту',
               ),
               // Padding(

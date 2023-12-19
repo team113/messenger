@@ -223,7 +223,11 @@ class AvatarWidget extends StatefulWidget {
         key: key,
         label: LayoutBuilder(
           builder: (context, constraints) {
-            return SvgIcon(SvgIcons.notes, height: constraints.maxWidth / 2);
+            return SvgIcon(
+              SvgIcons.notes,
+              width: constraints.maxWidth,
+              height: constraints.maxWidth / 2,
+            );
           },
         ),
         avatar: chat?.avatar,

@@ -315,15 +315,14 @@ class _BrowserSvgState extends State<_BrowserSvg> {
               fit: widget.fit,
               width: widget.width,
             )
-          : Container(
-              height: widget.height,
+          : SizedBox(
               width: widget.width,
-              alignment: Alignment.center,
+              height: widget.height,
               child: Image.network(
                 _image!,
-                height: widget.height,
                 fit: widget.fit,
                 width: widget.width,
+                height: widget.height,
               ),
             );
 }

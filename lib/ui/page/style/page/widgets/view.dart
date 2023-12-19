@@ -604,7 +604,7 @@ class _WidgetsViewState extends State<WidgetsView> {
         ),
         child: ShadowedRoundedButton(
           onPressed: () {},
-          child: const Text('Label'),
+          title: const Text('Label'),
         ),
       ),
       _headline(

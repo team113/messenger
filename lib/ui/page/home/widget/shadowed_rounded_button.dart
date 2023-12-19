@@ -24,19 +24,22 @@ import '/ui/widget/outlined_rounded_button.dart';
 class ShadowedRoundedButton extends StatelessWidget {
   const ShadowedRoundedButton({
     super.key,
-    this.child,
+    this.title,
     this.color,
     this.onPressed,
+    this.maxWidth,
   });
 
   /// Primary content of this button.
-  final Widget? child;
+  final Widget? title;
 
   /// Background color of this button.
   final Color? color;
 
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
+
+  final double? maxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +48,10 @@ class ShadowedRoundedButton extends StatelessWidget {
     return SizedBox(
       height: 42,
       child: OutlinedRoundedButton(
-        title: child,
+        title: title,
         onPressed: onPressed,
         color: color,
+        maxWidth: maxWidth ?? (250 * 0.72),
         shadows: [
           CustomBoxShadow(
             blurRadius: 8,

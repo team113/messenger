@@ -33,6 +33,8 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
+import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -124,7 +126,7 @@ class MyProfileView extends StatelessWidget {
                 itemBuilder: (context, i) {
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
-                    required String title,
+                    String? title,
                     required List<Widget> children,
                     EdgeInsets? padding,
                   }) {
@@ -142,7 +144,7 @@ class MyProfileView extends StatelessWidget {
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
                       return block(
-                        title: 'label_public_information'.l10n,
+                        title: 'label_profile'.l10n,
                         children: [
                           Obx(() {
                             return BigAvatarWidget.myUser(
@@ -171,7 +173,7 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
-                          _presence(context, c),
+                          // _presence(context, c),
                         ],
                       );
 
@@ -179,6 +181,29 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_login_options'.l10n,
                         children: [
+                          // Paddings.basic(
+                          //   Obx(() {
+                          //     return UserNumCopyable(c.myUser.value?.num);
+                          //   }),
+                          // ),
+                          Paddings.basic(
+                            Obx(() {
+                              return ContactInfoContents(
+                                padding: EdgeInsets.zero,
+                                title: 'Gapopa ID',
+                                content: c.myUser.value?.num.toString() ?? '',
+                                icon: const SvgIcon(SvgIcons.profileNum),
+                                trailing: CopyOrShareButton(
+                                  c.myUser.value?.num.toString() ?? '',
+                                ),
+                                // trailing: WidgetButton(
+                                //   onPressed: () {},
+                                //   child: const SvgIcon(SvgIcons.copy),
+                                // ),
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: 8),
                           Paddings.basic(
                             Obx(() {
                               return UserLoginField(
@@ -187,11 +212,11 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserNumCopyable(c.myUser.value?.num);
-                            }),
-                          ),
+                          // Paddings.basic(
+                          //   Obx(() {
+                          //     return UserNumCopyable(c.myUser.value?.num);
+                          //   }),
+                          // ),
                           _emails(context, c),
                           _phones(context, c),
                           _password(context, c),

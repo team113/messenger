@@ -444,7 +444,7 @@ class UserController extends GetxController {
   }
 
   Future<void> report() async {
-    const userId = UserId('2ff2211b-ab11-4f36-a51e-06b0c6bc3dba');
+    const userId = UserId('18ff6b4f-1a81-47f9-a8ed-bf69a51bdae6');
     final user = await _userService.get(userId);
     router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
   }

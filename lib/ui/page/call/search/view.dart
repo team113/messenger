@@ -19,6 +19,7 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
+import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
 import 'package:messenger/ui/widget/selected_dot.dart';
 
 import '/domain/model/user.dart';
@@ -114,7 +115,10 @@ class SearchView extends StatelessWidget {
             children: [
               ModalPopupHeader(onBack: onBack, text: title),
               // const SizedBox(height: 12),
-              SearchField(c.search),
+              SearchField(
+                c.search,
+                onChanged: () => c.query.value = c.search.text,
+              ),
               // Padding(
               //   padding: const EdgeInsets.symmetric(horizontal: 10),
               //   child: Center(
@@ -299,7 +303,7 @@ class SearchView extends StatelessWidget {
                             c.selectedUsers.isNotEmpty) &&
                         this.enabled;
 
-                    return OutlinedRoundedButton(
+                    return ShadowedRoundedButton(
                       key: const Key('SearchSubmitButton'),
                       maxWidth: double.infinity,
                       title: Text(
