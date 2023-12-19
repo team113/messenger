@@ -21,7 +21,7 @@ import 'package:gherkin/gherkin.dart';
 
 /// [Credentials] available in a [CredentialsParameter].
 enum TestCredential {
-  id,
+  num,
   login,
 }
 

@@ -231,6 +231,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsMessageToMe,
         sendsMessageWithException,
         setLogin,
+        setMyLogin,
         signInAs,
         tapChat,
         tapContact,

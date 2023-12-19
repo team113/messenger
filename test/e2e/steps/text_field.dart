@@ -56,14 +56,17 @@ StepDefinitionGeneric fillFieldWithUserCredential =
   'I fill {key} field with {user}\'s {credential}',
   (key, user, credential, context) async {
     final CustomUser? customUser = context.world.sessions[user.name];
+
     switch (credential) {
-      case TestCredential.id:
+      case TestCredential.num:
         final String text = customUser?.userNum.val ?? '';
+
         await _fillField(key, text, context);
 
       case TestCredential.login:
         final String text =
             customUser != null ? 'lgn_${customUser.userNum.val}' : '';
+
         await _fillField(key, text, context);
     }
   },

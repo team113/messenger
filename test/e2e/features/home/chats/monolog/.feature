@@ -19,7 +19,7 @@ Feature: Searching deleted monolog
 
   Scenario: User searches deleted monolog and sees it
     Given I am Alice
-    And Alice sets her login
+    And I have my login set
     And I wait until `ChatMonolog` is present
 
     When I long press monolog
@@ -34,7 +34,7 @@ Feature: Searching deleted monolog
     When I fill `SearchField` field with "Notes"
     Then I see monolog in search results
 
-    When I fill `SearchField` field with Alice's id
+    When I fill `SearchField` field with Alice's num
     Then I see monolog in search results
 
     When I fill `SearchField` field with Alice's login
