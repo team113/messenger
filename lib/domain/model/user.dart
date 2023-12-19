@@ -404,8 +404,7 @@ class BlocklistRecord implements Comparable<BlocklistRecord> {
 
   @override
   int compareTo(BlocklistRecord other) {
-    int result = other.at.compareTo(at);
-
+    final int result = other.at.compareTo(at);
     return result == 0 ? userId.compareTo(other.userId) : result;
   }
 }

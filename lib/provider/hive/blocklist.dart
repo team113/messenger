@@ -82,6 +82,6 @@ class HiveBlocklistRecord {
   final BlocklistRecord value;
 
   /// Cursor of the [value].
-  @HiveField(2)
+  @HiveField(1)
   final BlocklistCursor? cursor;
 }

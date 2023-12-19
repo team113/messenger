@@ -571,6 +571,10 @@ class ChatRepository extends DisposableInterface
         await _monologLocal.set(id);
       }
 
+      if (chat == null || chat.chat.value.favoritePosition != null) {
+        await unfavoriteChat(id);
+      }
+
       await _graphQlProvider.hideChat(id);
     } catch (_) {
       if (id == monolog?.chat.value.id) {
@@ -1568,10 +1572,12 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        _recentLocal.put(event.value.value.updatedAt, chatId);
-
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
+          _recentLocal.remove(chatId);
+        } else {
+          _recentLocal.put(event.value.value.updatedAt, chatId);
+          _favoriteLocal.remove(chatId);
         }
       }
     }
