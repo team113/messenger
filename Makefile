@@ -45,9 +45,6 @@ FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
 FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
 
-SENTRY_RELEASE ?= $(strip \
-	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
-
 
 
 
@@ -172,7 +169,7 @@ ifeq ($(dockerized),yes)
 			make flutter.clean dockerized=no
 else
 	flutter clean
-	rm -rf .cache/pub/ doc/ symbols/ \
+	rm -rf .cache/pub/ debug/ doc/ \
 	       lib/api/backend/*.dart \
 	       lib/api/backend/*.g.dart \
 	       lib/api/backend/*.graphql.dart \
@@ -847,7 +844,9 @@ sentry-org=$(or $(SENTRY_ORG),\
 sentry-token=$(or $(SENTRY_AUTH_TOKEN),\
 	         $(strip $(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
 sentry-release=$(or $(SENTRY_RELEASE),\
-	           $(strip $(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2)))
+	           $(strip $(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2)),\
+			   $(strip $(shell grep -m1 'ref = ' lib/pubspec.g.dart \
+			                                                  | cut -d"'" -f2)))
 
 sentry.upload:
 	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
