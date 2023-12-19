@@ -530,6 +530,8 @@ class ChatController extends GetxController {
       await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -1247,6 +1249,8 @@ class ChatController extends GetxController {
     try {
       await _chatService.hideChat(id);
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

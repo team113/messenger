@@ -384,6 +384,8 @@ class ChatsTabController extends GetxController {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -406,6 +408,8 @@ class ChatsTabController extends GetxController {
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -641,9 +645,13 @@ class ChatsTabController extends GetxController {
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
     final List<ChatEntry> favorites = chats
-        .where((e) =>
-            e.chat.value.ongoingCall == null &&
-            e.chat.value.favoritePosition != null)
+        .where(
+          (e) =>
+              e.chat.value.ongoingCall == null &&
+              e.chat.value.favoritePosition != null &&
+              !e.chat.value.isHidden &&
+              !e.hidden.value,
+        )
         .toList();
 
     double position;

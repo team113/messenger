@@ -563,7 +563,13 @@ class ChatRepository extends DisposableInterface
         id = remoteMonolog.chat.value.id;
       }
 
-      chats[id]?.chat.update((c) => c?.isHidden = true);
+      final HiveRxChat? chat = chats[id];
+
+      chat?.chat.update((c) => c?.isHidden = true);
+
+      if (chat == null || chat.chat.value.favoritePosition != null) {
+        await unfavoriteChat(id);
+      }
 
       // [Chat.isHidden] will be changed by [HiveRxChat]'s own remote event
       // handler. Chat will be removed from [paginated] on [BoxEvent] from the
@@ -1552,10 +1558,12 @@ class ChatRepository extends DisposableInterface
           _add(event.value);
         }
 
-        _recentLocal.put(event.value.value.updatedAt, chatId);
-
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
+          _recentLocal.remove(chatId);
+        } else {
+          _recentLocal.put(event.value.value.updatedAt, chatId);
+          _favoriteLocal.remove(chatId);
         }
 
         if (event.value.value.isHidden) {
