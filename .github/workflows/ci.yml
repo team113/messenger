@@ -178,16 +178,16 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}'
         if: ${{ matrix.platform == 'web' }}
 
-      # TODO: Use `split-debug-info` for Windows when Sentry supports it.
+      # TODO: Use `split-debug-info` for Windows once Sentry supports it:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
-                  split-debug-info=${{ contains('apk appbundle ios macos', matrix.platform) && 'yes' || 'no' }}
+                  split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
@@ -250,9 +250,9 @@ jobs:
       - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
-          directory: 'debug'
+          directory: debug
         if: ${{ contains('apk appbundle ios macos', matrix.platform) }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: debug-${{ matrix.platform }}-${{ github.run_number }}
           path: debug-${{ matrix.platform }}.zip
@@ -313,9 +313,9 @@ jobs:
       - run: make flutter.build platform=linux
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
 
       - name: Parse application name from Git repository name
@@ -859,25 +859,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-web-${{ github.run_number }}
       - run: mkdir -p build/web/
       - run: unzip *.zip -d build/web/
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: debug-apk-${{ github.run_number }}
           path: debug/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: debug-appbundle-${{ github.run_number }}
           path: debug/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: debug-ios-${{ github.run_number }}
           path: debug/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: debug-macos-${{ github.run_number }}
           path: debug/

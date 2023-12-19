@@ -30,6 +30,7 @@
 
 # Symbolication and obfuscation related
 /debug/
+/debug-*.zip
 app.*.map.json
 app.*.symbols
 
