@@ -25,7 +25,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:messenger/domain/model/file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -565,10 +564,6 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Generates name with extension for image file
-  Future<String> generateFileName(ImageFile image){
-    throw UnimplementedError();
-  }
 
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
   Future<void> share(String url, String name, {String? checksum}) async {
