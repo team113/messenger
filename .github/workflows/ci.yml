@@ -349,6 +349,8 @@ jobs:
       - run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
         if: ${{ contains('ios macos', matrix.platform) }}
       - run: |
+          shopt -s globstar
+
           mkdir debug
           mv build/web/**/*.map debug/
           cp build/web/**/*.js debug/
