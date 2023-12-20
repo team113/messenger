@@ -120,7 +120,7 @@ jobs:
         platform:
           - apk
           - appbundle
-          # - ios
+          - ios
           - macos
           - web
           - windows
@@ -499,10 +499,10 @@ jobs:
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: build-ios-${{ github.run_number }}
-      #     path: build/web/artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ios-${{ github.run_number }}
+          path: build/web/artifacts/
       - uses: actions/download-artifact@v4
         with:
           name: build-linux-${{ github.run_number }}
@@ -882,10 +882,10 @@ jobs:
         with:
           name: debug-appbundle-${{ github.run_number }}
           path: debug/
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: debug-ios-${{ github.run_number }}
-      #     path: debug/
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-ios-${{ github.run_number }}
+          path: debug/
       - uses: actions/download-artifact@v4
         with:
           name: debug-macos-${{ github.run_number }}
