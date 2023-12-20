@@ -304,7 +304,10 @@ class RecentChatTile extends StatelessWidget {
                 SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
               ] else if (paid) ...[
                 const SizedBox(width: 8),
-                SvgIcon(inverted ? SvgIcons.sunWhite : SvgIcons.sun),
+                SvgIcon(
+                  inverted ? SvgIcons.faceSmileWhite : SvgIcons.faceSmile,
+                ),
+                // SvgIcon(inverted ? SvgIcons.sunWhite : SvgIcons.sun),
                 // SvgIcon(inverted ? SvgIcons.emeraldWhite : SvgIcons.emerald),
                 // const SvgIcon(SvgIcons.premium),
                 // const SvgIcon(SvgIcons.cent),

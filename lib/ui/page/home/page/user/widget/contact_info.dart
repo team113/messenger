@@ -53,6 +53,7 @@ class ContactInfoContents extends StatelessWidget {
     super.key,
     this.title,
     required this.content,
+    this.subtitle = const [],
     this.icon,
     this.trailing,
     this.status,
@@ -63,6 +64,7 @@ class ContactInfoContents extends StatelessWidget {
 
   final String? title;
   final String content;
+  final List<Widget> subtitle;
 
   final Widget? icon;
   final Widget? trailing;
@@ -118,6 +120,7 @@ class ContactInfoContents extends StatelessWidget {
                     ],
                   ),
                 ),
+                ...subtitle,
               ],
             ),
           ),

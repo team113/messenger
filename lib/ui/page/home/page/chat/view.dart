@@ -345,7 +345,8 @@ class _ChatViewState extends State<ChatView>
                                         c.paidDisclaimerDismissed.value = false;
                                         c.paidDisclaimer.value = true;
                                       },
-                                      child: const SvgIcon(SvgIcons.paidChat),
+                                      // child: const SvgIcon(SvgIcons.paidChat),
+                                      child: const SvgIcon(SvgIcons.faceSmile),
                                     ),
                                   ),
                                   if (children.isNotEmpty)

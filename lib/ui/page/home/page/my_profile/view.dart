@@ -188,21 +188,27 @@ class MyProfileView extends StatelessWidget {
                           // ),
                           Paddings.basic(
                             Obx(() {
-                              return ContactInfoContents(
-                                padding: EdgeInsets.zero,
-                                title: 'Gapopa ID',
-                                content: c.myUser.value?.num.toString() ?? '',
-                                icon: const SvgIcon(SvgIcons.profileNum),
-                                trailing: CopyOrShareButton(
-                                  c.myUser.value?.num.toString() ?? '',
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(15, 0, 24, 0),
+                                child: ContactInfoContents(
+                                  padding: EdgeInsets.zero,
+                                  title: 'Gapopa ID',
+                                  content: c.myUser.value?.num.toString() ?? '',
+                                  icon: const SvgIcon(SvgIcons.profileNum),
+                                  trailing: CopyOrShareButton(
+                                    c.myUser.value?.num.toString() ?? '',
+                                  ),
+                                  // trailing: WidgetButton(
+                                  //   onPressed: () {},
+                                  //   child: const SvgIcon(SvgIcons.copy),
+                                  // ),
                                 ),
-                                // trailing: WidgetButton(
-                                //   onPressed: () {},
-                                //   child: const SvgIcon(SvgIcons.copy),
-                                // ),
                               );
                             }),
                           ),
+                          const SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           const SizedBox(height: 8),
                           Paddings.basic(
                             Obx(() {
@@ -212,6 +218,8 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
+                          const SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           // Paddings.basic(
                           //   Obx(() {
                           //     return UserNumCopyable(c.myUser.value?.num);
@@ -516,33 +524,30 @@ Widget _emails(BuildContext context, MyProfileController c) {
   return Obx(() {
     final List<Widget> widgets = [];
 
-    for (UserEmail e in c.myUser.value?.emails.confirmed ?? []) {
+    for (UserEmail e in [
+      ...c.myUser.value?.emails.confirmed ?? [],
+      UserEmail('dummy1@example.com'),
+      UserEmail('dummy2@example.com'),
+    ]) {
       widgets.add(
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            FieldButton(
-              key: const Key('ConfirmedEmail'),
-              text: e.val,
-              hint: 'label_email'.l10n,
-              onPressed: () {
-                PlatformUtils.copy(text: e.val);
-                MessagePopup.success('label_copied'.l10n);
-              },
-              trailing: Transform.translate(
+            ReactiveTextField(
+              state: TextFieldState(text: e.val),
+              readOnly: true,
+              label: 'E-mail',
+              trailing: AnimatedButton(
                 key: const Key('DeleteEmail'),
-                offset: const Offset(0, -5),
-                child: AnimatedButton(
-                  onPressed: () => _deleteEmail(c, context, e),
-                  child: const SvgIcon(SvgIcons.delete),
-                ),
+                onPressed: () => _deleteEmail(c, context, e),
+                child: const SvgIcon(SvgIcons.delete),
               ),
               subtitle: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'label_email_visible'.l10n,
+                      text: 'label_login_visible'.l10n,
                       style: style.fonts.small.regular.secondary,
                     ),
                     TextSpan(
@@ -552,8 +557,15 @@ Widget _emails(BuildContext context, MyProfileController c) {
                         ..onTap = () async {
                           await ConfirmDialog.show(
                             context,
-                            title: 'label_email'.l10n,
+                            title: 'label_login'.l10n,
                             additional: [
+                              Center(
+                                child: Text(
+                                  'label_login_visibility_hint'.l10n,
+                                  style: style.fonts.normal.regular.secondary,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -585,68 +597,222 @@ Widget _emails(BuildContext context, MyProfileController c) {
                 ),
               ),
             ),
+            if (false)
+              ContactInfoContents(
+                title: 'label_email'.l10n,
+                content: e.val,
+                trailing: AnimatedButton(
+                  key: const Key('DeleteEmail'),
+                  onPressed: () => _deleteEmail(c, context, e),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
+                subtitle: [
+                  const SizedBox(height: 4),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'label_email_visible'.l10n,
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                        TextSpan(
+                          text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+                          style: style.fonts.small.regular.primary,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              await ConfirmDialog.show(
+                                context,
+                                title: 'label_email'.l10n,
+                                additional: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'label_visible_to'.l10n,
+                                      style:
+                                          style.fonts.big.regular.onBackground,
+                                    ),
+                                  ),
+                                ],
+                                label: 'label_confirm'.l10n,
+                                initial: 2,
+                                variants: [
+                                  ConfirmDialogVariant(
+                                    onProceed: () {},
+                                    label: 'label_all'.l10n,
+                                  ),
+                                  ConfirmDialogVariant(
+                                    onProceed: () {},
+                                    label: 'label_my_contacts'.l10n,
+                                  ),
+                                  ConfirmDialogVariant(
+                                    onProceed: () {},
+                                    label: 'label_nobody'.l10n,
+                                  ),
+                                ],
+                              );
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            if (false)
+              FieldButton(
+                key: const Key('ConfirmedEmail'),
+                text: e.val,
+                hint: 'label_email'.l10n,
+                onPressed: () {
+                  PlatformUtils.copy(text: e.val);
+                  MessagePopup.success('label_copied'.l10n);
+                },
+                trailing: AnimatedButton(
+                  key: const Key('DeleteEmail'),
+                  onPressed: () => _deleteEmail(c, context, e),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
+                subtitle: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_email_visible'.l10n,
+                        style: style.fonts.small.regular.secondary,
+                      ),
+                      TextSpan(
+                        text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+                        style: style.fonts.small.regular.primary,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await ConfirmDialog.show(
+                              context,
+                              title: 'label_email'.l10n,
+                              additional: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'label_visible_to'.l10n,
+                                    style: style.fonts.big.regular.onBackground,
+                                  ),
+                                ),
+                              ],
+                              label: 'label_confirm'.l10n,
+                              initial: 2,
+                              variants: [
+                                ConfirmDialogVariant(
+                                  onProceed: () {},
+                                  label: 'label_all'.l10n,
+                                ),
+                                ConfirmDialogVariant(
+                                  onProceed: () {},
+                                  label: 'label_my_contacts'.l10n,
+                                ),
+                                ConfirmDialogVariant(
+                                  onProceed: () {},
+                                  label: 'label_nobody'.l10n,
+                                ),
+                              ],
+                            );
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 8));
+      widgets.add(const SizedBox(height: 16));
     }
 
-    if (c.myUser.value?.emails.unconfirmed != null) {
+    final unconfirmed = c.myUser.value?.emails.unconfirmed ??
+        UserEmail('unconfirmed@example.com');
+
+    if (unconfirmed != null) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
             inputDecorationTheme:
                 Theme.of(context).inputDecorationTheme.copyWith(
                       floatingLabelStyle:
-                          style.fonts.normal.regular.onBackground.copyWith(
-                        color: style.colors.primary,
+                          style.fonts.big.regular.onBackground.copyWith(
+                        color: style.colors.danger,
                       ),
                     ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedEmail'),
-            text: c.myUser.value!.emails.unconfirmed!.val,
-            hint: 'label_verify_email'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: AnimatedButton(
-                onPressed: () => _deleteEmail(
-                  c,
-                  context,
-                  c.myUser.value!.emails.unconfirmed!,
-                ),
-                child: const SvgIcon(SvgIcons.delete),
+          child: ReactiveTextField(
+            state: TextFieldState(text: unconfirmed.val),
+            readOnly: true,
+            label: 'E-mail не верифицирован',
+            trailing: AnimatedButton(
+              key: const Key('DeleteEmail'),
+              onPressed: () => _deleteEmail(c, context, unconfirmed),
+              child: const SvgIcon(SvgIcons.delete),
+            ),
+            subtitle: AnimatedButton(
+              onPressed: () => AddEmailView.show(context, email: unconfirmed),
+              child: Text(
+                'Верифицировать',
+                style: style.fonts.small.regular.primary,
               ),
             ),
-            onPressed: () => AddEmailView.show(
-              context,
-              email: c.myUser.value!.emails.unconfirmed!,
-            ),
-            style: style.fonts.normal.regular.onBackground
-                .copyWith(color: style.colors.primary),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'E-mail не верифицирован. '.l10n,
-                  style: style.fonts.small.regular.onBackground.copyWith(
-                    fontSize: 11,
-                    color: style.colors.danger,
-                  ),
+        // const SizedBox(height: 8),
+        if (false)
+          ContactInfoContents(
+            title: 'label_email'.l10n,
+            content: unconfirmed.val,
+            trailing: AnimatedButton(
+              key: const Key('DeleteEmail'),
+              onPressed: () => _deleteEmail(c, context, unconfirmed),
+              child: const SvgIcon(SvgIcons.delete),
+            ),
+          ),
+        if (false)
+          Theme(
+            data: Theme.of(context).copyWith(
+              inputDecorationTheme:
+                  Theme.of(context).inputDecorationTheme.copyWith(
+                        floatingLabelStyle:
+                            style.fonts.normal.regular.onBackground.copyWith(
+                          color: style.colors.primary,
+                        ),
+                      ),
+            ),
+            child: FieldButton(
+              key: const Key('UnconfirmedEmail'),
+              text: unconfirmed.val,
+              hint: 'label_verify_email'.l10n,
+              trailing: Transform.translate(
+                offset: const Offset(0, -1),
+                child: AnimatedButton(
+                  onPressed: () => _deleteEmail(c, context, unconfirmed),
+                  child: const SvgIcon(SvgIcons.delete),
                 ),
-              ],
+              ),
+              onPressed: () => AddEmailView.show(context, email: unconfirmed),
+              style: style.fonts.normal.regular.primary,
             ),
           ),
-        ),
+        if (false)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'E-mail не верифицирован. '.l10n,
+                    style: style.fonts.small.regular.danger,
+                  ),
+                ],
+              ),
+            ),
+          ),
       ]);
       widgets.add(const SizedBox(height: 8));
     }
 
-    if (c.myUser.value?.emails.unconfirmed == null) {
+    if (true || unconfirmed == null) {
       widgets.add(
         FieldButton(
           key: c.myUser.value?.emails.confirmed.isNotEmpty == true
@@ -661,9 +827,10 @@ Widget _emails(BuildContext context, MyProfileController c) {
               : null,
           onPressed: () => AddEmailView.show(context),
           style: style.fonts.normal.regular.primary,
+          trailing: const SvgIcon(SvgIcons.email19),
         ),
       );
-      widgets.add(const SizedBox(height: 8));
+      widgets.add(const SizedBox(height: 32));
     }
 
     return Column(
@@ -681,33 +848,31 @@ Widget _phones(BuildContext context, MyProfileController c) {
   return Obx(() {
     final List<Widget> widgets = [];
 
-    for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
+    for (UserPhone e in [
+      ...c.myUser.value?.phones.confirmed ?? [],
+      UserPhone('+1234567890'),
+      UserPhone('+1234567890'),
+    ]) {
       widgets.add(
         Column(
           key: const Key('ConfirmedPhone'),
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            FieldButton(
-              text: e.val,
-              hint: 'label_phone_number'.l10n,
-              trailing: Transform.translate(
-                key: const Key('DeletePhone'),
-                offset: const Offset(0, -5),
-                child: AnimatedButton(
-                  onPressed: () => _deletePhone(c, context, e),
-                  child: const SvgIcon(SvgIcons.delete),
-                ),
+            ReactiveTextField(
+              state: TextFieldState(text: e.val),
+              readOnly: true,
+              label: 'Phone',
+              trailing: AnimatedButton(
+                key: const Key('DeleteEmail'),
+                onPressed: () => _deletePhone(c, context, e),
+                child: const SvgIcon(SvgIcons.delete),
               ),
-              onPressed: () {
-                PlatformUtils.copy(text: e.val);
-                MessagePopup.success('label_copied'.l10n);
-              },
               subtitle: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'label_phone_visible'.l10n,
+                      text: 'label_login_visible'.l10n,
                       style: style.fonts.small.regular.secondary,
                     ),
                     TextSpan(
@@ -717,8 +882,15 @@ Widget _phones(BuildContext context, MyProfileController c) {
                         ..onTap = () async {
                           await ConfirmDialog.show(
                             context,
-                            title: 'label_phone'.l10n,
+                            title: 'label_login'.l10n,
                             additional: [
+                              Center(
+                                child: Text(
+                                  'label_login_visibility_hint'.l10n,
+                                  style: style.fonts.normal.regular.secondary,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -750,51 +922,113 @@ Widget _phones(BuildContext context, MyProfileController c) {
                 ),
               ),
             ),
+            if (false)
+              FieldButton(
+                text: e.val,
+                hint: 'label_phone_number'.l10n,
+                trailing: Transform.translate(
+                  key: const Key('DeletePhone'),
+                  offset: const Offset(0, -5),
+                  child: AnimatedButton(
+                    onPressed: () => _deletePhone(c, context, e),
+                    child: const SvgIcon(SvgIcons.delete),
+                  ),
+                ),
+                onPressed: () {
+                  PlatformUtils.copy(text: e.val);
+                  MessagePopup.success('label_copied'.l10n);
+                },
+                subtitle: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'label_phone_visible'.l10n,
+                        style: style.fonts.small.regular.secondary,
+                      ),
+                      TextSpan(
+                        text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+                        style: style.fonts.small.regular.primary,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await ConfirmDialog.show(
+                              context,
+                              title: 'label_phone'.l10n,
+                              additional: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'label_visible_to'.l10n,
+                                    style: style.fonts.big.regular.onBackground,
+                                  ),
+                                ),
+                              ],
+                              label: 'label_confirm'.l10n,
+                              initial: 2,
+                              variants: [
+                                ConfirmDialogVariant(
+                                  onProceed: () {},
+                                  label: 'label_all'.l10n,
+                                ),
+                                ConfirmDialogVariant(
+                                  onProceed: () {},
+                                  label: 'label_my_contacts'.l10n,
+                                ),
+                                ConfirmDialogVariant(
+                                  onProceed: () {},
+                                  label: 'label_nobody'.l10n,
+                                ),
+                              ],
+                            );
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 8));
+      widgets.add(const SizedBox(height: 16));
     }
 
-    if (c.myUser.value?.phones.unconfirmed != null) {
+    final unconfirmed =
+        c.myUser.value?.phones.unconfirmed ?? UserPhone('+1234567890');
+
+    if (unconfirmed != null) {
       widgets.addAll([
         Theme(
           data: Theme.of(context).copyWith(
             inputDecorationTheme:
                 Theme.of(context).inputDecorationTheme.copyWith(
                       floatingLabelStyle:
-                          style.fonts.normal.regular.onBackground.copyWith(
-                        color: style.colors.primary,
+                          style.fonts.big.regular.onBackground.copyWith(
+                        color: style.colors.danger,
                       ),
                     ),
           ),
-          child: FieldButton(
-            key: const Key('UnconfirmedPhone'),
-            text: c.myUser.value!.phones.unconfirmed!.val,
-            hint: 'label_verify_number'.l10n,
-            trailing: Transform.translate(
-              offset: const Offset(0, -1),
-              child: AnimatedButton(
-                onPressed: () => _deletePhone(
-                  c,
-                  context,
-                  c.myUser.value!.phones.unconfirmed!,
-                ),
-                child: const SvgIcon(SvgIcons.delete),
+          child: ReactiveTextField(
+            state: TextFieldState(text: unconfirmed.val),
+            readOnly: true,
+            label: 'Телефон не верифицирован',
+            trailing: AnimatedButton(
+              key: const Key('DeleteEmail'),
+              onPressed: () => _deletePhone(c, context, unconfirmed),
+              child: const SvgIcon(SvgIcons.delete),
+            ),
+            subtitle: AnimatedButton(
+              onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
+              child: Text(
+                'Верифицировать',
+                style: style.fonts.small.regular.primary,
               ),
             ),
-            onPressed: () => AddPhoneView.show(
-              context,
-              phone: c.myUser.value!.phones.unconfirmed!,
-            ),
-            style: style.fonts.normal.regular.secondary,
           ),
         ),
       ]);
       widgets.add(const SizedBox(height: 8));
     }
 
-    if (c.myUser.value?.phones.unconfirmed == null) {
+    if (true || unconfirmed == null) {
       widgets.add(
         FieldButton(
           key: c.myUser.value?.phones.confirmed.isNotEmpty == true
@@ -809,9 +1043,13 @@ Widget _phones(BuildContext context, MyProfileController c) {
               ? style.colors.danger
               : null,
           style: style.fonts.normal.regular.primary,
+          trailing: Transform.translate(
+            offset: const Offset(-2, 0),
+            child: const SvgIcon(SvgIcons.phone19),
+          ),
         ),
       );
-      widgets.add(const SizedBox(height: 8));
+      widgets.add(const SizedBox(height: 32));
     }
 
     return Column(
@@ -864,6 +1102,7 @@ Widget _password(BuildContext context, MyProfileController c) {
                 ? style.colors.danger
                 : null,
             style: style.fonts.normal.regular.primary,
+            trailing: const SvgIcon(SvgIcons.password19),
           );
         }),
       ),

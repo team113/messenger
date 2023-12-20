@@ -157,7 +157,8 @@ class MemberTile extends StatelessWidget {
               const SizedBox(width: 8),
               // const SvgIcon(SvgIcons.premium),
               // const SvgIcon(SvgIcons.emerald),
-              const SvgIcon(SvgIcons.sun),
+              // const SvgIcon(SvgIcons.sun),
+              const SvgIcon(SvgIcons.faceSmile),
             ],
             if (muted) ...[
               const SizedBox(width: 10),

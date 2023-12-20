@@ -274,7 +274,8 @@ class Themes {
         prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         counterStyle: fonts.small.regular.secondaryHighlightDarkest,
-        floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        floatingLabelStyle:
+            fonts.big.regular.onBackground.copyWith(color: colors.secondary),
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),

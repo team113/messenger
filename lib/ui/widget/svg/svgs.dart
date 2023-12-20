@@ -1989,4 +1989,34 @@ class SvgIcons {
     width: 12.89,
     height: 19,
   );
+
+  static const SvgData email19 = SvgData(
+    'assets/icons/email19.svg',
+    width: 18.51,
+    height: 19,
+  );
+
+  static const SvgData phone19 = SvgData(
+    'assets/icons/phone19.svg',
+    width: 13.21,
+    height: 19,
+  );
+
+  static const SvgData password19 = SvgData(
+    'assets/icons/password19.svg',
+    width: 17.1,
+    height: 19,
+  );
+
+  static const SvgData faceSmile = SvgData(
+    'assets/icons/face_smile.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData faceSmileWhite = SvgData(
+    'assets/icons/face_smile_white.svg',
+    width: 18,
+    height: 18,
+  );
 }
