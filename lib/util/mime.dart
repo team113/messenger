@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:mime/mime.dart';
-
+export 'package:mime/mime.dart' show extensionFromMime;
 /// Wrapper around [MimeTypeResolver] resolving MIME-types.
 class MimeResolver {
   /// Lazily initialized [MimeTypeResolver] used to lookup and resolve
