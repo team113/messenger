@@ -247,18 +247,18 @@ jobs:
       # Globstar is supported in Bash 4.0+, `macos-latest` runner uses Bash 3.2.
       - run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
         if: ${{ contains('ios macos', matrix.platform) }}
-      - uses: thedoctor0/zip-release@0.7.6
-        with:
-          filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
-          directory: debug
-        if: ${{ contains('apk appbundle ios macos', matrix.platform) }}
-      - run: mkdir debug && mv build/web/*.map debug/
+      - run: |
+          shopt -s globstar
+
+          mkdir debug
+          mv build/web/**/*.map debug/
+          cd build/web && cp --parents **/*.js ../../debug
         if: ${{ matrix.platform == 'web' }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
           filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
           directory: debug
-        if: ${{ matrix.platform == 'web' }}
+        if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
       - uses: actions/upload-artifact@v4
         with:
           name: debug-${{ matrix.platform }}-${{ github.run_number }}
@@ -892,6 +892,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # `sentry_dart_plugin` expects source maps to be in `build/web` directory.
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-web-${{ github.run_number }}
+      - run: mkdir -p build/web/
+      - run: unzip *.zip -d build/web/
+
       - uses: actions/download-artifact@v4
         with:
           name: debug-apk-${{ github.run_number }}
@@ -907,10 +914,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: debug-macos-${{ github.run_number }}
-          path: debug/
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-web-${{ github.run_number }}
           path: debug/
       - run: unzip debug/\*.zip -d debug/
 
