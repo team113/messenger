@@ -1146,7 +1146,7 @@ class IconsView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SvgIcons.info,
-                        SvgIcons.copy18,
+                        SvgIcons.copy19,
                         SvgIcons.reply,
                         SvgIcons.forwardSmall,
                         SvgIcons.edit,
