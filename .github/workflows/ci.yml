@@ -353,7 +353,7 @@ jobs:
 
           mkdir debug
           mv build/web/**/*.map debug/
-          cp build/web/**/*.js debug/
+          cd build/web && cp --parents **/*.js ../../debug
         if: ${{ matrix.platform == 'web' }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
