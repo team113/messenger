@@ -609,13 +609,7 @@ class UserView extends StatelessWidget {
                         //   trailing: const SvgIcon(SvgIcons.gapopaCoin),
                         //   inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
                         // ),
-                        if (c.inContacts.value)
-                          ContextMenuButton(
-                            label: 'btn_edit'.l10n,
-                            onPressed: c.editing.toggle,
-                            trailing: const SvgIcon(SvgIcons.edit),
-                            inverted: const SvgIcon(SvgIcons.editWhite),
-                          ),
+
                         ContextMenuButton(
                           label: 'btn_audio_call'.l10n,
                           onPressed: () => c.call(false),
@@ -634,6 +628,13 @@ class UserView extends StatelessWidget {
                             child: const SvgIcon(SvgIcons.makeVideoCallWhite),
                           ),
                         ),
+                        if (c.inContacts.value)
+                          ContextMenuButton(
+                            label: 'btn_edit'.l10n,
+                            onPressed: c.editing.toggle,
+                            trailing: const SvgIcon(SvgIcons.edit),
+                            inverted: const SvgIcon(SvgIcons.editWhite),
+                          ),
                         ContextMenuButton(
                           label: contact
                               ? 'btn_delete_from_contacts'.l10n

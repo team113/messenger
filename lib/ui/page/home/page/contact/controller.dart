@@ -46,7 +46,7 @@ class ContactController extends GetxController {
 
   void _fetchContact() async {
     status.value = RxStatus.loading();
-    contact.value = _contactService.contacts[id];
+    contact.value = _contactService.paginated[id];
 
     status.value =
         contact.value == null ? RxStatus.empty() : RxStatus.success();

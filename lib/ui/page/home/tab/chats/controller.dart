@@ -464,7 +464,7 @@ class ChatsTabController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Indicates whether this device of the currently authenticated [MyUser]
   /// contains an [OngoingCall] happening in a [Chat] identified by the
@@ -488,10 +488,8 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    return _contactService.contacts.values
-            .any((e) => e.contact.value.users.every((m) => m.id == userId)) ||
-        _contactService.favorites.values
-            .any((e) => e.contact.value.users.every((m) => m.id == userId));
+    return _contactService.paginated.values
+        .any((e) => e.contact.value.users.every((m) => m.id == userId));
   }
 
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
@@ -528,12 +526,9 @@ class ChatsTabController extends GetxController {
 
     try {
       final RxChatContact? contact =
-          _contactService.contacts.values.firstWhereOrNull(
-                (e) => e.contact.value.users.every((m) => m.id == user.id),
-              ) ??
-              _contactService.favorites.values.firstWhereOrNull(
-                (e) => e.contact.value.users.every((m) => m.id == user.id),
-              );
+          _contactService.paginated.values.firstWhereOrNull(
+        (e) => e.contact.value.users.every((m) => m.id == user.id),
+      );
       if (contact != null) {
         await _contactService.deleteContact(contact.contact.value.id);
       }

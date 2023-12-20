@@ -15,33 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
-import 'base.dart';
+import '/domain/repository/user.dart';
+import '/util/obs/obs.dart';
 
-/// [Hive] storage for blocked [UserId]s of the authenticated [MyUser].
-class BlocklistHiveProvider extends HiveLazyProvider<bool> {
-  @override
-  Stream<BoxEvent> get boxEvents => box.watch();
+/// [MyUser]'s blocklist repository interface.
+abstract class AbstractBlocklistRepository {
+  /// Returns [User]s blocked by the authenticated [MyUser].
+  RxObsMap<UserId, RxUser> get blocklist;
 
-  @override
-  String get boxName => 'blocklist';
+  /// Returns the initialization [RxStatus] of this repository and its
+  /// [blocklist].
+  Rx<RxStatus> get status;
 
-  @override
-  void registerAdapters() {}
+  /// Indicates whether the [blocklist] have next page.
+  RxBool get hasNext;
 
-  /// Returns a list of [UserId]s from [Hive].
-  Iterable<UserId> get blocked => box.keys.map((e) => UserId(e));
+  /// Indicator whether a next page of the [blocklist] is loading.
+  RxBool get nextLoading;
 
-  /// Puts the provided [UserId] to [Hive].
-  Future<void> put(UserId id) => putSafe(id.val, true);
+  /// Fetches the initial [blocklist] page.
+  Future<void> around();
 
-  /// Indicates whether the provided [id] is stored in [Hive].
-  Future<bool> get(UserId id) async {
-     return (await getSafe(id.val)) ?? false;
-  }
-
-  /// Removes the provided [UserId] from [Hive].
-  Future<void> remove(UserId id) => deleteSafe(id.val);
+  /// Fetches the next [blocklist] page.
+  Future<void> next();
 }

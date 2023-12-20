@@ -40,7 +40,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   }
 
   @override
-  FutureOr<Page<T, C>> around(T? item, C? cursor, int count) async {
+  Future<Page<T, C>> around(T? item, C? cursor, int count) async {
     final int half = count ~/ 2;
 
     final Page<T, C> page = await fetch(
@@ -62,7 +62,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   }
 
   @override
-  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
+  Future<Page<T, C>> after(T? item, C? cursor, int count) async {
     if (reversed) {
       return (await fetch(before: cursor, last: count)).reversed();
     } else {
@@ -71,7 +71,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   }
 
   @override
-  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
+  Future<Page<T, C>> before(T? item, C? cursor, int count) async {
     if (reversed) {
       return (await fetch(after: cursor, first: count)).reversed();
     } else {
@@ -80,7 +80,11 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   }
 
   @override
-  Future<void> put(T item) async {
+  Future<void> put(
+    T item, {
+    bool ignoreBounds = false,
+    int Function(T, T)? compare,
+  }) async {
     // No-op.
   }
 

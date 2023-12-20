@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatCallFinishReason;
@@ -110,7 +112,7 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
-  final Future<RxUser?> Function(UserId id)? getUser;
+  final FutureOr<RxUser?> Function(UserId id)? getUser;
 
   /// Callback, called to check whether this device of the currently
   /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
@@ -627,6 +629,8 @@ class RecentChatTile extends StatelessWidget {
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
 
+          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
+
           final int? donate = item.donate;
 
           if (donate != null) {
@@ -672,7 +676,8 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.author.id),
+                  future: userOrFuture is RxUser? ? null : userOrFuture,
+                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(
                           snapshot.data,
@@ -699,12 +704,15 @@ class RecentChatTile extends StatelessWidget {
             if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
           ];
         } else if (item is ChatForward) {
+          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
+
           subtitle = [
             if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureBuilder<RxUser?>(
-                  future: getUser?.call(item.author.id),
+                  future: userOrFuture is RxUser? ? null : userOrFuture,
+                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) => snapshot.data != null
                       ? AvatarWidget.fromRxUser(
                           snapshot.data,
@@ -727,8 +735,11 @@ class RecentChatTile extends StatelessWidget {
             UserId id,
             Widget Function(BuildContext context, User? user) builder,
           ) {
+            final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
+
             return FutureBuilder(
-              future: getUser?.call(id),
+              future: userOrFuture is RxUser? ? null : userOrFuture,
+              initialData: userOrFuture is RxUser? ? userOrFuture : null,
               builder: (context, snapshot) {
                 if (snapshot.data != null) {
                   return Obx(() => builder(context, snapshot.data!.user.value));

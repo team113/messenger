@@ -15,33 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/gestures.dart';
 
-import '/domain/model/user.dart';
-import 'base.dart';
-
-/// [Hive] storage for blocked [UserId]s of the authenticated [MyUser].
-class BlocklistHiveProvider extends HiveLazyProvider<bool> {
+/// [OneSequenceGestureRecognizer] rejecting the secondary mouse button events.
+class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
   @override
-  Stream<BoxEvent> get boxEvents => box.watch();
+  String get debugDescription => 'DisableSecondaryButtonRecognizer';
 
   @override
-  String get boxName => 'blocklist';
-
-  @override
-  void registerAdapters() {}
-
-  /// Returns a list of [UserId]s from [Hive].
-  Iterable<UserId> get blocked => box.keys.map((e) => UserId(e));
-
-  /// Puts the provided [UserId] to [Hive].
-  Future<void> put(UserId id) => putSafe(id.val, true);
-
-  /// Indicates whether the provided [id] is stored in [Hive].
-  Future<bool> get(UserId id) async {
-     return (await getSafe(id.val)) ?? false;
+  void didStopTrackingLastPointer(int pointer) {
+    // No-op.
   }
 
-  /// Removes the provided [UserId] from [Hive].
-  Future<void> remove(UserId id) => deleteSafe(id.val);
+  @override
+  void handleEvent(PointerEvent event) {
+    // No-op.
+  }
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    startTrackingPointer(event.pointer);
+
+    if (event.buttons == kPrimaryButton) {
+      resolve(GestureDisposition.rejected);
+    } else {
+      resolve(GestureDisposition.accepted);
+    }
+  }
 }

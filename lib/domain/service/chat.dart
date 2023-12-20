@@ -80,7 +80,9 @@ class ChatService extends DisposableService {
       _chatRepository.createGroupChat(memberIds, name: name);
 
   /// Returns a [RxChat] by the provided [id].
-  Future<RxChat?> get(ChatId id) => _chatRepository.get(id);
+  FutureOr<RxChat?> get(ChatId id) {
+    return _chatRepository.get(id);
+  }
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() => _chatRepository.next();

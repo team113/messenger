@@ -22,9 +22,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/slidable.dart';
+import 'package:messenger/ui/page/home/widget/bottom_padded_row.dart';
+import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
+import 'package:messenger/ui/widget/animated_switcher.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 
 import '/domain/repository/contact.dart';
@@ -33,8 +37,8 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/user/controller.dart';
-import '/ui/page/home/tab/chats/controller.dart';
 import '/ui/page/home/tab/chats/widget/search_user_tile.dart';
+import '/ui/page/home/tab/chats/widget/slidable_action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
@@ -50,6 +54,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/recognizers.dart';
 import 'controller.dart';
 
 /// View of the `HomeTab.contacts` tab.
@@ -277,7 +282,7 @@ class ContactsTabView extends StatelessWidget {
                       } else {
                         for (var e in c.contacts) {
                           if (!c.selectedContacts.contains(e.id)) {
-                            c.selectContact(e);
+                            c.selectContact(e.rx);
                           }
                         }
                       }
@@ -328,7 +333,7 @@ class ContactsTabView extends StatelessWidget {
           extendBodyBehindAppBar: true,
           body: Obx(() {
             if (c.status.value.isLoading) {
-              return const Center(child: CustomProgressIndicator());
+              return const Center(child: CustomProgressIndicator.primary());
             }
 
             final Widget? child;
@@ -346,12 +351,12 @@ class ContactsTabView extends StatelessWidget {
                 );
               } else if (c.elements.isNotEmpty) {
                 child = SafeScrollbar(
-                  controller: c.scrollController,
+                  controller: c.search.value!.scrollController,
                   child: AnimationLimiter(
                     key: const Key('Search'),
                     child: ListView.builder(
                       key: const Key('SearchScrollable'),
-                      controller: c.scrollController,
+                      controller: c.search.value!.scrollController,
                       itemCount: c.elements.length,
                       itemBuilder: (_, i) {
                         ListElement? element;
@@ -359,7 +364,7 @@ class ContactsTabView extends StatelessWidget {
                           element = c.elements[i];
                         }
 
-                        final Widget child;
+                        Widget child;
 
                         if (element is ContactElement) {
                           child = SearchUserTile(
@@ -399,6 +404,17 @@ class ContactsTabView extends StatelessWidget {
                           child = const SizedBox();
                         }
 
+                        if (i == c.elements.length - 1) {
+                          if (c.search.value?.hasNext.value == true) {
+                            child = Column(
+                              children: [
+                                child,
+                                const CustomProgressIndicator(),
+                              ],
+                            );
+                          }
+                        }
+
                         return AnimationConfiguration.staggeredList(
                           position: i,
                           duration: const Duration(milliseconds: 375),
@@ -425,7 +441,7 @@ class ContactsTabView extends StatelessWidget {
                 );
               }
             } else {
-              if (c.contacts.isEmpty && c.favorites.isEmpty) {
+              if (c.contacts.isEmpty) {
                 child = KeyedSubtree(
                   key: UniqueKey(),
                   child: Center(
@@ -434,7 +450,19 @@ class ContactsTabView extends StatelessWidget {
                   ),
                 );
               } else {
+                final List<ContactEntry> favorites = [];
+                final List<ContactEntry> contacts = [];
+
+                for (ContactEntry e in c.contacts) {
+                  if (e.contact.value.favoritePosition != null) {
+                    favorites.add(e);
+                  } else {
+                    contacts.add(e);
+                  }
+                }
+
                 child = AnimationLimiter(
+                  key: const Key('Contacts'),
                   child: SafeScrollbar(
                     controller: c.scrollController,
                     child: CustomScrollView(
@@ -442,7 +470,7 @@ class ContactsTabView extends StatelessWidget {
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            top: CustomAppBar.height,
+                            top: CustomAppBar.height - 4,
                             left: 10,
                             right: 10,
                           ),
@@ -482,14 +510,19 @@ class ContactsTabView extends StatelessWidget {
                               );
                             },
                             itemBuilder: (_, i) {
-                              if (c.favorites.isEmpty) {
+                              if (favorites.isEmpty) {
                                 // This builder is invoked for some reason when
                                 // deleting all favorite contacts, so put a
                                 // guard for that case.
                                 return const SizedBox.shrink(key: Key('0'));
                               }
 
-                              RxChatContact contact = c.favorites.elementAt(i);
+                              final ContactEntry contact = favorites[i];
+
+                              if (contact.hidden.value) {
+                                return const SizedBox();
+                              }
+
                               return KeyedSubtree(
                                 key: Key(contact.id.val),
                                 child: Obx(() {
@@ -556,7 +589,7 @@ class ContactsTabView extends StatelessWidget {
                                 }),
                               );
                             },
-                            itemCount: c.favorites.length,
+                            itemCount: favorites.length,
                             onReorder: (a, b) {
                               c.reorderContact(a, b);
                               c.reordering.value = false;
@@ -565,16 +598,20 @@ class ContactsTabView extends StatelessWidget {
                         ),
                         SliverPadding(
                           padding: const EdgeInsets.only(
-                            bottom: CustomNavigationBar.height + 5,
+                            bottom: CustomNavigationBar.height,
                             left: 10,
                             right: 10,
                           ),
                           sliver: SliverList(
                             delegate: SliverChildListDelegate.fixed(
                               [
-                                ...c.contacts.mapIndexed((i, e) {
+                                ...contacts.mapIndexed((i, e) {
+                                  if (e.hidden.value) {
+                                    return const SizedBox();
+                                  }
+
                                   return AnimationConfiguration.staggeredList(
-                                    position: i,
+                                    position: favorites.length + i,
                                     duration: const Duration(milliseconds: 375),
                                     child: SlideAnimation(
                                       horizontalOffset: 50,
@@ -584,6 +621,15 @@ class ContactsTabView extends StatelessWidget {
                                     ),
                                   );
                                 }),
+                                if (c.hasNext.isTrue)
+                                  Center(
+                                    child: CustomProgressIndicator(
+                                      key: const Key('ContactsLoading'),
+                                      value: Config.disableInfiniteAnimations
+                                          ? 0
+                                          : null,
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -607,7 +653,7 @@ class ContactsTabView extends StatelessWidget {
                 }),
                 ContextMenuInterceptor(
                   child: SlidableAutoCloseBehavior(
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: child,
                     ),
@@ -616,8 +662,120 @@ class ContactsTabView extends StatelessWidget {
               ],
             );
           }),
-          bottomNavigationBar:
-              c.selecting.value ? _selectButtons(context, c) : null,
+          bottomNavigationBar: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(() {
+                final Widget child;
+                final action = c.dismissed.lastOrNull;
+
+                if (action == null) {
+                  child = const SizedBox(key: Key('NoDismissed'));
+                } else {
+                  child = Padding(
+                    key: Key('Dismissed_${action.contact.id}'),
+                    padding: EdgeInsets.fromLTRB(
+                      10 + 10,
+                      0,
+                      10 + 10,
+                      72 + MediaQuery.of(context).viewPadding.bottom,
+                    ),
+                    child: WidgetButton(
+                      key: const Key('Restore'),
+                      onPressed: action.cancel,
+                      child: Container(
+                        key: Key('${action.contact.id}'),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: style.colors.primary.withOpacity(0.9),
+                          boxShadow: [
+                            CustomBoxShadow(
+                              blurRadius: 8,
+                              color: style.colors.onBackgroundOpacity13,
+                              blurStyle: BlurStyle.outer.workaround,
+                            ),
+                          ],
+                        ),
+                        height: CustomNavigationBar.height,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        child: Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    value: action.remaining.value / 5000,
+                                    color: style.colors.onPrimary,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                Text(
+                                  '${action.remaining.value ~/ 1000 + 1}',
+                                  style: style.fonts.small.regular.onPrimary,
+                                )
+                              ],
+                            ),
+                            Center(
+                              child: Text(
+                                'btn_undo_delete'.l10n,
+                                style: style.fonts.big.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SafeAnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: child,
+                );
+              }),
+              Obx(() {
+                if (c.selecting.value) {
+                  return BottomPaddedRow(
+                    children: [
+                      ShadowedRoundedButton(
+                        onPressed: c.toggleSelecting,
+                        title: Text(
+                          'btn_cancel'.l10n,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                      ShadowedRoundedButton(
+                        key: const Key('DeleteContacts'),
+                        onPressed: c.selectedContacts.isEmpty
+                            ? null
+                            : () => _removeContacts(context, c),
+                        color: style.colors.primary,
+                        title: Text(
+                          'btn_delete_count'.l10nfmt({
+                            'count': c.selectedContacts.length,
+                          }),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: c.selectedContacts.isEmpty
+                              ? style.fonts.medium.regular.onBackground
+                              : style.fonts.medium.regular.onPrimary,
+                        ),
+                      )
+                    ],
+                  );
+                }
+
+                return const SizedBox();
+              }),
+            ],
+          ),
         );
       }),
     );
@@ -626,14 +784,14 @@ class ContactsTabView extends StatelessWidget {
   /// Returns a [ListTile] with [contact]'s information.
   Widget _contact(
     BuildContext context,
-    RxChatContact contact,
+    ContactEntry contact,
     ContactsTabController c, {
     Widget Function(Widget)? avatarBuilder,
   }) {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      bool favorite = c.favorites.contains(contact);
+      bool favorite = contact.contact.value.favoritePosition != null;
 
       final bool selected = router.routes
               .lastWhereOrNull((e) => e.startsWith(Routes.user))
@@ -642,18 +800,26 @@ class ContactsTabView extends StatelessWidget {
 
       final bool inverted = selected || c.selectedContacts.contains(contact.id);
 
-      return CustomSlidable(
+      return Slidable(
+        key: Key(contact.id.val),
         groupTag: 'contact',
-        actions: [
-          CustomAction(
-            onPressed: (context) => _removeFromContacts(c, context, contact),
-            icon: const Icon(Icons.delete),
-            text: 'btn_delete'.l10n,
-          ),
-        ],
+        endActionPane: ActionPane(
+          extentRatio: 0.33,
+          motion: const StretchMotion(),
+          dismissible:
+              DismissiblePane(onDismissed: () => c.dismiss(contact.rx)),
+          children: [
+            FadingSlidableAction(
+              onPressed: (context) =>
+                  _removeFromContacts(c, context, contact.rx),
+              icon: const Icon(Icons.delete),
+              text: 'btn_delete'.l10n,
+            ),
+          ],
+        ),
         child: ContactTile(
           key: Key('Contact_${contact.id}'),
-          contact: contact,
+          contact: contact.rx,
           folded: favorite,
           selected: inverted,
           enableContextMenu: !c.selecting.value,
@@ -665,7 +831,7 @@ class ContactsTabView extends StatelessWidget {
                   )
               : avatarBuilder,
           onTap: c.selecting.value
-              ? () => c.selectContact(contact)
+              ? () => c.selectContact(contact.rx)
               : contact.contact.value.users.isNotEmpty
                   // TODO: Open [Routes.contact] page when it's implemented.
                   ? () => router.user(contact.user.value!.id)
@@ -678,6 +844,7 @@ class ContactsTabView extends StatelessWidget {
                     onPressed: () =>
                         c.unfavoriteContact(contact.contact.value.id),
                     trailing: const SvgIcon(SvgIcons.favoriteSmall),
+                    inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
                   )
                 : ContextMenuButton(
                     key: const Key('FavoriteContactButton'),
@@ -685,11 +852,13 @@ class ContactsTabView extends StatelessWidget {
                     onPressed: () =>
                         c.favoriteContact(contact.contact.value.id),
                     trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+                    inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
                   ),
             ContextMenuButton(
               label: 'btn_delete_contact'.l10n,
-              onPressed: () => _removeFromContacts(c, context, contact),
-              trailing: const SvgIcon(SvgIcons.deleteThick),
+              onPressed: () => _removeFromContacts(c, context, contact.rx),
+              trailing: const SvgIcon(SvgIcons.delete19),
+              inverted: const SvgIcon(SvgIcons.delete19White),
             ),
           ],
           subtitle: [
@@ -849,8 +1018,9 @@ class ContactsTabView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-            text: contact.contact.value.name.val,
-            style: style.fonts.small.regular.onBackground),
+          text: contact.contact.value.name.val,
+          style: style.fonts.small.regular.onBackground,
+        ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
       ],
     );

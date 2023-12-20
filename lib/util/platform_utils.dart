@@ -539,13 +539,29 @@ class PlatformUtilsImpl {
     String url,
     String name, {
     String? checksum,
+    int? size,
+    bool isImage = false,
   }) async {
-    if (isMobile && !isWeb) {
-      Uint8List? data =
-          (await CacheWorker.instance.get(checksum: checksum, url: url)).bytes;
-      if (data != null) {
-        ImageGallerySaver.saveImage(data, name: name);
+    if (isImage) {
+      // SVGs can not be saved to the gallery.
+      if (name.endsWith('.svg')) {
+        throw UnsupportedError('SVGs are not supported in gallery.');
       }
+
+      final CacheEntry cache =
+          await CacheWorker.instance.get(url: url, checksum: checksum);
+
+      await ImageGallerySaver.saveImage(cache.bytes!, name: name);
+    } else {
+      final File? file = await PlatformUtils.download(
+        url,
+        name,
+        size,
+        checksum: checksum,
+        temporary: true,
+      );
+
+      await ImageGallerySaver.saveFile(file!.path, name: name);
     }
   }
 

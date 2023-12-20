@@ -1977,4 +1977,16 @@ class SvgIcons {
     width: 17,
     height: 17,
   );
+
+  static const SvgData download19 = SvgData(
+    'assets/icons/download19.svg',
+    width: 12.89,
+    height: 19,
+  );
+
+  static const SvgData download19White = SvgData(
+    'assets/icons/download19_white.svg',
+    width: 12.89,
+    height: 19,
+  );
 }

@@ -92,4 +92,7 @@ class HiveMyUser extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   MyUserVersion ver;
+
+  @override
+  String toString() => '$runtimeType($value, $ver)';
 }

@@ -65,7 +65,7 @@ class HiveRxUser extends RxUser {
   final UserHiveProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
-  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+  Rx<RxChat?>? _dialog;
 
   /// [UserRepository.userEvents] subscription.
   ///
@@ -85,13 +85,20 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    final ChatId id = user.value.dialog;
+    final ChatId dialogId = user.value.dialog;
+    if (_dialog == null) {
+      final FutureOr<RxChat?> chatOrFuture =
+          _userRepository.getChat?.call(dialogId);
 
-    if (_dialog.value == null) {
-      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
+      if (chatOrFuture is RxChat?) {
+        _dialog = Rx(chatOrFuture);
+      } else {
+        _dialog = Rx(null);
+        chatOrFuture.then((v) => _dialog?.value = v);
+      }
     }
 
-    return _dialog;
+    return _dialog!;
   }
 
   /// Disposes this [HiveRxUser].
@@ -214,7 +221,7 @@ class HiveRxUser extends RxUser {
         var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
-        if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
+        if (userEntity != null && userEntity.blockedVer > versioned.ver) {
           break;
         }
 
@@ -229,12 +236,12 @@ class HiveRxUser extends RxUser {
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
-          if (userEntity.blacklistedVer > versioned.ver) {
+          if (userEntity.blockedVer > versioned.ver) {
             break;
           }
 
           userEntity.value.isBlocked = versioned.record;
-          userEntity.blacklistedVer = versioned.ver;
+          userEntity.blockedVer = versioned.ver;
           _userLocal.put(userEntity);
         }
         break;

@@ -48,18 +48,18 @@ class PaidListController extends GetxController {
   late final Worker _worker;
 
   /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _myUserService.blacklist;
+  RxList<RxUser> get blacklist => RxList();
 
   @override
   void onInit() {
-    _worker = ever(
-      _myUserService.blacklist,
-      (List<RxUser> users) {
-        if (users.isEmpty) {
-          pop?.call();
-        }
-      },
-    );
+    // _worker = ever(
+    //   _myUserService.blocklist,
+    //   (List<RxUser> users) {
+    //     if (users.isEmpty) {
+    //       pop?.call();
+    //     }
+    //   },
+    // );
 
     super.onInit();
   }

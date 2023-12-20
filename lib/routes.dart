@@ -26,6 +26,7 @@ import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
 import 'domain/model/contact.dart';
 import 'domain/model/user.dart';
+import 'domain/repository/blocklist.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
@@ -33,6 +34,7 @@ import 'domain/repository/my_user.dart';
 import 'domain/repository/settings.dart';
 import 'domain/repository/user.dart';
 import 'domain/service/auth.dart';
+import 'domain/service/blocklist.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
@@ -52,14 +54,17 @@ import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
 import 'provider/hive/chat_call_credentials.dart';
 import 'provider/hive/contact.dart';
+import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
 import 'provider/hive/favorite_chat.dart';
+import 'provider/hive/favorite_contact.dart';
 import 'provider/hive/session_data.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
 import 'provider/hive/user.dart';
+import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
@@ -518,6 +523,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
+                deps.put(FavoriteContactHiveProvider()).init(userId: me),
+                deps.put(ContactSortingHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
@@ -578,16 +585,24 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ContactRepository(
                   graphQlProvider,
                   Get.find(),
+                  Get.find(),
+                  Get.find(),
                   userRepository,
                   Get.find(),
                 ),
               );
+              BlocklistRepository blocklistRepository = BlocklistRepository(
+                graphQlProvider,
+                Get.find(),
+                userRepository,
+              );
+              deps.put<AbstractBlocklistRepository>(blocklistRepository);
               AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
                   graphQlProvider,
                   Get.find(),
-                  Get.find(),
+                  blocklistRepository,
                   userRepository,
                 ),
               );
@@ -602,6 +617,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 chatService,
                 callRepository,
               ));
+
+              deps.put(BlocklistService(blocklistRepository));
 
               deps.put<BalanceService>(BalanceService());
               deps.put<PartnerService>(PartnerService());
@@ -631,6 +648,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
+              deps.put(FavoriteContactHiveProvider()).init(userId: me),
+              deps.put(ContactSortingHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
@@ -713,16 +732,24 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ContactRepository(
                 graphQlProvider,
                 Get.find(),
+                Get.find(),
+                Get.find(),
                 userRepository,
                 Get.find(),
               ),
             );
+            BlocklistRepository blocklistRepository = BlocklistRepository(
+              graphQlProvider,
+              Get.find(),
+              userRepository,
+            );
+            deps.put<AbstractBlocklistRepository>(blocklistRepository);
             AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
                 Get.find(),
-                Get.find(),
+                blocklistRepository,
                 userRepository,
               ),
             );
@@ -738,6 +765,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               chatService,
               callRepository,
             ));
+            deps.put(BlocklistService(blocklistRepository));
 
             deps.put(CallWorker(
               callService,
@@ -754,6 +782,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             return deps;
           },
+          signedUp: router.arguments?['signedUp'] as bool? ?? false,
         ),
       ));
     } else {

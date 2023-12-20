@@ -696,12 +696,6 @@ class ChatInfoView extends StatelessWidget {
               ),
               actions: [
                 ContextMenuButton(
-                  label: 'btn_edit'.l10n,
-                  onPressed: c.editing.toggle,
-                  trailing: const SvgIcon(SvgIcons.edit),
-                  inverted: const SvgIcon(SvgIcons.editWhite),
-                ),
-                ContextMenuButton(
                   label: 'btn_audio_call'.l10n,
                   onPressed: () => c.call(false),
                   trailing: const SvgIcon(SvgIcons.makeAudioCall),
@@ -718,6 +712,12 @@ class ChatInfoView extends StatelessWidget {
                     offset: const Offset(2, 0),
                     child: const SvgIcon(SvgIcons.makeVideoCallWhite),
                   ),
+                ),
+                ContextMenuButton(
+                  label: 'btn_edit'.l10n,
+                  onPressed: c.editing.toggle,
+                  trailing: const SvgIcon(SvgIcons.edit),
+                  inverted: const SvgIcon(SvgIcons.editWhite),
                 ),
               ],
               child: Container(

@@ -618,7 +618,15 @@ class CallController extends GetxController {
 
     _chatWorker = ever(
       _currentCall.value.chatId,
-      (ChatId id) => _chatService.get(id).then(_updateChat),
+      (ChatId id) {
+        final chatOrFuture = _chatService.get(id);
+
+        if (chatOrFuture is RxChat?) {
+          _updateChat(chatOrFuture);
+        } else {
+          chatOrFuture.then(_updateChat);
+        }
+      },
     );
 
     _stateWorker = ever(state, (OngoingCallState state) {
@@ -1239,7 +1247,7 @@ class CallController extends GetxController {
   }
 
   /// Returns an [User] from the [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Applies constraints to the [width], [height], [left] and [top].
   void applyConstraints(BuildContext context) {
@@ -1936,9 +1944,13 @@ class CallController extends GetxController {
         audio: track?.kind == MediaKind.audio ? track : null,
       );
 
-      _userService
-          .get(member.id.userId)
-          .then((u) => participant.user.value = u ?? participant.user.value);
+      final userOrFuture = _userService.get(member.id.userId);
+      if (userOrFuture is RxUser?) {
+        participant.user.value = userOrFuture ?? participant.user.value;
+      } else {
+        userOrFuture
+            .then((u) => participant.user.value = u ?? participant.user.value);
+      }
 
       switch (member.owner) {
         case MediaOwnerKind.local:

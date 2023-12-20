@@ -120,8 +120,8 @@ class ChatRepository extends DisposableInterface
   /// storage.
   final RecentChatHiveProvider _recentLocal;
 
-  /// [ChatId]s sorted by [PreciseDateTime] representing favorite [Chat]s [Hive]
-  /// storage.
+  /// [ChatId]s sorted by [ChatFavoritePosition] representing favorite [Chat]s
+  /// [Hive] storage.
   final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
@@ -218,6 +218,8 @@ class ChatRepository extends DisposableInterface
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
   }) async {
+    Log.debug('init(onMemberRemoved)', '$runtimeType');
+
     this.onMemberRemoved = onMemberRemoved;
 
     HiveMonolog? stored;
@@ -285,6 +287,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
     _cancelToken.cancel();
@@ -302,13 +306,13 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> next() async {
-    if ((_localPagination?.hasNext ?? _pagination?.hasNext)?.value == true) {
-      await (_localPagination?.next ?? _pagination?.next)?.call();
-
-      if (_pagination?.hasNext.value == false) {
-        _initMonolog();
-      }
+    if (_localPagination?.hasNext.value == true) {
+      await _localPagination?.next();
+    } else {
+      await _pagination?.next();
     }
+
+    _initMonolog();
   }
 
   @override
@@ -324,10 +328,12 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<HiveRxChat?> get(ChatId id) async {
+  FutureOr<HiveRxChat?> get(ChatId id) {
+    Log.debug('get($id)', '$runtimeType');
+
     HiveRxChat? chat = chats[id];
     if (chat != null) {
-      return Future.value(chat);
+      return chat;
     }
 
     // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
@@ -460,13 +466,14 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? text,
     List<AttachmentId>? attachments,
     List<ChatItemId> repliesTo = const [],
-  }) =>
-      _graphQlProvider.postChatMessage(
-        chatId,
-        text: text,
-        attachments: attachments,
-        repliesTo: repliesTo,
-      );
+  }) async {
+    return await _graphQlProvider.postChatMessage(
+      chatId,
+      text: text,
+      attachments: attachments,
+      repliesTo: repliesTo,
+    );
+  }
 
   @override
   Future<void> resendChatItem(ChatItem item) async {
@@ -562,6 +569,10 @@ class ChatRepository extends DisposableInterface
 
         id = monolog.chat.value.id;
         await _monologLocal.set(HiveMonolog(id, true));
+      }
+
+      if (chat == null || chat.chat.value.favoritePosition != null) {
+        await unfavoriteChat(id);
       }
 
       await _graphQlProvider.hideChat(id);
@@ -1063,7 +1074,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userRepo.get(id);
+  FutureOr<RxUser?> getUser(UserId id) {
+    return _userRepo.get(id);
+  }
 
   @override
   Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
@@ -1525,6 +1538,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     _subscribedAt = DateTime.now();
 
     _remoteSubscription?.close(immediate: true);
@@ -1646,6 +1663,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
@@ -1935,6 +1956,10 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     _favoriteChatsSubscription?.cancel();
     _favoriteChatsSubscription = StreamQueue(
       _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
@@ -1947,6 +1972,7 @@ class ChatRepository extends DisposableInterface
 
           await _pagination?.clear();
           await _favoriteLocal.clear();
+          await _sessionLocal.setFavoriteChatsSynchronized(false);
 
           await _pagination?.around();
 
@@ -2036,9 +2062,12 @@ class ChatRepository extends DisposableInterface
   Future<HiveRxChat> _createLocalDialog(UserId responderId) async {
     final ChatId chatId = ChatId.local(responderId);
 
+    final FutureOr<RxUser?> myUser = _userRepo.get(me);
+    final FutureOr<RxUser?> responder = _userRepo.get(responderId);
+
     final List<RxUser?> users = [
-      await _userRepo.get(me),
-      if (responderId != me) await _userRepo.get(responderId)
+      myUser is RxUser? ? myUser : await myUser,
+      if (responderId != me) responder is RxUser? ? responder : await responder,
     ];
 
     final ChatData chatData = ChatData(

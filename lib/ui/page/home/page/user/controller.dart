@@ -41,11 +41,12 @@ import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ClearChatException,
         FavoriteChatContactException,
         HideChatException,
         ToggleChatMuteException,
         UnfavoriteChatContactException,
-        ClearChatException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -178,25 +179,28 @@ class UserController extends GetxController {
   void onInit() {
     _fetchUser();
 
-    inContacts = RxBool(
-      _contactService.contacts.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)) ||
-          _contactService.favorites.values
-              .any((e) => e.contact.value.users.every((m) => m.id == id)),
+    // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
+    final RxChatContact? contact =
+        _contactService.paginated.values.firstWhereOrNull(
+      (e) => e.contact.value.users.every((m) => m.id == id),
     );
 
-    inFavorites = RxBool(
-      _contactService.favorites.values
-          .any((e) => e.contact.value.users.every((m) => m.id == id)),
-    );
+    inContacts = RxBool(contact != null);
+    inFavorites = RxBool(contact?.contact.value.favoritePosition != null);
 
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
+    _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
         case OperationKind.updated:
           if (e.value!.contact.value.users.isNotEmpty &&
               e.value!.contact.value.users.every((e) => e.id == id)) {
             inContacts.value = true;
+
+            if (e.value!.contact.value.favoritePosition != null) {
+              inFavorites.value = true;
+            } else {
+              inFavorites.value = false;
+            }
           }
           break;
 
@@ -204,27 +208,6 @@ class UserController extends GetxController {
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             inContacts.value = false;
           }
-          break;
-      }
-    });
-
-    _favoritesSubscription = _contactService.favorites.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            inFavorites.value = true;
-            inContacts.value = true;
-          }
-          break;
-
-        case OperationKind.removed:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            inFavorites.value = false;
-          }
-          break;
-
-        case OperationKind.updated:
-          // No-op.
           break;
       }
     });
@@ -283,12 +266,9 @@ class UserController extends GetxController {
       status.value = RxStatus.loadingMore();
       try {
         final RxChatContact? contact =
-            _contactService.contacts.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                ) ??
-                _contactService.favorites.values.firstWhereOrNull(
-                  (e) => e.contact.value.users.every((m) => m.id == user?.id),
-                );
+            _contactService.paginated.values.firstWhereOrNull(
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
         if (contact != null) {
           await _contactService.deleteContact(contact.contact.value.id);
         }
@@ -347,7 +327,8 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      RxChatContact? contact = _contactService.contacts.values.firstWhereOrNull(
+      final RxChatContact? contact =
+          _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
       if (contact != null) {
@@ -364,8 +345,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      RxChatContact? contact =
-          _contactService.favorites.values.firstWhereOrNull(
+      final RxChatContact? contact =
+          _contactService.paginated.values.firstWhereOrNull(
         (e) => e.contact.value.users.every((m) => m.id == user?.id),
       );
       if (contact != null) {
@@ -419,6 +400,8 @@ class UserController extends GetxController {
       try {
         await _chatService.hideChat(dialog);
       } on HideChatException catch (e) {
+        MessagePopup.error(e);
+      } on UnfavoriteChatException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
         MessagePopup.error(e);

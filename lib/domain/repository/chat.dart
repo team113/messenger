@@ -67,7 +67,7 @@ abstract class AbstractChatRepository {
   Future<void> clear();
 
   /// Returns an [RxChat] by the provided [id].
-  Future<RxChat?> get(ChatId id);
+  FutureOr<RxChat?> get(ChatId id);
 
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
@@ -272,8 +272,8 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [RxChat].
   RxInt get unreadCount;
 
-  /// Indicates whether this [RxChat] is blacklisted or not.
-  bool get blacklisted =>
+  /// Indicates whether this [RxChat] is blocked or not.
+  bool get blocked =>
       chat.value.isDialog &&
       members.values
               .firstWhereOrNull((e) => e.id != me)

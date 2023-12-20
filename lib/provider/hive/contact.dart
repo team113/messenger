@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model_type_id.dart';
@@ -22,12 +24,14 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/store/model/contact.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'contact.g.dart';
 
 /// [Hive] storage for [ChatContact]s.
-class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
+class ContactHiveProvider extends HiveLazyProvider<HiveChatContact>
+    implements IterableHiveProvider<HiveChatContact, ChatContactId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -36,12 +40,14 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(ChatCallRoomJoinLinkAdapter());
     Hive.maybeRegisterAdapter(ChatContactAdapter());
     Hive.maybeRegisterAdapter(ChatContactFavoritePositionAdapter());
     Hive.maybeRegisterAdapter(ChatContactIdAdapter());
-    Hive.maybeRegisterAdapter(ChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(ChatContactVersionAdapter());
+    Hive.maybeRegisterAdapter(ChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(FavoriteChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(HiveChatContactAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
@@ -50,18 +56,29 @@ class ContactHiveProvider extends HiveBaseProvider<HiveChatContact> {
     Hive.maybeRegisterAdapter(UserPhoneAdapter());
   }
 
-  /// Returns a list of [ChatContact]s from [Hive].
-  Iterable<HiveChatContact> get contacts => valuesSafe;
+  @override
+  Iterable<ChatContactId> get keys => keysSafe.map((e) => ChatContactId(e));
 
-  /// Puts the provided [ChatContact] to [Hive].
-  Future<void> put(HiveChatContact contact) =>
-      putSafe(contact.value.id.val, contact);
+  @override
+  Future<Iterable<HiveChatContact>> get values => valuesSafe;
 
-  /// Returns a [ChatContact] from [Hive] by its [id].
-  HiveChatContact? get(ChatContactId id) => getSafe(id.val);
+  @override
+  Future<void> put(HiveChatContact contact) async {
+    Log.debug('put($contact)', '$runtimeType');
+    await putSafe(contact.value.id.val, contact);
+  }
 
-  /// Removes an [ChatContact] from [Hive] by its [id].
-  Future<void> remove(ChatContactId id) => deleteSafe(id.val);
+  @override
+  Future<HiveChatContact?> get(ChatContactId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
+
+  @override
+  Future<void> remove(ChatContactId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 }
 
 /// Persisted in [Hive] storage [ChatContact]'s [value].

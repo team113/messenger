@@ -202,7 +202,7 @@ class ChatForwardController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Adds the specified [details] files to the [attachments].
   void dropFiles(DropDoneDetails details) async {

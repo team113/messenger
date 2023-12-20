@@ -215,7 +215,7 @@ class PublicController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Returns a [List] of [Attachment]s representing a collection of all the
   /// media files of this [chat].

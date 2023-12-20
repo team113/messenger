@@ -122,6 +122,9 @@ abstract class HiveChatItem extends HiveObject {
   /// tracking state's actuality.
   @HiveField(2)
   final ChatItemVersion ver;
+
+  @override
+  String toString() => '$runtimeType($value, $cursor, $ver)';
 }
 
 /// Persisted in [Hive] storage [ChatInfo]'s [value].
