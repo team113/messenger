@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:mime/mime.dart';
-export 'package:mime/mime.dart' show extensionFromMime;
+
 /// Wrapper around [MimeTypeResolver] resolving MIME-types.
 class MimeResolver {
   /// Lazily initialized [MimeTypeResolver] used to lookup and resolve
@@ -46,4 +46,14 @@ class MimeResolver {
   /// though a file have been saved using the wrong file extension.
   static String? lookup(String path, {List<int>? headerBytes}) =>
       resolver.lookup(path, headerBytes: headerBytes);
+
+  // returns default extensions for mime type
+  static String? defaultExtensionFromMime(String mime) {
+    // library method returns extensions in alphabetic order
+    // for 'image/jpeg' it is 'jpe' instead of 'jpeg'
+    // to fix this behavior add problematic mime types to defaultExtension
+    final defaultExtension = <String, String>{'image/jpeg': 'jpeg'};
+
+    return defaultExtension[mime] ?? extensionFromMime(mime);
+  }
 }
