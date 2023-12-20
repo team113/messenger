@@ -245,14 +245,16 @@ jobs:
           retention-days: 1
 
       # Globstar is supported in Bash 4.0+, `macos-latest` runner uses Bash 3.2.
-      - run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
+      - name: Prepare `*.dSYM` debug symbols
+        run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
         if: ${{ contains('ios macos', matrix.platform) }}
-      - run: |
+      - name: Prepare debug web source maps
+        run: |
           shopt -s globstar
 
-          mkdir debug
+          mkdir -p debug/
           mv build/web/**/*.map debug/
-          cd build/web && cp --parents **/*.js ../../debug
+          cd build/web && cp --parents **/*.js ../../debug/
         if: ${{ matrix.platform == 'web' }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
@@ -885,19 +887,12 @@ jobs:
           user_email: github-actions[bot]@users.noreply.github.com
 
   deploy-sentry:
-    name: deploy (Sentry, symbols)
+    name: deploy (symbols, Sentry)
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs: ["release-github"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # `sentry_dart_plugin` expects source maps to be in `build/web` directory.
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-web-${{ github.run_number }}
-      - run: mkdir -p build/web/
-      - run: unzip *.zip -d build/web/
 
       - uses: actions/download-artifact@v4
         with:
@@ -915,7 +910,13 @@ jobs:
         with:
           name: debug-macos-${{ github.run_number }}
           path: debug/
-      - run: unzip debug/\*.zip -d debug/
+      - run: unzip debug/debug-*.zip -d debug/
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-web-${{ github.run_number }}
+      # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
+      - run: mkdir -p build/web/
+      - run: unzip debug-*.zip -d build/web/
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -931,7 +932,8 @@ jobs:
           channel: stable
           cache: true
 
-      - run: make sentry.upload project=${{ secrets.SENTRY_PROJECT }}
+      - run: make sentry.upload
+                  project=${{ secrets.SENTRY_PROJECT }}
                   org=${{ secrets.SENTRY_ORG }}
                   token=${{ secrets.SENTRY_TOKEN }}
                   release=${{ steps.semver.outputs.group1 }}

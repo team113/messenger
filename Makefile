@@ -837,16 +837,15 @@ endif
 #	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
 #	                   [release=($(SENTRY_RELEASE)|<release>)]
 
-sentry-project=$(or $(SENTRY_PROJECT),\
-	           $(strip $(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
-sentry-org=$(or $(SENTRY_ORG),\
-	       $(strip $(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
-sentry-token=$(or $(SENTRY_AUTH_TOKEN),\
-	         $(strip $(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
-sentry-release=$(or $(SENTRY_RELEASE),\
-	           $(strip $(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2)),\
-			   $(strip $(shell grep -m1 'ref = ' lib/pubspec.g.dart \
-			                                                  | cut -d"'" -f2)))
+sentry-project=$(strip $(or $(SENTRY_PROJECT),\
+	$(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
+sentry-org=$(strip $(or $(SENTRY_ORG),\
+	$(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
+sentry-token=$(strip $(or $(SENTRY_AUTH_TOKEN),\
+	$(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
+sentry-release=$(strip $(or $(SENTRY_RELEASE),\
+	$(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2),\
+	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2)))
 
 sentry.upload:
 	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
