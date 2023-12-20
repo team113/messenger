@@ -25,20 +25,31 @@ import 'mime.dart';
 
 /// Extension adding an ability to generate filename.
 extension GenerateNameExt on StorageFile {
-  /// Generates filename for [StorageFile] (ex: '123456.jpg')
+  static const nameLength = 8;
+
+  /// Generates filename for [StorageFile]
+  ///
+  /// Example: '1d08881f.jpeg'
   Future<String> generateFilename() async {
-    final name =
-        checksum ?? DateFormat('yyyy_MM_dd_j_m_s').format(DateTime.now());
+    late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
+    final name = checksum?.substring(0, nameLength) ?? time;
 
     // check mime type
+    late final String? type;
     final CacheEntry cache =
         await CacheWorker.instance.get(url: url, checksum: checksum);
-    final bytes = Uint8List.fromList(cache.bytes!
-        .take(MimeResolver.resolver.magicNumbersMaxLength)
-        .toList());
-    var type = MimeResolver.lookup(url, headerBytes: bytes);
+    if (cache.bytes == null) {
+      type = MimeResolver.lookup(url);
+    } else {
+      final headerBytes = Uint8List.fromList(cache.bytes!
+              .take(MimeResolver.resolver.magicNumbersMaxLength)
+              .toList())
+          .toList();
+      type = MimeResolver.lookup(url, headerBytes: headerBytes);
+    }
 
-    final String? ext = (type == null) ? null : extensionFromMime(type);
+    final String? ext =
+        (type == null) ? null : MimeResolver.defaultExtensionFromMime(type);
 
     return (ext == null) ? name : '$name.$ext';
   }
