@@ -251,7 +251,7 @@ class CallWorker extends DisposableService {
 
   @override
   void onReady() {
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _callKeep.setup(router.context!, Config.callKeep);
 

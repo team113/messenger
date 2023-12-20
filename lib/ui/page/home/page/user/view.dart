@@ -258,6 +258,11 @@ class UserView extends StatelessWidget {
                       trailing: SvgIcon(
                         contact ? SvgIcons.deleteContact : SvgIcons.addContact,
                       ),
+                      inverted: SvgIcon(
+                        contact
+                            ? SvgIcons.deleteContactWhite
+                            : SvgIcons.addContactWhite,
+                      ),
                       onPressed: contact
                           ? () => _removeFromContacts(c, context)
                           : c.addToContacts,
@@ -277,6 +282,11 @@ class UserView extends StatelessWidget {
                               ? SvgIcons.favoriteSmall
                               : SvgIcons.unfavoriteSmall,
                         ),
+                        inverted: SvgIcon(
+                          favorite
+                              ? SvgIcons.favoriteSmallWhite
+                              : SvgIcons.unfavoriteSmallWhite,
+                        ),
                         onPressed:
                             favorite ? c.unfavoriteContact : c.favoriteContact,
                       ),
@@ -293,37 +303,33 @@ class UserView extends StatelessWidget {
                         trailing: SvgIcon(
                           muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
                         ),
+                        inverted: SvgIcon(
+                          muted
+                              ? SvgIcons.unmuteSmallWhite
+                              : SvgIcons.muteSmallWhite,
+                        ),
                         onPressed: muted ? c.unmuteChat : c.muteChat,
                       ),
                       ContextMenuButton(
                         key: const Key('ClearHistoryButton'),
                         label: 'btn_clear_history'.l10n,
                         trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                         onPressed: () => _clearChat(c, context),
                       ),
                       ContextMenuButton(
                         key: const Key('HideChatButton'),
                         label: 'btn_delete_chat'.l10n,
-                        trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        trailing: const SvgIcon(SvgIcons.delete19),
+                        inverted: const SvgIcon(SvgIcons.delete19White),
                         onPressed: () => _hideChat(c, context),
                       ),
                     ],
                     ContextMenuButton(
                       key: Key(blocked ? 'Unblock' : 'Block'),
                       label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                      trailing: Obx(() {
-                        final Widget child;
-                        if (c.blocklistStatus.value.isEmpty) {
-                          child = const SvgIcon(SvgIcons.block);
-                        } else {
-                          child = const CustomProgressIndicator();
-                        }
-
-                        return SafeAnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: child,
-                        );
-                      }),
+                      trailing: const SvgIcon(SvgIcons.block),
+                      inverted: const SvgIcon(SvgIcons.blockWhite),
                       onPressed:
                           blocked ? c.unblock : () => _blockUser(c, context),
                     ),

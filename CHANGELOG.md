@@ -40,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned chat tile. ([#748], [#741])
         - Monolog searching. ([#745], [#582])
+    - Icons in desktop context menu. ([#757])
 
 ### Fixed
 
@@ -71,6 +72,7 @@ All user visible changes to this project will be documented in this file. This p
 [#741]: /../../issues/741
 [#745]: /../../pull/745
 [#748]: /../../pull/748
+[#757]: /../../pull/757
 
 
 
