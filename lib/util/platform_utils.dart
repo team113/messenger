@@ -564,7 +564,6 @@ class PlatformUtilsImpl {
     }
   }
 
-
   /// Downloads a file from the provided [url] and opens [Share] dialog with it.
   Future<void> share(String url, String name, {String? checksum}) async {
     // Provided file might already be cached.
