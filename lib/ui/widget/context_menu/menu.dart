@@ -116,9 +116,8 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
     super.key,
     required this.label,
-    this.leading,
     this.trailing,
-    this.showTrailing = false,
+    this.inverted,
     this.enlarged,
     this.onPressed,
   });
@@ -126,16 +125,12 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// Label of this [ContextMenuButton].
   final String label;
 
-  /// Optional leading widget, typically an [Icon].
-  final Widget? leading;
-
   /// Optional trailing widget.
   final Widget? trailing;
 
-  /// Indicator whether the [trailing] should always be displayed.
-  ///
-  /// On mobile platforms the provided [trailing] is always displayed.
-  final bool showTrailing;
+  /// Optional inverted [trailing] widget, displayed when this
+  /// [ContextMenuButton] is hovered.
+  final Widget? inverted;
 
   /// Indicator whether this [ContextMenuButton] should be enlarged.
   ///
@@ -172,14 +167,19 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
           padding: isMobile
-              ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
-              : const EdgeInsets.fromLTRB(11, 6, 11, 6),
+              ? EdgeInsets.fromLTRB(
+                  widget.trailing == null ? 18 : 5,
+                  15,
+                  18,
+                  15,
+                )
+              : EdgeInsets.fromLTRB(widget.trailing == null ? 8 : 0, 6, 12, 6),
           margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius:
                 isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
-            color: isMouseOver
+            color: isMouseOver && widget.onPressed != null
                 ? isMobile
                     ? style.contextMenuHoveredColor
                     : style.colors.primary
@@ -188,39 +188,42 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.leading != null) ...[
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme:
-                        IconThemeData(color: style.colors.primaryHighlight),
+              if (widget.trailing != null) ...[
+                if (isMobile)
+                  SizedBox(
+                    width: 40,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: widget.trailing!,
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: 36,
+                    child: Transform.scale(
+                      scale: 0.8,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: isMouseOver
+                            ? (widget.inverted ?? widget.trailing)
+                            : widget.trailing,
+                      ),
+                    ),
                   ),
-                  child: widget.leading!,
-                ),
-                const SizedBox(width: 14),
               ],
               Text(
                 widget.label,
-                style: (isMouseOver && !isMobile
-                        ? style.fonts.normal.regular.onPrimary
-                        : style.fonts.normal.regular.onBackground)
+                style: (widget.onPressed == null
+                        ? style.fonts.normal.regular.secondaryHighlightDarkest
+                        : (isMouseOver && !isMobile
+                            ? style.fonts.normal.regular.onPrimary
+                            : style.fonts.normal.regular.onBackground))
                     .copyWith(
                   fontSize: isMobile
                       ? style.fonts.medium.regular.onBackground.fontSize
                       : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
-              if ((isMobile || widget.showTrailing) &&
-                  widget.trailing != null) ...[
-                const SizedBox(width: 36),
-                const Spacer(),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme:
-                        IconThemeData(color: style.colors.primaryHighlight),
-                  ),
-                  child: widget.trailing!,
-                ),
-              ],
             ],
           ),
         ),
