@@ -182,6 +182,12 @@ class ChatRepository extends DisposableInterface
   /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
   final Mutex _monologGuard = Mutex();
 
+  /// Indicator whether a local [Chat]-monolog has been hidden.
+  ///
+  /// Used to prevent the [Chat]-monolog from re-appearing if the local
+  /// [Chat]-monolog was hidden.
+  bool _monologShouldBeHidden = false;
+
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
   /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
@@ -551,21 +557,23 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
+    HiveRxChat? chat = chats[id];
+
+    chat?.chat.update((c) => c?.isHidden = true);
+
     try {
       // If this [Chat] is local, make it remote first.
       if (id.isLocalWith(me)) {
+        _monologShouldBeHidden = true;
         final HiveRxChat remoteMonolog = await ensureRemoteMonolog();
 
         // Dispose and delete local monolog from [Hive], since it's just been
         // replaced with a remote one.
         await remove(id);
 
-        id = remoteMonolog.chat.value.id;
+        chat = remoteMonolog;
+        id = chat.id;
       }
-
-      final HiveRxChat? chat = chats[id];
-
-      chat?.chat.update((c) => c?.isHidden = true);
 
       if (chat == null || chat.chat.value.favoritePosition != null) {
         await unfavoriteChat(id);
@@ -576,7 +584,8 @@ class ChatRepository extends DisposableInterface
       // [_localSubscription].
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      chats[id]?.chat.update((c) => c?.isHidden = false);
+      _monologShouldBeHidden = false;
+      chat?.chat.update((c) => c?.isHidden = false);
 
       rethrow;
     }
@@ -1518,6 +1527,11 @@ class ChatRepository extends DisposableInterface
           chat.value.favoritePosition = _localMonologFavoritePosition;
           _localMonologFavoritePosition = null;
         }
+
+        if (_monologShouldBeHidden) {
+          chat.value.isHidden = _monologShouldBeHidden;
+          _monologShouldBeHidden = false;
+        }
       }
 
       if (entry.chat.value.favoritePosition != chat.value.favoritePosition) {
@@ -2204,33 +2218,31 @@ class ChatRepository extends DisposableInterface
 
     await _monologGuard.protect(() async {
       final bool isStored = _monologLocal.get() != null;
+      final bool isLocal = monolog.isLocal;
       final bool isPaginated = paginated[monolog] != null;
       final bool canFetchMore = _pagination?.hasNext.value ?? true;
 
-      // If a non-local [monolog] isn't stored and it won't appear from the
-      // [Pagination], then check if a hidden one exists on the server.
-      if (!isStored && !isPaginated && !canFetchMore) {
+      if (isStored) {
+        if (isLocal) {
+          // If a local [monolog] is stored, then make it visible.
+          await _createLocalDialog(me);
+        }
+      } else if (!isPaginated && !canFetchMore) {
+        // If there's no [monolog] in [Pagination] and there's no more recent
+        // chats to fetch, check if a remote monolog exists.
         final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
 
-        if (maybeMonolog == null) {
-          // If there is no [monolog] remotely available, then create a local
-          // one.
-          final HiveRxChat localMonolog = await _createLocalDialog(me);
-          await _monologLocal.set(localMonolog.id);
-        } else {
-          // If the [monolog] was fetched, then put it to [_monologLocal].
+        if (maybeMonolog != null) {
+          // If the [monolog] was fetched, then put it to [_monologLocal] and
+          // [Hive].
           final ChatData monologChatData = _chat(maybeMonolog);
-          final HiveRxChat monolog = await _putEntry(monologChatData);
-          await _monologLocal.set(monolog.id);
-        }
-        // If [monolog] is stored, is not paginated and won't appear there, then
-        // make it visible if not [isHidden].
-      } else if (isStored && !isPaginated && !canFetchMore) {
-        final FutureOr<HiveRxChat?> chatOrFuture = get(monolog);
-        final HiveRxChat? chat =
-            chatOrFuture is HiveRxChat? ? chatOrFuture : await chatOrFuture;
-        if (chat != null && !chat.chat.value.isHidden) {
-          paginated[monolog] = chat;
+          final HiveRxChat monologChat = await _putEntry(monologChatData);
+
+          await _monologLocal.set(monologChat.id);
+        } else {
+          // If remote monolog doesn't exist, then create a local one.
+          await _createLocalDialog(me);
+          await _monologLocal.set(monolog);
         }
       }
     });

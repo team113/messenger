@@ -42,8 +42,9 @@ final StepDefinitionGeneric setLogin = then1<TestUser, CustomWorld>(
 final StepDefinitionGeneric setMyLogin = then<CustomWorld>(
   'I have my login set',
   (context) async {
-    final CustomUser? me = context.world.sessions[context.world.me?.val];
-
+    final CustomUser me = context.world.sessions.values.where((customUser) {
+      return customUser.userId == context.world.me;
+    }).first;
     await _setLoginTo(me);
   },
   configuration: StepDefinitionConfiguration()

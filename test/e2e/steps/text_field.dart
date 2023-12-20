@@ -64,6 +64,7 @@ StepDefinitionGeneric fillFieldWithUserCredential =
         await _fillField(key, text, context);
 
       case TestCredential.login:
+        // TODO: Should throw an error if the login is not set.
         final String text =
             customUser != null ? 'lgn_${customUser.userNum.val}' : '';
 
