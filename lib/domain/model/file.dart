@@ -15,8 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
+import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 
+import '../../ui/worker/cache.dart';
+import '../../util/mime.dart';
 import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
@@ -70,6 +75,33 @@ abstract class StorageFile extends HiveObject {
 
   /// Returns an absolute URL to this [StorageFile] on a file storage.
   String get url => '${Config.files}$relativeRef';
+
+  /// Returns filename with extension.
+  Future<String> generateFilename() async {
+    late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
+    final name = checksum?.substring(0, _nameLength) ?? time;
+
+    // check mime type
+    late final String? type;
+    final CacheEntry cache =
+        await CacheWorker.instance.get(url: url, checksum: checksum);
+    if (cache.bytes == null) {
+      type = MimeResolver.lookup(url);
+    } else {
+      final headerBytes = Uint8List.fromList(cache.bytes!
+              .take(MimeResolver.resolver.magicNumbersMaxLength)
+              .toList())
+          .toList();
+      type = MimeResolver.lookup(url, headerBytes: headerBytes);
+    }
+
+    final String? ext =
+        (type == null) ? null : MimeResolver.defaultExtensionFromMime(type);
+
+    return (ext == null) ? name : '$name.$ext';
+  }
+
+  static const _nameLength = 8;
 }
 
 /// Plain-[StorageFile] on a file storage.
