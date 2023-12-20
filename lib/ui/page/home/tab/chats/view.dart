@@ -342,7 +342,7 @@ class ChatsTabView extends StatelessWidget {
                                 inverted: const SvgIcon(SvgIcons.groupWhite),
                               ),
                               ContextMenuButton(
-                                key: const Key('SelectChatButton'),
+                                key: const Key('SelectChatsButton'),
                                 label: 'btn_select_and_delete'.l10n,
                                 onPressed: c.toggleSelecting,
                                 trailing: const SvgIcon(SvgIcons.select),
