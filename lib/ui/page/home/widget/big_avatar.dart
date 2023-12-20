@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/storage_file_extension.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/my_user.dart';
@@ -31,6 +30,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 import 'avatar.dart';
 import 'gallery_popup.dart';
+import '../../../../util/storage_file_extension.dart';
 
 /// Circular big [Avatar] with optional manipulation buttons.
 class BigAvatarWidget extends StatefulWidget {
