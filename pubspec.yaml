@@ -157,11 +157,11 @@ flutter:
     - assets/images/logo/
     - assets/l10n/
   fonts:
-    - family: NotoSansDisplay
+    - family: Roboto
       fonts:
-        - asset: assets/fonts/NotoSansDisplay-Regular.ttf
+        - asset: assets/fonts/Roboto-Regular.ttf
           weight: 400
-        - asset: assets/fonts/NotoSansDisplay-Bold.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
 
 sentry:

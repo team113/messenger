@@ -382,6 +382,11 @@ class ChatInfoView extends StatelessWidget {
                             ? SvgIcons.favoriteSmall
                             : SvgIcons.unfavoriteSmall,
                       ),
+                      inverted: SvgIcon(
+                        favorite
+                            ? SvgIcons.favoriteSmallWhite
+                            : SvgIcons.unfavoriteSmallWhite,
+                      ),
                       onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
                     ),
                     if (!c.isMonolog)
@@ -397,6 +402,11 @@ class ChatInfoView extends StatelessWidget {
                         trailing: SvgIcon(
                           muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
                         ),
+                        inverted: SvgIcon(
+                          muted
+                              ? SvgIcons.unmuteSmallWhite
+                              : SvgIcons.muteSmallWhite,
+                        ),
                         onPressed: muted ? c.unmuteChat : c.muteChat,
                       ),
                     if (!isLocal)
@@ -404,6 +414,7 @@ class ChatInfoView extends StatelessWidget {
                         key: const Key('ClearHistoryButton'),
                         label: 'btn_clear_history'.l10n,
                         trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                         onPressed: () => _clearChat(c, context),
                       ),
                     if (!c.isMonolog)
@@ -411,14 +422,14 @@ class ChatInfoView extends StatelessWidget {
                         key: const Key('LeaveGroupButton'),
                         label: 'btn_leave_group'.l10n,
                         trailing: const SvgIcon(SvgIcons.leaveGroup),
+                        inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
                         onPressed: () => _leaveGroup(c, context),
                       ),
                     ContextMenuButton(
                       key: const Key('HideChatButton'),
                       label: 'btn_delete_chat'.l10n,
-                      trailing: const SvgIcon(
-                        SvgIcons.cleanHistory,
-                      ),
+                      trailing: const SvgIcon(SvgIcons.delete19),
+                      inverted: const SvgIcon(SvgIcons.delete19White),
                       onPressed: () => _hideChat(c, context),
                     ),
                   ],
