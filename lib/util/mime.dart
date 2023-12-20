@@ -47,7 +47,7 @@ class MimeResolver {
   static String? lookup(String path, {List<int>? headerBytes}) =>
       resolver.lookup(path, headerBytes: headerBytes);
 
-  // returns default extensions for mime type
+  /// Returns default extensions for [mime] type.
   static String? defaultExtensionFromMime(String mime) {
     // library method returns extensions in alphabetic order
     // for 'image/jpeg' it is 'jpe' instead of 'jpeg'

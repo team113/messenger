@@ -27,9 +27,7 @@ import 'mime.dart';
 extension GenerateNameExt on StorageFile {
   static const nameLength = 8;
 
-  /// Generates filename for [StorageFile]
-  ///
-  /// Example: '1d08881f.jpeg'
+  /// Generates filename with extension
   Future<String> generateFilename() async {
     late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
     final name = checksum?.substring(0, nameLength) ?? time;
