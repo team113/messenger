@@ -83,16 +83,16 @@ abstract class StorageFile extends HiveObject {
 
     // check mime type
     late final String? type;
-    final CacheEntry cache =
-        await CacheWorker.instance.get(url: url, checksum: checksum);
-    if (cache.bytes == null) {
-      type = MimeResolver.lookup(url);
-    } else {
+    if (checksum != null && CacheWorker.instance.exists(checksum!)) {
+      final CacheEntry cache =
+          await CacheWorker.instance.get(url: url, checksum: checksum);
       final headerBytes = Uint8List.fromList(cache.bytes!
               .take(MimeResolver.resolver.magicNumbersMaxLength)
               .toList())
           .toList();
       type = MimeResolver.lookup(url, headerBytes: headerBytes);
+    } else {
+      type = MimeResolver.lookup(url);
     }
 
     final String? ext =
