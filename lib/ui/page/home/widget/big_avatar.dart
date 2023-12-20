@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/storage_file_extension.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/my_user.dart';
@@ -215,7 +216,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     children: [
                       GalleryItem.image(
                         avatar!.original.url,
-                        avatar.original.checksum ?? DateTime.now().toString(),
+                        await avatar.original.generateFilename(),
                         width: avatar.original.width,
                         height: avatar.original.height,
                         checksum: avatar.original.checksum,
