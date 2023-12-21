@@ -39,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - Chats tab:
         - Redesigned chat tile. ([#748], [#741])
+    - Icons in desktop context menu. ([#757])
 
 ### Fixed
 
@@ -68,6 +69,7 @@ All user visible changes to this project will be documented in this file. This p
 [#736]: /../../pull/736
 [#741]: /../../issues/741
 [#748]: /../../pull/748
+[#757]: /../../pull/757
 
 
 

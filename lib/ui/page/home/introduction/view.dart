@@ -194,7 +194,7 @@ class IntroductionView extends StatelessWidget {
       onSuffixPressed: copy,
       selectable: c.myUser.value?.chatDirectLink != null,
       trailing: PlatformUtils.isMobile
-          ? const SvgIcon(SvgIcons.shareThick)
+          ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
     );
