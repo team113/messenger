@@ -207,6 +207,7 @@ class ContactsTabView extends StatelessWidget {
                             label: 'btn_select_and_delete'.l10n,
                             onPressed: c.toggleSelecting,
                             trailing: const SvgIcon(SvgIcons.select),
+                            inverted: const SvgIcon(SvgIcons.selectWhite),
                           ),
                         ],
                         child: AnimatedButton(
@@ -806,6 +807,7 @@ class ContactsTabView extends StatelessWidget {
                     onPressed: () =>
                         c.unfavoriteContact(contact.contact.value.id),
                     trailing: const SvgIcon(SvgIcons.favoriteSmall),
+                    inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
                   )
                 : ContextMenuButton(
                     key: const Key('FavoriteContactButton'),
@@ -813,11 +815,13 @@ class ContactsTabView extends StatelessWidget {
                     onPressed: () =>
                         c.favoriteContact(contact.contact.value.id),
                     trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+                    inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
                   ),
             ContextMenuButton(
               label: 'btn_delete'.l10n,
               onPressed: () => _removeFromContacts(c, context, contact.rx),
-              trailing: const SvgIcon(SvgIcons.deleteThick),
+              trailing: const SvgIcon(SvgIcons.delete19),
+              inverted: const SvgIcon(SvgIcons.delete19White),
             ),
           ],
           subtitle: [

@@ -320,6 +320,8 @@ class ChatInfoController extends GetxController {
       await _chatService.hideChat(chatId);
     } on HideChatException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

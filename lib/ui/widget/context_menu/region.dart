@@ -267,10 +267,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           if (b is ContextMenuButton) {
             return Row(
               children: [
-                if (b.leading != null) ...[
-                  b.leading!,
-                  const SizedBox(width: 12),
-                ],
                 Text(b.label, style: style.fonts.normal.regular.onBackground),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),

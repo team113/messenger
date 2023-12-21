@@ -413,6 +413,11 @@ class _ChatViewState extends State<ChatView>
                                               ? SvgIcons.deleteContact
                                               : SvgIcons.addContact,
                                         ),
+                                        inverted: SvgIcon(
+                                          contact
+                                              ? SvgIcons.deleteContactWhite
+                                              : SvgIcons.addContactWhite,
+                                        ),
                                         onPressed: contact
                                             ? () =>
                                                 _removeFromContacts(c, context)
@@ -431,6 +436,11 @@ class _ChatViewState extends State<ChatView>
                                         favorite
                                             ? SvgIcons.favoriteSmall
                                             : SvgIcons.unfavoriteSmall,
+                                      ),
+                                      inverted: SvgIcon(
+                                        favorite
+                                            ? SvgIcons.favoriteSmallWhite
+                                            : SvgIcons.unfavoriteSmallWhite,
                                       ),
                                       onPressed: favorite
                                           ? c.unfavoriteChat
@@ -456,6 +466,11 @@ class _ChatViewState extends State<ChatView>
                                                 ? SvgIcons.unmuteSmall
                                                 : SvgIcons.muteSmall,
                                           ),
+                                          inverted: SvgIcon(
+                                            muted
+                                                ? SvgIcons.unmuteSmallWhite
+                                                : SvgIcons.muteSmallWhite,
+                                          ),
                                           onPressed:
                                               muted ? c.unmuteChat : c.muteChat,
                                         ),
@@ -464,6 +479,9 @@ class _ChatViewState extends State<ChatView>
                                         label: 'btn_clear_history'.l10n,
                                         trailing: const SvgIcon(
                                           SvgIcons.cleanHistory,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.cleanHistoryWhite,
                                         ),
                                         onPressed: () => _clearChat(c, context),
                                       ),
@@ -475,6 +493,9 @@ class _ChatViewState extends State<ChatView>
                                         trailing: const SvgIcon(
                                           SvgIcons.leaveGroup,
                                         ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.leaveGroupWhite,
+                                        ),
                                         onPressed: () =>
                                             _leaveGroup(c, context),
                                       ),
@@ -482,8 +503,10 @@ class _ChatViewState extends State<ChatView>
                                       ContextMenuButton(
                                         key: const Key('HideChatButton'),
                                         label: 'btn_delete_chat'.l10n,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.cleanHistory,
+                                        trailing:
+                                            const SvgIcon(SvgIcons.delete19),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.delete19White,
                                         ),
                                         onPressed: () => _hideChat(c, context),
                                       ),
@@ -492,6 +515,9 @@ class _ChatViewState extends State<ChatView>
                                         key: const Key('Block'),
                                         label: 'btn_block'.l10n,
                                         trailing: const SvgIcon(SvgIcons.block),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.blockWhite,
+                                        ),
                                         onPressed: () => _blockUser(c, context),
                                       ),
                                   ],
