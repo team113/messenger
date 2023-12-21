@@ -126,13 +126,13 @@ class CacheWorker extends DisposableService {
           case CacheResponseType.file:
             return Future(() async => CacheEntry(
                   file: await add(bytes, checksum),
-                  mime: _mime(bytes, url),
+                  mime: _mime(url, bytes),
                 ));
 
           case CacheResponseType.bytes:
             return CacheEntry(
               bytes: bytes,
-              mime: _mime(bytes, url),
+              mime: _mime(url, bytes),
             );
         }
       }
@@ -150,7 +150,7 @@ class CacheWorker extends DisposableService {
               case CacheResponseType.file:
                 return CacheEntry(
                   file: file,
-                  mime: await _mimeFile(file),
+                  mime: await _mime(file.path),
                 );
 
               case CacheResponseType.bytes:
@@ -158,7 +158,7 @@ class CacheWorker extends DisposableService {
                 FIFOCache.set(checksum, bytes);
                 return CacheEntry(
                   bytes: bytes,
-                  mime: _mime(bytes, url),
+                  mime: _mime(url, bytes),
                 );
             }
           }
@@ -199,7 +199,7 @@ class CacheWorker extends DisposableService {
               return Future(
                 () async => CacheEntry(
                   file: data == null ? null : await add(data, checksum),
-                  mime: _mime(data, url),
+                  mime: _mime(url, data),
                 ),
               );
 
@@ -207,7 +207,7 @@ class CacheWorker extends DisposableService {
               if (data != null) {
                 add(data, checksum);
               }
-              return CacheEntry(bytes: data, mime: _mime(data, url));
+              return CacheEntry(bytes: data, mime: _mime(url, data));
           }
         } on OperationCanceledException catch (_) {
           return CacheEntry();
@@ -509,21 +509,11 @@ class CacheWorker extends DisposableService {
   }
 
   /// Resolves the [mime] of [Uint8List] of bytes.
-  String? _mime(Uint8List? bytes, [String? path]) {
+  String? _mime(String? path, [Uint8List? bytes]) {
     if (bytes == null) return MimeResolver.lookup(path ?? '');
     List<int>? headerBytes =
         bytes.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
     return MimeResolver.lookup(path ?? '', headerBytes: headerBytes);
-  }
-
-  /// Resolves the [mime] of [File] by content and extension.
-  Future<String?> _mimeFile(File file) async {
-    List<int>? headerBytes = [];
-    await for (var part
-        in file.openRead(0, MimeResolver.resolver.magicNumbersMaxLength)) {
-      headerBytes.addAll(part);
-    }
-    return MimeResolver.lookup(file.path, headerBytes: headerBytes);
   }
 }
 
