@@ -49,9 +49,10 @@ class MimeResolver {
 
   /// Returns default extensions for [mime] type.
   static String? defaultExtensionFromMime(String mime) {
-    // library method returns extensions in alphabetic order
-    // for 'image/jpeg' it is 'jpe' instead of 'jpeg'
-    // to fix this behavior add problematic mime types to defaultExtension
+    // Because of library method returns extensions in alphabetic order,
+    // it can return untypical extension. For example 'jpe' instead of 'jpeg' 
+    // for 'image/jpeg'. To fix this behavior add problematic mime types to 
+    // defaultExtension.
     final defaultExtension = <String, String>{'image/jpeg': 'jpeg'};
 
     return defaultExtension[mime] ?? extensionFromMime(mime);
