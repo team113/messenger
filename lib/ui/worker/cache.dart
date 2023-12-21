@@ -39,6 +39,7 @@ import '/provider/hive/download.dart';
 import '/util/backoff.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
+import '/util/mime.dart';
 
 /// Worker maintaining [File]s cache and downloads.
 ///
@@ -117,19 +118,22 @@ class CacheWorker extends DisposableService {
     if (PlatformUtils.isWeb) {
       responseType = CacheResponseType.bytes;
     }
-
     if (checksum != null && FIFOCache.exists(checksum)) {
       final Uint8List? bytes = FIFOCache.get(checksum);
 
       if (bytes != null) {
         switch (responseType) {
           case CacheResponseType.file:
-            return Future(
-              () async => CacheEntry(file: await add(bytes, checksum)),
-            );
+            return Future(() async => CacheEntry(
+                  file: await add(bytes, checksum),
+                  mime: _mime(bytes, url),
+                ));
 
           case CacheResponseType.bytes:
-            return CacheEntry(bytes: bytes);
+            return CacheEntry(
+              bytes: bytes,
+              mime: _mime(bytes, url),
+            );
         }
       }
     }
@@ -144,12 +148,18 @@ class CacheWorker extends DisposableService {
           if (await file.exists()) {
             switch (responseType) {
               case CacheResponseType.file:
-                return CacheEntry(file: file);
+                return CacheEntry(
+                  file: file,
+                  mime: await _mimeFile(file),
+                );
 
               case CacheResponseType.bytes:
                 final Uint8List bytes = await file.readAsBytes();
                 FIFOCache.set(checksum, bytes);
-                return CacheEntry(bytes: bytes);
+                return CacheEntry(
+                  bytes: bytes,
+                  mime: _mime(bytes, url),
+                );
             }
           }
         }
@@ -189,6 +199,7 @@ class CacheWorker extends DisposableService {
               return Future(
                 () async => CacheEntry(
                   file: data == null ? null : await add(data, checksum),
+                  mime: _mime(data, url),
                 ),
               );
 
@@ -196,7 +207,7 @@ class CacheWorker extends DisposableService {
               if (data != null) {
                 add(data, checksum);
               }
-              return CacheEntry(bytes: data);
+              return CacheEntry(bytes: data, mime: _mime(data, url));
           }
         } on OperationCanceledException catch (_) {
           return CacheEntry();
@@ -496,6 +507,24 @@ class CacheWorker extends DisposableService {
       );
     }
   }
+
+  /// Resolves the [mime] of [Uint8List] of bytes.
+  String? _mime(Uint8List? bytes, [String? path]) {
+    if (bytes == null) return MimeResolver.lookup(path ?? '');
+    List<int>? headerBytes =
+        bytes.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
+    return MimeResolver.lookup(path ?? '', headerBytes: headerBytes);
+  }
+
+  /// Resolves the [mime] of [File] by content and extension.
+  Future<String?> _mimeFile(File file) async {
+    List<int>? headerBytes = [];
+    await for (var part
+        in file.openRead(0, MimeResolver.resolver.magicNumbersMaxLength)) {
+      headerBytes.addAll(part);
+    }
+    return MimeResolver.lookup(file.path, headerBytes: headerBytes);
+  }
 }
 
 /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
@@ -653,13 +682,16 @@ enum DownloadStatus {
 
 /// Cache entry of [file] and/or its [bytes].
 class CacheEntry {
-  CacheEntry({this.file, this.bytes});
+  CacheEntry({this.file, this.bytes, this.mime});
 
   /// [File] of this [CacheEntry].
   final File? file;
 
   /// Byte data of this [CacheEntry].
   final Uint8List? bytes;
+
+  /// Mime type of this [CacheEntry].
+  final String? mime;
 }
 
 /// Response type of the [CacheWorker.get] function.
