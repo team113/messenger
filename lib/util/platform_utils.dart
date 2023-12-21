@@ -499,6 +499,7 @@ class PlatformUtilsImpl {
                 () async {
                   try {
                     // TODO: Cache the response.
+                    // TODO: Save response content-type to [CacheEntry.mime].
                     await (await dio).download(
                       url,
                       file!.path,
