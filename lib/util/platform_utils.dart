@@ -552,6 +552,7 @@ class PlatformUtilsImpl {
       final CacheEntry cache =
           await CacheWorker.instance.get(url: url, checksum: checksum);
       final filename = _addExtensionIfNeed(name, cache, url);
+
       await ImageGallerySaver.saveImage(cache.bytes!, name: filename);
     } else {
       final File? file = await PlatformUtils.download(

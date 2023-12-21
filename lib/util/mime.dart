@@ -55,7 +55,7 @@ class MimeResolver {
   /// defaultExtension.
   static const defaultExtension = <String, String>{'image/jpeg': 'jpeg'};
 
-  /// Returns default extensions for [mime] type.
+  /// Returns default extension for [mime] type.
   static String? defaultExtensionFromMime(String? mime) {
     if (mime == null) return null;
     return defaultExtension[mime] ?? extensionFromMime(mime);
