@@ -47,11 +47,11 @@ class MimeResolver {
   static String? lookup(String path, {List<int>? headerBytes}) =>
       resolver.lookup(path, headerBytes: headerBytes);
 
-  /// Contains default extensions for the mime types 
+  /// Contains default extensions for the mime types
   ///
   /// Because of library method returns extensions in alphabetic order,
-  /// it can return untypical extension. For example 'jpe' instead of 'jpeg' 
-  /// for 'image/jpeg'. To fix this behavior add problematic mime types to 
+  /// it can return untypical extension. For example 'jpe' instead of 'jpeg'
+  /// for 'image/jpeg'. To fix this behavior add problematic mime types to
   /// defaultExtension.
   static const defaultExtension = <String, String>{'image/jpeg': 'jpeg'};
 
