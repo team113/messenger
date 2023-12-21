@@ -18,7 +18,7 @@
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 
-import 'package:path/path.dart' as p;
+import '../../util/platform_utils.dart';
 import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
@@ -75,13 +75,14 @@ abstract class StorageFile extends HiveObject {
 
   /// Returns default filename.
   String get defaultFilename {
-    const nameLength = 8;
     late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
+
+    const nameLength = 8;
     final name = checksum?.substring(0, nameLength) ?? time;
 
-    final String ext = p.extension(url);
+    final String ext = PlatformUtils.urlExtension(url);
 
-    return '$name$ext';
+    return [name, ext].join('.');
   }
 }
 

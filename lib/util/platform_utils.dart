@@ -607,6 +607,19 @@ class PlatformUtilsImpl {
     }
   }
 
+  /// Gets the file extension of [url]: the portion of [url] from the last
+  /// `.` to the end (excluding the `.` itself).
+  ///
+  /// ```
+  /// urlExtension('http://site/.jpg') // => 'jpg'
+  /// urlExtension('http://site/noDots') // => ''
+  /// ```
+  String urlExtension(String url) {
+    final index = url.lastIndexOf('.');
+    if (index < 0 || index + 1 >= url.length) return '';
+    return url.substring(index + 1).toLowerCase();
+  }
+
   /// Tries to add an extension to the [filename] if it doesn't have one.
   String _addExtensionIfNeed(String filename, CacheEntry cache, String url) {
     if (p.extension(filename) == '') {
@@ -615,7 +628,7 @@ class PlatformUtilsImpl {
       if (cache.mime != null) {
         ext = MimeResolver.defaultExtensionFromMime(cache.mime);
       }
-      ext ??= p.extension(url).replaceAll('.', '');
+      ext ??= urlExtension(url);
 
       return (ext == '') ? filename : '$filename.$ext';
     } else {
