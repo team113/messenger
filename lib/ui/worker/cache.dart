@@ -150,7 +150,7 @@ class CacheWorker extends DisposableService {
               case CacheResponseType.file:
                 return CacheEntry(
                   file: file,
-                  mime: await _mime(file.path),
+                  mime: _mime(file.path),
                 );
 
               case CacheResponseType.bytes:
