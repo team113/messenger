@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:messenger/util/mime.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -549,8 +550,8 @@ class PlatformUtilsImpl {
 
       final CacheEntry cache =
           await CacheWorker.instance.get(url: url, checksum: checksum);
-
-      await ImageGallerySaver.saveImage(cache.bytes!, name: name);
+      final filename = _addExtensionIfNeed(name, cache, url);
+      await ImageGallerySaver.saveImage(cache.bytes!, name: filename);
     } else {
       final File? file = await PlatformUtils.download(
         url,
@@ -601,6 +602,22 @@ class PlatformUtilsImpl {
         _isActive = false;
         _activityController?.add(false);
       });
+    }
+  }
+
+  /// Tries to add an extension to the [filename] if it doesn't have one.
+  String _addExtensionIfNeed(String filename, CacheEntry cache, String url) {
+    if (p.extension(filename) == '') {
+      String? ext;
+
+      if (cache.mime != null) {
+        ext = MimeResolver.defaultExtensionFromMime(cache.mime);
+      }
+      ext ??= p.extension(url).replaceAll('.', '');
+
+      return (ext == '') ? filename : '$filename.$ext';
+    } else {
+      return filename;
     }
   }
 }
