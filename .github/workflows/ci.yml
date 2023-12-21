@@ -558,13 +558,19 @@ jobs:
         with:
           name: debug-macos-${{ github.run_number }}
           path: debug/
-      - run: for f in debug/debug-*.zip; do unzip "$f" -d "${f%.zip}"; done
+      - name: Unzip debug symbols
+        run: |
+          set -e
+          for f in debug/debug-*.zip
+            do unzip "$f" -d "${f%.zip}/"
+          done
       - uses: actions/download-artifact@v4
         with:
           name: debug-web-${{ github.run_number }}
       # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
       - run: mkdir -p build/web/
-      - run: unzip debug-*.zip -d build/web/
+      - name: Unzip web source maps
+        run: unzip debug-*.zip -d build/web/
 
       - run: tree debug
 
