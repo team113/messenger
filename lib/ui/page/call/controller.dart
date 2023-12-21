@@ -1066,7 +1066,7 @@ class CallController extends GetxController {
       _putVideoFrom(r, focused);
     }
     focused.add(participant);
-    _insureCorrectGrouping();
+    _ensureCorrectGrouping();
   }
 
   /// Focuses [participant], which means putting in to the [focused].
@@ -1087,11 +1087,11 @@ class CallController extends GetxController {
       } else {
         _putVideoTo(participant, focused);
       }
-      _insureCorrectGrouping();
+      _ensureCorrectGrouping();
     } else {
       if (paneled.contains(participant)) {
         _putVideoFrom(participant, paneled);
-        _insureCorrectGrouping();
+        _ensureCorrectGrouping();
       }
     }
   }
@@ -1109,11 +1109,11 @@ class CallController extends GetxController {
       if (focused.isEmpty) {
         unfocusAll();
       }
-      _insureCorrectGrouping();
+      _ensureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
         _putVideoTo(participant, paneled);
-        _insureCorrectGrouping();
+        _ensureCorrectGrouping();
       }
     }
   }
@@ -1129,7 +1129,7 @@ class CallController extends GetxController {
       _putVideoFrom(r, focused);
     }
 
-    _insureCorrectGrouping();
+    _ensureCorrectGrouping();
   }
 
   /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
@@ -1140,7 +1140,7 @@ class CallController extends GetxController {
       _putVideoTo(r, paneled);
     }
 
-    _insureCorrectGrouping();
+    _ensureCorrectGrouping();
   }
 
   /// Minimizes the view.
@@ -1842,9 +1842,9 @@ class CallController extends GetxController {
     }
   }
 
-  /// Insures the [paneled] and [focused] are in correct state, and fixes the
+  /// Ensures the [paneled] and [focused] are in correct state, and fixes the
   /// state if not.
-  void _insureCorrectGrouping() {
+  void _ensureCorrectGrouping() {
     if (locals.isEmpty && remotes.isEmpty) {
       // If every [RtcVideoRenderer] is in focus, then put everyone outside of
       // it.
@@ -2046,12 +2046,12 @@ class CallController extends GetxController {
         switch (track.op) {
           case OperationKind.added:
             _putParticipant(member, track.element);
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
 
           case OperationKind.removed:
             _removeParticipant(member, track.element);
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
 
           case OperationKind.updated:
@@ -2074,7 +2074,7 @@ class CallController extends GetxController {
               (c) => onTracksChanged(e.value!, c),
             );
 
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
 
           case OperationKind.removed:
@@ -2084,20 +2084,20 @@ class CallController extends GetxController {
             focused.removeWhere((m) => m.member.id == e.key);
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
             }
             break;
 
           case OperationKind.updated:
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
         }
       });
 
       members.forEach((_, value) => _putMember(value));
-      _insureCorrectGrouping();
+      _ensureCorrectGrouping();
     }
   }
 
