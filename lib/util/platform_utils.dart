@@ -620,7 +620,7 @@ class PlatformUtilsImpl {
     return url.substring(index + 1).toLowerCase();
   }
 
-  /// Tries to add an extension to the [filename] if it doesn't have one.
+  /// Add an extension to the [filename] if it doesn't have one.
   String _addExtensionIfNeed(String filename, CacheEntry cache, String url) {
     if (p.extension(filename) == '') {
       String? ext;

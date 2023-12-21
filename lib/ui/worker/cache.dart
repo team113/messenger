@@ -118,6 +118,7 @@ class CacheWorker extends DisposableService {
     if (PlatformUtils.isWeb) {
       responseType = CacheResponseType.bytes;
     }
+
     if (checksum != null && FIFOCache.exists(checksum)) {
       final Uint8List? bytes = FIFOCache.get(checksum);
 
@@ -207,7 +208,10 @@ class CacheWorker extends DisposableService {
               if (data != null) {
                 add(data, checksum);
               }
-              return CacheEntry(bytes: data, mime: _mime(url, data));
+              return CacheEntry(
+                bytes: data,
+                mime: _mime(url, data),
+              );
           }
         } on OperationCanceledException catch (_) {
           return CacheEntry();

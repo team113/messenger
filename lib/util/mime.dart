@@ -52,7 +52,7 @@ class MimeResolver {
   /// Because of library method returns extensions in alphabetic order,
   /// it can return untypical extension. For example 'jpe' instead of 'jpeg'
   /// for 'image/jpeg'. To fix this behavior add problematic mime types to
-  /// defaultExtension.
+  /// [defaultExtension].
   static const defaultExtension = <String, String>{'image/jpeg': 'jpeg'};
 
   /// Returns default extension for [mime] type.
