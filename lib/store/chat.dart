@@ -558,23 +558,26 @@ class ChatRepository extends DisposableInterface
     Log.debug('hideChat($id)', '$runtimeType');
 
     HiveRxChat? chat = chats[id];
+    ChatData? monologData;
 
     chat?.chat.update((c) => c?.isHidden = true);
 
     try {
       // If this [Chat] is local, make it remote first.
       if (id.isLocalWith(me)) {
+        monologData = _chat(await _graphQlProvider.createMonologChat(null));
+
         _monologShouldBeHidden = true;
-        final HiveRxChat remoteMonolog = await ensureRemoteMonolog();
 
         // Dispose and delete local monolog from [Hive], since it's just been
         // replaced with a remote one.
         await remove(id);
 
-        chat = remoteMonolog;
-        id = chat.id;
+        id = monologData.chat.value.id;
+        await _monologLocal.set(id);
       }
 
+      // Note: there's no way we're updating `favorite` local monolog.
       if (chat == null || chat.chat.value.favoritePosition != null) {
         await unfavoriteChat(id);
       }
@@ -584,7 +587,13 @@ class ChatRepository extends DisposableInterface
       // [_localSubscription].
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      _monologShouldBeHidden = false;
+      if (_monologShouldBeHidden) {
+        // If [_monologShouldBeHidden] is `true`, it means a remote monolog has
+        // already been created.
+        _monologShouldBeHidden = false;
+        chat = await _putEntry(monologData!);
+      }
+
       chat?.chat.update((c) => c?.isHidden = false);
 
       rethrow;
@@ -2222,23 +2231,25 @@ class ChatRepository extends DisposableInterface
       final bool isPaginated = paginated[monolog] != null;
       final bool canFetchMore = _pagination?.hasNext.value ?? true;
 
-      if (isStored) {
-        if (isLocal) {
-          // If a local [monolog] is stored, then make it visible.
+      // If a non-local [monolog] isn't stored and it won't appear from the
+      // [Pagination], then check if a hidden one exists on the server.
+      if (isLocal && !isPaginated && !canFetchMore) {
+        if (isStored) {
+          // If [isStored], local monolog will be put to [paginated] from [Hive]
+          // anyway, but then it will disappear for a moment due to [paginated]
+          // updates. This line prevents such behavior.
           await _createLocalDialog(me);
         }
-      } else if (!isPaginated && !canFetchMore) {
-        // If there's no [monolog] in [Pagination] and there's no more recent
-        // chats to fetch, check if a remote monolog exists.
+
+        // Check if there's a remote update.
         final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
 
         if (maybeMonolog != null) {
-          // If the [monolog] was fetched, then put it to [_monologLocal] and
-          // [Hive].
+          // If the [monolog] was fetched, then put it to [_monologLocal].
           final ChatData monologChatData = _chat(maybeMonolog);
-          final HiveRxChat monologChat = await _putEntry(monologChatData);
+          final HiveRxChat monolog = await _putEntry(monologChatData);
 
-          await _monologLocal.set(monologChat.id);
+          await _monologLocal.set(monolog.id);
         } else {
           // If remote monolog doesn't exist, then create a local one.
           await _createLocalDialog(me);
