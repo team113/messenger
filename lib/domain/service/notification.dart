@@ -374,6 +374,8 @@ class NotificationService extends DisposableService {
           }
         } on MissingPluginException {
           _plugin = null;
+        } on UnimplementedError {
+          _plugin = null;
         }
       }
     }
