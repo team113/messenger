@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
@@ -387,7 +388,7 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [session].
   Future<void> renewSession() async {
-    if (WebUtils.credentialsUpdating) {
+    if (await WebUtils.credentialsAreLocked) {
       // Wait until the [Credentials] are done updating in another tab.
       await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
 
@@ -405,7 +406,7 @@ class AuthService extends GetxService {
     return _tokenGuard.protect(() async {
       if (!alreadyRenewing) {
         try {
-          WebUtils.credentialsUpdating = true;
+          await WebUtils.lockCredentials(true);
           Credentials data = await _authRepository
               .renewSession(credentials.value!.rememberedSession.token);
           _authorized(data);
@@ -416,7 +417,7 @@ class AuthService extends GetxService {
           router.go(_unauthorized());
           rethrow;
         } finally {
-          WebUtils.credentialsUpdating = false;
+          await WebUtils.lockCredentials(false);
         }
       }
     });
@@ -432,12 +433,22 @@ class AuthService extends GetxService {
     _authRepository.token = creds.session.token;
     credentials.value = creds;
     _refreshTimer?.cancel();
+
+    final Duration period = _refreshTaskInterval -
+        Duration(
+          microseconds:
+              Random().nextInt(_refreshTaskInterval.inMicroseconds) ~/ 2,
+        );
+
+    print('[debug]: period is $period');
+
     // TODO: Offload refresh task to the background process?
-    _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
+    _refreshTimer = Timer.periodic(period, (timer) {
       if (credentials.value?.rememberedSession != null && _shouldRefresh) {
         renewSession();
       }
     });
+
     status.value = RxStatus.loadingMore();
   }
 

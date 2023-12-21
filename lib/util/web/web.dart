@@ -35,6 +35,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:messenger/util/log.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
@@ -112,6 +113,12 @@ external bool _isPopup;
 
 @JS('document.hasFocus')
 external bool _hasFocus();
+
+@JS('window.mutex.lock')
+external Future<void> _lockMutex(String id);
+
+@JS('window.mutex.release')
+external Future<void> _releaseMutex(String id);
 
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
@@ -279,18 +286,34 @@ class WebUtils {
 
   /// Sets the provided [updating] value to the browser's storage indicating an
   /// ongoing [Credentials] refresh.
-  static set credentialsUpdating(bool updating) {
-    html.window.localStorage['credentialsUpdating'] = updating.toString();
+  static Future<void> lockCredentials(bool updating) async {
+    await _lockMutex('credentialsUpdating');
+
+    try {
+      Log.info('[debug] set credentialsUpdating = $updating', 'WebUtils');
+
+      html.window.localStorage['credentialsUpdating'] = updating.toString();
+    } finally {
+      await _releaseMutex('credentialsUpdating');
+    }
   }
 
   /// Indicates whether [Credentials] are considered being updated currently.
-  static bool get credentialsUpdating {
-    final String? updating = html.window.localStorage['credentialsUpdating'];
+  static Future<bool> get credentialsAreLocked async {
+    await _lockMutex('credentialsUpdating');
 
-    if (updating == null) {
-      return false;
-    } else {
-      return updating.toLowerCase() == 'true';
+    try {
+      Log.info('[debug] get credentialsUpdating', 'WebUtils');
+
+      final String? updating = html.window.localStorage['credentialsUpdating'];
+
+      if (updating == null) {
+        return false;
+      } else {
+        return updating.toLowerCase() == 'true';
+      }
+    } finally {
+      await _releaseMutex('credentialsUpdating');
     }
   }
 

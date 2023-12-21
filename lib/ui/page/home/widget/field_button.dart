@@ -39,12 +39,12 @@ class FieldButton extends StatefulWidget {
     this.prefix,
     this.style,
     this.subtitle,
-    this.border,
     this.prefixText,
     this.prefixStyle,
     this.label,
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.old = false,
+    this.warning = false,
   });
 
   /// Optional label of this [FieldButton].
@@ -79,7 +79,7 @@ class FieldButton extends StatefulWidget {
   /// [TextStyle] of the [text].
   final TextStyle? style;
 
-  final Color? border;
+  final bool warning;
 
   final String? prefixText;
   final TextStyle? prefixStyle;
@@ -107,14 +107,17 @@ class _FieldButtonState extends State<FieldButton> {
           OutlinedRoundedButton(
             title: Text(widget.text ?? '', maxLines: widget.maxLines),
             maxWidth: double.infinity,
-            color: style.colors.onPrimary,
+            color:
+                widget.warning ? style.colors.primary : style.colors.onPrimary,
             disabled: style.colors.onPrimary,
             onPressed: widget.onPressed,
             style: (widget.style ?? style.fonts.medium.regular.onBackground)
                 .copyWith(
               color: widget.onPressed == null
                   ? style.colors.onBackgroundOpacity40
-                  : style.colors.onBackground,
+                  : widget.warning
+                      ? style.colors.onPrimary
+                      : style.colors.onBackground,
             ),
             height: 46,
             trailing: AnimatedScale(
@@ -127,10 +130,10 @@ class _FieldButtonState extends State<FieldButton> {
             ),
             leading: widget.prefix,
             maxHeight: double.infinity,
-            border: Border.all(
-              width: 0.5,
-              color: style.colors.secondary,
-            ),
+            border: //widget.warning
+                // ? Border.all(width: 2, color: style.colors.accept)
+                // :
+                Border.all(width: 0.5, color: style.colors.secondary),
           ),
           if (widget.subtitle != null)
             Align(
@@ -235,39 +238,40 @@ class _FieldButtonState extends State<FieldButton> {
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   ThemeData _theme(BuildContext context) {
-    final style = Theme.of(context).style;
+    // final style = Theme.of(context).style;
+    return Theme.of(context);
 
-    if (widget.border == null) {
-      return Theme.of(context);
-    }
+    // if (widget.border == null) {
+    //   return Theme.of(context);
+    // }
 
-    final OutlineInputBorder border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide(color: widget.border ?? Colors.white),
-    );
+    // final OutlineInputBorder border = OutlineInputBorder(
+    //   borderRadius: BorderRadius.circular(25),
+    //   borderSide: BorderSide(color: widget.border ?? Colors.white),
+    // );
 
-    return Theme.of(context).copyWith(
-      shadowColor: style.colors.onBackgroundOpacity27,
-      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-            border: border,
-            errorBorder: border,
-            enabledBorder: border,
-            focusedBorder: border,
-            disabledBorder: border,
-            focusedErrorBorder: border,
-            focusColor: style.colors.onPrimary,
-            fillColor: style.colors.onPrimary,
-            hoverColor: style.colors.transparent,
-            filled: true,
-            isDense: true,
-            contentPadding: EdgeInsets.fromLTRB(
-              15,
-              PlatformUtils.isDesktop ? 30 : 23,
-              15,
-              0,
-            ),
-          ),
-    );
+    // return Theme.of(context).copyWith(
+    //   shadowColor: style.colors.onBackgroundOpacity27,
+    //   iconTheme: IconThemeData(color: style.colors.primaryHighlight),
+    //   inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+    //         border: border,
+    //         errorBorder: border,
+    //         enabledBorder: border,
+    //         focusedBorder: border,
+    //         disabledBorder: border,
+    //         focusedErrorBorder: border,
+    //         focusColor: style.colors.onPrimary,
+    //         fillColor: style.colors.onPrimary,
+    //         hoverColor: style.colors.transparent,
+    //         filled: true,
+    //         isDense: true,
+    //         contentPadding: EdgeInsets.fromLTRB(
+    //           15,
+    //           PlatformUtils.isDesktop ? 30 : 23,
+    //           15,
+    //           0,
+    //         ),
+    //       ),
+    // );
   }
 }

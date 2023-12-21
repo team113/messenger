@@ -173,6 +173,17 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
+  List<UserEmail> get emails => [
+        UserEmail('dummy1@example.com'),
+        // UserEmail('dummy2@example.com'),
+        UserEmail('unverified@example.com'),
+      ];
+  List<UserPhone> get phones => [
+        // UserPhone('+1234567890'),
+        // UserPhone('+1234567890'),
+        // UserPhone('+0234567890'),
+      ];
+
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {

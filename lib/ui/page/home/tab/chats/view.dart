@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/domain/repository/chat.dart';
@@ -178,7 +179,12 @@ class ChatsTabView extends StatelessWidget {
                         key: const Key('2'),
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('label_chats'.l10n),
+                          WidgetButton(
+                            onPressed: () {
+                              Get.find<AuthService>().renewSession();
+                            },
+                            child: Text('label_chats'.l10n),
+                          ),
                           AnimatedSizeAndFade(
                             sizeDuration: const Duration(milliseconds: 300),
                             fadeDuration: const Duration(milliseconds: 300),

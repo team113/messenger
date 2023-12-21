@@ -2008,6 +2008,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData password19White = SvgData(
+    'assets/icons/password19_white.svg',
+    width: 17.1,
+    height: 19,
+  );
+
   static const SvgData faceSmile = SvgData(
     'assets/icons/face_smile.svg',
     width: 18,

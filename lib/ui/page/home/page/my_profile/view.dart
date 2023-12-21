@@ -181,34 +181,34 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_login_options'.l10n,
                         children: [
-                          // Paddings.basic(
-                          //   Obx(() {
-                          //     return UserNumCopyable(c.myUser.value?.num);
-                          //   }),
-                          // ),
                           Paddings.basic(
                             Obx(() {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(15, 0, 24, 0),
-                                child: ContactInfoContents(
-                                  padding: EdgeInsets.zero,
-                                  title: 'Gapopa ID',
-                                  content: c.myUser.value?.num.toString() ?? '',
-                                  icon: const SvgIcon(SvgIcons.profileNum),
-                                  trailing: CopyOrShareButton(
-                                    c.myUser.value?.num.toString() ?? '',
-                                  ),
-                                  // trailing: WidgetButton(
-                                  //   onPressed: () {},
-                                  //   child: const SvgIcon(SvgIcons.copy),
-                                  // ),
-                                ),
-                              );
+                              return UserNumCopyable(c.myUser.value?.num);
                             }),
                           ),
-                          const SizedBox(height: 8),
-                          const SizedBox(height: 8),
+                          // Paddings.basic(
+                          //   Obx(() {
+                          //     return Padding(
+                          //       padding:
+                          //           const EdgeInsets.fromLTRB(15, 0, 24, 0),
+                          //       child: ContactInfoContents(
+                          //         padding: EdgeInsets.zero,
+                          //         title: 'Gapopa ID',
+                          //         content: c.myUser.value?.num.toString() ?? '',
+                          //         icon: const SvgIcon(SvgIcons.profileNum),
+                          //         trailing: CopyOrShareButton(
+                          //           c.myUser.value?.num.toString() ?? '',
+                          //         ),
+                          //         // trailing: WidgetButton(
+                          //         //   onPressed: () {},
+                          //         //   child: const SvgIcon(SvgIcons.copy),
+                          //         // ),
+                          //       ),
+                          //     );
+                          //   }),
+                          // ),
+                          // const SizedBox(height: 8),
+                          // const SizedBox(height: 8),
                           const SizedBox(height: 8),
                           Paddings.basic(
                             Obx(() {
@@ -218,14 +218,34 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
-                          const SizedBox(height: 8),
-                          const SizedBox(height: 8),
+                          // const SizedBox(height: 8),
+                          // const SizedBox(height: 8),
                           // Paddings.basic(
                           //   Obx(() {
                           //     return UserNumCopyable(c.myUser.value?.num);
                           //   }),
                           // ),
+
+                          const SizedBox(height: 12),
+
                           _emails(context, c),
+                          Obx(() {
+                            final hasEmails = [
+                              ...c.myUser.value?.emails.confirmed ?? [],
+                              c.myUser.value?.emails.unconfirmed,
+                              ...c.emails,
+                            ].whereNotNull().isNotEmpty;
+
+                            final hasPhones = [
+                              ...c.myUser.value?.phones.confirmed ?? [],
+                              c.myUser.value?.phones.unconfirmed,
+                              ...c.phones,
+                            ].whereNotNull().isNotEmpty;
+
+                            return SizedBox(
+                              height: hasPhones || hasEmails ? 54 : 0,
+                            );
+                          }),
                           _phones(context, c),
                           _password(context, c),
                         ],
@@ -526,8 +546,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
 
     for (UserEmail e in [
       ...c.myUser.value?.emails.confirmed ?? [],
-      UserEmail('dummy1@example.com'),
-      UserEmail('dummy2@example.com'),
+      ...c.emails.where((e) => !e.val.startsWith('unverified')),
     ]) {
       widgets.add(
         Column(
@@ -547,7 +566,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'label_login_visible'.l10n,
+                      text: 'label_email_visible'.l10n,
                       style: style.fonts.small.regular.secondary,
                     ),
                     TextSpan(
@@ -597,135 +616,16 @@ Widget _emails(BuildContext context, MyProfileController c) {
                 ),
               ),
             ),
-            if (false)
-              ContactInfoContents(
-                title: 'label_email'.l10n,
-                content: e.val,
-                trailing: AnimatedButton(
-                  key: const Key('DeleteEmail'),
-                  onPressed: () => _deleteEmail(c, context, e),
-                  child: const SvgIcon(SvgIcons.delete),
-                ),
-                subtitle: [
-                  const SizedBox(height: 4),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'label_email_visible'.l10n,
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                        TextSpan(
-                          text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                          style: style.fonts.small.regular.primary,
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_email'.l10n,
-                                additional: [
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'label_visible_to'.l10n,
-                                      style:
-                                          style.fonts.big.regular.onBackground,
-                                    ),
-                                  ),
-                                ],
-                                label: 'label_confirm'.l10n,
-                                initial: 2,
-                                variants: [
-                                  ConfirmDialogVariant(
-                                    onProceed: () {},
-                                    label: 'label_all'.l10n,
-                                  ),
-                                  ConfirmDialogVariant(
-                                    onProceed: () {},
-                                    label: 'label_my_contacts'.l10n,
-                                  ),
-                                  ConfirmDialogVariant(
-                                    onProceed: () {},
-                                    label: 'label_nobody'.l10n,
-                                  ),
-                                ],
-                              );
-                            },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            if (false)
-              FieldButton(
-                key: const Key('ConfirmedEmail'),
-                text: e.val,
-                hint: 'label_email'.l10n,
-                onPressed: () {
-                  PlatformUtils.copy(text: e.val);
-                  MessagePopup.success('label_copied'.l10n);
-                },
-                trailing: AnimatedButton(
-                  key: const Key('DeleteEmail'),
-                  onPressed: () => _deleteEmail(c, context, e),
-                  child: const SvgIcon(SvgIcons.delete),
-                ),
-                subtitle: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_email_visible'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                      TextSpan(
-                        text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                        style: style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            await ConfirmDialog.show(
-                              context,
-                              title: 'label_email'.l10n,
-                              additional: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'label_visible_to'.l10n,
-                                    style: style.fonts.big.regular.onBackground,
-                                  ),
-                                ),
-                              ],
-                              label: 'label_confirm'.l10n,
-                              initial: 2,
-                              variants: [
-                                ConfirmDialogVariant(
-                                  onProceed: () {},
-                                  label: 'label_all'.l10n,
-                                ),
-                                ConfirmDialogVariant(
-                                  onProceed: () {},
-                                  label: 'label_my_contacts'.l10n,
-                                ),
-                                ConfirmDialogVariant(
-                                  onProceed: () {},
-                                  label: 'label_nobody'.l10n,
-                                ),
-                              ],
-                            );
-                          },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 16));
+
+      widgets.add(const SizedBox(height: 8));
     }
 
     final unconfirmed = c.myUser.value?.emails.unconfirmed ??
-        UserEmail('unconfirmed@example.com');
+        c.emails.firstWhereOrNull((e) => e.val.startsWith('unverified'));
+    //??  UserEmail('unconfirmed@example.com');
 
     if (unconfirmed != null) {
       widgets.addAll([
@@ -748,68 +648,16 @@ Widget _emails(BuildContext context, MyProfileController c) {
               onPressed: () => _deleteEmail(c, context, unconfirmed),
               child: const SvgIcon(SvgIcons.delete),
             ),
-            subtitle: AnimatedButton(
+            subtitle: WidgetButton(
               onPressed: () => AddEmailView.show(context, email: unconfirmed),
               child: Text(
-                'Верифицировать',
+                'Верифицировать.',
                 style: style.fonts.small.regular.primary,
               ),
             ),
           ),
         ),
-        // const SizedBox(height: 8),
-        if (false)
-          ContactInfoContents(
-            title: 'label_email'.l10n,
-            content: unconfirmed.val,
-            trailing: AnimatedButton(
-              key: const Key('DeleteEmail'),
-              onPressed: () => _deleteEmail(c, context, unconfirmed),
-              child: const SvgIcon(SvgIcons.delete),
-            ),
-          ),
-        if (false)
-          Theme(
-            data: Theme.of(context).copyWith(
-              inputDecorationTheme:
-                  Theme.of(context).inputDecorationTheme.copyWith(
-                        floatingLabelStyle:
-                            style.fonts.normal.regular.onBackground.copyWith(
-                          color: style.colors.primary,
-                        ),
-                      ),
-            ),
-            child: FieldButton(
-              key: const Key('UnconfirmedEmail'),
-              text: unconfirmed.val,
-              hint: 'label_verify_email'.l10n,
-              trailing: Transform.translate(
-                offset: const Offset(0, -1),
-                child: AnimatedButton(
-                  onPressed: () => _deleteEmail(c, context, unconfirmed),
-                  child: const SvgIcon(SvgIcons.delete),
-                ),
-              ),
-              onPressed: () => AddEmailView.show(context, email: unconfirmed),
-              style: style.fonts.normal.regular.primary,
-            ),
-          ),
-        if (false)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'E-mail не верифицирован. '.l10n,
-                    style: style.fonts.small.regular.danger,
-                  ),
-                ],
-              ),
-            ),
-          ),
       ]);
-      widgets.add(const SizedBox(height: 8));
     }
 
     if (true || unconfirmed == null) {
@@ -821,16 +669,18 @@ Widget _emails(BuildContext context, MyProfileController c) {
           text: c.myUser.value?.emails.confirmed.isNotEmpty == true
               ? 'label_add_additional_email'.l10n
               : 'label_add_email'.l10n,
-          border: c.myUser.value?.emails.confirmed.isEmpty == true &&
-                  c.myUser.value?.emails.unconfirmed == null
-              ? style.colors.danger
-              : null,
           onPressed: () => AddEmailView.show(context),
           style: style.fonts.normal.regular.primary,
           trailing: const SvgIcon(SvgIcons.email19),
         ),
       );
-      widgets.add(const SizedBox(height: 32));
+    }
+
+    if (widgets.length <= 1) {
+      widgets.add(const SizedBox(height: 0));
+    } else {
+      widgets.insert(0, const SizedBox(height: 24));
+      // widgets.add(const SizedBox(height: 48));
     }
 
     return Column(
@@ -850,8 +700,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
 
     for (UserPhone e in [
       ...c.myUser.value?.phones.confirmed ?? [],
-      UserPhone('+1234567890'),
-      UserPhone('+1234567890'),
+      ...c.phones.where((e) => !e.val.startsWith('+0')),
     ]) {
       widgets.add(
         Column(
@@ -922,77 +771,14 @@ Widget _phones(BuildContext context, MyProfileController c) {
                 ),
               ),
             ),
-            if (false)
-              FieldButton(
-                text: e.val,
-                hint: 'label_phone_number'.l10n,
-                trailing: Transform.translate(
-                  key: const Key('DeletePhone'),
-                  offset: const Offset(0, -5),
-                  child: AnimatedButton(
-                    onPressed: () => _deletePhone(c, context, e),
-                    child: const SvgIcon(SvgIcons.delete),
-                  ),
-                ),
-                onPressed: () {
-                  PlatformUtils.copy(text: e.val);
-                  MessagePopup.success('label_copied'.l10n);
-                },
-                subtitle: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_phone_visible'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                      TextSpan(
-                        text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                        style: style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            await ConfirmDialog.show(
-                              context,
-                              title: 'label_phone'.l10n,
-                              additional: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'label_visible_to'.l10n,
-                                    style: style.fonts.big.regular.onBackground,
-                                  ),
-                                ),
-                              ],
-                              label: 'label_confirm'.l10n,
-                              initial: 2,
-                              variants: [
-                                ConfirmDialogVariant(
-                                  onProceed: () {},
-                                  label: 'label_all'.l10n,
-                                ),
-                                ConfirmDialogVariant(
-                                  onProceed: () {},
-                                  label: 'label_my_contacts'.l10n,
-                                ),
-                                ConfirmDialogVariant(
-                                  onProceed: () {},
-                                  label: 'label_nobody'.l10n,
-                                ),
-                              ],
-                            );
-                          },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
           ],
         ),
       );
-      widgets.add(const SizedBox(height: 16));
+      widgets.add(const SizedBox(height: 8));
     }
 
-    final unconfirmed =
-        c.myUser.value?.phones.unconfirmed ?? UserPhone('+1234567890');
+    final unconfirmed = c.myUser.value?.phones.unconfirmed ??
+        c.phones.firstWhereOrNull((e) => e.val.startsWith('+0'));
 
     if (unconfirmed != null) {
       widgets.addAll([
@@ -1025,7 +811,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
           ),
         ),
       ]);
-      widgets.add(const SizedBox(height: 8));
+      widgets.add(const SizedBox(height: 0));
     }
 
     if (true || unconfirmed == null) {
@@ -1038,10 +824,6 @@ Widget _phones(BuildContext context, MyProfileController c) {
           text: c.myUser.value?.phones.confirmed.isNotEmpty == true
               ? 'label_add_additional_number'.l10n
               : 'label_add_number'.l10n,
-          border: c.myUser.value?.emails.confirmed.isEmpty == true &&
-                  c.myUser.value?.emails.unconfirmed == null
-              ? style.colors.danger
-              : null,
           style: style.fonts.normal.regular.primary,
           trailing: Transform.translate(
             offset: const Offset(-2, 0),
@@ -1049,7 +831,13 @@ Widget _phones(BuildContext context, MyProfileController c) {
           ),
         ),
       );
-      widgets.add(const SizedBox(height: 32));
+    }
+
+    if (widgets.length <= 1) {
+      widgets.add(const SizedBox(height: 0));
+    } else {
+      // widgets.insert(0, const SizedBox(height: 24));
+      widgets.add(const SizedBox(height: 48));
     }
 
     return Column(
@@ -1098,11 +886,11 @@ Widget _password(BuildContext context, MyProfileController c) {
                 ? 'btn_change_password'.l10n
                 : 'btn_set_password'.l10n,
             onPressed: () => ChangePasswordView.show(context),
-            border: c.myUser.value?.hasPassword != true
-                ? style.colors.danger
-                : null,
+            warning: c.myUser.value?.hasPassword != true,
             style: style.fonts.normal.regular.primary,
-            trailing: const SvgIcon(SvgIcons.password19),
+            trailing: c.myUser.value?.hasPassword == true
+                ? const SvgIcon(SvgIcons.password19)
+                : const SvgIcon(SvgIcons.password19White),
           );
         }),
       ),
@@ -1753,31 +1541,49 @@ Widget _verification(BuildContext context, MyProfileController c) {
   });
 }
 
-Widget _getPaid(BuildContext context, MyProfileController c) {
+Widget _title(BuildContext context, String label, [bool enabled = true]) {
   final style = Theme.of(context).style;
 
-  Widget title(String label, [bool enabled = true]) {
-    return Paddings.dense(
-      Align(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 0.0),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: style.systemMessageStyle.copyWith(
-              // color: Theme.of(context).colorScheme.secondary,
-              color:
-                  enabled ? style.colors.onBackground : style.colors.secondary,
-              fontSize: 15,
-
-              fontWeight: FontWeight.w400,
-            ),
+  return Padding(
+    padding: Insets.dense.copyWith(left: 0, right: 0),
+    child: Row(
+      children: [
+        const SizedBox(width: 0),
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            height: 1,
+            color: Colors.transparent,
           ),
         ),
-      ),
-    );
-  }
+        // const SizedBox(width: 8),
+        // Text(
+        //   label,
+        //   textAlign: TextAlign.center,
+        //   style: style.systemMessageStyle.copyWith(
+        //     // color: Theme.of(context).colorScheme.secondary,
+        //     color: enabled ? style.colors.onBackground : style.colors.secondary,
+        //     fontSize: 15,
+
+        //     fontWeight: FontWeight.w400,
+        //   ),
+        // ),
+        // const SizedBox(width: 8),
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            height: 1,
+            color: Colors.transparent,
+          ),
+        ),
+        const SizedBox(width: 0),
+      ],
+    ),
+  );
+}
+
+Widget _getPaid(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
 
   Widget field({
     required TextFieldState state,
@@ -1829,7 +1635,8 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
     return Column(
       children: [
         if (!c.verified.value) ...[],
-        title(
+        _title(
+          context,
           'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
           c.verified.value,
         ),
@@ -1847,7 +1654,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           contacts: false,
         ),
         const SizedBox(height: 12 * 2),
-        title('От Ваших контактов', c.verified.value),
+        _title(context, 'От Ваших контактов', c.verified.value),
         const SizedBox(height: 6),
         field(
           label: 'label_fee_per_incoming_message'.l10n,
@@ -1862,7 +1669,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           contacts: true,
         ),
         const SizedBox(height: 12 * 2),
-        title('От индивидуальных пользователей', c.verified.value),
+        _title(context, 'От индивидуальных пользователей', c.verified.value),
         const SizedBox(height: 6),
         Paddings.dense(
           FieldButton(

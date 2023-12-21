@@ -868,7 +868,7 @@ fcm-vapid=$(strip $(shell grep 'FCM_VAPID=' .env | cut -d'=' -f2))
 sentry-dsn=$(strip $(shell grep 'SENTRY_DSN=' .env | cut -d'=' -f2))
 
 deploy:
-	make build platform=web \
+	make build platform=web profile=yes \
 	           dart-env=SOCAPP_GOOGLE_CLIENT_ID=$(google-client-id),SOCAPP_FCM_VAPID_KEY=$(fcm-vapid),SOCAPP_SENTRY_DSN=$(sentry-dsn) && \
 	make helm.up cluster=review rebuild=yes buildx=yes
 
