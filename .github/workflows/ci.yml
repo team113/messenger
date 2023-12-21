@@ -558,7 +558,6 @@ jobs:
         with:
           name: debug-macos-${{ github.run_number }}
           path: debug/
-      - run: unzip debug/debug-\*.zip -d debug2/
       - run: for f in debug/debug-*.zip; do unzip "$f" -d "${f%.zip}"; done
       - uses: actions/download-artifact@v4
         with:
@@ -568,7 +567,6 @@ jobs:
       - run: unzip debug-*.zip -d build/web/
 
       - run: tree debug
-      - run: tree debug2
 
       - uses: subosito/flutter-action@v2
         with:
