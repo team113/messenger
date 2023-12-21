@@ -265,6 +265,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether a previous page of the [messages] is loading.
   RxBool get previousLoading;
 
+  /// Indicates whether a call is active.
+  RxBool get inCall;
+
   /// [LastChatRead]s of this [chat].
   RxList<LastChatRead> get reads;
 

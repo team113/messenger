@@ -620,7 +620,8 @@ class _ChatViewState extends State<ChatView>
                                 // size.
                                 IgnorePointer(
                                   child: ContextMenuInterceptor(
-                                      child: Container()),
+                                    child: Container(),
+                                  ),
                                 ),
                                 Obx(() {
                                   final Widget child = FlutterListView(

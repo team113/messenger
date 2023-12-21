@@ -73,6 +73,9 @@ class DummyRxChat extends RxChat {
   RxBool get previousLoading => RxBool(false);
 
   @override
+  RxBool get inCall => RxBool(false);
+
+  @override
   RxList<LastChatRead> get reads => RxList();
 
   @override

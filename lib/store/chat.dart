@@ -320,7 +320,7 @@ class ChatRepository extends DisposableInterface
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
-          chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
+          chat = HiveRxChat(this, _chatLocal, _draftLocal, _callRepo, hiveChat);
           chat!.init();
         }
 
@@ -1518,7 +1518,7 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, _callRepo, chat);
       chats[chatId] = entry;
 
       entry.init();

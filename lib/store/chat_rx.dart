@@ -37,6 +37,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
@@ -55,6 +56,7 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'pagination/graphql.dart';
@@ -65,6 +67,7 @@ class HiveRxChat extends RxChat {
     this._chatRepository,
     this._chatLocal,
     this._draftLocal,
+    this._callRepository,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
@@ -120,6 +123,10 @@ class HiveRxChat extends RxChat {
   /// [RxChat.draft]s local [Hive] storage.
   final DraftHiveProvider _draftLocal;
 
+  /// [AbstractCallRepository] used to get information about
+  /// [AbstractCallRepository.calls].
+  final AbstractCallRepository _callRepository;
+
   /// [ChatItem]s local [Hive] storage.
   ChatItemHiveProvider _local;
 
@@ -169,8 +176,18 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
+  /// [StreamGroup] to [AbstractCallRepository.calls] and
+  /// [WebUtils.onStorageChange] determining the [inCall] indicator.
+  StreamGroup? _callGroupSubscription;
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
+
+  /// Reactive call status indicator.
+  late final RxBool _inCall = RxBool(
+    _callRepository.calls[chat.value.id] != null ||
+        WebUtils.containsCall(chat.value.id),
+  );
 
   /// [Mutex]es guarding synchronized access to the [updateAttachments].
   final Map<ChatItemId, Mutex> _attachmentGuards = {};
@@ -196,6 +213,9 @@ class HiveRxChat extends RxChat {
 
   @override
   RxBool get previousLoading => _pagination.previousLoading;
+
+  @override
+  RxBool get inCall => _inCall;
 
   @override
   UserCallCover? get callCover {
@@ -306,6 +326,14 @@ class HiveRxChat extends RxChat {
       }
     });
 
+    _callGroupSubscription = StreamGroup()
+      ..add(_callRepository.calls.changes)
+      ..add(WebUtils.onStorageChange)
+      ..stream.listen((_) {
+        _inCall.value = _callRepository.calls[chat.value.id] != null ||
+            WebUtils.containsCall(chat.value.id);
+      });
+
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
@@ -407,6 +435,7 @@ class HiveRxChat extends RxChat {
     _paginationSubscription?.cancel();
     _pagination.dispose();
     _messagesSubscription?.cancel();
+    _callGroupSubscription?.close();
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();

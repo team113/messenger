@@ -149,7 +149,7 @@ class MessageFieldController extends GetxController {
 
   /// Indicates whether this device of the currently authenticated [MyUser]
   /// takes part in the [Chat.ongoingCall], if any.
-  final bool Function()? inCall;
+  RxBool? inCall;
 
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
@@ -197,9 +197,10 @@ class MessageFieldController extends GetxController {
       FileButton(pickFile),
     ] else
       AttachmentButton(pickFile),
-    if (settings?.value?.callButtonsPosition == CallButtonsPosition.more) ...[
-      AudioCallButton(() => onCall?.call(false), inCall),
-      VideoCallButton(() => onCall?.call(true), inCall),
+    if (settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
+        inCall != null) ...[
+      AudioCallButton(inCall!.value ? null : () => onCall?.call(false)),
+      VideoCallButton(inCall!.value ? null : () => onCall?.call(true)),
     ],
   ]);
 
@@ -234,6 +235,9 @@ class MessageFieldController extends GetxController {
   /// [ApplicationSettings.pinnedActions] value.
   Worker? _buttonsWorker;
 
+  /// [Worker] capturing [inCall] changes to update the [panel] value.
+  Worker? _inCallWorker;
+
   /// [Worker] reacting on the [RouterState.routes] changes hiding the
   /// [_moreEntry].
   Worker? _routesWorker;
@@ -254,19 +258,8 @@ class MessageFieldController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    // Constructs a list of [ChatButton]s from the provided [list] of [String]s.
-    List<ChatButton> toButtons(List<String>? list) {
-      List<ChatButton>? persisted = list
-          ?.map((e) =>
-              panel.firstWhereOrNull((m) => m.runtimeType.toString() == e))
-          .whereNotNull()
-          .toList();
-
-      return persisted ?? [];
-    }
-
     buttons = RxList(
-      toButtons(_settingsRepository?.applicationSettings.value?.pinnedActions),
+      _toButtons(_settingsRepository?.applicationSettings.value?.pinnedActions),
     );
 
     _buttonsWorker = ever(buttons, (List<ChatButton> list) {
@@ -287,6 +280,24 @@ class MessageFieldController extends GetxController {
   }
 
   @override
+  void onReady() {
+    if (inCall != null &&
+        settings?.value?.callButtonsPosition == CallButtonsPosition.more) {
+      _inCallWorker = ever(inCall!, (bool val) {
+        panel.replaceRange(panel.length - 2, panel.length, [
+          AudioCallButton(val ? null : () => onCall?.call(false)),
+          VideoCallButton(val ? null : () => onCall?.call(true)),
+        ]);
+        buttons.value = _toButtons(
+          _settingsRepository?.applicationSettings.value?.pinnedActions,
+        );
+      });
+    }
+
+    super.onReady();
+  }
+
+  @override
   void onClose() {
     _moreEntry?.remove();
     _repliesWorker?.dispose();
@@ -294,6 +305,7 @@ class MessageFieldController extends GetxController {
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
+    _inCallWorker?.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -451,5 +463,16 @@ class MessageFieldController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.
+  List<ChatButton> _toButtons(List<String>? list) {
+    List<ChatButton>? persisted = list
+        ?.map(
+            (e) => panel.firstWhereOrNull((m) => m.runtimeType.toString() == e))
+        .whereNotNull()
+        .toList();
+
+    return persisted ?? [];
   }
 }

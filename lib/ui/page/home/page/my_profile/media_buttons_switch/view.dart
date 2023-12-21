@@ -25,7 +25,7 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for updating the [ApplicationSettings.mediaButtonsPosition] value.
+/// View for updating the [ApplicationSettings.callButtonsPosition] value.
 ///
 /// Intended to be displayed with the [show] method.
 class MediaButtonsSwitchView extends StatelessWidget {
@@ -108,7 +108,7 @@ class MediaButtonsSwitchView extends StatelessWidget {
                     child: AnimatedSwitcher(
                       duration: duration,
                       child: Image.asset(
-                        'assets/images/media_buttons/$asset.png',
+                        'assets/images/media_buttons/$asset.jpg',
                         key: Key(asset),
                         width: double.infinity,
                         fit: BoxFit.fitHeight,
