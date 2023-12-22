@@ -588,8 +588,8 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChat(id);
     } catch (_) {
       if (_monologShouldBeHidden) {
-        // If [_monologShouldBeHidden] is `true`, it means a remote monolog has
-        // already been created.
+        // If [_monologShouldBeHidden] is `true`, the monolog has already been
+        // created remotely, then save it.
         _monologShouldBeHidden = false;
         chat = await _putEntry(monologData!);
       }

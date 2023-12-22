@@ -42,34 +42,48 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 );
 
 /// Enters the credential of the given [User] into the widget with the provided
-///  [WidgetKey].
+/// [WidgetKey].
 ///
 /// Examples:
-/// - When I fill `SearchField` field with Bob's "id"
-/// - Then I fill `LoginField` field with Alice's "login"
-///
-/// Note: using this step with `login` [credential] on a [user] that has not set
-/// their login will not throw an error, but will instead work as if it was set.
-/// Use `setLogin` step to set the login of a [user].
+/// - When I fill `SearchField` field with Bob's num
+/// - When I fill `LoginField` field with Alice's login
 StepDefinitionGeneric fillFieldWithUserCredential =
     when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
   'I fill {key} field with {user}\'s {credential}',
   (key, user, credential, context) async {
     final CustomUser? customUser = context.world.sessions[user.name];
 
-    switch (credential) {
-      case TestCredential.num:
-        final String text = customUser?.userNum.val ?? '';
-
-        await _fillField(key, text, context);
-
-      case TestCredential.login:
-        // TODO: Should throw an error if the login is not set.
-        final String text =
-            customUser != null ? 'lgn_${customUser.userNum.val}' : '';
-
-        await _fillField(key, text, context);
+    if (customUser == null) {
+      throw ArgumentError('User ${user.name} is not logged in.');
     }
+
+    final String text = _getCredential(customUser, credential);
+    await _fillField(key, text, context);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the credential of [me] into the widget with the provided
+/// [WidgetKey].
+///
+/// Examples:
+/// - When I fill `SearchField` field with my num
+/// - When I fill `LoginField` field with my login
+StepDefinitionGeneric fillFieldWithMyCredential =
+    when2<WidgetKey, TestCredential, CustomWorld>(
+  'I fill {key} field with my {credential}',
+  (key, credential, context) async {
+    final CustomUser? me = context.world.sessions.values
+        .where((user) => user.userId == context.world.me)
+        .firstOrNull;
+
+    if (me == null) {
+      throw ArgumentError('MyUser is not logged in.');
+    }
+
+    final String text = _getCredential(me, credential);
+    await _fillField(key, text, context);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
@@ -174,4 +188,20 @@ Future<void> _fillField(
 
     return false;
   });
+}
+
+/// Returns [String] representation of the [CustomUser]'s [TestCredential].
+///
+/// Note: it will not throw an error if `login` [credential] is requested from a
+/// [user] that has not set their login, but will instead work as if it was set.
+/// Use `setLogin` step to set the login of a [user].
+String _getCredential(CustomUser customUser, TestCredential credential) {
+  switch (credential) {
+    case TestCredential.num:
+      return customUser.userNum.val;
+
+    // TODO: Should throw an error or make a warning if login wasn't set.
+    case TestCredential.login:
+      return 'lgn_${customUser.userNum.val}';
+  }
 }

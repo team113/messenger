@@ -458,28 +458,33 @@ class SearchController extends GetxController {
   /// Updates [chats] by adding the [monolog] chat if it matches the [query].
   Future<void> _populateMonolog() async {
     // Formatted string representation of the current [query].
-    final String queryString = query.value.toLowerCase().split(' ').join();
+    final String queryString = query.value.toLowerCase().trim();
 
-    if (queryString.isNotEmpty) {
+    final MyUser? myUser = _myUserService.myUser.value;
+
+    if (queryString.isNotEmpty && myUser != null) {
       final ChatId monologId = _chatService.monolog;
 
       final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
       final RxChat? monolog =
           monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
 
-      final MyUser? myUser = _myUserService.myUser.value;
-
-      if (myUser != null && monolog != null) {
+      if (monolog != null) {
         final String title = monolog.title.value;
-        final String? myName = myUser.name?.val;
-        final String myNum = myUser.num.val;
-        final String? myLogin = myUser.login?.val;
+        final String? name = myUser.name?.val;
+        final String? login = myUser.login?.val;
+        final String num = myUser.num.val;
 
-        for (final param in [title, myLogin, myName, myNum].whereNotNull()) {
+        for (final param in [title, login, name].whereNotNull()) {
           if (param.toLowerCase().contains(queryString)) {
             chats.value = {monologId: monolog, ...chats};
             break;
           }
+        }
+
+        // Allows user to put spaces everywhere in [UserNum].
+        if (num.contains(queryString.split(' ').join())) {
+          chats.value = {monologId: monolog, ...chats};
         }
       }
     }
