@@ -215,7 +215,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     children: [
                       GalleryItem.image(
                         avatar!.original.url,
-                        avatar.original.defaultFilename,
+                        await avatar.original.name,
                         width: avatar.original.width,
                         height: avatar.original.height,
                         checksum: avatar.original.checksum,

@@ -17,8 +17,9 @@
 
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/mime.dart';
 
-import '../../util/platform_utils.dart';
 import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
@@ -73,16 +74,19 @@ abstract class StorageFile extends HiveObject {
   /// Returns an absolute URL to this [StorageFile] on a file storage.
   String get url => '${Config.files}$relativeRef';
 
-  /// Returns default filename.
-  String get defaultFilename {
+  /// Returns name.
+  Future<String> get name async {
     late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
 
     const nameLength = 8;
     final name = checksum?.substring(0, nameLength) ?? time;
 
-    final String ext = PlatformUtils.urlExtension(url);
+    final CacheEntry cache =
+        await CacheWorker.instance.get(url: url, checksum: checksum);
 
-    return [name, ext].join('.');
+    String? ext = (await cache.type)?.extension;
+
+    return [name, ext].nonNulls.join('.');
   }
 }
 

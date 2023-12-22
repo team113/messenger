@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_thumbhash/flutter_thumbhash.dart' as t;
 import 'package:get/get.dart' hide Response;
 import 'package:hive/hive.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:mutex/mutex.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
@@ -125,16 +126,11 @@ class CacheWorker extends DisposableService {
       if (bytes != null) {
         switch (responseType) {
           case CacheResponseType.file:
-            return Future(() async => CacheEntry(
-                  file: await add(bytes, checksum),
-                  mime: _mime(url, bytes),
-                ));
+            return Future(
+                () async => CacheEntry(file: await add(bytes, checksum)));
 
           case CacheResponseType.bytes:
-            return CacheEntry(
-              bytes: bytes,
-              mime: _mime(url, bytes),
-            );
+            return CacheEntry(bytes: bytes);
         }
       }
     }
@@ -149,18 +145,12 @@ class CacheWorker extends DisposableService {
           if (await file.exists()) {
             switch (responseType) {
               case CacheResponseType.file:
-                return CacheEntry(
-                  file: file,
-                  mime: _mime(file.path),
-                );
+                return CacheEntry(file: file);
 
               case CacheResponseType.bytes:
                 final Uint8List bytes = await file.readAsBytes();
                 FIFOCache.set(checksum, bytes);
-                return CacheEntry(
-                  bytes: bytes,
-                  mime: _mime(url, bytes),
-                );
+                return CacheEntry(bytes: bytes);
             }
           }
         }
@@ -199,19 +189,14 @@ class CacheWorker extends DisposableService {
             case CacheResponseType.file:
               return Future(
                 () async => CacheEntry(
-                  file: data == null ? null : await add(data, checksum),
-                  mime: _mime(url, data),
-                ),
+                    file: data == null ? null : await add(data, checksum)),
               );
 
             case CacheResponseType.bytes:
               if (data != null) {
                 add(data, checksum);
               }
-              return CacheEntry(
-                bytes: data,
-                mime: _mime(url, data),
-              );
+              return CacheEntry(bytes: data);
           }
         } on OperationCanceledException catch (_) {
           return CacheEntry();
@@ -511,14 +496,6 @@ class CacheWorker extends DisposableService {
       );
     }
   }
-
-  /// Resolves the [mime] of [Uint8List] of bytes.
-  String? _mime(String? path, [Uint8List? bytes]) {
-    if (bytes == null) return MimeResolver.lookup(path ?? '');
-    List<int>? headerBytes =
-        bytes.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
-    return MimeResolver.lookup(path ?? '', headerBytes: headerBytes);
-  }
 }
 
 /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
@@ -676,7 +653,7 @@ enum DownloadStatus {
 
 /// Cache entry of [file] and/or its [bytes].
 class CacheEntry {
-  CacheEntry({this.file, this.bytes, this.mime});
+  CacheEntry({this.file, this.bytes});
 
   /// [File] of this [CacheEntry].
   final File? file;
@@ -684,8 +661,26 @@ class CacheEntry {
   /// Byte data of this [CacheEntry].
   final Uint8List? bytes;
 
-  /// Mime type of this [CacheEntry].
-  final String? mime;
+  /// MediaType type of this [CacheEntry].
+  late final Future<MediaType?> type = _resolveType();
+
+  Future<MediaType?> _resolveType() async {
+    String? mime;
+    if (bytes != null) {
+      List<int>? headerBytes =
+          bytes?.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
+      mime = MimeResolver.lookup('', headerBytes: headerBytes);
+    }
+    if (file != null) {
+      List<int>? headerBytes = [];
+      await for (var part
+          in file!.openRead(0, MimeResolver.resolver.magicNumbersMaxLength)) {
+        headerBytes.addAll(part);
+      }
+      mime = MimeResolver.lookup('', headerBytes: headerBytes);
+    }
+    return (mime == null) ? null : MediaType.parse(mime);
+  }
 }
 
 /// Response type of the [CacheWorker.get] function.
