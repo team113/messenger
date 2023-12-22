@@ -284,27 +284,12 @@ class WebUtils {
     }
   }
 
-  /// Sets the provided [updating] value to the browser's storage indicating an
-  /// ongoing [Credentials] refresh.
-  static Future<void> lockCredentials(bool updating) async {
-    await _lockMutex('credentialsUpdating');
-
-    try {
-      Log.info('[debug] set credentialsUpdating = $updating', 'WebUtils');
-
-      html.window.localStorage['credentialsUpdating'] = updating.toString();
-    } finally {
-      await _releaseMutex('credentialsUpdating');
-    }
-  }
+  /// Indicates whether the current window is a popup.
+  static bool get isPopup => _isPopup;
 
   /// Indicates whether [Credentials] are considered being updated currently.
   static Future<bool> get credentialsAreLocked async {
-    await _lockMutex('credentialsUpdating');
-
-    try {
-      Log.info('[debug] get credentialsUpdating', 'WebUtils');
-
+    return await _protect(() {
       final String? updating = html.window.localStorage['credentialsUpdating'];
 
       if (updating == null) {
@@ -312,13 +297,16 @@ class WebUtils {
       } else {
         return updating.toLowerCase() == 'true';
       }
-    } finally {
-      await _releaseMutex('credentialsUpdating');
-    }
+    });
   }
 
-  /// Indicates whether the current window is a popup.
-  static bool get isPopup => _isPopup;
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
+  static Future<void> lockCredentials(bool updating) async {
+    await _protect(() {
+      html.window.localStorage['credentialsUpdating'] = updating.toString();
+    });
+  }
 
   /// Pushes [title] to browser's window title.
   static void title(String title) =>
@@ -642,6 +630,25 @@ class WebUtils {
     if (e is html.AudioElement) {
       e.currentTime = 0;
       e.pause();
+    }
+  }
+
+  /// Guards the [function] with the browser's storage mutex.
+  static Future<T> _protect<T>(FutureOr<T> Function() function) async {
+    try {
+      await _lockMutex('mutex');
+    } catch (_) {
+      // No-op, if failed to acquire by timeout.
+    }
+
+    try {
+      return await function();
+    } finally {
+      try {
+        await _releaseMutex('mutex');
+      } catch (_) {
+        // No-op, if failed to release by timeout.
+      }
     }
   }
 }

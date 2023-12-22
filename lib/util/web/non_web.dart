@@ -77,17 +77,17 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials].
   static Credentials? get credentials => null;
 
+  /// Indicates whether the current window is a popup.
+  static bool get isPopup => false;
+
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static Future<bool> get credentialsAreLocked => Future.value(false);
+
   /// Sets the provided [updating] value to the browser's storage indicating an
   /// ongoing [Credentials] refresh.
   static Future<void> lockCredentials(bool updating) async {
     // No-op.
   }
-
-  /// Indicates whether [Credentials] are considered being updated currently.
-  static Future<bool> get credentialsAreLocked => Future.value(false);
-
-  /// Indicates whether the current window is a popup.
-  static bool get isPopup => false;
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
