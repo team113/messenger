@@ -2,8 +2,10 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:phone_form_field/phone_form_field.dart' hide CountrySelector;
+import 'package:circle_flags/circle_flags.dart';
 
 import 'animated_size_and_fade.dart';
 import 'country_selector2.dart';
@@ -26,6 +28,44 @@ class ReactivePhoneField extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    return ReactiveTextField(
+      state: state,
+      label: label,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      style: style.fonts.medium.regular.onBackground,
+      onChanged: () {
+        state.number.value = PhoneNumber(
+          isoCode: state.iso.value,
+          nsn: state.controller.text,
+        );
+      },
+      prefixIcon: WidgetButton(
+        onPressed: () async {
+          final selected = await const _CountrySelectorNavigator()
+              .navigate(context, state._flagCache);
+          if (selected != null) {
+            state.iso.value = selected.isoCode;
+          }
+
+          state.focus.requestFocus();
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16.0, bottom: 1.6),
+          child: Obx(() {
+            return CountryCodeChip(
+              key: const ValueKey('country-code-chip'),
+              isoCode: state.iso.value,
+              showFlag: true,
+              showDialCode: true,
+              textStyle: style.fonts.medium.regular.onBackground
+                  .copyWith(fontSize: 17),
+              flagSize: 16,
+            );
+          }),
+        ),
+      ),
+    );
+
     EdgeInsets? contentPadding;
 
     bool isFilled = Theme.of(context).inputDecorationTheme.filled;
@@ -45,8 +85,6 @@ class ReactivePhoneField extends StatelessWidget {
           ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
           : const EdgeInsets.fromLTRB(12, 24, 12, 16);
     }
-
-    contentPadding = contentPadding + const EdgeInsets.only(left: 10);
 
     return Obx(() {
       return Column(
@@ -76,19 +114,27 @@ class ReactivePhoneField extends StatelessWidget {
               autofillHints: const [AutofillHints.telephoneNumber],
               countrySelectorNavigator: const _CountrySelectorNavigator(),
               defaultCountry: IsoCode.US,
+              style: style.fonts.medium.regular.onBackground,
               decoration: InputDecoration(
-                label: label == null ? null : Text(label!),
+                contentPadding: contentPadding?.copyWith(left: 8),
+                label: label == null
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: Text(label!),
+                      ),
                 alignLabelWithHint: false,
                 border: const OutlineInputBorder(),
                 errorStyle: const TextStyle(fontSize: 0),
                 errorText: state.error.value,
+                labelStyle: style.fonts.normal.regular.onBackground,
               ),
               focusNode: state.focus,
               enabled: true,
               showFlagInInput: true,
               validator: PhoneValidator.compose([PhoneValidator.valid()]),
               autovalidateMode: AutovalidateMode.disabled,
-              countryCodeStyle: style.fonts.normal.regular.onBackground,
+              countryCodeStyle: style.fonts.medium.regular.onBackground,
               onSaved: (p) => print('saved $p'),
               onSubmitted: (s) => state.submit(),
               onChanged: (s) {
@@ -226,6 +272,8 @@ class PhoneFieldState extends ReactiveFieldState {
   @override
   late final FocusNode focus;
 
+  final Rx<IsoCode> iso = Rx(IsoCode.US);
+
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.
   PhoneNumber? _previousText;
@@ -245,6 +293,9 @@ class PhoneFieldState extends ReactiveFieldState {
     changed.value = true;
     onChanged?.call(this);
   }
+
+  final _flagCache = FlagCache();
+  final Rx<PhoneNumber?> number = Rx(null);
 
   /// Sets the text of [TextEditingController] to [value] without calling
   /// [onChanged].

@@ -323,6 +323,8 @@ class ReactiveTextField extends StatelessWidget {
                   : decoration.border
               : null;
 
+      // final floatingLabel = style.fonts.big.regular.onBackground
+      //     .copyWith(color: style.colors.primary);
       final floatingLabel = state.error.value?.isNotEmpty == true
           ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
           : state.allowable && state.hasAllowance.value
@@ -331,7 +333,7 @@ class ReactiveTextField extends StatelessWidget {
               : state.isFocused.value && !state.allowable && !readOnly
                   ? decoration.floatingLabelStyle
                       ?.copyWith(color: style.colors.primary)
-                  : null;
+                  : decoration.floatingLabelStyle;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -374,6 +376,11 @@ class ReactiveTextField extends StatelessWidget {
                   (!enabled || !state.editable.value),
               enabled: enabled,
               decoration: InputDecoration(
+                labelStyle:
+                    floatingLabelBehavior == FloatingLabelBehavior.always
+                        ? floatingLabel
+                        : null,
+                alignLabelWithHint: false,
                 floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value

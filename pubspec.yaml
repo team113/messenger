@@ -171,6 +171,7 @@ dependency_overrides:
   package_info_plus: ^4.0.0
   intl: ^0.18.0
   phone_form_field:
+    # path: ../phone_form_field
     git:
       url: https://github.com/SleepySquash/phone_form_field
       ref: dev

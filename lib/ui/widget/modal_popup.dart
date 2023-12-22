@@ -53,6 +53,9 @@ abstract class ModalPopup {
 
     if (context.isMobile) {
       return showModalBottomSheet(
+        transitionAnimationController:
+            BottomSheet.createAnimationController(Navigator.of(context))
+              ..duration = const Duration(milliseconds: 350),
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
@@ -103,12 +106,16 @@ abstract class ModalPopup {
         },
       );
     } else {
-      return showDialog(
+      return showGeneralDialog(
         context: context,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        builder: (context) {
-          return Center(
+        pageBuilder: (
+          BuildContext buildContext,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+        ) {
+          final body = Center(
             child: Container(
               constraints: modalConstraints,
               width: modalConstraints.maxWidth,
@@ -123,6 +130,21 @@ abstract class ModalPopup {
                 child: child,
               ),
             ),
+          );
+
+          return SafeArea(child: Builder(builder: (_) => body));
+        },
+        barrierLabel:
+            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionBuilder: (BuildContext context, Animation<double> animation,
+            Animation<double> secondaryAnimation, Widget child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(
+              parent: animation,
+              curve: Curves.linear,
+            ),
+            child: child,
           );
         },
       );
@@ -203,4 +225,30 @@ class ModalPopupHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+class MyModalBottomSheetRoute<T> extends ModalBottomSheetRoute<T> {
+  MyModalBottomSheetRoute({
+    required super.builder,
+    super.capturedThemes,
+    super.barrierLabel,
+    super.barrierOnTapHint,
+    super.backgroundColor,
+    super.elevation,
+    super.shape,
+    super.clipBehavior,
+    super.constraints,
+    super.modalBarrierColor,
+    super.isDismissible = true,
+    super.enableDrag = true,
+    super.showDragHandle,
+    required super.isScrollControlled,
+    super.settings,
+    super.transitionAnimationController,
+    super.anchorPoint,
+    super.useSafeArea = false,
+  });
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 300);
 }

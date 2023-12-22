@@ -33,14 +33,23 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {
-  const AddPhoneView({super.key, this.phone});
+  const AddPhoneView({super.key, this.phone, this.timeout = false});
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? phone;
 
+  final bool timeout;
+
   /// Displays a [AddPhoneView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {UserPhone? phone}) {
-    return ModalPopup.show(context: context, child: AddPhoneView(phone: phone));
+  static Future<T?> show<T>(
+    BuildContext context, {
+    UserPhone? phone,
+    bool timeout = false,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: AddPhoneView(phone: phone, timeout: timeout),
+    );
   }
 
   @override
@@ -51,6 +60,7 @@ class AddPhoneView extends StatelessWidget {
       init: AddPhoneController(
         Get.find(),
         initial: phone,
+        timeout: timeout,
         pop: context.popModal,
       ),
       builder: (AddPhoneController c) {

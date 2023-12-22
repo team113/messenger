@@ -37,6 +37,7 @@ import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../chat/message_field/view.dart';
@@ -229,23 +230,23 @@ class MyProfileView extends StatelessWidget {
                           const SizedBox(height: 12),
 
                           _emails(context, c),
-                          Obx(() {
-                            final hasEmails = [
-                              ...c.myUser.value?.emails.confirmed ?? [],
-                              c.myUser.value?.emails.unconfirmed,
-                              ...c.emails,
-                            ].whereNotNull().isNotEmpty;
+                          // Obx(() {
+                          //   final hasEmails = [
+                          //     ...c.myUser.value?.emails.confirmed ?? [],
+                          //     c.myUser.value?.emails.unconfirmed,
+                          //     ...c.emails,
+                          //   ].whereNotNull().isNotEmpty;
 
-                            final hasPhones = [
-                              ...c.myUser.value?.phones.confirmed ?? [],
-                              c.myUser.value?.phones.unconfirmed,
-                              ...c.phones,
-                            ].whereNotNull().isNotEmpty;
+                          //   final hasPhones = [
+                          //     ...c.myUser.value?.phones.confirmed ?? [],
+                          //     c.myUser.value?.phones.unconfirmed,
+                          //     ...c.phones,
+                          //   ].whereNotNull().isNotEmpty;
 
-                            return SizedBox(
-                              height: hasPhones || hasEmails ? 54 : 0,
-                            );
-                          }),
+                          //   return SizedBox(
+                          //     height: hasPhones || hasEmails ? 54 : 0,
+                          //   );
+                          // }),
                           _phones(context, c),
                           _password(context, c),
                         ],
@@ -658,29 +659,19 @@ Widget _emails(BuildContext context, MyProfileController c) {
           ),
         ),
       ]);
+      widgets.add(const SizedBox(height: 8));
     }
 
-    if (true || unconfirmed == null) {
+    if (unconfirmed == null) {
       widgets.add(
-        FieldButton(
-          key: c.myUser.value?.emails.confirmed.isNotEmpty == true
-              ? const Key('AddAdditionalEmail')
-              : const Key('AddEmail'),
-          text: c.myUser.value?.emails.confirmed.isNotEmpty == true
-              ? 'label_add_additional_email'.l10n
-              : 'label_add_email'.l10n,
-          onPressed: () => AddEmailView.show(context),
-          style: style.fonts.normal.regular.primary,
-          trailing: const SvgIcon(SvgIcons.email19),
+        ReactiveTextField(
+          state: c.email,
+          label: 'Добавить E-mail',
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hint: 'example@dummy.com',
         ),
       );
-    }
-
-    if (widgets.length <= 1) {
-      widgets.add(const SizedBox(height: 0));
-    } else {
-      widgets.insert(0, const SizedBox(height: 24));
-      // widgets.add(const SizedBox(height: 48));
+      widgets.add(const SizedBox(height: 8));
     }
 
     return Column(
@@ -811,34 +802,33 @@ Widget _phones(BuildContext context, MyProfileController c) {
           ),
         ),
       ]);
-      widgets.add(const SizedBox(height: 0));
+      widgets.add(const SizedBox(height: 8));
     }
 
-    if (true || unconfirmed == null) {
+    if (unconfirmed == null) {
       widgets.add(
-        FieldButton(
-          key: c.myUser.value?.phones.confirmed.isNotEmpty == true
-              ? const Key('AddAdditionalPhone')
-              : const Key('AddPhone'),
-          onPressed: () => AddPhoneView.show(context),
-          text: c.myUser.value?.phones.confirmed.isNotEmpty == true
-              ? 'label_add_additional_number'.l10n
-              : 'label_add_number'.l10n,
-          style: style.fonts.normal.regular.primary,
-          trailing: Transform.translate(
-            offset: const Offset(-2, 0),
-            child: const SvgIcon(SvgIcons.phone19),
-          ),
+        ReactivePhoneField(
+          state: c.phone,
+          label: 'Добавить телефон',
+          // floatingLabelBehavior: FloatingLabelBehavior.always,
+          // hint: '+1 234 567 89 90',
         ),
+        // ReactiveTextField(
+        //   state: c.phone,
+        //   label: 'Добавить телефон',
+        //   floatingLabelBehavior: FloatingLabelBehavior.always,
+        //   hint: '+1 234 567 89 90',
+        // ),
       );
+      widgets.add(const SizedBox(height: 8));
     }
 
-    if (widgets.length <= 1) {
-      widgets.add(const SizedBox(height: 0));
-    } else {
-      // widgets.insert(0, const SizedBox(height: 24));
-      widgets.add(const SizedBox(height: 48));
-    }
+    // if (widgets.length <= 1) {
+    //   widgets.add(const SizedBox(height: 0));
+    // } else {
+    //   // widgets.insert(0, const SizedBox(height: 24));
+    //   widgets.add(const SizedBox(height: 48));
+    // }
 
     return Column(
       mainAxisSize: MainAxisSize.min,

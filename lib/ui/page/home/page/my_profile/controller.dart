@@ -22,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/page/home/page/my_profile/add_email/controller.dart';
+import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -48,6 +50,7 @@ import '/ui/widget/text_field.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'add_phone/view.dart';
 
 export 'view.dart';
 
@@ -100,6 +103,79 @@ class MyProfileController extends GetxController {
 
   final TextFieldState contactMessageCost = TextFieldState(text: '0.00');
   final TextFieldState contactCallCost = TextFieldState(text: '0.00');
+
+  late final TextFieldState email = TextFieldState(
+    approvable: true,
+    onChanged: (s) {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          final email = UserEmail(s.text);
+
+          if (myUser.value!.emails.confirmed.contains(email) ||
+              myUser.value?.emails.unconfirmed == email) {
+            s.error.value = 'err_you_already_add_this_email'.l10n;
+          }
+        } catch (e) {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.text.isEmpty || s.error.value != null) {
+        return;
+      }
+
+      final email = UserEmail(s.text);
+      s.clear();
+
+      _myUserService.addUserEmail(email).onError((e, _) {
+        s.unchecked = email.val;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      });
+
+      await AddEmailView.show(router.context!, email: email, timeout: true);
+    },
+  );
+
+  late final PhoneFieldState phone = PhoneFieldState(
+    approvable: true,
+    onChanged: (s) {
+      s.error.value = null;
+
+      if (s.phone?.international.isNotEmpty != true) {
+        try {
+          final email = UserPhone(s.phone!.international);
+
+          if (myUser.value!.phones.confirmed.contains(email) ||
+              myUser.value?.phones.unconfirmed == email) {
+            s.error.value = 'err_you_already_add_this_phone'.l10n;
+          }
+        } catch (e) {
+          s.error.value = 'err_incorrect_phone'.l10n;
+        }
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.phone?.international.isNotEmpty != true || s.error.value != null) {
+        return;
+      }
+
+      final number = s.phone;
+      final phone = UserPhone(number!.international);
+      s.clear();
+
+      _myUserService.addUserPhone(phone).onError((e, _) {
+        s.unchecked = number;
+        s.error.value = 'err_data_transfer'.l10n;
+        s.unsubmit();
+      });
+
+      await AddPhoneView.show(router.context!, phone: phone, timeout: true);
+    },
+  );
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///
@@ -174,9 +250,9 @@ class MyProfileController extends GetxController {
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   List<UserEmail> get emails => [
-        UserEmail('dummy1@example.com'),
+        // UserEmail('dummy1@example.com'),
         // UserEmail('dummy2@example.com'),
-        UserEmail('unverified@example.com'),
+        // UserEmail('unverified@example.com'),
       ];
   List<UserPhone> get phones => [
         // UserPhone('+1234567890'),
