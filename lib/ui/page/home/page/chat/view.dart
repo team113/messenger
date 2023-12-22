@@ -374,9 +374,8 @@ class _ChatViewState extends State<ChatView>
                                         CallButtonsPosition.contextMenu) ...[
                                       ContextMenuButton(
                                         label: 'btn_audio_call'.l10n,
-                                        onPressed: inCall
-                                            ? null
-                                            : () => c.call(false),
+                                        onPressed:
+                                            inCall ? null : () => c.call(false),
                                         trailing: SvgIcon(
                                           inCall
                                               ? SvgIcons.makeAudioCallDisabled
@@ -774,8 +773,7 @@ class _ChatViewState extends State<ChatView>
                                   inCall
                                       ? SvgIcons.chatVideoCallDisabled
                                       : SvgIcons.chatVideoCall,
-                                  onPressed:
-                                      inCall ? null : () => c.call(true),
+                                  onPressed: inCall ? null : () => c.call(true),
                                 ),
                                 const SizedBox(height: 8),
                               ],
