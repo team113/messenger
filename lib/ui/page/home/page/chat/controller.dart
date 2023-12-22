@@ -346,10 +346,6 @@ class ChatController extends GetxController {
   /// current frame.
   bool _messagesAreLoading = false;
 
-  /// Indicator whether the [Chat.ongoingCall] for this [Chat] is active.
-  late RxBool _inCall = chat?.inCall ??
-      RxBool(_callService.calls[id] != null || WebUtils.containsCall(id));
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -359,10 +355,6 @@ class ChatController extends GetxController {
   /// Returns the [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
-
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
-  bool get inCall => _inCall.value;
 
   /// Indicates whether a previous page of the [elements] is exists.
   RxBool get hasPrevious => chat!.hasPrevious;
@@ -402,7 +394,7 @@ class ChatController extends GetxController {
       _settingsRepository,
       onChanged: updateDraft,
       onCall: call,
-      inCall: _inCall,
+      inCall: RxBool(false),
       onSubmit: () async {
         if (chat == null) {
           return;
@@ -672,8 +664,7 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      _inCall = chat!.inCall;
-      send.inCall = _inCall;
+      send.inCall = chat!.inCall;
 
       _chatSubscription = chat!.updates.listen((_) {});
 

@@ -28,6 +28,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallDoesNotExistException;
+import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
@@ -65,6 +66,9 @@ class UserController extends GetxController {
 
   /// Reactive [User] itself.
   RxUser? user;
+
+  /// Reactive [Chat] itself.
+  RxChat? chat;
 
   /// Status of the [user] fetching.
   ///
@@ -127,6 +131,7 @@ class UserController extends GetxController {
   @override
   void onInit() {
     _fetchUser();
+    _fetchChat();
 
     // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
     final RxChatContact? contact =
@@ -365,6 +370,19 @@ class UserController extends GetxController {
     } catch (e) {
       await MessagePopup.error(e);
       router.pop();
+      rethrow;
+    }
+  }
+
+  /// Fetches the [chat] value from the [_chatService].
+  Future<void> _fetchChat() async {
+    try {
+      final FutureOr<RxChat?> fetched =
+          _chatService.get(user!.user.value.dialog);
+      chat = fetched is RxChat? ? fetched : await fetched;
+      status.value = chat == null ? RxStatus.empty() : RxStatus.success();
+    } catch (e) {
+      MessagePopup.error(e);
       rethrow;
     }
   }

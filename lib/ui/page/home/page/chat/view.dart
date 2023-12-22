@@ -296,8 +296,9 @@ class _ChatViewState extends State<ChatView>
                             ];
                           } else {
                             final Widget child;
+                            final bool inCall = c.chat?.inCall.value ?? false;
 
-                            if (c.inCall) {
+                            if (inCall) {
                               child = Container(
                                 key: const Key('Drop'),
                                 height: 32,
@@ -328,7 +329,7 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
-                                onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                onPressed: inCall ? c.dropCall : c.joinCall,
                                 child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: child,

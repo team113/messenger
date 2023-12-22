@@ -283,6 +283,7 @@ class ChatInfoView extends StatelessWidget {
     final bool favorite = c.chat?.chat.value.favoritePosition != null;
     final bool muted = c.chat?.chat.value.muted != null;
     final bool isLocal = c.chat?.chat.value.id.isLocal == true;
+    final bool inCall = c.chat?.inCall.value ?? false;
 
     return Center(
       child: Row(
@@ -348,13 +349,19 @@ class ChatInfoView extends StatelessWidget {
           ),
           const SizedBox(width: 28),
           AnimatedButton(
-            child: const SvgIcon(SvgIcons.chatVideoCall),
-            onPressed: () => c.call(true),
+            enabled: !inCall,
+            onPressed: inCall ? null : () => c.call(true),
+            child: SvgIcon(
+              inCall ? SvgIcons.chatVideoCallDisabled : SvgIcons.chatVideoCall,
+            ),
           ),
           const SizedBox(width: 28),
           AnimatedButton(
-            child: const SvgIcon(SvgIcons.chatAudioCall),
-            onPressed: () => c.call(false),
+            enabled: !inCall,
+            onPressed: inCall ? null : () => c.call(false),
+            child: SvgIcon(
+              inCall ? SvgIcons.chatAudioCallDisabled : SvgIcons.chatAudioCall,
+            ),
           ),
           const SizedBox(width: 10),
           Obx(() {
