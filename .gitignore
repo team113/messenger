@@ -28,11 +28,11 @@
 /lib/**/*.g.dart
 /lib/api/backend/*.dart
 
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
+# Symbolication and obfuscation related
+/debug/
+/debug-*
 app.*.map.json
+app.*.symbols
 
 # Android Studio will place build artifacts here
 /android/app/debug
