@@ -51,6 +51,7 @@ class MimeResolver {
 
 /// Extension adding an ability to provide file extension.
 extension FileExtensionExt on MediaType {
+  /// Returns an extension related to this [MediaType].
   String? get extension {
     if (mimeType == 'image/jpeg') return 'jpg';
     return extensionFromMime(mimeType);
