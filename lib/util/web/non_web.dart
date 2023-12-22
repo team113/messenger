@@ -79,12 +79,12 @@ class WebUtils {
 
   /// Sets the provided [updating] value to the browser's storage indicating an
   /// ongoing [Credentials] refresh.
-  static set credentialsUpdating(bool updating) {
+  static Future<void> lockCredentials(bool updating) async {
     // No-op.
   }
 
   /// Indicates whether [Credentials] are considered being updated currently.
-  static bool get credentialsUpdating => false;
+  static Future<bool> get credentialsAreLocked => Future.value(false);
 
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;

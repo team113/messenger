@@ -113,6 +113,12 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
+@JS('window.mutex.lock')
+external Future<void> _lockMutex(String id);
+
+@JS('window.mutex.release')
+external Future<void> _releaseMutex(String id);
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
@@ -277,25 +283,29 @@ class WebUtils {
     }
   }
 
-  /// Sets the provided [updating] value to the browser's storage indicating an
-  /// ongoing [Credentials] refresh.
-  static set credentialsUpdating(bool updating) {
-    html.window.localStorage['credentialsUpdating'] = updating.toString();
-  }
-
-  /// Indicates whether [Credentials] are considered being updated currently.
-  static bool get credentialsUpdating {
-    final String? updating = html.window.localStorage['credentialsUpdating'];
-
-    if (updating == null) {
-      return false;
-    } else {
-      return updating.toLowerCase() == 'true';
-    }
-  }
-
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
+
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static Future<bool> get credentialsAreLocked async {
+    return await _protect(() {
+      final String? updating = html.window.localStorage['credentialsUpdating'];
+
+      if (updating == null) {
+        return false;
+      } else {
+        return updating.toLowerCase() == 'true';
+      }
+    });
+  }
+
+  /// Sets the provided [updating] value to the browser's storage indicating an
+  /// ongoing [Credentials] refresh.
+  static Future<void> lockCredentials(bool updating) async {
+    await _protect(() {
+      html.window.localStorage['credentialsUpdating'] = updating.toString();
+    });
+  }
 
   /// Pushes [title] to browser's window title.
   static void title(String title) =>
@@ -602,6 +612,25 @@ class WebUtils {
     final info = await DeviceInfoPlugin().webBrowserInfo;
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
+  }
+
+  /// Guards the [function] with the browser's storage mutex.
+  static Future<T> _protect<T>(FutureOr<T> Function() function) async {
+    try {
+      await _lockMutex('mutex');
+    } catch (_) {
+      // No-op, if failed to acquire by timeout.
+    }
+
+    try {
+      return await function();
+    } finally {
+      try {
+        await _releaseMutex('mutex');
+      } catch (_) {
+        // No-op, if failed to release by timeout.
+      }
+    }
   }
 }
 

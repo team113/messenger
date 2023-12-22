@@ -176,7 +176,7 @@
       </div>
       <div style="display: flex; justify-content: center; margin-top: 24px;">
         <div class="col-auto h4 shimmer"
-             style="color:#888888; font-weight: 300; font-size:13pt; font-family: Noto Sans Display, system-ui;">
+          style="color:#888888; font-weight: 300; font-size:13pt; font-family: Noto Sans Display, system-ui;">
           Loading...
         </div>
       </div>
@@ -313,6 +313,133 @@
         navigator.serviceWorker.register("/firebase-messaging-sw.js");
       });
     }
+  </script>
+
+  <!-- Mutex for LocalStorage.
+       Credit goes to: https://www.npmjs.com/package/fast-mutex -->
+  <script>
+    const randomId = () => Math.random() + '';
+    const resolveWithStats = (resolve, stats) => {
+      const currentTime = new Date().getTime();
+      stats.acquireEnd = currentTime;
+      stats.acquireDuration = stats.acquireEnd - stats.acquireStart;
+      stats.lockStart = currentTime;
+      resolve(stats);
+    };
+
+
+    class FastMutex {
+      constructor({ clientId = randomId(), xPrefix = '_MUTEX_LOCK_X_', yPrefix = '_MUTEX_LOCK_Y_', timeout = 10000, localStorage } = {}) {
+        this.clientId = clientId;
+        this.xPrefix = xPrefix;
+        this.yPrefix = yPrefix;
+        this.timeout = timeout;
+
+        this.localStorage = localStorage || window.localStorage;
+        this.resetStats();
+      }
+
+      lock(key) {
+        const x = this.xPrefix + key;
+        const y = this.yPrefix + key;
+        this.resetStats();
+
+        if (!this.lockStats.acquireStart) {
+          this.lockStats.acquireStart = new Date().getTime();
+        }
+
+        return new Promise((resolve, reject) => {
+          const acquireLock = (key) => {
+            const elapsedTime = new Date().getTime() - this.lockStats.acquireStart;
+            if (elapsedTime >= this.timeout) {
+              return reject(new Error(`Lock could not be acquired within ${this.timeout}ms`));
+            }
+
+            this.setItem(x, this.clientId);
+
+            // If Y exists, another client is getting a lock, so retry in a bit.
+            let lsY = this.getItem(y);
+            if (lsY) {
+              this.lockStats.restartCount++;
+              setTimeout(() => acquireLock(key));
+              return;
+            }
+
+            // Ask for inner lock.
+            this.setItem(y, this.clientId);
+
+            // If X was changed, another client is contending for an inner lock.
+            let lsX = this.getItem(x);
+            if (lsX !== this.clientId) {
+              this.lockStats.contentionCount++;
+
+              // Give enough time for critical section.
+              setTimeout(() => {
+                lsY = this.getItem(y);
+                if (lsY === this.clientId) {
+                  // We have a lock.
+                  resolveWithStats(resolve, this.lockStats);
+                } else {
+                  // We lost the lock, restart the process again.
+                  this.lockStats.restartCount++;
+                  this.lockStats.locksLost++;
+                  setTimeout(() => acquireLock(key));
+                }
+              }, 50);
+              return;
+            }
+
+            // No contention.
+            resolveWithStats(resolve, this.lockStats);
+          };
+
+          acquireLock(key);
+        });
+      }
+
+      setItem(key, value) {
+        return this.localStorage.setItem(key, JSON.stringify({
+          expiresAt: new Date().getTime() + this.timeout,
+          value
+        }));
+      }
+
+      getItem(key) {
+        const item = this.localStorage.getItem(key);
+        if (!item) return null;
+
+        const parsed = JSON.parse(item);
+        if (new Date().getTime() - parsed.expiresAt >= this.timeout) {
+          this.localStorage.removeItem(key);
+          return null;
+        }
+
+        return JSON.parse(item).value;
+      }
+
+      release(key) {
+        const y = this.yPrefix + key;
+        return new Promise((resolve) => {
+          this.localStorage.removeItem(y);
+          this.lockStats.lockEnd = new Date().getTime();
+          this.lockStats.lockDuration = this.lockStats.lockEnd - this.lockStats.lockStart;
+          resolve(this.lockStats);
+          this.resetStats();
+        });
+      }
+
+      resetStats() {
+        this.lockStats = {
+          restartCount: 0,
+          locksLost: 0,
+          contentionCount: 0,
+          acquireDuration: 0,
+          acquireStart: null
+        };
+      }
+    }
+
+    window.mutex = new FastMutex();
   </script>
 </body>
 
