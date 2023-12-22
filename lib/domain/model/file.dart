@@ -18,8 +18,6 @@
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 
-import '../../ui/worker/cache.dart';
-import '../../util/mime.dart';
 import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
@@ -75,18 +73,11 @@ abstract class StorageFile extends HiveObject {
   String get url => '${Config.files}$relativeRef';
 
   /// Returns the name of this [StorageFile].
-  Future<String> get name async {
+  String get name {
     late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
-
     const nameLength = 8;
-    final name = checksum?.substring(0, nameLength) ?? time;
 
-    final CacheEntry cache =
-        await CacheWorker.instance.get(url: url, checksum: checksum);
-
-    String? ext = (await cache.type)?.extension;
-
-    return [name, ext].nonNulls.join('.');
+    return checksum?.substring(0, nameLength) ?? time;
   }
 }
 
