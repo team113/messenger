@@ -478,7 +478,7 @@ class SearchController extends GetxController {
         for (final param in [title, login, name].whereNotNull()) {
           if (param.toLowerCase().contains(queryString)) {
             chats.value = {monologId: monolog, ...chats};
-            break;
+            return;
           }
         }
 
