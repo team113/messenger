@@ -153,219 +153,218 @@ class UserView extends StatelessWidget {
   Widget _bar(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Obx(() {
-      final bool inCall = c.chat?.inCall.value ?? false;
-
-      return Center(
-        child: Row(
-          children: [
-            const SizedBox(width: 8),
-            const StyledBackButton(),
-            Material(
-              elevation: 6,
-              type: MaterialType.circle,
-              shadowColor: style.colors.onBackgroundOpacity27,
-              color: style.colors.onPrimary,
-              child: Center(
-                child: AvatarWidget.fromRxUser(
-                  c.user,
-                  radius: AvatarRadius.medium,
-                ),
+    return Center(
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          const StyledBackButton(),
+          Material(
+            elevation: 6,
+            type: MaterialType.circle,
+            shadowColor: style.colors.onBackgroundOpacity27,
+            color: style.colors.onPrimary,
+            child: Center(
+              child: AvatarWidget.fromRxUser(
+                c.user,
+                radius: AvatarRadius.medium,
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                child: Obx(() {
-                  final RxChat? chat = c.user?.dialog.value;
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: DefaultTextStyle.merge(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: Obx(() {
+                final RxChat? chat = c.user?.dialog.value;
 
-                  final bool monolog = chat?.chat.value.isMonolog == true;
+                final bool monolog = chat?.chat.value.isMonolog == true;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              '${c.user?.user.value.name?.val ?? c.user?.user.value.num}',
-                            ),
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '${c.user?.user.value.name?.val ?? c.user?.user.value.num}',
                           ),
-                          Obx(() {
-                            if (c.user?.dialog.value?.chat.value.muted ==
-                                null) {
-                              return const SizedBox();
-                            }
+                        ),
+                        Obx(() {
+                          if (c.user?.dialog.value?.chat.value.muted == null) {
+                            return const SizedBox();
+                          }
 
-                            return const Padding(
-                              padding: EdgeInsets.only(left: 5),
-                              child: SvgIcon(SvgIcons.muted),
-                            );
-                          }),
-                        ],
-                      ),
-                      if (!monolog && chat != null) ChatSubtitle(chat, c.me),
-                    ],
-                  );
-                }),
-              ),
-            ),
-            const SizedBox(width: 40),
-            AnimatedButton(
-              onPressed: c.openChat,
-              child: const SvgIcon(SvgIcons.chat),
-            ),
-            const SizedBox(width: 28),
-            AnimatedButton(
-              enabled: !inCall,
-              onPressed: inCall ? null : () => c.call(true),
-              child: SvgIcon(
-                inCall
-                    ? SvgIcons.chatVideoCallDisabled
-                    : SvgIcons.chatVideoCall,
-              ),
-            ),
-            const SizedBox(width: 28),
-            AnimatedButton(
-              enabled: !inCall,
-              onPressed: inCall ? null : () => c.call(false),
-              child: SvgIcon(
-                inCall
-                    ? SvgIcons.chatAudioCallDisabled
-                    : SvgIcons.chatAudioCall,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Obx(() {
-              final bool contact = c.inContacts.value;
-              final bool favorite = c.inFavorites.value;
-              final bool blocked = c.isBlocked != null;
-
-              final RxChat? dialog = c.user?.user.value.dialog.isLocal == false
-                  ? c.user?.dialog.value
-                  : null;
-
-              final bool muted = dialog?.chat.value.muted != null;
-
-              return AnimatedButton(
-                child: SafeAnimatedSwitcher(
-                  duration: 250.milliseconds,
-                  child: ContextMenuRegion(
-                    key: c.moreKey,
-                    selector: c.moreKey,
-                    alignment: Alignment.topRight,
-                    enablePrimaryTap: true,
-                    margin: const EdgeInsets.only(bottom: 4, right: 12),
-                    actions: [
-                      ContextMenuButton(
-                        key: Key(
-                          contact
-                              ? 'DeleteFromContactsButton'
-                              : 'AddToContactsButton',
-                        ),
-                        label: contact
-                            ? 'btn_delete_from_contacts'.l10n
-                            : 'btn_add_to_contacts'.l10n,
-                        trailing: SvgIcon(
-                          contact
-                              ? SvgIcons.deleteContact
-                              : SvgIcons.addContact,
-                        ),
-                        inverted: SvgIcon(
-                          contact
-                              ? SvgIcons.deleteContactWhite
-                              : SvgIcons.addContactWhite,
-                        ),
-                        onPressed: contact
-                            ? () => _removeFromContacts(c, context)
-                            : c.addToContacts,
-                      ),
-                      if (contact)
-                        ContextMenuButton(
-                          key: Key(
-                            favorite
-                                ? 'UnfavoriteContactButton'
-                                : 'FavoriteContactButton',
-                          ),
-                          label: favorite
-                              ? 'btn_delete_from_favorites'.l10n
-                              : 'btn_add_to_favorites'.l10n,
-                          trailing: SvgIcon(
-                            favorite
-                                ? SvgIcons.favoriteSmall
-                                : SvgIcons.unfavoriteSmall,
-                          ),
-                          inverted: SvgIcon(
-                            favorite
-                                ? SvgIcons.favoriteSmallWhite
-                                : SvgIcons.unfavoriteSmallWhite,
-                          ),
-                          onPressed: favorite
-                              ? c.unfavoriteContact
-                              : c.favoriteContact,
-                        ),
-                      if (dialog != null) ...[
-                        ContextMenuButton(
-                          key: Key(
-                              muted ? 'UnmuteChatButton' : 'MuteChatButton'),
-                          label: muted
-                              ? PlatformUtils.isMobile
-                                  ? 'btn_unmute'.l10n
-                                  : 'btn_unmute_chat'.l10n
-                              : PlatformUtils.isMobile
-                                  ? 'btn_mute'.l10n
-                                  : 'btn_mute_chat'.l10n,
-                          trailing: SvgIcon(
-                            muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                          ),
-                          inverted: SvgIcon(
-                            muted
-                                ? SvgIcons.unmuteSmallWhite
-                                : SvgIcons.muteSmallWhite,
-                          ),
-                          onPressed: muted ? c.unmuteChat : c.muteChat,
-                        ),
-                        ContextMenuButton(
-                          key: const Key('ClearHistoryButton'),
-                          label: 'btn_clear_history'.l10n,
-                          trailing: const SvgIcon(SvgIcons.cleanHistory),
-                          inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-                          onPressed: () => _clearChat(c, context),
-                        ),
-                        ContextMenuButton(
-                          key: const Key('HideChatButton'),
-                          label: 'btn_delete_chat'.l10n,
-                          trailing: const SvgIcon(SvgIcons.delete19),
-                          inverted: const SvgIcon(SvgIcons.delete19White),
-                          onPressed: () => _hideChat(c, context),
-                        ),
+                          return const Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: SvgIcon(SvgIcons.muted),
+                          );
+                        }),
                       ],
-                      ContextMenuButton(
-                        key: Key(blocked ? 'Unblock' : 'Block'),
-                        label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                        trailing: const SvgIcon(SvgIcons.block),
-                        inverted: const SvgIcon(SvgIcons.blockWhite),
-                        onPressed:
-                            blocked ? c.unblock : () => _blockUser(c, context),
-                      ),
-                    ],
-                    child: Container(
-                      key: const Key('MoreButton'),
-                      padding: const EdgeInsets.only(left: 20, right: 21),
-                      height: double.infinity,
-                      child: const SvgIcon(SvgIcons.more),
                     ),
+                    if (!monolog && chat != null) ChatSubtitle(chat, c.me),
+                  ],
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 40),
+          AnimatedButton(
+            onPressed: c.openChat,
+            child: const SvgIcon(SvgIcons.chat),
+          ),
+          const SizedBox(width: 28),
+          Obx(() {
+            final bool inCall = c.user?.dialog.value?.inCall.value ?? false;
+
+            return Row(
+              children: [
+                AnimatedButton(
+                  enabled: !inCall,
+                  onPressed: inCall ? null : () => c.call(true),
+                  child: SvgIcon(
+                    inCall
+                        ? SvgIcons.chatVideoCallDisabled
+                        : SvgIcons.chatVideoCall,
                   ),
                 ),
-              );
-            }),
-          ],
-        ),
-      );
-    });
+                const SizedBox(width: 28),
+                AnimatedButton(
+                  enabled: !inCall,
+                  onPressed: inCall ? null : () => c.call(false),
+                  child: SvgIcon(
+                    inCall
+                        ? SvgIcons.chatAudioCallDisabled
+                        : SvgIcons.chatAudioCall,
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
+            );
+          }),
+          Obx(() {
+            final bool contact = c.inContacts.value;
+            final bool favorite = c.inFavorites.value;
+            final bool blocked = c.isBlocked != null;
+
+            final RxChat? dialog = c.user?.user.value.dialog.isLocal == false
+                ? c.user?.dialog.value
+                : null;
+
+            final bool muted = dialog?.chat.value.muted != null;
+
+            return AnimatedButton(
+              child: SafeAnimatedSwitcher(
+                duration: 250.milliseconds,
+                child: ContextMenuRegion(
+                  key: c.moreKey,
+                  selector: c.moreKey,
+                  alignment: Alignment.topRight,
+                  enablePrimaryTap: true,
+                  margin: const EdgeInsets.only(bottom: 4, right: 12),
+                  actions: [
+                    ContextMenuButton(
+                      key: Key(
+                        contact
+                            ? 'DeleteFromContactsButton'
+                            : 'AddToContactsButton',
+                      ),
+                      label: contact
+                          ? 'btn_delete_from_contacts'.l10n
+                          : 'btn_add_to_contacts'.l10n,
+                      trailing: SvgIcon(
+                        contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+                      ),
+                      inverted: SvgIcon(
+                        contact
+                            ? SvgIcons.deleteContactWhite
+                            : SvgIcons.addContactWhite,
+                      ),
+                      onPressed: contact
+                          ? () => _removeFromContacts(c, context)
+                          : c.addToContacts,
+                    ),
+                    if (contact)
+                      ContextMenuButton(
+                        key: Key(
+                          favorite
+                              ? 'UnfavoriteContactButton'
+                              : 'FavoriteContactButton',
+                        ),
+                        label: favorite
+                            ? 'btn_delete_from_favorites'.l10n
+                            : 'btn_add_to_favorites'.l10n,
+                        trailing: SvgIcon(
+                          favorite
+                              ? SvgIcons.favoriteSmall
+                              : SvgIcons.unfavoriteSmall,
+                        ),
+                        inverted: SvgIcon(
+                          favorite
+                              ? SvgIcons.favoriteSmallWhite
+                              : SvgIcons.unfavoriteSmallWhite,
+                        ),
+                        onPressed:
+                            favorite ? c.unfavoriteContact : c.favoriteContact,
+                      ),
+                    if (dialog != null) ...[
+                      ContextMenuButton(
+                        key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
+                        label: muted
+                            ? PlatformUtils.isMobile
+                                ? 'btn_unmute'.l10n
+                                : 'btn_unmute_chat'.l10n
+                            : PlatformUtils.isMobile
+                                ? 'btn_mute'.l10n
+                                : 'btn_mute_chat'.l10n,
+                        trailing: SvgIcon(
+                          muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                        ),
+                        inverted: SvgIcon(
+                          muted
+                              ? SvgIcons.unmuteSmallWhite
+                              : SvgIcons.muteSmallWhite,
+                        ),
+                        onPressed: muted ? c.unmuteChat : c.muteChat,
+                      ),
+                      ContextMenuButton(
+                        key: const Key('ClearHistoryButton'),
+                        label: 'btn_clear_history'.l10n,
+                        trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
+                        onPressed: () => _clearChat(c, context),
+                      ),
+                      ContextMenuButton(
+                        key: const Key('HideChatButton'),
+                        label: 'btn_delete_chat'.l10n,
+                        trailing: const SvgIcon(SvgIcons.delete19),
+                        inverted: const SvgIcon(SvgIcons.delete19White),
+                        onPressed: () => _hideChat(c, context),
+                      ),
+                    ],
+                    ContextMenuButton(
+                      key: Key(blocked ? 'Unblock' : 'Block'),
+                      label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+                      trailing: const SvgIcon(SvgIcons.block),
+                      inverted: const SvgIcon(SvgIcons.blockWhite),
+                      onPressed:
+                          blocked ? c.unblock : () => _blockUser(c, context),
+                    ),
+                  ],
+                  child: Container(
+                    key: const Key('MoreButton'),
+                    padding: const EdgeInsets.only(left: 20, right: 21),
+                    height: double.infinity,
+                    child: const SvgIcon(SvgIcons.more),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
   }
 
   /// Returns the action buttons to do with this [User].
