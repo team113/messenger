@@ -23,8 +23,8 @@ dependencies:
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^6.1.1
-  firebase_core: ^2.15.0
-  firebase_messaging: ^14.6.5
+  firebase_core: ^2.24.2
+  firebase_messaging: ^14.7.9
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
@@ -57,8 +57,8 @@ dependencies:
   js: ^0.6.5
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.3-dev+rev.1f3fc1eb3978066c078c90651f1d3e1418094a1b
-  medea_jason: ^0.4.0
+  medea_flutter_webrtc: 0.9.0
+  medea_jason: 0.4.1-dev+rev.9aac4059ecdf75afa741a11a9d21e1648012eba6
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -126,8 +126,6 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^6.2.0
-  # TODO: Remove when `medea_jason` updates.
-  flutter_rust_bridge: 1.81.0
   # TODO: Remove when `artemis` updates.
   gql: ^1.0.0
   # TODO: Remove when `artemis` updates.
@@ -143,9 +141,7 @@ dependency_overrides:
       url: https://github.com/krida2000/git-hive.git
   # TODO: Remove when `artemis` updates.
   http: ^1.1.0
-  # TODO: Remove when `sentry_flutter` updates.
-  package_info_plus: ^4.0.0
-  # TODO: Remove when `medea_jason` updates.
+  # TODO: Remove when `graphql` updates.
   uuid: ^3.0.7
 
 flutter:
@@ -170,7 +166,8 @@ flutter:
           weight: 700
 
 sentry:
-  upload_native_symbols: true
+  upload_debug_symbols: true
   upload_source_maps: true
-  include_native_sources: true
+  upload_sources: true
   wait_for_processing: true
+  ignore_missing: true
