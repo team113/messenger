@@ -170,7 +170,7 @@ class _ChatViewState extends State<ChatView>
             );
           }
 
-          final bool hasCall = c.chat?.chat.value.ongoingCall != null;
+          final bool inCall = c.chat?.inCall.value ?? false;
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
           return CustomDropTarget(
@@ -296,7 +296,6 @@ class _ChatViewState extends State<ChatView>
                             ];
                           } else {
                             final Widget child;
-                            final bool inCall = c.chat?.inCall.value ?? false;
 
                             if (inCall) {
                               child = Container(
@@ -375,11 +374,11 @@ class _ChatViewState extends State<ChatView>
                                         CallButtonsPosition.contextMenu) ...[
                                       ContextMenuButton(
                                         label: 'btn_audio_call'.l10n,
-                                        onPressed: hasCall
+                                        onPressed: inCall
                                             ? null
                                             : () => c.call(false),
                                         trailing: SvgIcon(
-                                          hasCall
+                                          inCall
                                               ? SvgIcons.makeAudioCallDisabled
                                               : SvgIcons.makeAudioCall,
                                         ),
@@ -387,11 +386,11 @@ class _ChatViewState extends State<ChatView>
                                       ContextMenuButton(
                                         label: 'btn_video_call'.l10n,
                                         onPressed:
-                                            hasCall ? null : () => c.call(true),
+                                            inCall ? null : () => c.call(true),
                                         trailing: Transform.translate(
                                           offset: const Offset(2, 1),
                                           child: SvgIcon(
-                                            hasCall
+                                            inCall
                                                 ? SvgIcons.chatVideoCallDisabled
                                                 : SvgIcons.chatVideoCall,
                                             height: 15,
@@ -764,19 +763,19 @@ class _ChatViewState extends State<ChatView>
                               children: [
                                 const SizedBox(height: 8),
                                 CircleButton(
-                                  hasCall
+                                  inCall
                                       ? SvgIcons.chatAudioCallDisabled
                                       : SvgIcons.chatAudioCall,
                                   onPressed:
-                                      hasCall ? null : () => c.call(false),
+                                      inCall ? null : () => c.call(false),
                                 ),
                                 const SizedBox(height: 8),
                                 CircleButton(
-                                  hasCall
+                                  inCall
                                       ? SvgIcons.chatVideoCallDisabled
                                       : SvgIcons.chatVideoCall,
                                   onPressed:
-                                      hasCall ? null : () => c.call(true),
+                                      inCall ? null : () => c.call(true),
                                 ),
                                 const SizedBox(height: 8),
                               ],
