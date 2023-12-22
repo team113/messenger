@@ -17,9 +17,9 @@
 
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/ui/worker/cache.dart';
-import 'package:messenger/util/mime.dart';
 
+import '../../ui/worker/cache.dart';
+import '../../util/mime.dart';
 import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';

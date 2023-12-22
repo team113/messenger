@@ -38,9 +38,9 @@ import '/domain/service/disposable_service.dart';
 import '/provider/hive/cache.dart';
 import '/provider/hive/download.dart';
 import '/util/backoff.dart';
+import '/util/mime.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
-import '/util/mime.dart';
 
 /// Worker maintaining [File]s cache and downloads.
 ///
@@ -127,7 +127,8 @@ class CacheWorker extends DisposableService {
         switch (responseType) {
           case CacheResponseType.file:
             return Future(
-                () async => CacheEntry(file: await add(bytes, checksum)));
+              () async => CacheEntry(file: await add(bytes, checksum)),
+            );
 
           case CacheResponseType.bytes:
             return CacheEntry(bytes: bytes);
@@ -189,7 +190,8 @@ class CacheWorker extends DisposableService {
             case CacheResponseType.file:
               return Future(
                 () async => CacheEntry(
-                    file: data == null ? null : await add(data, checksum)),
+                  file: data == null ? null : await add(data, checksum),
+                ),
               );
 
             case CacheResponseType.bytes:
