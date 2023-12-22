@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/auth.dart';
 
 import '../controller.dart';
 import '../widget/call_button.dart';
@@ -193,7 +194,11 @@ class ScreenButton extends CallButton {
         expanded: expanded,
         big: big,
         constrained: c.isMobile,
-        onPressed: () => c.toggleScreenShare(router.context!),
+        onPressed: () {
+          final AuthService auth = Get.find();
+          auth.renewSession();
+        },
+        // onPressed: () => c.toggleScreenShare(router.context!),
       );
     });
   }

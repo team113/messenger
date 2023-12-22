@@ -430,6 +430,19 @@ class AuthService extends GetxService {
           // Wait until the [Credentials] are done updating in another tab.
           _credentialsTimer?.cancel();
           _credentialsTimer = AwaitableTimer(_refreshTaskInterval, () => null);
+
+          // TODO: Actually, this doesn't account possible errors hapenning with
+          //       [renewSession]: e.g. connection loses. In case of a
+          //       connection loss, [renewSession] should be backoff-ed, and
+          //       tabs must know that the query still happens in this manner,
+          //       or otherwise multiple tabs may invoke [renewSession],
+          //       assuming the timeout has passed, despite backoff being
+          //       applied due to connection error.
+          //
+          // Perhaps a timestamp storing should be done instead of
+          // `true`/`false`?
+          //
+          // Or maybe [WebUtils.mutex] should be introduced at all?
           await _credentialsTimer?.future;
 
           if (!_shouldRefresh) {
