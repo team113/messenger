@@ -200,7 +200,8 @@ String _getCredential(CustomUser customUser, TestCredential credential) {
     case TestCredential.num:
       return customUser.userNum.val;
 
-    // TODO: Should throw an error or make a warning if login wasn't set.
+    // TODO: Make it throw an error if login is not set when backend supports
+    // getting login of [User].
     case TestCredential.login:
       return 'lgn_${customUser.userNum.val}';
   }
