@@ -686,7 +686,7 @@ class CacheEntry {
           bytes?.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
       mime = MimeResolver.lookup('', headerBytes: headerBytes);
     }
-    if ((file != null) && (mime == null)) {
+    if ((file != null) && (bytes == null)) {
       List<int>? headerBytes = [];
       await for (var part
           in file!.openRead(0, MimeResolver.resolver.magicNumbersMaxLength)) {
