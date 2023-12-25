@@ -666,6 +666,7 @@ class CacheEntry {
   /// MediaType type of this [CacheEntry].
   late final Future<MediaType?> type = _resolveType();
 
+  /// Resolves [MediaType] of data in this [CacheEntry].
   Future<MediaType?> _resolveType() async {
     String? mime;
     if (bytes != null) {
@@ -673,7 +674,7 @@ class CacheEntry {
           bytes?.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
       mime = MimeResolver.lookup('', headerBytes: headerBytes);
     }
-    if (file != null) {
+    if ((file != null) && (mime == null)) {
       List<int>? headerBytes = [];
       await for (var part
           in file!.openRead(0, MimeResolver.resolver.magicNumbersMaxLength)) {

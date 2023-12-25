@@ -72,7 +72,7 @@ abstract class StorageFile extends HiveObject {
   /// Returns an absolute URL to this [StorageFile] on a file storage.
   String get url => '${Config.files}$relativeRef';
 
-  /// Returns the name of this [StorageFile].
+  /// Returns the name of this [StorageFile] without an extension.
   String get name {
     late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
 
