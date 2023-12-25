@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.12] · 2024-??-??
+[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.11.1
+
+[Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Monolog searching. ([#745], [#582])
+
+[#582]: /../../issues/582
+[#745]: /../../pull/745
+
+
+
+
 ## [0.1.0-alpha.11.1] · 2023-12-22
 [0.1.0-alpha.11.1]: /../../tree/v0.1.0-alpha.11.1
 
@@ -39,7 +56,6 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - Chats tab:
         - Redesigned chat tile. ([#748], [#741])
-        - Monolog searching. ([#745], [#582])
     - Icons in desktop context menu. ([#757])
 
 ### Fixed
@@ -50,7 +66,6 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
-[#582]: /../../issues/582
 [#584]: /../../issues/584
 [#632]: /../../issues/632
 [#654]: /../../issues/654
@@ -70,7 +85,6 @@ All user visible changes to this project will be documented in this file. This p
 [#735]: /../../pull/735
 [#736]: /../../pull/736
 [#741]: /../../issues/741
-[#745]: /../../pull/745
 [#748]: /../../pull/748
 [#757]: /../../pull/757
 
