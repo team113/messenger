@@ -95,6 +95,8 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(Get.find(), Get.find(), Get.find()),
@@ -182,43 +184,133 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_login_options'.l10n,
                         children: [
-                          Paddings.basic(
-                            Obx(() {
-                              return UserNumCopyable(c.myUser.value?.num);
-                            }),
-                          ),
                           // Paddings.basic(
                           //   Obx(() {
-                          //     return Padding(
-                          //       padding:
-                          //           const EdgeInsets.fromLTRB(15, 0, 24, 0),
-                          //       child: ContactInfoContents(
-                          //         padding: EdgeInsets.zero,
-                          //         title: 'Gapopa ID',
-                          //         content: c.myUser.value?.num.toString() ?? '',
-                          //         icon: const SvgIcon(SvgIcons.profileNum),
-                          //         trailing: CopyOrShareButton(
-                          //           c.myUser.value?.num.toString() ?? '',
-                          //         ),
-                          //         // trailing: WidgetButton(
-                          //         //   onPressed: () {},
-                          //         //   child: const SvgIcon(SvgIcons.copy),
-                          //         // ),
-                          //       ),
-                          //     );
+                          //     return UserNumCopyable(c.myUser.value?.num);
                           //   }),
                           // ),
-                          // const SizedBox(height: 8),
-                          // const SizedBox(height: 8),
-                          const SizedBox(height: 8),
                           Paddings.basic(
                             Obx(() {
-                              return UserLoginField(
-                                c.myUser.value?.login,
-                                onSubmit: c.updateUserLogin,
+                              return ContactInfoContents(
+                                padding: EdgeInsets.zero,
+                                title: 'Gapopa ID',
+                                content: c.myUser.value?.num.toString() ?? '',
+                                trailing: CopyOrShareButton(
+                                  c.myUser.value?.num.toString() ?? '',
+                                ),
+                                // trailing: WidgetButton(
+                                //   onPressed: () {},
+                                //   child: const SvgIcon(SvgIcons.copy),
+                                // ),
                               );
                             }),
                           ),
+
+                          Obx(() {
+                            if (c.myUser.value?.login == null) {
+                              return const SizedBox();
+                            }
+
+                            return Paddings.basic(
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: ContactInfoContents(
+                                  padding: EdgeInsets.zero,
+                                  title: 'Login',
+                                  content: c.myUser.value!.login.toString(),
+                                  trailing: WidgetButton(
+                                    onPressed: () {},
+                                    child: const SvgIcon(SvgIcons.delete),
+                                  ),
+                                  // subtitle: [
+                                  //   const SizedBox(height: 4),
+                                  //   RichText(
+                                  //     text: TextSpan(
+                                  //       children: [
+                                  //         TextSpan(
+                                  //           text: 'label_login_visible'.l10n,
+                                  //           style: style
+                                  //               .fonts.small.regular.secondary,
+                                  //         ),
+                                  //         TextSpan(
+                                  //           text: 'label_nobody'
+                                  //                   .l10n
+                                  //                   .toLowerCase() +
+                                  //               'dot'.l10n,
+                                  //           style: style
+                                  //               .fonts.small.regular.primary,
+                                  //           recognizer: TapGestureRecognizer()
+                                  //             ..onTap = () async {
+                                  //               await ConfirmDialog.show(
+                                  //                 context,
+                                  //                 title: 'label_login'.l10n,
+                                  //                 additional: [
+                                  //                   Center(
+                                  //                     child: Text(
+                                  //                       'label_login_visibility_hint'
+                                  //                           .l10n,
+                                  //                       style: style
+                                  //                           .fonts
+                                  //                           .normal
+                                  //                           .regular
+                                  //                           .secondary,
+                                  //                     ),
+                                  //                   ),
+                                  //                   const SizedBox(height: 20),
+                                  //                   Align(
+                                  //                     alignment:
+                                  //                         Alignment.centerLeft,
+                                  //                     child: Text(
+                                  //                       'label_visible_to'.l10n,
+                                  //                       style: style
+                                  //                           .fonts
+                                  //                           .big
+                                  //                           .regular
+                                  //                           .onBackground,
+                                  //                     ),
+                                  //                   ),
+                                  //                 ],
+                                  //                 label: 'label_confirm'.l10n,
+                                  //                 initial: 2,
+                                  //                 variants: [
+                                  //                   ConfirmDialogVariant(
+                                  //                     onProceed: () {},
+                                  //                     label: 'label_all'.l10n,
+                                  //                   ),
+                                  //                   ConfirmDialogVariant(
+                                  //                     onProceed: () {},
+                                  //                     label: 'label_my_contacts'
+                                  //                         .l10n,
+                                  //                   ),
+                                  //                   ConfirmDialogVariant(
+                                  //                     onProceed: () {},
+                                  //                     label:
+                                  //                         'label_nobody'.l10n,
+                                  //                   ),
+                                  //                 ],
+                                  //               );
+                                  //             },
+                                  //         ),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // ],
+                                ),
+                              ),
+                            );
+                          }),
+
+                          // const SizedBox(height: 8),
+                          // const SizedBox(height: 8),
+                          const SizedBox(height: 8),
+                          // Paddings.basic(
+                          //   Obx(() {
+                          //     return UserLoginField(
+                          //       c.myUser.value?.login,
+                          //       onSubmit: c.updateUserLogin,
+                          //     );
+                          //   }),
+                          // ),
                           // const SizedBox(height: 8),
                           // const SizedBox(height: 8),
                           // Paddings.basic(
@@ -227,7 +319,7 @@ class MyProfileView extends StatelessWidget {
                           //   }),
                           // ),
 
-                          const SizedBox(height: 12),
+                          // const SizedBox(height: 12),
 
                           _emails(context, c),
                           // Obx(() {
@@ -248,7 +340,8 @@ class MyProfileView extends StatelessWidget {
                           //   );
                           // }),
                           _phones(context, c),
-                          _password(context, c),
+                          // _password(context, c),
+                          _addInfo(context, c),
                         ],
                       );
 
@@ -550,75 +643,119 @@ Widget _emails(BuildContext context, MyProfileController c) {
       ...c.emails.where((e) => !e.val.startsWith('unverified')),
     ]) {
       widgets.add(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ReactiveTextField(
-              state: TextFieldState(text: e.val),
-              readOnly: true,
-              label: 'E-mail',
-              trailing: AnimatedButton(
-                key: const Key('DeleteEmail'),
-                onPressed: () => _deleteEmail(c, context, e),
-                child: const SvgIcon(SvgIcons.delete),
-              ),
-              subtitle: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'label_email_visible'.l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                    TextSpan(
-                      text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.small.regular.primary,
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await ConfirmDialog.show(
-                            context,
-                            title: 'label_login'.l10n,
-                            additional: [
-                              Center(
-                                child: Text(
-                                  'label_login_visibility_hint'.l10n,
-                                  style: style.fonts.normal.regular.secondary,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'label_visible_to'.l10n,
-                                  style: style.fonts.big.regular.onBackground,
-                                ),
-                              ),
-                            ],
-                            label: 'label_confirm'.l10n,
-                            initial: 2,
-                            variants: [
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_all'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_my_contacts'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_nobody'.l10n,
-                              ),
-                            ],
-                          );
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        ContactInfoContents(
+          padding: EdgeInsets.zero,
+          content: e.val,
+          title: 'E-mail',
+          trailing: WidgetButton(
+            onPressed: () => _deleteEmail(c, context, e),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
+          // subtitle: [
+          //   const SizedBox(height: 4),
+          //   RichText(
+          //     text: TextSpan(
+          //       children: [
+          //         TextSpan(
+          //           text: 'label_email_visible'.l10n,
+          //           style: style.fonts.small.regular.secondary,
+          //         ),
+          //         TextSpan(
+          //           text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+          //           style: style.fonts.small.regular.primary,
+          //           recognizer: TapGestureRecognizer()
+          //             ..onTap = () async {
+          //               await ConfirmDialog.show(
+          //                 context,
+          //                 title: 'label_email'.l10n,
+          //                 label: 'label_confirm'.l10n,
+          //                 initial: 2,
+          //                 variants: [
+          //                   ConfirmDialogVariant(
+          //                     onProceed: () {},
+          //                     label: 'label_all'.l10n,
+          //                   ),
+          //                   ConfirmDialogVariant(
+          //                     onProceed: () {},
+          //                     label: 'label_my_contacts'.l10n,
+          //                   ),
+          //                   ConfirmDialogVariant(
+          //                     onProceed: () {},
+          //                     label: 'label_nobody'.l10n,
+          //                   ),
+          //                 ],
+          //               );
+          //             },
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ],
         ),
+
+        // ReactiveTextField(
+        //   state: TextFieldState(text: e.val),
+        //   readOnly: true,
+        //   label: 'E-mail',
+        //   trailing: AnimatedButton(
+        //     key: const Key('DeleteEmail'),
+        //     onPressed: () => _deleteEmail(c, context, e),
+        //     child: const SvgIcon(SvgIcons.delete),
+        //   ),
+        //   subtitle: RichText(
+        //     text: TextSpan(
+        //       children: [
+        //         TextSpan(
+        //           text: 'label_email_visible'.l10n,
+        //           style: style.fonts.small.regular.secondary,
+        //         ),
+        //         TextSpan(
+        //           text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+        //           style: style.fonts.small.regular.primary,
+        //           recognizer: TapGestureRecognizer()
+        //             ..onTap = () async {
+        //               await ConfirmDialog.show(
+        //                 context,
+        //                 title: 'label_login'.l10n,
+        //                 additional: [
+        //                   Center(
+        //                     child: Text(
+        //                       'label_login_visibility_hint'.l10n,
+        //                       style: style.fonts.normal.regular.secondary,
+        //                     ),
+        //                   ),
+        //                   const SizedBox(height: 20),
+        //                   Align(
+        //                     alignment: Alignment.centerLeft,
+        //                     child: Text(
+        //                       'label_visible_to'.l10n,
+        //                       style: style.fonts.big.regular.onBackground,
+        //                     ),
+        //                   ),
+        //                 ],
+        //                 label: 'label_confirm'.l10n,
+        //                 initial: 2,
+        //                 variants: [
+        //                   ConfirmDialogVariant(
+        //                     onProceed: () {},
+        //                     label: 'label_all'.l10n,
+        //                   ),
+        //                   ConfirmDialogVariant(
+        //                     onProceed: () {},
+        //                     label: 'label_my_contacts'.l10n,
+        //                   ),
+        //                   ConfirmDialogVariant(
+        //                     onProceed: () {},
+        //                     label: 'label_nobody'.l10n,
+        //                   ),
+        //                 ],
+        //               );
+        //             },
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       );
 
       widgets.add(const SizedBox(height: 8));
@@ -629,50 +766,72 @@ Widget _emails(BuildContext context, MyProfileController c) {
     //??  UserEmail('unconfirmed@example.com');
 
     if (unconfirmed != null) {
-      widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme:
-                Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle:
-                          style.fonts.big.regular.onBackground.copyWith(
-                        color: style.colors.danger,
-                      ),
-                    ),
+      widgets.add(
+        ContactInfoContents(
+          padding: EdgeInsets.zero,
+          content: unconfirmed.val,
+          trailing: WidgetButton(
+            onPressed: () => _deleteEmail(c, context, unconfirmed),
+            child: const SvgIcon(SvgIcons.delete),
           ),
-          child: ReactiveTextField(
-            state: TextFieldState(text: unconfirmed.val),
-            readOnly: true,
-            label: 'E-mail не верифицирован',
-            trailing: AnimatedButton(
-              key: const Key('DeleteEmail'),
-              onPressed: () => _deleteEmail(c, context, unconfirmed),
-              child: const SvgIcon(SvgIcons.delete),
-            ),
-            subtitle: WidgetButton(
+          title: 'E-mail не верифицирован',
+          subtitle: [
+            const SizedBox(height: 4),
+            WidgetButton(
               onPressed: () => AddEmailView.show(context, email: unconfirmed),
               child: Text(
-                'Верифицировать.',
+                'Верифицировать',
                 style: style.fonts.small.regular.primary,
               ),
             ),
-          ),
+          ],
+          danger: true,
         ),
-      ]);
+      );
+      // widgets.addAll([
+      //   Theme(
+      //     data: Theme.of(context).copyWith(
+      //       inputDecorationTheme:
+      //           Theme.of(context).inputDecorationTheme.copyWith(
+      //                 floatingLabelStyle:
+      //                     style.fonts.big.regular.onBackground.copyWith(
+      //                   color: style.colors.danger,
+      //                 ),
+      //               ),
+      //     ),
+      //     child: ReactiveTextField(
+      //       state: TextFieldState(text: unconfirmed.val),
+      //       readOnly: true,
+      //       label: 'E-mail не верифицирован',
+      //       trailing: AnimatedButton(
+      //         key: const Key('DeleteEmail'),
+      //         onPressed: () => _deleteEmail(c, context, unconfirmed),
+      //         child: const SvgIcon(SvgIcons.delete),
+      //       ),
+      //       subtitle: WidgetButton(
+      //         onPressed: () => AddEmailView.show(context, email: unconfirmed),
+      //         child: Text(
+      //           'Верифицировать.',
+      //           style: style.fonts.small.regular.primary,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ]);
       widgets.add(const SizedBox(height: 8));
     }
 
-    if (unconfirmed == null) {
-      widgets.add(
-        ReactiveTextField(
-          state: c.email,
-          label: 'Добавить E-mail',
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          hint: 'example@dummy.com',
-        ),
-      );
-      widgets.add(const SizedBox(height: 8));
-    }
+    // if (unconfirmed == null) {
+    //   widgets.add(
+    //     ReactiveTextField(
+    //       state: c.email,
+    //       label: 'Добавить E-mail',
+    //       floatingLabelBehavior: FloatingLabelBehavior.always,
+    //       hint: 'example@dummy.com',
+    //     ),
+    //   );
+    //   widgets.add(const SizedBox(height: 8));
+    // }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -694,77 +853,121 @@ Widget _phones(BuildContext context, MyProfileController c) {
       ...c.phones.where((e) => !e.val.startsWith('+0')),
     ]) {
       widgets.add(
-        Column(
-          key: const Key('ConfirmedPhone'),
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ReactiveTextField(
-              state: TextFieldState(text: e.val),
-              readOnly: true,
-              label: 'Phone',
-              trailing: AnimatedButton(
-                key: const Key('DeleteEmail'),
-                onPressed: () => _deletePhone(c, context, e),
-                child: const SvgIcon(SvgIcons.delete),
-              ),
-              subtitle: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'label_login_visible'.l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                    TextSpan(
-                      text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.small.regular.primary,
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await ConfirmDialog.show(
-                            context,
-                            title: 'label_login'.l10n,
-                            additional: [
-                              Center(
-                                child: Text(
-                                  'label_login_visibility_hint'.l10n,
-                                  style: style.fonts.normal.regular.secondary,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'label_visible_to'.l10n,
-                                  style: style.fonts.big.regular.onBackground,
-                                ),
-                              ),
-                            ],
-                            label: 'label_confirm'.l10n,
-                            initial: 2,
-                            variants: [
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_all'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_my_contacts'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_nobody'.l10n,
-                              ),
-                            ],
-                          );
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        ContactInfoContents(
+          padding: EdgeInsets.zero,
+          content: e.val,
+          title: 'label_phone'.l10n,
+          trailing: WidgetButton(
+            onPressed: () => _deletePhone(c, context, e),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
+          // subtitle: [
+          //   const SizedBox(height: 4),
+          //   RichText(
+          //     text: TextSpan(
+          //       children: [
+          //         TextSpan(
+          //           text: 'label_phone_visible'.l10n,
+          //           style: style.fonts.small.regular.secondary,
+          //         ),
+          //         TextSpan(
+          //           text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+          //           style: style.fonts.small.regular.primary,
+          //           recognizer: TapGestureRecognizer()
+          //             ..onTap = () async {
+          //               await ConfirmDialog.show(
+          //                 context,
+          //                 title: 'label_phone'.l10n,
+          //                 label: 'label_confirm'.l10n,
+          //                 initial: 2,
+          //                 variants: [
+          //                   ConfirmDialogVariant(
+          //                     onProceed: () {},
+          //                     label: 'label_all'.l10n,
+          //                   ),
+          //                   ConfirmDialogVariant(
+          //                     onProceed: () {},
+          //                     label: 'label_my_contacts'.l10n,
+          //                   ),
+          //                   ConfirmDialogVariant(
+          //                     onProceed: () {},
+          //                     label: 'label_nobody'.l10n,
+          //                   ),
+          //                 ],
+          //               );
+          //             },
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ],
         ),
       );
+      // widgets.add(
+      //   ReactiveTextField(
+      //     state: TextFieldState(text: e.val),
+      //     readOnly: true,
+      //     label: 'Phone',
+      //     trailing: AnimatedButton(
+      //       key: const Key('DeleteEmail'),
+      //       onPressed: () => _deletePhone(c, context, e),
+      //       child: const SvgIcon(SvgIcons.delete),
+      //     ),
+      //     subtitle: RichText(
+      //       text: TextSpan(
+      //         children: [
+      //           TextSpan(
+      //             text: 'label_login_visible'.l10n,
+      //             style: style.fonts.small.regular.secondary,
+      //           ),
+      //           TextSpan(
+      //             text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
+      //             style: style.fonts.small.regular.primary,
+      //             recognizer: TapGestureRecognizer()
+      //               ..onTap = () async {
+      //                 await ConfirmDialog.show(
+      //                   context,
+      //                   title: 'label_login'.l10n,
+      //                   additional: [
+      //                     Center(
+      //                       child: Text(
+      //                         'label_login_visibility_hint'.l10n,
+      //                         style: style.fonts.normal.regular.secondary,
+      //                       ),
+      //                     ),
+      //                     const SizedBox(height: 20),
+      //                     Align(
+      //                       alignment: Alignment.centerLeft,
+      //                       child: Text(
+      //                         'label_visible_to'.l10n,
+      //                         style: style.fonts.big.regular.onBackground,
+      //                       ),
+      //                     ),
+      //                   ],
+      //                   label: 'label_confirm'.l10n,
+      //                   initial: 2,
+      //                   variants: [
+      //                     ConfirmDialogVariant(
+      //                       onProceed: () {},
+      //                       label: 'label_all'.l10n,
+      //                     ),
+      //                     ConfirmDialogVariant(
+      //                       onProceed: () {},
+      //                       label: 'label_my_contacts'.l10n,
+      //                     ),
+      //                     ConfirmDialogVariant(
+      //                       onProceed: () {},
+      //                       label: 'label_nobody'.l10n,
+      //                     ),
+      //                   ],
+      //                 );
+      //               },
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // );
       widgets.add(const SizedBox(height: 8));
     }
 
@@ -772,56 +975,78 @@ Widget _phones(BuildContext context, MyProfileController c) {
         c.phones.firstWhereOrNull((e) => e.val.startsWith('+0'));
 
     if (unconfirmed != null) {
-      widgets.addAll([
-        Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme:
-                Theme.of(context).inputDecorationTheme.copyWith(
-                      floatingLabelStyle:
-                          style.fonts.big.regular.onBackground.copyWith(
-                        color: style.colors.danger,
-                      ),
-                    ),
+      widgets.add(
+        ContactInfoContents(
+          padding: EdgeInsets.zero,
+          content: unconfirmed.val,
+          title: 'Телефон не верифицирован',
+          trailing: WidgetButton(
+            onPressed: () => _deletePhone(c, context, unconfirmed),
+            child: const SvgIcon(SvgIcons.delete),
           ),
-          child: ReactiveTextField(
-            state: TextFieldState(text: unconfirmed.val),
-            readOnly: true,
-            label: 'Телефон не верифицирован',
-            trailing: AnimatedButton(
-              key: const Key('DeleteEmail'),
-              onPressed: () => _deletePhone(c, context, unconfirmed),
-              child: const SvgIcon(SvgIcons.delete),
-            ),
-            subtitle: AnimatedButton(
+          subtitle: [
+            const SizedBox(height: 4),
+            WidgetButton(
               onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
               child: Text(
                 'Верифицировать',
                 style: style.fonts.small.regular.primary,
               ),
             ),
-          ),
+          ],
+          danger: true,
         ),
-      ]);
+      );
+      // widgets.addAll([
+      //   Theme(
+      //     data: Theme.of(context).copyWith(
+      //       inputDecorationTheme:
+      //           Theme.of(context).inputDecorationTheme.copyWith(
+      //                 floatingLabelStyle:
+      //                     style.fonts.big.regular.onBackground.copyWith(
+      //                   color: style.colors.danger,
+      //                 ),
+      //               ),
+      //     ),
+      //     child: ReactiveTextField(
+      //       state: TextFieldState(text: unconfirmed.val),
+      //       readOnly: true,
+      //       label: 'Телефон не верифицирован',
+      //       trailing: AnimatedButton(
+      //         key: const Key('DeleteEmail'),
+      //         onPressed: () => _deletePhone(c, context, unconfirmed),
+      //         child: const SvgIcon(SvgIcons.delete),
+      //       ),
+      //       subtitle: AnimatedButton(
+      //         onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
+      //         child: Text(
+      //           'Верифицировать',
+      //           style: style.fonts.small.regular.primary,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ]);
       widgets.add(const SizedBox(height: 8));
     }
 
-    if (unconfirmed == null) {
-      widgets.add(
-        ReactivePhoneField(
-          state: c.phone,
-          label: 'Добавить телефон',
-          // floatingLabelBehavior: FloatingLabelBehavior.always,
-          // hint: '+1 234 567 89 90',
-        ),
-        // ReactiveTextField(
-        //   state: c.phone,
-        //   label: 'Добавить телефон',
-        //   floatingLabelBehavior: FloatingLabelBehavior.always,
-        //   hint: '+1 234 567 89 90',
-        // ),
-      );
-      widgets.add(const SizedBox(height: 8));
-    }
+    // if (unconfirmed == null) {
+    //   widgets.add(
+    //     ReactivePhoneField(
+    //       state: c.phone,
+    //       label: 'Добавить телефон',
+    //       // floatingLabelBehavior: FloatingLabelBehavior.always,
+    //       // hint: '+1 234 567 89 90',
+    //     ),
+    //     // ReactiveTextField(
+    //     //   state: c.phone,
+    //     //   label: 'Добавить телефон',
+    //     //   floatingLabelBehavior: FloatingLabelBehavior.always,
+    //     //   hint: '+1 234 567 89 90',
+    //     // ),
+    //   );
+    //   widgets.add(const SizedBox(height: 8));
+    // }
 
     // if (widgets.length <= 1) {
     //   widgets.add(const SizedBox(height: 0));
@@ -858,6 +1083,82 @@ Widget _presence(BuildContext context, MyProfileController c) {
   });
 }
 
+Widget _addInfo(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 14),
+      Row(
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              height: 0.5,
+              color: Colors.black26,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Добавить также',
+            style: style.fonts.small.regular.secondary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              height: 0.5,
+              color: Colors.black26,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 24),
+      _password(context, c),
+      const SizedBox(height: 20),
+      Obx(() {
+        if (c.myUser.value?.login != null) {
+          return const SizedBox();
+        }
+
+        return Paddings.basic(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: UserLoginField(
+              c.myUser.value?.login,
+              onSubmit: c.updateUserLogin,
+            ),
+          ),
+        );
+      }),
+
+      ReactivePhoneField(
+        state: c.phone,
+        label: 'Добавить телефон',
+      ),
+      const SizedBox(height: 24),
+      ReactiveTextField(
+        state: c.email,
+        label: 'Добавить E-mail',
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        hint: 'example@dummy.com',
+      ),
+
+      // Paddings.dense(
+      //   FieldButton(
+      //     text: 'Добавить E-mail, телефон, Google, Apple или GitHub',
+      //     maxLines: 3,
+      //     onPressed: () => ChangePasswordView.show(context),
+      //     style: style.fonts.normal.regular.primary,
+      //     trailing: const SvgIcon(SvgIcons.addMember),
+      //   ),
+      // ),
+      // const SizedBox(height: 10),
+    ],
+  );
+}
+
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
@@ -866,24 +1167,22 @@ Widget _password(BuildContext context, MyProfileController c) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            key: c.myUser.value?.hasPassword == true
-                ? const Key('ChangePassword')
-                : const Key('SetPassword'),
-            text: c.myUser.value?.hasPassword == true
-                ? 'btn_change_password'.l10n
-                : 'btn_set_password'.l10n,
-            onPressed: () => ChangePasswordView.show(context),
-            warning: c.myUser.value?.hasPassword != true,
-            style: style.fonts.normal.regular.primary,
-            trailing: c.myUser.value?.hasPassword == true
-                ? const SvgIcon(SvgIcons.password19)
-                : const SvgIcon(SvgIcons.password19White),
-          );
-        }),
-      ),
+      Obx(() {
+        return FieldButton(
+          key: c.myUser.value?.hasPassword == true
+              ? const Key('ChangePassword')
+              : const Key('SetPassword'),
+          text: c.myUser.value?.hasPassword == true
+              ? 'btn_change_password'.l10n
+              : 'btn_set_password'.l10n,
+          onPressed: () => ChangePasswordView.show(context),
+          warning: c.myUser.value?.hasPassword != true,
+          style: style.fonts.normal.regular.primary,
+          trailing: c.myUser.value?.hasPassword == true
+              ? const SvgIcon(SvgIcons.password19)
+              : const SvgIcon(SvgIcons.password19White),
+        );
+      }),
       const SizedBox(height: 10),
     ],
   );

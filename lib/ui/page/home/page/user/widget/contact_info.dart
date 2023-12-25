@@ -60,6 +60,7 @@ class ContactInfoContents extends StatelessWidget {
     this.padding = const EdgeInsets.all(12),
     this.maxLines = 1,
     this.opaque = false,
+    this.danger = false,
   });
 
   final String? title;
@@ -73,6 +74,8 @@ class ContactInfoContents extends StatelessWidget {
   final EdgeInsets padding;
   final int? maxLines;
   final bool opaque;
+
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +98,11 @@ class ContactInfoContents extends StatelessWidget {
                   DefaultTextStyle(
                     overflow: TextOverflow.ellipsis,
                     maxLines: maxLines,
-                    style: opaque
-                        ? style.fonts.small.regular.onBackground
-                        : style.fonts.small.regular.secondary,
+                    style: danger
+                        ? style.fonts.small.regular.danger
+                        : opaque
+                            ? style.fonts.small.regular.onBackground
+                            : style.fonts.small.regular.secondary,
                     child: Text(title!),
                   ),
                 // const SizedBox(height: 4),

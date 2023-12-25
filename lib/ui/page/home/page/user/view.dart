@@ -110,8 +110,7 @@ class UserView extends StatelessWidget {
 
                   if (status != null) {
                     subtitle = Text(
-                      status.toString() * 20,
-                      // 'a' * 500,
+                      status.toString(),
                       style: style.fonts.normal.regular.secondary,
                     );
 
