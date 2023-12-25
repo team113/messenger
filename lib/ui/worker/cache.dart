@@ -663,12 +663,24 @@ class CacheEntry {
   /// Byte data of this [CacheEntry].
   final Uint8List? bytes;
 
-  /// MediaType type of this [CacheEntry].
-  late final Future<MediaType?> type = _resolveType();
+  /// [MediaType] type of this [CacheEntry].
+  Future<MediaType?> get type async {
+    if (!_typeResolved) {
+      _type = await _resolveType();
+    }
+    return _type;
+  }
+
+  /// Stores [MediaType] type of this [CacheEntry].
+  MediaType? _type;
+
+  /// Stores if [_resolveType] was called.
+  bool _typeResolved = false;
 
   /// Resolves [MediaType] of data in this [CacheEntry].
   Future<MediaType?> _resolveType() async {
     String? mime;
+    _typeResolved = true;
     if (bytes != null) {
       List<int>? headerBytes =
           bytes?.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
