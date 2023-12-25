@@ -6,6 +6,25 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.12] · 2024-??-??
+[0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
+
+[Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Restore button displaying under mobile navigation bar. ([#763, #758])
+    - Contacts tab:
+        - Restore button displaying under mobile navigation bar. ([#763, #758])
+
+[#758]: /../../issues/758
+[#763]: /../../pull/763
+
+
+
+
 ## [0.1.0-alpha.11.1] · 2023-12-22
 [0.1.0-alpha.11.1]: /../../tree/v0.1.0-alpha.11.1
 
