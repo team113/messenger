@@ -30,7 +30,6 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   const HiveGraphQlPageProvider({
     required this.hiveProvider,
     required this.graphQlProvider,
-    this.syncWithHive = true,
   });
 
   /// [HivePageProvider] fetching elements from the [Hive].
@@ -38,10 +37,6 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C, K> graphQlProvider;
-
-  /// Indicator whether items fetched from the [graphQlProvider] should be
-  /// putted to the [hiveProvider].
-  final bool syncWithHive;
 
   /// Makes the [hiveProvider] to use the provided [HiveLazyProvider].
   set hive(IterableHiveProvider<T, K> provider) =>
@@ -62,10 +57,8 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
 
-    if (syncWithHive) {
-      for (T e in remote.edges) {
-        hiveProvider.put(e);
-      }
+    for (T e in remote.edges) {
+      hiveProvider.put(e);
     }
 
     return remote;
@@ -81,10 +74,8 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
 
-    if (syncWithHive) {
-      for (T e in remote.edges) {
-        await hiveProvider.put(e);
-      }
+    for (T e in remote.edges) {
+      await hiveProvider.put(e);
     }
 
     return remote;
@@ -100,10 +91,8 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.before(key, cursor, count);
 
-    if (syncWithHive) {
-      for (T e in remote.edges) {
-        await hiveProvider.put(e);
-      }
+    for (T e in remote.edges) {
+      await hiveProvider.put(e);
     }
 
     return remote;

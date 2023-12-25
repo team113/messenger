@@ -964,8 +964,9 @@ class HiveRxChat extends RxChat {
     _fragment = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
       onKey: (e) => e.value.key,
       provider: HiveGraphQlPageProvider(
-        syncWithHive: _local.keys.contains(key),
-        hiveProvider: _provider.hiveProvider,
+        hiveProvider: _provider.hiveProvider.copyWith(
+          readOnly: _local.keys.contains(key),
+        ),
         graphQlProvider: _provider.graphQlProvider,
       ),
       compare: (a, b) => a.value.key.compareTo(b.value.key),

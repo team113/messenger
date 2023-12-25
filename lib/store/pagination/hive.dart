@@ -40,6 +40,7 @@ class HivePageProvider<T extends Object, C, K>
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
     this.reversed = false,
+    this.readOnly = false,
   }) : orderBy = orderBy ?? _defaultOrderBy<K>;
 
   /// Callback, called when a key of the provided [T] is required.
@@ -63,6 +64,9 @@ class HivePageProvider<T extends Object, C, K>
 
   /// Indicator whether this [HivePageProvider] is reversed.
   final bool reversed;
+
+  /// Indicator whether this [HivePageProvider] is read-only.
+  final bool readOnly;
 
   /// [IterableHiveProvider] to fetch the items from.
   IterableHiveProvider<T, K> _provider;
@@ -193,7 +197,7 @@ class HivePageProvider<T extends Object, C, K>
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
-    if (WebUtils.isPopup) {
+    if (WebUtils.isPopup || readOnly) {
       return;
     }
 
@@ -236,6 +240,21 @@ class HivePageProvider<T extends Object, C, K>
     } else {
       await _provider.clear();
     }
+  }
+
+  /// Returns a copy of this [HivePageProvider] with the provided parameters.
+  HivePageProvider<T, C, K> copyWith({bool? readOnly}) {
+    return HivePageProvider(
+      _provider,
+      getCursor: getCursor,
+      getKey: getKey,
+      orderBy: orderBy,
+      isFirst: isFirst,
+      isLast: isLast,
+      strategy: strategy,
+      reversed: reversed,
+      readOnly: readOnly ?? this.readOnly,
+    );
   }
 
   /// Creates a [Page] from the provided [items].
