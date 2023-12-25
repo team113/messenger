@@ -1702,6 +1702,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 ? 'btn_info'.l10n
                                 : 'btn_message_info'.l10n,
                             trailing: const SvgIcon(SvgIcons.info),
+                            inverted: const SvgIcon(SvgIcons.infoWhite),
                             onPressed: () => MessageInfo.show(
                               context,
                               id: widget.item.value.id,
@@ -1714,10 +1715,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_copy'.l10n
                                   : 'btn_copy_text'.l10n,
-                              trailing: Transform.translate(
-                                offset: const Offset(-2, 0),
-                                child: const SvgIcon(SvgIcons.copy18),
-                              ),
+                              trailing: const SvgIcon(SvgIcons.copy19),
+                              inverted: const SvgIcon(SvgIcons.copy19White),
                               onPressed: () => widget.onCopy
                                   ?.call(_selection?.plainText ?? copyable!),
                             ),
@@ -1728,6 +1727,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_reply'.l10n
                                   : 'btn_reply_message'.l10n,
                               trailing: const SvgIcon(SvgIcons.reply),
+                              inverted: const SvgIcon(SvgIcons.replyWhite),
                               onPressed: widget.onReply,
                             ),
                             if (item is ChatMessage)
@@ -1737,6 +1737,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     ? 'btn_forward'.l10n
                                     : 'btn_forward_message'.l10n,
                                 trailing: const SvgIcon(SvgIcons.forwardSmall),
+                                inverted:
+                                    const SvgIcon(SvgIcons.forwardSmallWhite),
                                 onPressed: () async {
                                   await ChatForwardView.show(
                                     context,
@@ -1756,6 +1758,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
                                 trailing: const SvgIcon(SvgIcons.edit),
+                                inverted: const SvgIcon(SvgIcons.editWhite),
                                 onPressed: widget.onEdit,
                               ),
                             if (media.isNotEmpty) ...[
@@ -1765,7 +1768,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   label: media.length == 1
                                       ? 'btn_download'.l10n
                                       : 'btn_download_all'.l10n,
-                                  trailing: const Icon(Icons.download),
+                                  trailing: const SvgIcon(SvgIcons.download19),
+                                  inverted:
+                                      const SvgIcon(SvgIcons.download19White),
                                   onPressed: () =>
                                       widget.onDownload?.call(media),
                                 ),
@@ -1776,7 +1781,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   label: media.length == 1
                                       ? 'btn_download_as'.l10n
                                       : 'btn_download_all_as'.l10n,
-                                  trailing: const Icon(Icons.download),
+                                  trailing: const SvgIcon(SvgIcons.download19),
+                                  inverted:
+                                      const SvgIcon(SvgIcons.download19White),
                                   onPressed: () =>
                                       widget.onDownloadAs?.call(media),
                                 ),
@@ -1791,7 +1798,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       : PlatformUtils.isMobile
                                           ? 'btn_save_all'.l10n
                                           : 'btn_save_to_gallery_all'.l10n,
-                                  trailing: const Icon(Icons.download),
+                                  trailing: const SvgIcon(SvgIcons.download19),
+                                  inverted:
+                                      const SvgIcon(SvgIcons.download19White),
                                   onPressed: () => widget.onSave?.call(media),
                                 ),
                             ],
@@ -1800,7 +1809,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgIcon(SvgIcons.deleteThick),
+                              trailing: const SvgIcon(SvgIcons.delete19),
+                              inverted: const SvgIcon(SvgIcons.delete19White),
                               onPressed: () async {
                                 bool isMonolog = widget.chat.value!.isMonolog;
                                 bool deletable = _fromMe &&
@@ -1841,6 +1851,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ? 'btn_resend'.l10n
                                   : 'btn_resend_message'.l10n,
                               trailing: const SvgIcon(SvgIcons.sendSmall),
+                              inverted: const SvgIcon(SvgIcons.sendSmallWhite),
                               onPressed: widget.onResend,
                             ),
                             ContextMenuButton(
@@ -1848,7 +1859,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               label: PlatformUtils.isMobile
                                   ? 'btn_delete'.l10n
                                   : 'btn_delete_message'.l10n,
-                              trailing: const SvgIcon(SvgIcons.deleteThick),
+                              trailing: const SvgIcon(SvgIcons.delete19),
+                              inverted: const SvgIcon(SvgIcons.delete19White),
                               onPressed: () async {
                                 await ConfirmDialog.show(
                                   context,
@@ -1868,6 +1880,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             key: const Key('Select'),
                             label: 'btn_select_messages'.l10n,
                             trailing: const SvgIcon(SvgIcons.select),
+                            inverted: const SvgIcon(SvgIcons.selectWhite),
                             onPressed: widget.onSelect,
                           ),
                         ],

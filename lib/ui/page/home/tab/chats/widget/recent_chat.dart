@@ -245,12 +245,14 @@ class RecentChatTile extends StatelessWidget {
                   label: 'btn_delete_from_contacts'.l10n,
                   onPressed: () => onContact?.call(false),
                   trailing: const SvgIcon(SvgIcons.deleteContact),
+                  inverted: const SvgIcon(SvgIcons.deleteContactWhite),
                 )
               else
                 ContextMenuButton(
                   label: 'btn_add_to_contacts'.l10n,
                   onPressed: () => onContact?.call(true),
                   trailing: const SvgIcon(SvgIcons.addContact),
+                  inverted: const SvgIcon(SvgIcons.addContactWhite),
                 ),
             ],
             if (chat.favoritePosition != null && onUnfavorite != null)
@@ -259,6 +261,7 @@ class RecentChatTile extends StatelessWidget {
                 label: 'btn_delete_from_favorites'.l10n,
                 onPressed: onUnfavorite,
                 trailing: const SvgIcon(SvgIcons.favoriteSmall),
+                inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
               ),
             if (chat.favoritePosition == null && onFavorite != null)
               ContextMenuButton(
@@ -266,6 +269,7 @@ class RecentChatTile extends StatelessWidget {
                 label: 'btn_add_to_favorites'.l10n,
                 onPressed: onFavorite,
                 trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+                inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
               ),
             if (chat.muted == null && onMute != null)
               ContextMenuButton(
@@ -275,6 +279,7 @@ class RecentChatTile extends StatelessWidget {
                     : 'btn_mute_chat'.l10n,
                 onPressed: onMute,
                 trailing: const SvgIcon(SvgIcons.unmuteSmall),
+                inverted: const SvgIcon(SvgIcons.unmuteSmallWhite),
               ),
             if (chat.muted != null && onUnmute != null)
               ContextMenuButton(
@@ -284,6 +289,7 @@ class RecentChatTile extends StatelessWidget {
                     : 'btn_unmute_chat'.l10n,
                 onPressed: onUnmute,
                 trailing: const SvgIcon(SvgIcons.muteSmall),
+                inverted: const SvgIcon(SvgIcons.muteSmallWhite),
               ),
             if (onHide != null)
               ContextMenuButton(
@@ -292,7 +298,8 @@ class RecentChatTile extends StatelessWidget {
                     ? 'btn_delete'.l10n
                     : 'btn_delete_chat'.l10n,
                 onPressed: () => _hideChat(context),
-                trailing: const SvgIcon(SvgIcons.deleteThick),
+                trailing: const SvgIcon(SvgIcons.delete19),
+                inverted: const SvgIcon(SvgIcons.delete19White),
               ),
           ],
           selected: inverted,
