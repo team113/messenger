@@ -671,10 +671,10 @@ class CacheEntry {
     return _type;
   }
 
-  /// Stores [MediaType] type of this [CacheEntry].
+  /// Value of [MediaType] type of this [CacheEntry].
   MediaType? _type;
 
-  /// Stores if [_resolveType] was called.
+  /// True if [_resolveType] was called.
   bool _typeResolved = false;
 
   /// Resolves [MediaType] of data in this [CacheEntry].
