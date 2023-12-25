@@ -965,7 +965,7 @@ class HiveRxChat extends RxChat {
       onKey: (e) => e.value.key,
       provider: HiveGraphQlPageProvider(
         hiveProvider: _provider.hiveProvider.copyWith(
-          readOnly: _local.keys.contains(key),
+          readOnly: !_local.keys.contains(key),
         ),
         graphQlProvider: _provider.graphQlProvider,
       ),
