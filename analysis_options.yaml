@@ -6,6 +6,7 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     invalid_use_of_visible_for_testing_member: error
+  #  prefer_relative_imports: warning
   exclude:
     - '**/*.g.dart'
     - '**/*.graphql.dart'
@@ -16,3 +17,4 @@ linter:
   # https://dart-lang.github.io/linter/lints/index.html
   rules:
     prefer_single_quotes: true
+    prefer_relative_imports: true

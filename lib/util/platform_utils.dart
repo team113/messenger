@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:messenger/util/web/web_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -35,7 +36,6 @@ import '/routes.dart';
 import '/ui/worker/cache.dart';
 import 'backoff.dart';
 import 'mime.dart';
-import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
 ///
