@@ -107,7 +107,7 @@ enum CallButtonsPosition {
   @HiveField(3)
   bottom,
 
-  /// More button position.
+  /// [ChatMoreWidget] button position.
   @HiveField(4)
   more,
 }

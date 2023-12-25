@@ -214,30 +214,65 @@ class UserView extends StatelessWidget {
             onPressed: c.openChat,
             child: const SvgIcon(SvgIcons.chat),
           ),
-          const SizedBox(width: 28),
+          const SizedBox(width: 21),
           Obx(() {
+            final bool hasCall =
+                c.user?.dialog.value?.chat.value.ongoingCall != null;
             final bool inCall = c.user?.dialog.value?.inCall.value ?? false;
 
-            return Row(
-              children: [
-                AnimatedButton(
-                  enabled: !inCall,
-                  onPressed: inCall ? null : () => c.call(true),
-                  child: SvgIcon(
-                    inCall
-                        ? SvgIcons.chatVideoCallDisabled
-                        : SvgIcons.chatVideoCall,
+            if (hasCall) {
+              final Widget child;
+
+              if (inCall) {
+                child = Container(
+                  key: const Key('Drop'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.danger,
+                    shape: BoxShape.circle,
                   ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callEnd),
+                  ),
+                );
+              } else {
+                child = Container(
+                  key: const Key('Join'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callStart),
+                  ),
+                );
+              }
+
+              return AnimatedButton(
+                key: const Key('ActiveCallButton'),
+                onPressed: inCall ? c.dropCall : c.joinCall,
+                child: SafeAnimatedSwitcher(
+                  duration: 300.milliseconds,
+                  child: child,
+                ),
+              );
+            }
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 7),
+                AnimatedButton(
+                  onPressed: () => c.call(true),
+                  child: const SvgIcon(SvgIcons.chatVideoCall),
                 ),
                 const SizedBox(width: 28),
                 AnimatedButton(
-                  enabled: !inCall,
-                  onPressed: inCall ? null : () => c.call(false),
-                  child: SvgIcon(
-                    inCall
-                        ? SvgIcons.chatAudioCallDisabled
-                        : SvgIcons.chatAudioCall,
-                  ),
+                  onPressed: () => c.call(false),
+                  child: const SvgIcon(SvgIcons.chatAudioCall),
                 ),
                 const SizedBox(width: 10),
               ],

@@ -35,7 +35,7 @@ abstract class ChatButton {
   /// Asset name of this [ChatButton].
   SvgData get asset;
 
-  /// Disabled asset name to display, when [onPressed] is `null`.
+  /// Disabled asset name to display, if [onPressed] is `null`.
   SvgData? get disabled => null;
 
   /// Asset offset of this [ChatButton].

@@ -20,9 +20,9 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/svg/svgs.dart';
+import '/ui/widget/svg/svg.dart';
 
-/// Circle button with [icon].
+/// Circle button with the provided [icon].
 class CircleButton extends StatelessWidget {
   const CircleButton(
     this.icon, {
@@ -65,10 +65,7 @@ class CircleButton extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Transform.scale(
-                scale: 0.75,
-                child: SvgIcon(icon),
-              ),
+              child: Transform.scale(scale: 0.75, child: SvgIcon(icon)),
             ),
           ),
         ),

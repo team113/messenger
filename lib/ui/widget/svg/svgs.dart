@@ -1358,8 +1358,8 @@ class SvgIcons {
 
   static const SvgData makeVideoCallDisabled = SvgData(
     'assets/icons/make_video_call_disabled.svg',
-    width: 22.92,
-    height: 18,
+    width: 21.93,
+    height: 15,
   );
 
   static const SvgData favoriteSmall = SvgData(

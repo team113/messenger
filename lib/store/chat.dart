@@ -40,6 +40,7 @@ import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -209,6 +210,11 @@ class ChatRepository extends DisposableInterface
   @visibleForTesting
   bool get isRemote => _localPagination == null && _pagination != null;
 
+  /// Returns the map of the current [OngoingCall]s.
+  ///
+  /// Used for [RxChat.inCall] indicator.
+  RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callRepo.calls;
+
   @override
   Future<void> init({
     required Future<void> Function(ChatId, UserId) onMemberRemoved,
@@ -320,7 +326,7 @@ class ChatRepository extends DisposableInterface
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
-          chat = HiveRxChat(this, _chatLocal, _draftLocal, _callRepo, hiveChat);
+          chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
           chat!.init();
         }
 
@@ -1522,7 +1528,7 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, _callRepo, chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
       chats[chatId] = entry;
 
       entry.init();

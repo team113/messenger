@@ -283,7 +283,6 @@ class ChatInfoView extends StatelessWidget {
     final bool favorite = c.chat?.chat.value.favoritePosition != null;
     final bool muted = c.chat?.chat.value.muted != null;
     final bool isLocal = c.chat?.chat.value.id.isLocal == true;
-    final bool inCall = c.chat?.inCall.value ?? false;
 
     return Center(
       child: Row(
@@ -347,23 +346,69 @@ class ChatInfoView extends StatelessWidget {
             child: const SvgIcon(SvgIcons.chat),
             onPressed: () => router.chat(c.chat?.id ?? id),
           ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            enabled: !inCall,
-            onPressed: inCall ? null : () => c.call(true),
-            child: SvgIcon(
-              inCall ? SvgIcons.chatVideoCallDisabled : SvgIcons.chatVideoCall,
-            ),
-          ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            enabled: !inCall,
-            onPressed: inCall ? null : () => c.call(false),
-            child: SvgIcon(
-              inCall ? SvgIcons.chatAudioCallDisabled : SvgIcons.chatAudioCall,
-            ),
-          ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 21),
+          Obx(() {
+            final bool hasCall = c.chat?.chat.value.ongoingCall != null;
+            final bool inCall = c.chat?.inCall.value ?? false;
+
+            if (hasCall) {
+              final Widget child;
+
+              if (inCall) {
+                child = Container(
+                  key: const Key('Drop'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callEnd),
+                  ),
+                );
+              } else {
+                child = Container(
+                  key: const Key('Join'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callStart),
+                  ),
+                );
+              }
+
+              return AnimatedButton(
+                key: const Key('ActiveCallButton'),
+                onPressed: inCall ? c.dropCall : c.joinCall,
+                child: SafeAnimatedSwitcher(
+                  duration: 300.milliseconds,
+                  child: child,
+                ),
+              );
+            }
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 7),
+                AnimatedButton(
+                  onPressed: () => c.call(true),
+                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                ),
+                const SizedBox(width: 28),
+                AnimatedButton(
+                  onPressed: () => c.call(false),
+                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                ),
+                const SizedBox(width: 10),
+              ],
+            );
+          }),
           Obx(() {
             return AnimatedButton(
               child: SafeAnimatedSwitcher(

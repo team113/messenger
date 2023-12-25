@@ -144,11 +144,11 @@ class MessageFieldController extends GetxController {
   /// changes.
   final void Function()? onChanged;
 
-  /// Callback, called on [Chat.ongoingCall] action is triggered.
+  /// Callback, called when make [OngoingCall] action is triggered.
   final void Function(bool)? onCall;
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
+  /// Indicator whether the [OngoingCall] related buttons should be disabled or
+  /// not.
   RxBool? inCall;
 
   /// [TextFieldState] for a [ChatMessageText].
