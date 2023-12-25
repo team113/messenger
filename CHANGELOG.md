@@ -13,11 +13,15 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Mobile:
-    - Restore button has incorrect position. ([#763, #758])
+- UI:
+    - Chats tab:
+        - Restore button displaying under mobile navigation bar. ([#763, #758])
+    - Contacts tab:
+        - Restore button displaying under mobile navigation bar. ([#763, #758])
 
 [#758]: /../../issues/758
 [#763]: /../../pull/763
+
 
 
 
