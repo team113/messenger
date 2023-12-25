@@ -155,12 +155,11 @@ class Chat extends HiveObject implements Comparable<Chat> {
   int totalCount;
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
-  @HiveField(17)
   ChatCall? ongoingCall;
 
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
-  @HiveField(18)
+  @HiveField(17)
   ChatFavoritePosition? favoritePosition;
 
   /// Indicates whether this [Chat] is a monolog.

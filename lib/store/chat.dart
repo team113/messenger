@@ -1447,7 +1447,7 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool ignoreVersion = false,
   }) async {
-    Log.debug('put($chat, $pagination)', '$runtimeType');
+    Log.debug('put($chat, $pagination, $ignoreVersion)', '$runtimeType');
 
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];

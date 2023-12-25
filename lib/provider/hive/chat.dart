@@ -49,6 +49,8 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   @override
   String get boxName => 'chat';
 
+  ChatCall? ongoingCall;
+
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
