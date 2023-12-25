@@ -159,7 +159,7 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - libyuv-iOS (1.0.2)
-  - medea_flutter_webrtc (0.9.0):
+  - medea_flutter_webrtc (0.9.1-dev):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 118.0.5993.88)
     - libyuv-iOS
@@ -431,7 +431,7 @@ SPEC CHECKSUMS:
   instrumentisto-libwebrtc-bin: 295e1721ff9a8ccfc030c0de5f095c7d6b3e53ce
   integration_test: 13825b8a9334a850581300559b8839134b124670
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
-  medea_flutter_webrtc: 4be3b47ae44588d2e1197e87e0611d3f85d14e60
+  medea_flutter_webrtc: b19006676164ce2b6c917af3ed0397d92de47c0d
   medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
   media_kit_libs_ios_video: a5fe24bc7875ccd6378a0978c13185e1344651c1
   media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a
