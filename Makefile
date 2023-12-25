@@ -836,6 +836,7 @@ endif
 #	                   [org=($(SENTRY_ORG)|<org>)]
 #	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
 #	                   [release=($(SENTRY_RELEASE)|<release>)]
+#	                   [url=($(SENTRY_URL)|<url>)]
 
 sentry-project=$(strip $(or $(SENTRY_PROJECT),\
 	$(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
@@ -846,12 +847,15 @@ sentry-token=$(strip $(or $(SENTRY_AUTH_TOKEN),\
 sentry-release=$(strip $(or $(SENTRY_RELEASE),\
 	$(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2),\
 	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2)))
+sentry-url=$(or $(url),$(strip $(or $(SENTRY_URL),\
+	$(shell grep 'SENTRY_URL=' .env | cut -d'=' -f2))))
 
 sentry.upload:
 	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
 	SENTRY_ORG=$(or $(org),$(sentry-org)) \
 	SENTRY_AUTH_TOKEN=$(or $(token),$(sentry-token)) \
 	SENTRY_RELEASE=$(NAME)@$(or $(release),$(sentry-release)) \
+	$(if $(call eq,$(sentry-url),),,SENTRY_URL=$(sentry-url)) \
 	dart run sentry_dart_plugin
 
 

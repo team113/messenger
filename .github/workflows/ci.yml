@@ -943,3 +943,4 @@ jobs:
                   org=${{ secrets.SENTRY_ORG }}
                   token=${{ secrets.SENTRY_TOKEN }}
                   release=${{ steps.semver.outputs.group1 }}
+                  url=${{ secrets.SENTRY_URL }}
