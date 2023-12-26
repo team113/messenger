@@ -847,8 +847,8 @@ sentry-token=$(strip $(or $(SENTRY_AUTH_TOKEN),\
 sentry-release=$(strip $(or $(SENTRY_RELEASE),\
 	$(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2),\
 	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2)))
-sentry-url=$(or $(url),$(strip $(or $(SENTRY_URL),\
-	$(shell grep 'SENTRY_URL=' .env | cut -d'=' -f2))))
+sentry-url=$(strip $(or $(url),$(SENTRY_URL),\
+	$(shell grep 'SENTRY_URL=' .env | cut -d'=' -f2)))
 
 sentry.upload:
 	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
