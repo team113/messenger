@@ -435,6 +435,18 @@ class PlatformUtilsImpl {
           }
         }
 
+        CacheEntry? cache;
+        if (checksum != null && CacheWorker.instance.exists(checksum)) {
+          if (path != null && p.extension(path!).isEmpty) {
+            cache = await CacheWorker.instance.get(checksum: checksum);
+            path = [path, (await cache.type)?.extension].nonNulls.join('.');
+          } else if (p.extension(filename).isEmpty) {
+            cache = await CacheWorker.instance.get(checksum: checksum);
+            filename =
+                [filename, (await cache.type)?.extension].nonNulls.join('.');
+          }
+        }
+
         if (PlatformUtils.isWeb) {
           await Backoff.run(
             () async {
@@ -474,7 +486,8 @@ class PlatformUtilsImpl {
           if (file == null) {
             Uint8List? data;
             if (checksum != null && CacheWorker.instance.exists(checksum)) {
-              data = (await CacheWorker.instance.get(checksum: checksum)).bytes;
+              cache ??= await CacheWorker.instance.get(checksum: checksum);
+              data = cache.bytes;
             }
 
             if (path == null) {
@@ -489,7 +502,7 @@ class PlatformUtilsImpl {
                 file = File('${directory.path}/$name ($i)$extension');
               }
             } else {
-              file = File(path);
+              file = File(path!);
             }
 
             if (data == null) {
