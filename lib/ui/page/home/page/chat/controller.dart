@@ -447,6 +447,8 @@ class ChatController extends GetxController {
 
             if (!PlatformUtils.isMobile) {
               Future.delayed(Duration.zero, send.field.focus.requestFocus);
+            } else {
+              send.field.focus.requestFocus();
             }
           }
         }
