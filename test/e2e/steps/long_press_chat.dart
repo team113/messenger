@@ -49,7 +49,7 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   },
 );
 
-/// Long presses a monolog.
+/// Long presses a [Chat]-monolog.
 final StepDefinitionGeneric longPressMonolog = when<CustomWorld>(
   'I long press monolog',
   (context) async {

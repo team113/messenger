@@ -54,7 +54,9 @@ StepDefinitionGeneric fillFieldWithUserCredential =
     final CustomUser? customUser = context.world.sessions[user.name];
 
     if (customUser == null) {
-      throw ArgumentError('User ${user.name} is not logged in.');
+      throw ArgumentError(
+        '`${user.name}` is not found in `CustomWorld.sessions`.',
+      );
     }
 
     final String text = _getCredential(customUser, credential);
@@ -64,8 +66,7 @@ StepDefinitionGeneric fillFieldWithUserCredential =
     ..timeout = const Duration(seconds: 30),
 );
 
-/// Enters the credential of [me] into the widget with the provided
-/// [WidgetKey].
+/// Enters the credential of [me] into the widget with the provided [WidgetKey].
 ///
 /// Examples:
 /// - When I fill `SearchField` field with my num
@@ -79,7 +80,7 @@ StepDefinitionGeneric fillFieldWithMyCredential =
         .firstOrNull;
 
     if (me == null) {
-      throw ArgumentError('MyUser is not logged in.');
+      throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');
     }
 
     final String text = _getCredential(me, credential);
@@ -191,17 +192,13 @@ Future<void> _fillField(
 }
 
 /// Returns [String] representation of the [CustomUser]'s [TestCredential].
-///
-/// Note: it will not throw an error if `login` [credential] is requested from a
-/// [user] that has not set their login, but will instead work as if it was set.
-/// Use `setLogin` step to set the login of a [user].
 String _getCredential(CustomUser customUser, TestCredential credential) {
   switch (credential) {
     case TestCredential.num:
       return customUser.userNum.val;
 
-    // TODO: Make it throw an error if login is not set when backend supports
-    // getting login of [User].
+    // TODO: Throw [Exception], if [UserLogin] is not set, when `User.login`
+    //       becomes available.
     case TestCredential.login:
       return 'lgn_${customUser.userNum.val}';
   }

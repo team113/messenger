@@ -25,8 +25,8 @@ enum TestCredential {
   login,
 }
 
-/// [CustomParameter] of [TestCredential]s representing [Credentials] of a test
-/// user.
+/// [CustomParameter] of [TestCredential]s representing [Credentials] of a
+/// [CustomUser].
 class CredentialsParameter extends CustomParameter<TestCredential> {
   CredentialsParameter()
       : super(

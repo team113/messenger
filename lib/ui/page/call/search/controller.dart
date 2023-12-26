@@ -482,7 +482,7 @@ class SearchController extends GetxController {
           }
         }
 
-        // Allows user to put spaces everywhere in [UserNum].
+        // Account possible spaces in [UserNum].
         if (num.contains(queryString.split(' ').join())) {
           chats.value = {monologId: monolog, ...chats};
         }

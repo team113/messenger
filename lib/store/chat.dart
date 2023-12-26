@@ -1662,14 +1662,16 @@ class ChatRepository extends DisposableInterface
         if (chats[event.chat.chat.value.id]?.subscribed != true) {
           final ChatData chatData = event.chat;
           final Chat chat = chatData.chat.value;
+
           // TODO: Get rid of `_monologShouldBeHidden` when backend supports
-          // creating chats with `isHidden` set to `true`.
+          //       creating chats with `isHidden` set to `true`.
           if (_monologShouldBeHidden && chat.isMonolog) {
             // If local monolog was hidden, edit remote one's [ChatData] before
             // saving.
             chat.isHidden = true;
             _monologShouldBeHidden = false;
           }
+
           _putEntry(chatData);
         }
         break;

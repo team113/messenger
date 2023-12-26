@@ -19,7 +19,7 @@ Feature: Searching deleted monolog
 
   Scenario: User searches deleted monolog and sees it
     Given I am Alice
-    And I have my login set
+    And I have my login set up
     And I wait until `ChatMonolog` is present
 
     When I long press monolog
