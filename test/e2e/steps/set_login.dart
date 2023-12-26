@@ -33,7 +33,9 @@ final StepDefinitionGeneric setLogin = then1<TestUser, CustomWorld>(
     final CustomUser? customUser = context.world.sessions[user.name];
 
     if (customUser == null) {
-      throw ArgumentError('User ${user.name} is not logged in.');
+      throw ArgumentError(
+        '`${user.name}` is not found in `CustomWorld.sessions`.',
+      );
     }
 
     await _setLoginTo(customUser);
