@@ -28,7 +28,8 @@ import 'package:messenger/routes.dart';
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Taps a [ChatMessage] with the provided text in the currently opened [Chat].
+/// Taps a replied [ChatMessage] with the provided text in the currently opened
+/// [Chat].
 ///
 /// Examples:
 /// - Then I tap "Example" reply

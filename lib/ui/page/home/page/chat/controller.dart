@@ -1081,7 +1081,7 @@ class ChatController extends GetxController {
   }
 
   /// Animates [listController] to a [ChatItem] identified by the provided
-  /// [item], [reply] or [forward].
+  /// [item] and its [reply] or [forward].
   Future<void> animateTo(
     ChatItem item, {
     ChatItemId? reply,
@@ -1145,6 +1145,7 @@ class ChatController extends GetxController {
       });
 
       if (index != -1) {
+        // [FlutterListView] ignores the [initIndex] if it is 0.
         if (index == 0) {
           initIndex = 1;
           initOffset = 5000;

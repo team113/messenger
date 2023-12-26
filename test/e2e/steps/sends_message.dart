@@ -49,8 +49,8 @@ final StepDefinitionGeneric sendsMessageToMe =
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Sends a message from the specified [User] the group with the provided name
-/// with the provided text.
+/// Sends a message from the specified [User] to the group with the provided
+/// name with the provided text.
 ///
 /// Examples:
 /// - Bob sends "Hello, Alice!" message to "Name" group

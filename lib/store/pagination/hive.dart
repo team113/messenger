@@ -100,16 +100,16 @@ class HivePageProvider<T extends Object, C, K>
       final int initial = ordered.toList().indexOf(key);
 
       if (initial != -1) {
-        keys ??= ordered.around(initial, count);
+        keys = ordered.around(initial, count);
       }
     } else {
       switch (strategy) {
         case PaginationStrategy.fromStart:
-          keys ??= ordered.take(count);
+          keys = ordered.take(count);
           break;
 
         case PaginationStrategy.fromEnd:
-          keys ??= ordered.skip(
+          keys = ordered.skip(
             (ordered.length - count).clamp(0, double.maxFinite.toInt()),
           );
           break;
