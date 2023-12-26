@@ -74,9 +74,7 @@ abstract class StorageFile extends HiveObject {
 
   /// Returns the name of this [StorageFile] without an extension.
   String get name {
-    late final time = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
-
-    return checksum ?? time;
+    return checksum ?? DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
   }
 }
 

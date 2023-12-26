@@ -663,29 +663,32 @@ class CacheEntry {
   /// Byte data of this [CacheEntry].
   final Uint8List? bytes;
 
-  /// [MediaType] type of this [CacheEntry].
+  /// [MediaType] of this [CacheEntry].
   Future<MediaType?> get type async {
     if (!_typeResolved) {
       _type = await _resolveType();
     }
+
     return _type;
   }
 
-  /// Value of [MediaType] type of this [CacheEntry].
+  /// [MediaType] type of this [CacheEntry].
   MediaType? _type;
 
-  /// True if [_resolveType] was called.
+  /// Indicator whether [_type] is determined, used to prevent double
+  /// [_resolveType] invoking.
   bool _typeResolved = false;
 
-  /// Resolves [MediaType] of data in this [CacheEntry].
+  /// Resolves the [MediaType] of [bytes]/[file] of this [CacheEntry].
   Future<MediaType?> _resolveType() async {
     String? mime;
-    _typeResolved = true;
+
     if (bytes != null) {
       List<int>? headerBytes =
           bytes?.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
       mime = MimeResolver.lookup('', headerBytes: headerBytes);
     }
+
     if ((file != null) && (bytes == null)) {
       List<int>? headerBytes = [];
       await for (var part
@@ -694,7 +697,10 @@ class CacheEntry {
       }
       mime = MimeResolver.lookup('', headerBytes: headerBytes);
     }
-    return (mime == null) ? null : MediaType.parse(mime);
+
+    _typeResolved = true;
+
+    return mime == null ? null : MediaType.parse(mime);
   }
 }
 

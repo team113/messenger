@@ -49,13 +49,16 @@ class MimeResolver {
       resolver.lookup(path, headerBytes: headerBytes);
 }
 
-/// Extension adding an ability to provide file extension.
+/// Extension adding an ability to retrieve extension from [MediaType].
 extension FileExtensionExt on MediaType {
-  /// Returns an extension related to this [MediaType].
+  /// Returns an extension of this [MediaType], if any.
   String? get extension {
     // TODO: Remove when dart-lang/mime#55 is fixed:
     //       https://github.com/dart-lang/mime/issues/55
-    if (mimeType == 'image/jpeg') return 'jpg';
+    if (mimeType == 'image/jpeg') {
+      return 'jpg';
+    }
+
     return extensionFromMime(mimeType);
   }
 }
