@@ -35,8 +35,7 @@ class ChatMoreWidget extends StatefulWidget {
     void Function()? onPressed,
   })  : label = button.hint,
         offset = button.offsetMini,
-        icon = SvgIcon(button.assetMini ?? button.asset),
-        disabledIcon = SvgIcon(button.disabled ?? button.asset) {
+        icon = SvgIcon(button.assetMini ?? button.asset) {
     this.onPressed = button.onPressed == null
         ? null
         : () {
@@ -62,9 +61,6 @@ class ChatMoreWidget extends StatefulWidget {
 
   /// Icon to display.
   final Widget icon;
-
-  /// Disabled icon to display.
-  final Widget? disabledIcon;
 
   @override
   State<ChatMoreWidget> createState() => _ChatMoreWidgetState();

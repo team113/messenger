@@ -24,12 +24,12 @@ import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [MediaButtonsSwitchView].
-class MediaButtonsSwitchController extends GetxController {
-  MediaButtonsSwitchController(this._settingsRepository);
+/// Controller of a [CallButtonsSwitchView].
+class CallButtonsSwitchController extends GetxController {
+  CallButtonsSwitchController(this._settingsRepository);
 
   /// Settings repository updating the
-  /// [ApplicationSettings.mediaButtonsPosition].
+  /// [ApplicationSettings.callButtonsPosition].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns the current [ApplicationSettings] value.

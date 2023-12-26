@@ -57,7 +57,7 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
-import 'media_buttons_switch/controller.dart';
+import 'call_buttons_switch/controller.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
@@ -677,7 +677,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
               CallButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
             },
             maxLines: null,
-            onPressed: () => MediaButtonsSwitchView.show(context),
+            onPressed: () => CallButtonsSwitchView.show(context),
             style: style.fonts.normal.regular.primary,
           );
         }),

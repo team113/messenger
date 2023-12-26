@@ -28,14 +28,14 @@ import 'controller.dart';
 /// View for updating the [ApplicationSettings.callButtonsPosition] value.
 ///
 /// Intended to be displayed with the [show] method.
-class MediaButtonsSwitchView extends StatelessWidget {
-  const MediaButtonsSwitchView({super.key});
+class CallButtonsSwitchView extends StatelessWidget {
+  const CallButtonsSwitchView({super.key});
 
-  /// Displays a [MediaButtonsSwitchView] wrapped in a [ModalPopup].
+  /// Displays a [CallButtonsSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
       context: context,
-      child: const MediaButtonsSwitchView(),
+      child: const CallButtonsSwitchView(),
     );
   }
 
@@ -44,8 +44,8 @@ class MediaButtonsSwitchView extends StatelessWidget {
     const Duration duration = Duration(milliseconds: 250);
 
     return GetBuilder(
-      init: MediaButtonsSwitchController(Get.find()),
-      builder: (MediaButtonsSwitchController c) {
+      init: CallButtonsSwitchController(Get.find()),
+      builder: (CallButtonsSwitchController c) {
         return AnimatedSizeAndFade(
           fadeDuration: duration,
           sizeDuration: duration,

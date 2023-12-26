@@ -249,11 +249,14 @@ class MessageFieldController extends GetxController {
 
   /// Sets the [_inCallWorker] with the provided [inCall].
   set inCallWorker(RxBool inCall) {
-    _updateButtons(inCall.value);
+    if (settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
+        onCall != null) {
+      _updateButtons(inCall.value);
 
-    _inCallWorker = ever(inCall, (bool val) {
-      _updateButtons(val);
-    });
+      _inCallWorker = ever(inCall, (bool val) {
+        _updateButtons(val);
+      });
+    }
   }
 
   @override
