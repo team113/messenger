@@ -394,7 +394,6 @@ class ChatController extends GetxController {
       _settingsRepository,
       onChanged: updateDraft,
       onCall: call,
-      inCall: RxBool(false),
       onSubmit: () async {
         if (chat == null) {
           return;
@@ -664,7 +663,7 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      send.inCall = chat!.inCall;
+      send.inCallWorker = chat!.inCall;
 
       _chatSubscription = chat!.updates.listen((_) {});
 

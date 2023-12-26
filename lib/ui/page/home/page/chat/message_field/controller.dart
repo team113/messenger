@@ -58,7 +58,6 @@ class MessageFieldController extends GetxController {
     this.onSubmit,
     this.onChanged,
     this.onCall,
-    this.inCall,
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
@@ -147,10 +146,6 @@ class MessageFieldController extends GetxController {
   /// Callback, called when make [OngoingCall] action is triggered.
   final void Function(bool)? onCall;
 
-  /// Indicator whether the [OngoingCall] related buttons should be disabled or
-  /// not.
-  RxBool? inCall;
-
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
 
@@ -198,9 +193,9 @@ class MessageFieldController extends GetxController {
     ] else
       AttachmentButton(pickFile),
     if (settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
-        inCall != null) ...[
-      AudioCallButton(inCall!.value ? null : () => onCall?.call(false)),
-      VideoCallButton(inCall!.value ? null : () => onCall?.call(true)),
+        onCall != null) ...[
+      AudioCallButton(() => onCall?.call(false)),
+      VideoCallButton(() => onCall?.call(true)),
     ],
   ]);
 
@@ -252,6 +247,15 @@ class MessageFieldController extends GetxController {
   Rx<ApplicationSettings?>? get settings =>
       _settingsRepository?.applicationSettings;
 
+  /// Sets the [_inCallWorker] with the provided [inCall].
+  set inCallWorker(RxBool inCall) {
+    _updateButtons(inCall.value);
+
+    _inCallWorker = ever(inCall, (bool val) {
+      _updateButtons(val);
+    });
+  }
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -277,24 +281,6 @@ class MessageFieldController extends GetxController {
     });
 
     super.onInit();
-  }
-
-  @override
-  void onReady() {
-    if (inCall != null &&
-        settings?.value?.callButtonsPosition == CallButtonsPosition.more) {
-      _inCallWorker = ever(inCall!, (bool val) {
-        panel.replaceRange(panel.length - 2, panel.length, [
-          AudioCallButton(val ? null : () => onCall?.call(false)),
-          VideoCallButton(val ? null : () => onCall?.call(true)),
-        ]);
-        buttons.value = _toButtons(
-          _settingsRepository?.applicationSettings.value?.pinnedActions,
-        );
-      });
-    }
-
-    super.onReady();
   }
 
   @override
@@ -463,6 +449,23 @@ class MessageFieldController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Updates the [panel] and [buttons] with a new value.
+  void _updateButtons(bool val) {
+    panel.value = panel.map((button) {
+      if (button is AudioCallButton) {
+        return AudioCallButton(val ? null : () => onCall?.call(false));
+      }
+      if (button is VideoCallButton) {
+        return VideoCallButton(val ? null : () => onCall?.call(true));
+      }
+      return button;
+    }).toList();
+
+    buttons.value = _toButtons(
+      _settingsRepository?.applicationSettings.value?.pinnedActions,
+    );
   }
 
   /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.

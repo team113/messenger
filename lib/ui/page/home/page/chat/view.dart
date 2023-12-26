@@ -390,8 +390,8 @@ class _ChatViewState extends State<ChatView>
                                           offset: const Offset(2, 1),
                                           child: SvgIcon(
                                             inCall
-                                                ? SvgIcons.chatVideoCallDisabled
-                                                : SvgIcons.chatVideoCall,
+                                                ? SvgIcons.makeVideoCallDisabled
+                                                : SvgIcons.makeVideoCall,
                                             height: 15,
                                           ),
                                         ),
