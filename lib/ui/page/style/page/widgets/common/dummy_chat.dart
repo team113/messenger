@@ -55,9 +55,6 @@ class DummyRxChat extends RxChat {
   RxBool get hasPrevious => RxBool(false);
 
   @override
-  ChatItem? get lastItem => null;
-
-  @override
   UserId? get me => null;
 
   @override

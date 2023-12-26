@@ -249,19 +249,6 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  ChatItem? get lastItem {
-    ChatItem? item = chat.value.lastItem;
-    if (messages.isNotEmpty) {
-      final ChatItem last = messages.last.value;
-      if (item?.at.isBefore(last.at) == true) {
-        item = last;
-      }
-    }
-
-    return item;
-  }
-
-  @override
   Stream<void> get updates => _controller.stream;
 
   /// Indicates whether this [RxChat] is listening to the remote updates.
@@ -1091,7 +1078,7 @@ class HiveRxChat extends RxChat {
               chatEntity.value.lastItem = null;
             }
 
-            await _chatRepository.put(chatEntity);
+            await _chatRepository.put(chatEntity, ignoreVersion: true);
           }
         }
       } else {
@@ -1102,7 +1089,7 @@ class HiveRxChat extends RxChat {
           if (chatEntity != null) {
             chatEntity.value.updatedAt = item.value.at;
             chatEntity.value.lastItem = item.value;
-            await _chatRepository.put(chatEntity);
+            await _chatRepository.put(chatEntity, ignoreVersion: true);
           }
         }
       }
