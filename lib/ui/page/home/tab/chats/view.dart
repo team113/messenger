@@ -1014,7 +1014,7 @@ class ChatsTabView extends StatelessWidget {
                             10 + 10,
                             0,
                             10 + 10,
-                            72 + MediaQuery.of(context).viewPadding.bottom,
+                            72 + router.context!.mediaQueryViewPadding.bottom,
                           ),
                           child: WidgetButton(
                             key: const Key('Restore'),
