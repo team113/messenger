@@ -2233,7 +2233,6 @@ class ChatRepository extends DisposableInterface
     Log.debug('_initMonolog()', '$runtimeType');
 
     await _monologGuard.protect(() async {
-      final bool isStored = _monologLocal.get() != null;
       final bool isLocal = monolog.isLocal;
       final bool isPaginated = paginated[monolog] != null;
       final bool canFetchMore = _pagination?.hasNext.value ?? true;
@@ -2241,12 +2240,19 @@ class ChatRepository extends DisposableInterface
       // If a non-local [monolog] isn't stored and it won't appear from the
       // [Pagination], then initialize local monolog or get a remote one.
       if (isLocal && !isPaginated && !canFetchMore) {
+        // Whether [ChatId] of user's monolog is known for the given device.
+        final bool isStored = _monologLocal.get() != null;
+
         if (isStored) {
-          // Initialize local monolog if one is already known to be local.
+          // Initialize local monolog if its `id` was saved. If `isStored`,
+          // local monolog will appear for a moment since it's stored in [Hive],
+          // but then disappear, because it's not in the remote [Pagination].
+          // This line makes [monolog] be present despite it is not remote.
           await _createLocalDialog(me);
         }
 
-        // Check if there's a remote update.
+        // Check if there's a remote update (monolog could've been hidden)
+        // before creating a local chat.
         final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
 
         if (maybeMonolog != null) {
@@ -2255,8 +2261,9 @@ class ChatRepository extends DisposableInterface
           final HiveRxChat monolog = await _putEntry(monologChatData);
 
           await _monologLocal.set(monolog.id);
-        } else {
-          // If remote monolog doesn't exist, then create a local one.
+        } else if (!isStored) {
+          // If remote monolog doesn't exist and local one is not stored, then
+          // create it.
           await _createLocalDialog(me);
           await _monologLocal.set(monolog);
         }
