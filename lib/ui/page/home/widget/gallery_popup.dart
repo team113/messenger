@@ -28,9 +28,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:path/path.dart' as p;
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+import '../../../../util/mime.dart';
 import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -1078,8 +1080,18 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Downloads the provided [GalleryItem] using `save as` dialog.
   Future<void> _downloadAs(GalleryItem item) async {
     try {
+      String fileName = item.name;
+      if (item.checksum != null &&
+          CacheWorker.instance.exists(item.checksum!)) {
+        if (p.extension(fileName).isEmpty) {
+          CacheEntry? cache =
+              await CacheWorker.instance.get(checksum: item.checksum);
+          fileName =
+              [fileName, (await cache.type)?.extension].nonNulls.join('.');
+        }
+      }
       String? to = await FilePicker.platform.saveFile(
-        fileName: item.name,
+        fileName: fileName,
         type: item.isVideo ? FileType.video : FileType.image,
         lockParentWindow: true,
       );
