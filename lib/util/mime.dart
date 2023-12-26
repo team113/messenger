@@ -58,7 +58,7 @@ extension FileExtensionExt on MediaType {
     if (mimeType == 'image/jpeg') {
       return 'jpg';
     }
-
-    return extensionFromMime(mimeType);
+    final fromMime = extensionFromMime(mimeType);
+    return (fromMime == mimeType) ? null : fromMime;
   }
 }
