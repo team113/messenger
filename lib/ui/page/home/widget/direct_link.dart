@@ -20,6 +20,12 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
+import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
+import 'package:messenger/ui/widget/animated_switcher.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '/config.dart';
 import '/domain/model/user.dart';
@@ -64,6 +70,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
 
+  bool _editing = false;
+  bool _expanded = false;
+
   @override
   void initState() {
     if (widget.link == null) {
@@ -90,6 +99,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         } on FormatException {
           s.error.value = 'err_incorrect_input'.l10n;
         }
+
+        setState(() => _editing = false);
 
         if (slug == null || slug == widget.link?.slug) {
           return;
@@ -137,30 +148,34 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
+    final Widget child;
+
+    if (_editing) {
+      child = Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
           onSuffixPressed: _state.isEmpty.value || !widget.transitions
               ? null
               : () {
-                  PlatformUtils.copy(
-                    text:
-                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
-                  );
-                  MessagePopup.success('label_copied'.l10n);
+                  final share =
+                      '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+
+                  if (PlatformUtils.isMobile) {
+                    Share.share(share);
+                  } else {
+                    PlatformUtils.copy(text: share);
+                    MessagePopup.success('label_copied'.l10n);
+                  }
                 },
           trailing: _state.isEmpty.value || !widget.transitions
               ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: const SvgIcon(SvgIcons.copy),
-                ),
+              : PlatformUtils.isMobile
+                  ? const SvgIcon(SvgIcons.share)
+                  : const SvgIcon(SvgIcons.copy),
           label: '${Config.origin}/',
-          subtitle: widget.transitions
+          subtitle: false && widget.transitions
               ? RichText(
                   text: TextSpan(
                     style: style.fonts.small.regular.onBackground,
@@ -172,17 +187,111 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                             'dot_space'.l10n,
                         style: style.fonts.small.regular.secondary,
                       ),
-                      TextSpan(
-                        text: 'label_details'.l10n,
-                        style: style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () => LinkDetailsView.show(context),
-                      ),
+                      // TextSpan(
+                      //   text: 'label_details'.l10n,
+                      //   style: style.fonts.small.regular.primary,
+                      //   recognizer: TapGestureRecognizer()
+                      //     ..onTap = () => LinkDetailsView.show(context),
+                      // ),
                     ],
                   ),
                 )
               : null,
         ),
+      );
+    } else {
+      child = ContactInfoContents(
+        padding: EdgeInsets.zero,
+        title: '${Config.origin}/',
+        content: _state.text,
+        trailing: Row(
+          children: [
+            // const SvgIcon(SvgIcons.delete),
+            // const SizedBox(width: 16),
+            CopyOrShareButton(
+              '${Config.origin}/${_state.text}',
+            ),
+          ],
+        ),
+        subtitle: [
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              if (widget.transitions)
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'label_transition_count'.l10nfmt({
+                            'count': widget.link?.usageCount ?? 0,
+                          }), //+
+                          // 'dot_space'.l10n,
+                          style: style.fonts.small.regular.primary,
+                        ),
+                        // TextSpan(
+                        //   text: 'label_details'.l10n,
+                        //   style: style.fonts.small.regular.primary,
+                        //   recognizer: TapGestureRecognizer()
+                        //     ..onTap = () => LinkDetailsView.show(context),
+                        // ),
+                      ],
+                    ),
+                  ),
+                ),
+              WidgetButton(
+                onPressed: () => setState(() {
+                  _state.unsubmit();
+                  _state.changed.value = true;
+                  _editing = true;
+                }),
+                child: Text(
+                  'Удалить',
+                  style: style.fonts.small.regular.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedSizeAndFade(
+          sizeDuration: const Duration(milliseconds: 300),
+          fadeDuration: const Duration(milliseconds: 300),
+          child: child,
+        ),
+        // const SizedBox(height: 16),
+        // WidgetButton(
+        //   onPressed: () => setState(() => _expanded = !_expanded),
+        //   child: Row(
+        //     children: [
+        //       Expanded(
+        //         child: Container(
+        //           width: double.infinity,
+        //           height: 0.5,
+        //           color: style.colors.primary,
+        //         ),
+        //       ),
+        //       const SizedBox(width: 8),
+        //       Text(
+        //         _expanded ? 'Скрыть' : 'Ещё',
+        //         style: style.fonts.small.regular.primary,
+        //       ),
+        //       const SizedBox(width: 8),
+        //       Expanded(
+        //         child: Container(
+        //           width: double.infinity,
+        //           height: 0.5,
+        //           color: style.colors.primary,
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }

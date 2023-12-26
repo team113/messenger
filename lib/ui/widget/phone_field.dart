@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -33,11 +35,9 @@ class ReactivePhoneField extends StatelessWidget {
       label: label,
       floatingLabelBehavior: FloatingLabelBehavior.always,
       style: style.fonts.medium.regular.onBackground,
+      formatters: [FilteringTextInputFormatter.digitsOnly],
       onChanged: () {
-        state.number.value = PhoneNumber(
-          isoCode: state.iso.value,
-          nsn: state.controller.text,
-        );
+        state.isEmpty.value = state.controller.text.isEmpty;
       },
       prefixIcon: WidgetButton(
         onPressed: () async {
@@ -188,6 +188,7 @@ class PhoneFieldState extends ReactiveFieldState {
     isEmpty = RxBool(initial == null);
 
     this.editable = RxBool(editable);
+    this.approvable = approvable;
     this.status = Rx(status ?? RxStatus.empty());
 
     if (submitted) {
@@ -196,10 +197,16 @@ class PhoneFieldState extends ReactiveFieldState {
 
     changed.value = _previousSubmit != initial;
 
-    controller2.addListener(() => PlatformUtils.keepActive());
+    controller.addListener(() {
+      PlatformUtils.keepActive();
+      changed.value = controller.text.trim() != (_previousSubmit ?? '');
+      print('${changed.value}: ${controller.text} vs $_previousSubmit');
+    });
 
     PhoneNumber? prevPhone = controller2.value;
     controller2.addListener(() {
+      PlatformUtils.keepActive();
+
       if (controller2.value != prevPhone) {
         prevPhone = controller2.value;
         if (revalidateOnUnfocus) {
@@ -208,19 +215,19 @@ class PhoneFieldState extends ReactiveFieldState {
       }
     });
 
-    if (onChanged != null) {
-      controller2.addListener(() {
-        changed.value = controller2.value != (_previousSubmit ?? '');
-      });
-    }
+    // if (onChanged != null) {
+    //   controller2.addListener(() {
+    //     changed.value = controller2.value != (_previousSubmit ?? '');
+    //   });
+    // }
 
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
 
+      controller2.value = PhoneNumber(isoCode: iso.value, nsn: controller.text);
+
       if (onChanged != null) {
-        if (controller2.value != _previousText &&
-            (_previousText?.nsn.isEmpty == false ||
-                controller2.value?.nsn.isEmpty == false)) {
+        if (controller2.value != _previousText) {
           isEmpty.value = controller2.value?.nsn.isEmpty != false;
           if (!this.focus.hasFocus) {
             onChanged?.call(this);
@@ -278,6 +285,8 @@ class PhoneFieldState extends ReactiveFieldState {
   /// was modified on any [focus] change.
   PhoneNumber? _previousText;
 
+  String? _previous;
+
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified since the last [submit] action.
   PhoneNumber? _previousSubmit;
@@ -315,6 +324,12 @@ class PhoneFieldState extends ReactiveFieldState {
   @override
   void submit() {
     if (editable.value) {
+      if (controller.text != _previous) {
+        _previous = controller.text;
+        controller2.value =
+            PhoneNumber(isoCode: iso.value, nsn: controller.text);
+      }
+
       if (controller2.value != _previousSubmit) {
         if (_previousText != controller2.value) {
           _previousText = controller2.value;
@@ -337,6 +352,7 @@ class PhoneFieldState extends ReactiveFieldState {
   void clear() {
     isEmpty.value = true;
     controller2.value = null;
+    controller.text = '';
     error.value = null;
     _previousText = null;
     _previousSubmit = null;

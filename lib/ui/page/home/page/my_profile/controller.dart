@@ -145,7 +145,7 @@ class MyProfileController extends GetxController {
     onChanged: (s) {
       s.error.value = null;
 
-      if (s.phone?.international.isNotEmpty != true) {
+      if (s.phone?.nsn.isNotEmpty == true) {
         try {
           final email = UserPhone(s.phone!.international);
 
@@ -159,7 +159,7 @@ class MyProfileController extends GetxController {
       }
     },
     onSubmitted: (s) async {
-      if (s.phone?.international.isNotEmpty != true || s.error.value != null) {
+      if (s.phone?.nsn.isNotEmpty != true || s.error.value != null) {
         return;
       }
 
@@ -250,15 +250,17 @@ class MyProfileController extends GetxController {
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   List<UserEmail> get emails => [
-        // UserEmail('dummy1@example.com'),
-        // UserEmail('dummy2@example.com'),
-        // UserEmail('unverified@example.com'),
+        UserEmail('dummy1@example.com'),
+        UserEmail('dummy2@example.com'),
+        UserEmail('unverified@example.com'),
       ];
   List<UserPhone> get phones => [
         // UserPhone('+1234567890'),
         // UserPhone('+1234567890'),
         // UserPhone('+0234567890'),
       ];
+
+  final RxBool expanded = RxBool(false);
 
   @override
   void onInit() {

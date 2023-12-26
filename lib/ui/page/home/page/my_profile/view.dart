@@ -132,6 +132,7 @@ class MyProfileView extends StatelessWidget {
                     String? title,
                     required List<Widget> children,
                     EdgeInsets? padding,
+                    List<Widget> overlay = const [],
                   }) {
                     return Obx(() {
                       return Block(
@@ -139,6 +140,7 @@ class MyProfileView extends StatelessWidget {
                         padding: padding ??
                             const EdgeInsets.fromLTRB(32, 16, 32, 16),
                         highlight: c.highlightIndex.value == i,
+                        overlay: overlay,
                         children: children,
                       );
                     });
@@ -1101,7 +1103,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           ),
           const SizedBox(width: 8),
           Text(
-            'Добавить также',
+            'Действия',
             style: style.fonts.small.regular.secondary,
           ),
           const SizedBox(width: 8),
@@ -1116,15 +1118,15 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 24),
       _password(context, c),
-      const SizedBox(height: 20),
+      const SizedBox(height: 4),
       Obx(() {
         if (c.myUser.value?.login != null) {
-          return const SizedBox();
+          return const SizedBox(height: 12);
         }
 
         return Paddings.basic(
           Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.only(bottom: 0),
             child: UserLoginField(
               c.myUser.value?.login,
               onSubmit: c.updateUserLogin,
@@ -1132,18 +1134,93 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           ),
         );
       }),
+      Obx(() {
+        final emails = [
+          ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
+          c.myUser.value?.emails.unconfirmed,
+          ...c.emails,
+        ].whereNotNull();
 
-      ReactivePhoneField(
-        state: c.phone,
-        label: 'Добавить телефон',
-      ),
-      const SizedBox(height: 24),
-      ReactiveTextField(
-        state: c.email,
-        label: 'Добавить E-mail',
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        hint: 'example@dummy.com',
-      ),
+        final phones = [
+          ...c.myUser.value?.phones.confirmed ?? <UserPhone>[],
+          c.myUser.value?.phones.unconfirmed,
+          ...c.phones,
+        ].whereNotNull();
+
+        final phone =
+            ReactivePhoneField(state: c.phone, label: 'Добавить телефон');
+        final email = ReactiveTextField(
+          state: c.email,
+          label: 'Добавить E-mail',
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hint: 'example@dummy.com',
+        );
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (emails.isEmpty || phones.isEmpty) const SizedBox(height: 24),
+            if (phones.isEmpty) phone,
+            if (emails.isEmpty && phones.isEmpty) const SizedBox(height: 24),
+            if (emails.isEmpty) email,
+            if (emails.isEmpty || phones.isEmpty) const SizedBox(height: 12),
+            if (phones.isNotEmpty || emails.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              WidgetButton(
+                onPressed: c.expanded.toggle,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        height: 0.5,
+                        color: style.colors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      c.expanded.value ? 'Скрыть' : 'Ещё',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        height: 0.5,
+                        color: style.colors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (c.expanded.value) const SizedBox(height: 24),
+              if (phones.isNotEmpty && c.expanded.value) phone,
+              if (phones.isNotEmpty && emails.isNotEmpty && c.expanded.value)
+                const SizedBox(height: 24),
+              if (emails.isNotEmpty && c.expanded.value) email,
+            ],
+            // WidgetButton(
+            //   onPressed: c.expanded.toggle,
+            //   child: Text(
+            //     c.expanded.value ? 'Скрыть' : 'Ещё',
+            //     style: style.fonts.small.regular.primary,
+            //   ),
+            // ),
+          ],
+        );
+      }),
+
+      // ReactivePhoneField(
+      //   state: c.phone,
+      //   label: 'Добавить телефон',
+      // ),
+      // const SizedBox(height: 24),
+      // ReactiveTextField(
+      //   state: c.email,
+      //   label: 'Добавить E-mail',
+      //   floatingLabelBehavior: FloatingLabelBehavior.always,
+      //   hint: 'example@dummy.com',
+      // ),
 
       // Paddings.dense(
       //   FieldButton(
