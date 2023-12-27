@@ -250,9 +250,9 @@ class MyProfileController extends GetxController {
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   List<UserEmail> get emails => [
-        UserEmail('dummy1@example.com'),
-        UserEmail('dummy2@example.com'),
-        UserEmail('unverified@example.com'),
+        // UserEmail('dummy1@example.com'),
+        // UserEmail('dummy2@example.com'),
+        // UserEmail('unverified@example.com'),
       ];
   List<UserPhone> get phones => [
         // UserPhone('+1234567890'),
