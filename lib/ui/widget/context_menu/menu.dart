@@ -204,7 +204,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       scale: 0.8,
                       child: Align(
                         alignment: Alignment.center,
-                        child: isMouseOver
+                        child: isMouseOver && widget.onPressed != null
                             ? (widget.inverted ?? widget.trailing)
                             : widget.trailing,
                       ),

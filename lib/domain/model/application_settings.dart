@@ -35,6 +35,7 @@ class ApplicationSettings extends HiveObject {
     this.loadImages = true,
     this.timelineEnabled = false,
     this.pinnedActions = const [],
+    this.callButtonsPosition = CallButtonsPosition.appBar,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -81,4 +82,32 @@ class ApplicationSettings extends HiveObject {
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   @HiveField(9)
   List<String> pinnedActions;
+
+  /// [CallButtonsPosition] of the call buttons in [Chat].
+  @HiveField(10)
+  CallButtonsPosition? callButtonsPosition;
+}
+
+/// Possible call buttons position.
+@HiveType(typeId: ModelTypeId.callButtonsPosition)
+enum CallButtonsPosition {
+  /// [AppBar] position.
+  @HiveField(0)
+  appBar,
+
+  /// [ContextMenu] position.
+  @HiveField(1)
+  contextMenu,
+
+  /// Top position in [ChatView] body.
+  @HiveField(2)
+  top,
+
+  /// Bottom position in [ChatView] body.
+  @HiveField(3)
+  bottom,
+
+  /// [ChatMoreWidget] button position.
+  @HiveField(4)
+  more,
 }
