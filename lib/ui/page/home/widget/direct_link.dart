@@ -16,10 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/background_preview.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
@@ -48,15 +50,17 @@ class DirectLinkField extends StatefulWidget {
     super.key,
     this.onSubmit,
     this.transitions = true,
+    this.background,
   });
 
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
 
   /// Callback, called when [ChatDirectLinkSlug] is submitted.
-  final FutureOr<void> Function(ChatDirectLinkSlug)? onSubmit;
+  final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
 
   final bool transitions;
+  final Uint8List? background;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -77,6 +81,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   void initState() {
     if (widget.link == null) {
       _generated = ChatDirectLinkSlug.generate(10).val;
+      _editing = true;
     }
 
     _state = TextFieldState(
@@ -175,46 +180,139 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   ? const SvgIcon(SvgIcons.share)
                   : const SvgIcon(SvgIcons.copy),
           label: '${Config.origin}/',
-          subtitle: false && widget.transitions
-              ? RichText(
-                  text: TextSpan(
-                    style: style.fonts.small.regular.onBackground,
-                    children: [
-                      TextSpan(
-                        text: 'label_transition_count'.l10nfmt({
-                              'count': widget.link?.usageCount ?? 0,
-                            }) +
-                            'dot_space'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                      // TextSpan(
-                      //   text: 'label_details'.l10n,
-                      //   style: style.fonts.small.regular.primary,
-                      //   recognizer: TapGestureRecognizer()
-                      //     ..onTap = () => LinkDetailsView.show(context),
-                      // ),
-                    ],
-                  ),
-                )
-              : null,
+          // subtitle: false && widget.transitions
+          //     ? RichText(
+          //         text: TextSpan(
+          //           style: style.fonts.small.regular.onBackground,
+          //           children: [
+          //             TextSpan(
+          //               text: 'label_transition_count'.l10nfmt({
+          //                     'count': widget.link?.usageCount ?? 0,
+          //                   }) +
+          //                   'dot_space'.l10n,
+          //               style: style.fonts.small.regular.secondary,
+          //             ),
+          //             // TextSpan(
+          //             //   text: 'label_details'.l10n,
+          //             //   style: style.fonts.small.regular.primary,
+          //             //   recognizer: TapGestureRecognizer()
+          //             //     ..onTap = () => LinkDetailsView.show(context),
+          //             // ),
+          //           ],
+          //         ),
+          //       )
+          //     : null,
         ),
       );
     } else {
-      child = ContactInfoContents(
-        padding: EdgeInsets.zero,
-        title: '${Config.origin}/',
-        content: _state.text,
-        trailing: Row(
-          children: [
-            // const SvgIcon(SvgIcons.delete),
-            // const SizedBox(width: 16),
-            CopyOrShareButton(
-              '${Config.origin}/${_state.text}',
-            ),
-          ],
-        ),
-        subtitle: [
-          const SizedBox(height: 24),
+      child = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: style.primaryBorder,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: widget.background == null
+                        ? const SvgImage.asset(
+                            'assets/images/background_light.svg',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.memory(widget.background!, fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 14),
+                  _info(context, Text(DateTime.now().yMd)),
+                  // _info(context, Text('${widget.link?.usageCount} кликов')),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                    child: WidgetButton(
+                      onPressed: () {
+                        final share =
+                            '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+
+                        if (PlatformUtils.isMobile) {
+                          Share.share(share);
+                        } else {
+                          PlatformUtils.copy(text: share);
+                          MessagePopup.success(
+                            'label_copied'.l10n,
+                          );
+                        }
+                      },
+                      child: MessagePreviewWidget(
+                        fromMe: true,
+                        // text:
+                        //     '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
+                        primary: true,
+                        child: Stack(
+                          children: [
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
+                                    style: style.fonts.medium.regular.primary,
+                                  ),
+                                  // TextSpan(
+                                  //   text:
+                                  //       '   ${widget.link?.usageCount} кликов',
+                                  //   style: style.fonts.small.regular.primary
+                                  //       .copyWith(
+                                  //     color: style.colors.transparent,
+                                  //   ),
+                                  // ),
+                                ],
+                              ),
+                            ),
+                            // Positioned(
+                            //   bottom: 0,
+                            //   right: 0,
+                            //   child: Text(
+                            //     '${widget.link?.usageCount} кликов',
+                            //     style: style.fonts.small.regular.secondary,
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                    child: MessagePreviewWidget(
+                      fromMe: true,
+                      text: '${widget.link?.usageCount} кликов',
+                      style: style.fonts.medium.regular.secondary,
+                      // primary: true,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+              ),
+              // ContactInfoContents(
+              //   padding: EdgeInsets.zero,
+              //   title: '${Config.origin}/',
+              //   content: _state.text,
+              //   trailing: CopyOrShareButton('${Config.origin}/${_state.text}'),
+              // ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               if (widget.transitions)
@@ -223,12 +321,34 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'label_transition_count'.l10nfmt({
-                            'count': widget.link?.usageCount ?? 0,
-                          }), //+
-                          // 'dot_space'.l10n,
+                          text: PlatformUtils.isMobile
+                              ? 'Поделиться'
+                              : 'Копировать',
                           style: style.fonts.small.regular.primary,
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              final share =
+                                  '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+
+                              if (PlatformUtils.isMobile) {
+                                Share.share(share);
+                              } else {
+                                PlatformUtils.copy(text: share);
+                                MessagePopup.success('label_copied'.l10n);
+                              }
+                            },
                         ),
+                        // TextSpan(
+                        //   text: ' | ',
+                        //   style: style.fonts.small.regular.secondary,
+                        // ),
+                        // TextSpan(
+                        //   text: 'label_transition_count'.l10nfmt({
+                        //     'count': widget.link?.usageCount ?? 0,
+                        //   }), //+
+                        //   // 'dot_space'.l10n,
+                        //   style: style.fonts.small.regular.primary,
+                        // ),
                         // TextSpan(
                         //   text: 'label_details'.l10n,
                         //   style: style.fonts.small.regular.primary,
@@ -239,15 +359,54 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     ),
                   ),
                 ),
+              const SizedBox(width: 8),
               WidgetButton(
-                onPressed: () => setState(() {
-                  _state.unsubmit();
-                  _state.changed.value = true;
-                  _editing = true;
-                }),
-                child: Text(
-                  'Удалить',
-                  style: style.fonts.small.regular.primary,
+                // onPressed: () => setState(() {
+                //   widget.onSubmit?.call(null);
+                //   _state.unsubmit();
+                //   _state.changed.value = true;
+                //   _editing = true;
+                // }),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      // TextSpan(
+                      //   text: PlatformUtils.isMobile
+                      //       ? 'Поделиться'
+                      //       : 'Копировать',
+                      //   style: style.fonts.small.regular.primary,
+                      //   recognizer: TapGestureRecognizer()
+                      //     ..onTap = () {
+                      //       final share =
+                      //           '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+
+                      //       if (PlatformUtils.isMobile) {
+                      //         Share.share(share);
+                      //       } else {
+                      //         PlatformUtils.copy(text: share);
+                      //         MessagePopup.success('label_copied'.l10n);
+                      //       }
+                      //     },
+                      // ),
+                      // TextSpan(
+                      //   text: ' или ',
+                      //   style: style.fonts.small.regular.secondary,
+                      // ),
+                      TextSpan(
+                        text: 'Удалить',
+                        style: style.fonts.small.regular.primary,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            setState(() {
+                              widget.onSubmit?.call(null);
+                              _state.unsubmit();
+                              _state.changed.value = true;
+                              _editing = true;
+                            });
+                          },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -256,14 +415,35 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       );
     }
 
+    final animated = AnimatedSizeAndFade(
+      sizeDuration: const Duration(milliseconds: 300),
+      fadeDuration: const Duration(milliseconds: 300),
+      child: child,
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AnimatedSizeAndFade(
-          sizeDuration: const Duration(milliseconds: 300),
-          fadeDuration: const Duration(milliseconds: 300),
-          child: child,
-        ),
+        animated,
+        // Stack(
+        //   children: [
+        //     Positioned.fill(
+        //       child: widget.background == null
+        //           ? const SvgImage.asset(
+        //               'assets/images/background_light.svg',
+        //               width: double.infinity,
+        //               height: double.infinity,
+        //               fit: BoxFit.cover,
+        //             )
+        //           : Image.memory(
+        //               widget.background!,
+        //               fit: BoxFit.cover,
+        //             ),
+        //     ),
+        //     animated,
+        //   ],
+        // ),
+
         // const SizedBox(height: 16),
         // WidgetButton(
         //   onPressed: () => setState(() => _expanded = !_expanded),
@@ -293,6 +473,28 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         //   ),
         // ),
       ],
+    );
+  }
+
+  Widget _info(BuildContext context, Widget child) {
+    final style = Theme.of(context).style;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: DefaultTextStyle(
+            style: style.systemMessageStyle,
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 }

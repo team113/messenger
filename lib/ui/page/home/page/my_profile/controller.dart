@@ -722,6 +722,10 @@ class MyProfileController extends GetxController {
     await _myUserService.createChatDirectLink(slug);
   }
 
+  Future<void> deleteChatDirectLink() async {
+    await _myUserService.deleteChatDirectLink();
+  }
+
   /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///
   /// If [name] is null, then resets [MyUser.name] field.

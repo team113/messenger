@@ -17,6 +17,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -85,14 +86,14 @@ class BackgroundPreview extends StatelessWidget {
                         children: [
                           Align(
                             alignment: Alignment.topLeft,
-                            child: _MessageWidget(
+                            child: MessagePreviewWidget(
                               fromMe: false,
                               text: 'label_hello'.l10n,
                             ),
                           ),
                           Align(
                             alignment: Alignment.topRight,
-                            child: _MessageWidget(
+                            child: MessagePreviewWidget(
                               text: 'label_hello_reply'.l10n,
                             ),
                           ),
@@ -128,18 +129,27 @@ class BackgroundPreview extends StatelessWidget {
 }
 
 /// Message-styled [Container].
-class _MessageWidget extends StatelessWidget {
-  const _MessageWidget({
+class MessagePreviewWidget extends StatelessWidget {
+  const MessagePreviewWidget({
+    super.key,
     this.text,
+    this.child,
     this.fromMe = true,
+    this.primary = false,
+    this.style,
   });
 
   /// Indicator whether the message is sent by the user or received from
   /// other users.
   final bool fromMe;
 
-  /// Text to display in this [_MessageWidget].
+  /// Text to display in this [MessagePreviewWidget].
   final String? text;
+
+  final bool primary;
+  final TextStyle? style;
+
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -148,8 +158,7 @@ class _MessageWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
       child: IntrinsicWidth(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
+        child: Container(
           decoration: BoxDecoration(
             color: fromMe ? style.readMessageColor : style.messageColor,
             borderRadius: BorderRadius.circular(15),
@@ -158,13 +167,23 @@ class _MessageWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (text != null)
+              if (child != null || text != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(
-                    text!,
-                    style: style.fonts.medium.regular.onBackground,
-                  ),
+                  child: child ??
+                      Text(
+                        text!,
+                        style: this.style ??
+                            (primary
+                                ? style.fonts.medium.regular.primary
+                                : style.fonts.medium.regular.onBackground),
+                        // child: Text.rich(
+                        //   text!.parseLinks(
+                        //     [],
+                        //     style.fonts.medium.regular.primary,
+                        //   ),
+                        // ),
+                      ),
                 ),
             ],
           ),

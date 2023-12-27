@@ -354,7 +354,10 @@ class MyProfileView extends StatelessWidget {
                           Obx(() {
                             return DirectLinkField(
                               c.myUser.value?.chatDirectLink,
-                              onSubmit: c.createChatDirectLink,
+                              onSubmit: (s) => s == null
+                                  ? c.deleteChatDirectLink()
+                                  : c.createChatDirectLink(s),
+                              background: c.background.value,
                             );
                           }),
                         ],
@@ -1179,7 +1182,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      c.expanded.value ? 'Скрыть' : 'Ещё',
+                      c.expanded.value ? 'Скрыть' : 'Добавить',
                       style: style.fonts.small.regular.primary,
                     ),
                     const SizedBox(width: 8),
@@ -1396,36 +1399,36 @@ Widget _chats(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Paddings.dense(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 21.0),
-            child: Text(
-              'label_display_timestamps'.l10n,
-              style: style.systemMessageStyle.copyWith(
-                color: style.colors.secondary,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(height: 4),
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.settings.value?.timelineEnabled ?? true)
-                ? 'label_as_timeline'.l10n
-                : 'label_in_message'.l10n,
-            maxLines: null,
-            onPressed: () => TimelineSwitchView.show(context),
-            style: style.fonts.normal.regular.primary,
-          );
-        }),
-      ),
-      const SizedBox(height: 16),
+      // Paddings.dense(
+      //   Align(
+      //     alignment: Alignment.centerLeft,
+      //     child: Padding(
+      //       padding: const EdgeInsets.only(left: 21.0),
+      //       child: Text(
+      //         'label_display_timestamps'.l10n,
+      //         style: style.systemMessageStyle.copyWith(
+      //           color: style.colors.secondary,
+      //           fontSize: 15,
+      //           fontWeight: FontWeight.w400,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // const SizedBox(height: 4),
+      // Paddings.dense(
+      //   Obx(() {
+      //     return FieldButton(
+      //       text: (c.settings.value?.timelineEnabled ?? true)
+      //           ? 'label_as_timeline'.l10n
+      //           : 'label_in_message'.l10n,
+      //       maxLines: null,
+      //       onPressed: () => TimelineSwitchView.show(context),
+      //       style: style.fonts.normal.regular.primary,
+      //     );
+      //   }),
+      // ),
+      // const SizedBox(height: 16),
       Paddings.dense(
         Align(
           alignment: Alignment.centerLeft,
