@@ -23,6 +23,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '../util/event_pool.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -482,6 +483,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', '$runtimeType');
 
+    EventPool().add(EventUserUnmuted(myUser.value!.id));
+
     final MuteDuration? muted = myUser.value?.muted;
 
     final Muting? muting = mute == null
@@ -678,6 +681,10 @@ class MyUserRepository implements AbstractMyUserRepository {
             }
           });
         }
+      }
+
+      if (EventPool().ignore(event)) {
+        return;
       }
 
       switch (event.kind) {
