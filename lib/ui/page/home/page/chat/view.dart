@@ -382,19 +382,21 @@ class _ChatViewState extends State<ChatView>
                                               ? SvgIcons.makeAudioCallDisabled
                                               : SvgIcons.makeAudioCall,
                                         ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.makeAudioCallWhite,
+                                        ),
                                       ),
                                       ContextMenuButton(
                                         label: 'btn_video_call'.l10n,
                                         onPressed:
                                             inCall ? null : () => c.call(true),
-                                        trailing: Transform.translate(
-                                          offset: const Offset(2, 1),
-                                          child: SvgIcon(
-                                            inCall
-                                                ? SvgIcons.makeVideoCallDisabled
-                                                : SvgIcons.makeVideoCall,
-                                            height: 15,
-                                          ),
+                                        trailing: SvgIcon(
+                                          inCall
+                                              ? SvgIcons.makeVideoCallDisabled
+                                              : SvgIcons.makeVideoCall,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.makeVideoCallWhite,
                                         ),
                                       ),
                                     ],
