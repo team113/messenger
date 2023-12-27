@@ -663,8 +663,6 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
-      send.inCallWorker = chat!.inCall;
-
       _chatSubscription = chat!.updates.listen((_) {});
 
       unreadMessages = chat!.chat.value.unreadCount;
@@ -675,6 +673,7 @@ class ChatController extends GetxController {
         send.field.unchecked = draft?.text?.val ?? send.field.text;
       }
 
+      send.inCall = chat!.inCall;
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],

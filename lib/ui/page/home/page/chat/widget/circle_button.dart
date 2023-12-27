@@ -33,7 +33,7 @@ class CircleButton extends StatelessWidget {
   /// Icon to display.
   final SvgData icon;
 
-  /// Callback, when this [CircleButton] is pressed.
+  /// Callback, called when this [CircleButton] is pressed.
   final void Function()? onPressed;
 
   @override
