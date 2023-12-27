@@ -649,12 +649,7 @@ label_direct_chat_link_description =
     After the chat created by this link is deleted, your privacy
     settings are respected.
 label_direct_chat_link_in_chat_description =
-    Users who came via a direct
-    link to the chat are automatically added to chat members. They can:
-
-    - visit group profile,
-    - send messages to group chat,
-    - make calls
+    Users who come via a direct link automatically become full members of the group.
 label_disabled = Disabled
 label_display_timestamps = Display timestamps
 label_download = Download
@@ -785,6 +780,7 @@ label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.

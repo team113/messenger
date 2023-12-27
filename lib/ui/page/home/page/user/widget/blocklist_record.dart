@@ -35,7 +35,7 @@ class BlocklistRecordWidget extends StatelessWidget {
       children: [
         Paddings.basic(
           ReactiveTextField(
-            state: TextFieldState(text: record.at.toString()),
+            state: TextFieldState(text: record.at.val.toLocal().toString()),
             label: 'label_date'.l10n,
             enabled: false,
           ),

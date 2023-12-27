@@ -1332,8 +1332,20 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData makeAudioCallWhite = SvgData(
+    'assets/icons/make_audio_call_white.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData makeVideoCall = SvgData(
     'assets/icons/make_video_call.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData makeVideoCallWhite = SvgData(
+    'assets/icons/make_video_call_white.svg',
     width: 21.93,
     height: 15,
   );
@@ -1636,5 +1648,17 @@ class SvgIcons {
     'assets/icons/download19_white.svg',
     width: 12.89,
     height: 19,
+  );
+
+  static const SvgData addMember = SvgData(
+    'assets/icons/add_member.svg',
+    width: 17,
+    height: 17,
+  );
+
+  static const SvgData complaint = SvgData(
+    'assets/icons/complaint.svg',
+    width: 16,
+    height: 16,
   );
 }

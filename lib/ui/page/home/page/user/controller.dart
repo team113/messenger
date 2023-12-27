@@ -91,6 +91,12 @@ class UserController extends GetxController {
   /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
+  /// [TextFieldState] for contact name.
+  late final TextFieldState name;
+
+  /// Indicator whether the editing mode is enabled.
+  final RxBool editing = RxBool(false);
+
   /// Status of a [block] progression.
   ///
   /// May be:
@@ -110,13 +116,12 @@ class UserController extends GetxController {
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
 
-  /// [StreamSubscription] to [ContactService.paginated] determining the
-  /// [inContacts] indicator.
+  /// [StreamSubscription] to [ContactService.contacts] determining the
+  /// [inContacts] and [inFavorites] indicators.
   StreamSubscription? _contactsSubscription;
 
-  /// [StreamSubscription] to [ContactService.favorites] determining the
-  /// [inContacts] indicator.
-  StreamSubscription? _favoritesSubscription;
+  /// [Worker] reacting on the [user] changes updating the [name].
+  Worker? _worker;
 
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
@@ -126,18 +131,33 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
+    name = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        if (s.text.isNotEmpty) {
+          try {
+            UserName(s.text);
+          } catch (e) {
+            s.error.value = e.toString();
+          }
+        }
+      },
+      onSubmitted: (s) {
+      },
+    );
+
     _fetchUser();
 
     // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
     final RxChatContact? contact =
-        _contactService.paginated.values.firstWhereOrNull(
+        _contactService.contacts.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );
 
     inContacts = RxBool(contact != null);
     inFavorites = RxBool(contact?.contact.value.favoritePosition != null);
 
-    _contactsSubscription = _contactService.paginated.changes.listen((e) {
+    _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -169,7 +189,7 @@ class UserController extends GetxController {
   void onClose() {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
-    _favoritesSubscription?.cancel();
+    _worker?.dispose();
     super.onClose();
   }
 
@@ -360,6 +380,23 @@ class UserController extends GetxController {
     try {
       final FutureOr<RxUser?> fetched = _userService.get(id);
       user = fetched is RxUser? ? fetched : await fetched;
+
+      if (user != null) {
+        name.unchecked =
+            user?.user.value.name?.val ?? user!.user.value.num.toString();
+
+        _worker = ever(user!.user, (user) {
+          if (!name.isFocused.value && !name.changed.value) {
+            name.unchecked = user.name?.val ?? user.num.toString();
+          }
+        });
+
+        user!.listenUpdates();
+        status.value = RxStatus.success();
+      } else {
+        status.value = RxStatus.empty();
+      }
+
       user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {

@@ -188,12 +188,18 @@ class ContactRepository extends DisposableInterface
     paginated.emit(
       MapChangeNotification.updated(contact?.id, contact?.id, contact),
     );
+    contacts.emit(
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
+    );
 
     try {
       await _graphQlProvider.changeContactName(id, name);
     } catch (_) {
       contact?.contact.update((c) => c?.name = oldName!);
       paginated.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+      contacts.emit(
         MapChangeNotification.updated(contact?.id, contact?.id, contact),
       );
       rethrow;
@@ -235,12 +241,18 @@ class ContactRepository extends DisposableInterface
     paginated.emit(
       MapChangeNotification.updated(contact?.id, contact?.id, contact),
     );
+    contacts.emit(
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
+    );
 
     try {
       await _graphQlProvider.favoriteChatContact(id, newPosition);
     } catch (e) {
       contact?.contact.update((c) => c?.favoritePosition = oldPosition);
       paginated.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+      contacts.emit(
         MapChangeNotification.updated(contact?.id, contact?.id, contact),
       );
       rethrow;
@@ -259,12 +271,18 @@ class ContactRepository extends DisposableInterface
     paginated.emit(
       MapChangeNotification.updated(contact?.id, contact?.id, contact),
     );
+    contacts.emit(
+      MapChangeNotification.updated(contact?.id, contact?.id, contact),
+    );
 
     try {
       await _graphQlProvider.unfavoriteChatContact(id);
     } catch (e) {
       contact?.contact.update((c) => c?.favoritePosition = oldPosition);
       paginated.emit(
+        MapChangeNotification.updated(contact?.id, contact?.id, contact),
+      );
+      contacts.emit(
         MapChangeNotification.updated(contact?.id, contact?.id, contact),
       );
       rethrow;
@@ -579,6 +597,9 @@ class ContactRepository extends DisposableInterface
 
     if (emitUpdate) {
       paginated.emit(
+        MapChangeNotification.updated(entry.id, entry.id, entry),
+      );
+      contacts.emit(
         MapChangeNotification.updated(entry.id, entry.id, entry),
       );
     }

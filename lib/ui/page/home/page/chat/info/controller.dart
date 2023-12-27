@@ -46,8 +46,9 @@ class ChatInfoController extends GetxController {
     this.chatId,
     this._chatService,
     this._authService,
-    this._callService,
-  );
+    this._callService, {
+    bool edit = false,
+  }) : editing = RxBool(edit);
 
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
@@ -69,6 +70,9 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// Indicator whether the editing mode is enabled.
+  final RxBool editing;
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -84,8 +88,20 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
+  /// [Chat.directLink] field state.
+  late final TextFieldState link;
+
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
+
+  /// [Timer] to set the `RxStatus.empty` status of the [link] field.
+  Timer? _linkTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
   Timer? _avatarTimer;
@@ -95,9 +111,6 @@ class ChatInfoController extends GetxController {
 
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
-
-  /// [GlobalKey] of the more [ContextMenuRegion] button.
-  final GlobalKey moreKey = GlobalKey();
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -115,17 +128,7 @@ class ChatInfoController extends GetxController {
     name = TextFieldState(
       approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            ChatName(s.text);
-          }
-
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
+      onChanged: (s) => s.error.value = null,
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
@@ -173,6 +176,52 @@ class ChatInfoController extends GetxController {
       },
     );
 
+    link = TextFieldState(
+      approvable: true,
+      editable: true,
+      text: chat?.chat.value.directLink?.slug.val ??
+          ChatDirectLinkSlug.generate(10).val,
+      submitted: chat?.chat.value.directLink != null,
+      onChanged: (s) => s.error.value = null,
+      onSubmitted: (s) async {
+        ChatDirectLinkSlug? slug;
+        try {
+          slug = ChatDirectLinkSlug(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (slug == chat?.chat.value.directLink?.slug) {
+          return;
+        }
+
+        if (s.error.value == null) {
+          _linkTimer?.cancel();
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await _chatService.createChatDirectLink(chatId, slug!);
+            s.status.value = RxStatus.success();
+            _linkTimer = Timer(
+              const Duration(seconds: 1),
+              () => s.status.value = RxStatus.empty(),
+            );
+          } on CreateChatDirectLinkException catch (e) {
+            s.status.value = RxStatus.empty();
+            s.error.value = e.toMessage();
+          } catch (e) {
+            s.status.value = RxStatus.empty();
+            MessagePopup.error(e);
+            s.unsubmit();
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
     super.onInit();
   }
 
@@ -186,6 +235,7 @@ class ChatInfoController extends GetxController {
   onClose() {
     _worker?.dispose();
     _nameTimer?.cancel();
+    _linkTimer?.cancel();
     _avatarTimer?.cancel();
     _chatSubscription?.cancel();
     super.onClose();
@@ -396,6 +446,12 @@ class ChatInfoController extends GetxController {
 
       name.unchecked = chat!.chat.value.name?.val;
 
+      if (chat!.chat.value.directLink?.slug.val == null) {
+        link.text = ChatDirectLinkSlug.generate(10).val;
+      } else {
+        link.unchecked = chat!.chat.value.directLink?.slug.val;
+      }
+
       _worker = ever(
         chat!.chat,
         (Chat chat) {
@@ -403,6 +459,10 @@ class ChatInfoController extends GetxController {
               !name.changed.value &&
               name.editable.value) {
             name.unchecked = chat.name?.val;
+          }
+
+          if (!link.focus.hasFocus && !link.changed.value) {
+            link.unchecked = chat.directLink?.slug.val;
           }
         },
       );
