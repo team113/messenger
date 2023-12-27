@@ -253,6 +253,7 @@ class MessageFieldController extends GetxController {
     if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
         onCall != null) {
       _updateButtons(inCall.value);
+      _inCallWorker?.dispose();
       _inCallWorker = ever(inCall, _updateButtons);
     }
   }
