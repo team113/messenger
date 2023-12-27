@@ -17,13 +17,16 @@
 
 import 'dart:collection';
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
 import '../store/event/my_user.dart';
+
+EventPool eventPool = EventPool();
 
 // Tracker for displacable events.
 class EventPool {
   /// Registred handlers for one-to-one call syncrously
-  Map<OptimisticEventType, Queue<OptimisticEventPoolEntry>> _handlers = {};
+  Map<OptimisticEventType, Mutex> _locks = {};
 
   /// Events should be ignored when resieved from back
   Map<OptimisticEventType, List<OptimisticEventPoolEntry>> _ignorance = {};
@@ -38,16 +41,25 @@ class EventPool {
     switch (event.type.mode) {
       case OptimisticEventMode.queue:
         {
-          _handlers[event.type] ??= Queue();
-          _handlers[event.type]!.add(event);
+          if (event.handler != null) {
+            final lock = _getLock(event.type);
+            lock.protect(event.handler!);
+          }
+          // TODO: add to wait list only handled events
+          // TODO: queue events
+          _ignorance[event.type] ??= [];
+          _ignorance[event.type]!.add(event);
         }
       case OptimisticEventMode.displace:
         {
-          if (_handlers[event.type] == null) {
-            _handlers[event.type] = Queue.of([event]);
-          } else {
-            _handlers.remove(event.type);
+          if (event.handler != null) {
+            final lock = _getLock(event.type);
+            lock.protect(event.handler!);
           }
+          // TODO: add to wait list only handled events
+          // TODO: displace events
+          _ignorance[event.type] ??= [];
+          _ignorance[event.type]!.add(event);
         }
       case OptimisticEventMode.skip:
         {
@@ -60,17 +72,17 @@ class EventPool {
   ///
   /// Deletes ignored events from pool
   bool ignore(OptimisticEventPoolEntry event) {
-    bool _same(OptimisticEventPoolEntry e1, OptimisticEventPoolEntry e2) {
+    bool same(OptimisticEventPoolEntry e1, OptimisticEventPoolEntry e2) {
       final s1 = e1.sourceEvent;
       final s2 = e2.sourceEvent;
-      if (s1 is MyUserEvent && s1 is MyUserEvent) {
+      if (s1 is MyUserEvent && s2 is MyUserEvent) {
         return s1.kind == s2.kind;
       }
       return false;
     }
 
     final OptimisticEventPoolEntry? waiter = _ignorance[event.type]
-        ?.firstWhereOrNull((element) => _same(event, element));
+        ?.firstWhereOrNull((element) => same(event, element));
 
     if (waiter != null) {
       _ignorance[event.type]!.remove(waiter);
@@ -79,9 +91,14 @@ class EventPool {
 
     return false;
   }
+
+  Mutex _getLock(OptimisticEventType type) {
+    _locks[type] ??= Mutex();
+    return _locks[type]!;
+  }
 }
 
-/// Types of displacable event kinds
+/// Types of [OptimisticEvent] event kinds
 enum OptimisticEventType {
   myUserToggleMute,
   noRegistred;
