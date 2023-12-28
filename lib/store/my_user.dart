@@ -483,8 +483,6 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', '$runtimeType');
 
-    EventPool().add(EventUserUnmuted(myUser.value!.id));
-
     final MuteDuration? muted = myUser.value?.muted;
 
     final Muting? muting = mute == null
@@ -493,12 +491,20 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser.update((u) => u?.muted = muting?.toModel());
 
-    try {
-      await _graphQlProvider.toggleMyUserMute(muting);
-    } catch (e) {
-      myUser.update((u) => u?.muted = muted);
-      rethrow;
+    handler() async {
+      Log.debug('toggleMute($mute) handler', '$runtimeType');
+      try {
+        await _graphQlProvider.toggleMyUserMute(muting);
+      } catch (e) {
+        myUser.update((u) => u?.muted = muted);
+        rethrow;
+      }
     }
+
+    eventPool.add((muting == null)
+        ? EventUserUnmuted(myUser.value!.id).toPoolEntry(handler)
+        : EventUserMuted(myUser.value!.id, mute ?? MuteDuration.forever())
+            .toPoolEntry(handler));
   }
 
   @override
@@ -683,7 +689,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         }
       }
 
-      if (EventPool().ignore(event)) {
+      if (eventPool.ignore(event.toPoolEntry())) {
         return;
       }
 
