@@ -34,7 +34,6 @@ import '/config.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import 'backoff.dart';
-import 'mime.dart';
 import 'web/web_utils.dart';
 
 /// Global variable to access [PlatformUtilsImpl].
@@ -435,18 +434,6 @@ class PlatformUtilsImpl {
           }
         }
 
-        CacheEntry? cache;
-        if (checksum != null && CacheWorker.instance.exists(checksum)) {
-          if (path != null && p.extension(path!).isEmpty) {
-            cache = await CacheWorker.instance.get(checksum: checksum);
-            path = [path, (await cache.type)?.extension].nonNulls.join('.');
-          } else if (p.extension(filename).isEmpty) {
-            cache = await CacheWorker.instance.get(checksum: checksum);
-            filename =
-                [filename, (await cache.type)?.extension].nonNulls.join('.');
-          }
-        }
-
         if (PlatformUtils.isWeb) {
           await Backoff.run(
             () async {
@@ -486,8 +473,7 @@ class PlatformUtilsImpl {
           if (file == null) {
             Uint8List? data;
             if (checksum != null && CacheWorker.instance.exists(checksum)) {
-              cache ??= await CacheWorker.instance.get(checksum: checksum);
-              data = cache.bytes;
+              data = (await CacheWorker.instance.get(checksum: checksum)).bytes;
             }
 
             if (path == null) {
@@ -502,7 +488,7 @@ class PlatformUtilsImpl {
                 file = File('${directory.path}/$name ($i)$extension');
               }
             } else {
-              file = File(path!);
+              file = File(path);
             }
 
             if (data == null) {
@@ -564,12 +550,7 @@ class PlatformUtilsImpl {
       final CacheEntry cache =
           await CacheWorker.instance.get(url: url, checksum: checksum);
 
-      String filename = name;
-      if (p.extension(name) == '') {
-        filename = [name, (await cache.type)?.extension].nonNulls.join('.');
-      }
-
-      await ImageGallerySaver.saveImage(cache.bytes!, name: filename);
+      await ImageGallerySaver.saveImage(cache.bytes!, name: name);
     } else {
       final File? file = await PlatformUtils.download(
         url,
