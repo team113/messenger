@@ -97,25 +97,21 @@ class UserView extends StatelessWidget {
                         Block(
                           children: [
                             SelectionContainer.disabled(
-                              child: BigAvatarWidget.user(
-                                c.user,
-                                onUpload: c.editing.value ? () {} : null,
-                                onDelete: c.editing.value &&
-                                        c.user?.user.value.avatar != null
-                                    ? () {}
-                                    : null,
-                              ),
+                              child: BigAvatarWidget.user(c.user),
                             ),
                             const SizedBox(height: 18),
                             Obx(() {
                               final Widget child;
 
                               if (c.editing.value) {
-                                child = SelectionContainer.disabled(
+                                child = Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
                                   child: ReactiveTextField(
                                     state: c.name,
                                     label: 'label_name'.l10n,
-                                    hint: c.user!.user.value.name?.val ??
+                                    hint: c.contact.value?.contact.value.name
+                                            .val ??
+                                        c.user!.user.value.name?.val ??
                                         c.user!.user.value.num.toString(),
                                   ),
                                 );
@@ -141,6 +137,8 @@ class UserView extends StatelessWidget {
                         ),
                         if (status != null)
                           Block(
+                            padding: Block.defaultPadding
+                                .copyWith(top: 8, bottom: 8),
                             children: [
                               Text(
                                 status.toString(),
@@ -223,7 +221,7 @@ class UserView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${c.user?.user.value.name?.val ?? c.user?.user.value.num}',
+                      '${c.contact.value?.contact.value.name.val ?? c.user?.user.value.name?.val ?? c.user?.user.value.num}',
                     ),
                     if (subtitle?.isNotEmpty == true)
                       Text(
@@ -257,8 +255,9 @@ class UserView extends StatelessWidget {
                     child: const SvgIcon(SvgIcons.chat),
                   ),
                   Obx(() {
-                    final bool contact = c.inContacts.value;
-                    final bool favorite = c.inFavorites.value;
+                    final bool contact = c.contact.value != null;
+                    final bool favorite =
+                        c.contact.value?.contact.value.favoritePosition != null;
 
                     return ContextMenuRegion(
                       key: c.moreKey,
@@ -397,8 +396,9 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.contact.value?.contact.value.name.val ??
+              c.user?.user.value.name?.val ??
+              c.user?.user.value.num.toString(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),

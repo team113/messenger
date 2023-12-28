@@ -73,15 +73,6 @@ class ChatInfoController extends GetxController {
   /// Indicator whether the editing mode is enabled.
   final RxBool editing;
 
-  /// [Chat]s service used to get the [chat] value.
-  final ChatService _chatService;
-
-  /// [AuthService] used to get [me] value.
-  final AuthService _authService;
-
-  /// [CallService] used to start a call in the [chat].
-  final CallService _callService;
-
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
 
@@ -97,7 +88,16 @@ class ChatInfoController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
+  /// [Chat]s service used to get the [chat] value.
+  final ChatService _chatService;
+
+  /// [AuthService] used to get [me] value.
+  final AuthService _authService;
+
+  /// [CallService] used to start a call in the [chat].
+  final CallService _callService;
+
+  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
 
   /// [Timer] to set the `RxStatus.empty` status of the [link] field.

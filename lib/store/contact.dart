@@ -584,7 +584,8 @@ class ContactRepository extends DisposableInterface
       contacts[contactId] = entry;
     } else {
       if (entry.contact.value.favoritePosition !=
-          contact.value.favoritePosition) {
+              contact.value.favoritePosition ||
+          entry.contact.value.users.length != contact.value.users.length) {
         emitUpdate = true;
       }
 
