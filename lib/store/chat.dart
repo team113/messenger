@@ -569,7 +569,7 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.isHidden = true);
 
     try {
-      // If this [Chat] is local, make it remote first.
+      // If this [Chat] is local monolog, make it remote first.
       if (id.isLocalWith(me)) {
         _monologShouldBeHidden = true;
         monologData = _chat(await _graphQlProvider.createMonologChat(null));
@@ -1666,8 +1666,8 @@ class ChatRepository extends DisposableInterface
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
         if (chats[event.chat.chat.value.id]?.subscribed != true) {
-          final ChatData chatData = event.chat;
-          final Chat chat = chatData.chat.value;
+          final ChatData data = event.chat;
+          final Chat chat = data.chat.value;
 
           // TODO: Get rid of `_monologShouldBeHidden` when backend supports
           //       creating chats with `isHidden` set to `true`.
@@ -1678,7 +1678,7 @@ class ChatRepository extends DisposableInterface
             _monologShouldBeHidden = false;
           }
 
-          _putEntry(chatData);
+          _putEntry(data);
         }
         break;
 
@@ -2246,7 +2246,7 @@ class ChatRepository extends DisposableInterface
       // If a non-local [monolog] isn't stored and it won't appear from the
       // [Pagination], then initialize local monolog or get a remote one.
       if (isLocal && !isPaginated && !canFetchMore) {
-        // Whether [ChatId] of user's monolog is known for the given device.
+        // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
         final bool isStored = _monologLocal.get() != null;
 
         if (isStored) {
