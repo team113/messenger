@@ -43,7 +43,7 @@ class ContactService extends DisposableService {
   /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
-  /// Returns the reactive map of the currently paginated [ChatContact]s.
+  /// Returns the reactive map of the currently paginated [RxChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get paginated =>
       _contactRepository.paginated;
 

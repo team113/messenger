@@ -185,23 +185,13 @@ class ContactRepository extends DisposableInterface
     final UserName? oldName = contact?.contact.value.name;
 
     contact?.contact.update((c) => c?.name = name);
-    paginated.emit(
-      MapChangeNotification.updated(contact?.id, contact?.id, contact),
-    );
-    contacts.emit(
-      MapChangeNotification.updated(contact?.id, contact?.id, contact),
-    );
+    _emit(MapChangeNotification.updated(contact?.id, contact?.id, contact));
 
     try {
       await _graphQlProvider.changeContactName(id, name);
     } catch (_) {
       contact?.contact.update((c) => c?.name = oldName!);
-      paginated.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
-      contacts.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
+      _emit(MapChangeNotification.updated(contact?.id, contact?.id, contact));
       rethrow;
     }
   }
@@ -238,23 +228,13 @@ class ContactRepository extends DisposableInterface
     }
 
     contact?.contact.update((c) => c?.favoritePosition = newPosition);
-    paginated.emit(
-      MapChangeNotification.updated(contact?.id, contact?.id, contact),
-    );
-    contacts.emit(
-      MapChangeNotification.updated(contact?.id, contact?.id, contact),
-    );
+    _emit(MapChangeNotification.updated(contact?.id, contact?.id, contact));
 
     try {
       await _graphQlProvider.favoriteChatContact(id, newPosition);
     } catch (e) {
       contact?.contact.update((c) => c?.favoritePosition = oldPosition);
-      paginated.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
-      contacts.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
+      _emit(MapChangeNotification.updated(contact?.id, contact?.id, contact));
       rethrow;
     }
   }
@@ -268,23 +248,13 @@ class ContactRepository extends DisposableInterface
         contact?.contact.value.favoritePosition;
 
     contact?.contact.update((c) => c?.favoritePosition = null);
-    paginated.emit(
-      MapChangeNotification.updated(contact?.id, contact?.id, contact),
-    );
-    contacts.emit(
-      MapChangeNotification.updated(contact?.id, contact?.id, contact),
-    );
+    _emit(MapChangeNotification.updated(contact?.id, contact?.id, contact));
 
     try {
       await _graphQlProvider.unfavoriteChatContact(id);
     } catch (e) {
       contact?.contact.update((c) => c?.favoritePosition = oldPosition);
-      paginated.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
-      contacts.emit(
-        MapChangeNotification.updated(contact?.id, contact?.id, contact),
-      );
+      _emit(MapChangeNotification.updated(contact?.id, contact?.id, contact));
       rethrow;
     }
   }
@@ -388,6 +358,12 @@ class ContactRepository extends DisposableInterface
   Future<RxChatContact?> searchByPhone(UserPhone phone) async {
     Log.debug('searchByPhone($phone)', '$runtimeType');
     return (await _search(phone: phone)).edges.firstOrNull;
+  }
+
+  /// Emits the provided [event] in the [contacts] and [paginated].
+  void _emit(MapChangeNotification<ChatContactId, HiveRxChatContact> event) {
+    contacts.emit(event);
+    paginated.emit(event);
   }
 
   /// Initializes the [_pagination].
@@ -597,12 +573,7 @@ class ContactRepository extends DisposableInterface
     }
 
     if (emitUpdate) {
-      paginated.emit(
-        MapChangeNotification.updated(entry.id, entry.id, entry),
-      );
-      contacts.emit(
-        MapChangeNotification.updated(entry.id, entry.id, entry),
-      );
+      _emit(MapChangeNotification.updated(entry.id, entry.id, entry));
     }
   }
 
