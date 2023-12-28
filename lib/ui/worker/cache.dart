@@ -27,7 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_thumbhash/flutter_thumbhash.dart' as t;
 import 'package:get/get.dart' hide Response;
 import 'package:hive/hive.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:mutex/mutex.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
@@ -38,7 +37,6 @@ import '/domain/service/disposable_service.dart';
 import '/provider/hive/cache.dart';
 import '/provider/hive/download.dart';
 import '/util/backoff.dart';
-import '/util/mime.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 
@@ -662,44 +660,6 @@ class CacheEntry {
 
   /// Byte data of this [CacheEntry].
   final Uint8List? bytes;
-
-  /// [MediaType] of this [CacheEntry].
-  Future<MediaType?> get type async {
-    if (!_typeResolved) {
-      _type = await _resolveType();
-    }
-
-    return _type;
-  }
-
-  /// [MediaType] type of this [CacheEntry].
-  MediaType? _type;
-
-  /// Indicator whether [_type] is determined, used to prevent double
-  /// [_resolveType] invoking.
-  bool _typeResolved = false;
-
-  /// Resolves the [MediaType] of [bytes]/[file] of this [CacheEntry].
-  Future<MediaType?> _resolveType() async {
-    String? mime;
-
-    if (bytes != null) {
-      List<int>? headerBytes =
-          bytes?.take(MimeResolver.resolver.magicNumbersMaxLength).toList();
-      mime = MimeResolver.lookup('', headerBytes: headerBytes);
-    } else if (file != null) {
-      List<int>? headerBytes = [];
-      await for (var part
-          in file!.openRead(0, MimeResolver.resolver.magicNumbersMaxLength)) {
-        headerBytes.addAll(part);
-      }
-      mime = MimeResolver.lookup('', headerBytes: headerBytes);
-    }
-
-    _typeResolved = true;
-
-    return mime == null ? null : MediaType.parse(mime);
-  }
 }
 
 /// Response type of the [CacheWorker.get] function.

@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
 /// Wrapper around [MimeTypeResolver] resolving MIME-types.
@@ -47,18 +46,4 @@ class MimeResolver {
   /// though a file have been saved using the wrong file extension.
   static String? lookup(String path, {List<int>? headerBytes}) =>
       resolver.lookup(path, headerBytes: headerBytes);
-}
-
-/// Extension adding an ability to retrieve extension from [MediaType].
-extension FileExtensionExt on MediaType {
-  /// Returns an extension of this [MediaType], if any.
-  String? get extension {
-    // TODO: Remove when dart-lang/mime#55 is fixed:
-    //       https://github.com/dart-lang/mime/issues/55
-    if (mimeType == 'image/jpeg') {
-      return 'jpg';
-    }
-    final fromMime = extensionFromMime(mimeType);
-    return (fromMime == mimeType) ? null : fromMime;
-  }
 }
