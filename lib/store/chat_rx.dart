@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/util/event_pool.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -1140,6 +1141,7 @@ class HiveRxChat extends RxChat {
           if (!subscribed) {
             return;
           }
+          if (eventPool.ignore(event.toPoolEntry())) continue;
 
           switch (event.kind) {
             case ChatEventKind.redialed:
@@ -1466,11 +1468,15 @@ class HiveRxChat extends RxChat {
               break;
 
             case ChatEventKind.favorited:
+              Log.info('--ChatEventKind.favorited -- does not ignored',
+                  '$runtimeType');
               event as EventChatFavorited;
               chatEntity.value.favoritePosition = event.position;
               break;
 
             case ChatEventKind.unfavorited:
+              Log.info('--ChatEventKind.unfavorited -- does not ignored',
+                  '$runtimeType');
               chatEntity.value.favoritePosition = null;
               break;
 
