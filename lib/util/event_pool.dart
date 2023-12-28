@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:collection';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -23,7 +22,7 @@ import '../store/event/my_user.dart';
 
 EventPool eventPool = EventPool();
 
-// Tracker for displacable events.
+// Tracker for optimistic events.
 class EventPool {
   /// Registred handlers for one-to-one call syncrously
   Map<OptimisticEventType, Mutex> _locks = {};
@@ -31,33 +30,58 @@ class EventPool {
   /// Events should be ignored when resieved from back
   Map<OptimisticEventType, List<OptimisticEventPoolEntry>> _ignorance = {};
 
+  /// Events should be neutralized with same type events
+  Map<OptimisticEventType, OptimisticEventPoolEntry> _neutralize = {};
+
   /// Adds event to pool.
   ///
-  /// [handler] would be called when handlers of other events with same
-  /// [DisplaceEventType] would be awaited.
+  /// [event.handler] would be called when handlers of other events with same
+  /// [OptimisticEventType] would be awaited.
   void add(
     OptimisticEventPoolEntry event,
   ) {
     switch (event.type.mode) {
       case OptimisticEventMode.queue:
         {
-          if (event.handler != null) {
-            final lock = _getLock(event.type);
-            lock.protect(event.handler!);
+          Future<dynamic> queueWrapper(OptimisticEventPoolEntry event) async {
+            _ignorance[event.type] ??= [];
+            _ignorance[event.type]!.add(event);
+
+            await event.handler?.call();
           }
-          // TODO: add to wait list only handled events
-          // TODO: queue events
-          _ignorance[event.type] ??= [];
-          _ignorance[event.type]!.add(event);
+
+          final lock = _getLock(event.type);
+          lock.protect(
+            () async {
+              await queueWrapper(event);
+            },
+          );
         }
-      case OptimisticEventMode.displace:
+      case OptimisticEventMode.neutralize:
         {
-          if (event.handler != null) {
-            final lock = _getLock(event.type);
-            lock.protect(event.handler!);
+          Future<dynamic> neutralizeWrapper(
+              OptimisticEventPoolEntry event) async {
+            if (_neutralize[event.type] != event) {
+              return;
+            }
+            await event.handler?.call();
           }
-          // TODO: add to wait list only handled events
-          // TODO: displace events
+
+          if (_neutralize[event.type] != null) {
+            if (!same(_neutralize[event.type]!, event)) {
+              _neutralize.remove(event.type);
+            } else {
+              // No-op
+            }
+          } else {
+            final lock = _getLock(event.type);
+            _neutralize[event.type] = event;
+            lock.protect(
+              () async {
+                await neutralizeWrapper(event);
+              },
+            );
+          }
           _ignorance[event.type] ??= [];
           _ignorance[event.type]!.add(event);
         }
@@ -72,15 +96,6 @@ class EventPool {
   ///
   /// Deletes ignored events from pool
   bool ignore(OptimisticEventPoolEntry event) {
-    bool same(OptimisticEventPoolEntry e1, OptimisticEventPoolEntry e2) {
-      final s1 = e1.sourceEvent;
-      final s2 = e2.sourceEvent;
-      if (s1 is MyUserEvent && s2 is MyUserEvent) {
-        return s1.kind == s2.kind;
-      }
-      return false;
-    }
-
     final OptimisticEventPoolEntry? waiter = _ignorance[event.type]
         ?.firstWhereOrNull((element) => same(event, element));
 
@@ -96,6 +111,15 @@ class EventPool {
     _locks[type] ??= Mutex();
     return _locks[type]!;
   }
+
+  bool same(OptimisticEventPoolEntry e1, OptimisticEventPoolEntry e2) {
+    final s1 = e1.sourceEvent;
+    final s2 = e2.sourceEvent;
+    if (s1 is MyUserEvent && s2 is MyUserEvent) {
+      return s1.kind == s2.kind;
+    }
+    return false;
+  }
 }
 
 /// Types of [OptimisticEvent] event kinds
@@ -104,7 +128,7 @@ enum OptimisticEventType {
   noRegistred;
 
   OptimisticEventMode get mode => switch (this) {
-        myUserToggleMute => OptimisticEventMode.displace,
+        myUserToggleMute => OptimisticEventMode.neutralize,
         noRegistred => OptimisticEventMode.skip,
       };
 }
@@ -112,7 +136,7 @@ enum OptimisticEventType {
 /// Mode of [OptimisticEvent] processing.
 enum OptimisticEventMode {
   queue,
-  displace,
+  neutralize,
   skip;
 }
 
