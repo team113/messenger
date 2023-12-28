@@ -37,11 +37,12 @@ import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ClearChatException,
         FavoriteChatContactException,
         HideChatException,
         ToggleChatMuteException,
         UnfavoriteChatContactException,
-        ClearChatException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -228,6 +229,12 @@ class UserController extends GetxController {
     }
   }
 
+  /// Joins an [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> joinCall() => _callService.join(user!.user.value.dialog);
+
+  /// Drops the [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> dropCall() => _callService.leave(user!.user.value.dialog);
+
   /// Blocks the [user] for the authenticated [MyUser].
   Future<void> block() async {
     blocklistStatus.value = RxStatus.loading();
@@ -328,6 +335,8 @@ class UserController extends GetxController {
       try {
         await _chatService.hideChat(dialog);
       } on HideChatException catch (e) {
+        MessagePopup.error(e);
+      } on UnfavoriteChatException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
         MessagePopup.error(e);

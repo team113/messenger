@@ -214,17 +214,70 @@ class UserView extends StatelessWidget {
             onPressed: c.openChat,
             child: const SvgIcon(SvgIcons.chat),
           ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            onPressed: () => c.call(true),
-            child: const SvgIcon(SvgIcons.chatVideoCall),
-          ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            onPressed: () => c.call(false),
-            child: const SvgIcon(SvgIcons.chatAudioCall),
-          ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 21),
+          Obx(() {
+            final bool hasCall =
+                c.user?.dialog.value?.chat.value.ongoingCall != null;
+            final bool inCall = c.user?.dialog.value?.inCall.value ?? false;
+
+            if (hasCall) {
+              final Widget child;
+
+              if (inCall) {
+                child = Container(
+                  key: const Key('Drop'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callEnd),
+                  ),
+                );
+              } else {
+                child = Container(
+                  key: const Key('Join'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callStart),
+                  ),
+                );
+              }
+
+              return AnimatedButton(
+                key: const Key('ActiveCallButton'),
+                onPressed: inCall ? c.dropCall : c.joinCall,
+                child: SafeAnimatedSwitcher(
+                  duration: 300.milliseconds,
+                  child: child,
+                ),
+              );
+            }
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 7),
+                AnimatedButton(
+                  onPressed: () => c.call(true),
+                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                ),
+                const SizedBox(width: 28),
+                AnimatedButton(
+                  onPressed: () => c.call(false),
+                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                ),
+                const SizedBox(width: 10),
+              ],
+            );
+          }),
           Obx(() {
             final bool contact = c.inContacts.value;
             final bool favorite = c.inFavorites.value;
@@ -258,6 +311,11 @@ class UserView extends StatelessWidget {
                       trailing: SvgIcon(
                         contact ? SvgIcons.deleteContact : SvgIcons.addContact,
                       ),
+                      inverted: SvgIcon(
+                        contact
+                            ? SvgIcons.deleteContactWhite
+                            : SvgIcons.addContactWhite,
+                      ),
                       onPressed: contact
                           ? () => _removeFromContacts(c, context)
                           : c.addToContacts,
@@ -277,6 +335,11 @@ class UserView extends StatelessWidget {
                               ? SvgIcons.favoriteSmall
                               : SvgIcons.unfavoriteSmall,
                         ),
+                        inverted: SvgIcon(
+                          favorite
+                              ? SvgIcons.favoriteSmallWhite
+                              : SvgIcons.unfavoriteSmallWhite,
+                        ),
                         onPressed:
                             favorite ? c.unfavoriteContact : c.favoriteContact,
                       ),
@@ -293,37 +356,33 @@ class UserView extends StatelessWidget {
                         trailing: SvgIcon(
                           muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
                         ),
+                        inverted: SvgIcon(
+                          muted
+                              ? SvgIcons.unmuteSmallWhite
+                              : SvgIcons.muteSmallWhite,
+                        ),
                         onPressed: muted ? c.unmuteChat : c.muteChat,
                       ),
                       ContextMenuButton(
                         key: const Key('ClearHistoryButton'),
                         label: 'btn_clear_history'.l10n,
                         trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
                         onPressed: () => _clearChat(c, context),
                       ),
                       ContextMenuButton(
                         key: const Key('HideChatButton'),
                         label: 'btn_delete_chat'.l10n,
-                        trailing: const SvgIcon(SvgIcons.cleanHistory),
+                        trailing: const SvgIcon(SvgIcons.delete19),
+                        inverted: const SvgIcon(SvgIcons.delete19White),
                         onPressed: () => _hideChat(c, context),
                       ),
                     ],
                     ContextMenuButton(
                       key: Key(blocked ? 'Unblock' : 'Block'),
                       label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                      trailing: Obx(() {
-                        final Widget child;
-                        if (c.blocklistStatus.value.isEmpty) {
-                          child = const SvgIcon(SvgIcons.block);
-                        } else {
-                          child = const CustomProgressIndicator();
-                        }
-
-                        return SafeAnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: child,
-                        );
-                      }),
+                      trailing: const SvgIcon(SvgIcons.block),
+                      inverted: const SvgIcon(SvgIcons.blockWhite),
                       onPressed:
                           blocked ? c.unblock : () => _blockUser(c, context),
                     ),

@@ -61,7 +61,6 @@ import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -384,6 +383,8 @@ class ChatsTabController extends GetxController {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -406,6 +407,8 @@ class ChatsTabController extends GetxController {
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -468,17 +471,6 @@ class ChatsTabController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
-
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// contains an [OngoingCall] happening in a [Chat] identified by the
-  /// provided [ChatId].
-  bool containsCall(ChatId id) {
-    if (WebUtils.containsCall(id)) {
-      return true;
-    }
-
-    return _callService.calls[id] != null;
-  }
 
   /// Indicates whether [User] from this [chat] is already in contacts.
   ///
@@ -641,9 +633,13 @@ class ChatsTabController extends GetxController {
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
     final List<ChatEntry> favorites = chats
-        .where((e) =>
-            e.chat.value.ongoingCall == null &&
-            e.chat.value.favoritePosition != null)
+        .where(
+          (e) =>
+              e.chat.value.ongoingCall == null &&
+              e.chat.value.favoritePosition != null &&
+              !e.chat.value.isHidden &&
+              !e.hidden.value,
+        )
         .toList();
 
     double position;

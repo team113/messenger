@@ -356,16 +356,14 @@ class ChatController extends GetxController {
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
-  bool get inCall =>
-      _callService.calls[id] != null || WebUtils.containsCall(id);
-
   /// Indicates whether a previous page of the [elements] is exists.
   RxBool get hasPrevious => chat!.hasPrevious;
 
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
+
+  /// Returns the [CallButtonsPosition] currently set.
+  CallButtonsPosition? get callPosition => settings.value?.callButtonsPosition;
 
   /// Returns [RxUser] being recipient of this [chat].
   ///
@@ -395,6 +393,7 @@ class ChatController extends GetxController {
       _userService,
       _settingsRepository,
       onChanged: updateDraft,
+      onCall: call,
       onSubmit: () async {
         if (chat == null) {
           return;
@@ -529,6 +528,8 @@ class ChatController extends GetxController {
     try {
       await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -672,6 +673,7 @@ class ChatController extends GetxController {
         send.field.unchecked = draft?.text?.val ?? send.field.text;
       }
 
+      send.inCall = chat!.inCall;
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
@@ -1247,6 +1249,8 @@ class ChatController extends GetxController {
     try {
       await _chatService.hideChat(id);
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

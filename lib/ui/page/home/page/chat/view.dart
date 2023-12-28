@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -62,6 +63,7 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
+import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
@@ -255,6 +257,8 @@ class _ChatViewState extends State<ChatView>
                             return const SizedBox.shrink();
                           }
 
+                          final bool inCall = c.chat?.inCall.value ?? false;
+
                           final List<Widget> children;
 
                           if (c.selecting.value) {
@@ -275,22 +279,26 @@ class _ChatViewState extends State<ChatView>
                             ];
                           } else if (c.chat!.chat.value.ongoingCall == null) {
                             children = [
-                              AnimatedButton(
-                                onPressed: () => c.call(true),
-                                child: const SvgIcon(SvgIcons.chatVideoCall),
-                              ),
-                              const SizedBox(width: 28),
-                              AnimatedButton(
-                                key: const Key('AudioCall'),
-                                onPressed: () => c.call(false),
-                                child: const SvgIcon(SvgIcons.chatAudioCall),
-                              ),
-                              const SizedBox(width: 10),
+                              if (c.callPosition == null ||
+                                  c.callPosition ==
+                                      CallButtonsPosition.appBar) ...[
+                                AnimatedButton(
+                                  onPressed: () => c.call(true),
+                                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                                ),
+                                const SizedBox(width: 28),
+                                AnimatedButton(
+                                  key: const Key('AudioCall'),
+                                  onPressed: () => c.call(false),
+                                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
                             ];
                           } else {
                             final Widget child;
 
-                            if (c.inCall) {
+                            if (inCall) {
                               child = Container(
                                 key: const Key('Drop'),
                                 height: 32,
@@ -321,7 +329,7 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
-                                onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                onPressed: inCall ? c.dropCall : c.joinCall,
                                 child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: child,
@@ -363,6 +371,35 @@ class _ChatViewState extends State<ChatView>
                                     right: 10,
                                   ),
                                   actions: [
+                                    if (c.callPosition ==
+                                        CallButtonsPosition.contextMenu) ...[
+                                      ContextMenuButton(
+                                        label: 'btn_audio_call'.l10n,
+                                        onPressed:
+                                            inCall ? null : () => c.call(false),
+                                        trailing: SvgIcon(
+                                          inCall
+                                              ? SvgIcons.makeAudioCallDisabled
+                                              : SvgIcons.makeAudioCall,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.makeAudioCallWhite,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_video_call'.l10n,
+                                        onPressed:
+                                            inCall ? null : () => c.call(true),
+                                        trailing: SvgIcon(
+                                          inCall
+                                              ? SvgIcons.makeVideoCallDisabled
+                                              : SvgIcons.makeVideoCall,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.makeVideoCallWhite,
+                                        ),
+                                      ),
+                                    ],
                                     if (dialog)
                                       ContextMenuButton(
                                         key: Key(
@@ -377,6 +414,11 @@ class _ChatViewState extends State<ChatView>
                                           contact
                                               ? SvgIcons.deleteContact
                                               : SvgIcons.addContact,
+                                        ),
+                                        inverted: SvgIcon(
+                                          contact
+                                              ? SvgIcons.deleteContactWhite
+                                              : SvgIcons.addContactWhite,
                                         ),
                                         onPressed: contact
                                             ? () =>
@@ -396,6 +438,11 @@ class _ChatViewState extends State<ChatView>
                                         favorite
                                             ? SvgIcons.favoriteSmall
                                             : SvgIcons.unfavoriteSmall,
+                                      ),
+                                      inverted: SvgIcon(
+                                        favorite
+                                            ? SvgIcons.favoriteSmallWhite
+                                            : SvgIcons.unfavoriteSmallWhite,
                                       ),
                                       onPressed: favorite
                                           ? c.unfavoriteChat
@@ -421,6 +468,11 @@ class _ChatViewState extends State<ChatView>
                                                 ? SvgIcons.unmuteSmall
                                                 : SvgIcons.muteSmall,
                                           ),
+                                          inverted: SvgIcon(
+                                            muted
+                                                ? SvgIcons.unmuteSmallWhite
+                                                : SvgIcons.muteSmallWhite,
+                                          ),
                                           onPressed:
                                               muted ? c.unmuteChat : c.muteChat,
                                         ),
@@ -429,6 +481,9 @@ class _ChatViewState extends State<ChatView>
                                         label: 'btn_clear_history'.l10n,
                                         trailing: const SvgIcon(
                                           SvgIcons.cleanHistory,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.cleanHistoryWhite,
                                         ),
                                         onPressed: () => _clearChat(c, context),
                                       ),
@@ -440,6 +495,9 @@ class _ChatViewState extends State<ChatView>
                                         trailing: const SvgIcon(
                                           SvgIcons.leaveGroup,
                                         ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.leaveGroupWhite,
+                                        ),
                                         onPressed: () =>
                                             _leaveGroup(c, context),
                                       ),
@@ -447,8 +505,10 @@ class _ChatViewState extends State<ChatView>
                                       ContextMenuButton(
                                         key: const Key('HideChatButton'),
                                         label: 'btn_delete_chat'.l10n,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.cleanHistory,
+                                        trailing:
+                                            const SvgIcon(SvgIcons.delete19),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.delete19White,
                                         ),
                                         onPressed: () => _hideChat(c, context),
                                       ),
@@ -457,6 +517,9 @@ class _ChatViewState extends State<ChatView>
                                         key: const Key('Block'),
                                         label: 'btn_block'.l10n,
                                         trailing: const SvgIcon(SvgIcons.block),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.blockWhite,
+                                        ),
                                         onPressed: () => _blockUser(c, context),
                                       ),
                                   ],
@@ -668,6 +731,45 @@ class _ChatViewState extends State<ChatView>
 
                               return const SizedBox();
                             }),
+                            if (c.callPosition == CallButtonsPosition.top ||
+                                c.callPosition == CallButtonsPosition.bottom)
+                              Positioned(
+                                top: c.callPosition == CallButtonsPosition.top
+                                    ? 8
+                                    : null,
+                                bottom:
+                                    c.callPosition == CallButtonsPosition.bottom
+                                        ? 8
+                                        : null,
+                                right: 12,
+                                child: Obx(() {
+                                  final bool inCall =
+                                      c.chat?.inCall.value ?? false;
+
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      CircleButton(
+                                        inCall
+                                            ? SvgIcons.chatAudioCallDisabled
+                                            : SvgIcons.chatAudioCall,
+                                        onPressed:
+                                            inCall ? null : () => c.call(false),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      CircleButton(
+                                        inCall
+                                            ? SvgIcons.chatVideoCallDisabled
+                                            : SvgIcons.chatVideoCall,
+                                        onPressed:
+                                            inCall ? null : () => c.call(true),
+                                      ),
+                                      const SizedBox(height: 8),
+                                    ],
+                                  );
+                                }),
+                              ),
                           ],
                         ),
                       ),
