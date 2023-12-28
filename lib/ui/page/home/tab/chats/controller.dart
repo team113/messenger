@@ -61,7 +61,6 @@ import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -472,17 +471,6 @@ class ChatsTabController extends GetxController {
 
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
-
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// contains an [OngoingCall] happening in a [Chat] identified by the
-  /// provided [ChatId].
-  bool containsCall(ChatId id) {
-    if (WebUtils.containsCall(id)) {
-      return true;
-    }
-
-    return _callService.calls[id] != null;
-  }
 
   /// Indicates whether [User] from this [chat] is already in contacts.
   ///

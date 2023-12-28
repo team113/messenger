@@ -229,6 +229,12 @@ class UserController extends GetxController {
     }
   }
 
+  /// Joins an [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> joinCall() => _callService.join(user!.user.value.dialog);
+
+  /// Drops the [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> dropCall() => _callService.leave(user!.user.value.dialog);
+
   /// Blocks the [user] for the authenticated [MyUser].
   Future<void> block() async {
     blocklistStatus.value = RxStatus.loading();

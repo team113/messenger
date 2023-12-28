@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/application_settings.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -56,6 +57,7 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
+import 'call_buttons_switch/controller.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
@@ -645,6 +647,40 @@ Widget _chats(BuildContext context, MyProfileController c) {
                 : 'label_in_message'.l10n,
             maxLines: null,
             onPressed: () => TimelineSwitchView.show(context),
+            style: style.fonts.normal.regular.primary,
+          );
+        }),
+      ),
+      const SizedBox(height: 16),
+      Paddings.dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 21),
+            child: Text(
+              'label_display_audio_and_video_call_buttons'.l10n,
+              style: style.systemMessageStyle,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: switch (c.settings.value?.callButtonsPosition) {
+              CallButtonsPosition.appBar ||
+              null =>
+                'label_media_buttons_in_app_bar'.l10n,
+              CallButtonsPosition.contextMenu =>
+                'label_media_buttons_in_context_menu'.l10n,
+              CallButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
+              CallButtonsPosition.bottom =>
+                'label_media_buttons_in_bottom'.l10n,
+              CallButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
+            },
+            maxLines: null,
+            onPressed: () => CallButtonsSwitchView.show(context),
             style: style.fonts.normal.regular.primary,
           );
         }),

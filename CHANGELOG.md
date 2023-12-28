@@ -14,6 +14,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Chat page:
+        - Call buttons position setting and adjusting. ([#750], [#718])
     - Chats tab:
         - Monolog searching. ([#745], [#582])
 
@@ -26,7 +28,9 @@ All user visible changes to this project will be documented in this file. This p
         - Restore button displaying under mobile navigation bar. ([#763, #758])
 
 [#582]: /../../issues/582
+[#718]: /../../issues/718
 [#745]: /../../pull/745
+[#750]: /../../pull/750
 [#758]: /../../issues/758
 [#763]: /../../pull/763
 
