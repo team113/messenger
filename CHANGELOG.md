@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
+    - Redesigned user page. ([#769], [#766])
+    - Redesigned chat info page. ([#769], [#766])
 
 ### Fixed
 
@@ -29,6 +31,8 @@ All user visible changes to this project will be documented in this file. This p
 [#750]: /../../pull/750
 [#758]: /../../issues/758
 [#763]: /../../pull/763
+[#766]: /../../issues/766
+[#769]: /../../pull/769
 
 
 
