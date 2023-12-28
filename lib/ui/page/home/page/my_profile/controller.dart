@@ -98,11 +98,12 @@ class MyProfileController extends GetxController {
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
-  final TextFieldState allMessageCost = TextFieldState(text: '0.00');
-  final TextFieldState allCallCost = TextFieldState(text: '0.00');
+  late final TextFieldState allMessageCost; // = TextFieldState(text: '0.00');
+  late final TextFieldState allCallCost; // = TextFieldState(text: '0.00');
 
-  final TextFieldState contactMessageCost = TextFieldState(text: '0.00');
-  final TextFieldState contactCallCost = TextFieldState(text: '0.00');
+  late final TextFieldState
+      contactMessageCost; // = TextFieldState(text: '0.00');
+  late final TextFieldState contactCallCost; // = TextFieldState(text: '0.00');
 
   late final TextFieldState email = TextFieldState(
     approvable: true,
@@ -310,31 +311,31 @@ class MyProfileController extends GetxController {
       }
     });
 
-    verified.value =
-        _myUserService.myUser.value?.emails.confirmed.isNotEmpty == true;
+    verified.value = true;
+    // _myUserService.myUser.value?.emails.confirmed.isNotEmpty == true;
 
-    _myUserWorker = ever(
-      _myUserService.myUser,
-      (MyUser? v) {
-        if (!name.focus.hasFocus &&
-            !name.changed.value &&
-            name.editable.value) {
-          name.unchecked = v?.name?.val;
-        }
-        if (!login.focus.hasFocus &&
-            !login.changed.value &&
-            login.editable.value) {
-          login.unchecked = v?.login?.val;
-        }
-        if (!link.focus.hasFocus &&
-            !link.changed.value &&
-            link.editable.value) {
-          link.unchecked = v?.chatDirectLink?.slug.val;
-        }
+    // _myUserWorker = ever(
+    //   _myUserService.myUser,
+    //   (MyUser? v) {
+    //     if (!name.focus.hasFocus &&
+    //         !name.changed.value &&
+    //         name.editable.value) {
+    //       name.unchecked = v?.name?.val;
+    //     }
+    //     if (!login.focus.hasFocus &&
+    //         !login.changed.value &&
+    //         login.editable.value) {
+    //       login.unchecked = v?.login?.val;
+    //     }
+    //     if (!link.focus.hasFocus &&
+    //         !link.changed.value &&
+    //         link.editable.value) {
+    //       link.unchecked = v?.chatDirectLink?.slug.val;
+    //     }
 
-        verified.value = v?.emails.confirmed.isNotEmpty == true;
-      },
-    );
+    //     verified.value = v?.emails.confirmed.isNotEmpty == true;
+    //   },
+    // );
 
     name = TextFieldState(
       text: myUser.value?.name?.val,
@@ -529,44 +530,34 @@ class MyProfileController extends GetxController {
       },
     );
 
+    allMessageCost =
+        TextFieldState(approvable: true, allowable: true, text: '0');
     allMessageCost.isFocused.listen((b) {
-      if (b) {
-        allMessageCost.unchecked = allMessageCost.text.replaceAll('.00', '');
-      } else if (allMessageCost.text.isNotEmpty) {
-        if (!allMessageCost.text.contains('.')) {
-          allMessageCost.text = '${allMessageCost.text}.00';
-        }
+      if (!b && allMessageCost.text.isEmpty) {
+        allMessageCost.unchecked = '0';
       }
     });
 
+    allCallCost = TextFieldState(approvable: true, allowable: true, text: '0');
     allCallCost.isFocused.listen((b) {
-      if (b) {
-        allCallCost.unchecked = allCallCost.text.replaceAll('.00', '');
-      } else if (allCallCost.text.isNotEmpty) {
-        if (!allCallCost.text.contains('.')) {
-          allCallCost.text = '${allCallCost.text}.00';
-        }
+      if (!b && allCallCost.text.isEmpty) {
+        allCallCost.unchecked = '0';
       }
     });
 
+    contactMessageCost =
+        TextFieldState(approvable: true, allowable: true, text: '0');
     contactMessageCost.isFocused.listen((b) {
-      if (b) {
-        contactMessageCost.unchecked =
-            contactMessageCost.text.replaceAll('.00', '');
-      } else if (contactMessageCost.text.isNotEmpty) {
-        if (!contactMessageCost.text.contains('.')) {
-          contactMessageCost.text = '${contactMessageCost.text}.00';
-        }
+      if (!b && contactMessageCost.text.isEmpty) {
+        contactMessageCost.unchecked = '0';
       }
     });
 
+    contactCallCost =
+        TextFieldState(approvable: true, allowable: true, text: '0');
     contactCallCost.isFocused.listen((b) {
-      if (b) {
-        contactCallCost.unchecked = contactCallCost.text.replaceAll('.00', '');
-      } else if (contactCallCost.text.isNotEmpty) {
-        if (!contactCallCost.text.contains('.')) {
-          contactCallCost.text = '${contactCallCost.text}.00';
-        }
+      if (!b && contactCallCost.text.isEmpty) {
+        contactCallCost.unchecked = '0';
       }
     });
 

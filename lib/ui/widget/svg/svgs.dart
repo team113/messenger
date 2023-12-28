@@ -2025,4 +2025,10 @@ class SvgIcons {
     width: 18,
     height: 18,
   );
+
+  static const SvgData faceSmileBig = SvgData(
+    'assets/icons/face_smile_big.svg',
+    width: 21,
+    height: 21,
+  );
 }

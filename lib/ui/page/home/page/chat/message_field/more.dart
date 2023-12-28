@@ -53,6 +53,7 @@ class MessageFieldMore extends StatelessWidget {
                       }
                     }
                   : null,
+              pinnable: c.pinnable,
               onPressed: () {
                 c.removeEntries<MessageFieldMore>();
               },
@@ -178,12 +179,14 @@ class _MenuButton extends StatefulWidget {
     this.onPressed,
     this.onPinned,
     this.pinned = false,
+    this.pinnable = true,
   });
 
   final ChatButton button;
   final void Function()? onPressed;
   final void Function()? onPinned;
   final bool pinned;
+  final bool pinnable;
 
   @override
   State<_MenuButton> createState() => _MenuButtonState();
@@ -263,32 +266,33 @@ class _MenuButtonState extends State<_MenuButton> {
               ),
               const Spacer(),
               const SizedBox(width: 16),
-              WidgetButton(
-                onPressed: widget.onPinned ?? () {},
-                child: SizedBox(
-                  // color: Colors.red,
-                  height: 40,
-                  width: 40,
-                  child: Center(
-                    child: AnimatedButton(
-                      child: AnimatedSwitcher(
-                        duration: 100.milliseconds,
-                        child: widget.pinned
-                            ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                            : Transform.translate(
-                                offset: const Offset(0.5, 0),
-                                child: SvgIcon(
-                                  widget.onPinned != null
-                                      ? SvgIcons.pin
-                                      : SvgIcons.pinDisabled,
-                                  key: const Key('Pin'),
+              if (widget.pinnable)
+                WidgetButton(
+                  onPressed: widget.onPinned ?? () {},
+                  child: SizedBox(
+                    // color: Colors.red,
+                    height: 40,
+                    width: 40,
+                    child: Center(
+                      child: AnimatedButton(
+                        child: AnimatedSwitcher(
+                          duration: 100.milliseconds,
+                          child: widget.pinned
+                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
+                              : Transform.translate(
+                                  offset: const Offset(0.5, 0),
+                                  child: SvgIcon(
+                                    widget.onPinned != null
+                                        ? SvgIcons.pin
+                                        : SvgIcons.pinDisabled,
+                                    key: const Key('Pin'),
+                                  ),
                                 ),
-                              ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

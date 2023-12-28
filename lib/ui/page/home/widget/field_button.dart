@@ -45,6 +45,7 @@ class FieldButton extends StatefulWidget {
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.old = false,
     this.warning = false,
+    this.headline,
   });
 
   /// Optional label of this [FieldButton].
@@ -88,6 +89,8 @@ class FieldButton extends StatefulWidget {
 
   final bool old;
 
+  final Widget? headline;
+
   @override
   State<FieldButton> createState() => _FieldButtonState();
 }
@@ -130,6 +133,7 @@ class _FieldButtonState extends State<FieldButton> {
             ),
             leading: widget.prefix,
             maxHeight: double.infinity,
+            headline: widget.headline,
             border: //widget.warning
                 // ? Border.all(width: 2, color: style.colors.accept)
                 // :

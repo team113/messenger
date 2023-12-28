@@ -322,19 +322,23 @@ class MenuTabView extends StatelessWidget {
                     break;
 
                   case ProfileTab.calls:
-                    child = card(
-                      icon: Icons.call,
-                      title: 'label_calls'.l10n,
-                      subtitle: 'label_calls_displaying'.l10n,
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: Colors.primaries[4],
-                          borderRadius: BorderRadius.circular(8),
+                    if (!PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
+                      return const SizedBox();
+                    } else {
+                      child = card(
+                        icon: Icons.call,
+                        title: 'label_calls'.l10n,
+                        subtitle: 'label_calls_displaying'.l10n,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: Colors.primaries[4],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                     break;
 
                   case ProfileTab.media:

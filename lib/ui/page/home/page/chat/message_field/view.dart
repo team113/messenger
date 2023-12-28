@@ -52,6 +52,18 @@ import 'buttons.dart';
 import 'controller.dart';
 import 'more.dart';
 
+// TODO: Instead of `fileOnly`?
+enum MessageFieldAction {
+  audioCall,
+  videoCall,
+  takePhoto,
+  takeVideo,
+  gallery,
+  file,
+  gift,
+  sticker,
+}
+
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
   const MessageFieldView({
@@ -510,6 +522,8 @@ class MessageFieldView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
+      final first = c.panel.firstOrNull;
+
       return Container(
         key: c.globalKey,
         constraints: const BoxConstraints(minHeight: 56),
@@ -518,18 +532,19 @@ class MessageFieldView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            WidgetButton(
-              onPressed: canAttach
-                  ? () {
-                      if (c.moreOpened.value) {
-                        c.removeEntries<MessageFieldMore>();
-                      } else {
-                        c.removeEntries<MessageFieldMore>();
-                        c.addEntry<MessageFieldMore>(MessageFieldMore(c));
+            if (c.panel.length > 1)
+              AnimatedButton(
+                enabled: canAttach,
+                onPressed: canAttach
+                    ? () {
+                        if (c.moreOpened.value) {
+                          c.removeEntries<MessageFieldMore>();
+                        } else {
+                          c.removeEntries<MessageFieldMore>();
+                          c.addEntry<MessageFieldMore>(MessageFieldMore(c));
+                        }
                       }
-                    }
-                  : null,
-              child: AnimatedButton(
+                    : null,
                 child: SizedBox(
                   width: 50,
                   height: 56,
@@ -544,8 +559,33 @@ class MessageFieldView extends StatelessWidget {
                     }),
                   ),
                 ),
+              )
+            else if (first != null)
+              AnimatedButton(
+                onPressed: first.onPressed == null
+                    ? null
+                    : () => first.onPressed?.call(false),
+                child: SizedBox(
+                  width: 50,
+                  height: 56,
+                  child: Center(
+                    child: first.icon == null
+                        ? Transform.translate(
+                            offset: first.offset,
+                            child: SvgIcon(
+                              first.enabled
+                                  ? first.asset
+                                  : (first.disabled ?? first.asset),
+                            ),
+                          )
+                        : Icon(
+                            first.icon,
+                            size: 28,
+                            color: style.colors.primary,
+                          ),
+                  ),
+                ),
               ),
-            ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
@@ -553,7 +593,14 @@ class MessageFieldView extends StatelessWidget {
                   bottom: 13,
                 ),
                 child: Transform.translate(
-                  offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                  offset: Offset(
+                    0,
+                    PlatformUtils.isMobile
+                        ? 6
+                        : PlatformUtils.isWeb
+                            ? 3
+                            : 1,
+                  ),
                   child: ReactiveTextField(
                     onChanged: onChanged,
                     key: fieldKey ?? const Key('MessageField'),

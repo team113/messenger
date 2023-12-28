@@ -201,6 +201,8 @@ class MessageFieldController extends GetxController {
 
   final RxBool displayMore = RxBool(false);
 
+  bool get pinnable => _userService != null;
+
   final GlobalKey globalKey = GlobalKey();
   late final RxList<ChatButton> panel = RxList([
     if (PlatformUtils.isMobile /*&& !PlatformUtils.isWeb*/) ...[
@@ -210,13 +212,18 @@ class MessageFieldController extends GetxController {
       FileButton(this),
     ] else
       AttachmentButton(this),
-    AudioMessageButton(this),
-    VideoMessageButton(this),
-    DonateButton(this),
-    StickerButton(this),
-    if (settings?.value?.mediaButtonsPosition == MediaButtonsPosition.more) ...[
-      AudioCallButton(this),
-      VideoCallButton(this),
+
+    // TODO: Replace with `MessageFieldAction`???
+    if (_userService != null) ...[
+      AudioMessageButton(this),
+      VideoMessageButton(this),
+      DonateButton(this),
+      StickerButton(this),
+      if (settings?.value?.mediaButtonsPosition ==
+          MediaButtonsPosition.more) ...[
+        AudioCallButton(this),
+        VideoCallButton(this),
+      ],
     ],
   ]);
 

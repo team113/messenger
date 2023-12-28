@@ -16,12 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/themes.dart';
 
 /// Single fixed-height [OutlinedButton] of a row that typically contains some
 /// primary and subtitle text, and a leading icon as well.
-class OutlinedRoundedButton extends StatelessWidget {
+class OutlinedRoundedButton extends StatefulWidget {
   const OutlinedRoundedButton({
     super.key,
     this.title,
@@ -43,6 +44,7 @@ class OutlinedRoundedButton extends StatelessWidget {
     this.height = 42,
     this.shadows,
     this.style,
+    this.headline,
   });
 
   /// Primary content of this button.
@@ -98,134 +100,126 @@ class OutlinedRoundedButton extends StatelessWidget {
 
   final Border? border;
 
+  final Widget? headline;
+
+  @override
+  State<OutlinedRoundedButton> createState() => _OutlinedRoundedButtonState();
+}
+
+class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
+  bool _hovered = false;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     final BorderRadius borderRadius = BorderRadius.circular(
-      15 * 0.7 * ((height ?? 42) / 42),
+      15 * 0.7 * ((widget.height ?? 42) / 42),
     );
 
-    return Container(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        boxShadow: shadows,
-        color: onPressed == null
-            ? disabled ?? style.colors.secondaryHighlight
-            : color ?? style.colors.onPrimary,
-        gradient: gradient,
-        borderRadius: borderRadius,
-        border: border,
-      ),
-      child: Material(
-        color: style.colors.transparent,
-        elevation: elevation,
-        borderRadius: borderRadius,
-        child: InkWell(
-          borderRadius: borderRadius,
-          onTap: onPressed,
-          onLongPress: onLongPress,
-          hoverColor: style.colors.onBackgroundOpacity7,
-          child: Container(
-            constraints: BoxConstraints(
-              minHeight: height ?? 0,
-              maxHeight: maxHeight ?? height ?? double.infinity,
+    final border = OutlineInputBorder(
+      borderSide: widget.border?.bottom ?? BorderSide.none,
+      borderRadius: borderRadius,
+    );
+
+    return WidgetButton(
+      onPressed: widget.onPressed,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: Container(
+          constraints: BoxConstraints(maxWidth: widget.maxWidth),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            boxShadow: widget.shadows,
+            gradient: widget.gradient,
+          ),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              contentPadding: widget.headline == null
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              label: widget.headline,
+              border: border,
+              errorBorder: border,
+              enabledBorder: border,
+              focusedBorder: border,
+              disabledBorder: border,
+              focusedErrorBorder: border,
+              filled: true,
+              fillColor: widget.onPressed == null
+                  ? widget.disabled ?? style.colors.secondaryHighlight
+                  : _hovered
+                      ? Color.alphaBlend(
+                          style.colors.onBackgroundOpacity7,
+                          widget.color ?? style.colors.onPrimary,
+                        )
+                      : widget.color ?? style.colors.onPrimary,
             ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8 * 0.7,
-              vertical: 6 * 0.7,
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 8),
-                // if (leading != null) leading!,
-                if (leading != null) ...[
-                  SizedBox(width: leadingWidth, child: Center(child: leading!)),
+            child: Container(
+              constraints: BoxConstraints(
+                minHeight: widget.height ?? 0,
+                maxHeight: widget.maxHeight ?? widget.height ?? double.infinity,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8 * 0.7,
+                vertical: 6 * 0.7,
+              ),
+              child: Row(
+                children: [
                   const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: DefaultTextStyle.merge(
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style:
-                        this.style ?? style.fonts.medium.regular.onBackground,
-                    child: Center(
-                      child: Padding(
-                        padding: leading == null
-                            ? EdgeInsets.zero
-                            : const EdgeInsets.only(left: 10 * 0.7),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            title ?? Container(),
-                            if (subtitle != null)
-                              const SizedBox(height: 1 * 0.7),
-                            if (subtitle != null)
-                              DefaultTextStyle.merge(
-                                style: style.fonts.small.regular.onBackground,
-                                child: subtitle!,
-                              ),
-                          ],
+                  // if (leading != null) leading!,
+                  if (widget.leading != null) ...[
+                    SizedBox(
+                        width: widget.leadingWidth,
+                        child: Center(child: widget.leading!)),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: DefaultTextStyle.merge(
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: this.widget.style ??
+                          style.fonts.medium.regular.onBackground,
+                      child: Center(
+                        child: Padding(
+                          padding: widget.leading == null
+                              ? EdgeInsets.zero
+                              : const EdgeInsets.only(left: 10 * 0.7),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              widget.title ?? Container(),
+                              if (widget.subtitle != null)
+                                const SizedBox(height: 1 * 0.7),
+                              if (widget.subtitle != null)
+                                DefaultTextStyle.merge(
+                                  style: style.fonts.small.regular.onBackground,
+                                  child: widget.subtitle!,
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                if (leading != null) ...[
-                  const SizedBox(width: 8),
-                  // if (leading != null) Opacity(opacity: 0, child: leading!),
+                  if (widget.leading != null) ...[
+                    const SizedBox(width: 8),
+                    // if (leading != null) Opacity(opacity: 0, child: leading!),
 
-                  SizedBox(
-                    width: leadingWidth,
-                    child: Center(child: Opacity(opacity: 0, child: leading!)),
-                  ),
+                    SizedBox(
+                      width: widget.leadingWidth,
+                      child: Center(
+                          child: Opacity(opacity: 0, child: widget.leading!)),
+                    ),
+                  ],
+                  if (widget.trailing != null) widget.trailing!,
+                  const SizedBox(width: 8),
                 ],
-                if (trailing != null) trailing!,
-                const SizedBox(width: 8),
-              ],
+              ),
             ),
-            // child: Stack(
-            //   alignment: Alignment.centerLeft,
-            //   children: [
-            //     if (leading != null)
-            //       Row(
-            //         children: [
-            //           Expanded(child: Center(child: leading)),
-            //           Expanded(flex: 4, child: Container()),
-            //           Expanded(child: Container()),
-            //         ],
-            //       ),
-            //     DefaultTextStyle.merge(
-            //       maxLines: 2,
-            //       overflow: TextOverflow.ellipsis,
-            //       textAlign: TextAlign.center,
-            //       style: this.style ?? style.fonts.medium.regular.onBackground,
-            //       child: Center(
-            //         child: Padding(
-            //           padding: leading == null
-            //               ? EdgeInsets.zero
-            //               : const EdgeInsets.only(left: 10 * 0.7),
-            //           child: Column(
-            //             mainAxisAlignment: MainAxisAlignment.center,
-            //             crossAxisAlignment: CrossAxisAlignment.center,
-            //             children: [
-            //               title ?? Container(),
-            //               if (subtitle != null) const SizedBox(height: 1 * 0.7),
-            //               if (subtitle != null)
-            //                 DefaultTextStyle.merge(
-            //                   style: style.fonts.normal.regular.onBackground,
-            //                   child: subtitle!,
-            //                 ),
-            //             ],
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            // ),
           ),
         ),
       ),

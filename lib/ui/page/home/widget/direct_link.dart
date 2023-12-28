@@ -144,6 +144,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         !_state.changed.value &&
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
+
+      if (oldWidget.link != widget.link) {
+        _editing = widget.link == null;
+      }
     }
 
     super.didUpdateWidget(oldWidget);

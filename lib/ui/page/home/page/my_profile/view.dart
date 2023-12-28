@@ -386,6 +386,10 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.calls:
+                      if (!PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
+                        return const SizedBox();
+                      }
+
                       return block(
                         title: 'label_calls'.l10n,
                         children: [_call(context, c)],
@@ -1349,45 +1353,45 @@ Widget _call(BuildContext context, MyProfileController c) {
         ),
         const SizedBox(height: 16),
       ],
-      Paddings.dense(
-        Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            IgnorePointer(
-              child: ReactiveTextField(
-                maxLines: null,
-                state: TextFieldState(
-                  text: 'label_leave_group_call_when_alone'.l10n,
-                  editable: false,
-                ),
-                trailing: const SizedBox(width: 40),
-                trailingWidth: 40,
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: Transform.scale(
-                  scale: 0.7,
-                  transformHitTests: false,
-                  child: Theme(
-                    data: ThemeData(platform: TargetPlatform.macOS),
-                    child: Obx(
-                      () => Switch.adaptive(
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        value: c.settings.value?.leaveWhenAlone == true,
-                        onChanged: c.setLeaveWhenAlone,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      // Paddings.dense(
+      //   Stack(
+      //     alignment: Alignment.centerRight,
+      //     children: [
+      //       IgnorePointer(
+      //         child: ReactiveTextField(
+      //           maxLines: null,
+      //           state: TextFieldState(
+      //             text: 'label_leave_group_call_when_alone'.l10n,
+      //             editable: false,
+      //           ),
+      //           trailing: const SizedBox(width: 40),
+      //           trailingWidth: 40,
+      //         ),
+      //       ),
+      //       Align(
+      //         alignment: Alignment.centerRight,
+      //         child: Padding(
+      //           padding: const EdgeInsets.only(right: 5),
+      //           child: Transform.scale(
+      //             scale: 0.7,
+      //             transformHitTests: false,
+      //             child: Theme(
+      //               data: ThemeData(platform: TargetPlatform.macOS),
+      //               child: Obx(
+      //                 () => Switch.adaptive(
+      //                   activeColor: Theme.of(context).colorScheme.primary,
+      //                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      //                   value: c.settings.value?.leaveWhenAlone == true,
+      //                   onChanged: c.setLeaveWhenAlone,
+      //                 ),
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     ],
   );
 }
@@ -1486,6 +1490,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_camera'.l10n,
+            headline: Text('label_media_camera'.l10n),
             onPressed: () async {
               await CameraSwitchView.show(
                 context,
@@ -1510,6 +1515,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_microphone'.l10n,
+            headline: Text('label_media_microphone'.l10n),
             onPressed: () async {
               await MicrophoneSwitchView.show(
                 context,
@@ -1534,6 +1540,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_output'.l10n,
+            headline: Text('label_media_output'.l10n),
             onPressed: () async {
               await OutputSwitchView.show(
                 context,
@@ -1762,38 +1769,52 @@ Widget _welcome(BuildContext context, MyProfileController c) {
           children: [
             Positioned.fill(
               child: Container(
-                width: double.infinity,
-                height: double.infinity,
                 decoration: BoxDecoration(
-                  color: style.unreadMessageColor,
-                  borderRadius: BorderRadius.only(
-                    bottomRight: style.cardRadius.bottomRight,
-                    bottomLeft: style.cardRadius.bottomLeft,
-                  ),
+                  border: style.primaryBorder,
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                child: Obx(() {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: c.background.value == null
+                        ? const SvgImage.asset(
+                            'assets/images/background_light.svg',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.memory(c.background.value!, fit: BoxFit.cover),
+                  );
+                }),
               ),
             ),
+
+            // Positioned.fill(
+            //   child: Container(
+            //     width: double.infinity,
+            //     height: double.infinity,
+            //     decoration: BoxDecoration(
+            //       color: style.unreadMessageColor,
+            //       borderRadius: style.cardRadius,
+            //       // borderRadius: BorderRadius.only(
+            //       //   bottomRight: style.cardRadius.bottomRight,
+            //       //   bottomLeft: style.cardRadius.bottomLeft,
+            //       // ),
+            //     ),
+            //   ),
+            // ),
             Obx(() {
               return Column(
                 children: [
                   const SizedBox(height: 16),
                   if (c.welcome.value == null)
-                    WidgetButton(
-                      onPressed: () async {
-                        final ChatMessage? m = await WelcomeMessageView.show(
-                          context,
-                          initial: c.welcome.value,
-                        );
-
-                        if (m != null) {
-                          c.welcome.value = m;
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        height: 60 * 3,
-                        child: info(
-                          child: Text('label_no_welcome_message'.l10n),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      height: 60 * 1.5,
+                      child: info(
+                        child: Text(
+                          'label_no_welcome_message'.l10n,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     )
@@ -1953,6 +1974,153 @@ Widget _title(BuildContext context, String label, [bool enabled = true]) {
 
 Widget _getPaid(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
+
+  Widget title(String label) {
+    final style = Theme.of(context).style;
+
+    return Paddings.dense(
+      Align(
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 0.0),
+          child: Text(
+            label,
+            style: style.systemMessageStyle.copyWith(
+              color: style.colors.secondary,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
+
+  return Column(
+    children: [
+      title(
+        'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
+      ),
+      const SizedBox(height: 8),
+      Paddings.basic(
+        ReactiveTextField(
+          state: c.allMessageCost,
+          style: style.fonts.medium.regular.onBackground,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [FilteringTextInputFormatter.digitsOnly],
+          hint: '0',
+          prefix: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+            child: Transform.translate(
+              offset: PlatformUtils.isWeb
+                  ? const Offset(0, -0)
+                  : const Offset(0, -0.5),
+              child: Text(
+                '¤',
+                style: style.fonts.medium.regular.onBackground,
+              ),
+            ),
+          ),
+          label: 'Входящие сообщения, за 1 сообщение',
+        ),
+      ),
+      Paddings.basic(
+        ReactiveTextField(
+          state: c.allCallCost,
+          style: style.fonts.medium.regular.onBackground,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [FilteringTextInputFormatter.digitsOnly],
+          hint: '0',
+          prefix: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+            child: Transform.translate(
+              offset: PlatformUtils.isWeb
+                  ? const Offset(0, -0)
+                  : const Offset(0, -0.5),
+              child: Text(
+                '¤',
+                style: style.fonts.medium.regular.onBackground,
+              ),
+            ),
+          ),
+          label: 'Входящие звонки, за 1 минуту',
+        ),
+      ),
+      const SizedBox(height: 24),
+      title('От Ваших контактов'),
+      const SizedBox(height: 8),
+      Paddings.basic(
+        ReactiveTextField(
+          state: c.contactMessageCost,
+          style: style.fonts.medium.regular.onBackground,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [FilteringTextInputFormatter.digitsOnly],
+          hint: '0',
+          prefix: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+            child: Transform.translate(
+              offset: PlatformUtils.isWeb
+                  ? const Offset(0, -0)
+                  : const Offset(0, -0.5),
+              child: Text(
+                '¤',
+                style: style.fonts.medium.regular.onBackground,
+              ),
+            ),
+          ),
+          label: 'Входящие сообщения, за 1 сообщение',
+        ),
+      ),
+      Paddings.basic(
+        ReactiveTextField(
+          state: c.contactCallCost,
+          style: style.fonts.medium.regular.onBackground,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [FilteringTextInputFormatter.digitsOnly],
+          hint: '0',
+          prefix: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+            child: Transform.translate(
+              offset: PlatformUtils.isWeb
+                  ? const Offset(0, -0)
+                  : const Offset(0, -0.5),
+              child: Text(
+                '¤',
+                style: style.fonts.medium.regular.onBackground,
+              ),
+            ),
+          ),
+          label: 'Входящие звонки, за 1 минуту',
+        ),
+      ),
+      const SizedBox(height: 24),
+      title('От индивидуальных пользователей'),
+      const SizedBox(height: 8),
+      Paddings.dense(
+        FieldButton(
+          text: 'label_users_of'.l10n,
+          onPressed:
+              !c.verified.value ? null : () => PaidListView.show(context),
+          trailing: Text(
+            '0',
+            style: style.fonts.medium.regular.onBackground.copyWith(
+              fontSize: 15,
+              color: !c.verified.value
+                  ? style.colors.secondary
+                  : style.colors.onBackground,
+            ),
+          ),
+          style: TextStyle(
+            color: !c.verified.value
+                ? style.colors.secondary
+                : style.colors.onBackground,
+          ),
+        ),
+      ),
+      Opacity(opacity: 0, child: _verification(context, c)),
+    ],
+  );
 
   Widget field({
     required TextFieldState state,
@@ -2362,6 +2530,10 @@ Widget _storage(BuildContext context, MyProfileController c) {
 
 Widget _devices(BuildContext context, MyProfileController c) {
   // final style = Theme.of(context).style;
+
+  // Widget device({String name, Widget icon}) {
+
+  // }
 
   return Paddings.dense(
     Column(
