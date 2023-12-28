@@ -651,7 +651,12 @@ class _GalleryPopupState extends State<GalleryPopup>
                         constraints:
                             const BoxConstraints(minWidth: 1, minHeight: 1),
                         child: PlatformUtils.isWeb
-                            ? WebImage(e.link, onForbidden: e.onError)
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+                                // TODO: Wait for HTML to support specifying download name:
+                                //       https://github.com/whatwg/html/issues/2722
+                              )
                             : RetryImage(
                                 e.link,
                                 width: e.width?.toDouble(),
