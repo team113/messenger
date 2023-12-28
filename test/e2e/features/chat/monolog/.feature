@@ -36,20 +36,21 @@ Feature: Monolog
 
   Scenario: User renames local monolog
     When I open chat's info
+    And I tap `ChatInfoMoreButton` button
+    And I tap `EditButton` button
     And I fill `RenameChatField` field with "My monolog"
     And I tap `Approve` button
     Then monolog is indeed remote
 
   Scenario: User adds local chat monolog to favorites
-    When I open chat's info
-    And I tap `MoreButton` button
+    When I long press monolog
     And I tap `FavoriteChatButton` button
     Then monolog is indeed remote
     And I see monolog as favorite
 
   Scenario: User hides local monolog
     When I open chat's info
-    And I tap `MoreButton` button
+    And I scroll `ChatInfoScrollable` until `HideChatButton` is present
     And I tap `HideChatButton` button
     And I tap `Proceed` button
     And I pause for 1 second

@@ -28,5 +28,7 @@ Feature: Chat avatar
     When I update chat avatar with "test.jpg"
     Then I see chat avatar as "test.jpg"
 
-    When I tap `DeleteAvatar` button
+    When I tap `ChatInfoMoreButton` button
+    And I tap `EditButton` button
+    And I tap `DeleteAvatar` button
     Then I see chat avatar as none

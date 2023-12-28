@@ -94,7 +94,7 @@ class MemberTile extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: myUser ? 12 : 16),
+          const SizedBox(width: 16),
         ],
         AnimatedButton(
           enabled: !myUser,

@@ -248,12 +248,10 @@ class UserController extends GetxController {
     if (contact.value != null) {
       status.value = RxStatus.loadingMore();
       try {
-        final RxChatContact? contact =
-            _contactService.paginated.values.firstWhereOrNull(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-        if (contact != null) {
-          await _contactService.deleteContact(contact.contact.value.id);
+        if (contact.value != null) {
+          await _contactService.deleteContact(contact.value!.contact.value.id);
+          contact.value = null;
+          _listenUser();
         }
       } catch (e) {
         MessagePopup.error(e);
@@ -315,12 +313,8 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
-        (e) => e.contact.value.users.every((m) => m.id == user?.id),
-      );
-      if (contact != null) {
-        await _contactService.favoriteChatContact(contact.id);
+      if (contact.value != null) {
+        await _contactService.favoriteChatContact(contact.value!.id);
       }
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -333,12 +327,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
-        (e) => e.contact.value.users.every((m) => m.id == user?.id),
-      );
-      if (contact != null) {
-        await _contactService.unfavoriteChatContact(contact.id);
+      if (contact.value != null) {
+        await _contactService.unfavoriteChatContact(contact.value!.id);
       }
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);

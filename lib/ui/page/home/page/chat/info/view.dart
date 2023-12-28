@@ -33,7 +33,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/contact_info.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/paddings.dart';
@@ -190,15 +190,15 @@ class ChatInfoView extends StatelessWidget {
                       ),
                       SelectionContainer.disabled(
                         child: Block(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+                          padding: const EdgeInsets.only(bottom: 8),
                           background: style.colors.background,
                           children: [
                             Padding(
                               padding: const EdgeInsets.fromLTRB(
-                                8 + 8,
+                                16,
                                 8,
-                                8 + 8,
-                                8 + 5,
+                                16,
+                                13,
                               ),
                               child: Row(
                                 children: [
@@ -212,6 +212,7 @@ class ChatInfoView extends StatelessWidget {
                                     ),
                                   ),
                                   AnimatedButton(
+                                    key: const Key('AddMemberButton'),
                                     onPressed: () => AddChatMemberView.show(
                                       context,
                                       chatId: id,
@@ -363,7 +364,7 @@ class ChatInfoView extends StatelessWidget {
           trailing: const SvgIcon(SvgIcons.cleanHistory),
         ),
         ActionButton(
-          key: const Key('HideButton'),
+          key: const Key('HideChatButton'),
           onPressed: () => _hideChat(c, context),
           text: 'btn_delete_chat'.l10n,
           trailing: const SvgIcon(SvgIcons.delete),
@@ -382,6 +383,8 @@ class ChatInfoView extends StatelessWidget {
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
+
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
 
     return Center(
       child: Row(
@@ -445,7 +448,7 @@ class ChatInfoView extends StatelessWidget {
             AnimatedButton(
               onPressed: c.editing.toggle,
               decorator: (child) => Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 18, 0),
+                padding: const EdgeInsets.only(right: 18),
                 child: child,
               ),
               child: const SvgIcon(SvgIcons.closePrimary),
@@ -455,48 +458,68 @@ class ChatInfoView extends StatelessWidget {
               onPressed: () => router.chat(c.chat?.id ?? id),
               child: const SvgIcon(SvgIcons.chat),
             ),
-            ContextMenuRegion(
-              key: c.moreKey,
-              selector: c.moreKey,
-              alignment: Alignment.topRight,
-              enablePrimaryTap: true,
-              margin: const EdgeInsets.only(
-                bottom: 4,
-                left: 20,
-              ),
-              actions: [
-                ContextMenuButton(
-                  label: 'btn_audio_call'.l10n,
-                  onPressed: () => c.call(false),
-                  trailing: const SvgIcon(SvgIcons.makeAudioCall),
-                  inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
+            KeyedSubtree(
+              key: const Key('ChatInfoMoreButton'),
+              child: ContextMenuRegion(
+                key: c.moreKey,
+                selector: c.moreKey,
+                alignment: Alignment.topRight,
+                enablePrimaryTap: true,
+                margin: const EdgeInsets.only(
+                  bottom: 4,
+                  left: 20,
                 ),
-                ContextMenuButton(
-                  label: 'btn_video_call'.l10n,
-                  onPressed: () => c.call(true),
-                  trailing: Transform.translate(
-                    offset: const Offset(2, 0),
-                    child: const SvgIcon(SvgIcons.makeVideoCall),
+                actions: [
+                  ContextMenuButton(
+                    label: 'btn_audio_call'.l10n,
+                    onPressed: () => c.call(false),
+                    trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                    inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
                   ),
-                  inverted: Transform.translate(
-                    offset: const Offset(2, 0),
-                    child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                  ContextMenuButton(
+                    label: 'btn_video_call'.l10n,
+                    onPressed: () => c.call(true),
+                    trailing: Transform.translate(
+                      offset: const Offset(2, 0),
+                      child: const SvgIcon(SvgIcons.makeVideoCall),
+                    ),
+                    inverted: Transform.translate(
+                      offset: const Offset(2, 0),
+                      child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                    ),
                   ),
+                  ContextMenuButton(
+                    key: const Key('EditButton'),
+                    label: 'btn_edit'.l10n,
+                    onPressed: c.editing.toggle,
+                    trailing: const SvgIcon(SvgIcons.edit),
+                    inverted: const SvgIcon(SvgIcons.editWhite),
+                  ),
+                  ContextMenuButton(
+                    label: favorite
+                        ? 'btn_delete_from_favorites'.l10n
+                        : 'btn_add_to_favorites'.l10n,
+                    onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+                    trailing: SvgIcon(
+                      favorite
+                          ? SvgIcons.favoriteSmall
+                          : SvgIcons.unfavoriteSmall,
+                    ),
+                    inverted: SvgIcon(
+                      favorite
+                          ? SvgIcons.favoriteSmallWhite
+                          : SvgIcons.unfavoriteSmallWhite,
+                    ),
+                  ),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    left: 21 + 10,
+                    right: 4 + 21,
+                  ),
+                  height: double.infinity,
+                  child: const SvgIcon(SvgIcons.more),
                 ),
-                ContextMenuButton(
-                  label: 'btn_edit'.l10n,
-                  onPressed: c.editing.toggle,
-                  trailing: const SvgIcon(SvgIcons.edit),
-                  inverted: const SvgIcon(SvgIcons.editWhite),
-                ),
-              ],
-              child: Container(
-                padding: const EdgeInsets.only(
-                  left: 21 + 10,
-                  right: 4 + 21,
-                ),
-                height: double.infinity,
-                child: const SvgIcon(SvgIcons.more),
               ),
             ),
           ],

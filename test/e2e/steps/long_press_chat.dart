@@ -15,9 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/chat.dart';
 
 import '../world/custom_world.dart';
 
@@ -34,6 +37,36 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
       try {
         final finder = context.world.appDriver
             .findBy('Chat_${context.world.groups[name]}', FindType.key)
+            .first;
+
+        await context.world.appDriver.nativeDriver.longPress(finder);
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
+  },
+);
+
+/// Long presses a monolog.
+///
+/// Examples:
+/// - When I long press monolog.
+final StepDefinitionGeneric longPressMonolog = when<CustomWorld>(
+  'I long press monolog',
+  (context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+
+      AbstractChatRepository chatRepository = Get.find();
+
+      try {
+        RxChat? monolog = chatRepository.chats.values
+            .firstWhereOrNull((e) => e.chat.value.isMonolog);
+        final finder = context.world.appDriver
+            .findBy('Chat_${monolog?.id}', FindType.key)
             .first;
 
         await context.world.appDriver.nativeDriver.longPress(finder);

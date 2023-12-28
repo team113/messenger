@@ -29,7 +29,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/contact_info.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
@@ -150,6 +150,7 @@ class UserView extends StatelessWidget {
                           children: [
                             Paddings.basic(
                               InfoTile(
+                                key: const Key('UserNum'),
                                 padding: EdgeInsets.zero,
                                 title: 'label_num'.l10n,
                                 content: c.user!.user.value.num.toString(),
@@ -225,6 +226,10 @@ class UserView extends StatelessWidget {
                     ),
                     if (subtitle?.isNotEmpty == true)
                       Text(
+                        key: Key(
+                          c.user?.user.value.presence?.name.capitalizeFirst ??
+                              '',
+                        ),
                         subtitle!,
                         style: style.fonts.small.regular.secondary,
                       )
@@ -241,7 +246,7 @@ class UserView extends StatelessWidget {
               child = AnimatedButton(
                 onPressed: c.editing.toggle,
                 decorator: (child) => Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 18, 0),
+                  padding: const EdgeInsets.only(right: 18),
                   child: child,
                 ),
                 child: const SvgIcon(SvgIcons.closePrimary),
@@ -259,80 +264,87 @@ class UserView extends StatelessWidget {
                     final bool favorite =
                         c.contact.value?.contact.value.favoritePosition != null;
 
-                    return ContextMenuRegion(
-                      key: c.moreKey,
-                      selector: c.moreKey,
-                      alignment: Alignment.topRight,
-                      enablePrimaryTap: true,
-                      margin: const EdgeInsets.only(bottom: 4, left: 20),
-                      actions: [
-                        ContextMenuButton(
-                          label: 'btn_audio_call'.l10n,
-                          onPressed: () => c.call(false),
-                          trailing: const SvgIcon(SvgIcons.makeAudioCall),
-                          inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
-                        ),
-                        ContextMenuButton(
-                          label: 'btn_video_call'.l10n,
-                          onPressed: () => c.call(true),
-                          trailing: Transform.translate(
-                            offset: const Offset(2, 0),
-                            child: const SvgIcon(SvgIcons.makeVideoCall),
-                          ),
-                          inverted: Transform.translate(
-                            offset: const Offset(2, 0),
-                            child: const SvgIcon(SvgIcons.makeVideoCallWhite),
-                          ),
-                        ),
-                        if (contact)
+                    return KeyedSubtree(
+                      key: const Key('MoreButton'),
+                      child: ContextMenuRegion(
+                        key: c.moreKey,
+                        selector: c.moreKey,
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        margin: const EdgeInsets.only(bottom: 4, left: 20),
+                        actions: [
                           ContextMenuButton(
-                            label: 'btn_edit'.l10n,
-                            onPressed: c.editing.toggle,
-                            trailing: const SvgIcon(SvgIcons.edit),
-                            inverted: const SvgIcon(SvgIcons.editWhite),
+                            label: 'btn_audio_call'.l10n,
+                            onPressed: () => c.call(false),
+                            trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                            inverted:
+                                const SvgIcon(SvgIcons.makeAudioCallWhite),
                           ),
-                        ContextMenuButton(
-                          label: contact
-                              ? 'btn_delete_from_contacts'.l10n
-                              : 'btn_add_to_contacts'.l10n,
-                          onPressed:
-                              contact ? c.removeFromContacts : c.addToContacts,
-                          trailing: SvgIcon(
-                            contact
-                                ? SvgIcons.deleteContact
-                                : SvgIcons.addContact,
-                          ),
-                          inverted: SvgIcon(
-                            contact
-                                ? SvgIcons.deleteContactWhite
-                                : SvgIcons.addContactWhite,
-                          ),
-                        ),
-                        if (contact)
                           ContextMenuButton(
-                            label: favorite
-                                ? 'btn_delete_from_favorites'.l10n
-                                : 'btn_add_to_favorites'.l10n,
-                            onPressed: favorite
-                                ? c.unfavoriteContact
-                                : c.favoriteContact,
+                            label: 'btn_video_call'.l10n,
+                            onPressed: () => c.call(true),
+                            trailing: Transform.translate(
+                              offset: const Offset(2, 0),
+                              child: const SvgIcon(SvgIcons.makeVideoCall),
+                            ),
+                            inverted: Transform.translate(
+                              offset: const Offset(2, 0),
+                              child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                            ),
+                          ),
+                          if (contact)
+                            ContextMenuButton(
+                              label: 'btn_edit'.l10n,
+                              onPressed: c.editing.toggle,
+                              trailing: const SvgIcon(SvgIcons.edit),
+                              inverted: const SvgIcon(SvgIcons.editWhite),
+                            ),
+                          ContextMenuButton(
+                            key: contact
+                                ? const Key('DeleteFromContactsButton')
+                                : const Key('AddToContactsButton'),
+                            label: contact
+                                ? 'btn_delete_from_contacts'.l10n
+                                : 'btn_add_to_contacts'.l10n,
+                            onPressed: contact
+                                ? c.removeFromContacts
+                                : c.addToContacts,
                             trailing: SvgIcon(
-                              favorite
-                                  ? SvgIcons.favoriteSmall
-                                  : SvgIcons.unfavoriteSmall,
+                              contact
+                                  ? SvgIcons.deleteContact
+                                  : SvgIcons.addContact,
                             ),
                             inverted: SvgIcon(
-                              favorite
-                                  ? SvgIcons.favoriteSmallWhite
-                                  : SvgIcons.unfavoriteSmallWhite,
+                              contact
+                                  ? SvgIcons.deleteContactWhite
+                                  : SvgIcons.addContactWhite,
                             ),
                           ),
-                      ],
-                      child: Container(
-                        padding:
-                            const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
-                        height: double.infinity,
-                        child: const SvgIcon(SvgIcons.more),
+                          if (contact)
+                            ContextMenuButton(
+                              label: favorite
+                                  ? 'btn_delete_from_favorites'.l10n
+                                  : 'btn_add_to_favorites'.l10n,
+                              onPressed: favorite
+                                  ? c.unfavoriteContact
+                                  : c.favoriteContact,
+                              trailing: SvgIcon(
+                                favorite
+                                    ? SvgIcons.favoriteSmall
+                                    : SvgIcons.unfavoriteSmall,
+                              ),
+                              inverted: SvgIcon(
+                                favorite
+                                    ? SvgIcons.favoriteSmallWhite
+                                    : SvgIcons.unfavoriteSmallWhite,
+                              ),
+                            ),
+                        ],
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 31, right: 25),
+                          height: double.infinity,
+                          child: const SvgIcon(SvgIcons.more),
+                        ),
                       ),
                     );
                   }),
@@ -366,6 +378,7 @@ class UserView extends StatelessWidget {
           final bool blocked = c.isBlocked != null;
 
           return ActionButton(
+            key: blocked ? const Key('Unblock') : const Key('Block'),
             text: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
             onPressed: blocked ? c.unblock : () => _blockUser(c, context),
             trailing: Obx(() {

@@ -363,6 +363,16 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    await tester.tap(
+      find.byKey(const Key('ChatInfoMoreButton'), skipOffstage: false),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const Key('EditButton'), skipOffstage: false),
+    );
+    await tester.pumpAndSettle();
+
     var field = find.byKey(const Key('RenameChatField'));
     expect(field, findsOneWidget);
 

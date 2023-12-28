@@ -61,8 +61,8 @@ import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/view.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -310,9 +310,6 @@ void main() async {
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
-    when(graphQlProvider.contactsEvents(any))
-        .thenAnswer((realInvocation) => const Stream.empty());
-
     when(graphQlProvider.myUserEvents(any))
         .thenAnswer((realInvocation) => const Stream.empty());
 
@@ -507,7 +504,7 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.widgetWithText(CopyableTextField, 'user name'), findsOneWidget);
+    expect(find.text('user name'), findsAny);
     expect(find.byKey(const Key('Present')), findsOneWidget);
     await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
         find.byKey(const Key('UserScrollable')), const Offset(1, 1));
@@ -519,6 +516,11 @@ void main() async {
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    for (int i = 0; i < 20; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
@@ -526,13 +528,11 @@ void main() async {
     await tester.tap(deleteFromContacts);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('Proceed')));
-    await tester.pumpAndSettle(const Duration(seconds: 3));
-
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);
 
+    PlatformUtils.activityTimer?.cancel();
     await Get.deleteAll(force: true);
   });
 }

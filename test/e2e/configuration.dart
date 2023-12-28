@@ -182,6 +182,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
+        longPressMonolog,
         longPressWidget,
         monologAvailability,
         noInternetConnection,

@@ -40,6 +40,7 @@ enum WidgetKey {
   ChatAvatar,
   ChatDirectLinkExpandable,
   ChatForwardView,
+  ChatInfoMoreButton,
   ChatInfoScrollable,
   ChatMessage,
   ChatMonolog,
@@ -75,6 +76,7 @@ enum WidgetKey {
   DeleteForAll,
   DeleteMemberButton,
   DeletePhone,
+  EditButton,
   Email,
   EmailsExpandable,
   FavoriteChatButton,
@@ -154,8 +156,8 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
-  UsernameField,
   UserScrollable,
+  UsernameField,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

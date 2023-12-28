@@ -316,30 +316,6 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Unmutes the [chat].
-  Future<void> unmuteChat() async {
-    try {
-      await _chatService.toggleChatMute(chatId, null);
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Mutes the [chat].
-  Future<void> muteChat() async {
-    try {
-      await _chatService.toggleChatMute(chatId, MuteDuration.forever());
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
   /// Marks the [chat] as favorited.
   Future<void> favoriteChat() async {
     try {
@@ -392,9 +368,6 @@ class ChatInfoController extends GetxController {
 
   /// Joins an [OngoingCall] happening in the [chat].
   Future<void> joinCall() => _callService.join(chatId, withVideo: false);
-
-  /// Drops the [OngoingCall] happening in the [chat].
-  Future<void> dropCall() => _callService.leave(chatId);
 
   /// Redials the [User] identified by its [userId].
   Future<void> redialChatCallMember(UserId userId) async {
