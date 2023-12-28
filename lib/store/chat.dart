@@ -1671,11 +1671,16 @@ class ChatRepository extends DisposableInterface
 
           // TODO: Get rid of `_monologShouldBeHidden` when backend supports
           //       creating chats with `isHidden` set to `true`.
-          if (_monologShouldBeHidden && chat.isMonolog) {
-            // If local monolog was hidden, edit remote one's [ChatData] before
-            // saving.
-            chat.isHidden = true;
-            _monologShouldBeHidden = false;
+          if (chat.isMonolog) {
+            if (_monologShouldBeHidden) {
+              // If local monolog was hidden, edit remote one's [ChatData] before
+              // saving.
+              chat.isHidden = true;
+              _monologShouldBeHidden = false;
+            }
+
+            // Keep track of the [monolog]'s [isLocal] status.
+            await _monologLocal.set(chat.id);
           }
 
           _putEntry(data);
