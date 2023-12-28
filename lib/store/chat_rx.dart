@@ -55,6 +55,7 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'pagination/graphql.dart';
@@ -110,6 +111,10 @@ class HiveRxChat extends RxChat {
 
   /// [ChatVersion] of this [HiveRxChat].
   ChatVersion? ver;
+
+  @override
+  late final RxBool inCall =
+      RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -171,6 +176,10 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
+  /// [StreamSubscription] to [AbstractCallRepository.calls] and
+  /// [WebUtils.onStorageChange] determining the [inCall] indicator.
+  StreamSubscription? _callSubscription;
 
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
@@ -310,6 +319,14 @@ class HiveRxChat extends RxChat {
       }
     });
 
+    _callSubscription = StreamGroup.mergeBroadcast([
+      _chatRepository.calls.changes,
+      WebUtils.onStorageChange,
+    ]).listen((_) {
+      inCall.value =
+          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
+    });
+
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
@@ -401,6 +418,7 @@ class HiveRxChat extends RxChat {
     _pagination.dispose();
     _fragment?.dispose();
     _messagesSubscription?.cancel();
+    _callSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();

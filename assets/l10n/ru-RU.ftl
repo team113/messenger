@@ -682,6 +682,7 @@ label_direct_chat_link_in_chat_description =
     - отправлять сообщения в чат группы,
     - совершать звонки
 label_disabled = Отключены
+label_display_audio_and_video_call_buttons = Отображать кнопки аудио и видео звонка
 label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
@@ -758,6 +759,11 @@ label_login_section_hint = Логин, e-mail, телефон, пароль
 label_login_visibility_hint = Логин — это дополнительный уникальный идентификатор Вашей учетной записи.
 label_login_visible = Ваш логин видят:{" "}
 label_media = Медиа
+label_media_buttons_in_app_bar = В верхней панели
+label_media_buttons_in_bottom = В чате снизу
+label_media_buttons_in_context_menu = В контекстном меню
+label_media_buttons_in_more = В поле сообщения
+label_media_buttons_in_top = В чате сверху
 label_media_camera = Камера
 label_media_microphone = Микрофон
 label_media_no_device_available = Нет доступных устройств
