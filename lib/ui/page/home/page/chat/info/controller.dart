@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart' show CallAlreadyExistsException;
