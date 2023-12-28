@@ -63,7 +63,6 @@ class RecentChatTile extends StatelessWidget {
     this.selected = false,
     this.trailing,
     this.getUser,
-    this.inCall,
     this.inContacts,
     this.onLeave,
     this.onHide,
@@ -100,10 +99,6 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final FutureOr<RxUser?> Function(UserId id)? getUser;
-
-  /// Callback, called to check whether this device of the currently
-  /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
-  final bool Function()? inCall;
 
   /// Callback, called to check whether the [rxChat] is considered to be in
   /// contacts list of the authenticated [MyUser].
@@ -944,7 +939,7 @@ class RecentChatTile extends StatelessWidget {
           offset: const Offset(1, 0),
           child: SafeAnimatedSwitcher(
             duration: 300.milliseconds,
-            child: button(inCall?.call() == true),
+            child: button(rxChat.inCall.value),
           ),
         ),
       );
