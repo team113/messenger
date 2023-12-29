@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:get/get.dart';
 import 'package:messenger/store/event/chat.dart';
 import 'package:messenger/util/log.dart';
@@ -45,6 +43,7 @@ class EventPool {
   void add(
     OptimisticEventPoolEntry event,
   ) {
+    debugLog('_adding', event);
     switch (event.type.mode) {
       case OptimisticEventMode.queue:
         {
@@ -74,12 +73,15 @@ class EventPool {
             _ignorance[event.key] ??= [];
             _ignorance[event.key]!.add(event);
 
+            await Future.delayed(Duration(seconds: 3));
+
             // TODO: error handling
             await event.handler?.call();
           }
 
           if (_neutralize[event.key] != null) {
             if (!same(_neutralize[event.key]!, event)) {
+              debugLog('neutralized', event);
               _neutralize.remove(event.key);
             } else {
               // No-op
@@ -109,11 +111,11 @@ class EventPool {
         ?.firstWhereOrNull((element) => same(event, element));
 
     if (waiter != null) {
-      Log.info('--ignored(${event.sourceEvent})', '$runtimeType');
+      debugLog('ignored', event);
       _ignorance[event.key]!.remove(waiter);
       return true;
     }
-
+    debugLog('NOT ignored', event);
     return false;
   }
 
@@ -124,7 +126,7 @@ class EventPool {
 
   bool same(OptimisticEventPoolEntry e1, OptimisticEventPoolEntry e2) {
     if (e1.type != e2.type) return false;
-    return (e1.hash != e2.hash);
+    return (e1.hash == e2.hash);
   }
 }
 
@@ -232,4 +234,8 @@ extension ChatEventOptimisticEventPoolEntryExtension on ChatEvent {
       _ => 0,
     };
   }
+}
+
+void debugLog(String message, OptimisticEventPoolEntry event) {
+  Log.info('--$message(${event.key} ${event.hash})', '${event.sourceEvent}');
 }
