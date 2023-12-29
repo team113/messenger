@@ -157,7 +157,8 @@ class ContactRepository extends DisposableInterface
   Future<void> createChatContact(UserName name, UserId id) async {
     Log.debug('createChatContact($name, $id)', '$runtimeType');
 
-    ChatContactEventsVersionedMixin response = await _graphQlProvider.createChatContact(
+    final ChatContactEventsVersionedMixin response =
+        await _graphQlProvider.createChatContact(
       name: name,
       records: [ChatContactRecord(userId: id)],
     );
