@@ -1679,8 +1679,10 @@ class ChatRepository extends DisposableInterface
               _monologShouldBeHidden = false;
             }
 
-            // Keep track of the [monolog]'s [isLocal] status.
-            await _monologLocal.set(chat.id);
+            if (monolog.isLocal) {
+              // Keep track of the [monolog]'s [isLocal] status.
+              await _monologLocal.set(chat.id);
+            }
           }
 
           _putEntry(data);
