@@ -293,6 +293,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// listened to.
   Stream<void> get updates;
 
+  /// Indicates whether this [chat] has an [OngoingCall] active on this device.
+  RxBool get inCall;
+
   /// Fetches the initial [messages] page around the [firstUnread].
   Future<void> around();
 
