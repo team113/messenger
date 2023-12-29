@@ -156,7 +156,7 @@ class MessagePreviewWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       child: IntrinsicWidth(
         child: Container(
           decoration: BoxDecoration(

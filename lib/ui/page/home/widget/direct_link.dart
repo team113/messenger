@@ -27,6 +27,7 @@ import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/animated_switcher.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/config.dart';
@@ -240,7 +241,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 children: [
                   const SizedBox(height: 14),
                   _info(context, Text(DateTime.now().yMd)),
-                  // _info(context, Text('${widget.link?.usageCount} кликов')),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: WidgetButton(
@@ -292,6 +292,25 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                             //   ),
                             // ),
                           ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 6, 0),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: style.secondaryBorder,
+                          color: style.readMessageColor,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: QrImageView(
+                          data:
+                              '${Config.origin}${Routes.chatDirectLink}/${widget.link!.slug.val}',
+                          version: QrVersions.auto,
+                          size: 300.0,
                         ),
                       ),
                     ),

@@ -1119,4 +1119,5 @@ label_hide_incoming_prices = Hide price for incoming
 label_show_incoming_prices = Show price for incoming
 label_about = About
 label_show_more = show more
+label_show_less = show less
 label_participants = Participants: {$count}

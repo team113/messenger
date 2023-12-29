@@ -1786,6 +1786,12 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData unblock16 = SvgData(
+    'assets/icons/unblock16.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData report16 = SvgData(
     'assets/icons/complaint16.svg',
     width: 16,

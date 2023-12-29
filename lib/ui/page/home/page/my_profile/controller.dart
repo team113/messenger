@@ -706,6 +706,9 @@ class MyProfileController extends GetxController {
   Future<void> setBalanceTabEnabled(bool enabled) =>
       _settingsRepo.setBalanceTabEnabled(enabled);
 
+  Future<void> setCacheMaxSize(int size) =>
+      CacheWorker.instance.setMaxSize(size);
+
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
   /// (if any).

@@ -582,28 +582,42 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Saves the provided [user] in [Hive].
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
-    if (user.ver > _myUserLocal.myUser?.ver || ignoreVersion) {
+    // Update the stored [MyUser], if the provided [user] has non-`null`
+    // blocklist count, which is different from the stored one.
+    final bool blocklist = user.value.blocklistCount != null &&
+        user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
+
+    if (user.ver > _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
+      user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
       _myUserLocal.set(user);
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    var userEntity = _myUserLocal.myUser;
+    final HiveMyUser? userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver <= userEntity.ver) {
       return;
     }
     userEntity.ver = versioned.ver;
 
-    for (var event in versioned.events) {
+    for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        _userRepo.get(event.userId).then((user) {
-          if (user != null) {
-            _userRepo.update(convertor(user.user.value));
+        final FutureOr<RxUser?> userOrFuture = _userRepo.get(event.userId);
+
+        if (userOrFuture is RxUser?) {
+          if (userOrFuture != null) {
+            _userRepo.update(convertor(userOrFuture.user.value));
           }
-        });
+        } else {
+          userOrFuture.then((user) {
+            if (user != null) {
+              _userRepo.update(convertor(user.user.value));
+            }
+          });
+        }
       }
 
       switch (event.kind) {

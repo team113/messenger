@@ -16,38 +16,56 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
+import 'package:messenger/ui/page/home/widget/action.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
+import 'package:messenger/ui/widget/outlined_rounded_button.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/widget/text_field.dart';
 
 /// Visual representation of the provided [BlocklistRecord].
 class BlocklistRecordWidget extends StatelessWidget {
-  const BlocklistRecordWidget(this.record, {super.key});
+  const BlocklistRecordWidget(this.record, {super.key, this.onUnblock});
 
   /// [BlocklistRecord] to display.
   final BlocklistRecord record;
+
+  final void Function()? onUnblock;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Paddings.basic(
-          ReactiveTextField(
-            state: TextFieldState(text: record.at.toString()),
-            label: 'label_date'.l10n,
-            enabled: false,
+          ContactInfoContents(
+            padding: EdgeInsets.zero,
+            title: 'label_date'.l10n,
+            content: record.at.val.yMdHm,
           ),
         ),
-        if (record.reason != null)
+        if (record.reason != null) ...[
+          const SizedBox(height: 8),
           Paddings.basic(
-            ReactiveTextField(
-              state: TextFieldState(text: record.reason?.val),
-              label: 'label_reason'.l10n,
-              enabled: false,
+            ContactInfoContents(
+              padding: EdgeInsets.zero,
+              title: 'label_reason'.l10n,
+              content: record.reason!.val,
             ),
           ),
+        ],
+        if (onUnblock != null) ...[
+          const SizedBox(height: 16),
+          SelectionContainer.disabled(
+            child: ActionButton(
+              text: 'btn_unblock'.l10n,
+              onPressed: onUnblock,
+              trailing: const SvgIcon(SvgIcons.unblock16),
+            ),
+          ),
+        ],
       ],
     );
   }

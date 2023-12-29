@@ -383,15 +383,19 @@ class CacheWorker extends DisposableService {
     });
   }
 
+  Future<void> setMaxSize(int? size) async {
+    await _cacheLocal?.set(maxSize: size);
+  }
+
   /// Waits for locking operations to release the lock.
   @visibleForTesting
   Future<void> ensureOptimized() => _mutex.protect(() async {});
 
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
-    if (_cacheLocal == null) {
-      return;
-    }
+    // if (_cacheLocal == null) {
+    //   return;
+    // }
 
     _localSubscription = StreamIterator(_cacheLocal!.boxEvents);
     while (await _localSubscription!.moveNext()) {

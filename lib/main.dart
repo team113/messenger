@@ -125,7 +125,7 @@ Future<void> main() async {
       // No-op.
     }
 
-    await authService.init();
+    authService.init();
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
@@ -370,8 +370,8 @@ Future<void> _initHive() async {
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
 
+  await Get.put(CacheInfoHiveProvider()).init();
   if (!PlatformUtils.isWeb) {
-    await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
 }

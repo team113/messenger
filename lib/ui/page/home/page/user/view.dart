@@ -178,7 +178,12 @@ class UserView extends StatelessWidget {
                     if (c.isBlocked != null)
                       Block(
                         title: 'label_user_is_blocked'.l10n,
-                        children: [BlocklistRecordWidget(c.isBlocked!)],
+                        children: [
+                          BlocklistRecordWidget(
+                            c.isBlocked!,
+                            onUnblock: c.unblacklist,
+                          )
+                        ],
                       ),
                     Block(
                       // title: 'label_public_information'.l10n,
@@ -480,16 +485,16 @@ class UserView extends StatelessWidget {
                   );
                 }),
               ),
-              bottomNavigationBar: Obx(() {
-                if (c.isBlocked == null) {
-                  return const SizedBox();
-                }
+              // bottomNavigationBar: Obx(() {
+              //   if (c.isBlocked == null) {
+              //     return const SizedBox();
+              //   }
 
-                return Padding(
-                  padding: Insets.dense.copyWith(top: 0),
-                  child: SafeArea(child: UnblockButton(c.unblacklist)),
-                );
-              }),
+              //   return Padding(
+              //     padding: Insets.dense.copyWith(top: 0),
+              //     child: SafeArea(child: UnblockButton(c.unblacklist)),
+              //   );
+              // }),
             );
           });
         });
@@ -873,28 +878,29 @@ class UserView extends StatelessWidget {
           onPressed: c.report,
           trailing: const SvgIcon(SvgIcons.report16),
         ),
-        Obx(() {
-          final bool blocked = c.isBlocked != null;
+        if (c.isBlocked == null)
+          Obx(() {
+            final bool blocked = c.isBlocked != null;
 
-          return ActionButton(
-            text: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed:
-                blocked ? c.unblacklist : () => _blacklistUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blacklistStatus.value.isEmpty) {
-                child = const SvgIcon(SvgIcons.block16);
-              } else {
-                child = const CustomProgressIndicator();
-              }
+            return ActionButton(
+              text: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+              onPressed:
+                  blocked ? c.unblacklist : () => _blacklistUser(c, context),
+              trailing: Obx(() {
+                final Widget child;
+                if (c.blacklistStatus.value.isEmpty) {
+                  child = const SvgIcon(SvgIcons.block16);
+                } else {
+                  child = const CustomProgressIndicator();
+                }
 
-              return SafeAnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
-          );
-        }),
+                return SafeAnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: child,
+                );
+              }),
+            );
+          }),
         // Obx(() {
         //   if (c.user?.dialog.value?.id.isLocal != false) {
         //     return const SizedBox();

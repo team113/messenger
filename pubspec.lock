@@ -719,6 +719,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_xlider:
+    dependency: "direct main"
+    description:
+      name: flutter_xlider
+      sha256: b83da229b8a2153adeefc5d9e08e0060689c8dc2187b30e3502cf67c1a6495be
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.0"
   freezed_annotation:
     dependency: transitive
     description:
@@ -1947,6 +1955,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  syncfusion_flutter_core:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_core
+      sha256: "1b40729aa10a727150a6cc56e532c770f4baded83846fca8700efd908d0f4d0a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "24.1.43"
+  syncfusion_flutter_sliders:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_sliders
+      sha256: b19ff6d135a605f8ead3eb10a8504e763b1b551e724f6cc77be73c997b551f6e
+      url: "https://pub.dev"
+    source: hosted
+    version: "24.1.43"
   synchronized:
     dependency: transitive
     description:

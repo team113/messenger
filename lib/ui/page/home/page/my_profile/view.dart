@@ -19,9 +19,11 @@ import 'dart:math';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
+import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/application_settings.dart';
@@ -39,6 +41,7 @@ import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../chat/message_field/view.dart';
 import '/api/backend/schema.dart' show Presence;
@@ -1758,6 +1761,24 @@ Widget _welcome(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
+      Padding(
+        padding: Block.defaultPadding
+            .copyWith(top: 0, bottom: 0)
+            .add(const EdgeInsets.fromLTRB(8, 0, 8, 0)),
+        child: Text(
+          'label_welcome_message_description'.l10n,
+          // expandText: 'label_show_more'.l10n,
+          // collapseText: 'label_show_less'.l10n,
+          // maxLines: 2,
+          style: style.fonts.small.regular.secondary,
+        ),
+      ),
+      // Text(
+      //   'label_welcome_message_description'.l10n,
+      //   style: style.fonts.small.regular.secondary,
+      // ),
+
+      const SizedBox(height: 16),
       Stack(
         children: [
           Positioned.fill(
@@ -1845,17 +1866,8 @@ Widget _welcome(BuildContext context, MyProfileController c) {
           }),
         ],
       ),
-      const SizedBox(height: 12),
-      Padding(
-        padding: Block.defaultPadding.copyWith(top: 0, bottom: 0),
-        child: Paddings.dense(
-          Text(
-            'label_welcome_message_description'.l10n,
-            style: style.fonts.small.regular.secondary,
-          ),
-        ),
-      ),
-      const SizedBox(height: 10),
+
+      // const SizedBox(height: 10),
     ],
   );
 }
@@ -2469,62 +2481,222 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 Widget _storage(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
+  final List<double> values = [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0,
+    64.0,
+  ];
+
+  final gbs = CacheWorker.instance.info.value.maxSize.toDouble() / GB;
+  var index = values.indexWhere((e) => gbs < e);
+  if (index == -1) {
+    index = values.length - 1;
+  }
+
+  final v = (index / (values.length - 1) * 100).round();
+  print('$gbs $index $v');
+
   return Paddings.dense(
     Column(
       children: [
-        Obx(() {
-          return SwitchField(
-            text: 'label_load_images'.l10n,
-            value: c.settings.value?.loadImages == true,
-            onChanged: c.settings.value == null ? null : c.setLoadImages,
-          );
-        }),
-        if (!PlatformUtils.isWeb) ...[
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 21.0),
-              child: Text(
-                'label_cache'.l10n,
-                style: style.fonts.normal.regular.secondary,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Obx(() {
-            final int size = CacheWorker.instance.info.value.size;
-            final int max = CacheWorker.instance.info.value.maxSize;
+        // Obx(() {
+        //   return SwitchField(
+        //     text: 'label_load_images'.l10n,
+        //     value: c.settings.value?.loadImages == true,
+        //     onChanged: c.settings.value == null ? null : c.setLoadImages,
+        //   );
+        // }),
+        if (true || !PlatformUtils.isWeb) ...[
+          // const SizedBox(height: 16),
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(left: 21.0),
+          //     child: Text(
+          //       'label_cache'.l10n,
+          //       style: style.fonts.normal.regular.secondary,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 8),
+          Column(
+            children: [
+              Obx(() {
+                final int size = CacheWorker.instance.info.value.size;
+                final int max = CacheWorker.instance.info.value.maxSize;
 
-            return Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    LinearProgressIndicator(
-                      value: size / max,
-                      minHeight: 32,
-                      color: style.colors.primary,
-                      backgroundColor: style.colors.background,
+                if (max >= 64 * GB) {
+                  return Text(
+                    'Занято ${(size / GB).toPrecision(2)} ГБ',
+                  );
+                } else if (max <= 0) {
+                  return const Text('Занято 0 ГБ');
+                }
+
+                return Text(
+                  'Занято ${(size / GB).toPrecision(2)} из ${max ~/ GB} ГБ',
+                );
+              }),
+
+              Container(
+                color: Colors.transparent,
+                height: 100,
+                child: FlutterSlider(
+                  handlerHeight: 24,
+                  handler: FlutterSliderHandler(),
+                  values: [v.toDouble()],
+                  tooltip: FlutterSliderTooltip(disabled: true),
+                  fixedValues: values.mapIndexed(
+                    (i, e) {
+                      return FlutterSliderFixedValue(
+                        percent: ((i / (values.length - 1)) * 100).round(),
+                        value: e * GB,
+                      );
+                    },
+                  ).toList(),
+                  trackBar: FlutterSliderTrackBar(
+                    inactiveTrackBar: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.black12,
+                      border: Border.all(width: 3, color: Colors.blue),
                     ),
-                    Text(
-                      'label_gb_slash_gb'.l10nfmt({
-                        'a': (size / GB).toPrecision(2),
-                        'b': max ~/ GB,
-                      }),
-                      style: style.fonts.smaller.regular.onBackground,
+                    activeTrackBar: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.blue.withOpacity(0.5),
                     ),
-                  ],
+                  ),
+                  onDragging: (i, lower, upper) {
+                    if (lower is double) {
+                      if (lower == 64.0 * GB) {
+                        // TODO:  CacheWorker.instance.setMaxSize(null);
+                        CacheWorker.instance.setMaxSize(lower.round());
+                      } else {
+                        CacheWorker.instance.setMaxSize(lower.round());
+                      }
+                    }
+                  },
+                  onDragCompleted: (i, lower, upper) {
+                    if (lower is double) {
+                      if (lower == 64.0 * GB) {
+                        // TODO:  CacheWorker.instance.setMaxSize(null);
+                        CacheWorker.instance.setMaxSize(lower.round());
+                      } else {
+                        CacheWorker.instance.setMaxSize(lower.round());
+                      }
+                    }
+                  },
+                  hatchMark: FlutterSliderHatchMark(
+                    labelsDistanceFromTrackBar: -48,
+                    // displayLines: true,
+
+                    linesAlignment: FlutterSliderHatchMarkAlignment.right,
+                    density: 0.5, // means 50 lines, from 0 to 100 percent
+                    labels: [
+                      FlutterSliderHatchMarkLabel(
+                        percent: 0,
+                        label: Text(
+                          'Выкл',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 16,
+                        label: Text(
+                          '2 ГБ',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 32,
+                        label: Text(
+                          '4 ГБ',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 48,
+                        label: Text(
+                          '8 ГБ',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 64,
+                        label: Text(
+                          '16 ГБ',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 80,
+                        label: Text(
+                          '32 ГБ',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 100,
+                        label: Text(
+                          'No Limit',
+                          style: style.fonts.smallest.regular.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                FieldButton(
-                  onPressed: c.clearCache,
-                  text: 'btn_clear_cache'.l10n,
-                  style: style.fonts.normal.regular.primary,
-                ),
-              ],
-            );
-          }),
+              ),
+              // SizedBox(
+              //   height: 120,
+              //   width: 300,
+              //   child: SfSlider(
+              //     min: 0.0,
+              //     max: 128 * GB,
+              //     value: max,
+              //     labelFormatterCallback: (i, s) {
+              //       if (i == 128 * GB) {
+              //         return 'No Limit';
+              //       }
+
+              //       return '${i / GB} ГБ';
+              //     },
+              //     interval: 20,
+              //     showTicks: true,
+              //     showLabels: true,
+              //     enableTooltip: true,
+              //     minorTicksPerInterval: 1,
+              //     onChanged: (v) => CacheWorker.instance.setMaxSize(v),
+              //   ),
+              // ),
+              // Stack(
+              //   alignment: Alignment.center,
+              //   children: [
+              //     LinearProgressIndicator(
+              //       value: size / max,
+              //       minHeight: 32,
+              //       color: style.colors.primary,
+              //       backgroundColor: style.colors.background,
+              //     ),
+              //     Text(
+              //       'label_gb_slash_gb'.l10nfmt({
+              //         'a': (size / GB).toPrecision(2),
+              //         'b': max ~/ GB,
+              //       }),
+              //       style: style.fonts.smaller.regular.onBackground,
+              //     ),
+              //   ],
+              // ),
+              const SizedBox(height: 8),
+              FieldButton(
+                onPressed: c.clearCache,
+                text: 'btn_clear_cache'.l10n,
+                style: style.fonts.normal.regular.primary,
+              ),
+            ],
+          ),
         ],
       ],
     ),
