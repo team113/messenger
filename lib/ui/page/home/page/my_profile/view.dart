@@ -1758,101 +1758,104 @@ Widget _welcome(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Text('label_welcome_message_description'.l10n, style: thin),
-      ),
-      const SizedBox(height: 13),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: style.primaryBorder,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Obx(() {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: c.background.value == null
-                        ? const SvgImage.asset(
-                            'assets/images/background_light.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.memory(c.background.value!, fit: BoxFit.cover),
-                  );
-                }),
+      Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                border: style.primaryBorder,
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Obx(() {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: c.background.value == null
+                      ? const SvgImage.asset(
+                          'assets/images/background_light.svg',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.memory(c.background.value!, fit: BoxFit.cover),
+                );
+              }),
             ),
+          ),
 
-            // Positioned.fill(
-            //   child: Container(
-            //     width: double.infinity,
-            //     height: double.infinity,
-            //     decoration: BoxDecoration(
-            //       color: style.unreadMessageColor,
-            //       borderRadius: style.cardRadius,
-            //       // borderRadius: BorderRadius.only(
-            //       //   bottomRight: style.cardRadius.bottomRight,
-            //       //   bottomLeft: style.cardRadius.bottomLeft,
-            //       // ),
-            //     ),
-            //   ),
-            // ),
-            Obx(() {
-              return Column(
-                children: [
-                  const SizedBox(height: 16),
-                  if (c.welcome.value == null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      height: 60 * 1.5,
-                      child: info(
-                        child: Text(
-                          'label_no_welcome_message'.l10n,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  else ...[
-                    info(
-                      child: Text(c.welcome.value?.at.val.toRelative() ?? ''),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: IgnorePointer(
-                          child: message(
-                            text: c.welcome.value?.text?.val ?? '',
-                            attachments: c.welcome.value?.attachments ?? [],
-                            at: c.welcome.value?.at,
-                          ),
-                        ),
+          // Positioned.fill(
+          //   child: Container(
+          //     width: double.infinity,
+          //     height: double.infinity,
+          //     decoration: BoxDecoration(
+          //       color: style.unreadMessageColor,
+          //       borderRadius: style.cardRadius,
+          //       // borderRadius: BorderRadius.only(
+          //       //   bottomRight: style.cardRadius.bottomRight,
+          //       //   bottomLeft: style.cardRadius.bottomLeft,
+          //       // ),
+          //     ),
+          //   ),
+          // ),
+          Obx(() {
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                if (c.welcome.value == null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    height: 60 * 1.5,
+                    child: info(
+                      child: Text(
+                        'label_no_welcome_message'.l10n,
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    editOrDelete,
-                  ],
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                    child: MessageFieldView(
-                      key: c.welcomeFieldKey,
-                      fieldKey: const Key('ForwardField'),
-                      sendKey: const Key('SendForward'),
-                      constraints: const BoxConstraints(),
-                      controller: c.send,
+                  )
+                else ...[
+                  info(
+                    child: Text(c.welcome.value?.at.val.toRelative() ?? ''),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: IgnorePointer(
+                        child: message(
+                          text: c.welcome.value?.text?.val ?? '',
+                          attachments: c.welcome.value?.attachments ?? [],
+                          at: c.welcome.value?.at,
+                        ),
+                      ),
                     ),
                   ),
+                  editOrDelete,
                 ],
-              );
-            }),
-          ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                  child: MessageFieldView(
+                    key: c.welcomeFieldKey,
+                    fieldKey: const Key('ForwardField'),
+                    sendKey: const Key('SendForward'),
+                    constraints: const BoxConstraints(),
+                    controller: c.send,
+                  ),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Padding(
+        padding: Block.defaultPadding.copyWith(top: 0, bottom: 0),
+        child: Paddings.dense(
+          Text(
+            'label_welcome_message_description'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
         ),
       ),
+      const SizedBox(height: 10),
     ],
   );
 }
