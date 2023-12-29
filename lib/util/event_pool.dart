@@ -16,13 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/store/event/chat.dart';
-import 'package:messenger/util/log.dart';
 import 'package:mutex/mutex.dart';
 
 import '../store/event/my_user.dart';
-
-EventPool eventPool = EventPool();
+import '../store/event/chat.dart';
+import 'log.dart';
 
 // Tracker for optimistic events.
 class EventPool {
@@ -31,57 +29,34 @@ class EventPool {
   // TODO: remove lock on handlers queue empty
 
   /// Events should be ignored when resieved from back
-  final Map<int, List<OptimisticEventPoolEntry>> _ignorance = {};
+  final Map<int, List<PoolEntry>> _ignorance = {};
 
   /// Events should be neutralized with same type events
-  final Map<int, OptimisticEventPoolEntry> _neutralize = {};
+  final Map<int, PoolEntry> _neutralize = {};
 
   /// Adds event to pool.
   ///
   /// [event.handler] would be called when handlers of other events with same
-  /// [OptimisticEventType] would be awaited.
+  /// [_EventType] would be awaited.
   void add(
-    OptimisticEventPoolEntry event,
+    PoolEntry event,
   ) {
-    debugLog('_adding', event);
+    _debugLog('_adding', event);
     switch (event.type.mode) {
-      case OptimisticEventMode.queue:
+      case _EventMode.queue:
         {
-          Future<dynamic> queueWrapper(OptimisticEventPoolEntry event) async {
-            _ignorance[event.key] ??= [];
-            _ignorance[event.key]!.add(event);
-
-            // TODO: error handling
-            await event.handler?.call();
-          }
-
           final lock = _getLock(event.key);
           lock.protect(
             () async {
-              await queueWrapper(event);
+              await _queueWrapper(event);
             },
           );
         }
-      case OptimisticEventMode.neutralize:
+      case _EventMode.neutralize:
         {
-          Future<dynamic> neutralizeWrapper(
-              OptimisticEventPoolEntry event) async {
-            if (_neutralize[event.key] != event) {
-              return;
-            }
-            _neutralize.remove(event.key);
-            _ignorance[event.key] ??= [];
-            _ignorance[event.key]!.add(event);
-
-            await Future.delayed(Duration(seconds: 3));
-
-            // TODO: error handling
-            await event.handler?.call();
-          }
-
           if (_neutralize[event.key] != null) {
-            if (!same(_neutralize[event.key]!, event)) {
-              debugLog('neutralized', event);
+            if (!_same(_neutralize[event.key]!, event)) {
+              _debugLog('neutralized', event);
               _neutralize.remove(event.key);
             } else {
               // No-op
@@ -91,12 +66,12 @@ class EventPool {
             _neutralize[event.key] = event;
             lock.protect(
               () async {
-                await neutralizeWrapper(event);
+                await _neutralizeWrapper(event);
               },
             );
           }
         }
-      case OptimisticEventMode.skip:
+      case _EventMode.skip:
         {
           /// No-op.
         }
@@ -106,16 +81,16 @@ class EventPool {
   /// Returns true if same event exist waiting for ignorance.
   ///
   /// Deletes ignored events from pool
-  bool ignore(OptimisticEventPoolEntry event) {
-    final OptimisticEventPoolEntry? waiter = _ignorance[event.key]
-        ?.firstWhereOrNull((element) => same(event, element));
+  bool ignore(PoolEntry event) {
+    final PoolEntry? waiter = _ignorance[event.key]
+        ?.firstWhereOrNull((element) => _same(event, element));
 
     if (waiter != null) {
-      debugLog('ignored', event);
+      _debugLog('ignored', event);
       _ignorance[event.key]!.remove(waiter);
       return true;
     }
-    debugLog('NOT ignored', event);
+    _debugLog('NOT ignored', event);
     return false;
   }
 
@@ -124,39 +99,61 @@ class EventPool {
     return _locks[key]!;
   }
 
-  bool same(OptimisticEventPoolEntry e1, OptimisticEventPoolEntry e2) {
+  bool _same(PoolEntry e1, PoolEntry e2) {
     if (e1.type != e2.type) return false;
     return (e1.hash == e2.hash);
   }
+
+  Future<dynamic> _queueWrapper(PoolEntry event) async {
+    _ignorance[event.key] ??= [];
+    _ignorance[event.key]!.add(event);
+
+    // TODO: error handling
+    await event.handler?.call();
+  }
+
+  Future<dynamic> _neutralizeWrapper(PoolEntry event) async {
+    if (_neutralize[event.key] != event) {
+      return;
+    }
+    _neutralize.remove(event.key);
+    _ignorance[event.key] ??= [];
+    _ignorance[event.key]!.add(event);
+
+    await Future.delayed(const Duration(seconds: 3));
+
+    // TODO: error handling
+    await event.handler?.call();
+  }
 }
 
-/// Types of [OptimisticEvent] event kinds
-enum OptimisticEventType {
+/// Types of event
+enum _EventType {
   myUserMuteChatsToggled,
   chatFavoriteToggled,
   noSupporting;
 
-  OptimisticEventMode get mode => switch (this) {
-        myUserMuteChatsToggled => OptimisticEventMode.neutralize,
-        chatFavoriteToggled => OptimisticEventMode.neutralize,
-        noSupporting => OptimisticEventMode.skip,
+  _EventMode get mode => switch (this) {
+        myUserMuteChatsToggled => _EventMode.neutralize,
+        chatFavoriteToggled => _EventMode.neutralize,
+        noSupporting => _EventMode.skip,
       };
 }
 
-/// Mode of [OptimisticEvent] processing.
-enum OptimisticEventMode {
+/// Modes of [_EventType] processing.
+enum _EventMode {
   queue,
   neutralize,
   skip;
 }
 
-class OptimisticEventPoolEntry {
+class PoolEntry {
   final dynamic sourceEvent;
   final Future<void> Function()? handler;
-  final OptimisticEventType type;
+  final _EventType type;
   final int key;
   final int hash;
-  OptimisticEventPoolEntry(
+  PoolEntry(
       {required this.key,
       required this.hash,
       required this.sourceEvent,
@@ -164,9 +161,9 @@ class OptimisticEventPoolEntry {
       required this.type});
 }
 
-extension MyUserEventOptimisticEventPoolEntryExtension on MyUserEvent {
-  OptimisticEventPoolEntry toPoolEntry([Future<void> Function()? handler]) {
-    return OptimisticEventPoolEntry(
+extension MyUserEventToPoolEntryExtension on MyUserEvent {
+  PoolEntry toPoolEntry([Future<void> Function()? handler]) {
+    return PoolEntry(
         sourceEvent: this,
         handler: handler,
         type: eventType(),
@@ -174,12 +171,12 @@ extension MyUserEventOptimisticEventPoolEntryExtension on MyUserEvent {
         hash: eventHash());
   }
 
-  /// Returns [OptimisticEventType] of event [kind], if event [kind] is supporting.
-  OptimisticEventType eventType() {
+  /// Returns [_EventType] of event [kind], if event [kind] is supporting.
+  _EventType eventType() {
     return switch (kind) {
-      MyUserEventKind.userMuted => OptimisticEventType.myUserMuteChatsToggled,
-      MyUserEventKind.unmuted => OptimisticEventType.myUserMuteChatsToggled,
-      _ => OptimisticEventType.noSupporting,
+      MyUserEventKind.userMuted => _EventType.myUserMuteChatsToggled,
+      MyUserEventKind.unmuted => _EventType.myUserMuteChatsToggled,
+      _ => _EventType.noSupporting,
     };
   }
 
@@ -200,9 +197,9 @@ extension MyUserEventOptimisticEventPoolEntryExtension on MyUserEvent {
   }
 }
 
-extension ChatEventOptimisticEventPoolEntryExtension on ChatEvent {
-  OptimisticEventPoolEntry toPoolEntry([Future<void> Function()? handler]) {
-    return OptimisticEventPoolEntry(
+extension ChatEventToPoolEntryExtension on ChatEvent {
+  PoolEntry toPoolEntry([Future<void> Function()? handler]) {
+    return PoolEntry(
         sourceEvent: this,
         handler: handler,
         type: eventType(),
@@ -210,12 +207,12 @@ extension ChatEventOptimisticEventPoolEntryExtension on ChatEvent {
         hash: eventHash());
   }
 
-  /// Returns [OptimisticEventType] of event [kind], if event [kind] is supporting.
-  OptimisticEventType eventType() {
+  /// Returns [_EventType] of event [kind], if event [kind] is supporting.
+  _EventType eventType() {
     return switch (kind) {
-      ChatEventKind.favorited => OptimisticEventType.chatFavoriteToggled,
-      ChatEventKind.unfavorited => OptimisticEventType.chatFavoriteToggled,
-      _ => OptimisticEventType.noSupporting,
+      ChatEventKind.favorited => _EventType.chatFavoriteToggled,
+      ChatEventKind.unfavorited => _EventType.chatFavoriteToggled,
+      _ => _EventType.noSupporting,
     };
   }
 
@@ -236,6 +233,6 @@ extension ChatEventOptimisticEventPoolEntryExtension on ChatEvent {
   }
 }
 
-void debugLog(String message, OptimisticEventPoolEntry event) {
+void _debugLog(String message, PoolEntry event) {
   Log.info('--$message(${event.key} ${event.hash})', '${event.sourceEvent}');
 }
