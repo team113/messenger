@@ -39,17 +39,20 @@ class SvgData {
 
 /// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
-  const SvgIcon(this.data, {super.key, this.height});
+  const SvgIcon(this.data, {super.key, this.width, this.height});
 
   /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional width to display [data] of.
+  final double? width;
 
   /// Optional height to display [data] of.
   final double? height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.icon(data, height: height);
+    return SvgImage.icon(data, width: width, height: height);
   }
 }
 
