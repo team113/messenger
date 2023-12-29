@@ -22,7 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/util/event_pool.dart';
+import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -66,6 +66,7 @@ class HiveRxChat extends RxChat {
     this._chatRepository,
     this._chatLocal,
     this._draftLocal,
+    this._eventPool,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
@@ -123,6 +124,9 @@ class HiveRxChat extends RxChat {
 
   /// [ChatItem]s local [Hive] storage.
   ChatItemHiveProvider _local;
+
+  /// [OptimisticEventsPoolService] to track events.
+  final OptimisticEventsPoolService _eventPool;
 
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
@@ -1141,7 +1145,7 @@ class HiveRxChat extends RxChat {
           if (!subscribed) {
             return;
           }
-          if (eventPool.ignore(event.toPoolEntry())) continue;
+          if (_eventPool.ignore(event.toPoolEntry())) continue;
 
           switch (event.kind) {
             case ChatEventKind.redialed:

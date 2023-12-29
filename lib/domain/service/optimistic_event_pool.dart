@@ -16,16 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/store/event/chat.dart';
-import 'package:messenger/util/log.dart';
 import 'package:mutex/mutex.dart';
 
-import '../store/event/my_user.dart';
-
-EventPool eventPool = EventPool();
+import '../../store/event/my_user.dart';
+import '../../store/event/chat.dart';
+import '../../util/log.dart';
+import 'disposable_service.dart';
 
 // Tracker for optimistic events.
-class EventPool {
+class OptimisticEventsPoolService extends DisposableService {
   /// Registred handlers for one-to-one call syncrously
   final Map<int, Mutex> _locks = {};
   // TODO: remove lock on handlers queue empty

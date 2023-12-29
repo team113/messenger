@@ -33,6 +33,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
@@ -150,6 +151,7 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  var eventPoolService = OptimisticEventsPoolService();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -227,6 +229,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        eventPoolService,
         me: const UserId('me'),
       ),
     );
@@ -359,6 +362,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        eventPoolService,
         me: const UserId('me'),
       ),
     );
@@ -434,6 +438,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        eventPoolService,
         me: const UserId('me'),
       ),
     );

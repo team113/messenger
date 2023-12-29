@@ -37,6 +37,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
+import 'domain/service/optimistic_event_pool.dart';
 import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
@@ -493,6 +494,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               // Should be initialized before any [L10n]-dependant entities as
               // it sets the stored [Language] from the [SettingsRepository].
               await deps.put(SettingsWorker(settingsRepository)).init();
+              deps.put(OptimisticEventsPoolService());
 
               GraphQlProvider graphQlProvider = Get.find();
               UserRepository userRepository =
@@ -518,6 +520,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   callRepository,
                   Get.find(),
                   userRepository,
+                  Get.find(),
                   Get.find(),
                   Get.find(),
                   me: me,
@@ -550,6 +553,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   blocklistRepository,
                   userRepository,
+                  Get.find(),
                 ),
               );
 
@@ -642,7 +646,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               },
               onBackground: handlePushNotification,
             );
-
+            deps.put(OptimisticEventsPoolService());
             UserRepository userRepository =
                 UserRepository(graphQlProvider, Get.find());
             deps.put<AbstractUserRepository>(userRepository);
@@ -662,6 +666,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
               Get.find(),
               userRepository,
+              Get.find(),
               Get.find(),
               Get.find(),
               me: me,
@@ -696,6 +701,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
+                Get.find(),
               ),
             );
 

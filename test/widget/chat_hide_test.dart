@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -376,6 +377,9 @@ void main() async {
     );
     Get.put(UserService(userRepository));
 
+    var eventPoolService = OptimisticEventsPoolService();
+    Get.put(eventPoolService);
+
     Get.put(
       ContactService(
         Get.put<AbstractContactRepository>(
@@ -396,6 +400,7 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
+      eventPoolService,
     );
     Get.put(MyUserService(authService, myUserRepository));
 
@@ -426,6 +431,7 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
+        eventPoolService,
         me: const UserId('me'),
       ),
     );
