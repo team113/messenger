@@ -111,6 +111,9 @@ class ChatRepository extends DisposableInterface
   @override
   final RxObsMap<ChatId, HiveRxChat> paginated = RxObsMap<ChatId, HiveRxChat>();
 
+  @override
+  final EventPool eventPool = EventPool();
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 

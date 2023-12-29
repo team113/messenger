@@ -70,6 +70,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  /// Returns [EventPool] for optimistic event processing.
+  final EventPool eventPool = EventPool();
+
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 

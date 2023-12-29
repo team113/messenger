@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/event_pool.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
@@ -41,6 +42,9 @@ abstract class AbstractChatRepository {
 
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
+
+  /// Returns [EventPool] for optimistic event processing.
+  EventPool get eventPool;
 
   /// Returns the initialization [RxStatus] of this repository.
   Rx<RxStatus> get status;
