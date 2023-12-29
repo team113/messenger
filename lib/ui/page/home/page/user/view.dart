@@ -53,8 +53,6 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
@@ -81,8 +79,6 @@ class UserView extends StatelessWidget {
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
-                  final UserTextStatus? status = c.user?.user.value.status;
-
                   return SelectionArea(
                     child: ListView(
                       key: const Key('UserScrollable'),
@@ -100,66 +96,12 @@ class UserView extends StatelessWidget {
                               child: BigAvatarWidget.user(c.user),
                             ),
                             const SizedBox(height: 18),
-                            Obx(() {
-                              final Widget child;
-
-                              if (c.editing.value) {
-                                child = Padding(
-                                  padding: const EdgeInsets.only(top: 4.0),
-                                  child: ReactiveTextField(
-                                    state: c.name,
-                                    label: 'label_name'.l10n,
-                                    hint: c.contact.value?.contact.value.name
-                                            .val ??
-                                        c.user!.user.value.name?.val ??
-                                        c.user!.user.value.num.toString(),
-                                  ),
-                                );
-                              } else {
-                                child = Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                                  child: Text(
-                                    c.name.text,
-                                    style:
-                                        style.fonts.large.regular.onBackground,
-                                  ),
-                                );
-                              }
-
-                              return AnimatedSizeAndFade(
-                                sizeDuration: const Duration(milliseconds: 250),
-                                fadeDuration: const Duration(milliseconds: 250),
-                                child: child,
-                              );
-                            }),
+                            _name(c, context),
                           ],
                         ),
-                        if (status != null)
-                          Block(
-                            padding: Block.defaultPadding
-                                .copyWith(top: 8, bottom: 8),
-                            children: [
-                              Text(
-                                status.toString(),
-                                style: style.fonts.normal.regular.secondary,
-                              ),
-                            ],
-                          ),
+                        _status(c, context),
                         Block(
-                          children: [
-                            Paddings.basic(
-                              InfoTile(
-                                key: const Key('UserNum'),
-                                padding: EdgeInsets.zero,
-                                title: 'label_num'.l10n,
-                                content: c.user!.user.value.num.toString(),
-                                trailing: CopyOrShareButton(
-                                  c.user!.user.value.num.toString(),
-                                ),
-                              ),
-                            )
-                          ],
+                          children: [_num(c)],
                         ),
                         SelectionContainer.disabled(
                           child: Block(children: [_actions(c, context)]),
@@ -184,6 +126,78 @@ class UserView extends StatelessWidget {
           });
         });
       },
+    );
+  }
+
+  /// Returns a [Contact.name] editable field.
+  Widget _name(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Widget child;
+
+      if (c.editing.value) {
+        child = Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: ReactiveTextField(
+            state: c.name,
+            label: 'label_name'.l10n,
+            hint: c.contact.value?.contact.value.name.val ??
+                c.user!.user.value.name?.val ??
+                c.user!.user.value.num.toString(),
+          ),
+        );
+      } else {
+        child = Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Text(
+            c.name.text,
+            style: style.fonts.large.regular.onBackground,
+          ),
+        );
+      }
+
+      return AnimatedSizeAndFade(
+        sizeDuration: const Duration(milliseconds: 250),
+        fadeDuration: const Duration(milliseconds: 250),
+        child: child,
+      );
+    });
+  }
+
+  /// Returns the [User.status] visual representation.
+  Widget _status(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final UserTextStatus? status = c.user?.user.value.status;
+
+    if (status != null) {
+      return Block(
+        padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
+        children: [
+          Text(
+            status.toString(),
+            style: style.fonts.normal.regular.secondary,
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  /// Returns the [User.num] visual representation.
+  Widget _num(UserController c) {
+    return Paddings.basic(
+      InfoTile(
+        key: const Key('UserNum'),
+        padding: EdgeInsets.zero,
+        title: 'label_num'.l10n,
+        content: c.user!.user.value.num.toString(),
+        trailing: CopyOrShareButton(
+          c.user!.user.value.num.toString(),
+        ),
+      ),
     );
   }
 

@@ -1427,26 +1427,26 @@ class SvgIcons {
 
   static const SvgData block = SvgData(
     'assets/icons/block.svg',
-    width: 19,
-    height: 19,
+    width: 16,
+    height: 16,
   );
 
   static const SvgData blockWhite = SvgData(
     'assets/icons/block_white.svg',
-    width: 19,
-    height: 19,
+    width: 16,
+    height: 16,
   );
 
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
-    width: 17.21,
-    height: 18,
+    width: 15.28,
+    height: 16,
   );
 
   static const SvgData cleanHistoryWhite = SvgData(
     'assets/icons/clean_history_white.svg',
-    width: 17.21,
-    height: 18,
+    width: 15.28,
+    height: 16,
   );
 
   static const SvgData addContact = SvgData(
@@ -1637,14 +1637,14 @@ class SvgIcons {
 
   static const SvgData leaveGroup = SvgData(
     'assets/icons/leave_group.svg',
-    width: 16.28,
-    height: 19,
+    width: 12.88,
+    height: 16,
   );
 
   static const SvgData leaveGroupWhite = SvgData(
     'assets/icons/leave_group_white.svg',
-    width: 16.28,
-    height: 19,
+    width: 12.88,
+    height: 16,
   );
 
   static const SvgData report = SvgData(
