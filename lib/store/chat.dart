@@ -1529,6 +1529,7 @@ class ChatRepository extends DisposableInterface
 
     if (entry == null) {
       entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
+      entry.chat.value.ongoingCall = null;
       chats[chatId] = entry;
 
       entry.init();

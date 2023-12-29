@@ -49,8 +49,6 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   @override
   String get boxName => 'chat';
 
-  ChatCall? ongoingCall;
-
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
@@ -116,18 +114,13 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   @override
   Future<void> put(HiveChat item) async {
     Log.debug('put($item)', '$runtimeType');
-
-    ongoingCall = item.value.ongoingCall;
     await putSafe(item.value.id.val, item);
   }
 
   @override
   Future<HiveChat?> get(ChatId key) async {
     Log.debug('get($key)', '$runtimeType');
-
-    final HiveChat? chat = await getSafe(key.val);
-    chat?.value.ongoingCall = ongoingCall;
-    return chat;
+    return await getSafe(key.val);
   }
 
   @override
