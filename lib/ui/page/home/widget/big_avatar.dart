@@ -111,8 +111,8 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                 duration: 200.milliseconds,
                 child: widget.loading
                     ? Container(
-                        width: 200,
-                        height: 200,
+                        width: AvatarRadius.largest.toDouble() * 2,
+                        height: AvatarRadius.largest.toDouble() * 2,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: style.colors.onBackgroundOpacity13,
