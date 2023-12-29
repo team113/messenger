@@ -27,7 +27,6 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -90,7 +89,6 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
-  var eventPoolService = OptimisticEventsPoolService();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -263,7 +261,6 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
-        eventPoolService,
         me: const UserId('me'),
       ),
     );
@@ -342,7 +339,6 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
-        eventPoolService,
         me: const UserId('me'),
       ),
     );

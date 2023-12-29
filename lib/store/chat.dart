@@ -23,7 +23,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/service/optimistic_event_pool.dart';
+import 'package:messenger/util/event_pool.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -91,8 +91,7 @@ class ChatRepository extends DisposableInterface
     this._draftLocal,
     this._userRepo,
     this._sessionLocal,
-    this._monologLocal,
-    this._eventPool, {
+    this._monologLocal, {
     required this.me,
   });
 
@@ -140,9 +139,6 @@ class ChatRepository extends DisposableInterface
 
   /// [MonologHiveProvider] storing a [ChatId] of the [Chat]-monolog.
   final MonologHiveProvider _monologLocal;
-
-  /// [OptimisticEventsPoolService] to track events.
-  final OptimisticEventsPoolService _eventPool;
 
   /// [ChatHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
@@ -325,8 +321,7 @@ class ChatRepository extends DisposableInterface
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
-          chat =
-              HiveRxChat(this, _chatLocal, _draftLocal, _eventPool, hiveChat);
+          chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
           chat!.init();
         }
 
@@ -1173,7 +1168,7 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.favoritePosition = newPosition);
     paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
-    _eventPool.add(EventChatFavorited(
+    eventPool.add(EventChatFavorited(
       id,
       PreciseDateTime.now(),
       newPosition,
@@ -1211,7 +1206,7 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.favoritePosition = null);
     paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
-    _eventPool.add(
+    eventPool.add(
         EventChatUnfavorited(id, PreciseDateTime.now()).toPoolEntry(() async {
       try {
         await _graphQlProvider.unfavoriteChat(id);
@@ -1537,7 +1532,7 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, _eventPool, chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
       chats[chatId] = entry;
 
       entry.init();

@@ -41,7 +41,6 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -495,9 +494,6 @@ void main() async {
     );
     await authService.init();
 
-    var eventPoolService = OptimisticEventsPoolService();
-    Get.put(eventPoolService);
-
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
@@ -538,7 +534,6 @@ void main() async {
         userRepository,
         sessionProvider,
         monologProvider,
-        eventPoolService,
         me: const UserId('me'),
       ),
     );
@@ -563,7 +558,6 @@ void main() async {
             myUserProvider,
             blocklistRepository,
             userRepository,
-            eventPoolService,
           ),
         ),
       ),

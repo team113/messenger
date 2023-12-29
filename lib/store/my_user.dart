@@ -23,7 +23,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '../domain/service/optimistic_event_pool.dart';
+import '../util/event_pool.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -56,7 +56,6 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._myUserLocal,
     this._blocklistRepo,
     this._userRepo,
-    this._eventPool,
   );
 
   @override
@@ -79,9 +78,6 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
   final UserRepository _userRepo;
-
-  /// [OptimisticEventsPoolService] to track events.
-  final OptimisticEventsPoolService _eventPool;
 
   /// [MyUserHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
@@ -505,7 +501,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    _eventPool.add((muting == null)
+    eventPool.add((muting == null)
         ? EventUserUnmuted(myUser.value!.id).toPoolEntry(handler)
         : EventUserMuted(myUser.value!.id, mute ?? MuteDuration.forever())
             .toPoolEntry(handler));
@@ -693,7 +689,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         }
       }
 
-      if (_eventPool.ignore(event.toPoolEntry())) {
+      if (eventPool.ignore(event.toPoolEntry())) {
         return;
       }
 

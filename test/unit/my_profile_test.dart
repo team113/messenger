@@ -23,7 +23,6 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
@@ -44,7 +43,6 @@ void main() async {
   await userProvider.init();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
-  var eventPoolService = OptimisticEventsPoolService();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -70,7 +68,6 @@ void main() async {
           myUserProvider,
           blocklistRepository,
           userRepository,
-          eventPoolService,
         ),
       ),
     );

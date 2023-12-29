@@ -26,7 +26,6 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/domain/service/optimistic_event_pool.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -90,7 +89,6 @@ void main() async {
   Get.put(myUserProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
   Get.put(credentialsProvider);
-  var eventPoolService = OptimisticEventsPoolService();
 
   test(
       'MyUserService successfully adds, removes, confirms phone and resends confirmation code',
@@ -197,7 +195,6 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
-      eventPoolService,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     await Future.delayed(Duration.zero);
@@ -266,7 +263,6 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
-      eventPoolService,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
