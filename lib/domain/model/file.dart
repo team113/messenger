@@ -75,22 +75,29 @@ abstract class StorageFile extends HiveObject {
   /// Returns the name of this [StorageFile].
   String get name {
     final basename = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
-    return [basename, urlExtension(url)].nonNulls.join('.');
+    return [basename, _extension].nonNulls.join('.');
   }
 
-  /// Gets the file extension of [url]: the portion of [url] from the last
-  /// `.` to the end (excluding the `.` itself).
+  /// Returns the extension parsed from the [relativeRef], excluding the dot, if
+  /// any.
   ///
+  /// ```dart
+  /// var file = StorageFile(relativeRef: 'http://site/.jpg');
+  /// print(file._extension); // => 'jpg'
+  ///
+  /// var file = StorageFile(relativeRef: 'http://site/noExtension');
+  /// print(file._extension); // => 'null'
   /// ```
-  /// urlExtension('http://site/.jpg') // => 'jpg'
-  /// urlExtension('http://site.com/noExtension') // => null
-  /// urlExtension('http://site/noDots') // => null
-  /// ```
-  static String? urlExtension(String url) {
+  String? get _extension {
     final index = url.lastIndexOf('.');
-    if (index < 0 || index + 1 >= url.length) return null;
+    if (index < 0 || index + 1 >= url.length) {
+      return null;
+    }
+
     final result = url.substring(index + 1).toLowerCase();
-    if (result.contains('/')) return null;
+    if (result.contains('/')) {
+      return null;
+    }
 
     return result;
   }

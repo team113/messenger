@@ -654,9 +654,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                             ? WebImage(
                                 e.link,
                                 onForbidden: e.onError,
-                                // TODO: Wait for HTML to support specifying download name:
+
+                                // TODO: Wait for HTML to support specifying
+                                //       download name:
                                 //       https://github.com/whatwg/html/issues/2722
-                                //name: e.name,
+                                // name: e.name,
                               )
                             : RetryImage(
                                 e.link,
