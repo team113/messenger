@@ -37,202 +37,138 @@ class EventPool {
   /// Adds event to pool.
   ///
   /// [event.handler] would be called when handlers of other events with same
-  /// [_EventType] would be awaited.
+  /// [EventType] would be awaited.
   void add(
-    PoolEntry event,
+    PoolEntry? event,
   ) {
-    _debugLog('_adding', event);
-    switch (event.type.mode) {
-      case _EventMode.queue:
-        {
-          final lock = _getLock(event.key);
-          lock.protect(
-            () async {
-              await _queueWrapper(event);
-            },
-          );
+    if (event != null) {
+      if (_neutralize[event.key] != null) {
+        if (!(_neutralize[event.key] == event)) {
+          _neutralize.remove(event.key);
         }
-      case _EventMode.neutralize:
-        {
-          if (_neutralize[event.key] != null) {
-            if (!_same(_neutralize[event.key]!, event)) {
-              _debugLog('neutralized', event);
-              _neutralize.remove(event.key);
-            } else {
-              // No-op
-            }
-          } else {
-            final lock = _getLock(event.key);
-            _neutralize[event.key] = event;
-            lock.protect(
-              () async {
-                await _neutralizeWrapper(event);
-              },
-            );
-          }
-        }
-      case _EventMode.skip:
-        {
-          /// No-op.
-        }
+      } else {
+        _neutralize[event.key] = event;
+
+        _locks[event.key] ??= Mutex();
+        _locks[event.key]?.protect(() async {
+          await _neutralizeWrapper(event);
+        });
+      }
     }
   }
 
   /// Returns true if same event exist waiting for ignorance.
   ///
-  /// Deletes ignored events from pool
-  bool ignore(PoolEntry event) {
-    final PoolEntry? waiter = _ignorance[event.key]
-        ?.firstWhereOrNull((element) => _same(event, element));
-
-    if (waiter != null) {
-      _debugLog('ignored', event);
-      _ignorance[event.key]!.remove(waiter);
-      return true;
+  /// Deletes ignored events from pool.
+  bool ignore(PoolEntry? event) {
+    if (event != null) {
+      final PoolEntry? waiter = _ignorance[event.key]
+          ?.firstWhereOrNull((element) => event == element);
+      if (waiter != null) {
+        _ignorance[event.key]!.remove(waiter);
+        return true;
+      }
     }
-    _debugLog('NOT ignored', event);
     return false;
-  }
-
-  Mutex _getLock(int key) {
-    _locks[key] ??= Mutex();
-    return _locks[key]!;
-  }
-
-  bool _same(PoolEntry e1, PoolEntry e2) {
-    if (e1.type != e2.type) return false;
-    return (e1.hash == e2.hash);
-  }
-
-  Future<dynamic> _queueWrapper(PoolEntry event) async {
-    _ignorance[event.key] ??= [];
-    _ignorance[event.key]!.add(event);
-
-    // TODO: error handling
-    await event.handler?.call();
   }
 
   Future<dynamic> _neutralizeWrapper(PoolEntry event) async {
     if (_neutralize[event.key] != event) {
+      // This event was neutralized.
       return;
     }
+
     _neutralize.remove(event.key);
     _ignorance[event.key] ??= [];
     _ignorance[event.key]!.add(event);
 
+    // TODO: remove before review.
     await Future.delayed(const Duration(seconds: 3));
 
-    // TODO: error handling
+    // TODO: check error handling.
     await event.handler?.call();
   }
 }
 
 /// Types of event
-enum _EventType {
+enum EventType {
   myUserMuteChatsToggled,
   chatFavoriteToggled,
   noSupporting;
-
-  _EventMode get mode => switch (this) {
-        myUserMuteChatsToggled => _EventMode.neutralize,
-        chatFavoriteToggled => _EventMode.neutralize,
-        noSupporting => _EventMode.skip,
-      };
-}
-
-/// Modes of [_EventType] processing.
-enum _EventMode {
-  queue,
-  neutralize,
-  skip;
 }
 
 class PoolEntry {
   final dynamic sourceEvent;
   final Future<void> Function()? handler;
-  final _EventType type;
+  final EventType type;
   final int key;
-  final int hash;
-  PoolEntry(
+  final int propsHash;
+
+  @override
+  int get hashCode => propsHash;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PoolEntry && propsHash == other.propsHash;
+
+  PoolEntry(this.sourceEvent,
       {required this.key,
-      required this.hash,
-      required this.sourceEvent,
+      required this.propsHash,
       required this.handler,
       required this.type});
 }
 
 extension MyUserEventToPoolEntryExtension on MyUserEvent {
-  PoolEntry toPoolEntry([Future<void> Function()? handler]) {
-    return PoolEntry(
-        sourceEvent: this,
-        handler: handler,
-        type: eventType(),
-        key: eventKey(),
-        hash: eventHash());
-  }
-
-  /// Returns [_EventType] of event [kind], if event [kind] is supporting.
-  _EventType eventType() {
+  PoolEntry? toPoolEntry([Future<void> Function()? handler]) {
     return switch (kind) {
-      MyUserEventKind.userMuted => _EventType.myUserMuteChatsToggled,
-      MyUserEventKind.unmuted => _EventType.myUserMuteChatsToggled,
-      _ => _EventType.noSupporting,
-    };
-  }
-
-  int eventKey() {
-    return switch (kind) {
-      MyUserEventKind.userMuted => eventType().hashCode,
-      MyUserEventKind.unmuted => eventType().hashCode,
-      _ => 0,
-    };
-  }
-
-  int eventHash() {
-    return switch (kind) {
-      MyUserEventKind.userMuted => Object.hash(eventType(), true),
-      MyUserEventKind.unmuted => Object.hash(eventType(), false),
-      _ => 0,
+      MyUserEventKind.userMuted => PoolEntry(this,
+          handler: handler,
+          type: EventType.myUserMuteChatsToggled,
+          key: EventType.myUserMuteChatsToggled.hashCode,
+          propsHash: Object.hash(
+            EventType.myUserMuteChatsToggled,
+            true,
+          )),
+      MyUserEventKind.unmuted => PoolEntry(this,
+          handler: handler,
+          type: EventType.myUserMuteChatsToggled,
+          key: EventType.myUserMuteChatsToggled.hashCode,
+          propsHash: Object.hash(
+            EventType.myUserMuteChatsToggled,
+            false,
+          )),
+      _ => null,
     };
   }
 }
 
 extension ChatEventToPoolEntryExtension on ChatEvent {
-  PoolEntry toPoolEntry([Future<void> Function()? handler]) {
-    return PoolEntry(
-        sourceEvent: this,
-        handler: handler,
-        type: eventType(),
-        key: eventKey(),
-        hash: eventHash());
-  }
-
-  /// Returns [_EventType] of event [kind], if event [kind] is supporting.
-  _EventType eventType() {
+  PoolEntry? toPoolEntry([Future<void> Function()? handler]) {
     return switch (kind) {
-      ChatEventKind.favorited => _EventType.chatFavoriteToggled,
-      ChatEventKind.unfavorited => _EventType.chatFavoriteToggled,
-      _ => _EventType.noSupporting,
-    };
-  }
-
-  int eventKey() {
-    return switch (kind) {
-      ChatEventKind.favorited => Object.hash(eventType(), chatId),
-      ChatEventKind.unfavorited => Object.hash(eventType(), chatId),
-      _ => 0,
-    };
-  }
-
-  int eventHash() {
-    return switch (kind) {
-      ChatEventKind.favorited => Object.hash(eventKey(), true),
-      ChatEventKind.unfavorited => Object.hash(eventKey(), false),
-      _ => 0,
+      ChatEventKind.favorited => PoolEntry(this,
+          handler: handler,
+          type: EventType.chatFavoriteToggled,
+          key: Object.hash(EventType.chatFavoriteToggled, chatId),
+          propsHash: Object.hash(
+            EventType.chatFavoriteToggled,
+            chatId,
+            true,
+          )),
+      ChatEventKind.unfavorited => PoolEntry(this,
+          handler: handler,
+          type: EventType.chatFavoriteToggled,
+          key: Object.hash(EventType.chatFavoriteToggled, chatId),
+          propsHash: Object.hash(
+            EventType.chatFavoriteToggled,
+            chatId,
+            false,
+          )),
+      _ => null,
     };
   }
 }
 
 void _debugLog(String message, PoolEntry event) {
-  Log.info('--$message(${event.key} ${event.hash})', '${event.sourceEvent}');
+  Log.info(
+      '--$message(${event.key} ${event.hashCode})', '${event.sourceEvent}');
 }
