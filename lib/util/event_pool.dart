@@ -24,65 +24,64 @@ import 'log.dart';
 
 // Tracker for optimistic events.
 class EventPool {
-  /// Registred handlers for one-to-one call syncrously
-  final Map<int, Mutex> _locks = {};
-  // TODO: remove lock on handlers queue empty
+  /// Adds [PoolEntry] to this [EventPool].
+  void add(PoolEntry? event) {
+    Log.debug('add($event)', '$runtimeType');
 
-  /// Events should be ignored when resieved from back
-  final Map<int, List<PoolEntry>> _ignorance = {};
-
-  /// Events should be neutralized with same type events
-  final Map<int, PoolEntry> _neutralize = {};
-
-  /// Adds event to pool.
-  ///
-  /// [event.handler] would be called when handlers of other events with same
-  /// [EventType] would be awaited.
-  void add(
-    PoolEntry? event,
-  ) {
     if (event != null) {
-      if (_neutralize[event.key] != null) {
-        if (!(_neutralize[event.key] == event)) {
-          _neutralize.remove(event.key);
+      if (_collapses[event.key] != null) {
+        if (!(_collapses[event.key] == event)) {
+          // Collapse with registred [PoolEntry]
+          _collapses.remove(event.key);
         }
       } else {
-        _neutralize[event.key] = event;
+        _collapses[event.key] = event;
 
         _locks[event.key] ??= Mutex();
         _locks[event.key]?.protect(() async {
-          await _neutralizeWrapper(event);
+          await _collapsableWrapper(event);
         });
       }
     }
   }
 
-  /// Returns true if same event exist waiting for ignorance.
-  ///
-  /// Deletes ignored events from pool.
+  /// Indicates whether [PoolEntry] should be ignored.
   bool ignore(PoolEntry? event) {
+    Log.debug('ignore($event)', '$runtimeType');
+
     if (event != null) {
-      final PoolEntry? waiter = _ignorance[event.key]
-          ?.firstWhereOrNull((element) => event == element);
+      final PoolEntry? waiter =
+          _ignores[event.key]?.firstWhereOrNull((element) => event == element);
       if (waiter != null) {
-        _ignorance[event.key]!.remove(waiter);
+        _ignores[event.key]!.remove(waiter);
         return true;
       }
     }
     return false;
   }
 
-  Future<dynamic> _neutralizeWrapper(PoolEntry event) async {
-    if (_neutralize[event.key] != event) {
-      // This event was neutralized.
+  /// [Mutex]es guarding synchronized call [PoolEntry] handlers.
+  final Map<int, Mutex> _locks = {};
+
+  /// [PoolEntry]es, that should be ignored when resieved from back.
+  final Map<int, List<PoolEntry>> _ignores = {};
+
+  /// [PoolEntry]es, that should be collapsed with event of same type.
+  final Map<int, PoolEntry> _collapses = {};
+
+  /// Implements collapsable behavior for handle [PoolEntry].
+  Future<dynamic> _collapsableWrapper(PoolEntry event) async {
+    if (_collapses[event.key] != event) {
+      // This event was collapsed.
       return;
+    } else {
+      _collapses.remove(event.key);
     }
 
-    _neutralize.remove(event.key);
-    _ignorance[event.key] ??= [];
-    _ignorance[event.key]!.add(event);
+    _ignores[event.key] ??= [];
+    _ignores[event.key]!.add(event);
 
-    // TODO: remove before review.
+    // TODO: remove debug delay before review.
     await Future.delayed(const Duration(seconds: 3));
 
     // TODO: check error handling.
@@ -90,18 +89,21 @@ class EventPool {
   }
 }
 
-/// Types of event
-enum EventType {
-  myUserMuteChatsToggled,
-  chatFavoriteToggled,
-  noSupporting;
-}
-
+/// Entry for tracking events in [EventPool].
 class PoolEntry {
-  final dynamic sourceEvent;
+  /// Handler of this [PoolEntry].
+  ///
+  /// It would be called when handlers of other [PoolEntry] with same [key]
+  /// would be complited.
   final Future<void> Function()? handler;
+
+  /// [EventType] of this [PoolEntry].
   final EventType type;
+
+  /// Key of this [PoolEntry].
   final int key;
+
+  /// Stores hashed valuable properties of event, realted to this [PoolEntry].
   final int propsHash;
 
   @override
@@ -111,26 +113,33 @@ class PoolEntry {
   bool operator ==(Object other) =>
       other is PoolEntry && propsHash == other.propsHash;
 
-  PoolEntry(this.sourceEvent,
-      {required this.key,
-      required this.propsHash,
-      required this.handler,
-      required this.type});
+  PoolEntry(this.handler,
+      {required this.key, required this.propsHash, required this.type});
+
+  @override
+  String toString() => 'PoolEntry($type, $key, $propsHash)';
 }
 
+/// Types of tracking events.
+enum EventType {
+  myUserMuteChatsToggled,
+  chatFavoriteToggled,
+  noSupporting;
+}
+
+/// Extension adding [PoolEntry] construction from a [MyUserEvent].
 extension MyUserEventToPoolEntryExtension on MyUserEvent {
+  /// Constructs a new [PoolEntry] from this [MyUserEvent].
   PoolEntry? toPoolEntry([Future<void> Function()? handler]) {
     return switch (kind) {
-      MyUserEventKind.userMuted => PoolEntry(this,
-          handler: handler,
+      MyUserEventKind.userMuted => PoolEntry(handler,
           type: EventType.myUserMuteChatsToggled,
           key: EventType.myUserMuteChatsToggled.hashCode,
           propsHash: Object.hash(
             EventType.myUserMuteChatsToggled,
             true,
           )),
-      MyUserEventKind.unmuted => PoolEntry(this,
-          handler: handler,
+      MyUserEventKind.unmuted => PoolEntry(handler,
           type: EventType.myUserMuteChatsToggled,
           key: EventType.myUserMuteChatsToggled.hashCode,
           propsHash: Object.hash(
@@ -142,11 +151,12 @@ extension MyUserEventToPoolEntryExtension on MyUserEvent {
   }
 }
 
+/// Extension adding [PoolEntry] construction from a [ChatEvent].
 extension ChatEventToPoolEntryExtension on ChatEvent {
+  /// Constructs a new [PoolEntry] from this [ChatEvent].
   PoolEntry? toPoolEntry([Future<void> Function()? handler]) {
     return switch (kind) {
-      ChatEventKind.favorited => PoolEntry(this,
-          handler: handler,
+      ChatEventKind.favorited => PoolEntry(handler,
           type: EventType.chatFavoriteToggled,
           key: Object.hash(EventType.chatFavoriteToggled, chatId),
           propsHash: Object.hash(
@@ -154,8 +164,7 @@ extension ChatEventToPoolEntryExtension on ChatEvent {
             chatId,
             true,
           )),
-      ChatEventKind.unfavorited => PoolEntry(this,
-          handler: handler,
+      ChatEventKind.unfavorited => PoolEntry(handler,
           type: EventType.chatFavoriteToggled,
           key: Object.hash(EventType.chatFavoriteToggled, chatId),
           propsHash: Object.hash(
@@ -166,9 +175,4 @@ extension ChatEventToPoolEntryExtension on ChatEvent {
       _ => null,
     };
   }
-}
-
-void _debugLog(String message, PoolEntry event) {
-  Log.info(
-      '--$message(${event.key} ${event.hashCode})', '${event.sourceEvent}');
 }
