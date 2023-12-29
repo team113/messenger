@@ -357,29 +357,37 @@ class Pagination<T, C, K> {
     return provider.remove(key);
   }
 
-  /// Merges the provided [pagination] into this [Pagination] if their bounds
-  /// touch.
-  bool merge(Pagination<T, C, K> pagination) {
-    Log.debug('merge($pagination)', '$runtimeType');
+  /// Merges the provided [Pagination] into this one, if their bounds touch.
+  bool merge(Pagination<T, C, K> merging) {
+    Log.debug('merge($merging)', '$runtimeType');
 
-    if (pagination.items.isNotEmpty &&
-        (items[onKey(pagination.items.first)] != null ||
-            items[onKey(pagination.items.last)] != null)) {
+    // If [merging] has items at all, and we contain either first or last item
+    // from it, then the bounds do touch, we can proceed.
+    if (merging.items.isNotEmpty &&
+        (items[onKey(merging.items.first)] != null ||
+            items[onKey(merging.items.last)] != null)) {
+      // If we have [compare] defined, then we can determine the [hasPrevious]
+      // and [hasNext] indicators appropriately.
       if (compare != null) {
+        // If we have no items, or our first item comes after the first
+        // [merging] item, then determine the [hasPrevious] indicator.
         if (items.isEmpty ||
-            compare!.call(pagination.items.first, items.first) == -1) {
-          hasPrevious.value = pagination.hasPrevious.value;
-          startCursor = pagination.startCursor;
+            compare!.call(merging.items.first, items.first) == -1) {
+          hasPrevious.value = merging.hasPrevious.value;
+          startCursor = merging.startCursor;
         }
 
+        // If we have no items, or our last item comes after the last [merging]
+        // item, then determine the [hasNext] indicator.
         if (items.isEmpty ||
-            compare!.call(pagination.items.last, items.last) == 1) {
-          hasNext.value = pagination.hasNext.value;
-          endCursor = pagination.endCursor;
+            compare!.call(merging.items.last, items.last) == 1) {
+          hasNext.value = merging.hasNext.value;
+          endCursor = merging.endCursor;
         }
       }
 
-      for (var e in pagination.items.values) {
+      // Put the items of [merging] into this [Pagination].
+      for (var e in merging.items.values) {
         put(e, ignoreBounds: true);
       }
 

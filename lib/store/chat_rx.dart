@@ -520,7 +520,7 @@ class HiveRxChat extends RxChat {
     }
 
     await (_fragment?.next ?? _pagination.next).call();
-    _mergeFragment();
+    _maybeMergeFragment();
 
     status.value = RxStatus.success();
 
@@ -1000,8 +1000,9 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Merges the [_fragment] into the [_pagination] if their bounds touch.
-  void _mergeFragment() async {
+  /// Tries merging the [_fragment] into the [_pagination], if their bounds
+  /// touch.
+  void _maybeMergeFragment() async {
     Log.debug('_mergeFragment()', '$runtimeType($id)');
 
     if (_fragment != null && _pagination.merge(_fragment!)) {
