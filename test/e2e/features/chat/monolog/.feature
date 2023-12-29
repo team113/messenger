@@ -36,7 +36,7 @@ Feature: Monolog
 
   Scenario: User renames local monolog
     When I open chat's info
-    And I tap `ChatInfoMoreButton` button
+    And I tap `MoreButton` button
     And I tap `EditButton` button
     And I fill `RenameChatField` field with "My monolog"
     And I tap `Approve` button

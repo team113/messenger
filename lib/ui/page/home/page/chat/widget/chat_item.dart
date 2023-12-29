@@ -419,7 +419,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return chat.isHalfRead(widget.item.value, widget.me);
   }
 
-  /// Returns the [User] posted this [ChatItem].
+  /// Returns the [User] who posted this [ChatItem].
   User get _author => widget.item.value.author;
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the

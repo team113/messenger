@@ -34,7 +34,7 @@ class MemberTile extends StatelessWidget {
     required this.user,
     this.inCall,
     this.onTap,
-    this.myUser = false,
+    this.me = false,
     this.onKick,
     this.onCall,
   });
@@ -53,8 +53,9 @@ class MemberTile extends StatelessWidget {
   /// Callback, called when the call button is pressed.
   final void Function()? onCall;
 
-  /// Indicator whether the [user] represents currently authenticated [MyUser].
-  final bool myUser;
+  /// Indicator whether this [user] is treated as [MyUser], meaning displaying
+  /// appropriate labels.
+  final bool me;
 
   /// Callback, called when the kick button is pressed.
   final Future<void> Function()? onKick;
@@ -66,7 +67,7 @@ class MemberTile extends StatelessWidget {
     return ContactTile(
       user: user,
       dense: true,
-      onTap: myUser ? null : onTap,
+      onTap: me ? null : onTap,
       trailing: [
         if (inCall != null) ...[
           SafeAnimatedSwitcher(
@@ -97,8 +98,8 @@ class MemberTile extends StatelessWidget {
           const SizedBox(width: 16),
         ],
         AnimatedButton(
-          enabled: !myUser,
-          onPressed: myUser
+          enabled: !me,
+          onPressed: me
               ? null
               : () async {
                   final bool? result = await MessagePopup.alert(
@@ -118,7 +119,7 @@ class MemberTile extends StatelessWidget {
                     await onKick?.call();
                   }
                 },
-          child: myUser
+          child: me
               ? Text(
                   'label_you'.l10n,
                   style: style.fonts.normal.regular.secondary,

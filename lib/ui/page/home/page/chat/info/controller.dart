@@ -35,7 +35,6 @@ import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -96,15 +95,6 @@ class ChatInfoController extends GetxController {
   /// [CallService] used to start a call in the [chat].
   final CallService _callService;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
-  Timer? _nameTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [link] field.
-  Timer? _linkTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
-  Timer? _avatarTimer;
-
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
@@ -113,11 +103,6 @@ class ChatInfoController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
-
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
-  bool get inCall =>
-      _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
@@ -131,7 +116,6 @@ class ChatInfoController extends GetxController {
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
-        _nameTimer?.cancel();
 
         if ((s.text.isEmpty && chat?.chat.value.name?.val == null) ||
             s.text == chat?.chat.value.name?.val) {
@@ -155,11 +139,7 @@ class ChatInfoController extends GetxController {
 
           try {
             await _chatService.renameChat(chat!.chat.value.id, name);
-            s.status.value = RxStatus.success();
-            _nameTimer = Timer(
-              const Duration(seconds: 1),
-              () => s.status.value = RxStatus.empty(),
-            );
+            s.status.value = RxStatus.empty();
             s.unsubmit();
           } on RenameChatException catch (e) {
             s.status.value = RxStatus.empty();
@@ -195,17 +175,12 @@ class ChatInfoController extends GetxController {
         }
 
         if (s.error.value == null) {
-          _linkTimer?.cancel();
           s.editable.value = false;
           s.status.value = RxStatus.loading();
 
           try {
             await _chatService.createChatDirectLink(chatId, slug!);
-            s.status.value = RxStatus.success();
-            _linkTimer = Timer(
-              const Duration(seconds: 1),
-              () => s.status.value = RxStatus.empty(),
-            );
+            s.status.value = RxStatus.empty();
           } on CreateChatDirectLinkException catch (e) {
             s.status.value = RxStatus.empty();
             s.error.value = e.toMessage();
@@ -233,9 +208,6 @@ class ChatInfoController extends GetxController {
   @override
   onClose() {
     _worker?.dispose();
-    _nameTimer?.cancel();
-    _linkTimer?.cancel();
-    _avatarTimer?.cancel();
     _chatSubscription?.cancel();
     super.onClose();
   }
@@ -290,7 +262,6 @@ class ChatInfoController extends GetxController {
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// `null`.
   Future<void> updateChatAvatar(PlatformFile? image) async {
-    _avatarTimer?.cancel();
     avatar.value = RxStatus.loading();
 
     try {
@@ -299,12 +270,7 @@ class ChatInfoController extends GetxController {
         file: image == null ? null : NativeFile.fromPlatformFile(image),
       );
 
-      avatar.value = RxStatus.success();
-
-      _avatarTimer = Timer(
-        const Duration(seconds: 1),
-        () => avatar.value = RxStatus.empty(),
-      );
+      avatar.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
       avatar.value = RxStatus.empty();
       MessagePopup.error(e);
@@ -418,9 +384,7 @@ class ChatInfoController extends GetxController {
 
       name.unchecked = chat!.chat.value.name?.val;
 
-      if (chat!.chat.value.directLink?.slug.val == null) {
-        link.text = ChatDirectLinkSlug.generate(10).val;
-      } else {
+      if (chat!.chat.value.directLink?.slug.val != null) {
         link.unchecked = chat!.chat.value.directLink?.slug.val;
       }
 

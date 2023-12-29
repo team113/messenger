@@ -141,7 +141,7 @@ class ParticipantView extends StatelessWidget {
 
                             return MemberTile(
                               user: user,
-                              myUser: user.id == c.me,
+                              me: user.id == c.me,
                               inCall: user.id == c.me ? null : inCall,
                               onTap: () {
                                 // TODO: Open the [Routes.user] page.

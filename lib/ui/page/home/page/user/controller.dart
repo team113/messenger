@@ -120,9 +120,6 @@ class UserController extends GetxController {
   /// [Worker] reacting on the [user] or [contact] changes updating the [name].
   Worker? _worker;
 
-  /// [Timer] to set the `RxStatus.empty` status of the [name] field.
-  Timer? _nameTimer;
-
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
@@ -145,7 +142,6 @@ class UserController extends GetxController {
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
-        _nameTimer?.cancel();
 
         if (s.text == contact.value!.contact.value.name.val) {
           s.unsubmit();
@@ -168,11 +164,7 @@ class UserController extends GetxController {
 
           try {
             await _contactService.changeContactName(contact.value!.id, name);
-            s.status.value = RxStatus.success();
-            _nameTimer = Timer(
-              const Duration(seconds: 1),
-              () => s.status.value = RxStatus.empty(),
-            );
+            s.status.value = RxStatus.empty();
             s.unsubmit();
           } on UpdateChatContactNameException catch (e) {
             s.status.value = RxStatus.empty();
@@ -194,7 +186,7 @@ class UserController extends GetxController {
     contact.value = _contactService.contacts.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );
-    _listenContact();
+    _listenToContact();
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
@@ -203,14 +195,14 @@ class UserController extends GetxController {
           if (e.value!.contact.value.users.isNotEmpty &&
               e.value!.contact.value.users.every((e) => e.id == id)) {
             contact.value = e.value;
-            _listenContact();
+            _listenToContact();
           }
           break;
 
         case OperationKind.removed:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             contact.value = null;
-            _listenUser();
+            _listenToUser();
           }
           break;
       }
@@ -224,7 +216,6 @@ class UserController extends GetxController {
     user?.stopUpdates();
     _contactsSubscription?.cancel();
     _worker?.dispose();
-    _nameTimer?.cancel();
     super.onClose();
   }
 
@@ -251,7 +242,7 @@ class UserController extends GetxController {
         if (contact.value != null) {
           await _contactService.deleteContact(contact.value!.contact.value.id);
           contact.value = null;
-          _listenUser();
+          _listenToUser();
         }
       } catch (e) {
         MessagePopup.error(e);
@@ -412,7 +403,7 @@ class UserController extends GetxController {
 
       if (user != null) {
         if (contact.value == null) {
-          _listenUser();
+          _listenToUser();
         }
 
         user!.listenUpdates();
@@ -431,7 +422,7 @@ class UserController extends GetxController {
   }
 
   /// Listens the [user] changes updating the [name].
-  void _listenUser() {
+  void _listenToUser() {
     name.unchecked =
         user?.user.value.name?.val ?? user!.user.value.num.toString();
 
@@ -444,7 +435,7 @@ class UserController extends GetxController {
   }
 
   /// Listens the [contact] changes updating the [name].
-  void _listenContact() {
+  void _listenToContact() {
     if (contact.value != null) {
       name.unchecked = contact.value!.contact.value.name.val;
 

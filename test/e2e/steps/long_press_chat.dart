@@ -60,11 +60,12 @@ final StepDefinitionGeneric longPressMonolog = when<CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      AbstractChatRepository chatRepository = Get.find();
+      final chatRepository = Get.find<AbstractChatRepository>();
 
       try {
-        RxChat? monolog = chatRepository.chats.values
+        final RxChat? monolog = chatRepository.chats.values
             .firstWhereOrNull((e) => e.chat.value.isMonolog);
+
         final finder = context.world.appDriver
             .findBy('Chat_${monolog?.id}', FindType.key)
             .first;
