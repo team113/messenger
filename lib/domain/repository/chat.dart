@@ -43,7 +43,7 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
-  /// Returns [EventPool] of this repository..
+  /// Returns [EventPool] of this repository.
   EventPool get eventPool;
 
   /// Returns the initialization [RxStatus] of this repository.
