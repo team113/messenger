@@ -22,7 +22,7 @@ import '../store/event/my_user.dart';
 import '../store/event/chat.dart';
 import 'log.dart';
 
-// Tracker for optimistic events.
+/// Tracker for optimistic events.
 class EventPool {
   /// Adds [PoolEntry] to this [EventPool].
   void add(PoolEntry? event) {
