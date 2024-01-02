@@ -87,6 +87,12 @@ class EventPool {
 
 /// Entry for tracking events in [EventPool].
 class PoolEntry {
+  PoolEntry(
+      {required this.key,
+      required this.propsHash,
+      required this.type,
+      this.handler});
+
   /// Handler of this [PoolEntry].
   ///
   /// It would be called when handlers of other [PoolEntry] with same [key]
@@ -109,14 +115,8 @@ class PoolEntry {
   bool operator ==(Object other) =>
       other is PoolEntry && propsHash == other.propsHash;
 
-  PoolEntry(
-      {required this.key,
-      required this.propsHash,
-      required this.type,
-      this.handler});
-
   @override
-  String toString() => 'PoolEntry($type, $key, $propsHash)';
+  String toString() => '$runtimeType($type, $key, $propsHash)';
 }
 
 /// Types of tracking events.
