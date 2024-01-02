@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
+    - Media panel:
+        - Improve dock animations. ([#774], [#698])
 
 ### Fixed
 

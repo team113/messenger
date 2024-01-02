@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +27,7 @@ import 'animated_delayed_width.dart';
 import 'animated_transition.dart';
 
 /// Reorderable [Row] of provided [items].
-class Dock<T extends Object> extends StatefulWidget {
+class Dock<T extends DockItem> extends StatefulWidget {
   const Dock({
     super.key,
     required this.items,
