@@ -455,7 +455,7 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Updates [chats] by adding the [monolog] chat if it matches the [query].
+  /// Updates [chats] by adding the [Chat]-monolog, if it matches the [query].
   Future<void> _populateMonolog() async {
     // Formatted string representation of the current [query].
     final String queryString = query.value.toLowerCase().trim();

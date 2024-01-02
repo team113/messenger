@@ -2257,10 +2257,10 @@ class ChatRepository extends DisposableInterface
         final bool isStored = _monologLocal.get() != null;
 
         if (isStored) {
-          // Initialize local monolog if its `id` was saved. If `isStored`,
-          // local monolog will appear for a moment since it's stored in [Hive],
-          // but then disappear, because it's not in the remote [Pagination].
-          // This line makes [monolog] be present despite it is not remote.
+          // Initialize local monolog, if its ID was saved. If `isStored`, local
+          // monolog will appear for a moment since it's stored in [Hive], but
+          // then disappear, because it's not in the remote [Pagination]. This
+          // line makes [monolog] be present despite it is not remote.
           await _createLocalDialog(me);
         }
 
