@@ -19,35 +19,52 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/ui/page/home/widget/action.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/widget/text_field.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Visual representation of the provided [BlocklistRecord].
 class BlocklistRecordWidget extends StatelessWidget {
-  const BlocklistRecordWidget(this.record, {super.key});
+  const BlocklistRecordWidget(this.record, {super.key, this.onUnblock});
 
   /// [BlocklistRecord] to display.
   final BlocklistRecord record;
+
+  /// Callback, called when an unblock button is pressed.
+  final void Function()? onUnblock;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Paddings.basic(
-          ReactiveTextField(
-            state: TextFieldState(text: record.at.val.toLocal().toString()),
-            label: 'label_date'.l10n,
-            enabled: false,
+          InfoTile(
+            padding: EdgeInsets.zero,
+            title: 'label_date'.l10n,
+            content: record.at.val.yMdHm,
           ),
         ),
-        if (record.reason != null)
+        if (record.reason != null) ...[
+          const SizedBox(height: 8),
           Paddings.basic(
-            ReactiveTextField(
-              state: TextFieldState(text: record.reason?.val),
-              label: 'label_reason'.l10n,
-              enabled: false,
+            InfoTile(
+              padding: EdgeInsets.zero,
+              title: 'label_reason'.l10n,
+              content: record.reason!.val,
             ),
           ),
+        ],
+        if (onUnblock != null) ...[
+          const SizedBox(height: 16),
+          SelectionContainer.disabled(
+            child: ActionButton(
+              text: 'btn_unblock'.l10n,
+              onPressed: onUnblock,
+              trailing: const SvgIcon(SvgIcons.unblock),
+            ),
+          ),
+        ],
       ],
     );
   }

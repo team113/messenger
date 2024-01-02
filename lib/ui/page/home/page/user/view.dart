@@ -32,9 +32,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -88,7 +86,12 @@ class UserView extends StatelessWidget {
                         if (c.isBlocked != null)
                           Block(
                             title: 'label_user_is_blocked'.l10n,
-                            children: [BlocklistRecordWidget(c.isBlocked!)],
+                            children: [
+                              BlocklistRecordWidget(
+                                c.isBlocked!,
+                                onUnblock: c.unblock,
+                              ),
+                            ],
                           ),
                         Block(
                           children: [
@@ -100,9 +103,7 @@ class UserView extends StatelessWidget {
                           ],
                         ),
                         _status(c, context),
-                        Block(
-                          children: [_num(c)],
-                        ),
+                        Block(children: [_num(c)]),
                         SelectionContainer.disabled(
                           child: Block(children: [_actions(c, context)]),
                         ),
@@ -112,16 +113,6 @@ class UserView extends StatelessWidget {
                   );
                 }),
               ),
-              bottomNavigationBar: Obx(() {
-                if (c.isBlocked == null) {
-                  return const SizedBox();
-                }
-
-                return Padding(
-                  padding: Insets.dense.copyWith(top: 0),
-                  child: SafeArea(child: UnblockButton(c.unblock)),
-                );
-              }),
             );
           });
         });
@@ -129,7 +120,7 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns a [Contact.name] editable field.
+  /// Returns a [ChatContact.name] or [User.name] editable field.
   Widget _name(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -139,12 +130,14 @@ class UserView extends StatelessWidget {
       if (c.editing.value) {
         child = Padding(
           padding: const EdgeInsets.only(top: 4.0),
-          child: ReactiveTextField(
-            state: c.name,
-            label: 'label_name'.l10n,
-            hint: c.contact.value?.contact.value.name.val ??
-                c.user!.user.value.name?.val ??
-                c.user!.user.value.num.toString(),
+          child: SelectionContainer.disabled(
+            child: ReactiveTextField(
+              state: c.name,
+              label: 'label_name'.l10n,
+              hint: c.contact.value?.contact.value.name.val ??
+                  c.user!.user.value.name?.val ??
+                  c.user!.user.value.num.toString(),
+            ),
           ),
         );
       } else {
@@ -194,9 +187,7 @@ class UserView extends StatelessWidget {
         padding: EdgeInsets.zero,
         title: 'label_num'.l10n,
         content: c.user!.user.value.num.toString(),
-        trailing: CopyOrShareButton(
-          c.user!.user.value.num.toString(),
-        ),
+        trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
       ),
     );
   }
@@ -277,6 +268,8 @@ class UserView extends StatelessWidget {
                     final bool contact = c.contact.value != null;
                     final bool favorite =
                         c.contact.value?.contact.value.favoritePosition != null;
+                    final bool hasCall =
+                        c.user?.dialog.value?.chat.value.ongoingCall != null;
 
                     return KeyedSubtree(
                       key: const Key('MoreButton'),
@@ -289,17 +282,23 @@ class UserView extends StatelessWidget {
                         actions: [
                           ContextMenuButton(
                             label: 'btn_audio_call'.l10n,
-                            onPressed: () => c.call(false),
-                            trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                            onPressed: hasCall ? null : () => c.call(false),
+                            trailing: hasCall
+                                ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+                                : const SvgIcon(SvgIcons.makeAudioCall),
                             inverted:
                                 const SvgIcon(SvgIcons.makeAudioCallWhite),
                           ),
                           ContextMenuButton(
                             label: 'btn_video_call'.l10n,
-                            onPressed: () => c.call(true),
+                            onPressed: hasCall ? null : () => c.call(true),
                             trailing: Transform.translate(
                               offset: const Offset(2, 0),
-                              child: const SvgIcon(SvgIcons.makeVideoCall),
+                              child: hasCall
+                                  ? const SvgIcon(
+                                      SvgIcons.makeVideoCallDisabled,
+                                    )
+                                  : const SvgIcon(SvgIcons.makeVideoCall),
                             ),
                             inverted: Transform.translate(
                               offset: const Offset(2, 0),
@@ -391,23 +390,15 @@ class UserView extends StatelessWidget {
         Obx(() {
           final bool blocked = c.isBlocked != null;
 
-          return ActionButton(
-            key: blocked ? const Key('Unblock') : const Key('Block'),
-            text: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-            onPressed: blocked ? c.unblock : () => _blockUser(c, context),
-            trailing: Obx(() {
-              final Widget child;
-              if (c.blocklistStatus.value.isEmpty) {
-                child = const SvgIcon(SvgIcons.block);
-              } else {
-                child = const CustomProgressIndicator();
-              }
+          if (blocked) {
+            return const SizedBox();
+          }
 
-              return SafeAnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
+          return ActionButton(
+            key: const Key('Block'),
+            text: 'btn_block'.l10n,
+            onPressed: () => _blockUser(c, context),
+            trailing: const SvgIcon(SvgIcons.block),
           );
         }),
       ],

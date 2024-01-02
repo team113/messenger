@@ -357,6 +357,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool favorite = c.chat?.chat.value.favoritePosition != null;
+    final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
     return Center(
       child: Row(
@@ -441,16 +442,20 @@ class ChatInfoView extends StatelessWidget {
                 actions: [
                   ContextMenuButton(
                     label: 'btn_audio_call'.l10n,
-                    onPressed: () => c.call(false),
-                    trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                    onPressed: hasCall ? null : () => c.call(false),
+                    trailing: hasCall
+                        ? const SvgIcon(SvgIcons.makeAudioCallDisabled)
+                        : const SvgIcon(SvgIcons.makeAudioCall),
                     inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
                   ),
                   ContextMenuButton(
                     label: 'btn_video_call'.l10n,
-                    onPressed: () => c.call(true),
+                    onPressed: hasCall ? null : () => c.call(true),
                     trailing: Transform.translate(
                       offset: const Offset(2, 0),
-                      child: const SvgIcon(SvgIcons.makeVideoCall),
+                      child: hasCall
+                          ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+                          : const SvgIcon(SvgIcons.makeVideoCall),
                     ),
                     inverted: Transform.translate(
                       offset: const Offset(2, 0),

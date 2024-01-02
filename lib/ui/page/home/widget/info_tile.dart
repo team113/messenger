@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// An info tile with [title] and [content].
+/// Tile of compact text information with [title] and [content].
 class InfoTile extends StatelessWidget {
   const InfoTile({
     super.key,
