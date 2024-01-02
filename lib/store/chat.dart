@@ -23,7 +23,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/util/event_pool.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -68,6 +67,7 @@ import '/store/pagination/graphql.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/store/user.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';

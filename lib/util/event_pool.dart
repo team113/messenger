@@ -81,10 +81,6 @@ class EventPool {
     _ignores[event.key] ??= [];
     _ignores[event.key]!.add(event);
 
-    // TODO: remove debug delay before review.
-    await Future.delayed(const Duration(seconds: 3));
-
-    // TODO: check error handling.
     await event.handler?.call();
   }
 }
