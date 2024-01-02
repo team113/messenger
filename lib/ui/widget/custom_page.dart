@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
+import 'custom_cupertino_transition.dart';
 
 /// [Page] with the [_FadeCupertinoPageRoute] as its [Route].
 class CustomPage extends Page {
@@ -42,7 +43,7 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
   _FadeCupertinoPageRoute({super.settings, required this.pageBuilder})
       : matchingBuilder = PlatformUtils.isAndroid
             ? const FadeUpwardsPageTransitionsBuilder()
-            : const CupertinoPageTransitionsBuilder();
+            : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
@@ -75,18 +76,12 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
     Widget child,
   ) {
     return ClipRect(
-      child: FadeTransition(
-        opacity: animation,
-        child: FadeTransition(
-          opacity: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
-          child: matchingBuilder.buildTransitions(
-            this,
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-          ),
-        ),
+      child: matchingBuilder.buildTransitions(
+        this,
+        context,
+        animation,
+        secondaryAnimation,
+        child,
       ),
     );
   }
