@@ -16,15 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
-import 'package:messenger/ui/page/home/widget/action.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
-import 'package:messenger/ui/widget/outlined_rounded_button.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/ui/page/home/page/user/widget/contact_info.dart';
+import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Visual representation of the provided [BlocklistRecord].
 class BlocklistRecordWidget extends StatelessWidget {
@@ -33,6 +31,7 @@ class BlocklistRecordWidget extends StatelessWidget {
   /// [BlocklistRecord] to display.
   final BlocklistRecord record;
 
+  /// Callback, called when an unblock button is pressed.
   final void Function()? onUnblock;
 
   @override

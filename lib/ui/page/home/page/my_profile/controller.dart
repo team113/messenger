@@ -105,6 +105,8 @@ class MyProfileController extends GetxController {
       contactMessageCost; // = TextFieldState(text: '0.00');
   late final TextFieldState contactCallCost; // = TextFieldState(text: '0.00');
 
+  late final TextFieldState donateCost;
+
   late final TextFieldState email = TextFieldState(
     approvable: true,
     onChanged: (s) {
@@ -558,6 +560,13 @@ class MyProfileController extends GetxController {
     contactCallCost.isFocused.listen((b) {
       if (!b && contactCallCost.text.isEmpty) {
         contactCallCost.unchecked = '0';
+      }
+    });
+
+    donateCost = TextFieldState(approvable: true, allowable: true, text: '0');
+    donateCost.isFocused.listen((b) {
+      if (!b && donateCost.text.isEmpty) {
+        donateCost.unchecked = '0';
       }
     });
 

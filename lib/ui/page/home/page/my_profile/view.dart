@@ -37,6 +37,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
@@ -1306,9 +1307,11 @@ Widget _workWithUs(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
+          final enabled = c.settings.value?.partnerTabEnabled == true;
+
           return SwitchField(
-            text: 'btn_show'.l10n,
-            value: c.settings.value?.partnerTabEnabled == true,
+            text: enabled ? 'btn_show_section'.l10n : 'btn_show_section'.l10n,
+            value: enabled,
             onChanged: c.settings.value == null ? null : c.setPartnerTabEnabled,
           );
         }),
@@ -2253,28 +2256,28 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
 Widget _donates(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  Widget title(String label, [bool enabled = true]) {
-    return Paddings.dense(
-      Align(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 0.0),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: style.systemMessageStyle.copyWith(
-              // color: Theme.of(context).colorScheme.secondary,
-              color:
-                  enabled ? style.colors.onBackground : style.colors.secondary,
-              fontSize: 15,
+  // Widget title(String label, [bool enabled = true]) {
+  //   return Paddings.dense(
+  //     Align(
+  //       alignment: Alignment.center,
+  //       child: Padding(
+  //         padding: const EdgeInsets.only(left: 0.0),
+  //         child: Text(
+  //           label,
+  //           textAlign: TextAlign.center,
+  //           style: style.systemMessageStyle.copyWith(
+  //             // color: Theme.of(context).colorScheme.secondary,
+  //             color:
+  //                 enabled ? style.colors.onBackground : style.colors.secondary,
+  //             fontSize: 15,
 
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  //             fontWeight: FontWeight.w400,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget field({
     required TextFieldState state,
@@ -2322,11 +2325,33 @@ Widget _donates(BuildContext context, MyProfileController c) {
         //   'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
         //   c.verified.value,
         // ),
-        field(
-          label: 'Минимальная сумма подарка'.l10n,
-          state: c.contactMessageCost,
-          enabled: c.verified.value,
-          contacts: true,
+        // field(
+        //   label: 'Минимальная сумма подарка'.l10n,
+        //   state: c.contactMessageCost,
+        //   enabled: c.verified.value,
+        //   contacts: true,
+        // ),
+        Paddings.basic(
+          ReactiveTextField(
+            state: c.donateCost,
+            style: style.fonts.medium.regular.onBackground,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            formatters: [FilteringTextInputFormatter.digitsOnly],
+            hint: '0',
+            prefix: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+              child: Transform.translate(
+                offset: PlatformUtils.isWeb
+                    ? const Offset(0, -0)
+                    : const Offset(0, -0.5),
+                child: Text(
+                  '¤',
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+              ),
+            ),
+            label: 'Минимальная сумма подарка',
+          ),
         ),
         Paddings.basic(
           ReactiveTextField(
@@ -2503,26 +2528,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     Column(
       children: [
-        // Obx(() {
-        //   return SwitchField(
-        //     text: 'label_load_images'.l10n,
-        //     value: c.settings.value?.loadImages == true,
-        //     onChanged: c.settings.value == null ? null : c.setLoadImages,
-        //   );
-        // }),
         if (true || !PlatformUtils.isWeb) ...[
-          // const SizedBox(height: 16),
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: Padding(
-          //     padding: const EdgeInsets.only(left: 21.0),
-          //     child: Text(
-          //       'label_cache'.l10n,
-          //       style: style.fonts.normal.regular.secondary,
-          //     ),
-          //   ),
-          // ),
-          // const SizedBox(height: 8),
           Column(
             children: [
               Obx(() {
@@ -2562,11 +2568,11 @@ Widget _storage(BuildContext context, MyProfileController c) {
                     inactiveTrackBar: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       color: Colors.black12,
-                      border: Border.all(width: 3, color: Colors.blue),
+                      // border: Border.all(width: 3, color: Colors.blue),
                     ),
                     activeTrackBar: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
-                      color: Colors.blue.withOpacity(0.5),
+                      color: Colors.blue.withOpacity(1),
                     ),
                   ),
                   onDragging: (i, lower, upper) {
@@ -2704,15 +2710,167 @@ Widget _storage(BuildContext context, MyProfileController c) {
 }
 
 Widget _devices(BuildContext context, MyProfileController c) {
-  // final style = Theme.of(context).style;
+  final style = Theme.of(context).style;
 
-  // Widget device({String name, Widget icon}) {
+  Widget device({
+    required String name,
+    required String location,
+    required Widget icon,
+    DateTime? activeAt,
+    bool thisDevice = false,
+  }) {
+    // Удалить устройство
+    //
+    // Устройство такое-то.
 
-  // }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 21),
+      child: ContactInfoContents(
+        padding: EdgeInsets.zero,
+        title:
+            '${thisDevice ? 'Это устройство' : activeAt == null ? 'Онлайн' : activeAt.toRelative()}, $location',
+        content: name,
+        trailing: thisDevice
+            ? null
+            : WidgetButton(
+                onPressed: () => _deleteSession(
+                  context,
+                  ContactInfoContents(
+                    padding: EdgeInsets.zero,
+                    title:
+                        '${thisDevice ? 'Это устройство' : activeAt == null ? 'Онлайн' : activeAt.toRelative()}, $location',
+                    content: name,
+                  ),
+                ),
+                child: const SvgIcon(SvgIcons.delete),
+              ),
+      ),
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: style.cardBorder,
+        borderRadius: style.cardRadius,
+      ),
+      child: Row(
+        children: [
+          // Container(
+          //   width: 32,
+          //   height: 32,
+          //   decoration: BoxDecoration(
+          //     borderRadius: BorderRadius.circular(8),
+          //     // color: Colors.blue,
+          //   ),
+          //   child: Center(child: icon),
+          // ),
+          // const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: style.fonts.medium.regular.onBackground),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(location, style: style.fonts.small.regular.secondary),
+                    const Spacer(),
+                    const SizedBox(width: 4),
+                    Text(
+                      activeAt == null ? 'Active' : activeAt.toRelative(),
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   return Paddings.dense(
     Column(
       children: [
+        device(
+          name: 'iPhone 14 Pro Max',
+          location: 'Florida, USA',
+          icon: const Icon(Icons.phone_iphone, size: 24, color: Colors.blue),
+          activeAt: null,
+          thisDevice: true,
+        ),
+        const SizedBox(height: 8),
+        device(
+          name: 'MacBook Pro 16 M3 Max',
+          location: 'Tokyo, Japan',
+          icon: const Icon(Icons.laptop, size: 24, color: Colors.blue),
+          activeAt: null,
+        ),
+        const SizedBox(height: 8),
+        device(
+          name: 'Xiaomi Redmi Note 12',
+          location: 'Tokyo, Japan',
+          icon: const Icon(Icons.laptop, size: 24, color: Colors.blue),
+          activeAt: DateTime.now().copyWith(hour: DateTime.now().hour - 1),
+        ),
+        const SizedBox(height: 8),
+        device(
+          name: 'Chrome 120, Windows 11',
+          location: 'Moon, Space',
+          icon: const Icon(Icons.laptop, size: 24, color: Colors.blue),
+          activeAt: DateTime.now().copyWith(hour: DateTime.now().day - 3),
+        ),
+        const SizedBox(height: 8),
+        device(
+          name: 'Windows 11',
+          location: 'Irkutsk, Russia',
+          icon: const Icon(Icons.monitor, size: 24, color: Colors.blue),
+          activeAt: DateTime(2000, 12, 12),
+        ),
+        const SizedBox(height: 14),
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: 0.5,
+                color: Colors.black26,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Добавить устройство',
+              style: style.fonts.small.regular.secondary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                height: 0.5,
+                color: Colors.black26,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        // const SizedBox(height: 8),
+        // Paddings.dense(
+        //   Align(
+        //     alignment: Alignment.center,
+        //     child: Padding(
+        //       padding: const EdgeInsets.only(left: 21.0),
+        //       child: Text(
+        //         'Добавить устройство'.l10n,
+        //         style: style.fonts.big.regular.onBackground,
+        //       ),
+        //     ),
+        //   ),
+        // ),
+        // const SizedBox(height: 12),
         FieldButton(
           text: 'btn_scan_qr_code'.l10n,
           onPressed: () {
@@ -2808,5 +2966,24 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
 
   if (result == true) {
     await c.deleteAccount();
+  }
+}
+
+Future<void> _deleteSession(BuildContext context, Widget child) async {
+  final bool? result = await MessagePopup.alert(
+    'Удалить устройство'.l10n,
+    additional: [child],
+    // description: [
+
+    //   // TextSpan(
+    //   //   text:
+    //   //       'Сессия будет завершена. На устройстве потребуется произвести повторный вход.'
+    //   //           .l10n,
+    //   // ),
+    // ],
+  );
+
+  if (result == true) {
+    // onHide?.call();
   }
 }
