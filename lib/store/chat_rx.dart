@@ -1471,15 +1471,11 @@ class HiveRxChat extends RxChat {
               break;
 
             case ChatEventKind.favorited:
-              Log.info('--ChatEventKind.favorited -- does not ignored',
-                  '$runtimeType');
               event as EventChatFavorited;
               chatEntity.value.favoritePosition = event.position;
               break;
 
             case ChatEventKind.unfavorited:
-              Log.info('--ChatEventKind.unfavorited -- does not ignored',
-                  '$runtimeType');
               chatEntity.value.favoritePosition = null;
               break;
 
