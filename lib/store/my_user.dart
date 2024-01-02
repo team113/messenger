@@ -494,7 +494,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser.update((u) => u?.muted = muting?.toModel());
 
-    handler() async {
+    Future<void> handler() async {
       Log.debug('toggleMute($mute) handler', '$runtimeType');
       try {
         await _graphQlProvider.toggleMyUserMute(muting);
@@ -504,9 +504,11 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    eventPool.add((muting == null)
-        ? EventUserUnmuted(myUser.value!.id).toPoolEntry(handler)
-        : EventUserMuted(myUser.value!.id, mute ?? MuteDuration.forever())
+    await eventPool.add((muting == null)
+        ? EventUserUnmuted(myUser.value?.id ?? const UserId(''))
+            .toPoolEntry(handler)
+        : EventUserMuted(myUser.value?.id ?? const UserId(''),
+                mute ?? MuteDuration.forever())
             .toPoolEntry(handler));
   }
 

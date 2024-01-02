@@ -161,6 +161,7 @@ void main() async {
 
   test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
       () async {
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
@@ -205,6 +206,6 @@ void main() async {
       throwsA(isA<ToggleMyUserMuteException>()),
     );
 
-    verify(graphQlProvider.toggleMyUserMute(null));
+    verifyNever(graphQlProvider.toggleMyUserMute(null));
   });
 }

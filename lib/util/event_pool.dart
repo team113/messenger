@@ -24,8 +24,8 @@ import 'log.dart';
 
 /// Tracker for optimistic events.
 class EventPool {
-  /// Adds [PoolEntry] to this [EventPool].
-  void add(PoolEntry? event) {
+  /// Adds [PoolEntry] to this [EventPool] and awaits for handling.
+  Future<void> add(PoolEntry? event) async {
     Log.debug('add($event)', '$runtimeType');
 
     if (event != null) {
@@ -38,7 +38,7 @@ class EventPool {
         _collapses[event.key] = event;
 
         _locks[event.key] ??= Mutex();
-        _locks[event.key]?.protect(() async {
+        await _locks[event.key]?.protect(() async {
           await _collapsableWrapper(event);
         });
       }
