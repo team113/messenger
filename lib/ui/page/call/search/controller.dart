@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -30,6 +31,7 @@ import '/domain/repository/search.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
 
@@ -55,7 +57,8 @@ class SearchController extends GetxController {
   SearchController(
     this._chatService,
     this._userService,
-    this._contactService, {
+    this._contactService,
+    this._myUserService, {
     required this.categories,
     this.chat,
     this.onSelected,
@@ -150,6 +153,9 @@ class SearchController extends GetxController {
 
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
+
+  /// [MyUserService] searching [myUser].
+  final MyUserService _myUserService;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -449,6 +455,41 @@ class SearchController extends GetxController {
     }
   }
 
+  /// Updates [chats] by adding the [Chat]-monolog, if it matches the [query].
+  Future<void> _populateMonolog() async {
+    // Formatted string representation of the current [query].
+    final String queryString = query.value.toLowerCase().trim();
+
+    final MyUser? myUser = _myUserService.myUser.value;
+
+    if (queryString.isNotEmpty && myUser != null) {
+      final ChatId monologId = _chatService.monolog;
+
+      final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
+      final RxChat? monolog =
+          monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
+
+      if (monolog != null) {
+        final String title = monolog.title.value;
+        final String? name = myUser.name?.val;
+        final String? login = myUser.login?.val;
+        final String num = myUser.num.val;
+
+        for (final param in [title, login, name].whereNotNull()) {
+          if (param.toLowerCase().contains(queryString)) {
+            chats.value = {monologId: monolog, ...chats};
+            return;
+          }
+        }
+
+        // Account possible spaces in [UserNum].
+        if (num.contains(queryString.split(' ').join())) {
+          chats.value = {monologId: monolog, ...chats};
+        }
+      }
+    }
+  }
+
   /// Updates the [chats] according to the [query].
   void _populateChats() {
     if (categories.contains(SearchCategory.chat)) {
@@ -470,6 +511,8 @@ class SearchController extends GetxController {
         }))
           c.chat.value.id: c,
       };
+
+      _populateMonolog();
     }
   }
 
