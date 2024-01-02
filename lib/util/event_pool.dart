@@ -18,8 +18,8 @@
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../store/event/my_user.dart';
-import '../store/event/chat.dart';
+import '/store/event/my_user.dart';
+import '/store/event/chat.dart';
 import 'log.dart';
 
 /// Tracker for optimistic events.
@@ -119,8 +119,7 @@ class PoolEntry {
 /// Types of tracking events.
 enum EventType {
   myUserMuteChatsToggled,
-  chatFavoriteToggled,
-  noSupporting;
+  chatFavoriteToggled;
 }
 
 /// Extension adding [PoolEntry] construction from a [MyUserEvent].
