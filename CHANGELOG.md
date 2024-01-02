@@ -11,6 +11,14 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Call buttons position setting and adjusting. ([#750], [#718])
+    - Chats tab:
+        - Monolog searching. ([#745], [#582])
+
 ### Fixed
 
 - UI:
@@ -18,7 +26,15 @@ All user visible changes to this project will be documented in this file. This p
         - Restore button displaying under mobile navigation bar. ([#763, #758])
     - Contacts tab:
         - Restore button displaying under mobile navigation bar. ([#763, #758])
+    - User page:
+        - Downloaded avatar missing its extension on desktop. ([#756, #726])
 
+[#582]: /../../issues/582
+[#718]: /../../issues/718
+[#726]: /../../issues/726
+[#745]: /../../pull/745
+[#750]: /../../pull/750
+[#756]: /../../pull/756
 [#758]: /../../issues/758
 [#763]: /../../pull/763
 

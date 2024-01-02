@@ -34,13 +34,8 @@ class ChatMoreWidget extends StatefulWidget {
     this.onPin,
     void Function()? onPressed,
   })  : label = button.hint,
-        icon = Transform.translate(
-          offset: button.offsetMini,
-          child: Opacity(
-            opacity: button.onPressed == null ? 0.6 : 1,
-            child: SvgIcon(button.assetMini ?? button.asset),
-          ),
-        ) {
+        offset = button.offsetMini,
+        icon = SvgIcon(button.assetMini ?? button.asset) {
     this.onPressed = button.onPressed == null
         ? null
         : () {
@@ -60,6 +55,9 @@ class ChatMoreWidget extends StatefulWidget {
 
   /// Label to display.
   final String label;
+
+  /// [Offset] for the [icon].
+  final Offset offset;
 
   /// Icon to display.
   final Widget icon;
@@ -89,7 +87,9 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
           onPressed: widget.onPressed,
           child: Container(
             width: double.infinity,
-            color: _hovered ? style.colors.onBackgroundOpacity2 : null,
+            color: (_hovered && !disabled)
+                ? style.colors.onBackgroundOpacity2
+                : null,
             constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -99,8 +99,14 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                   width: 26,
                   child: AnimatedScale(
                     duration: const Duration(milliseconds: 100),
-                    scale: _hovered ? 1.05 : 1,
-                    child: widget.icon,
+                    scale: (_hovered && !disabled) ? 1.05 : 1,
+                    child: Transform.translate(
+                      offset: widget.offset,
+                      child: Opacity(
+                        opacity: disabled ? 0.6 : 1,
+                        child: widget.icon,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),

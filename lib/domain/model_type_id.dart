@@ -121,4 +121,5 @@ class ModelTypeId {
   static const favoriteChatsCursor = 101;
   static const thumbhash = 102;
   static const favoriteChatContactsCursor = 103;
+  static const callButtonsPosition = 104;
 }
