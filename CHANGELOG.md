@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
+    - Chats tab:
+        - Monolog searching. ([#745], [#582])
     - Redesigned user page. ([#769], [#766])
     - Redesigned chat info page. ([#769], [#766])
 
@@ -29,8 +31,10 @@ All user visible changes to this project will be documented in this file. This p
     - User page:
         - Downloaded avatar missing its extension on desktop. ([#756, #726])
 
+[#582]: /../../issues/582
 [#718]: /../../issues/718
 [#726]: /../../issues/726
+[#745]: /../../pull/745
 [#750]: /../../pull/750
 [#756]: /../../pull/756
 [#758]: /../../issues/758

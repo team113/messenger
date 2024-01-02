@@ -20,7 +20,7 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '../world/custom_world.dart';
 
@@ -50,7 +50,7 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   },
 );
 
-/// Long presses a monolog.
+/// Long presses a [Chat]-monolog.
 ///
 /// Examples:
 /// - When I long press monolog.
@@ -60,15 +60,11 @@ final StepDefinitionGeneric longPressMonolog = when<CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      final chatRepository = Get.find<AbstractChatRepository>();
+      final ChatId chatId = Get.find<ChatService>().monolog;
 
       try {
-        final RxChat? monolog = chatRepository.chats.values
-            .firstWhereOrNull((e) => e.chat.value.isMonolog);
-
-        final finder = context.world.appDriver
-            .findBy('Chat_${monolog?.id}', FindType.key)
-            .first;
+        final finder =
+            context.world.appDriver.findBy('Chat_$chatId', FindType.key).first;
 
         await context.world.appDriver.nativeDriver.longPress(finder);
         await context.world.appDriver.waitForAppToSettle();
