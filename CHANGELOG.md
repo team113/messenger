@@ -29,12 +29,14 @@ All user visible changes to this project will be documented in this file. This p
     - User page:
         - Downloaded avatar missing its extension on desktop. ([#756, #726])
 
+[#698]: /../../issues/698
 [#718]: /../../issues/718
 [#726]: /../../issues/726
 [#750]: /../../pull/750
 [#756]: /../../pull/756
 [#758]: /../../issues/758
 [#763]: /../../pull/763
+[#774]: /../../pull/774
 
 
 
