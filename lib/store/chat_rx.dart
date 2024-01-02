@@ -1141,7 +1141,10 @@ class HiveRxChat extends RxChat {
           if (!subscribed) {
             return;
           }
-          if (_chatRepository.eventPool.ignore(event.toPoolEntry())) continue;
+          if (_chatRepository.eventPool.ignore(event.toPoolEntry())) {
+            putChat = false;
+            continue;
+          }
 
           switch (event.kind) {
             case ChatEventKind.redialed:
