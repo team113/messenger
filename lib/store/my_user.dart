@@ -70,7 +70,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// Returns [EventPool] for optimistic event processing.
+  /// [EventPool] of this [MyUserRepository].
   final EventPool eventPool = EventPool();
 
   /// [MyUser] local [Hive] storage.
@@ -494,22 +494,22 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser.update((u) => u?.muted = muting?.toModel());
 
-    Future<void> handler() async {
-      Log.debug('toggleMute($mute) handler', '$runtimeType');
-      try {
-        await _graphQlProvider.toggleMyUserMute(muting);
-      } catch (e) {
-        myUser.update((u) => u?.muted = muted);
-        rethrow;
-      }
-    }
-
-    await eventPool.add((muting == null)
-        ? EventUserUnmuted(myUser.value?.id ?? const UserId(''))
-            .toPoolEntry(handler)
-        : EventUserMuted(myUser.value?.id ?? const UserId(''),
-                mute ?? MuteDuration.forever())
-            .toPoolEntry(handler));
+    await eventPool.add(PoolEntry(
+      type: EventType.myUserMuteChatsToggled,
+      key: EventType.myUserMuteChatsToggled.hashCode,
+      propsHash: Object.hash(
+        EventType.myUserMuteChatsToggled,
+        (muting != null),
+      ),
+      handler: () async {
+        try {
+          await _graphQlProvider.toggleMyUserMute(muting);
+        } catch (e) {
+          myUser.update((u) => u?.muted = muted);
+          rethrow;
+        }
+      },
+    ));
   }
 
   @override

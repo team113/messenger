@@ -109,8 +109,11 @@ class PoolEntry {
   bool operator ==(Object other) =>
       other is PoolEntry && propsHash == other.propsHash;
 
-  PoolEntry(this.handler,
-      {required this.key, required this.propsHash, required this.type});
+  PoolEntry(
+      {required this.key,
+      required this.propsHash,
+      required this.type,
+      this.handler});
 
   @override
   String toString() => 'PoolEntry($type, $key, $propsHash)';
@@ -127,20 +130,24 @@ extension MyUserEventToPoolEntryExtension on MyUserEvent {
   /// Constructs a new [PoolEntry] from this [MyUserEvent].
   PoolEntry? toPoolEntry([Future<void> Function()? handler]) {
     return switch (kind) {
-      MyUserEventKind.userMuted => PoolEntry(handler,
+      MyUserEventKind.userMuted => PoolEntry(
           type: EventType.myUserMuteChatsToggled,
           key: EventType.myUserMuteChatsToggled.hashCode,
           propsHash: Object.hash(
             EventType.myUserMuteChatsToggled,
             true,
-          )),
-      MyUserEventKind.unmuted => PoolEntry(handler,
+          ),
+          handler: handler,
+        ),
+      MyUserEventKind.unmuted => PoolEntry(
           type: EventType.myUserMuteChatsToggled,
           key: EventType.myUserMuteChatsToggled.hashCode,
           propsHash: Object.hash(
             EventType.myUserMuteChatsToggled,
             false,
-          )),
+          ),
+          handler: handler,
+        ),
       _ => null,
     };
   }
@@ -151,22 +158,26 @@ extension ChatEventToPoolEntryExtension on ChatEvent {
   /// Constructs a new [PoolEntry] from this [ChatEvent].
   PoolEntry? toPoolEntry([Future<void> Function()? handler]) {
     return switch (kind) {
-      ChatEventKind.favorited => PoolEntry(handler,
+      ChatEventKind.favorited => PoolEntry(
           type: EventType.chatFavoriteToggled,
           key: Object.hash(EventType.chatFavoriteToggled, chatId),
           propsHash: Object.hash(
             EventType.chatFavoriteToggled,
             chatId,
             true,
-          )),
-      ChatEventKind.unfavorited => PoolEntry(handler,
+          ),
+          handler: handler,
+        ),
+      ChatEventKind.unfavorited => PoolEntry(
           type: EventType.chatFavoriteToggled,
           key: Object.hash(EventType.chatFavoriteToggled, chatId),
           propsHash: Object.hash(
             EventType.chatFavoriteToggled,
             chatId,
             false,
-          )),
+          ),
+          handler: handler,
+        ),
       _ => null,
     };
   }
