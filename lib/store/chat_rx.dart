@@ -1160,7 +1160,7 @@ class HiveRxChat extends RxChat {
             return;
           }
           if (_chatRepository.eventPool.ignore(event.toPoolEntry())) {
-            putChat = false;
+            shouldPutChat = false;
             continue;
           }
 
