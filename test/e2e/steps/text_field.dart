@@ -24,7 +24,9 @@ import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import '../configuration.dart';
+import '../parameters/credentials.dart';
 import '../parameters/keys.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -35,6 +37,55 @@ import '../world/custom_world.dart';
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the credential of the given [User] into the widget with the provided
+/// [WidgetKey].
+///
+/// Examples:
+/// - When I fill `SearchField` field with Bob's num
+/// - When I fill `LoginField` field with Alice's login
+StepDefinitionGeneric fillFieldWithUserCredential =
+    when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
+  'I fill {key} field with {user}\'s {credential}',
+  (key, user, credential, context) async {
+    final CustomUser? customUser = context.world.sessions[user.name];
+
+    if (customUser == null) {
+      throw ArgumentError(
+        '`${user.name}` is not found in `CustomWorld.sessions`.',
+      );
+    }
+
+    final String text = _getCredential(customUser, credential);
+    await _fillField(key, text, context);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the credential of [me] into the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - When I fill `SearchField` field with my num
+/// - When I fill `LoginField` field with my login
+StepDefinitionGeneric fillFieldWithMyCredential =
+    when2<WidgetKey, TestCredential, CustomWorld>(
+  'I fill {key} field with my {credential}',
+  (key, credential, context) async {
+    final CustomUser? me = context.world.sessions.values
+        .where((user) => user.userId == context.world.me)
+        .firstOrNull;
+
+    if (me == null) {
+      throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');
+    }
+
+    final String text = _getCredential(me, credential);
+    await _fillField(key, text, context);
+  },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
 );
@@ -138,4 +189,17 @@ Future<void> _fillField(
 
     return false;
   });
+}
+
+/// Returns [String] representation of the [CustomUser]'s [TestCredential].
+String _getCredential(CustomUser customUser, TestCredential credential) {
+  switch (credential) {
+    case TestCredential.num:
+      return customUser.userNum.val;
+
+    // TODO: Throw [Exception], if [UserLogin] is not set, when `User.login`
+    //       becomes available.
+    case TestCredential.login:
+      return 'lgn_${customUser.userNum.val}';
+  }
 }
