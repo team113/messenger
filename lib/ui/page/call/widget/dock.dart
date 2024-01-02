@@ -363,9 +363,13 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
         _removeOverlay();
 
         Rect begin;
-        if (_rect != null) {
+        if (rect != null) {
           begin = Rect.fromLTWH(
-              dragOffset.dx, dragOffset.dy, _rect!.width, _rect!.height);
+            dragOffset.dx,
+            dragOffset.dy,
+            rect.width,
+            rect.height,
+          );
         } else {
           begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _size, _size);
         }
