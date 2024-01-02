@@ -1529,7 +1529,6 @@ class ChatRepository extends DisposableInterface
 
     if (entry == null) {
       entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
-      entry.chat.value.ongoingCall = null;
       chats[chatId] = entry;
 
       entry.init();
@@ -1567,6 +1566,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [ChatHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
+    Log.debug('_initLocalSubscription()', '$runtimeType');
+
     _localSubscription = StreamIterator(_chatLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;
