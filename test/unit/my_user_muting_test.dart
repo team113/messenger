@@ -201,11 +201,11 @@ void main() async {
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    expect(
+    await expectLater(
       () async => await myUserService.toggleMute(null),
       throwsA(isA<ToggleMyUserMuteException>()),
     );
 
-    verifyNever(graphQlProvider.toggleMyUserMute(null));
+    verify(graphQlProvider.toggleMyUserMute(null));
   });
 }
