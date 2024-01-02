@@ -1123,7 +1123,7 @@ class ChatController extends GetxController {
         elements[_topLoader!.id] = _topLoader!;
       }
 
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
         _ignorePositionChanges = true;
         await listController.sliverController.animateToIndex(
           elements.length - 1,
@@ -1145,7 +1145,7 @@ class ChatController extends GetxController {
       });
 
       if (index != -1) {
-        // [FlutterListView] ignores the [initIndex] if it is 0.
+        // [FlutterListView] ignores the [initIndex], if it is 0.
         if (index == 0) {
           initIndex = 1;
           initOffset = 5000;
@@ -1153,6 +1153,7 @@ class ChatController extends GetxController {
           initIndex = index;
           initOffset = offset;
         }
+
         _highlight(index);
 
         if (addToHistory && (reply != null || forward != null)) {
@@ -1177,8 +1178,8 @@ class ChatController extends GetxController {
     canGoDown.value = true;
   }
 
-  /// Animates [listController] to the last [_history] if any or the last
-  /// [ChatItem] in the [RxChat.messages] list.
+  /// Animates [listController] to the last [_history], if any, or the last
+  /// [ChatItem] in the [RxChat.messages] otherwise.
   Future<void> animateToBottom() async {
     if (_history.isNotEmpty) {
       final ChatItem item = _history.removeLast();

@@ -1005,7 +1005,7 @@ class HiveRxChat extends RxChat {
   void _maybeMergeFragment() async {
     Log.debug('_mergeFragment()', '$runtimeType($id)');
 
-    if (_fragment != null && _pagination.merge(_fragment!)) {
+    if (_fragment != null && _pagination.maybeMerge(_fragment!)) {
       for (var e in _pagination.items.values) {
         _add(e.value);
       }

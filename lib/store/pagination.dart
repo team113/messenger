@@ -358,7 +358,7 @@ class Pagination<T, C, K> {
   }
 
   /// Merges the provided [Pagination] into this one, if their bounds touch.
-  bool merge(Pagination<T, C, K> merging) {
+  bool maybeMerge(Pagination<T, C, K> merging) {
     Log.debug('merge($merging)', '$runtimeType');
 
     // If [merging] has items at all, and we contain either first or last item

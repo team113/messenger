@@ -65,7 +65,7 @@ class HivePageProvider<T extends Object, C, K>
   /// Indicator whether this [HivePageProvider] is reversed.
   final bool reversed;
 
-  /// Indicator whether this [HivePageProvider] is read-only.
+  /// Indicator whether this [HivePageProvider] is read only.
   final bool readOnly;
 
   /// [IterableHiveProvider] to fetch the items from.

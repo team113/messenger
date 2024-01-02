@@ -296,7 +296,11 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
-  /// Fetches the initial [messages] page around the [firstUnread].
+  /// Fetches the initial [messages] page around the [item], if specified, or
+  /// [firstUnread], if not.
+  ///
+  /// If [reply] or [forward] is provided, then the [item] is considered as a
+  /// quote of the specified [reply] of [forward].
   Future<void> around({
     ChatItem? item,
     ChatItemId? reply,
