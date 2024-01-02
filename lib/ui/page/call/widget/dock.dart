@@ -75,7 +75,7 @@ class Dock<T extends Object> extends StatefulWidget {
 }
 
 /// State of a [Dock] maintaining a reorderable [_items] list.
-class _DockState<T extends Object> extends State<Dock<T>> {
+class _DockState<T extends DockItem> extends State<Dock<T>> {
   /// [Duration] of [_DraggedItem] jumping from one position to another.
   static const Duration jumpDuration = Duration(milliseconds: 300);
 
@@ -93,6 +93,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   ///
   /// Represents a place to add the dragged item to.
   int _expanded = -1;
+
+  /// Indicator whether the [_expanded] changed in the current frame.
+  bool _expandedChanged = false;
 
   /// Position in [_items] to add shrinking [AnimatedContainer] to.
   int _compressed = -1;
@@ -219,7 +222,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                         widget.onDragStarted?.call(_items[i].item);
 
                         _rect = _items[i].key.globalPaintBounds;
-                        _expanded = i;
+                        _setExpanded(i);
                         _dragged = MapEntry(i, e);
 
                         _items.removeAt(i);
@@ -228,6 +231,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                       },
                       onDraggableCanceled: (_, o) {
                         int index = _dragged!.key;
+
+                        _setExpanded(index);
+                        _DraggedItem<T> dragged = _dragged!.value;
 
                         // Animate the item returning to its position.
                         _animate(
@@ -243,19 +249,17 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                           onEnd: () {
                             if (mounted) {
                               setState(() {
-                                _items[index].hidden = false;
+                                _resetAnimations();
+                                _setExpanded(-1);
+                                _items.insert(index, dragged);
                                 widget.onDragEnded?.call(_items[index].item);
                               });
                             }
                           },
                         );
 
-                        _items.insert(index, _dragged!.value);
-                        _items[index].hidden = true;
-
                         _rect = null;
                         _dragged = null;
-                        _expanded = -1;
 
                         setState(() {});
                       },
@@ -304,7 +308,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       onLeave: (e) {
         if (e == null || (widget.onWillAccept?.call(e) ?? true)) {
           widget.onLeave?.call(e);
-          setState(() => _expanded = -1);
+          _setExpanded(-1);
         }
       },
       onWillAccept: (e) =>
@@ -318,9 +322,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     var data = _DraggedItem(item.data);
 
     if (_expanded > _items.length) {
-      _expanded = _items.length;
+      _setExpanded(_items.length);
     } else if (_expanded < 0) {
-      _expanded = 0;
+      _setExpanded(0);
     }
 
     int i = _items.indexWhere((e) => e == data);
@@ -389,7 +393,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       if (i == _expanded || i + 1 == _expanded) {
         // If this position is already expanded, then the item is at this
         // position, so no action is needed.
-        return setState(() => _expanded = -1);
+        return _setExpanded(-1);
       }
 
       // Set the animations to [Duration.zero], as we're gonna do sorting.
@@ -435,14 +439,14 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       );
     }
 
-    _expanded = -1;
+    _setExpanded(-1);
     widget.onReorder?.call(_items.map((e) => e.item).toList());
-    setState(() {});
   }
 
   /// Calculates the position to drop the provided item at.
   void _onMove(DragTargetDetails<T> d) {
-    if (widget.onWillAccept?.call(d.data) == false) {
+    if (widget.onWillAccept?.call(d.data) == false ||
+        (d.data.docked == true && _dragged == null)) {
       return;
     }
 
@@ -464,17 +468,34 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       }
     }
 
-    setState(() => _expanded = indexToPlace);
+    _setExpanded(indexToPlace);
+  }
+
+  /// Sets the [_expanded] to the provided [index].
+  void _setExpanded(int index) {
+    if (_expanded != index && mounted) {
+      if (_expandedChanged) {
+        return SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          if (mounted) {
+            setState(() => _expanded = index);
+          }
+        });
+      } else {
+        setState(() => _expanded = index);
+      }
+
+      _expandedChanged = true;
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        _expandedChanged = false;
+      });
+    }
   }
 
   /// Sets the [_animateDuration] to [Duration.zero] for one frame.
   void _resetAnimations() {
     _animateDuration = Duration.zero;
     SchedulerBinding.instance.addPostFrameCallback(
-      (_) => Future.delayed(
-        Duration.zero,
-        () => _animateDuration = animateDuration,
-      ),
+      (_) => _animateDuration = animateDuration,
     );
   }
 
@@ -533,6 +554,14 @@ class _DraggedItem<T> {
 
   @override
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
+}
+
+/// A item to place in the [Dock].
+class DockItem {
+  const DockItem({this.docked = false});
+
+  /// Indicator whether this [DockItem] placed in a [Dock].
+  final bool docked;
 }
 
 /// [Draggable] starting its dragging after some distance threshold is reached.

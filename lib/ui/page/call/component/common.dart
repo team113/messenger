@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '../controller.dart';
 import '../widget/call_button.dart';
 import '../widget/call_title.dart';
+import '../widget/dock.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
@@ -31,8 +32,8 @@ import '/ui/widget/svg/svg.dart';
 /// Button in a [CallView].
 ///
 /// Intended to be placed in a [Dock] to be reordered around.
-abstract class CallButton {
-  const CallButton(this.c);
+abstract class CallButton extends DockItem {
+  const CallButton(this.c, {super.docked});
 
   /// [CallController] owning this [CallButton], used for changing the state.
   final CallController c;
@@ -56,7 +57,7 @@ abstract class CallButton {
 
 /// [CallButton] toggling a more panel.
 class MoreButton extends CallButton {
-  const MoreButton(super.c);
+  const MoreButton(super.c, {super.docked});
 
   @override
   bool get isRemovable => false;
@@ -80,7 +81,7 @@ class MoreButton extends CallButton {
 
 /// [CallButton] toggling a local video.
 class VideoButton extends CallButton {
-  const VideoButton(super.c);
+  const VideoButton(super.c, {super.docked});
 
   @override
   String get hint {
@@ -122,7 +123,7 @@ class VideoButton extends CallButton {
 
 /// [CallButton] toggling a local audio.
 class AudioButton extends CallButton {
-  const AudioButton(super.c);
+  const AudioButton(super.c, {super.docked});
 
   @override
   String get hint {
@@ -164,7 +165,7 @@ class AudioButton extends CallButton {
 
 /// [CallButton] toggling a local screen-sharing.
 class ScreenButton extends CallButton {
-  const ScreenButton(super.c);
+  const ScreenButton(super.c, {super.docked});
 
   @override
   String get hint {
@@ -201,7 +202,7 @@ class ScreenButton extends CallButton {
 
 /// [CallButton] toggling hand.
 class HandButton extends CallButton {
-  const HandButton(super.c);
+  const HandButton(super.c, {super.docked});
 
   @override
   String get hint => c.isMobile
@@ -232,7 +233,7 @@ class HandButton extends CallButton {
 
 /// [CallButton] invoking the [CallController.openSettings].
 class SettingsButton extends CallButton {
-  const SettingsButton(super.c);
+  const SettingsButton(super.c, {super.docked});
 
   @override
   String get hint => 'btn_call_settings'.l10n;
@@ -253,7 +254,7 @@ class SettingsButton extends CallButton {
 
 /// [CallButton] invoking the [CallController.openAddMember].
 class ParticipantsButton extends CallButton {
-  const ParticipantsButton(super.c);
+  const ParticipantsButton(super.c, {super.docked});
 
   @override
   String get hint =>
@@ -276,7 +277,7 @@ class ParticipantsButton extends CallButton {
 
 /// [CallButton] toggling the remote video.
 class RemoteVideoButton extends CallButton {
-  const RemoteVideoButton(super.c);
+  const RemoteVideoButton(super.c, {super.docked});
 
   @override
   String get hint => c.isMobile
@@ -307,7 +308,7 @@ class RemoteVideoButton extends CallButton {
 
 /// [CallButton] toggling the remote audio.
 class RemoteAudioButton extends CallButton {
-  const RemoteAudioButton(super.c);
+  const RemoteAudioButton(super.c, {super.docked});
 
   @override
   String get hint => c.isMobile
@@ -338,7 +339,7 @@ class RemoteAudioButton extends CallButton {
 
 /// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
-  const AcceptAudioButton(super.c, {this.highlight = false});
+  const AcceptAudioButton(super.c, {this.highlight = false, super.docked});
 
   /// Indicator whether this [AcceptAudioButton] should be highlighted.
   final bool highlight;
@@ -370,7 +371,7 @@ class AcceptAudioButton extends CallButton {
 
 /// [RoundFloatingButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
-  const AcceptVideoButton(super.c, {this.highlight = false});
+  const AcceptVideoButton(super.c, {this.highlight = false, super.docked});
 
   /// Indicator whether this [AcceptVideoButton] should be highlighted.
   final bool highlight;
@@ -401,7 +402,7 @@ class AcceptVideoButton extends CallButton {
 
 /// [RoundFloatingButton] declining a call.
 class DeclineButton extends CallButton {
-  const DeclineButton(super.c);
+  const DeclineButton(super.c, {super.docked});
 
   @override
   String get hint => 'btn_call_decline'.l10n;
@@ -426,7 +427,7 @@ class DeclineButton extends CallButton {
 
 /// [RoundFloatingButton] canceling an outgoing call.
 class CancelButton extends CallButton {
-  const CancelButton(super.c);
+  const CancelButton(super.c, {super.docked});
 
   @override
   String get hint => 'btn_call_cancel'.l10n;
@@ -456,7 +457,7 @@ class CancelButton extends CallButton {
 
 /// [CallButton] ending the call.
 class EndCallButton extends CallButton {
-  const EndCallButton(super.c);
+  const EndCallButton(super.c, {super.docked});
 
   @override
   bool get isRemovable => false;
@@ -484,7 +485,7 @@ class EndCallButton extends CallButton {
 
 /// [RoundFloatingButton] switching a speaker output.
 class SpeakerButton extends CallButton {
-  const SpeakerButton(super.c);
+  const SpeakerButton(super.c, {super.docked});
 
   @override
   String get hint => c.isMobile
@@ -517,7 +518,7 @@ class SpeakerButton extends CallButton {
 
 /// [RoundFloatingButton] switching a local video stream.
 class SwitchButton extends CallButton {
-  const SwitchButton(super.c);
+  const SwitchButton(super.c, {super.docked});
 
   @override
   String get hint => c.isMobile
