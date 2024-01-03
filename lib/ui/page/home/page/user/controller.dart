@@ -186,7 +186,7 @@ class UserController extends GetxController {
     contact.value = _contactService.contacts.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );
-    _listenToContact();
+    _updateWorker();
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
@@ -195,14 +195,14 @@ class UserController extends GetxController {
           if (e.value!.contact.value.users.isNotEmpty &&
               e.value!.contact.value.users.every((e) => e.id == id)) {
             contact.value = e.value;
-            _listenToContact();
+            _updateWorker();
           }
           break;
 
         case OperationKind.removed:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             contact.value = null;
-            _listenToUser();
+            _updateWorker();
           }
           break;
       }
@@ -242,7 +242,7 @@ class UserController extends GetxController {
         if (contact.value != null) {
           await _contactService.deleteContact(contact.value!.contact.value.id);
           contact.value = null;
-          _listenToUser();
+          _updateWorker();
         }
       } catch (e) {
         MessagePopup.error(e);
@@ -401,16 +401,7 @@ class UserController extends GetxController {
       final FutureOr<RxUser?> fetched = _userService.get(id);
       user = fetched is RxUser? ? fetched : await fetched;
 
-      if (user != null) {
-        if (contact.value == null) {
-          _listenToUser();
-        }
-
-        user!.listenUpdates();
-        status.value = RxStatus.success();
-      } else {
-        status.value = RxStatus.empty();
-      }
+      _updateWorker();
 
       user?.listenUpdates();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
@@ -421,21 +412,8 @@ class UserController extends GetxController {
     }
   }
 
-  /// Listens the [user] changes updating the [name].
-  void _listenToUser() {
-    name.unchecked =
-        user?.user.value.name?.val ?? user!.user.value.num.toString();
-
-    _worker?.dispose();
-    _worker = ever(user!.user, (user) {
-      if (!name.isFocused.value && !name.changed.value) {
-        name.unchecked = user.name?.val ?? user.num.toString();
-      }
-    });
-  }
-
-  /// Listens the [contact] changes updating the [name].
-  void _listenToContact() {
+  /// Listens the [contact] or [user] changes updating the [name].
+  void _updateWorker() {
     if (contact.value != null) {
       name.unchecked = contact.value!.contact.value.name.val;
 
@@ -443,6 +421,16 @@ class UserController extends GetxController {
       _worker = ever(contact.value!.contact, (contact) {
         if (!name.isFocused.value && !name.changed.value) {
           name.unchecked = contact.name.val;
+        }
+      });
+    } else if (user != null) {
+      name.unchecked =
+          user!.user.value.name?.val ?? user!.user.value.num.toString();
+
+      _worker?.dispose();
+      _worker = ever(user!.user, (user) {
+        if (!name.isFocused.value && !name.changed.value) {
+          name.unchecked = user.name?.val ?? user.num.toString();
         }
       });
     }

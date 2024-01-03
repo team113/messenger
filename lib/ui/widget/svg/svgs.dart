@@ -1427,24 +1427,36 @@ class SvgIcons {
 
   static const SvgData block = SvgData(
     'assets/icons/block.svg',
-    width: 16,
-    height: 16,
+    width: 19,
+    height: 19,
   );
 
   static const SvgData blockWhite = SvgData(
     'assets/icons/block_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData blockSmall = SvgData(
+    'assets/icons/block.svg',
     width: 16,
     height: 16,
   );
 
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
-    width: 15.28,
-    height: 16,
+    width: 17.21,
+    height: 18,
   );
 
   static const SvgData cleanHistoryWhite = SvgData(
-    'assets/icons/clean_history_white.svg',
+    'assets/icons/clean_history_small_white.svg',
+    width: 17.21,
+    height: 18,
+  );
+
+  static const SvgData cleanHistorySmall = SvgData(
+    'assets/icons/clean_history_small.svg',
     width: 15.28,
     height: 16,
   );

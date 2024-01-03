@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
@@ -159,6 +160,7 @@ class ChatInfoView extends StatelessWidget {
           ReactiveTextField(
             key: const Key('RenameChatField'),
             state: c.name,
+            formatters: [LengthLimitingTextInputFormatter(100)],
             label: c.chat?.chat.value.name == null
                 ? c.chat?.title.value
                 : 'label_name'.l10n,
@@ -333,7 +335,7 @@ class ChatInfoView extends StatelessWidget {
           key: const Key('ClearHistoryButton'),
           onPressed: () => _clearChat(c, context),
           text: 'btn_clear_history'.l10n,
-          trailing: const SvgIcon(SvgIcons.cleanHistory),
+          trailing: const SvgIcon(SvgIcons.cleanHistorySmall),
         ),
         ActionButton(
           key: const Key('HideChatButton'),

@@ -24,10 +24,10 @@ Feature: Blocklist
     And I wait until `HomeView` is present
 
     When I go to Bob's page
+    And I scroll `UserScrollable` to bottom
     And I tap `Block` button
     And I tap `Proceed` button
     Then Bob sends message to me and receives blocked exception
 
-    When I scroll `UserScrollable` to bottom
-    And I tap `Unblock` button
+    When I tap `Unblock` button
     Then Bob sends message to me and receives no exception

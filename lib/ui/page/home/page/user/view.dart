@@ -183,7 +183,7 @@ class UserView extends StatelessWidget {
   Widget _num(UserController c) {
     return Paddings.basic(
       InfoTile(
-        key: const Key('UserNum'),
+        key: const Key('NumCopyable'),
         padding: EdgeInsets.zero,
         title: 'label_num'.l10n,
         content: c.user!.user.value.num.toString(),
@@ -398,7 +398,7 @@ class UserView extends StatelessWidget {
             key: const Key('Block'),
             text: 'btn_block'.l10n,
             onPressed: () => _blockUser(c, context),
-            trailing: const SvgIcon(SvgIcons.block),
+            trailing: const SvgIcon(SvgIcons.blockSmall),
           );
         }),
       ],
