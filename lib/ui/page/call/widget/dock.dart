@@ -90,7 +90,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
   /// Position in [_items] to add expanding [AnimatedContainer] to.
   ///
   /// Represents a place to add the dragged item to.
-  int _expanded = -1;
+  int __expanded = -1;
 
   /// Indicator whether the [_expanded] changed in the current frame.
   bool _expandedChanged = false;
@@ -117,6 +117,29 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
           _items.first.key.currentContext?.size == null
       ? widget.itemWidth
       : _items.first.key.currentContext!.size!.width;
+
+  /// Returns a position in [_items] to add expanding [AnimatedContainer] to.
+  int get _expanded => __expanded;
+
+  /// Sets the [_expanded] position to the provided [index].
+  set _expanded(int index) {
+    if (_expanded != index && mounted) {
+      if (_expandedChanged) {
+        return SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+          if (mounted) {
+            setState(() => __expanded = index);
+          }
+        });
+      } else {
+        setState(() => __expanded = index);
+      }
+
+      _expandedChanged = true;
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        _expandedChanged = false;
+      });
+    }
+  }
 
   @override
   void didUpdateWidget(covariant Dock<T> oldWidget) {
@@ -220,7 +243,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
                         widget.onDragStarted?.call(_items[i].item);
 
                         _rect = _items[i].key.globalPaintBounds;
-                        _setExpanded(i);
+                        _expanded = i;
                         _dragged = MapEntry(i, e);
 
                         _items.removeAt(i);
@@ -230,7 +253,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
                       onDraggableCanceled: (_, o) {
                         int index = _dragged!.key;
 
-                        _setExpanded(index);
+                        _expanded = index;
                         _DraggedItem<T> dragged = _dragged!.value;
 
                         // Animate the item returning to its position.
@@ -248,7 +271,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
                             if (mounted) {
                               setState(() {
                                 _resetAnimations();
-                                _setExpanded(-1);
+                                _expanded = -1;
                                 _items.insert(index, dragged);
                                 widget.onDragEnded?.call(_items[index].item);
                               });
@@ -306,7 +329,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
       onLeave: (e) {
         if (e == null || (widget.onWillAccept?.call(e) ?? true)) {
           widget.onLeave?.call(e);
-          _setExpanded(-1);
+          _expanded = -1;
         }
       },
       onWillAccept: (e) =>
@@ -320,9 +343,9 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
     var data = _DraggedItem(item.data);
 
     if (_expanded > _items.length) {
-      _setExpanded(_items.length);
+      _expanded = _items.length;
     } else if (_expanded < 0) {
-      _setExpanded(0);
+      _expanded = 0;
     }
 
     int i = _items.indexWhere((e) => e == data);
@@ -395,7 +418,8 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
       if (i == _expanded || i + 1 == _expanded) {
         // If this position is already expanded, then the item is at this
         // position, so no action is needed.
-        return _setExpanded(-1);
+        _expanded = -1;
+        return;
       }
 
       // Set the animations to [Duration.zero], as we're gonna do sorting.
@@ -441,7 +465,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
       );
     }
 
-    _setExpanded(-1);
+    _expanded = -1;
     widget.onReorder?.call(_items.map((e) => e.item).toList());
   }
 
@@ -470,27 +494,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
       }
     }
 
-    _setExpanded(indexToPlace);
-  }
-
-  /// Sets the [_expanded] to the provided [index].
-  void _setExpanded(int index) {
-    if (_expanded != index && mounted) {
-      if (_expandedChanged) {
-        return SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-          if (mounted) {
-            setState(() => _expanded = index);
-          }
-        });
-      } else {
-        setState(() => _expanded = index);
-      }
-
-      _expandedChanged = true;
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        _expandedChanged = false;
-      });
-    }
+    _expanded = indexToPlace;
   }
 
   /// Sets the [_animateDuration] to [Duration.zero] for one frame.
