@@ -34,6 +34,7 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
@@ -106,6 +107,7 @@ import 'steps/sees_muted_chat.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/set_login.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
@@ -159,6 +161,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         dragContactDown,
         fillField,
         fillFieldN,
+        fillFieldWithMyCredential,
+        fillFieldWithUserCredential,
         goToUserPage,
         hasContacts,
         hasDialogWithMe,
@@ -185,6 +189,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
+        longPressMonolog,
         longPressWidget,
         monologAvailability,
         noInternetConnection,
@@ -221,6 +226,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
+        seeMonologInSearchResults,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
         seeUserInSearchResults,
@@ -233,6 +239,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsMessageToGroup,
         sendsMessageToMe,
         sendsMessageWithException,
+        setLogin,
+        setMyLogin,
         signInAs,
         tapChat,
         tapContact,
@@ -280,6 +288,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
+        CredentialsParameter(),
         DownloadStatusParameter(),
         EnabledParameter(),
         ExceptionParameter(),
