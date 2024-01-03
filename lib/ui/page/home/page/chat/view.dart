@@ -353,7 +353,6 @@ class _ChatViewState extends State<ChatView>
                                         left: 10,
                                         right: 0,
                                       ),
-                                      key: c.moreKey,
                                       height: double.infinity,
                                       child: const Padding(
                                         padding:
