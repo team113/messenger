@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/context_menu/tile.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -232,6 +233,105 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
+                        final List<ContextMenuItem> top = [
+                          ContextMenuBuilder(
+                            (_) => Obx(() {
+                              final hasBalance =
+                                  c.settings.value?.balanceTabEnabled == true;
+
+                              return ContextMenuTile(
+                                // label: hasBalance
+                                //     ? 'btn_hide_balance_tab'.l10n
+                                //     : 'btn_show_balance_tab'.l10n,
+                                icon: Transform.scale(
+                                  scale: 1,
+                                  child: const WalletWidget(),
+                                ),
+                                label: 'label_balance'.l10n,
+                                pinned: hasBalance,
+                                onPinned: () =>
+                                    c.setBalanceTabEnabled(!hasBalance),
+                              );
+                            }),
+                          ),
+                          ContextMenuBuilder(
+                            (_) => Obx(() {
+                              final hasWork =
+                                  c.settings.value?.partnerTabEnabled == true;
+
+                              return ContextMenuTile(
+                                // label: hasWork
+                                //     ? 'btn_hide_work_tab'.l10n
+                                //     : 'btn_show_work_tab'.l10n,
+                                icon: Transform.scale(
+                                  scale: 1,
+                                  child: const SvgIcon(SvgIcons.partner),
+                                ),
+                                label: 'label_work_with_us'.l10n,
+                                pinned: hasWork,
+                                onPinned: () =>
+                                    c.setPartnerTabEnabled(!hasWork),
+                              );
+                            }),
+                          ),
+                          ContextMenuBuilder(
+                            (_) => Obx(() {
+                              final hasPublics =
+                                  c.settings.value?.publicsTabEnabled == true;
+
+                              return ContextMenuTile(
+                                // label: hasPublics
+                                //     ? 'btn_hide_publics_tab'.l10n
+                                //     : 'btn_show_publics_tab'.l10n,
+                                icon: Transform.scale(
+                                  scale: 1,
+                                  child: const SvgIcon(SvgIcons.publics),
+                                ),
+                                label: 'label_publics'.l10n,
+                                pinned: hasPublics,
+                                onPinned: () =>
+                                    c.setPublicsTabEnabled(!hasPublics),
+                              );
+                            }),
+                          ),
+                          // Balance.
+                          // if (c.settings.value?.balanceTabEnabled == true)
+                          //   ContextMenuButton(
+                          //     label: 'btn_hide_balance_tab'.l10n,
+                          //     onPressed: () => c.setBalanceTabEnabled(false),
+                          //   )
+                          // else
+                          //   ContextMenuButton(
+                          //     label: 'btn_show_balance_tab'.l10n,
+                          //     onPressed: () => c.setBalanceTabEnabled(true),
+                          //   ),
+
+                          // // Partner.
+                          // if (c.settings.value?.partnerTabEnabled == true)
+                          //   ContextMenuButton(
+                          //     label: 'btn_hide_work_tab'.l10n,
+                          //     onPressed: () => c.setPartnerTabEnabled(false),
+                          //   )
+                          // else
+                          //   ContextMenuButton(
+                          //     label: 'btn_show_work_tab'.l10n,
+                          //     onPressed: () => c.setPartnerTabEnabled(true),
+                          //   ),
+
+                          // // Publics.
+                          // if (c.settings.value?.publicsTabEnabled == true)
+                          //   ContextMenuButton(
+                          //     label: 'btn_hide_publics_tab'.l10n,
+                          //     onPressed: () => c.setPublicsTabEnabled(false),
+                          //   )
+                          // else
+                          //   ContextMenuButton(
+                          //     label: 'btn_show_publics_tab'.l10n,
+                          //     onPressed: () => c.setPublicsTabEnabled(true),
+                          //   ),
+                          const ContextMenuDivider(),
+                        ];
+
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -246,24 +346,42 @@ class _HomeViewState extends State<HomeView> {
                                     selector: c.balanceKey,
                                     alignment: Alignment.bottomLeft,
                                     margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 32 + 8,
+                                      bottom: 16,
+                                      right: 32 + 16,
                                     ),
                                     actions: [
-                                      if (c.displayFunds)
-                                        ContextMenuButton(
-                                          label: 'btn_hide_balance'.l10n,
-                                          onPressed: () {
-                                            c.setDisplayFunds(false);
-                                          },
-                                        )
-                                      else
-                                        ContextMenuButton(
-                                          label: 'btn_display_balance'.l10n,
-                                          onPressed: () {
-                                            c.setDisplayFunds(true);
-                                          },
-                                        ),
+                                      ...top,
+                                      ContextMenuBuilder(
+                                        (_) => Obx(() {
+                                          final enabled = c.displayFunds;
+
+                                          return ContextMenuTile(
+                                            label: enabled
+                                                ? 'btn_hide_balance'.l10n
+                                                : 'btn_display_balance'.l10n,
+                                            pinnable: false,
+                                            onPressed: () =>
+                                                c.setDisplayFunds(!enabled),
+                                            asset: enabled
+                                                ? SvgIcons.muted22
+                                                : SvgIcons.unmuted22,
+                                          );
+                                        }),
+                                      ),
+                                      // if (c.displayFunds)
+                                      //   ContextMenuButton(
+                                      //     label: 'btn_hide_balance'.l10n,
+                                      //     onPressed: () {
+                                      //       c.setDisplayFunds(false);
+                                      //     },
+                                      //   )
+                                      // else
+                                      //   ContextMenuButton(
+                                      //     label: 'btn_display_balance'.l10n,
+                                      //     onPressed: () {
+                                      //       c.setDisplayFunds(true);
+                                      //     },
+                                      //   ),
                                     ],
                                     child: WalletWidget(
                                       key: c.balanceKey,
@@ -278,39 +396,52 @@ class _HomeViewState extends State<HomeView> {
                                   badge: c.displayTransactions
                                       ? '${c.transactions.length}'
                                       : null,
-                                  // child: RmbDetector(
-                                  //   onPressed: () =>
-                                  //       PartnerMoreView.show(context),
-                                  //   child:
                                   child: ContextMenuRegion(
                                     selector: c.partnerKey,
+                                    // alignment: Alignment.bottomCenter,
+                                    // margin: const EdgeInsets.only(
+                                    //   bottom: 4,
+                                    //   right: 10,
+                                    // ),
                                     alignment: Alignment.bottomCenter,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 10,
-                                    ),
+                                    margin: const EdgeInsets.only(bottom: 16),
                                     actions: [
-                                      ContextMenuButton(
-                                        label: 'btn_hide_section'.l10n,
-                                        onPressed: () {
-                                          c.setPartnerTabEnabled(false);
-                                        },
+                                      ...top,
+                                      ContextMenuBuilder(
+                                        (_) => Obx(() {
+                                          final enabled = c.displayTransactions;
+
+                                          return ContextMenuTile(
+                                            label: enabled
+                                                ? 'btn_hide_transactions'.l10n
+                                                : 'btn_display_transactions'
+                                                    .l10n,
+                                            pinnable: false,
+                                            onPressed: () =>
+                                                c.setDisplayTransactions(
+                                              !enabled,
+                                            ),
+                                            asset: enabled
+                                                ? SvgIcons.muted22
+                                                : SvgIcons.unmuted22,
+                                          );
+                                        }),
                                       ),
-                                      if (c.displayTransactions)
-                                        ContextMenuButton(
-                                          label: 'btn_hide_transactions'.l10n,
-                                          onPressed: () {
-                                            c.setDisplayTransactions(false);
-                                          },
-                                        )
-                                      else
-                                        ContextMenuButton(
-                                          label:
-                                              'btn_display_transactions'.l10n,
-                                          onPressed: () {
-                                            c.setDisplayTransactions(true);
-                                          },
-                                        ),
+                                      // if (c.displayTransactions)
+                                      //   ContextMenuButton(
+                                      //     label: 'btn_hide_transactions'.l10n,
+                                      //     onPressed: () {
+                                      //       c.setDisplayTransactions(false);
+                                      //     },
+                                      //   )
+                                      // else
+                                      //   ContextMenuButton(
+                                      //     label:
+                                      //         'btn_display_transactions'.l10n,
+                                      //     onPressed: () {
+                                      //       c.setDisplayTransactions(true);
+                                      //     },
+                                      //   ),
                                     ],
                                     child: SvgIcon(
                                       SvgIcons.partner,
@@ -318,44 +449,59 @@ class _HomeViewState extends State<HomeView> {
                                     ),
                                   ),
                                 ),
-                              CustomNavigationBarItem(
-                                key: const Key('PublicButton'),
-                                // child: RmbDetector(
-                                //   onPressed: () =>
-                                //       PublicsMoreView.show(context),
-                                //   child:
-                                child: ContextMenuRegion(
-                                  selector: c.publicsKey,
-                                  alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 40,
-                                  ),
-                                  actions: [
-                                    if (c.publicsToggle.value)
-                                      ContextMenuButton(
-                                        label: 'btn_unmute_chats'.l10n,
-                                        onPressed: c.publicsToggle.toggle,
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        label: 'btn_mute_chats'.l10n,
-                                        onPressed: c.publicsToggle.toggle,
+                              if (c.settings.value?.publicsTabEnabled != false)
+                                CustomNavigationBarItem(
+                                  key: const Key('PublicButton'),
+                                  child: ContextMenuRegion(
+                                    selector: c.publicsKey,
+                                    // alignment: Alignment.bottomCenter,
+                                    // margin: const EdgeInsets.only(
+                                    //   bottom: 4,
+                                    //   right: 40,
+                                    // ),
+                                    alignment: Alignment.bottomCenter,
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    actions: [
+                                      ...top,
+                                      ContextMenuBuilder(
+                                        (_) => Obx(() {
+                                          final muted = c.publicsToggle.value;
+                                          return ContextMenuTile(
+                                            label: muted
+                                                ? 'btn_unmute_chats'.l10n
+                                                : 'btn_mute_chats'.l10n,
+                                            pinnable: false,
+                                            onPressed: c.publicsToggle.toggle,
+                                            asset: muted
+                                                ? SvgIcons.unmuted22
+                                                : SvgIcons.muted22,
+                                          );
+                                        }),
                                       ),
-                                  ],
-                                  child: Transform.translate(
-                                    key: c.publicsKey,
-                                    offset: const Offset(0, 1),
-                                    child: Obx(() {
-                                      return SvgIcon(
-                                        c.publicsToggle.value
-                                            ? SvgIcons.publicsMuted
-                                            : SvgIcons.publics,
-                                      );
-                                    }),
+                                      // if (c.publicsToggle.value)
+                                      //   ContextMenuButton(
+                                      //     label: 'btn_unmute_chats'.l10n,
+                                      //     onPressed: c.publicsToggle.toggle,
+                                      //   )
+                                      // else
+                                      //   ContextMenuButton(
+                                      //     label: 'btn_mute_chats'.l10n,
+                                      //     onPressed: c.publicsToggle.toggle,
+                                      //   ),
+                                    ],
+                                    child: Transform.translate(
+                                      key: c.publicsKey,
+                                      offset: const Offset(0, 1),
+                                      child: Obx(() {
+                                        return SvgIcon(
+                                          c.publicsToggle.value
+                                              ? SvgIcons.publicsMuted
+                                              : SvgIcons.publics,
+                                        );
+                                      }),
+                                    ),
                                   ),
                                 ),
-                              ),
                               CustomNavigationBarItem(
                                 badge: c.unreadChatsCount.value == 0
                                     ? null
@@ -375,24 +521,43 @@ class _HomeViewState extends State<HomeView> {
                                   key: const Key('ChatsButton'),
                                   selector: c.chatsKey,
                                   alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(bottom: 4),
+                                  margin: const EdgeInsets.only(bottom: 16),
                                   actions: [
-                                    if (c.myUser.value?.muted != null)
-                                      ContextMenuButton(
-                                        key: const Key('UnmuteChatsButton'),
-                                        label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () => c.toggleMute(true),
-                                        // trailing:
-                                        //     const SvgIcon(SvgIcons.muteSmall),
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        key: const Key('MuteChatsButton'),
-                                        label: 'btn_mute_chats'.l10n,
-                                        onPressed: () => c.toggleMute(false),
-                                        // trailing:
-                                        //     const SvgIcon(SvgIcons.unmuteSmall),
-                                      ),
+                                    ...top,
+                                    ContextMenuBuilder(
+                                      (_) => Obx(() {
+                                        final muted =
+                                            c.myUser.value?.muted != null;
+
+                                        return ContextMenuTile(
+                                          label: muted
+                                              ? 'btn_unmute_chats'.l10n
+                                              : 'btn_mute_chats'.l10n,
+                                          pinnable: false,
+                                          onPressed: () => c.toggleMute(!muted),
+                                          trailing: true,
+                                          asset: muted
+                                              ? SvgIcons.unmuted22
+                                              : SvgIcons.muted22,
+                                        );
+                                      }),
+                                    ),
+                                    // if (c.myUser.value?.muted != null)
+                                    //   ContextMenuButton(
+                                    //     key: const Key('UnmuteChatsButton'),
+                                    //     label: 'btn_unmute_chats'.l10n,
+                                    //     onPressed: () => c.toggleMute(true),
+                                    //     // trailing:
+                                    //     //     const SvgIcon(SvgIcons.muteSmall),
+                                    //   )
+                                    // else
+                                    //   ContextMenuButton(
+                                    //     key: const Key('MuteChatsButton'),
+                                    //     label: 'btn_mute_chats'.l10n,
+                                    //     onPressed: () => c.toggleMute(false),
+                                    //     // trailing:
+                                    //     //     const SvgIcon(SvgIcons.unmuteSmall),
+                                    //   ),
                                   ],
                                   child: Obx(() {
                                     final Widget child;
@@ -425,36 +590,65 @@ class _HomeViewState extends State<HomeView> {
                                   key: const Key('MenuButton'),
                                   selector: c.profileKey,
                                   alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(bottom: 4),
+                                  margin: const EdgeInsets.only(bottom: 16),
                                   actions: [
-                                    ContextMenuButton(
+                                    ...top,
+                                    ContextMenuTile(
                                       label: 'label_presence_present'.l10n,
+                                      pinnable: false,
                                       onPressed: () =>
                                           c.setPresence(Presence.present),
-                                      showTrailing: true,
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
+                                      icon: Container(
+                                        width: 16,
+                                        height: 16,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: style.colors.acceptAuxiliary,
                                         ),
                                       ),
                                     ),
-                                    ContextMenuButton(
+                                    ContextMenuTile(
                                       label: 'label_presence_away'.l10n,
+                                      pinnable: false,
                                       onPressed: () =>
                                           c.setPresence(Presence.away),
-                                      showTrailing: true,
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
+                                      icon: Container(
+                                        width: 16,
+                                        height: 16,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: style.colors.warning,
                                         ),
                                       ),
                                     ),
+                                    // ContextMenuButton(
+                                    //   label: 'label_presence_present'.l10n,
+                                    //   onPressed: () =>
+                                    //       c.setPresence(Presence.present),
+                                    //   showTrailing: true,
+                                    //   trailing: Container(
+                                    //     width: 10,
+                                    //     height: 10,
+                                    //     decoration: BoxDecoration(
+                                    //       shape: BoxShape.circle,
+                                    //       color: style.colors.acceptAuxiliary,
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    // ContextMenuButton(
+                                    //   label: 'label_presence_away'.l10n,
+                                    //   onPressed: () =>
+                                    //       c.setPresence(Presence.away),
+                                    //   showTrailing: true,
+                                    //   trailing: Container(
+                                    //     width: 10,
+                                    //     height: 10,
+                                    //     decoration: BoxDecoration(
+                                    //       shape: BoxShape.circle,
+                                    //       color: style.colors.warning,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,

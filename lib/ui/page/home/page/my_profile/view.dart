@@ -617,7 +617,7 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.vacancies:
                       return block(
-                        title: 'label_work_with_us'.l10n,
+                        title: 'label_show_sections'.l10n,
                         children: [_workWithUs(context, c)],
                       );
 
@@ -1307,12 +1307,34 @@ Widget _workWithUs(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
+          final enabled = c.settings.value?.balanceTabEnabled == true;
+
+          return SwitchField(
+            text: 'label_balance'.l10n,
+            value: enabled,
+            onChanged: c.setBalanceTabEnabled,
+          );
+        }),
+      ),
+      Paddings.dense(
+        Obx(() {
           final enabled = c.settings.value?.partnerTabEnabled == true;
 
           return SwitchField(
-            text: enabled ? 'btn_show_section'.l10n : 'btn_show_section'.l10n,
+            text: 'btn_work_with_us'.l10n,
             value: enabled,
-            onChanged: c.settings.value == null ? null : c.setPartnerTabEnabled,
+            onChanged: c.setPartnerTabEnabled,
+          );
+        }),
+      ),
+      Paddings.dense(
+        Obx(() {
+          final enabled = c.settings.value?.publicsTabEnabled == true;
+
+          return SwitchField(
+            text: 'label_publics'.l10n,
+            value: enabled,
+            onChanged: c.setPublicsTabEnabled,
           );
         }),
       ),

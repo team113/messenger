@@ -715,6 +715,9 @@ class MyProfileController extends GetxController {
   Future<void> setBalanceTabEnabled(bool enabled) =>
       _settingsRepo.setBalanceTabEnabled(enabled);
 
+  Future<void> setPublicsTabEnabled(bool enabled) =>
+      _settingsRepo.setPublicsTabEnabled(enabled);
+
   Future<void> setCacheMaxSize(int size) =>
       CacheWorker.instance.setMaxSize(size);
 

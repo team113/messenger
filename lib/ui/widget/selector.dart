@@ -41,6 +41,7 @@ class Selector<T> extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     required this.isMobile,
+    this.closable = true,
   });
 
   /// [List] of items to select from.
@@ -78,6 +79,8 @@ class Selector<T> extends StatefulWidget {
   /// Indicator whether a mobile design with [CupertinoPicker] should be used.
   final bool isMobile;
 
+  final bool closable;
+
   /// Displays a [Selector] wrapped in a modal popup.
   static Future<T?> show<T extends Object>({
     required BuildContext context,
@@ -91,6 +94,7 @@ class Selector<T> extends StatefulWidget {
     double width = 260,
     EdgeInsets margin = EdgeInsets.zero,
     T? initial,
+    bool closable = true,
   }) {
     final bool isMobile = context.isMobile;
 
@@ -107,6 +111,7 @@ class Selector<T> extends StatefulWidget {
         width: width,
         margin: margin,
         isMobile: isMobile,
+        closable: closable,
       );
     }
 
@@ -171,6 +176,7 @@ class _SelectorState<T> extends State<Selector<T>> {
       double? top, bottom;
 
       RenderBox? buttonBox;
+      RenderBox? contextBox;
 
       Offset offset =
           Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
@@ -184,8 +190,6 @@ class _SelectorState<T> extends State<Selector<T>> {
 
         offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
 
-        RenderBox? contextBox;
-
         final BuildContext? itemsContext = _itemsKey.currentContext;
         if (itemsContext != null) {
           contextBox = itemsContext.findRenderObject() as RenderBox?;
@@ -194,7 +198,7 @@ class _SelectorState<T> extends State<Selector<T>> {
         if (widget.alignment == Alignment.topCenter) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0) / 2,
-            offset.dy,
+            offset.dy - widget.margin.bottom,
           );
 
           left = offset.dx -
@@ -262,6 +266,11 @@ class _SelectorState<T> extends State<Selector<T>> {
 
       if (left != null && left < 0) {
         left = 0;
+      } else if (left != null &&
+          left + (contextBox?.size.width ?? widget.width) + 4 >=
+              constraints.maxWidth) {
+        left =
+            constraints.maxWidth - (contextBox?.size.width ?? widget.width) - 8;
       } else if (right != null && right > constraints.maxWidth) {
         right = constraints.maxWidth;
       }
@@ -305,6 +314,10 @@ class _SelectorState<T> extends State<Selector<T>> {
         );
       }
 
+      if (left == 0) {
+        left = 8;
+      }
+
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -316,7 +329,9 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Opacity(
               opacity: buttonBox == null ? 0 : 1,
               child: Listener(
-                onPointerUp: (d) => Navigator.of(context).pop(),
+                behavior: HitTestBehavior.deferToChild,
+                onPointerUp:
+                    widget.closable ? (d) => Navigator.of(context).pop() : null,
                 child: Container(
                   // margin: widget.margin,
                   decoration: BoxDecoration(

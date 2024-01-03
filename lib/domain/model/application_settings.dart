@@ -40,6 +40,7 @@ class ApplicationSettings extends HiveObject {
     this.leaveWhenAlone = false,
     this.balanceTabEnabled = true,
     this.partnerTabEnabled = true,
+    this.publicsTabEnabled = true,
     this.pinnedActions = const [],
     this.mediaButtonsPosition = MediaButtonsPosition.appBar,
   });
@@ -107,6 +108,9 @@ class ApplicationSettings extends HiveObject {
 
   @HiveField(14)
   bool partnerTabEnabled;
+
+  @HiveField(17)
+  bool publicsTabEnabled;
 
   @HiveField(16)
   MediaButtonsPosition? mediaButtonsPosition;

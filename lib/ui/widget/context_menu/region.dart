@@ -19,6 +19,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/context_menu/tile.dart';
 import 'package:uuid/uuid.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
@@ -249,38 +250,58 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         items: widget.actions,
         width: widget.width,
         margin: widget.margin,
+        closable: false,
         buttonBuilder: (i, b) {
+          final Widget child;
+
           if (PlatformUtils.isMobile) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                b,
-                if (i < widget.actions.length - 1)
-                  Container(
-                    color: style.colors.onBackgroundOpacity7,
-                    height: 1,
-                    width: double.infinity,
-                  ),
-              ],
+            if (b is ContextMenuDivider) {
+              child = const SizedBox();
+            } else {
+              child = Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  b,
+                  if (i < widget.actions.length - 1)
+                    Container(
+                      color: style.colors.onBackgroundOpacity7,
+                      height: 1,
+                      width: double.infinity,
+                    ),
+                ],
+              );
+            }
+          } else {
+            child = Padding(
+              padding: EdgeInsets.only(
+                top: i == 0 ? 4 : 0,
+                bottom: i == widget.actions.length - 1 ? 4 : 0,
+              ),
+              child: b,
             );
           }
 
-          return Padding(
-            padding: EdgeInsets.only(
-              top: i == 0 ? 4 : 0,
-              bottom: i == widget.actions.length - 1 ? 4 : 0,
-            ),
-            child: b,
+          if (b is ContextMenuTile) {
+            return child;
+          }
+
+          return Builder(
+            builder: (context) {
+              return Listener(
+                onPointerUp: (_) => Navigator.of(context).pop(),
+                child: child,
+              );
+            },
           );
         },
         itemBuilder: (b) {
           if (b is ContextMenuButton) {
             return Row(
               children: [
-                if (b.leading != null) ...[
-                  b.leading!,
-                  const SizedBox(width: 12),
-                ],
+                // if (b.leading != null) ...[
+                //   b.leading!,
+                //   const SizedBox(width: 12),
+                // ],
                 Text(b.label, style: style.fonts.normal.regular.onBackground),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),

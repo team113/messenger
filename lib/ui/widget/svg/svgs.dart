@@ -2037,4 +2037,10 @@ class SvgIcons {
     width: 21,
     height: 21,
   );
+
+  static const SvgData menuNav = SvgData(
+    'assets/icons/menu_nav.svg',
+    width: 32,
+    height: 32,
+  );
 }

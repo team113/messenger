@@ -266,6 +266,8 @@ class HomeController extends GetxController {
   void setDisplayFunds(bool b) => _settings.setDisplayFunds(b);
 
   void setPartnerTabEnabled(bool b) => _settings.setPartnerTabEnabled(b);
+  void setBalanceTabEnabled(bool b) => _settings.setBalanceTabEnabled(b);
+  void setPublicsTabEnabled(bool b) => _settings.setPublicsTabEnabled(b);
 
   /// Refreshes the controller on [router] change.
   ///

@@ -133,6 +133,11 @@ class ApplicationSettingsHiveProvider
         (box.get(0) ?? ApplicationSettings())..partnerTabEnabled = enabled,
       );
 
+  Future<void> setPublicsTabEnabled(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..publicsTabEnabled = enabled,
+      );
+
   Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
       putSafe(
         0,

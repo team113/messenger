@@ -61,7 +61,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.language => 'label_language'.l10n,
           ProfileTab.blocklist => 'label_blocked_users'.l10n,
           ProfileTab.devices => 'label_linked_devices'.l10n,
-          ProfileTab.vacancies => 'label_work_with_us'.l10n,
+          ProfileTab.vacancies => 'label_show_sections'.l10n,
           ProfileTab.download => 'label_download'.l10n,
           ProfileTab.danger => 'label_danger_zone'.l10n,
           ProfileTab.styles => 'Styles'.l10n,
@@ -84,7 +84,7 @@ class MenuButton extends StatelessWidget {
             L10n.chosen.value?.name ?? 'label_current_language'.l10n,
           ProfileTab.blocklist => 'label_your_blacklist'.l10n,
           ProfileTab.devices => 'label_devices_section'.l10n,
-          ProfileTab.vacancies => 'label_vacancies_and_partnership'.l10n,
+          ProfileTab.vacancies => 'label_configure_navigation_panel'.l10n,
           ProfileTab.download => 'label_application'.l10n,
           ProfileTab.danger => 'label_delete_account'.l10n,
           ProfileTab.styles => 'Colors, typography, elements'.l10n,
@@ -110,8 +110,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
           ProfileTab.styles => const SvgIcon(SvgIcons.menuStyle),
           ProfileTab.welcome => const SvgIcon(SvgIcons.menuWelcome),
-          ProfileTab.vacancies => const SvgIcon(SvgIcons.menuWork),
-          (_) => RectangleIcon.tab(tab),
+          ProfileTab.vacancies => const SvgIcon(SvgIcons.menuNav),
         },
         super(
           key: key ??

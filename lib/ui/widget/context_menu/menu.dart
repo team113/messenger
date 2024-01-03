@@ -116,7 +116,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
     super.key,
     required this.label,
-    this.leading,
+    this.leading = true,
     this.trailing,
     this.inverted,
     this.showTrailing = false,
@@ -127,9 +127,6 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// Label of this [ContextMenuButton].
   final String label;
 
-  /// Optional leading widget, typically an [Icon].
-  final Widget? leading;
-
   /// Optional trailing widget.
   final Widget? trailing;
   final Widget? inverted;
@@ -138,6 +135,8 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   ///
   /// On mobile platforms the provided [trailing] is always displayed.
   final bool showTrailing;
+
+  final bool leading;
 
   /// Indicator whether this [ContextMenuButton] should be enlarged.
   ///
@@ -161,6 +160,8 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
     final style = Theme.of(context).style;
 
     final bool isMobile = widget.enlarged ?? context.isMobile;
+
+    // final Widget suffix =
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -213,42 +214,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       ),
                     ),
                   )
-                // Transform.scale(
-                //   scale: 0.7,
-                //   child: SizedBox(
-                //     width: 24,
-                //     child: Align(
-                //       alignment: Alignment.centerLeft,
-                //       child: widget.trailing!,
-                //     ),
-                //   ),
-                // ),
-
-                // const SizedBox(width: 36 * 0.5),
               ],
-              // if (widget.leading != null) ...[
-              //   Theme(
-              //     data: Theme.of(context).copyWith(
-              //       iconTheme:
-              //           IconThemeData(color: style.colors.primaryHighlight),
-              //     ),
-              //     child: widget.leading!,
-              //   ),
-              //   const SizedBox(width: 14),
-              // ],
-              // if (widget.trailing != null) ...[
-              //   Theme(
-              //     data: Theme.of(context).copyWith(
-              //       iconTheme:
-              //           IconThemeData(color: style.colors.primaryHighlight),
-              //     ),
-              //     child: Transform.scale(
-              //       scale: isMobile ? 1 : 0.9,
-              //       child: widget.trailing!,
-              //     ),
-              //   ),
-              //   const SizedBox(width: 12),
-              // ],
               Text(
                 widget.label,
                 style: (widget.onPressed == null
@@ -262,19 +228,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
-
-              // if ((isMobile || widget.showTrailing) &&
-              //     widget.trailing != null) ...[
-              //   const SizedBox(width: 36 * 0.5),
-              //   const Spacer(),
-              //   Theme(
-              //     data: Theme.of(context).copyWith(
-              //       iconTheme:
-              //           IconThemeData(color: style.colors.primaryHighlight),
-              //     ),
-              //     child: widget.trailing!,
-              //   ),
-              // ],
             ],
           ),
         ),
