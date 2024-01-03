@@ -1434,18 +1434,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData unblock = SvgData(
-    'assets/icons/unblock.svg',
-    width: 19,
-    height: 19,
-  );
-
-  static const SvgData unblockWhite = SvgData(
-    'assets/icons/unblock_white.svg',
-    width: 19,
-    height: 19,
-  );
-
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,
