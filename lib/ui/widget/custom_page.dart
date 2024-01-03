@@ -43,7 +43,9 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   _CupertinoPageRoute({super.settings, required this.pageBuilder})
       : matchingBuilder = PlatformUtils.isAndroid
             ? const FadeUpwardsPageTransitionsBuilder()
-            : const CustomCupertinoPageTransitionsBuilder();
+            : PlatformUtils.isIOS
+                ? const CupertinoPageTransitionsBuilder()
+                : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
