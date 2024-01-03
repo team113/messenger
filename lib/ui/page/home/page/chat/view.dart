@@ -258,27 +258,9 @@ class _ChatViewState extends State<ChatView>
 
                           final List<Widget> children;
 
-                          if (blocked) {
-                            children = [];
-                          } else if (c.chat!.chat.value.ongoingCall == null) {
-                            children = [
-                              if (c.callPosition == null ||
-                                  c.callPosition ==
-                                      CallButtonsPosition.appBar) ...[
-                                AnimatedButton(
-                                  onPressed: () => c.call(true),
-                                  child: const SvgIcon(SvgIcons.chatVideoCall),
-                                ),
-                                const SizedBox(width: 28),
-                                AnimatedButton(
-                                  key: const Key('AudioCall'),
-                                  onPressed: () => c.call(false),
-                                  child: const SvgIcon(SvgIcons.chatAudioCall),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                            ];
-                          } else {
+                          // Display the join/end call button, if [Chat] has an
+                          // [OngoingCall] happening in it.
+                          if (c.chat!.chat.value.ongoingCall != null) {
                             final Widget child;
 
                             if (inCall) {
@@ -319,6 +301,28 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               ),
                             ];
+                          } else if (!blocked) {
+                            children = [
+                              if (c.callPosition == null ||
+                                  c.callPosition ==
+                                      CallButtonsPosition.appBar) ...[
+                                AnimatedButton(
+                                  onPressed: () => c.call(true),
+                                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                                ),
+                                const SizedBox(width: 28),
+                                AnimatedButton(
+                                  key: const Key('AudioCall'),
+                                  onPressed: () => c.call(false),
+                                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            ];
+                          } else {
+                            // [Chat]-dialog is blocked, therefore no call
+                            // buttons should be displayed.
+                            children = [];
                           }
 
                           return Row(
@@ -1413,10 +1417,16 @@ class _ChatViewState extends State<ChatView>
 
                             final result = await ConfirmDialog.show(
                               context,
-                              title: 'label_delete_message'.l10n,
+                              title: c.selected.length > 1
+                                  ? 'label_delete_messages'.l10n
+                                  : 'label_delete_message'.l10n,
                               description: deletable
                                   ? null
-                                  : 'label_message_will_deleted_for_you'.l10n,
+                                  : c.selected.length > 1
+                                      ? 'label_messages_will_deleted_for_you'
+                                          .l10n
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
                               initial: 1,
                               variants: [
                                 ConfirmDialogVariant(
