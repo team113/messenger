@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/util/platform_utils.dart';
 import 'custom_cupertino_transition.dart';
 
-/// [Page] with the [_FadeCupertinoPageRoute] as its [Route].
+/// [Page] with the [_CupertinoPageRoute] as its [Route].
 class CustomPage extends Page {
   const CustomPage({super.key, super.name, required this.child});
 
@@ -29,18 +29,18 @@ class CustomPage extends Page {
 
   @override
   Route createRoute(BuildContext context) {
-    return _FadeCupertinoPageRoute(
+    return _CupertinoPageRoute(
       settings: this,
       pageBuilder: (_, __, ___) => child,
     );
   }
 }
 
-/// [PageRoute] with fading iOS styled page transition animation.
+/// [PageRoute] custom iOS styled page transition animation.
 ///
 /// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
-class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
-  _FadeCupertinoPageRoute({super.settings, required this.pageBuilder})
+class _CupertinoPageRoute<T> extends PageRoute<T> {
+  _CupertinoPageRoute({super.settings, required this.pageBuilder})
       : matchingBuilder = PlatformUtils.isAndroid
             ? const FadeUpwardsPageTransitionsBuilder()
             : const CustomCupertinoPageTransitionsBuilder();

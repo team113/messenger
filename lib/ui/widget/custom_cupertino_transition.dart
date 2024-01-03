@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 
+/// Custom [CupertinoPageTransitionsBuilder] to define a horizontal
+/// [MaterialPageRoute] page transition animation.
 class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   const CustomCupertinoPageTransitionsBuilder();
 
@@ -36,6 +38,7 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
+/// Custom iOS-style page transition.
 class _CustomCupertinoPageTransitionsBuilder extends StatelessWidget {
   _CustomCupertinoPageTransitionsBuilder({
     required Animation<double> primaryAnimation,
@@ -52,21 +55,26 @@ class _CustomCupertinoPageTransitionsBuilder extends StatelessWidget {
           reverseCurve: Curves.easeInToLinear,
         ).drive(_leftTween);
 
+  /// [Widget] to show.
+  final Widget child;
+
+  /// Animation for next page.
   final Animation<Offset> _primaryAnimation;
 
+  /// Animation for previous page.
   final Animation<Offset> _secondaryAnimation;
 
+  /// Animatable [Offset] for [_primaryAnimation].
   static final Animatable<Offset> _rightTween = Tween<Offset>(
     begin: const Offset(1.0, 0.0),
     end: Offset.zero,
   );
 
+  /// Animatable [Offset] for [_secondaryAnimation].
   static final Animatable<Offset> _leftTween = Tween<Offset>(
     begin: Offset.zero,
     end: const Offset(-1.0, 0.0),
   );
-
-  final Widget child;
 
   @override
   Widget build(BuildContext context) {
