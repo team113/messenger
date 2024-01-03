@@ -152,7 +152,10 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           Paddings.basic(
                             Obx(() {
-                              return UserNumCopyable(c.myUser.value?.num);
+                              return UserNumCopyable(
+                                c.myUser.value?.num,
+                                key: const Key('NumCopyable'),
+                              );
                             }),
                           ),
                           Paddings.basic(

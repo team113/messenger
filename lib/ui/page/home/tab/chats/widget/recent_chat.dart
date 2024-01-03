@@ -222,7 +222,7 @@ class RecentChatTile extends StatelessWidget {
                   Expanded(child: _subtitle(context, selected, inverted)),
                   const SizedBox(width: 3),
                   _status(context, inverted),
-                  if (!chat.id.isLocalWith(me))
+                  if (!chat.id.isLocal)
                     Text(
                       chat.updatedAt.val.toLocal().short,
                       style: inverted
@@ -288,7 +288,7 @@ class RecentChatTile extends StatelessWidget {
               ),
             if (onHide != null)
               ContextMenuButton(
-                key: const Key('ButtonHideChat'),
+                key: const Key('HideChatButton'),
                 label: PlatformUtils.isMobile
                     ? 'btn_delete'.l10n
                     : 'btn_delete_chat'.l10n,

@@ -1118,7 +1118,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
-        var node = event as ChatEventsChat;
+        final node = event as ChatEventsChat;
         final HiveChat? chatEntity = await _chatLocal.get(id);
         if (chatEntity != null) {
           chatEntity.value = node.chat.value;
@@ -1133,7 +1133,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.event:
         final HiveChat? chatEntity = await _chatLocal.get(id);
-        var versioned = (event as ChatEventsEvent).event;
+        final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           Log.debug(
             '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
@@ -1150,9 +1150,9 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = subscribed;
+        bool shouldPutChat = subscribed;
         for (var event in versioned.events) {
-          putChat = subscribed;
+          shouldPutChat = subscribed;
 
           // Subscription was already disposed while processing the events.
           if (!subscribed) {
@@ -1202,8 +1202,7 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.hidden:
               event as EventChatHidden;
-              _chatRepository.remove(event.chatId);
-              putChat = false;
+              chatEntity.value.isHidden = true;
               continue;
 
             case ChatEventKind.itemDeleted:
@@ -1499,7 +1498,7 @@ class HiveRxChat extends RxChat {
           }
         }
 
-        if (putChat) {
+        if (shouldPutChat) {
           await _chatRepository.put(chatEntity);
         }
         break;
