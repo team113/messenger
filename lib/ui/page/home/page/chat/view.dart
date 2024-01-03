@@ -347,7 +347,7 @@ class _ChatViewState extends State<ChatView>
 
                                 if (c.selecting.value) {
                                   child = AnimatedButton(
-                                    onPressed: c.selecting.toggle,
+                                    onPressed: () => c.selecting.value = false,
                                     child: Container(
                                       padding: const EdgeInsets.only(
                                         left: 10,
