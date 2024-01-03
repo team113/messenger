@@ -1450,7 +1450,7 @@ class SvgIcons {
   );
 
   static const SvgData cleanHistoryWhite = SvgData(
-    'assets/icons/clean_history_small_white.svg',
+    'assets/icons/clean_history_white.svg',
     width: 17.21,
     height: 18,
   );
@@ -1649,12 +1649,18 @@ class SvgIcons {
 
   static const SvgData leaveGroup = SvgData(
     'assets/icons/leave_group.svg',
-    width: 12.88,
-    height: 16,
+    width: 16.28,
+    height: 19,
   );
 
   static const SvgData leaveGroupWhite = SvgData(
     'assets/icons/leave_group_white.svg',
+    width: 16.28,
+    height: 19,
+  );
+
+  static const SvgData leaveGroupSmall = SvgData(
+    'assets/icons/leave_group_small.svg',
     width: 12.88,
     height: 16,
   );

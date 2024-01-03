@@ -117,7 +117,7 @@ class UserController extends GetxController {
   /// [inContacts] and [inFavorites] indicators.
   StreamSubscription? _contactsSubscription;
 
-  /// [Worker] reacting on the [user] or [contact] changes updating the [name].
+  /// [Worker] reacting on the [contact] or [user] changes updating the [name].
   Worker? _worker;
 
   /// Indicates whether this [user] is blocked.
@@ -202,6 +202,7 @@ class UserController extends GetxController {
         case OperationKind.removed:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             contact.value = null;
+            editing.value = false;
             _updateWorker();
           }
           break;

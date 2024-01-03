@@ -42,7 +42,7 @@ class BlocklistRecordWidget extends StatelessWidget {
           InfoTile(
             padding: EdgeInsets.zero,
             title: 'label_date'.l10n,
-            content: record.at.val.yMdHm,
+            content: record.at.val.toLocal().yMdHm,
           ),
         ),
         if (record.reason != null) ...[

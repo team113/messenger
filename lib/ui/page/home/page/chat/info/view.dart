@@ -347,7 +347,7 @@ class ChatInfoView extends StatelessWidget {
           ActionButton(
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
-            trailing: const SvgIcon(SvgIcons.leaveGroup),
+            trailing: const SvgIcon(SvgIcons.leaveGroupSmall),
           ),
       ],
     );
