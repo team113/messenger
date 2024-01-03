@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 
 /// Custom [CupertinoPageTransitionsBuilder] to define a horizontal
 /// [MaterialPageRoute] page transition animation.
+///
+/// Used for all platforms except Android and IOS.
 class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
   const CustomCupertinoPageTransitionsBuilder();
 
