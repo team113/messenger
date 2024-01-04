@@ -349,10 +349,7 @@ class _ChatViewState extends State<ChatView>
                                   child = AnimatedButton(
                                     onPressed: () => c.selecting.value = false,
                                     child: Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 0,
-                                      ),
+                                      padding: const EdgeInsets.only(left: 10),
                                       height: double.infinity,
                                       child: const Padding(
                                         padding:

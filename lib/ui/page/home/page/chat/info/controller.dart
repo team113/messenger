@@ -44,9 +44,8 @@ class ChatInfoController extends GetxController {
     this.chatId,
     this._chatService,
     this._authService,
-    this._callService, {
-    bool edit = false,
-  }) : editing = RxBool(edit);
+    this._callService,
+  );
 
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
@@ -69,7 +68,7 @@ class ChatInfoController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   /// Indicator whether the editing mode is enabled.
-  final RxBool editing;
+  final RxBool editing = RxBool(true);
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
