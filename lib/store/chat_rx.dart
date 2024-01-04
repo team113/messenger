@@ -1252,7 +1252,8 @@ class HiveRxChat extends RxChat {
               }
 
               if (event.reason != ChatCallFinishReason.moved) {
-                _chatRepository.removeCredentials(event.call.id);
+                _chatRepository.removeCredentials(
+                    event.call.chatId, event.call.id);
                 _chatRepository.endCall(event.call.chatId);
               }
 

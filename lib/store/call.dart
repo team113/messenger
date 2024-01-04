@@ -114,8 +114,8 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Rx<OngoingCall>? add(ChatCall call) {
-    Log.debug('add($call)', '$runtimeType');
+  Future<Rx<OngoingCall>?> add(ChatCall call) async {
+    Log.debug('add(${call.id})', '$runtimeType');
 
     Rx<OngoingCall>? ongoing = calls[call.chatId];
 
@@ -136,7 +136,7 @@ class CallRepository extends DisposableInterface
           withVideo: false,
           withScreen: false,
           mediaSettings: media.value,
-          creds: getCredentials(call.id),
+          creds: await getCredentials(call.id),
         ),
       );
       calls[call.chatId] = ongoing;
@@ -155,7 +155,7 @@ class CallRepository extends DisposableInterface
     bool withScreen = false,
   }) {
     Log.debug(
-      'addStored($stored, $withAudio, $withVideo, $withScreen)',
+      'addStored(${stored.call?.id}, $withAudio, $withVideo, $withScreen)',
       '$runtimeType',
     );
 
@@ -245,7 +245,7 @@ class CallRepository extends DisposableInterface
 
     calls[call.value.chatId.value] = call;
 
-    var response = await _graphQlProvider.startChatCall(
+    final response = await _graphQlProvider.startChatCall(
       call.value.chatId.value,
       call.value.creds!,
       call.value.videoState.value == LocalTrackState.enabling ||
@@ -254,7 +254,7 @@ class CallRepository extends DisposableInterface
 
     call.value.deviceId = response.deviceId;
 
-    var chatCall = _chatCall(response.event);
+    final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
       call.value.call.value = chatCall;
       transferCredentials(chatCall.chatId, chatCall.id);
@@ -290,7 +290,7 @@ class CallRepository extends DisposableInterface
 
       ChatCallCredentials? credentials;
       if (callId != null) {
-        credentials = getCredentials(callId);
+        credentials = await getCredentials(callId);
       }
 
       ongoing = Rx<OngoingCall>(
@@ -301,7 +301,7 @@ class CallRepository extends DisposableInterface
           withVideo: withVideo,
           withScreen: withScreen,
           mediaSettings: media.value,
-          creds: credentials ?? generateCredentials(chatId),
+          creds: credentials ??= generateCredentials(chatId),
           state: OngoingCallState.joining,
         ),
       );
@@ -400,13 +400,13 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  ChatCallCredentials generateCredentials(ChatId id) {
-    Log.debug('generateCredentials($id)', '$runtimeType');
+  ChatCallCredentials generateCredentials(ChatId chatId) {
+    Log.debug('generateCredentials($chatId)', '$runtimeType');
 
-    ChatCallCredentials? creds = _credentials[id];
+    ChatCallCredentials? creds = _credentials[chatId];
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
-      _credentials[id] = creds;
+      _credentials[chatId] = creds;
     }
 
     return creds;
@@ -419,18 +419,17 @@ class CallRepository extends DisposableInterface
     ChatCallCredentials? creds = _credentials[chatId];
     if (creds != null) {
       _credentialsProvider.put(callId, creds);
-      _credentials.remove(chatId);
     }
   }
 
   @override
-  ChatCallCredentials getCredentials(ChatItemId id) {
-    Log.debug('getCredentials($id)', '$runtimeType');
+  Future<ChatCallCredentials> getCredentials(ChatItemId callId) async {
+    Log.debug('getCredentials($callId)', '$runtimeType');
 
-    ChatCallCredentials? creds = _credentialsProvider.get(id);
+    ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
-      _credentialsProvider.put(id, creds);
+      await _credentialsProvider.put(callId, creds);
     }
 
     return creds;
@@ -448,9 +447,11 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<void> removeCredentials(ChatItemId id) {
-    Log.debug('removeCredentials($id)', '$runtimeType');
-    return _credentialsProvider.remove(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('removeCredentials($callId)', '$runtimeType');
+
+    _credentials.remove(chatId);
+    return _credentialsProvider.remove(callId);
   }
 
   @override
@@ -528,8 +529,9 @@ class CallRepository extends DisposableInterface
     Log.trace('_callEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatCallFinished') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
-      for (var m in node.call.members) {
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallFinished(
@@ -540,7 +542,7 @@ class CallRepository extends DisposableInterface
         node.reason,
       );
     } else if (e.$$typename == 'EventChatCallRoomReady') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
       return EventChatCallRoomReady(
         node.callId,
@@ -549,10 +551,10 @@ class CallRepository extends DisposableInterface
         node.joinLink,
       );
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberLeft;
       _userRepo.put(node.user.toHive());
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMemberLeft(
@@ -564,9 +566,9 @@ class CallRepository extends DisposableInterface
         node.deviceId,
       );
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberJoined;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMemberJoined(
@@ -578,9 +580,9 @@ class CallRepository extends DisposableInterface
         node.deviceId,
       );
     } else if (e.$$typename == 'EventChatCallMemberRedialed') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberRedialed;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMemberRedialed(
@@ -592,9 +594,9 @@ class CallRepository extends DisposableInterface
         node.byUser.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-      var node = e
+      final node = e
           as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallAnswerTimeoutPassed(
@@ -606,9 +608,9 @@ class CallRepository extends DisposableInterface
         node.userId,
       );
     } else if (e.$$typename == 'EventChatCallHandLowered') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallHandLowered(
@@ -619,9 +621,9 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
+      final node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
       _userRepo.put(node.user.toHive());
-      for (var m in [...node.call.members, ...node.newCall.members]) {
+      for (final m in [...node.call.members, ...node.newCall.members]) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMoved(
@@ -636,9 +638,9 @@ class CallRepository extends DisposableInterface
         node.newCall.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallHandRaised') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandRaised;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallHandRaised(
@@ -649,9 +651,10 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallDeclined') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
       _userRepo.put(node.user.toHive());
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallDeclined(
@@ -662,9 +665,9 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallConversationStarted') {
-      var node = e
+      final node = e
           as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallConversationStarted(
@@ -684,16 +687,16 @@ class CallRepository extends DisposableInterface
 
     for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
-        var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-        for (var m in node.call.members) {
+        final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+        for (final m in node.call.members) {
           _userRepo.put(m.user.toHive());
         }
         return node.call.toModel();
       } else if (e.$$typename == 'EventChatCallMemberJoined') {
-        var node =
+        final node =
             e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
 
-        for (var m in node.call.members) {
+        for (final m in node.call.members) {
           _userRepo.put(m.user.toHive());
         }
         return node.call.toModel();

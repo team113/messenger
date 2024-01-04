@@ -43,7 +43,7 @@ abstract class AbstractCallRepository {
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
   /// Adds the provided [ChatCall] to the [calls], if not already.
-  Rx<OngoingCall>? add(ChatCall call);
+  Future<Rx<OngoingCall>?> add(ChatCall call);
 
   /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
   /// if not already.
@@ -130,14 +130,14 @@ abstract class AbstractCallRepository {
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
   /// provided [id].
-  ChatCallCredentials getCredentials(ChatItemId id);
+  Future<ChatCallCredentials> getCredentials(ChatItemId callId);
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
   void moveCredentials(ChatItemId callId, ChatItemId newCallId);
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId);
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///

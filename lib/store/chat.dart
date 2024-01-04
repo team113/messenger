@@ -1066,9 +1066,9 @@ class ChatRepository extends DisposableInterface
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) async {
-    Log.debug('removeCredentials($id)', '$runtimeType');
-    await _callRepo.removeCredentials(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
+    Log.debug('removeCredentials($callId)', '$runtimeType');
+    await _callRepo.removeCredentials(chatId, callId);
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].

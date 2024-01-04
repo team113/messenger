@@ -538,7 +538,7 @@ class CallController extends GetxController {
 
     _currentCall.value.init();
 
-    Size size = router.context!.mediaQuerySize;
+    final Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -1849,9 +1849,9 @@ class CallController extends GetxController {
       // If every [RtcVideoRenderer] is in focus, then put everyone outside of
       // it.
       if (paneled.isEmpty && focused.isNotEmpty) {
-        List<Participant> copy = List.from(focused, growable: false);
-        for (Participant r in copy) {
-          _putVideoFrom(r, focused);
+        final List<Participant> copy = List.from(focused, growable: false);
+        for (final Participant p in copy) {
+          _putVideoFrom(p, focused);
         }
       }
     }
@@ -1883,13 +1883,13 @@ class CallController extends GetxController {
   }
 
   /// Puts the [CallMember.tracks] to the according [Participant].
-  void _putMember(CallMember member) {
+  void _putMemberTracksToParticipant(CallMember member) {
     if (member.tracks.none((t) => t.source == MediaSourceKind.device)) {
-      _putParticipant(member, null);
+      _putTrackToParticipant(member, null);
     }
 
-    for (Track t in member.tracks) {
-      _putParticipant(member, t);
+    for (final Track track in member.tracks) {
+      _putTrackToParticipant(member, track);
     }
   }
 
@@ -1897,7 +1897,7 @@ class CallController extends GetxController {
   ///
   /// If no suitable [Participant]s for this [track] are found, then a new
   /// [Participant] with this [track] is added.
-  void _putParticipant(CallMember member, Track? track) {
+  void _putTrackToParticipant(CallMember member, Track? track) {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
@@ -2045,7 +2045,7 @@ class CallController extends GetxController {
       ) {
         switch (track.op) {
           case OperationKind.added:
-            _putParticipant(member, track.element);
+            _putTrackToParticipant(member, track.element);
             _ensureCorrectGrouping();
             break;
 
@@ -2068,7 +2068,7 @@ class CallController extends GetxController {
       _membersSubscription = _currentCall.value.members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            _putMember(e.value!);
+            _putMemberTracksToParticipant(e.value!);
             _membersTracksSubscriptions[e.key!] =
                 e.value!.tracks.changes.listen(
               (c) => onTracksChanged(e.value!, c),
@@ -2096,7 +2096,7 @@ class CallController extends GetxController {
         }
       });
 
-      members.forEach((_, value) => _putMember(value));
+      members.forEach((_, value) => _putMemberTracksToParticipant(value));
       _ensureCorrectGrouping();
     }
   }
