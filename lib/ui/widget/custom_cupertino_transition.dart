@@ -115,11 +115,8 @@ mixin CustomCupertinoRouteTransitionsMixin<T> on PageRoute<T> {
     );
   }
 
-  /// Returns custom cupertino page transition.
-  ///
-  /// If [route.fullscreenDialog] is true, returns
-  /// [CustomCupertinoFullscreenDialogTransition], otherwise
-  /// [CustomCupertinoPageTransition].
+  /// Returns a [CustomCupertinoFullscreenDialogTransition] if [route] is a full
+  /// screen dialog, otherwise a [CustomCupertinoPageTransition] is returned.
   static Widget buildPageTransitions<T>(
     PageRoute<T> route,
     BuildContext context,
@@ -429,26 +426,25 @@ class _CupertinoBackGestureController<T> {
 
     if (animateForward) {
       final int droppedPageForwardAnimationTime = min(
-        lerpDouble(
-          maxForwardAnimationTime,
-          0,
-          controller.value,
-        )!
-            .floor(),
+        lerpDouble(maxForwardAnimationTime, 0, controller.value)!.floor(),
         maxBackAnimationTime,
       );
-      controller.animateTo(1.0,
-          duration: Duration(milliseconds: droppedPageForwardAnimationTime),
-          curve: animationCurve);
+      controller.animateTo(
+        1.0,
+        duration: Duration(milliseconds: droppedPageForwardAnimationTime),
+        curve: animationCurve,
+      );
     } else {
       navigator.pop();
 
       if (controller.isAnimating) {
         final int droppedPageBackAnimationTime =
             lerpDouble(0, maxForwardAnimationTime, controller.value)!.floor();
-        controller.animateBack(0.0,
-            duration: Duration(milliseconds: droppedPageBackAnimationTime),
-            curve: animationCurve);
+        controller.animateBack(
+          0.0,
+          duration: Duration(milliseconds: droppedPageBackAnimationTime),
+          curve: animationCurve,
+        );
       }
     }
 

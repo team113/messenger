@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
-        - Update transition animation on desktop. ([#775], [#573])
+        - Update transition animation. ([#775], [#573])
     - Chats tab:
         - Monolog searching. ([#745], [#582])
 
