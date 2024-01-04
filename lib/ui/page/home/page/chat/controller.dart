@@ -1117,13 +1117,13 @@ class ChatController extends GetxController {
         initIndex = index;
       }
 
-      if (addToHistory && (reply != null || forward != null)) {
+      if (addToHistory) {
         this.addToHistory(item);
       }
     } else {
-      final ListElementId id =
+      final ListElementId itemId =
           ListElementId(itemAnimateTo.at, itemAnimateTo.id);
-      final ListElementId? lastKey = elements.values
+      final ListElementId? lastId = elements.values
           .lastWhereOrNull(
             (e) =>
                 e is ChatMessageElement ||
@@ -1135,7 +1135,7 @@ class ChatController extends GetxController {
 
       // If the [itemAnimateTo] placed before the first item then animate to top
       // or otherwise to bottom.
-      if (lastKey != null && id.compareTo(lastKey) == 1) {
+      if (lastId != null && itemId.compareTo(lastId) == 1) {
         if (_topLoader == null) {
           _topLoader = LoaderElement.top();
           elements[_topLoader!.id] = _topLoader!;
@@ -1185,8 +1185,6 @@ class ChatController extends GetxController {
         });
 
         if (index != -1) {
-          _ignorePositionChanges = true;
-
           // [FlutterListView] ignores the [initIndex], if it is 0.
           if (index == 0) {
             initIndex = 1;
@@ -1198,7 +1196,7 @@ class ChatController extends GetxController {
 
           _highlight(elements.values.elementAt(index).id);
 
-          if (addToHistory && (reply != null || forward != null)) {
+          if (addToHistory) {
             this.addToHistory(item);
           }
         }

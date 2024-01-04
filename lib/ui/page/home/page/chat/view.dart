@@ -1491,7 +1491,7 @@ class _ChatViewState extends State<ChatView>
           key: const Key('EditField'),
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-          onItemPressed: (item) => c.animateTo(item),
+          onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         );
       }
 
@@ -1499,7 +1499,7 @@ class _ChatViewState extends State<ChatView>
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-        onItemPressed: (item) => c.animateTo(item),
+        onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         canForward: true,
       );
     });
