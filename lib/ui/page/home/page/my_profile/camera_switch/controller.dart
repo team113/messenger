@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -47,6 +48,9 @@ class CameraSwitchController extends GetxController {
   /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
 
+  /// Error message to display, if any.
+  final RxnString error = RxnString();
+
   /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
 
@@ -66,11 +70,18 @@ class CameraSwitchController extends GetxController {
     _devicesSubscription = MediaUtils.onDeviceChange
         .listen((e) => devices.value = e.video().toList());
 
-    await WebUtils.cameraPermission();
-    devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
+    try {
+      await WebUtils.cameraPermission();
+      devices.value =
+          await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
 
-    initRenderer();
+      initRenderer();
+    } on UnsupportedError {
+      error.value = 'err_media_devices_are_null'.l10n;
+    } catch (e) {
+      error.value = e.toString();
+      rethrow;
+    }
 
     super.onInit();
   }
