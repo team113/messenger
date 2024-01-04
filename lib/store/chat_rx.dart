@@ -789,7 +789,11 @@ class HiveRxChat extends RxChat {
       item = await _local.get(key);
     }
 
-    item ??= await _chatRepository.message(itemId);
+    try {
+      item ??= await _chatRepository.message(itemId);
+    } catch (_) {
+      // No-op.
+    }
 
     return item;
   }
