@@ -291,6 +291,7 @@ err_invalid_crop_points = Неверные точки обрезки
 err_invalid_registration_token = Некорректный регистрационный токен
 err_unknown_registration_token = Неизвестный регистрационный токен
 err_login_occupied = Данный логин уже занят.
+err_media_devices_are_null = Невозможно получить `MediaStream` с `video` парамтеро, т.к. `window.navigator.mediaDevices` является `null`. Вероятно, конфигурация Вашего браузера не позволяет получить медиа устройства. Подкорректируйте настройки и убедитесь в доступности медиа устройств.
 err_message_was_read = Сообщение было прочитано
 err_monolog = Невозможно выполнить данное действие в монологе
 err_network = Ошибка подключения к серверу

@@ -299,6 +299,7 @@ err_invalid_crop_points = Invalid crop points
 err_invalid_registration_token = Invalid registration token
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
+err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
 err_monolog = Can't perfom this action in a monolog
 err_network = Connection to the server refused

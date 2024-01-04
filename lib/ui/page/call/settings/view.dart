@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
@@ -137,39 +138,47 @@ class CallSettingsView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await OutputSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setOutputDevice(device),
-                          output: c.output.value,
-                        );
 
-                        if (c.devices.output().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_output'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.output().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.output.value) ??
-                                          c.devices.output().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
+                  // TODO: Remove, when Safari supports output devices without
+                  //       tweaking the developer options:
+                  //       https://bugs.webkit.org/show_bug.cgi?id=216641
+                  if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: padding,
+                      child: WidgetButton(
+                        onPressed: () async {
+                          await OutputSwitchView.show(
+                            context,
+                            onChanged: (device) => c.setOutputDevice(device),
+                            output: c.output.value,
                           );
-                        }),
+
+                          if (c.devices.output().isEmpty) {
+                            await c.enumerateDevices();
+                          }
+                        },
+                        child: IgnorePointer(
+                          child: Obx(() {
+                            return ReactiveTextField(
+                              label: 'label_media_output'.l10n,
+                              state: TextFieldState(
+                                text: (c.devices.output().firstWhereOrNull(
+                                                (e) =>
+                                                    e.deviceId() ==
+                                                    c.output.value) ??
+                                            c.devices.output().firstOrNull)
+                                        ?.label() ??
+                                    'label_media_no_device_available'.l10n,
+                                editable: false,
+                              ),
+                              style: style.fonts.normal.regular.primary,
+                            );
+                          }),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                   const SizedBox(height: 16),
                   ModalPopupHeader(text: 'label_calls'.l10n, close: false),
                   Padding(
