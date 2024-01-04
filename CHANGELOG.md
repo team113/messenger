@@ -30,6 +30,8 @@ All user visible changes to this project will be documented in this file. This p
         - Restore button displaying under mobile navigation bar. ([#763, #758])
     - User page:
         - Downloaded avatar missing its extension on desktop. ([#756, #726])
+    - Chat page:
+        - Read partially message status missing in forwards. ([#776])
 
 [#582]: /../../issues/582
 [#718]: /../../issues/718
@@ -41,6 +43,7 @@ All user visible changes to this project will be documented in this file. This p
 [#763]: /../../pull/763
 [#766]: /../../issues/766
 [#769]: /../../pull/769
+[#776]: /../../pull/776
 
 
 

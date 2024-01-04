@@ -38,7 +38,6 @@ Feature: Messages selection
 
     When I long press "01" message
     And I tap `Select` button
-    And I tap "01" message
     And I tap "02" message
     And I tap "03" message
     And I tap `ForwardButton` button
@@ -64,7 +63,6 @@ Feature: Messages selection
 
     When I long press "01" message
     And I tap `Select` button
-    And I tap "01" message
     And I tap "02" message
     And I tap "03" message
     And I tap `DeleteButton` button

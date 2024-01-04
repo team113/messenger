@@ -253,33 +253,14 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
-                          if (c.chat?.blocked == true) {
-                            return const SizedBox.shrink();
-                          }
-
+                          final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
 
                           final List<Widget> children;
 
-                          if (c.chat!.chat.value.ongoingCall == null) {
-                            children = [
-                              if (c.callPosition == null ||
-                                  c.callPosition ==
-                                      CallButtonsPosition.appBar) ...[
-                                AnimatedButton(
-                                  onPressed: () => c.call(true),
-                                  child: const SvgIcon(SvgIcons.chatVideoCall),
-                                ),
-                                const SizedBox(width: 28),
-                                AnimatedButton(
-                                  key: const Key('AudioCall'),
-                                  onPressed: () => c.call(false),
-                                  child: const SvgIcon(SvgIcons.chatAudioCall),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                            ];
-                          } else {
+                          // Display the join/end call button, if [Chat] has an
+                          // [OngoingCall] happening in it.
+                          if (c.chat!.chat.value.ongoingCall != null) {
                             final Widget child;
 
                             if (inCall) {
@@ -320,6 +301,28 @@ class _ChatViewState extends State<ChatView>
                                 ),
                               ),
                             ];
+                          } else if (!blocked) {
+                            children = [
+                              if (c.callPosition == null ||
+                                  c.callPosition ==
+                                      CallButtonsPosition.appBar) ...[
+                                AnimatedButton(
+                                  onPressed: () => c.call(true),
+                                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                                ),
+                                const SizedBox(width: 28),
+                                AnimatedButton(
+                                  key: const Key('AudioCall'),
+                                  onPressed: () => c.call(false),
+                                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            ];
+                          } else {
+                            // [Chat]-dialog is blocked, therefore no call
+                            // buttons should be displayed.
+                            children = [];
                           }
 
                           return Row(
@@ -347,7 +350,7 @@ class _ChatViewState extends State<ChatView>
 
                                 if (c.selecting.value) {
                                   child = AnimatedButton(
-                                    onPressed: () => c.selecting.value = false,
+                                    onPressed: c.selecting.toggle,
                                     child: Container(
                                       padding: const EdgeInsets.only(left: 10),
                                       height: double.infinity,
@@ -373,11 +376,11 @@ class _ChatViewState extends State<ChatView>
                                           CallButtonsPosition.contextMenu) ...[
                                         ContextMenuButton(
                                           label: 'btn_audio_call'.l10n,
-                                          onPressed: inCall
+                                          onPressed: blocked || inCall
                                               ? null
                                               : () => c.call(false),
                                           trailing: SvgIcon(
-                                            inCall
+                                            blocked || inCall
                                                 ? SvgIcons.makeAudioCallDisabled
                                                 : SvgIcons.makeAudioCall,
                                           ),
@@ -387,11 +390,11 @@ class _ChatViewState extends State<ChatView>
                                         ),
                                         ContextMenuButton(
                                           label: 'btn_video_call'.l10n,
-                                          onPressed: inCall
+                                          onPressed: blocked || inCall
                                               ? null
                                               : () => c.call(true),
                                           trailing: SvgIcon(
-                                            inCall
+                                            blocked || inCall
                                                 ? SvgIcons.makeVideoCallDisabled
                                                 : SvgIcons.makeVideoCall,
                                           ),
@@ -422,7 +425,9 @@ class _ChatViewState extends State<ChatView>
                                           ),
                                           onPressed: contact
                                               ? () => _removeFromContacts(
-                                                  c, context)
+                                                    c,
+                                                    context,
+                                                  )
                                               : c.addToContacts,
                                         ),
                                       ContextMenuButton(
@@ -517,15 +522,20 @@ class _ChatViewState extends State<ChatView>
                                         ),
                                       if (dialog)
                                         ContextMenuButton(
-                                          key: const Key('Block'),
-                                          label: 'btn_block'.l10n,
+                                          key: Key(
+                                            blocked ? 'Unblock' : 'Block',
+                                          ),
+                                          label: blocked
+                                              ? 'btn_unblock'.l10n
+                                              : 'btn_block'.l10n,
                                           trailing:
                                               const SvgIcon(SvgIcons.block),
                                           inverted: const SvgIcon(
                                             SvgIcons.blockWhite,
                                           ),
-                                          onPressed: () =>
-                                              _blockUser(c, context),
+                                          onPressed: blocked
+                                              ? c.unblock
+                                              : () => _blockUser(c, context),
                                         ),
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
@@ -1001,7 +1011,10 @@ class _ChatViewState extends State<ChatView>
                   onDownload: c.downloadMedia,
                   onDownloadAs: c.downloadMediaAs,
                   onSave: (a) => c.saveToGallery(a, e.value),
-                  onSelect: c.selecting.toggle,
+                  onSelect: () {
+                    c.selecting.toggle();
+                    c.selected.add(element);
+                  },
                 ),
               ),
             );
@@ -1133,7 +1146,10 @@ class _ChatViewState extends State<ChatView>
                     await Future.delayed(Duration.zero);
                   },
                   onSelecting: (s) => c.isSelecting.value = s,
-                  onSelect: c.selecting.toggle,
+                  onSelect: () {
+                    c.selecting.toggle();
+                    c.selected.add(element);
+                  },
                 ),
               ),
             );
@@ -1400,10 +1416,16 @@ class _ChatViewState extends State<ChatView>
 
                             final result = await ConfirmDialog.show(
                               context,
-                              title: 'label_delete_message'.l10n,
+                              title: c.selected.length > 1
+                                  ? 'label_delete_messages'.l10n
+                                  : 'label_delete_message'.l10n,
                               description: deletable
                                   ? null
-                                  : 'label_message_will_deleted_for_you'.l10n,
+                                  : c.selected.length > 1
+                                      ? 'label_messages_will_deleted_for_you'
+                                          .l10n
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
                               initial: 1,
                               variants: [
                                 ConfirmDialogVariant(
