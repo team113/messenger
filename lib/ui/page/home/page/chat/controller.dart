@@ -217,8 +217,8 @@ class ChatController extends GetxController {
   /// Height of a [LoaderElement] displayed in the message list.
   static const double loaderHeight = 64;
 
-  /// Index of an item from the [elements] that should be highlighted.
-  final RxnInt highlightIndex = RxnInt(null);
+  /// [ListElementId] of an item from the [elements] that should be highlighted.
+  final Rx<ListElementId?> highlightItem = Rx<ListElementId?>(null);
 
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
@@ -332,7 +332,7 @@ class ChatController extends GetxController {
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
-  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// [Timer] resetting the [highlightItem] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
 
@@ -511,6 +511,8 @@ class ChatController extends GetxController {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    Future.delayed(Duration.zero, chat!.around);
 
     super.onClose();
   }
@@ -1084,13 +1086,14 @@ class ChatController extends GetxController {
   /// [item] and its [reply] or [forward].
   Future<void> animateTo(
     ChatItem item, {
-    ChatItemId? reply,
-    ChatItemId? forward,
+    ChatItemQuote? reply,
+    ChatItemQuote? forward,
     bool offsetBasedOnBottom = true,
     bool addToHistory = true,
     double offset = 50,
   }) async {
-    final ChatItemId animateTo = reply ?? forward ?? item.id;
+    final ChatItem itemAnimateTo = reply?.original ?? forward?.original ?? item;
+    final ChatItemId animateTo = itemAnimateTo.id;
 
     final int index = elements.values.toList().indexWhere((e) {
       return e.id.id == animateTo ||
@@ -1100,7 +1103,7 @@ class ChatController extends GetxController {
     });
 
     if (index != -1) {
-      _highlight(index);
+      _highlight(elements.values.elementAt(index).id);
 
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
@@ -1118,56 +1121,98 @@ class ChatController extends GetxController {
         this.addToHistory(item);
       }
     } else {
-      if (_topLoader == null) {
-        _topLoader = LoaderElement.top();
-        elements[_topLoader!.id] = _topLoader!;
+      final ListElementId id =
+          ListElementId(itemAnimateTo.at, itemAnimateTo.id);
+      final ListElementId? lastKey = elements.values
+          .lastWhereOrNull(
+            (e) =>
+                e is ChatMessageElement ||
+                e is ChatInfoElement ||
+                e is ChatCallElement ||
+                e is ChatForwardElement,
+          )
+          ?.id;
+
+      // If the [itemAnimateTo] placed before the first item then animate to top
+      // or otherwise to bottom.
+      if (lastKey != null && id.compareTo(lastKey) == 1) {
+        if (_topLoader == null) {
+          _topLoader = LoaderElement.top();
+          elements[_topLoader!.id] = _topLoader!;
+        }
+
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          _ignorePositionChanges = true;
+          await listController.sliverController.animateToIndex(
+            elements.length - 1,
+            offsetBasedOnBottom: true,
+            offset: 0,
+            duration: 300.milliseconds,
+            curve: Curves.ease,
+          );
+          _ignorePositionChanges = false;
+        });
+      } else {
+        if (_bottomLoader == null) {
+          _bottomLoader = LoaderElement.bottom();
+          elements[_bottomLoader!.id] = _bottomLoader!;
+        }
+
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          _ignorePositionChanges = true;
+          await listController.sliverController.animateToIndex(
+            0,
+            offsetBasedOnBottom: true,
+            offset: 0,
+            duration: 300.milliseconds,
+            curve: Curves.ease,
+          );
+        });
       }
 
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        _ignorePositionChanges = true;
-        await listController.sliverController.animateToIndex(
-          elements.length - 1,
-          offsetBasedOnBottom: true,
-          offset: 0,
-          duration: 300.milliseconds,
-          curve: Curves.ease,
+      try {
+        await chat!.around(
+          item: item,
+          reply: reply?.original?.id,
+          forward: forward?.original?.id,
         );
-        _ignorePositionChanges = false;
-      });
 
-      await chat!.around(item: item, reply: reply, forward: forward);
+        final int index = elements.values.toList().indexWhere((e) {
+          return e.id.id == animateTo ||
+              (e is ChatForwardElement &&
+                  (e.forwards.any((e1) => e1.value.id == animateTo) ||
+                      e.note.value?.value.id == animateTo));
+        });
 
-      final int index = elements.values.toList().indexWhere((e) {
-        return e.id.id == animateTo ||
-            (e is ChatForwardElement &&
-                (e.forwards.any((e1) => e1.value.id == animateTo) ||
-                    e.note.value?.value.id == animateTo));
-      });
+        if (index != -1) {
+          _ignorePositionChanges = true;
 
-      if (index != -1) {
-        // [FlutterListView] ignores the [initIndex], if it is 0.
-        if (index == 0) {
-          initIndex = 1;
-          initOffset = 5000;
-        } else {
-          initIndex = index;
-          initOffset = offset;
+          // [FlutterListView] ignores the [initIndex], if it is 0.
+          if (index == 0) {
+            initIndex = 1;
+            initOffset = 5000;
+          } else {
+            initIndex = index;
+            initOffset = offset;
+          }
+
+          _highlight(elements.values.elementAt(index).id);
+
+          if (addToHistory && (reply != null || forward != null)) {
+            this.addToHistory(item);
+          }
         }
+      } finally {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          listController.jumpTo(listController.offset);
+          _ignorePositionChanges = false;
 
-        _highlight(index);
-
-        if (addToHistory && (reply != null || forward != null)) {
-          this.addToHistory(item);
-        }
+          elements.remove(_topLoader?.id);
+          elements.remove(_bottomLoader?.id);
+          _topLoader = null;
+          _bottomLoader = null;
+        });
       }
-
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-        listController.jumpTo(listController.offset);
-        _ignorePositionChanges = false;
-
-        elements.remove(_topLoader?.id);
-        _topLoader = null;
-      });
     }
   }
 
@@ -1601,12 +1646,12 @@ class ChatController extends GetxController {
   }
 
   /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) async {
-    highlightIndex.value = index;
+  Future<void> _highlight(ListElementId id) async {
+    highlightItem.value = id;
 
     _highlightTimer?.cancel();
     _highlightTimer = Timer(_highlightTimeout, () {
-      highlightIndex.value = null;
+      highlightItem.value = null;
     });
   }
 
@@ -1798,7 +1843,7 @@ class ChatController extends GetxController {
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
-        _highlight(i);
+        _highlight(elements.values.elementAt(index).id);
         index = i;
         offset = (MediaQuery.of(router.context!).size.height) / 3;
       }

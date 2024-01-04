@@ -58,7 +58,8 @@ final StepDefinitionGeneric seeChatMessages =
   },
 );
 
-/// Indicates whether the first [ChatItem]s is visible in the opened [Chat].
+/// Indicates whether a [ChatItem] with the provided text is visible in the
+/// opened [Chat].
 ///
 /// Examples:
 /// - I see "dummy message" message.

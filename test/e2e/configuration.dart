@@ -198,7 +198,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         popupWindows,
         readsAllMessages,
         readsMessage,
-        repliesMessage,
+        repliesToMessage,
         restartApp,
         returnToPreviousPage,
         rightClickMessage,

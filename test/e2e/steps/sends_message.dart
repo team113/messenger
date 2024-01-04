@@ -50,7 +50,7 @@ final StepDefinitionGeneric sendsMessageToMe =
 );
 
 /// Sends a message from the specified [User] to the group with the provided
-/// name with the provided text.
+/// name and text.
 ///
 /// Examples:
 /// - Bob sends "Hello, Alice!" message to "Name" group

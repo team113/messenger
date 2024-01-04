@@ -924,8 +924,8 @@ class _ChatViewState extends State<ChatView>
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlightIndex.value == i || c.selected.contains(element),
+              highlight: c.highlightItem.value == element.id ||
+                  c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
                 context,
@@ -969,7 +969,7 @@ class _ChatViewState extends State<ChatView>
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(e.value, reply: q.original!.id);
+                      await c.animateTo(e.value, reply: q);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -1004,8 +1004,8 @@ class _ChatViewState extends State<ChatView>
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlightIndex.value == i || c.selected.contains(element),
+              highlight: c.highlightItem.value == element.id ||
+                  c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
                 context,
@@ -1095,7 +1095,7 @@ class _ChatViewState extends State<ChatView>
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {
                       if (item.quote.original!.chatId == c.id) {
-                        c.animateTo(item, forward: item.quote.original!.id);
+                        c.animateTo(item, forward: item.quote);
                       } else {
                         router.chat(
                           item.quote.original!.chatId,

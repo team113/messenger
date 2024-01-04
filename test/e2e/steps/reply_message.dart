@@ -29,10 +29,10 @@ import '../world/custom_world.dart';
 /// [Group] with the provided name.
 ///
 /// Examples:
-/// - When Alice replies "dummy msg" message in "Name" group.
-final StepDefinitionGeneric repliesMessage =
+/// - When Alice replies to "dummy msg" message in "Name" group.
+final StepDefinitionGeneric repliesToMessage =
     when3<TestUser, String, String, CustomWorld>(
-  '{user} replies {string} message in {string} group',
+  '{user} replies to {string} message in {string} group',
   (TestUser user, String text, String name, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;

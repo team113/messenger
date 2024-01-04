@@ -481,6 +481,8 @@ class HiveRxChat extends RxChat {
 
     if (item != null) {
       return _loadFragmentAround(item, reply: reply, forward: forward);
+    } else if (_fragment != null) {
+      return _disposeFragment();
     }
 
     if (id.isLocal ||
@@ -738,10 +740,10 @@ class HiveRxChat extends RxChat {
   }
 
   /// Adds the provided [item] to [Pagination] and [Hive].
-  Future<void> put(HiveChatItem item) async {
+  Future<void> put(HiveChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
-    await _pagination.put(item);
-    await _fragment?.put(item);
+    await _pagination.put(item, ignoreBounds: ignoreBounds);
+    await _fragment?.put(item, ignoreBounds: ignoreBounds);
   }
 
   @override
@@ -782,11 +784,14 @@ class HiveRxChat extends RxChat {
 
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
+    HiveChatItem? item;
     if (key != null) {
-      return await _local.get(key);
+      item = await _local.get(key);
     }
 
-    return null;
+    item ??= await _chatRepository.message(itemId);
+
+    return item;
   }
 
   /// Recalculates the [reads] to represent the actual [messages].
@@ -832,7 +837,7 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      await _pagination.clear();
+      await clear();
       _provider.hive = _local;
 
       for (var e in saved.whereType<HiveChatMessage>()) {
@@ -844,7 +849,7 @@ class HiveRxChat extends RxChat {
           copy.value.status.value = SendingStatus.sending;
         }
 
-        _pagination.put(copy, ignoreBounds: true);
+        put(copy, ignoreBounds: true);
       }
 
       _pagination.around();
@@ -926,33 +931,42 @@ class HiveRxChat extends RxChat {
       '$runtimeType($id)',
     );
 
-    if (id.isLocal) {
-      return;
-    }
-
-    final HiveChatItem? hiveItem =
-        _pagination.items[item.key] ?? await _local.get(item.key);
+    final HiveChatItem? hiveItem = _pagination.items[item.key] ??
+        _fragment?.items[item.key] ??
+        await get(item.key.id, key: item.key);
 
     final ChatItemsCursor? cursor;
     final ChatItemKey? key;
 
     if (reply != null) {
       if (hiveItem is! HiveChatMessage) {
-        return;
+        throw ArgumentError.value(
+          item,
+          'item',
+          'item should be ChatMessage if reply provided.',
+        );
       }
 
       final ChatMessage message = hiveItem.value as ChatMessage;
       final int replyIndex =
           message.repliesTo.indexWhere((e) => e.original?.id == reply);
       if (replyIndex == -1) {
-        return;
+        throw ArgumentError.value(
+          reply,
+          'reply',
+          'Reply not found.',
+        );
       }
 
       cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
       key = message.repliesTo.elementAt(replyIndex).original?.key;
     } else if (forward != null) {
       if (hiveItem is! HiveChatForward) {
-        return;
+        throw ArgumentError.value(
+          item,
+          'item',
+          'item should be ChatForward if forward provided.',
+        );
       }
 
       cursor = hiveItem.quoteCursor;
@@ -963,20 +977,15 @@ class HiveRxChat extends RxChat {
     }
 
     if (_pagination.items[key] != null) {
-      _fragment?.dispose();
-      _fragment = null;
-
-      messages.clear();
-      for (var e in _pagination.items.values) {
-        _add(e.value);
+      if (_fragment != null) {
+        _disposeFragment();
       }
 
-      _subscribeFor(_pagination);
       return;
     }
 
     if (cursor == null) {
-      return;
+      throw ArgumentError.value(item, 'item', 'Cursor not found.');
     }
 
     _fragment = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
@@ -1015,6 +1024,19 @@ class HiveRxChat extends RxChat {
       _fragment?.dispose();
       _fragment = null;
     }
+  }
+
+  /// Disposes the [_fragment] and subscribes for the [_pagination].
+  void _disposeFragment() {
+    _fragment?.dispose();
+    _fragment = null;
+
+    messages.clear();
+    for (var e in _pagination.items.values) {
+      _add(e.value);
+    }
+
+    _subscribeFor(_pagination);
   }
 
   /// Subscribes to the the provided [pagination] changes.
@@ -1211,8 +1233,7 @@ class HiveRxChat extends RxChat {
       }
 
       stored.value = item;
-      _pagination.put(stored);
-      _fragment?.put(stored);
+      put(stored);
     }
   }
 
@@ -1241,7 +1262,7 @@ class HiveRxChat extends RxChat {
 
             messages.clear();
 
-            await _pagination.clear();
+            await clear();
             await _pagination.around(cursor: _lastReadItemCursor);
           }
         },
@@ -1312,8 +1333,7 @@ class HiveRxChat extends RxChat {
               chatEntity.lastItemCursor = null;
               chatEntity.lastReadItemCursor = null;
               _lastReadItemCursor = null;
-              await _pagination.clear();
-              await _fragment?.clear();
+              await clear();
               break;
 
             case ChatEventKind.itemHidden:
