@@ -353,7 +353,6 @@ class _ChatViewState extends State<ChatView>
                                     onPressed: c.selecting.toggle,
                                     child: Container(
                                       padding: const EdgeInsets.only(left: 10),
-                                      key: c.moreKey,
                                       height: double.infinity,
                                       child: const Padding(
                                         padding:
