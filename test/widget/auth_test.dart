@@ -54,11 +54,14 @@ import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/ui/page/auth/view.dart';
 import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
+import 'package:messenger/util/audio_utils.dart';
 
+import '../mock/audio_utils.dart';
 import '../mock/graphql_provider.dart';
 import '../mock/route_information_provider.dart';
 
 void main() async {
+  AudioUtils = AudioUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
   Config.clsid = 'clsid';

@@ -23,6 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
@@ -70,10 +71,12 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/audio_utils.dart';
 import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
@@ -83,6 +86,7 @@ import 'extension/rich_text.dart';
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
+  AudioUtils = AudioUtilsMock();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
 
   var userData = {
@@ -299,6 +303,10 @@ void main() async {
           }
         }
       })));
+
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
 
   when(graphQlProvider.recentChats(
     first: anyNamed('first'),
@@ -614,5 +622,8 @@ void main() async {
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
+
+    await tester.runAsync(() => Future.delayed(1.milliseconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }
