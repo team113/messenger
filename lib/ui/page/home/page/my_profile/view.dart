@@ -50,14 +50,15 @@ import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blocklist/view.dart';
+import 'call_buttons_switch/controller.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
-import 'call_buttons_switch/controller.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
@@ -766,30 +767,36 @@ Widget _media(BuildContext context, MyProfileController c) {
           );
         }),
       ),
-      const SizedBox(height: 16),
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.devices.output().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.outputDevice) ??
-                        c.devices.output().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
-            hint: 'label_media_output'.l10n,
-            onPressed: () async {
-              await OutputSwitchView.show(
-                context,
-                output: c.media.value?.outputDevice,
-              );
 
-              if (c.devices.output().isEmpty) {
-                c.devices.value = await MediaUtils.enumerateDevices();
-              }
-            },
-            style: style.fonts.normal.regular.primary,
-          );
-        }),
-      ),
+      // TODO: Remove, when Safari supports output devices without tweaking the
+      //       developer options:
+      //       https://bugs.webkit.org/show_bug.cgi?id=216641
+      if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
+        const SizedBox(height: 16),
+        Paddings.dense(
+          Obx(() {
+            return FieldButton(
+              text: (c.devices.output().firstWhereOrNull((e) =>
+                              e.deviceId() == c.media.value?.outputDevice) ??
+                          c.devices.output().firstOrNull)
+                      ?.label() ??
+                  'label_media_no_device_available'.l10n,
+              hint: 'label_media_output'.l10n,
+              onPressed: () async {
+                await OutputSwitchView.show(
+                  context,
+                  output: c.media.value?.outputDevice,
+                );
+
+                if (c.devices.output().isEmpty) {
+                  c.devices.value = await MediaUtils.enumerateDevices();
+                }
+              },
+              style: style.fonts.normal.regular.primary,
+            );
+          }),
+        ),
+      ],
     ],
   );
 }
