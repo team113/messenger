@@ -562,13 +562,13 @@ Widget callTitle(CallController c) {
       args['by'] = c.callerName;
     }
 
-    final String? state = c.state.value == OngoingCallState.active
+    final String state = c.state.value == OngoingCallState.active
         ? c.duration.value.toString().split('.').first.padLeft(8, '0')
         : c.state.value == OngoingCallState.joining
             ? 'label_call_joining'.l10n
             : isOutgoing
                 ? isDialog
-                    ? null
+                    ? 'label_call_calling'.l10n
                     : 'label_call_connecting'.l10n
                 : c.withVideo == true
                     ? 'label_video_call'.l10nfmt(args)

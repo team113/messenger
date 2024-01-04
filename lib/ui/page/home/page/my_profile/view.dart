@@ -38,6 +38,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
+import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
@@ -347,6 +348,7 @@ class MyProfileView extends StatelessWidget {
                           //   );
                           // }),
                           _phones(context, c),
+                          _providers(context, c),
                           // _password(context, c),
                           _addInfo(context, c),
                         ],
@@ -1077,6 +1079,40 @@ Widget _phones(BuildContext context, MyProfileController c) {
   });
 }
 
+/// Returns addable list of [MyUser.emails].
+Widget _providers(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Obx(() {
+    final List<Widget> widgets = [];
+
+    for (var e in c.providers) {
+      widgets.add(
+        ContactInfoContents(
+          padding: EdgeInsets.zero,
+          content: e.$2.user?.email ?? 'Привязан',
+          title: switch (e.$1) {
+            OAuthProvider.apple => 'Apple ID',
+            OAuthProvider.google => 'Google',
+            OAuthProvider.github => 'GitHub',
+          },
+          trailing: WidgetButton(
+            onPressed: () => c.providers.remove(e),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
+        ),
+      );
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets.map((e) => Paddings.dense(e)).toList(),
+    );
+  });
+}
+
 /// Returns [WidgetButton] displaying the [MyUser.presence].
 Widget _presence(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
@@ -1128,21 +1164,19 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           ),
         ],
       ),
-      const SizedBox(height: 24),
-      _password(context, c),
-      const SizedBox(height: 4),
+      const SizedBox(height: 12),
+
+      // const SizedBox(height: 4),
       Obx(() {
         if (c.myUser.value?.login != null) {
-          return const SizedBox(height: 12);
+          return const SizedBox(height: 0);
         }
 
-        return Paddings.basic(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 0),
-            child: UserLoginField(
-              c.myUser.value?.login,
-              onSubmit: c.updateUserLogin,
-            ),
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 12),
+          child: UserLoginField(
+            c.myUser.value?.login,
+            onSubmit: c.updateUserLogin,
           ),
         );
       }),
@@ -1168,15 +1202,39 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           hint: 'example@dummy.com',
         );
 
+        Widget linkProvider(OAuthProvider provider) {
+          return FieldButton(
+            text: switch (provider) {
+              OAuthProvider.apple => 'Привязать Apple ID',
+              OAuthProvider.google => 'Привязать Google',
+              OAuthProvider.github => 'Привязать GitHub',
+            },
+            onPressed: switch (provider) {
+              OAuthProvider.apple => c.continueWithApple,
+              OAuthProvider.google => c.continueWithGoogle,
+              OAuthProvider.github => c.continueWithGitHub,
+            },
+            style: style.fonts.normal.regular.primary,
+            trailing: SvgIcon(
+              switch (provider) {
+                OAuthProvider.apple => SvgIcons.apple,
+                OAuthProvider.google => SvgIcons.google,
+                OAuthProvider.github => SvgIcons.github,
+              },
+            ),
+          );
+        }
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (emails.isEmpty || phones.isEmpty) const SizedBox(height: 24),
-            if (phones.isEmpty) phone,
-            if (emails.isEmpty && phones.isEmpty) const SizedBox(height: 24),
+            if (emails.isEmpty) const SizedBox(height: 12),
             if (emails.isEmpty) email,
-            if (emails.isEmpty || phones.isEmpty) const SizedBox(height: 12),
-            if (phones.isNotEmpty || emails.isNotEmpty) ...[
+            if (emails.isEmpty) const SizedBox(height: 12),
+            const SizedBox(height: 12),
+            _password(context, c),
+            const SizedBox(height: 6),
+            if (true || emails.isNotEmpty) ...[
               const SizedBox(height: 12),
               WidgetButton(
                 onPressed: c.expanded.toggle,
@@ -1205,11 +1263,24 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                   ],
                 ),
               ),
-              if (c.expanded.value) const SizedBox(height: 24),
-              if (phones.isNotEmpty && c.expanded.value) phone,
-              if (phones.isNotEmpty && emails.isNotEmpty && c.expanded.value)
+              if (c.expanded.value) ...[
                 const SizedBox(height: 24),
-              if (emails.isNotEmpty && c.expanded.value) email,
+                phone,
+                if (emails.isNotEmpty) const SizedBox(height: 24),
+                if (emails.isNotEmpty) email,
+                if (c.providers.none((e) => e.$1 == OAuthProvider.apple)) ...[
+                  const SizedBox(height: 24),
+                  linkProvider(OAuthProvider.apple),
+                ],
+                if (c.providers.none((e) => e.$1 == OAuthProvider.google)) ...[
+                  const SizedBox(height: 24),
+                  linkProvider(OAuthProvider.google),
+                ],
+                if (c.providers.none((e) => e.$1 == OAuthProvider.github)) ...[
+                  const SizedBox(height: 24),
+                  linkProvider(OAuthProvider.github),
+                ],
+              ],
             ],
             // WidgetButton(
             //   onPressed: c.expanded.toggle,
@@ -1287,13 +1358,13 @@ Widget _danger(BuildContext context, MyProfileController c) {
         FieldButton(
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: const SvgIcon(SvgIcons.delete),
-          ),
+          // trailing: Transform.translate(
+          //   offset: const Offset(0, -1),
+          //   child: const SvgIcon(SvgIcons.delete),
+          // ),
           onPressed: () => _deleteAccount(c, context),
-          style: style.fonts.normal.regular.onBackground
-              .copyWith(color: style.colors.primary),
+          danger: true,
+          style: style.fonts.normal.regular.danger,
         ),
       ),
     ],

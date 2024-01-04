@@ -17,11 +17,13 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -62,7 +64,7 @@ class UserController extends GetxController {
     this._myUserService,
     this._contactService,
     this._chatService,
-    this._callService, {
+    this._callService, this._settingsRepo,{
     this.scrollToPaid = false,
   });
 
@@ -161,6 +163,9 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
+    /// Settings repository, used to update the [ApplicationSettings].
+  final AbstractSettingsRepository _settingsRepo;
+
   /// Worker to react on [myUser] changes.
   Worker? _myUserWorker;
 
@@ -174,6 +179,9 @@ class UserController extends GetxController {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Returns the current background's [Uint8List] value.
+  Rx<Uint8List?> get background => _settingsRepo.background;
 
   @override
   void onInit() {

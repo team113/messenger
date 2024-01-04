@@ -339,7 +339,12 @@ class RouterState extends ChangeNotifier {
 /// Application's route configuration used to determine the current router state
 /// to parse from/to [RouteInformation].
 class RouteConfiguration {
-  RouteConfiguration(this.route, [this.tab, this.loggedIn = true]);
+  RouteConfiguration(
+    this.route, [
+    this.tab,
+    this.loggedIn = true,
+    this.parameters = const {},
+  ]);
 
   /// Current route as a [String] value.
   ///
@@ -352,6 +357,8 @@ class RouteConfiguration {
 
   /// Whether current user is logged in or not.
   bool loggedIn;
+
+  Map<String, dynamic> parameters;
 }
 
 /// Parses the [RouteConfiguration] from/to [RouteInformation].
@@ -381,7 +388,14 @@ class AppRouteInformationParser
       route = Routes.home;
     }
 
-    return SynchronousFuture(RouteConfiguration(route, tab));
+    return SynchronousFuture(
+      RouteConfiguration(
+        route,
+        tab,
+        true,
+        routeInformation.uri.queryParameters,
+      ),
+    );
   }
 
   @override
@@ -414,7 +428,11 @@ class AppRouteInformationParser
     }
 
     return RouteInformation(
-      uri: Uri.parse(route),
+      uri: configuration.parameters.isEmpty
+          ? Uri.parse(route)
+          : Uri.parse(
+              '$route?${configuration.parameters.entries.where((e) => e.value != null).map((e) => '${e.key}=${e.value}').join('&')}',
+            ),
       state: configuration.tab?.index,
     );
   }
@@ -456,12 +474,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }
+    _state.arguments = configuration.parameters;
     _state.notifyListeners();
   }
 
   @override
   RouteConfiguration get currentConfiguration => RouteConfiguration(
-      _state.route, _state.tab, _state._auth.status.value.isSuccess);
+        _state.route,
+        _state.tab,
+        _state._auth.status.value.isSuccess,
+        _state.arguments ?? const {},
+      );
 
   @override
   void dispose() {
@@ -796,7 +819,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (!_state._auth.status.value.isSuccess) {
       for (var route in _state.routes) {
         if (route.startsWith(Routes.work)) {
-          print('${pages.length}');
           pages.add(const MaterialPage(
             key: ValueKey('WorkPage'),
             name: Routes.work,

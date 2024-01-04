@@ -56,8 +56,6 @@ class PopupCallController extends GetxController {
 
   @override
   void onInit() {
-    Uri uri = Uri.parse(router.route);
-
     WebStoredCall? stored = WebUtils.getCall(chatId);
     if (stored == null || WebUtils.credentials == null) {
       return WebUtils.closeWindow();
@@ -65,9 +63,9 @@ class PopupCallController extends GetxController {
 
     call = _calls.addStored(
       stored,
-      withAudio: uri.queryParameters['audio'] != 'false',
-      withVideo: uri.queryParameters['video'] == 'true',
-      withScreen: uri.queryParameters['screen'] == 'true',
+      withAudio: router.arguments?['audio'] != 'false',
+      withVideo: router.arguments?['video'] == 'true',
+      withScreen: router.arguments?['screen'] == 'true',
     );
 
     _stateWorker = ever(

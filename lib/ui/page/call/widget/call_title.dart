@@ -77,15 +77,15 @@ class CallTitle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AvatarWidget.fromChat(
-            chat,
-            title,
-            avatar,
-            me,
-            radius: AvatarRadius.larger,
-            opacity: 0.8,
-          ),
-          const SizedBox(height: 16),
+          // AvatarWidget.fromChat(
+          //   chat,
+          //   title,
+          //   avatar,
+          //   me,
+          //   radius: AvatarRadius.larger,
+          //   opacity: 0.8,
+          // ),
+          // const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
             style: style.fonts.largest.bold.onPrimary,

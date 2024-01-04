@@ -85,6 +85,7 @@ class CustomNavigationBar extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: items.mapIndexed((i, b) {
+                    // TODO: Add here context menu region.
                     return Expanded(
                       key: b.key,
                       child: Column(

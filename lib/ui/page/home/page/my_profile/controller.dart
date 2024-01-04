@@ -18,12 +18,18 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide OAuthProvider, User;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/ui/page/home/page/my_profile/add_email/controller.dart';
+import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
+import 'package:messenger/util/log.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -202,6 +208,8 @@ class MyProfileController extends GetxController {
   final Rx<ChatMessage?> welcome = Rx(null);
 
   late final MessageFieldController send;
+
+  final RxSet<(OAuthProvider, UserCredential)> providers = RxSet();
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -784,6 +792,96 @@ class MyProfileController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlightIndex.value = null;
     });
+  }
+
+  Rx<UserCredential?> credentials = Rx(null);
+
+  Future<void> continueWithGoogle() async {
+    if (kDebugMode) {
+      try {
+        final googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+
+        final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+        final UserCredential credential;
+        if (PlatformUtils.isWeb) {
+          credential = await auth.signInWithPopup(googleProvider);
+        } else {
+          credential = await auth.signInWithProvider(googleProvider);
+        }
+
+        providers.add((OAuthProvider.google, credential));
+      } catch (e) {
+        if (e.toString() != 'popup_closed') {
+          MessagePopup.error(e);
+        }
+      }
+
+      return;
+    }
+
+    try {
+      final googleUser =
+          await GoogleSignIn(clientId: Config.googleClientId).signIn();
+
+      final googleAuth = await googleUser?.authentication;
+
+      if (googleAuth != null) {
+        final creds = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+        providers.add(
+          (OAuthProvider.google, await auth.signInWithCredential(creds)),
+        );
+      }
+    } catch (e) {
+      Log.error(e.toString());
+    }
+  }
+
+  Future<void> continueWithApple() async {
+    try {
+      final appleProvider = AppleAuthProvider();
+      appleProvider.addScope('email');
+
+      final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+      final UserCredential credential;
+      if (PlatformUtils.isWeb) {
+        credential = await auth.signInWithPopup(appleProvider);
+      } else {
+        credential = await auth.signInWithProvider(appleProvider);
+      }
+
+      providers.add((OAuthProvider.apple, credential));
+    } catch (e) {
+      Log.error(e.toString());
+    }
+  }
+
+  Future<void> continueWithGitHub() async {
+    try {
+      final githubProvider = GithubAuthProvider();
+      githubProvider.addScope('email');
+
+      final auth = FirebaseAuth.instanceFor(app: router.firebase!);
+
+      final UserCredential credential;
+      if (PlatformUtils.isWeb) {
+        credential = await auth.signInWithPopup(githubProvider);
+      } else {
+        credential = await auth.signInWithProvider(githubProvider);
+      }
+
+      providers.add((OAuthProvider.github, credential));
+    } catch (e) {
+      Log.error(e.toString());
+    }
   }
 }
 

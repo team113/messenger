@@ -45,6 +45,7 @@ class FieldButton extends StatefulWidget {
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.old = false,
     this.warning = false,
+    this.danger = false,
     this.headline,
   });
 
@@ -81,6 +82,7 @@ class FieldButton extends StatefulWidget {
   final TextStyle? style;
 
   final bool warning;
+  final bool danger;
 
   final String? prefixText;
   final TextStyle? prefixStyle;
@@ -120,10 +122,12 @@ class _FieldButtonState extends State<FieldButton> {
                   ? style.colors.onBackgroundOpacity40
                   : widget.warning
                       ? style.colors.onPrimary
-                      : style.colors.onBackground,
+                      : widget.danger
+                          ? style.colors.danger
+                          : style.colors.onBackground,
             ),
             height: 46,
-            trailing: AnimatedScale(
+            leading: AnimatedScale(
               duration: const Duration(milliseconds: 100),
               scale: _hovered ? 1.05 : 1,
               child: Transform.translate(
@@ -131,7 +135,7 @@ class _FieldButtonState extends State<FieldButton> {
                 child: widget.trailing,
               ),
             ),
-            leading: widget.prefix,
+            trailing: widget.prefix,
             maxHeight: double.infinity,
             headline: widget.headline,
             border: //widget.warning

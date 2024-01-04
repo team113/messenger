@@ -315,15 +315,16 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
-                    child: MessagePreviewWidget(
-                      fromMe: true,
-                      text: '${widget.link?.usageCount} кликов',
-                      style: style.fonts.medium.regular.secondary,
-                      // primary: true,
+                  if (widget.transitions)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                      child: MessagePreviewWidget(
+                        fromMe: true,
+                        text: '${widget.link?.usageCount} кликов',
+                        style: style.fonts.medium.regular.secondary,
+                        // primary: true,
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 14),
                 ],
               ),
@@ -338,59 +339,55 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           const SizedBox(height: 12),
           Row(
             children: [
-              if (widget.transitions)
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: PlatformUtils.isMobile
-                              ? 'Поделиться'
-                              : 'Копировать',
-                          style: style.fonts.small.regular.primary,
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              final share =
-                                  '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: PlatformUtils.isMobile
+                            ? 'Поделиться'
+                            : 'Копировать',
+                        style: style.fonts.small.regular.primary,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            final share =
+                                '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
 
-                              if (PlatformUtils.isMobile) {
-                                Share.share(share);
-                              } else {
-                                PlatformUtils.copy(text: share);
-                                MessagePopup.success('label_copied'.l10n);
-                              }
-                            },
-                        ),
-                        // TextSpan(
-                        //   text: ' | ',
-                        //   style: style.fonts.small.regular.secondary,
-                        // ),
-                        // TextSpan(
-                        //   text: 'label_transition_count'.l10nfmt({
-                        //     'count': widget.link?.usageCount ?? 0,
-                        //   }), //+
-                        //   // 'dot_space'.l10n,
-                        //   style: style.fonts.small.regular.primary,
-                        // ),
-                        // TextSpan(
-                        //   text: 'label_details'.l10n,
-                        //   style: style.fonts.small.regular.primary,
-                        //   recognizer: TapGestureRecognizer()
-                        //     ..onTap = () => LinkDetailsView.show(context),
-                        // ),
-                      ],
-                    ),
+                            if (PlatformUtils.isMobile) {
+                              Share.share(share);
+                            } else {
+                              PlatformUtils.copy(text: share);
+                              MessagePopup.success('label_copied'.l10n);
+                            }
+                          },
+                      ),
+                      // TextSpan(
+                      //   text: ' | ',
+                      //   style: style.fonts.small.regular.secondary,
+                      // ),
+                      // TextSpan(
+                      //   text: 'label_transition_count'.l10nfmt({
+                      //     'count': widget.link?.usageCount ?? 0,
+                      //   }), //+
+                      //   // 'dot_space'.l10n,
+                      //   style: style.fonts.small.regular.primary,
+                      // ),
+                      // TextSpan(
+                      //   text: 'label_details'.l10n,
+                      //   style: style.fonts.small.regular.primary,
+                      //   recognizer: TapGestureRecognizer()
+                      //     ..onTap = () => LinkDetailsView.show(context),
+                      // ),
+                    ],
                   ),
+                  textAlign: widget.onSubmit == null
+                      ? TextAlign.center
+                      : TextAlign.left,
                 ),
-              const SizedBox(width: 8),
-              WidgetButton(
-                // onPressed: () => setState(() {
-                //   widget.onSubmit?.call(null);
-                //   _state.unsubmit();
-                //   _state.changed.value = true;
-                //   _editing = true;
-                // }),
-                child: Text.rich(
+              ),
+              if (widget.onSubmit != null) ...[
+                const SizedBox(width: 8),
+                Text.rich(
                   TextSpan(
                     children: [
                       // TextSpan(
@@ -415,9 +412,12 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       //   text: ' или ',
                       //   style: style.fonts.small.regular.secondary,
                       // ),
+
                       TextSpan(
                         text: 'Удалить',
-                        style: style.fonts.small.regular.primary,
+                        style: widget.onSubmit == null
+                            ? style.fonts.small.regular.secondary
+                            : style.fonts.small.regular.primary,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             setState(() {
@@ -431,7 +431,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     ],
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ],

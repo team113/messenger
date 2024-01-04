@@ -25,6 +25,7 @@ import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
+import 'package:messenger/ui/page/home/widget/direct_link.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
@@ -73,6 +74,7 @@ class UserView extends StatelessWidget {
     return GetBuilder(
       init: UserController(
         id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -307,23 +309,33 @@ class UserView extends StatelessWidget {
                     Block(
                       title: 'label_direct_chat_link'.l10n,
                       children: [
-                        Paddings.basic(
-                          ContactInfoContents(
-                            padding: EdgeInsets.zero,
-                            title: '${Config.origin}/',
-                            content: 'kLFJKjkw14j23JDMwW',
-                            // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
-                            icon: const SvgIcon(SvgIcons.profileLink),
-                            maxLines: null,
-                            trailing: CopyOrShareButton(
-                              '${Config.origin}/kLFJKjkw14j23JDMwW',
-                            ),
-                            // trailing: WidgetButton(
-                            //   onPressed: () {},
-                            //   child: const SvgIcon(SvgIcons.copy),
-                            // ),
+                        DirectLinkField(
+                          ChatDirectLink(
+                            slug: ChatDirectLinkSlug('dqwdqwdqwd'),
                           ),
+                          transitions: false,
+                          // onSubmit: (s) => s == null
+                          //     ? c.deleteChatDirectLink()
+                          //     : c.createChatDirectLink(s),
+                          background: c.background.value,
                         ),
+                        // Paddings.basic(
+                        //   ContactInfoContents(
+                        //     padding: EdgeInsets.zero,
+                        //     title: '${Config.origin}/',
+                        //     content: 'kLFJKjkw14j23JDMwW',
+                        //     // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
+                        //     icon: const SvgIcon(SvgIcons.profileLink),
+                        //     maxLines: null,
+                        //     trailing: CopyOrShareButton(
+                        //       '${Config.origin}/kLFJKjkw14j23JDMwW',
+                        //     ),
+                        //     // trailing: WidgetButton(
+                        //     //   onPressed: () {},
+                        //     //   child: const SvgIcon(SvgIcons.copy),
+                        //     // ),
+                        //   ),
+                        // ),
                       ],
                     ),
                     // ContactInfoWidget(

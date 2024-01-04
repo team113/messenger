@@ -73,6 +73,7 @@ class ChatInfoView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         edit: edit,
       ),
       tag: id.val,
@@ -141,123 +142,7 @@ class ChatInfoView extends StatelessWidget {
                           title: 'label_direct_chat_link'.l10n,
                           padding: Block.defaultPadding.copyWith(bottom: 10),
                           // padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                          children: [
-                            Obx(() {
-                              final Widget child;
-
-                              if (c.editing.value) {
-                                child = Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 4, bottom: 12),
-                                  child: DirectLinkField(
-                                    c.chat?.chat.value.directLink,
-                                    onSubmit: c.createChatDirectLink,
-                                    transitions: false,
-                                  ),
-                                );
-                              } else {
-                                child = Padding(
-                                  padding: Insets.basic.copyWith(bottom: 0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          6,
-                                          0,
-                                          8,
-                                          24,
-                                        ),
-                                        child: Text(
-                                          'Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.',
-                                          style: style
-                                              .fonts.small.regular.secondary,
-                                        ),
-                                      ),
-                                      ContactInfoContents(
-                                        padding: EdgeInsets.zero,
-                                        title: '${Config.origin}/',
-                                        content: c.link.text,
-                                        // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
-                                        icon:
-                                            const SvgIcon(SvgIcons.profileLink),
-                                        maxLines: null,
-                                        trailing: CopyOrShareButton(
-                                          '${Config.origin}/${c.link.text}',
-                                          onCopy: () {
-                                            if (c.link.text !=
-                                                c.chat?.chat.value.directLink
-                                                    ?.slug.val) {
-                                              c.link.submit();
-                                            }
-                                          },
-                                        ),
-                                        // trailing: WidgetButton(
-                                        //   onPressed: () {},
-                                        //   child: const SvgIcon(SvgIcons.copy),
-                                        // ),
-                                      ),
-                                      // ContactInfoContents(
-                                      //   padding: EdgeInsets.zero,
-                                      //   content:
-                                      //       '${Config.origin}/${c.link.text}'
-                                      //           .split('')
-                                      //           .join('\ufeff'),
-                                      //   icon:
-                                      //       const SvgIcon(SvgIcons.profileLink),
-                                      //   maxLines: null,
-                                      // ),
-                                      // Padding(
-                                      //   padding: const EdgeInsets.fromLTRB(
-                                      //     0,
-                                      //     10,
-                                      //     0,
-                                      //     0,
-                                      //   ),
-                                      //   child: Align(
-                                      //     alignment: Alignment.centerRight,
-                                      //     child: AnimatedButton(
-                                      //       onPressed: () async {
-                                      //         if (c.link.text !=
-                                      //             c.chat?.chat.value.directLink
-                                      //                 ?.slug.val) {
-                                      //           c.link.submit();
-                                      //         }
-
-                                      //         final share =
-                                      //             '${Config.origin}/${c.link.text}';
-
-                                      //         if (PlatformUtils.isMobile) {
-                                      //           await Share.share(share);
-                                      //         } else {
-                                      //           PlatformUtils.copy(text: share);
-                                      //           MessagePopup.success(
-                                      //             'label_copied'.l10n,
-                                      //           );
-                                      //         }
-                                      //       },
-                                      //       child: Text(
-                                      //         PlatformUtils.isMobile
-                                      //             ? 'Поделиться'
-                                      //             : 'Скопировать',
-                                      //         style: style
-                                      //             .fonts.small.regular.primary,
-                                      //       ),
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                    ],
-                                  ),
-                                );
-                              }
-
-                              return SafeAnimatedSwitcher(
-                                duration: const Duration(milliseconds: 250),
-                                child: child,
-                              );
-                            }),
-                          ],
+                          children: [_link(context, c)],
                         ),
                       ),
                       SelectionContainer.disabled(
@@ -374,8 +259,6 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns a list of [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final RxUser? me = c.chat!.members[c.me];
       final List<RxUser> members = [];
@@ -535,6 +418,98 @@ class ChatInfoView extends StatelessWidget {
         // ],
       ],
     );
+  }
+
+  Widget _link(BuildContext context, ChatInfoController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Widget child;
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              6,
+              0,
+              8,
+              24,
+            ),
+            child: Text(
+              'Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.',
+              style: style.fonts.small.regular.secondary,
+            ),
+          ),
+          DirectLinkField(
+            c.chat?.chat.value.directLink,
+            onSubmit: (s) => s == null
+                ? c.deleteChatDirectLink()
+                : c.createChatDirectLink(s),
+            background: c.background.value,
+          ),
+        ],
+      );
+
+      if (c.editing.value) {
+        child = Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 12),
+          child: DirectLinkField(
+            c.chat?.chat.value.directLink,
+            onSubmit: c.createChatDirectLink,
+            transitions: false,
+          ),
+        );
+      } else {
+        child = DirectLinkField(
+          c.chat?.chat.value.directLink,
+          onSubmit: (s) =>
+              s == null ? c.deleteChatDirectLink() : c.createChatDirectLink(s),
+          background: c.background.value,
+        );
+        // child = Padding(
+        //   padding: Insets.basic.copyWith(bottom: 0),
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Padding(
+        //         padding: const EdgeInsets.fromLTRB(
+        //           6,
+        //           0,
+        //           8,
+        //           24,
+        //         ),
+        //         child: Text(
+        //           'Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.',
+        //           style: style.fonts.small.regular.secondary,
+        //         ),
+        //       ),
+        //       // ContactInfoContents(
+        //       //   padding: EdgeInsets.zero,
+        //       //   title: '${Config.origin}/',
+        //       //   content: c.link.text,
+        //       //   icon: const SvgIcon(SvgIcons.profileLink),
+        //       //   maxLines: null,
+        //       //   trailing: CopyOrShareButton(
+        //       //     '${Config.origin}/${c.link.text}',
+        //       //     onCopy: () {
+        //       //       if (c.link.text !=
+        //       //           c.chat?.chat.value.directLink?.slug.val) {
+        //       //         c.link.submit();
+        //       //       }
+        //       //     },
+        //       //   ),
+        //       // ),
+        //     ],
+        //   ),
+        // );
+      }
+
+      return SafeAnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        child: child,
+      );
+    });
   }
 
   Widget _bar(ChatInfoController c, BuildContext context) {

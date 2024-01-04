@@ -573,7 +573,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   !c.started;
 
           final bool preferTitle =
-              c.state.value != OngoingCallState.active && !isOutgoing;
+              c.state.value != OngoingCallState.active || !isOutgoing;
 
           return SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcherCallTitle'),

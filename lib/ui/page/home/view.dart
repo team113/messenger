@@ -214,10 +214,11 @@ class _HomeViewState extends State<HomeView> {
                                 key: c.keys[HomeTab.work],
                                 child: const WorkTabView(),
                               ),
-                            KeepAlivePage(
-                              key: c.keys[HomeTab.public],
-                              child: const PublicsTabView(),
-                            ),
+                            if (c.settings.value?.publicsTabEnabled != false)
+                              KeepAlivePage(
+                                key: c.keys[HomeTab.public],
+                                child: const PublicsTabView(),
+                              ),
                             KeepAlivePage(
                               key: c.keys[HomeTab.chats],
                               child: const ChatsContactsTabView(),
@@ -522,7 +523,7 @@ class _HomeViewState extends State<HomeView> {
                                               ? 'btn_unmute_chats'.l10n
                                               : 'btn_mute_chats'.l10n,
                                           pinnable: false,
-                                          onPressed: () => c.toggleMute(!muted),
+                                          onPressed: () => c.toggleMute(muted),
                                           trailing: true,
                                           asset: muted
                                               ? SvgIcons.muted22

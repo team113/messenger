@@ -16,10 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/user.dart';
 
 import '/domain/model/chat.dart';
@@ -47,7 +49,8 @@ class ChatInfoController extends GetxController {
     this._chatService,
     this._authService,
     this._callService,
-    this._userService, {
+    this._userService,
+    this._settingsRepo, {
     bool edit = false,
   }) : editing = RxBool(edit);
 
@@ -86,6 +89,9 @@ class ChatInfoController extends GetxController {
 
   final UserService _userService;
 
+  /// Settings repository, used to update the [ApplicationSettings].
+  final AbstractSettingsRepository _settingsRepo;
+
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
 
@@ -120,6 +126,9 @@ class ChatInfoController extends GetxController {
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
+
+  /// Returns the current background's [Uint8List] value.
+  Rx<Uint8List?> get background => _settingsRepo.background;
 
   @override
   void onInit() {
@@ -424,6 +433,10 @@ class ChatInfoController extends GetxController {
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
     await _chatService.createChatDirectLink(chatId, slug!);
+  }
+
+  Future<void> deleteChatDirectLink() async {
+    await _chatService.deleteChatDirectLink(chatId);
   }
 
   Future<void> addToContacts() async {}

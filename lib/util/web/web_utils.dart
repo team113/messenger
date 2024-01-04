@@ -56,6 +56,7 @@ class WebStoredCall {
     this.creds,
     this.deviceId,
     this.state = OngoingCallState.local,
+    this.withVideo = false,
   });
 
   /// [ChatCall] of this [WebStoredCall].
@@ -72,6 +73,8 @@ class WebStoredCall {
 
   /// Stored [OngoingCall.state].
   final OngoingCallState state;
+
+  final bool withVideo;
 
   /// Constructs a [WebStoredCall] from the provided [data].
   factory WebStoredCall.fromJson(Map<dynamic, dynamic> data) {
@@ -133,6 +136,7 @@ class WebStoredCall {
       state: data['state'] == null
           ? OngoingCallState.local
           : OngoingCallState.values[data['state']],
+      withVideo: data['withVideo'] ?? false,
     );
   }
 
@@ -186,6 +190,7 @@ class WebStoredCall {
       'creds': creds?.val,
       'deviceId': deviceId?.val,
       'state': state.index,
+      'withVideo': withVideo,
     };
   }
 }
@@ -201,6 +206,8 @@ extension WebStoredOngoingCallConversion on OngoingCall {
       creds: creds,
       state: state.value,
       deviceId: deviceId,
+      withVideo: videoState.value == LocalTrackState.enabled ||
+          videoState.value == LocalTrackState.enabling,
     );
   }
 }
