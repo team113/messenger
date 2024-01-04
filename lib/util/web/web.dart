@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -538,8 +538,12 @@ class WebUtils {
         await html.window.navigator.permissions?.query({'name': 'camera'});
 
     if (status?.state != 'granted') {
-      html.MediaStream stream =
-          await html.window.navigator.getUserMedia(video: true);
+      final html.MediaStream? stream = await html.window.navigator.mediaDevices
+          ?.getUserMedia({'video': true});
+
+      if (stream == null) {
+        throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
 
       for (var e in stream.getTracks()) {
         e.stop();
@@ -553,8 +557,12 @@ class WebUtils {
         await html.window.navigator.permissions?.query({'name': 'microphone'});
 
     if (status?.state != 'granted') {
-      html.MediaStream stream =
-          await html.window.navigator.getUserMedia(audio: true);
+      final html.MediaStream? stream = await html.window.navigator.mediaDevices
+          ?.getUserMedia({'audio': true});
+
+      if (stream == null) {
+        throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
 
       for (var e in stream.getTracks()) {
         e.stop();

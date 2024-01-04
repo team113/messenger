@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/application_settings.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -49,9 +50,11 @@ import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/view.dart';
 import 'blocklist/view.dart';
+import 'call_buttons_switch/controller.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
@@ -150,7 +153,10 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           Paddings.basic(
                             Obx(() {
-                              return UserNumCopyable(c.myUser.value?.num);
+                              return UserNumCopyable(
+                                c.myUser.value?.num,
+                                key: const Key('NumCopyable'),
+                              );
                             }),
                           ),
                           Paddings.basic(
@@ -646,6 +652,40 @@ Widget _chats(BuildContext context, MyProfileController c) {
           );
         }),
       ),
+      const SizedBox(height: 16),
+      Paddings.dense(
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 21),
+            child: Text(
+              'label_display_audio_and_video_call_buttons'.l10n,
+              style: style.systemMessageStyle,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: switch (c.settings.value?.callButtonsPosition) {
+              CallButtonsPosition.appBar ||
+              null =>
+                'label_media_buttons_in_app_bar'.l10n,
+              CallButtonsPosition.contextMenu =>
+                'label_media_buttons_in_context_menu'.l10n,
+              CallButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
+              CallButtonsPosition.bottom =>
+                'label_media_buttons_in_bottom'.l10n,
+              CallButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
+            },
+            maxLines: null,
+            onPressed: () => CallButtonsSwitchView.show(context),
+            style: style.fonts.normal.regular.primary,
+          );
+        }),
+      ),
     ],
   );
 }
@@ -727,30 +767,36 @@ Widget _media(BuildContext context, MyProfileController c) {
           );
         }),
       ),
-      const SizedBox(height: 16),
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.devices.output().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.outputDevice) ??
-                        c.devices.output().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
-            hint: 'label_media_output'.l10n,
-            onPressed: () async {
-              await OutputSwitchView.show(
-                context,
-                output: c.media.value?.outputDevice,
-              );
 
-              if (c.devices.output().isEmpty) {
-                c.devices.value = await MediaUtils.enumerateDevices();
-              }
-            },
-            style: style.fonts.normal.regular.primary,
-          );
-        }),
-      ),
+      // TODO: Remove, when Safari supports output devices without tweaking the
+      //       developer options:
+      //       https://bugs.webkit.org/show_bug.cgi?id=216641
+      if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
+        const SizedBox(height: 16),
+        Paddings.dense(
+          Obx(() {
+            return FieldButton(
+              text: (c.devices.output().firstWhereOrNull((e) =>
+                              e.deviceId() == c.media.value?.outputDevice) ??
+                          c.devices.output().firstOrNull)
+                      ?.label() ??
+                  'label_media_no_device_available'.l10n,
+              hint: 'label_media_output'.l10n,
+              onPressed: () async {
+                await OutputSwitchView.show(
+                  context,
+                  output: c.media.value?.outputDevice,
+                );
+
+                if (c.devices.output().isEmpty) {
+                  c.devices.value = await MediaUtils.enumerateDevices();
+                }
+              },
+              style: style.fonts.normal.regular.primary,
+            );
+          }),
+        ),
+      ],
     ],
   );
 }

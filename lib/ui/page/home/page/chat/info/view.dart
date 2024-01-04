@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -346,17 +346,69 @@ class ChatInfoView extends StatelessWidget {
             child: const SvgIcon(SvgIcons.chat),
             onPressed: () => router.chat(c.chat?.id ?? id),
           ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            child: const SvgIcon(SvgIcons.chatVideoCall),
-            onPressed: () => c.call(true),
-          ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            child: const SvgIcon(SvgIcons.chatAudioCall),
-            onPressed: () => c.call(false),
-          ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 21),
+          Obx(() {
+            final bool hasCall = c.chat?.chat.value.ongoingCall != null;
+            final bool inCall = c.chat?.inCall.value ?? false;
+
+            if (hasCall) {
+              final Widget child;
+
+              if (inCall) {
+                child = Container(
+                  key: const Key('Drop'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callEnd),
+                  ),
+                );
+              } else {
+                child = Container(
+                  key: const Key('Join'),
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(
+                    color: style.colors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: SvgIcon(SvgIcons.callStart),
+                  ),
+                );
+              }
+
+              return AnimatedButton(
+                key: const Key('ActiveCallButton'),
+                onPressed: inCall ? c.dropCall : c.joinCall,
+                child: SafeAnimatedSwitcher(
+                  duration: 300.milliseconds,
+                  child: child,
+                ),
+              );
+            }
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 7),
+                AnimatedButton(
+                  onPressed: () => c.call(true),
+                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                ),
+                const SizedBox(width: 28),
+                AnimatedButton(
+                  onPressed: () => c.call(false),
+                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                ),
+                const SizedBox(width: 10),
+              ],
+            );
+          }),
           Obx(() {
             return AnimatedButton(
               child: SafeAnimatedSwitcher(

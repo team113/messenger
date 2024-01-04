@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -55,6 +55,7 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'pagination/graphql.dart';
@@ -110,6 +111,10 @@ class HiveRxChat extends RxChat {
 
   /// [ChatVersion] of this [HiveRxChat].
   ChatVersion? ver;
+
+  @override
+  late final RxBool inCall =
+      RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -168,6 +173,10 @@ class HiveRxChat extends RxChat {
 
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
+
+  /// [StreamSubscription] to [AbstractCallRepository.calls] and
+  /// [WebUtils.onStorageChange] determining the [inCall] indicator.
+  StreamSubscription? _callSubscription;
 
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
@@ -306,6 +315,14 @@ class HiveRxChat extends RxChat {
       }
     });
 
+    _callSubscription = StreamGroup.mergeBroadcast([
+      _chatRepository.calls.changes,
+      WebUtils.onStorageChange,
+    ]).listen((_) {
+      inCall.value =
+          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
+    });
+
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
@@ -407,6 +424,7 @@ class HiveRxChat extends RxChat {
     _paginationSubscription?.cancel();
     _pagination.dispose();
     _messagesSubscription?.cancel();
+    _callSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
@@ -1100,7 +1118,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
-        var node = event as ChatEventsChat;
+        final node = event as ChatEventsChat;
         final HiveChat? chatEntity = await _chatLocal.get(id);
         if (chatEntity != null) {
           chatEntity.value = node.chat.value;
@@ -1115,7 +1133,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.event:
         final HiveChat? chatEntity = await _chatLocal.get(id);
-        var versioned = (event as ChatEventsEvent).event;
+        final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           Log.debug(
             '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
@@ -1132,9 +1150,9 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = subscribed;
+        bool shouldPutChat = subscribed;
         for (var event in versioned.events) {
-          putChat = subscribed;
+          shouldPutChat = subscribed;
 
           // Subscription was already disposed while processing the events.
           if (!subscribed) {
@@ -1184,8 +1202,7 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.hidden:
               event as EventChatHidden;
-              _chatRepository.remove(event.chatId);
-              putChat = false;
+              chatEntity.value.isHidden = true;
               continue;
 
             case ChatEventKind.itemDeleted:
@@ -1482,7 +1499,7 @@ class HiveRxChat extends RxChat {
           }
         }
 
-        if (putChat) {
+        if (shouldPutChat) {
           await _chatRepository.put(chatEntity);
         }
         break;

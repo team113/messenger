@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -651,7 +651,15 @@ class _GalleryPopupState extends State<GalleryPopup>
                         constraints:
                             const BoxConstraints(minWidth: 1, minHeight: 1),
                         child: PlatformUtils.isWeb
-                            ? WebImage(e.link, onForbidden: e.onError)
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+
+                                // TODO: Wait for HTML to support specifying
+                                //       download name:
+                                //       https://github.com/whatwg/html/issues/2722
+                                // name: e.name,
+                              )
                             : RetryImage(
                                 e.link,
                                 width: e.width?.toDouble(),
