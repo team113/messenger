@@ -739,7 +739,7 @@ class HiveRxChat extends RxChat {
     return message.value;
   }
 
-  /// Adds the provided [item] to [Pagination] and [Hive].
+  /// Adds the provided [item] to [Pagination]s.
   Future<void> put(HiveChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
     await _pagination.put(item, ignoreBounds: ignoreBounds);
@@ -774,8 +774,8 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Returns a stored [HiveChatItem] identified by the provided [itemId], if
-  /// any.
+  /// Returns a stored or fetches from remote [HiveChatItem] identified by the
+  /// provided [itemId].
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.

@@ -16,11 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:messenger/util/audio_utils.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 /// Mocked [AudioUtilsImpl] to use in the tests.
 class AudioUtilsMock extends AudioUtilsImpl {

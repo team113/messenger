@@ -22,7 +22,7 @@ Feature: Chat transitions
     And Alice has "Test" group
     And Alice sends "first message" message to "Test" group
     And Alice sends 100 messages to "Test" group
-    And Alice replies to "first message" message in "Test" group
+    And Alice replies to "first message" message with "reply" text in "Test" group
     And Alice reads all messages in "Test" group
     And I sign in as Alice
     And I am in "Test" group
