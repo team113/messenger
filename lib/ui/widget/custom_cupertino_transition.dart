@@ -125,25 +125,21 @@ mixin CustomCupertinoRouteTransitionsMixin<T> on PageRoute<T> {
     Widget child,
   ) {
     final bool linearTransition = isPopGestureInProgress(route);
-    if (route.fullscreenDialog) {
-      return CustomCupertinoFullscreenDialogTransition(
-        primaryAnimation: animation,
-        secondaryAnimation: secondaryAnimation,
-        linearTransition: linearTransition,
-        child: child,
-      );
-    } else {
-      return CustomCupertinoPageTransition(
-        primaryAnimation: animation,
-        secondaryAnimation: secondaryAnimation,
-        linearTransition: linearTransition,
-        child: _CupertinoBackGestureDetector<T>(
-          enabledCallback: () => _isPopGestureEnabled<T>(route),
-          onStartPopGesture: () => _startPopGesture<T>(route),
-          child: child,
-        ),
-      );
-    }
+    final bool isFullscreen = route.fullscreenDialog;
+
+    return CustomCupertinoPageTransition(
+      primaryAnimation: animation,
+      secondaryAnimation: secondaryAnimation,
+      linearTransition: linearTransition,
+      isFullscreen: isFullscreen,
+      child: isFullscreen
+          ? child
+          : _CupertinoBackGestureDetector<T>(
+              enabledCallback: () => _isPopGestureEnabled<T>(route),
+              onStartPopGesture: () => _startPopGesture<T>(route),
+              child: child,
+            ),
+    );
   }
 
   @override
@@ -171,57 +167,21 @@ class CustomCupertinoPageTransition extends StatelessWidget {
     required Animation<double> secondaryAnimation,
     required this.child,
     required bool linearTransition,
-  })  : _primaryAnimation = (linearTransition
-                ? primaryAnimation
-                : CurvedAnimation(
-                    parent: primaryAnimation,
-                    curve: Curves.linearToEaseOut,
-                    reverseCurve: Curves.linearToEaseOut.flipped,
-                  ))
-            .drive(_kRightMiddleTween),
-        _secondaryAnimation = (linearTransition
-                ? secondaryAnimation
-                : CurvedAnimation(
-                    parent: secondaryAnimation,
-                    curve: Curves.linearToEaseOut,
-                    reverseCurve: Curves.easeInToLinear,
-                  ))
-            .drive(_kMiddleLeftTween);
-
-  /// [Widget] to display.
-  final Widget child;
-
-  /// Animation for next page.
-  final Animation<Offset> _primaryAnimation;
-
-  /// Animation for previous page.
-  final Animation<Offset> _secondaryAnimation;
-
-  @override
-  Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _secondaryAnimation,
-      child: SlideTransition(
-        position: _primaryAnimation,
-        child: child,
-      ),
-    );
-  }
-}
-
-/// Custom fullscreen iOS-style page transition.
-class CustomCupertinoFullscreenDialogTransition extends StatelessWidget {
-  CustomCupertinoFullscreenDialogTransition({
-    super.key,
-    required Animation<double> primaryAnimation,
-    required Animation<double> secondaryAnimation,
-    required this.child,
-    required bool linearTransition,
-  })  : _primaryAnimation = CurvedAnimation(
-          parent: primaryAnimation,
-          curve: Curves.linearToEaseOut,
-          reverseCurve: Curves.linearToEaseOut.flipped,
-        ).drive(_kBottomUpTween),
+    required bool isFullscreen,
+  })  : _primaryAnimation = isFullscreen
+            ? CurvedAnimation(
+                parent: primaryAnimation,
+                curve: Curves.linearToEaseOut,
+                reverseCurve: Curves.linearToEaseOut.flipped,
+              ).drive(_kBottomUpTween)
+            : (linearTransition
+                    ? primaryAnimation
+                    : CurvedAnimation(
+                        parent: primaryAnimation,
+                        curve: Curves.linearToEaseOut,
+                        reverseCurve: Curves.linearToEaseOut.flipped,
+                      ))
+                .drive(_kRightMiddleTween),
         _secondaryAnimation = (linearTransition
                 ? secondaryAnimation
                 : CurvedAnimation(
