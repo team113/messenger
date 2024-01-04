@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.11
+version: 0.1.0-alpha.11.1
 publish_to: none
 
 environment:
@@ -155,6 +155,7 @@ flutter:
     - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
+    - assets/images/media_buttons/
     - assets/l10n/
   fonts:
     - family: Roboto

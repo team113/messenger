@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -307,6 +307,7 @@ err_invalid_crop_points = Invalid crop points
 err_invalid_registration_token = Invalid registration token
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
+err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
 err_monolog = Can't perfom this action in a monolog
 err_network = Connection to the server refused
@@ -631,6 +632,7 @@ label_delete_email = Delete E-mail
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
+label_delete_messages = Delete the messages?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_details = Details.
@@ -656,6 +658,7 @@ label_direct_chat_link_in_chat_description =
     - send messages to group chat,
     - make calls
 label_disabled = Disabled
+label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
@@ -732,6 +735,11 @@ label_login_section_hint = Login, e-mail, phone, password
 label_login_visibility_hint = Unique login is an additional unique identifier for your account.
 label_login_visible = Your login is visible to:{" "}
 label_media = Media
+label_media_buttons_in_app_bar = In the top panel
+label_media_buttons_in_bottom = In the chat below
+label_media_buttons_in_context_menu = In the context menu
+label_media_buttons_in_more = In the message field
+label_media_buttons_in_top = In the chat above
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
@@ -742,6 +750,7 @@ label_menu = Menu
 label_message = Message
 label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_messages_will_deleted_for_you = The messages will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
 label_mute_for = {$days ->

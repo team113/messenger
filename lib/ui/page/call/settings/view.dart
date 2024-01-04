@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,6 +31,7 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'controller.dart';
 
 /// View of the call overlay settings.
@@ -137,39 +138,47 @@ class CallSettingsView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await OutputSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setOutputDevice(device),
-                          output: c.output.value,
-                        );
 
-                        if (c.devices.output().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_output'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.output().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.output.value) ??
-                                          c.devices.output().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
+                  // TODO: Remove, when Safari supports output devices without
+                  //       tweaking the developer options:
+                  //       https://bugs.webkit.org/show_bug.cgi?id=216641
+                  if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: padding,
+                      child: WidgetButton(
+                        onPressed: () async {
+                          await OutputSwitchView.show(
+                            context,
+                            onChanged: (device) => c.setOutputDevice(device),
+                            output: c.output.value,
                           );
-                        }),
+
+                          if (c.devices.output().isEmpty) {
+                            await c.enumerateDevices();
+                          }
+                        },
+                        child: IgnorePointer(
+                          child: Obx(() {
+                            return ReactiveTextField(
+                              label: 'label_media_output'.l10n,
+                              state: TextFieldState(
+                                text: (c.devices.output().firstWhereOrNull(
+                                                (e) =>
+                                                    e.deviceId() ==
+                                                    c.output.value) ??
+                                            c.devices.output().firstOrNull)
+                                        ?.label() ??
+                                    'label_media_no_device_available'.l10n,
+                                editable: false,
+                              ),
+                              style: style.fonts.normal.regular.primary,
+                            );
+                          }),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                   const SizedBox(height: 16),
                   ModalPopupHeader(text: 'label_calls'.l10n, close: false),
                   Padding(

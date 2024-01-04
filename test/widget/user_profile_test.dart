@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -509,7 +509,7 @@ void main() async {
 
     expect(find.widgetWithText(CopyableTextField, 'user name'), findsOneWidget);
     expect(find.byKey(const Key('Present')), findsOneWidget);
-    await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
+    await tester.dragUntilVisible(find.byKey(const Key('NumCopyable')),
         find.byKey(const Key('UserScrollable')), const Offset(1, 1));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('5769space2360space9862space1822'), findsOneWidget);

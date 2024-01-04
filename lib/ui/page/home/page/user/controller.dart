@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -228,6 +228,12 @@ class UserController extends GetxController {
       MessagePopup.error(e);
     }
   }
+
+  /// Joins an [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> joinCall() => _callService.join(user!.user.value.dialog);
+
+  /// Drops the [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> dropCall() => _callService.leave(user!.user.value.dialog);
 
   /// Blocks the [user] for the authenticated [MyUser].
   Future<void> block() async {

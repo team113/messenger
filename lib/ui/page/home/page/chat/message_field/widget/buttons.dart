@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,6 +34,9 @@ abstract class ChatButton {
 
   /// Asset name of this [ChatButton].
   SvgData get asset;
+
+  /// Disabled asset name to display, if [onPressed] is `null`.
+  SvgData? get disabled => null;
 
   /// Asset offset of this [ChatButton].
   Offset get offset => Offset.zero;
@@ -192,4 +195,32 @@ class StickerButton extends ChatButton {
 
   @override
   SvgData get assetMini => SvgIcons.smileSmall;
+}
+
+/// [ChatButton] making an audio call.
+class AudioCallButton extends ChatButton {
+  const AudioCallButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_audio_call'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatAudioCall;
+
+  @override
+  SvgData get disabled => SvgIcons.chatAudioCallDisabled;
+}
+
+/// [ChatButton] making a video call.
+class VideoCallButton extends ChatButton {
+  const VideoCallButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_video_call'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatVideoCall;
+
+  @override
+  SvgData get disabled => SvgIcons.chatVideoCallDisabled;
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,8 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '../world/custom_world.dart';
 
@@ -35,6 +37,30 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
         final finder = context.world.appDriver
             .findBy('Chat_${context.world.groups[name]}', FindType.key)
             .first;
+
+        await context.world.appDriver.nativeDriver.longPress(finder);
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
+  },
+);
+
+/// Long presses a [Chat]-monolog.
+final StepDefinitionGeneric longPressMonolog = when<CustomWorld>(
+  'I long press monolog',
+  (context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+
+      final ChatId chatId = Get.find<ChatService>().monolog;
+
+      try {
+        final finder =
+            context.world.appDriver.findBy('Chat_$chatId', FindType.key).first;
 
         await context.world.appDriver.nativeDriver.longPress(finder);
         await context.world.appDriver.waitForAppToSettle();
