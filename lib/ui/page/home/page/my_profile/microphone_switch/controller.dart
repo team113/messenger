@@ -43,7 +43,7 @@ class MicrophoneSwitchController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-    /// Error message to display, if any.
+  /// Error message to display, if any.
   final RxnString error = RxnString();
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
