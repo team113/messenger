@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -308,6 +308,7 @@ err_invalid_crop_points = Неверные точки обрезки
 err_invalid_registration_token = Некорректный регистрационный токен
 err_unknown_registration_token = Неизвестный регистрационный токен
 err_login_occupied = Данный логин уже занят.
+err_media_devices_are_null = Невозможно получить `MediaStream` с `video` парамтеро, т.к. `window.navigator.mediaDevices` является `null`. Вероятно, конфигурация Вашего браузера не позволяет получить медиа устройства. Подкорректируйте настройки и убедитесь в доступности медиа устройств.
 err_message_was_read = Сообщение было прочитано
 err_monolog = Невозможно выполнить данное действие в монологе
 err_network = Ошибка подключения к серверу
@@ -656,6 +657,7 @@ label_delete_email = Удалить E-mail
 label_delete_for_everyone = Удалить для всех
 label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
+label_delete_messages = Удалить сообщения?
 label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
 label_details = Подробнее.
@@ -774,6 +776,7 @@ label_menu = Меню
 label_message = Сообщение
 label_message_editing = Редактирование сообщения
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
+label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас.
 label_microphone_changed = Микрофон был изменён на {$microphone}
 label_monolog_created = Чат создан
 label_mute_for = {$days ->
