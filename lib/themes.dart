@@ -367,7 +367,7 @@ class Themes {
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
