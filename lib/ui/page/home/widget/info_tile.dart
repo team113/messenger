@@ -26,7 +26,6 @@ class InfoTile extends StatelessWidget {
     this.title,
     required this.content,
     this.trailing,
-    this.padding = const EdgeInsets.all(12),
     this.maxLines = 1,
   });
 
@@ -39,9 +38,6 @@ class InfoTile extends StatelessWidget {
   /// Optional trailing [Widget] of this [InfoTile].
   final Widget? trailing;
 
-  /// Padding to apply to this [InfoTile].
-  final EdgeInsets padding;
-
   /// Maximum number of lines of the [content].
   final int? maxLines;
 
@@ -49,47 +45,44 @@ class InfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Padding(
-      padding: padding,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(width: 6.5),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (title != null)
-                  DefaultTextStyle(
-                    overflow: TextOverflow.ellipsis,
-                    style: style.fonts.small.regular.secondary,
-                    child: Text(title!),
-                  ),
-                DefaultTextStyle.merge(
-                  maxLines: maxLines,
-                  overflow: maxLines == null ? null : TextOverflow.ellipsis,
-                  style: style.fonts.big.regular.onBackground,
-                  textAlign: TextAlign.justify,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(child: Text(content)),
-                      if (trailing != null) ...[
-                        const SizedBox(width: 24),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 3),
-                          child: trailing!,
-                        ),
-                      ],
-                    ],
-                  ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(width: 6.5),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title != null)
+                DefaultTextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  style: style.fonts.small.regular.secondary,
+                  child: Text(title!),
                 ),
-              ],
-            ),
+              DefaultTextStyle.merge(
+                maxLines: maxLines,
+                overflow: maxLines == null ? null : TextOverflow.ellipsis,
+                style: style.fonts.big.regular.onBackground,
+                textAlign: TextAlign.justify,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(child: Text(content)),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 24),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: trailing!,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

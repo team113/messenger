@@ -184,7 +184,6 @@ class UserView extends StatelessWidget {
     return Paddings.basic(
       InfoTile(
         key: const Key('NumCopyable'),
-        padding: EdgeInsets.zero,
         title: 'label_num'.l10n,
         content: c.user!.user.value.num.toString(),
         trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
@@ -388,9 +387,7 @@ class UserView extends StatelessWidget {
           onPressed: () {},
         ),
         Obx(() {
-          final bool blocked = c.isBlocked != null;
-
-          if (blocked) {
+          if (c.isBlocked != null) {
             return const SizedBox();
           }
 

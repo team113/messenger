@@ -40,7 +40,6 @@ class BlocklistRecordWidget extends StatelessWidget {
       children: [
         Paddings.basic(
           InfoTile(
-            padding: EdgeInsets.zero,
             title: 'label_date'.l10n,
             content: record.at.val.toLocal().yMdHm,
           ),
@@ -49,7 +48,6 @@ class BlocklistRecordWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Paddings.basic(
             InfoTile(
-              padding: EdgeInsets.zero,
               title: 'label_reason'.l10n,
               content: record.reason!.val,
             ),

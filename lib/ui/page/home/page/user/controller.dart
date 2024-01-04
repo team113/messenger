@@ -186,6 +186,7 @@ class UserController extends GetxController {
     contact.value = _contactService.contacts.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );
+
     _updateWorker();
 
     _contactsSubscription = _contactService.contacts.changes.listen((e) {
@@ -413,7 +414,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Listens the [contact] or [user] changes updating the [name].
+  /// Listens to the [contact] or [user] changes updating the [name].
   void _updateWorker() {
     if (contact.value != null) {
       name.unchecked = contact.value!.contact.value.name.val;

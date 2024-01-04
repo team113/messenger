@@ -220,7 +220,6 @@ class ChatInfoView extends StatelessWidget {
                 ),
               ),
               InfoTile(
-                padding: EdgeInsets.zero,
                 title: '${Config.origin}/',
                 content: c.link.text,
                 maxLines: null,
