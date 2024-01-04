@@ -105,6 +105,19 @@ class CameraSwitchView extends StatelessWidget {
                     ),
                     const SizedBox(height: 25),
                     Obx(() {
+                      if (c.error.value == null) {
+                        return const SizedBox();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          c.error.value!,
+                          style: style.fonts.normal.regular.danger,
+                        ),
+                      );
+                    }),
+                    Obx(() {
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
