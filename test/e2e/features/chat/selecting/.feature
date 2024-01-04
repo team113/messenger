@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -38,7 +38,6 @@ Feature: Messages selection
 
     When I long press "01" message
     And I tap `Select` button
-    And I tap "01" message
     And I tap "02" message
     And I tap "03" message
     And I tap `ForwardButton` button
@@ -64,7 +63,6 @@ Feature: Messages selection
 
     When I long press "01" message
     And I tap `Select` button
-    And I tap "01" message
     And I tap "02" message
     And I tap "03" message
     And I tap `DeleteButton` button

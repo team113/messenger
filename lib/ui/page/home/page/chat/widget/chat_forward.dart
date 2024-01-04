@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -225,6 +225,16 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     }
   }
 
+  /// Indicates whether this [ChatItem] was read only partially.
+  bool get _isHalfRead {
+    final Chat? chat = widget.chat.value;
+    if (chat == null) {
+      return false;
+    }
+
+    return chat.isHalfRead(widget.forwards.first.value, widget.me);
+  }
+
   /// Indicates whether these [ChatForwardWidget.forwards] were forwarded by the
   /// authenticated [MyUser].
   bool get _fromMe => widget.authorId == widget.me;
@@ -358,6 +368,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 at: _at,
                                 status: SendingStatus.sent,
                                 read: _isRead,
+                                halfRead: _isHalfRead,
                                 delivered: widget.chat.value?.lastDelivery
                                         .isBefore(_at) ==
                                     false,
@@ -837,6 +848,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget Function(bool) builder) {
+    final style = Theme.of(context).style;
+
     final ChatItem? item = widget.note.value?.value;
 
     final bool isSent =
@@ -874,15 +887,26 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 final RxUser? data =
                     snapshot.data ?? (member is RxUser? ? member : null);
 
-                if (data != null) {
-                  return AvatarWidget.fromRxUser(
-                    data,
-                    radius: AvatarRadius.smaller,
-                  );
-                }
-                return AvatarWidget.fromUser(
-                  user,
-                  radius: AvatarRadius.smaller,
+                return Tooltip(
+                  message: data?.user.value.name?.val ??
+                      data?.user.value.num.toString() ??
+                      user?.name?.val ??
+                      user?.num.toString(),
+                  verticalOffset: 15,
+                  padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+                  decoration: BoxDecoration(
+                    color: style.colors.secondaryOpacity40,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: data != null
+                      ? AvatarWidget.fromRxUser(
+                          data,
+                          radius: AvatarRadius.smaller,
+                        )
+                      : AvatarWidget.fromUser(
+                          user,
+                          radius: AvatarRadius.smaller,
+                        ),
                 );
               },
             ),
@@ -912,7 +936,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           builder(menu),
           if (avatars.isNotEmpty)
             Transform.translate(
-              offset: const Offset(-12, -4),
+              offset: const Offset(-12, 0),
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
@@ -938,6 +962,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       isDelivered:
           isSent && widget.chat.value?.lastDelivery.isBefore(_at) == false,
       isRead: isSent && _isRead,
+      isHalfRead: _isHalfRead,
       isError: widget.forwards.first.value.status.value == SendingStatus.error,
       isSending:
           widget.forwards.first.value.status.value == SendingStatus.sending,
