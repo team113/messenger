@@ -115,8 +115,7 @@ mixin CustomCupertinoRouteTransitionsMixin<T> on PageRoute<T> {
     );
   }
 
-  /// Returns a [CustomCupertinoFullscreenDialogTransition] if [route] is a full
-  /// screen dialog, otherwise a [CustomCupertinoPageTransition] is returned.
+  /// Returns a [CustomCupertinoPageTransition].
   static Widget buildPageTransitions<T>(
     PageRoute<T> route,
     BuildContext context,
