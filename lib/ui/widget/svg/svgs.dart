@@ -2043,4 +2043,16 @@ class SvgIcons {
     width: 32,
     height: 32,
   );
+
+  static const SvgData showBalance = SvgData(
+    'assets/icons/show_balance.svg',
+    width: 24.8,
+    height: 22,
+  );
+
+  static const SvgData hideBalance = SvgData(
+    'assets/icons/hide_balance.svg',
+    width: 24.8,
+    height: 22,
+  );
 }

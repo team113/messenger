@@ -240,13 +240,7 @@ class _HomeViewState extends State<HomeView> {
                                   c.settings.value?.balanceTabEnabled == true;
 
                               return ContextMenuTile(
-                                // label: hasBalance
-                                //     ? 'btn_hide_balance_tab'.l10n
-                                //     : 'btn_show_balance_tab'.l10n,
-                                icon: Transform.scale(
-                                  scale: 1,
-                                  child: const WalletWidget(),
-                                ),
+                                icon: const WalletWidget(),
                                 label: 'label_balance'.l10n,
                                 pinned: hasBalance,
                                 onPinned: () =>
@@ -260,13 +254,7 @@ class _HomeViewState extends State<HomeView> {
                                   c.settings.value?.partnerTabEnabled == true;
 
                               return ContextMenuTile(
-                                // label: hasWork
-                                //     ? 'btn_hide_work_tab'.l10n
-                                //     : 'btn_show_work_tab'.l10n,
-                                icon: Transform.scale(
-                                  scale: 1,
-                                  child: const SvgIcon(SvgIcons.partner),
-                                ),
+                                icon: const SvgIcon(SvgIcons.partner),
                                 label: 'label_work_with_us'.l10n,
                                 pinned: hasWork,
                                 onPinned: () =>
@@ -363,8 +351,8 @@ class _HomeViewState extends State<HomeView> {
                                             onPressed: () =>
                                                 c.setDisplayFunds(!enabled),
                                             asset: enabled
-                                                ? SvgIcons.muted22
-                                                : SvgIcons.unmuted22,
+                                                ? SvgIcons.showBalance
+                                                : SvgIcons.hideBalance,
                                           );
                                         }),
                                       ),
@@ -422,8 +410,8 @@ class _HomeViewState extends State<HomeView> {
                                               !enabled,
                                             ),
                                             asset: enabled
-                                                ? SvgIcons.muted22
-                                                : SvgIcons.unmuted22,
+                                                ? SvgIcons.showBalance
+                                                : SvgIcons.hideBalance,
                                           );
                                         }),
                                       ),
@@ -473,8 +461,8 @@ class _HomeViewState extends State<HomeView> {
                                             pinnable: false,
                                             onPressed: c.publicsToggle.toggle,
                                             asset: muted
-                                                ? SvgIcons.unmuted22
-                                                : SvgIcons.muted22,
+                                                ? SvgIcons.muted22
+                                                : SvgIcons.unmuted22,
                                           );
                                         }),
                                       ),
@@ -537,8 +525,8 @@ class _HomeViewState extends State<HomeView> {
                                           onPressed: () => c.toggleMute(!muted),
                                           trailing: true,
                                           asset: muted
-                                              ? SvgIcons.unmuted22
-                                              : SvgIcons.muted22,
+                                              ? SvgIcons.muted22
+                                              : SvgIcons.unmuted22,
                                         );
                                       }),
                                     ),
