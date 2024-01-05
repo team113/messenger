@@ -192,7 +192,8 @@ class _SelectorState<T> extends State<Selector<T>> {
 
           left = offset.dx -
               (contextBox?.size.width ?? widget.width) / 2 -
-              widget.margin.right;
+              widget.margin.right +
+              widget.margin.left;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
@@ -208,7 +209,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy - widget.margin.bottom,
           );
 
-          left = offset.dx - widget.margin.right;
+          left = offset.dx - widget.margin.right + widget.margin.left;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
@@ -224,7 +225,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (buttonBox?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.margin.right;
+          left = offset.dx - widget.margin.right + widget.margin.left;
           top = offset.dy - widget.margin.bottom;
         } else if (widget.alignment == Alignment.bottomLeft) {
           offset = Offset(
@@ -232,7 +233,11 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (buttonBox?.size.height ?? 0),
           );
 
-          right = constraints.maxWidth - 100 - offset.dx;
+          right = constraints.maxWidth -
+              100 -
+              offset.dx -
+              widget.margin.left +
+              widget.margin.right;
           top = offset.dy - widget.margin.bottom;
         } else {
           offset = Offset(
@@ -301,11 +306,9 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
               child: Container(
-                margin: widget.margin,
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
-                  border: Border.all(color: style.colors.secondary, width: 0.5),
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 12,
