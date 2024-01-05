@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/provider/hive/base.dart';
-import '/provider/hive/chat.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 import '/util/web/web_utils.dart';
@@ -118,10 +117,6 @@ class HivePageProvider<T extends Object, C, K>
     for (var k in keys) {
       final T? item = await _provider.get(k);
       if (item != null) {
-        if (item is HiveChat && item.value.ongoingCall != null) {
-          (item).value.ongoingCall = null;
-          await _provider.put(item);
-        }
         items.add(item);
       }
     }

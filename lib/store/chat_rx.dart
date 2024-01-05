@@ -296,6 +296,17 @@ class HiveRxChat extends RxChat {
       previous = chat.value;
     });
 
+    if (chat.value.ongoingCall != null) {
+      final HiveChat? chatEntity = await _chatLocal.get(id);
+      if (chatEntity != null) {
+        chatEntity.value.ongoingCall = null;
+        chat.value = chatEntity.value;
+        await _chatLocal.put(chatEntity);
+      } else {
+        chat.value.ongoingCall = null;
+      }
+    }
+
     _messagesSubscription = messages.changes.listen((e) {
       switch (e.op) {
         case OperationKind.removed:
