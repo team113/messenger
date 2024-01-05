@@ -236,8 +236,7 @@ void main() async {
     );
     callService.onReady();
 
-    await Future.delayed(Duration.zero);
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(2);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'first');
 
@@ -315,7 +314,7 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(2);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'second');
   });
@@ -369,10 +368,10 @@ void main() async {
     );
     callService.onReady();
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(2);
     expect(callService.calls.length, 0);
 
-    callService.call(
+    await callService.call(
       const ChatId('outgoing'),
       withAudio: false,
       withVideo: false,
@@ -387,7 +386,7 @@ void main() async {
     expect(callService.calls.values.first.value.chatId.value.val, 'outgoing');
     expect(callService.calls.values.first.value.caller?.id.val, 'me');
 
-    callService.leave(
+    await callService.leave(
       const ChatId('outgoing'),
       const ChatCallDeviceId('device'),
     );
@@ -475,11 +474,11 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(2);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
-    callService.decline(const ChatId('incoming'));
+    await callService.decline(const ChatId('incoming'));
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
@@ -512,12 +511,11 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await Future.delayed(Duration.zero);
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(2);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
-    callService.join(
+    await callService.join(
       const ChatId('incoming'),
       withAudio: true,
       withVideo: false,
@@ -527,6 +525,13 @@ void main() async {
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
   });
+}
+
+/// Skips [count] event loop iterations. Used for creating zero-time delays.
+Future<void> skipEventLoopIterations(int count) async {
+  for (var i = 0; i < count; i++) {
+    await Future.delayed(Duration.zero);
+  }
 }
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {
