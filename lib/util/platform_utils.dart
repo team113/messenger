@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -81,7 +81,8 @@ class PlatformUtilsImpl {
 
   /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
   /// passed.
-  Timer? _activityTimer;
+  @visibleForTesting
+  Timer? activityTimer;
 
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);
@@ -594,10 +595,10 @@ class PlatformUtilsImpl {
       _activityController?.add(active);
     }
 
-    _activityTimer?.cancel();
+    activityTimer?.cancel();
 
     if (active) {
-      _activityTimer = Timer(_activityTimeout, () {
+      activityTimer = Timer(_activityTimeout, () {
         _isActive = false;
         _activityController?.add(false);
       });
@@ -623,14 +624,14 @@ extension MobileExtensionOnContext on BuildContext {
 /// Extension adding an ability to pop the current [ModalRoute].
 extension PopExtensionOnContext on BuildContext {
   /// Pops the [ModalRoute] from this [BuildContext], if any is active.
-  void popModal() {
+  void popModal([dynamic result]) {
     if (mounted) {
       final NavigatorState navigator = Navigator.of(this);
       final ModalRoute? modal = ModalRoute.of(this);
 
       if (modal?.isActive == true) {
         if (modal?.isCurrent == true) {
-          navigator.pop();
+          navigator.pop(result);
         } else {
           navigator.removeRoute(modal!);
         }

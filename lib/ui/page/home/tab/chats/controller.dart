@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -61,7 +61,6 @@ import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -473,17 +472,6 @@ class ChatsTabController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// contains an [OngoingCall] happening in a [Chat] identified by the
-  /// provided [ChatId].
-  bool containsCall(ChatId id) {
-    if (WebUtils.containsCall(id)) {
-      return true;
-    }
-
-    return _callService.calls[id] != null;
-  }
-
   /// Indicates whether [User] from this [chat] is already in contacts.
   ///
   /// Only meaningful, if [chat] is dialog.
@@ -498,7 +486,7 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    return _contactService.paginated.values.any((e) =>
+    return _contactService.contacts.values.any((e) =>
         e.contact.value.users.length == 1 &&
         e.contact.value.users.every((m) => m.id == userId));
   }
@@ -543,7 +531,7 @@ class ChatsTabController extends GetxController {
 
     try {
       final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
+          _contactService.contacts.values.firstWhereOrNull(
         (e) =>
             e.contact.value.users.length == 1 &&
             e.contact.value.users.every((m) => m.id == user.id),
@@ -730,6 +718,7 @@ class ChatsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
+        _myUserService,
         categories: [
           SearchCategory.recent,
           if (groupCreating.isFalse) SearchCategory.chat,

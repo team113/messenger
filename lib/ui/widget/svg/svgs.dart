@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,17 +39,20 @@ class SvgData {
 
 /// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
-  const SvgIcon(this.data, {super.key, this.height});
+  const SvgIcon(this.data, {super.key, this.width, this.height});
 
   /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional width to display [data] of.
+  final double? width;
 
   /// Optional height to display [data] of.
   final double? height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.icon(data, height: height);
+    return SvgImage.icon(data, width: width, height: height);
   }
 }
 
@@ -67,8 +70,20 @@ class SvgIcons {
     height: 21.02,
   );
 
+  static const SvgData chatAudioCallDisabled = SvgData(
+    'assets/icons/chat_audio_call_disabled.svg',
+    width: 21,
+    height: 21.02,
+  );
+
   static const SvgData chatVideoCall = SvgData(
     'assets/icons/chat_video_call.svg',
+    width: 27.71,
+    height: 19,
+  );
+
+  static const SvgData chatVideoCallDisabled = SvgData(
+    'assets/icons/chat_video_call_disabled.svg',
     width: 27.71,
     height: 19,
   );
@@ -1332,8 +1347,32 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData makeAudioCallWhite = SvgData(
+    'assets/icons/make_audio_call_white.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData makeAudioCallDisabled = SvgData(
+    'assets/icons/make_audio_call_disabled.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData makeVideoCall = SvgData(
     'assets/icons/make_video_call.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData makeVideoCallWhite = SvgData(
+    'assets/icons/make_video_call_white.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData makeVideoCallDisabled = SvgData(
+    'assets/icons/make_video_call_disabled.svg',
     width: 21.93,
     height: 15,
   );
@@ -1398,6 +1437,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData blockSmall = SvgData(
+    'assets/icons/block.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,
@@ -1408,6 +1453,12 @@ class SvgIcons {
     'assets/icons/clean_history_white.svg',
     width: 17.21,
     height: 18,
+  );
+
+  static const SvgData cleanHistorySmall = SvgData(
+    'assets/icons/clean_history_small.svg',
+    width: 15.28,
+    height: 16,
   );
 
   static const SvgData addContact = SvgData(
@@ -1608,6 +1659,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData leaveGroupSmall = SvgData(
+    'assets/icons/leave_group_small.svg',
+    width: 12.88,
+    height: 16,
+  );
+
   static const SvgData report = SvgData(
     'assets/icons/report.svg',
     width: 16,
@@ -1636,5 +1693,23 @@ class SvgIcons {
     'assets/icons/download19_white.svg',
     width: 12.89,
     height: 19,
+  );
+
+  static const SvgData addMember = SvgData(
+    'assets/icons/add_member.svg',
+    width: 17,
+    height: 17,
+  );
+
+  static const SvgData complaint = SvgData(
+    'assets/icons/complaint.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData unblock = SvgData(
+    'assets/icons/unblock.svg',
+    width: 16,
+    height: 16,
   );
 }

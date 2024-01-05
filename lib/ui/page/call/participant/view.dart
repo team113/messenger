@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -141,7 +141,7 @@ class ParticipantView extends StatelessWidget {
 
                             return MemberTile(
                               user: user,
-                              canLeave: user.id == c.me,
+                              me: user.id == c.me,
                               inCall: user.id == c.me ? null : inCall,
                               onTap: () {
                                 // TODO: Open the [Routes.user] page.

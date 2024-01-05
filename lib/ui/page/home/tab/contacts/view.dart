@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -66,6 +66,7 @@ class ContactsTabView extends StatelessWidget {
     return GetBuilder(
       key: const Key('ContactsTab'),
       init: ContactsTabController(
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
