@@ -32,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
         - Downloaded avatar missing its extension on desktop. ([#756, #726])
     - Chat page:
         - Read partially message status missing in forwards. ([#776])
+- Web:
+    - Media devices not showing up on profile page in Safari. ([#780])
 
 [#582]: /../../issues/582
 [#718]: /../../issues/718
@@ -44,6 +46,7 @@ All user visible changes to this project will be documented in this file. This p
 [#766]: /../../issues/766
 [#769]: /../../pull/769
 [#776]: /../../pull/776
+[#780]: /../../pull/780
 
 
 
