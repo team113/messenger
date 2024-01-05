@@ -169,7 +169,17 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (outgoing) {
-              play(_outgoing);
+              final chatOrFuture = _chatService.get(c.chatId.value);
+              if (chatOrFuture is RxChat?) {
+                if (chatOrFuture?.chat.value.isGroup != true) {
+                  play(_outgoing);
+                }
+              } else {
+                final chat = await chatOrFuture;
+                if (chat?.chat.value.isGroup != true) {
+                  play(_outgoing);
+                }
+              }
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play(_incoming, fade: true);
               Vibration.hasVibrator().then((bool? v) {

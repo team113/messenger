@@ -28,6 +28,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/util/log.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -2071,8 +2072,16 @@ class CallController extends GetxController {
 
   /// Initializes the [chat] and adds the [CallMember] afterwards.
   Future<void> _initChat() async {
+    Log.debug('[debug] _initChat');
+
     try {
-      _updateChat(await _chatService.get(_currentCall.value.chatId.value));
+      final futureOrChat = _chatService.get(_currentCall.value.chatId.value);
+      if (futureOrChat is RxChat?) {
+        _updateChat(futureOrChat);
+      } else {
+        _updateChat(await futureOrChat);
+      }
+      Log.debug('[debug] _initChat done');
     } finally {
       void onTracksChanged(
         CallMember member,
@@ -2131,6 +2140,10 @@ class CallController extends GetxController {
         }
       });
 
+      Log.debug(
+        '[debug] members.forEach _putMember: ${members.values.map((e) => '${e.id}')}',
+      );
+
       members.forEach((_, value) => _putMember(value));
       _insureCorrectGrouping();
     }
@@ -2138,6 +2151,8 @@ class CallController extends GetxController {
 
   /// Sets the [chat] to the provided value, updating the title.
   void _updateChat(RxChat? v) {
+    Log.debug('[debug] _updateChat($v)');
+
     _chatSubscription?.cancel();
     chat.value = v;
     _chatSubscription = chat.value?.updates.listen((_) {});
@@ -2147,6 +2162,44 @@ class CallController extends GetxController {
       secondaryTop.value = null;
       secondaryRight.value = 10;
       secondaryBottom.value = 10;
+    } else {
+      if (chat.value != null) {
+        final List<User> members =
+            chat.value!.members.values.map((e) => e.user.value).toList();
+        for (var e in chat.value!.chat.value.members) {
+          members.addIf(members.none((p) => p.id == e.user.id), e.user);
+        }
+
+        for (var e in members) {
+          if (e.id != me.id.userId) {
+            final id = CallMemberId(e.id, null);
+
+            _currentCall.value.members.addIf(
+              _currentCall.value.members.keys
+                  .none((e) => e.userId == id.userId),
+              id,
+              CallMember(CallMemberId(e.id, null), null, isDialing: true),
+            );
+          }
+        }
+
+        // _currentCall.value.members.addEntries([
+        //   ...chat.value!.members.values.map(
+        //     (e) => MapEntry(
+        //       CallMemberId(e.id, null),
+        //       CallMember(
+        //         CallMemberId(e.id, null),
+        //         null,
+        //         isDialing: e.id != me.id.userId,
+        //       ),
+        //     ),
+        //   ),
+        // ]);
+      }
+
+      // chat.value?.members.values.forEach((e) {
+      //   _putMember(CallMember(CallMemberId(e.id, null), null));
+      // });
     }
 
     // Update the [WebUtils.title] if this call is in a popup.

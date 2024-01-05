@@ -1365,10 +1365,14 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.debug(
-            'onStopped ${track.kind()}-${track.mediaSourceKind()}',
-            '$runtimeType',
-          );
+          try {
+            Log.debug(
+              'onStopped ${track.kind()}-${track.mediaSourceKind()}',
+              '$runtimeType',
+            );
+          } catch (_) {
+            // No-op.
+          }
 
           member?.tracks.remove(t..dispose());
         });
@@ -1639,7 +1643,7 @@ class OngoingCall {
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     Log.debug('_joinRoom($link)', '$runtimeType');
 
-    me.isConnected.value = false;
+    // me.isConnected.value = false;
 
     Log.info('Joining the room...', '$runtimeType');
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
@@ -1668,7 +1672,7 @@ class OngoingCall {
 
     Log.info('Room joined!', '$runtimeType');
 
-    me.isConnected.value = true;
+    // me.isConnected.value = true;
   }
 
   /// Closes the [_room] and releases the associated resources.

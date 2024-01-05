@@ -223,23 +223,29 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
 
         // Dim the primary view in a non-active call.
-        Obx(() {
-          final Widget child;
+        // Obx(() {
+        //   final Widget child;
 
-          if (c.state.value == OngoingCallState.active) {
-            child = const SizedBox();
-          } else {
-            child = IgnorePointer(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: style.colors.onBackgroundOpacity40,
-              ),
-            );
-          }
+        //   final bool isOutgoing =
+        //       (c.outgoing || c.state.value == OngoingCallState.local) &&
+        //           !c.started;
 
-          return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
-        }),
+        //   if ((c.isGroup && isOutgoing) ||
+        //       c.state.value == OngoingCallState.active) {
+        //     child = const SizedBox();
+        //   } else {
+        //     child = IgnorePointer(
+        //       key: const Key('123'),
+        //       child: Container(
+        //         width: double.infinity,
+        //         height: double.infinity,
+        //         color: style.colors.onBackgroundOpacity40,
+        //       ),
+        //     );
+        //   }
+
+        //   return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
+        // }),
 
         // Reconnection indicator.
         Obx(() {
@@ -536,20 +542,21 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       List<Widget> ui = [
-        IgnorePointer(
-          child: Obx(() {
-            bool preferTitle = c.state.value != OngoingCallState.active;
-            return SafeAnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: preferTitle &&
-                      c.primary
-                          .where((e) => e.video.value?.renderer.value != null)
-                          .isNotEmpty
-                  ? Container(color: style.colors.onBackgroundOpacity27)
-                  : null,
-            );
-          }),
-        ),
+        // IgnorePointer(
+        //   child: Obx(() {
+        //     bool preferTitle = c.state.value != OngoingCallState.active;
+
+        //     return SafeAnimatedSwitcher(
+        //       duration: const Duration(milliseconds: 300),
+        //       child: preferTitle &&
+        //               c.primary
+        //                   .where((e) => e.video.value?.renderer.value != null)
+        //                   .isNotEmpty
+        //           ? Container(color: style.colors.onBackgroundOpacity27)
+        //           : null,
+        //     );
+        //   }),
+        // ),
 
         Obx(() {
           bool preferTitle = c.state.value != OngoingCallState.active;
@@ -572,8 +579,18 @@ Widget desktopCall(CallController c, BuildContext context) {
               (c.outgoing || c.state.value == OngoingCallState.local) &&
                   !c.started;
 
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool group = c.chat.value != null && c.isGroup;
+          final bool dialog = c.chat.value != null && c.isDialog;
+          final bool incoming = !isOutgoing;
+
           final bool preferTitle =
-              c.state.value != OngoingCallState.active || !isOutgoing;
+              (group && incoming && !active) || (dialog && !active);
+          // final bool preferTitle = (c.state.value != OngoingCallState.active &&
+          //         c.chat.value != null &&
+          //         !c.isGroup &&
+          //         !isOutgoing) ||
+          //     !isOutgoing;
 
           return SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcherCallTitle'),
@@ -1120,7 +1137,10 @@ Widget _primaryView(CallController c) {
             return LayoutBuilder(builder: (context, constraints) {
               return Obx(() {
                 bool? muted = participant.member.owner == MediaOwnerKind.local
-                    ? !c.audioState.value.isEnabled
+                    ? c.state.value == OngoingCallState.local
+                        ? c.audioState.value != LocalTrackState.enabled &&
+                            c.audioState.value != LocalTrackState.enabling
+                        : !c.audioState.value.isEnabled
                     : null;
 
                 bool anyDragIsHappening = c.secondaryDrags.value != 0 ||

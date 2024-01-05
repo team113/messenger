@@ -75,7 +75,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     List<Widget> overlay = [];
 
     // Active call.
-    if (c.state.value == OngoingCallState.active) {
+    if ((c.isGroup && isOutgoing) || c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
           if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
@@ -393,8 +393,14 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Sliding from the top title bar.
       SafeArea(
         child: Obx(() {
-          bool showUi =
-              (c.state.value != OngoingCallState.active && !c.minimized.value);
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool group = c.chat.value != null && c.isGroup;
+          final bool dialog = c.chat.value != null && c.isDialog;
+          final bool incoming = !isOutgoing;
+
+          bool showUi = (c.chat.value != null && !group || incoming) &&
+              !active &&
+              !c.minimized.value;
 
           return AnimatedSlider(
             duration: const Duration(milliseconds: 400),
@@ -424,9 +430,12 @@ Widget mobileCall(CallController c, BuildContext context) {
         double panelHeight = 0;
         List<Widget> panelChildren = [];
 
+        final bool panel = (c.isGroup && isOutgoing) ||
+            c.state.value == OngoingCallState.active ||
+            c.state.value == OngoingCallState.joining;
+
         // Populate the sliding panel height and its content.
-        if (c.state.value == OngoingCallState.active ||
-            c.state.value == OngoingCallState.joining) {
+        if (panel) {
           panelHeight = 360 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
@@ -481,8 +490,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         return SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
-          child: c.state.value == OngoingCallState.active ||
-                  c.state.value == OngoingCallState.joining
+          child: panel
               ? AnimatedSlider(
                   beginOffset: Offset(
                     0,
