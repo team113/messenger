@@ -92,7 +92,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// Represents a place to add the dragged item to.
   int __expanded = -1;
 
-  /// Indicator whether the [_expanded] changed in the current frame.
+  /// Indicator whether the [_expanded] has been changed during the current
+  /// frame.
   bool _expandedChanged = false;
 
   /// Position in [_items] to add shrinking [AnimatedContainer] to.
@@ -122,8 +123,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   int get _expanded => __expanded;
 
   /// Sets the [_expanded] position to the provided [index].
+  ///
+  /// Accounts possible double invokes during a single frame by scheduling the
+  /// change in the next frame on such occasions.
   set _expanded(int index) {
     if (_expanded != index && mounted) {
+      // If [__expanded] has been changed during this frame, then schedule this
+      // change for a next frame.
       if (_expandedChanged) {
         return SchedulerBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -254,7 +260,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                         int index = _dragged!.key;
 
                         _expanded = index;
-                        _DraggedItem<T> dragged = _dragged!.value;
+                        final _DraggedItem<T> dragged = _dragged!.value;
 
                         // Animate the item returning to its position.
                         _animate(
@@ -493,8 +499,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       }
     }
 
-    // Update the [__expanded] if [_dragged] is `null` in order the [_onMove]
-    // called before [onDragStarted].
+    // Update the [__expanded] here directly, if [_dragged] is `null`, meaning
+    // this [_onMove] was invoked before the [onDragStarted].
+    //
+    // Otherwise the [__expanded] will be assigned to an invalid value, causing
+    // the animation to flicker.
     if (_dragged == null) {
       setState(() => __expanded = indexToPlace);
     } else {

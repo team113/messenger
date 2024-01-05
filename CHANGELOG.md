@@ -20,8 +20,6 @@ All user visible changes to this project will be documented in this file. This p
         - Monolog searching. ([#745], [#582])
     - Redesigned user page. ([#769], [#766])
     - Redesigned chat info page. ([#769], [#766])
-    - Media panel:
-        - Fixed dock animations. ([#774], [#698])
 
 ### Fixed
 
@@ -34,6 +32,8 @@ All user visible changes to this project will be documented in this file. This p
         - Downloaded avatar missing its extension on desktop. ([#756, #726])
     - Chat page:
         - Read partially message status missing in forwards. ([#776])
+    - Media panel:
+        - Dock animations lagging when dragging buttons. ([#774], [#698])
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
 
