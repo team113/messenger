@@ -419,12 +419,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return chat.isHalfRead(widget.item.value, widget.me);
   }
 
-  /// Returns the [UserId] of [User] posted this [ChatItem].
-  UserId get _author => widget.item.value.author.id;
+  /// Returns the [User] who posted this [ChatItem].
+  User get _author => widget.item.value.author;
 
   /// Indicates whether this [ChatItemWidget.item] was posted by the
   /// authenticated [MyUser].
-  bool get _fromMe => _author == widget.me;
+  bool get _fromMe => _author.id == widget.me;
 
   @override
   void initState() {
@@ -522,7 +522,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     TextSpan(
                       text: 'label_group_created_by1'.l10nfmt(args),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () => router.user(user.id, push: true),
+                        ..onTap = () => router.chat(user.dialog, push: true),
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
@@ -578,7 +578,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.user(author.id, push: true),
+                      ..onTap = () => router.chat(author.dialog, push: true),
                   ),
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
@@ -587,7 +587,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.user(user!.id, push: true),
+                      ..onTap = () => router.chat(user!.dialog, push: true),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -608,7 +608,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.user(action.user.id, push: true),
+                    ..onTap = () => router.chat(action.user.dialog, push: true),
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
@@ -640,7 +640,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.user(author.id, push: true),
+                      ..onTap = () => router.chat(author.dialog, push: true),
                   ),
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
@@ -649,7 +649,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.user(user!.id, push: true),
+                      ..onTap = () => router.chat(user!.dialog, push: true),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -667,7 +667,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.user(action.user.id, push: true),
+                    ..onTap = () => router.chat(action.user.dialog, push: true),
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
@@ -703,7 +703,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase1.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => router.user(user.id, push: true),
+                  ..onTap = () => router.chat(user.dialog, push: true),
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
@@ -739,7 +739,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase1.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => router.user(user.id, push: true),
+                  ..onTap = () => router.chat(user.dialog, push: true),
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
@@ -827,7 +827,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             widget.user?.user.value.num.toString() ??
                             'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
-                          ..onTap = () => router.user(_author, push: true),
+                          ..onTap =
+                              () => router.chat(_author.dialog, push: true),
                       ),
                       selectable: PlatformUtils.isDesktop || menu,
                       onSelecting: widget.onSelecting,
@@ -1095,7 +1096,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               widget.user?.user.value.num.toString() ??
                               'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () => router.user(_author, push: true),
+                            ..onTap =
+                                () => router.chat(_author.dialog, push: true),
                         ),
                         selectable: PlatformUtils.isDesktop || menu,
                         onSelecting: widget.onSelecting,
@@ -1447,7 +1449,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
       (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) && e.memberId != _author,
+          !e.at.val.isBefore(widget.item.value.at.val) &&
+          e.memberId != _author.id,
     );
 
     final bool isSent = item.status.value == SendingStatus.sent;
@@ -1668,7 +1671,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   child: widget.avatar
                       ? InkWell(
                           customBorder: const CircleBorder(),
-                          onTap: () => router.user(item.author.id, push: true),
+                          onTap: () =>
+                              router.chat(item.author.dialog, push: true),
                           child: AvatarWidget.fromRxUser(
                             widget.user,
                             radius: AvatarRadius.medium,
