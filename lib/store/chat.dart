@@ -1459,9 +1459,13 @@ class ChatRepository extends DisposableInterface
   Future<HiveRxChat> put(
     HiveChat chat, {
     bool pagination = false,
+    bool updateVersion = true,
     bool ignoreVersion = false,
   }) async {
-    Log.debug('put($chat, $pagination)', '$runtimeType');
+    Log.debug(
+      'put($chat, $pagination, $updateVersion, $ignoreVersion)',
+      '$runtimeType',
+    );
 
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
@@ -1501,7 +1505,7 @@ class ChatRepository extends DisposableInterface
       HiveChat? saved;
 
       // If version is ignored, there's no need to retrieve the stored chat.
-      if (!ignoreVersion) {
+      if (!ignoreVersion || !updateVersion) {
         saved = await _chatLocal.get(chatId);
       }
 
@@ -1509,11 +1513,15 @@ class ChatRepository extends DisposableInterface
       chat.value.firstItem ??=
           saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-      if (saved == null || saved.ver < chat.ver) {
+      if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
         _recentLocal.put(chat.value.updatedAt, chatId);
 
         if (chat.value.favoritePosition != null) {
           _favoriteLocal.put(chat.value.favoritePosition!, chatId);
+        }
+
+        if (saved != null && !updateVersion) {
+          chat.ver = saved.ver;
         }
 
         await _chatLocal.put(chat);
@@ -1656,7 +1664,7 @@ class ChatRepository extends DisposableInterface
         var node = event as RecentChatsTop;
         for (ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
-            _putEntry(c);
+            _putEntry(c, updateVersion: false);
           }
         }
         break;
@@ -1685,7 +1693,7 @@ class ChatRepository extends DisposableInterface
             }
           }
 
-          _putEntry(data);
+          _putEntry(data, updateVersion: false);
         }
         break;
 
@@ -1859,7 +1867,12 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true, ignoreVersion: true);
+          _putEntry(
+            chatData,
+            pagination: true,
+            ignoreVersion: true,
+            updateVersion: false,
+          );
           break;
 
         case OperationKind.removed:
@@ -1883,6 +1896,7 @@ class ChatRepository extends DisposableInterface
         ChatData(e, null, null),
         pagination: true,
         ignoreVersion: true,
+        updateVersion: false,
       ),
     );
 
@@ -1989,9 +2003,13 @@ class ChatRepository extends DisposableInterface
   Future<HiveRxChat> _putEntry(
     ChatData data, {
     bool pagination = false,
+    bool updateVersion = true,
     bool ignoreVersion = false,
   }) async {
-    Log.trace('_putEntry($data, $pagination, $ignoreVersion)', '$runtimeType');
+    Log.trace(
+      '_putEntry($data, $pagination, $updateVersion, $ignoreVersion)',
+      '$runtimeType',
+    );
 
     final ChatId chatId = data.chat.value.id;
 
@@ -2007,6 +2025,7 @@ class ChatRepository extends DisposableInterface
       return put(
         data.chat,
         pagination: pagination,
+        updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
       );
     }
@@ -2048,6 +2067,7 @@ class ChatRepository extends DisposableInterface
       entry = await put(
         data.chat,
         pagination: pagination,
+        updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
       );
 

@@ -1123,7 +1123,11 @@ class HiveRxChat extends RxChat {
         if (chatEntity != null) {
           chatEntity.value = node.chat.value;
           chatEntity.ver = node.chat.ver;
-          _chatRepository.put(chatEntity, ignoreVersion: true);
+          _chatRepository.put(
+            chatEntity,
+            ignoreVersion: true,
+            updateVersion: false,
+          );
         } else {
           _chatRepository.put(node.chat, ignoreVersion: true);
         }
