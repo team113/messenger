@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
         - Monolog searching. ([#745], [#582])
     - Redesigned user page. ([#769], [#766])
     - Redesigned chat info page. ([#769], [#766])
+    - Tuned up page transition animation. ([#775], [#573])
 
 ### Fixed
 
@@ -35,6 +36,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
 
+[#573]: /../../issues/573
 [#582]: /../../issues/582
 [#718]: /../../issues/718
 [#726]: /../../issues/726
@@ -45,6 +47,7 @@ All user visible changes to this project will be documented in this file. This p
 [#763]: /../../pull/763
 [#766]: /../../issues/766
 [#769]: /../../pull/769
+[#775]: /../../pull/775
 [#776]: /../../pull/776
 [#780]: /../../pull/780
 
