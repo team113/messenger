@@ -22,6 +22,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -52,6 +53,8 @@ class MicrophoneSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: MicrophoneSwitchController(Get.find(), mic: mic),
       builder: (MicrophoneSwitchController c) {
@@ -68,6 +71,19 @@ class MicrophoneSwitchView extends StatelessWidget {
                   shrinkWrap: true,
                   children: [
                     const SizedBox(height: 13),
+                    Obx(() {
+                      if (c.error.value == null) {
+                        return const SizedBox();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          c.error.value!,
+                          style: style.fonts.normal.regular.danger,
+                        ),
+                      );
+                    }),
                     Obx(() {
                       return ListView.separated(
                         shrinkWrap: true,
