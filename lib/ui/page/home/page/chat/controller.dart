@@ -272,7 +272,7 @@ class ChatController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
-  /// [StreamSubscription] to [ContactService.paginated] determining the
+  /// [StreamSubscription] to [ContactService.contacts] determining the
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
@@ -1020,11 +1020,11 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog == true) {
-        inContacts.value = _contactService.paginated.values.any(
+        inContacts.value = _contactService.contacts.values.any(
           (e) => e.contact.value.users.every((m) => m.id == user?.id),
         );
 
-        _contactsSubscription = _contactService.paginated.changes.listen((e) {
+        _contactsSubscription = _contactService.contacts.changes.listen((e) {
           switch (e.op) {
             case OperationKind.added:
             case OperationKind.updated:
@@ -1328,7 +1328,7 @@ class ChatController extends GetxController {
     if (inContacts.value) {
       try {
         final RxChatContact? contact =
-            _contactService.paginated.values.firstWhereOrNull(
+            _contactService.contacts.values.firstWhereOrNull(
           (e) => e.contact.value.users.every((m) => m.id == user?.id),
         );
         await _contactService.deleteContact(contact!.contact.value.id);

@@ -15,38 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/num.dart';
+import '/ui/page/home/widget/info_tile.dart';
+import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
-import 'widget/name.dart';
-import 'widget/presence.dart';
-import 'widget/status.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -83,68 +77,117 @@ class UserView extends StatelessWidget {
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
-                  return ListView(
-                    key: const Key('UserScrollable'),
-                    controller: c.scrollController,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (c.isBlocked != null)
-                        Block(
-                          title: 'label_user_is_blocked'.l10n,
-                          children: [BlocklistRecordWidget(c.isBlocked!)],
-                        ),
-                      Block(
-                        title: 'label_public_information'.l10n,
-                        children: [
-                          BigAvatarWidget.user(c.user),
-                          const SizedBox(height: 12),
-                          UserNameCopyable(
-                            c.user!.user.value.name,
-                            c.user!.user.value.num,
+                  return SelectionArea(
+                    child: ListView(
+                      key: const Key('UserScrollable'),
+                      controller: c.scrollController,
+                      children: [
+                        const SizedBox(height: 8),
+                        if (c.isBlocked != null)
+                          Block(
+                            title: 'label_user_is_blocked'.l10n,
+                            children: [
+                              BlocklistRecordWidget(
+                                c.isBlocked!,
+                                onUnblock: c.unblock,
+                              ),
+                            ],
                           ),
-                          if (c.user!.user.value.status != null)
-                            UserStatusCopyable(c.user!.user.value.status!),
-                          if (c.user!.user.value.presence != null)
-                            Obx(() {
-                              return UserPresenceField(
-                                c.user!.user.value.presence!,
-                                c.user!.user.value
-                                    .getStatus(c.user?.lastSeen.value),
-                              );
-                            }),
-                        ],
-                      ),
-                      Block(
-                        title: 'label_contact_information'.l10n,
-                        children: [
-                          Paddings.basic(
-                            UserNumCopyable(
-                              c.user!.user.value.num,
-                              key: const Key('NumCopyable'),
+                        Block(
+                          children: [
+                            SelectionContainer.disabled(
+                              child: BigAvatarWidget.user(c.user),
                             ),
-                          )
-                        ],
-                      ),
-                      Block(children: [_actions(c, context)]),
-                      const SizedBox(height: 8),
-                    ],
+                            const SizedBox(height: 18),
+                            _name(c, context),
+                          ],
+                        ),
+                        _status(c, context),
+                        Block(children: [_num(c)]),
+                        SelectionContainer.disabled(
+                          child: Block(children: [_actions(c, context)]),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
                   );
                 }),
               ),
-              bottomNavigationBar: Obx(() {
-                if (c.isBlocked == null) {
-                  return const SizedBox();
-                }
-
-                return Padding(
-                  padding: Insets.dense.copyWith(top: 0),
-                  child: SafeArea(child: UnblockButton(c.unblock)),
-                );
-              }),
             );
           });
         });
       },
+    );
+  }
+
+  /// Returns a [ChatContact.name] or [User.name] editable field.
+  Widget _name(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Widget child;
+
+      if (c.editing.value) {
+        child = Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: SelectionContainer.disabled(
+            child: ReactiveTextField(
+              state: c.name,
+              label: 'label_name'.l10n,
+              hint: c.contact.value?.contact.value.name.val ??
+                  c.user!.user.value.name?.val ??
+                  c.user!.user.value.num.toString(),
+            ),
+          ),
+        );
+      } else {
+        child = Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Text(
+            c.name.text,
+            style: style.fonts.large.regular.onBackground,
+          ),
+        );
+      }
+
+      return AnimatedSizeAndFade(
+        sizeDuration: const Duration(milliseconds: 250),
+        fadeDuration: const Duration(milliseconds: 250),
+        child: child,
+      );
+    });
+  }
+
+  /// Returns the [User.status] visual representation.
+  Widget _status(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final UserTextStatus? status = c.user?.user.value.status;
+
+    if (status != null) {
+      return Block(
+        padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
+        children: [
+          Text(
+            status.toString(),
+            style: style.fonts.normal.regular.secondary,
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  /// Returns the [User.num] visual representation.
+  Widget _num(UserController c) {
+    return Paddings.basic(
+      InfoTile(
+        key: const Key('NumCopyable'),
+        title: 'label_num'.l10n,
+        content: c.user!.user.value.num.toString(),
+        trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
+      ),
     );
   }
 
@@ -176,225 +219,155 @@ class UserView extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               child: Obx(() {
-                final RxChat? chat = c.user?.dialog.value;
-
-                final bool monolog = chat?.chat.value.isMonolog == true;
+                final String? subtitle = c.user?.user.value.getStatus();
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            '${c.user?.user.value.name?.val ?? c.user?.user.value.num}',
-                          ),
-                        ),
-                        Obx(() {
-                          if (c.user?.dialog.value?.chat.value.muted == null) {
-                            return const SizedBox();
-                          }
-
-                          return const Padding(
-                            padding: EdgeInsets.only(left: 5),
-                            child: SvgIcon(SvgIcons.muted),
-                          );
-                        }),
-                      ],
+                    Text(
+                      '${c.contact.value?.contact.value.name.val ?? c.user?.user.value.name?.val ?? c.user?.user.value.num}',
                     ),
-                    if (!monolog && chat != null) ChatSubtitle(chat, c.me),
+                    if (subtitle?.isNotEmpty == true)
+                      Text(
+                        key: Key(
+                          c.user?.user.value.presence?.name.capitalizeFirst ??
+                              '',
+                        ),
+                        subtitle!,
+                        style: style.fonts.small.regular.secondary,
+                      )
                   ],
                 );
               }),
             ),
           ),
           const SizedBox(width: 40),
-          AnimatedButton(
-            onPressed: c.openChat,
-            child: const SvgIcon(SvgIcons.chat),
-          ),
-          const SizedBox(width: 21),
           Obx(() {
-            final bool hasCall =
-                c.user?.dialog.value?.chat.value.ongoingCall != null;
-            final bool inCall = c.user?.dialog.value?.inCall.value ?? false;
+            final Widget child;
 
-            if (hasCall) {
-              final Widget child;
-
-              if (inCall) {
-                child = Container(
-                  key: const Key('Drop'),
-                  height: 32,
-                  width: 32,
-                  decoration: BoxDecoration(
-                    color: style.colors.danger,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: SvgIcon(SvgIcons.callEnd),
-                  ),
-                );
-              } else {
-                child = Container(
-                  key: const Key('Join'),
-                  height: 32,
-                  width: 32,
-                  decoration: BoxDecoration(
-                    color: style.colors.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: SvgIcon(SvgIcons.callStart),
-                  ),
-                );
-              }
-
-              return AnimatedButton(
-                key: const Key('ActiveCallButton'),
-                onPressed: inCall ? c.dropCall : c.joinCall,
-                child: SafeAnimatedSwitcher(
-                  duration: 300.milliseconds,
+            if (c.editing.value) {
+              child = AnimatedButton(
+                onPressed: c.editing.toggle,
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.only(right: 18),
                   child: child,
                 ),
+                child: const SvgIcon(SvgIcons.closePrimary),
+              );
+            } else {
+              child = Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedButton(
+                    onPressed: c.openChat,
+                    child: const SvgIcon(SvgIcons.chat),
+                  ),
+                  Obx(() {
+                    final bool contact = c.contact.value != null;
+                    final bool favorite =
+                        c.contact.value?.contact.value.favoritePosition != null;
+                    final bool hasCall =
+                        c.user?.dialog.value?.chat.value.ongoingCall != null;
+
+                    return KeyedSubtree(
+                      key: const Key('MoreButton'),
+                      child: ContextMenuRegion(
+                        key: c.moreKey,
+                        selector: c.moreKey,
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        margin: const EdgeInsets.only(bottom: 4, left: 20),
+                        actions: [
+                          ContextMenuButton(
+                            label: 'btn_audio_call'.l10n,
+                            onPressed: hasCall ? null : () => c.call(false),
+                            trailing: hasCall
+                                ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+                                : const SvgIcon(SvgIcons.makeAudioCall),
+                            inverted:
+                                const SvgIcon(SvgIcons.makeAudioCallWhite),
+                          ),
+                          ContextMenuButton(
+                            label: 'btn_video_call'.l10n,
+                            onPressed: hasCall ? null : () => c.call(true),
+                            trailing: Transform.translate(
+                              offset: const Offset(2, 0),
+                              child: hasCall
+                                  ? const SvgIcon(
+                                      SvgIcons.makeVideoCallDisabled,
+                                    )
+                                  : const SvgIcon(SvgIcons.makeVideoCall),
+                            ),
+                            inverted: Transform.translate(
+                              offset: const Offset(2, 0),
+                              child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                            ),
+                          ),
+                          if (contact)
+                            ContextMenuButton(
+                              label: 'btn_edit'.l10n,
+                              onPressed: c.editing.toggle,
+                              trailing: const SvgIcon(SvgIcons.edit),
+                              inverted: const SvgIcon(SvgIcons.editWhite),
+                            ),
+                          ContextMenuButton(
+                            key: contact
+                                ? const Key('DeleteFromContactsButton')
+                                : const Key('AddToContactsButton'),
+                            label: contact
+                                ? 'btn_delete_from_contacts'.l10n
+                                : 'btn_add_to_contacts'.l10n,
+                            onPressed: contact
+                                ? c.removeFromContacts
+                                : c.addToContacts,
+                            trailing: SvgIcon(
+                              contact
+                                  ? SvgIcons.deleteContact
+                                  : SvgIcons.addContact,
+                            ),
+                            inverted: SvgIcon(
+                              contact
+                                  ? SvgIcons.deleteContactWhite
+                                  : SvgIcons.addContactWhite,
+                            ),
+                          ),
+                          if (contact)
+                            ContextMenuButton(
+                              label: favorite
+                                  ? 'btn_delete_from_favorites'.l10n
+                                  : 'btn_add_to_favorites'.l10n,
+                              onPressed: favorite
+                                  ? c.unfavoriteContact
+                                  : c.favoriteContact,
+                              trailing: SvgIcon(
+                                favorite
+                                    ? SvgIcons.favoriteSmall
+                                    : SvgIcons.unfavoriteSmall,
+                              ),
+                              inverted: SvgIcon(
+                                favorite
+                                    ? SvgIcons.favoriteSmallWhite
+                                    : SvgIcons.unfavoriteSmallWhite,
+                              ),
+                            ),
+                        ],
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 31, right: 25),
+                          height: double.infinity,
+                          child: const SvgIcon(SvgIcons.more),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
               );
             }
 
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 7),
-                AnimatedButton(
-                  onPressed: () => c.call(true),
-                  child: const SvgIcon(SvgIcons.chatVideoCall),
-                ),
-                const SizedBox(width: 28),
-                AnimatedButton(
-                  onPressed: () => c.call(false),
-                  child: const SvgIcon(SvgIcons.chatAudioCall),
-                ),
-                const SizedBox(width: 10),
-              ],
-            );
-          }),
-          Obx(() {
-            final bool contact = c.inContacts.value;
-            final bool favorite = c.inFavorites.value;
-            final bool blocked = c.isBlocked != null;
-
-            final RxChat? dialog = c.user?.user.value.dialog.isLocal == false
-                ? c.user?.dialog.value
-                : null;
-
-            final bool muted = dialog?.chat.value.muted != null;
-
-            return AnimatedButton(
-              child: SafeAnimatedSwitcher(
-                duration: 250.milliseconds,
-                child: ContextMenuRegion(
-                  key: c.moreKey,
-                  selector: c.moreKey,
-                  alignment: Alignment.topRight,
-                  enablePrimaryTap: true,
-                  margin: const EdgeInsets.only(bottom: 4, right: 12),
-                  actions: [
-                    ContextMenuButton(
-                      key: Key(
-                        contact
-                            ? 'DeleteFromContactsButton'
-                            : 'AddToContactsButton',
-                      ),
-                      label: contact
-                          ? 'btn_delete_from_contacts'.l10n
-                          : 'btn_add_to_contacts'.l10n,
-                      trailing: SvgIcon(
-                        contact ? SvgIcons.deleteContact : SvgIcons.addContact,
-                      ),
-                      inverted: SvgIcon(
-                        contact
-                            ? SvgIcons.deleteContactWhite
-                            : SvgIcons.addContactWhite,
-                      ),
-                      onPressed: contact
-                          ? () => _removeFromContacts(c, context)
-                          : c.addToContacts,
-                    ),
-                    if (contact)
-                      ContextMenuButton(
-                        key: Key(
-                          favorite
-                              ? 'UnfavoriteContactButton'
-                              : 'FavoriteContactButton',
-                        ),
-                        label: favorite
-                            ? 'btn_delete_from_favorites'.l10n
-                            : 'btn_add_to_favorites'.l10n,
-                        trailing: SvgIcon(
-                          favorite
-                              ? SvgIcons.favoriteSmall
-                              : SvgIcons.unfavoriteSmall,
-                        ),
-                        inverted: SvgIcon(
-                          favorite
-                              ? SvgIcons.favoriteSmallWhite
-                              : SvgIcons.unfavoriteSmallWhite,
-                        ),
-                        onPressed:
-                            favorite ? c.unfavoriteContact : c.favoriteContact,
-                      ),
-                    if (dialog != null) ...[
-                      ContextMenuButton(
-                        key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
-                        label: muted
-                            ? PlatformUtils.isMobile
-                                ? 'btn_unmute'.l10n
-                                : 'btn_unmute_chat'.l10n
-                            : PlatformUtils.isMobile
-                                ? 'btn_mute'.l10n
-                                : 'btn_mute_chat'.l10n,
-                        trailing: SvgIcon(
-                          muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                        ),
-                        inverted: SvgIcon(
-                          muted
-                              ? SvgIcons.unmuteSmallWhite
-                              : SvgIcons.muteSmallWhite,
-                        ),
-                        onPressed: muted ? c.unmuteChat : c.muteChat,
-                      ),
-                      ContextMenuButton(
-                        key: const Key('ClearHistoryButton'),
-                        label: 'btn_clear_history'.l10n,
-                        trailing: const SvgIcon(SvgIcons.cleanHistory),
-                        inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-                        onPressed: () => _clearChat(c, context),
-                      ),
-                      ContextMenuButton(
-                        key: const Key('HideChatButton'),
-                        label: 'btn_delete_chat'.l10n,
-                        trailing: const SvgIcon(SvgIcons.delete19),
-                        inverted: const SvgIcon(SvgIcons.delete19White),
-                        onPressed: () => _hideChat(c, context),
-                      ),
-                    ],
-                    ContextMenuButton(
-                      key: Key(blocked ? 'Unblock' : 'Block'),
-                      label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                      trailing: const SvgIcon(SvgIcons.block),
-                      inverted: const SvgIcon(SvgIcons.blockWhite),
-                      onPressed:
-                          blocked ? c.unblock : () => _blockUser(c, context),
-                    ),
-                  ],
-                  child: Container(
-                    key: const Key('MoreButton'),
-                    padding: const EdgeInsets.only(left: 20, right: 21),
-                    height: double.infinity,
-                    child: const SvgIcon(SvgIcons.more),
-                  ),
-                ),
-              ),
+            return AnimatedSizeAndFade(
+              fadeDuration: const Duration(milliseconds: 200),
+              sizeDuration: const Duration(milliseconds: 200),
+              child: child,
             );
           }),
         ],
@@ -413,77 +386,20 @@ class UserView extends StatelessWidget {
           trailing: const SvgIcon(SvgIcons.report),
           onPressed: () {},
         ),
+        Obx(() {
+          if (c.isBlocked != null) {
+            return const SizedBox();
+          }
+
+          return ActionButton(
+            key: const Key('Block'),
+            text: 'btn_block'.l10n,
+            onPressed: () => _blockUser(c, context),
+            trailing: const SvgIcon(SvgIcons.blockSmall),
+          );
+        }),
       ],
     );
-  }
-
-  /// Opens a confirmation popup deleting the [User] from address book.
-  Future<void> _removeFromContacts(
-    UserController c,
-    BuildContext context,
-  ) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_delete_contact'.l10n,
-      description: [
-        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-        TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.removeFromContacts();
-    }
-  }
-
-  /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].
-  Future<void> _hideChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_dialog_will_be_deleted1'.l10n),
-        TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_dialog_will_be_deleted2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.hideChat();
-    }
-  }
-
-  /// Opens a confirmation popup clearing the [Chat]-dialog with the [User].
-  Future<void> _clearChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
-        TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.clearChat();
-    }
   }
 
   /// Opens a confirmation popup blocking the [User].
@@ -495,8 +411,9 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.contact.value?.contact.value.name.val ??
+              c.user?.user.value.name?.val ??
+              c.user?.user.value.num.toString(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
