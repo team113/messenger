@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
-import 'ui/widget/custom_cupertino_transition.dart';
+import 'ui/widget/custom_page.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';

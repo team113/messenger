@@ -15,10 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
-import 'custom_cupertino_transition.dart';
 
 /// [Page] with the [_CupertinoPageRoute] as its [Route].
 class CustomPage extends Page {
@@ -64,8 +64,11 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   Duration get transitionDuration => const Duration(milliseconds: 400);
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation) =>
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) =>
       pageBuilder(context, animation, secondaryAnimation);
 
   @override
@@ -84,5 +87,65 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
         child,
       ),
     );
+  }
+}
+
+/// [PageTransitionsBuilder] using [CupertinoRouteTransitionMixin] for custom
+/// [MaterialPageRoute]s changing animation.
+class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
+  const CustomCupertinoPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final Widget widget = CupertinoRouteTransitionMixin.buildPageTransitions(
+      route,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
+
+    final bool linear =
+        CupertinoRouteTransitionMixin.isPopGestureInProgress(route);
+
+    if (widget is CupertinoPageTransition) {
+      return SlideTransition(
+        position: Tween(
+          begin: Offset.zero,
+          end: const Offset(-1.0, 0.0),
+        ).animate(
+          linear
+              ? animation
+              : CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.linearToEaseOut,
+                  reverseCurve: Curves.linearToEaseOut.flipped,
+                ),
+        ),
+        child: SlideTransition(
+          position: Tween(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(
+            linear
+                ? secondaryAnimation
+                : CurvedAnimation(
+                    parent: secondaryAnimation,
+                    curve: Curves.linearToEaseOut,
+                    reverseCurve: Curves.easeInToLinear,
+                  ),
+          ),
+          child: widget.child,
+        ),
+      );
+    } else {
+      return widget;
+    }
   }
 }
