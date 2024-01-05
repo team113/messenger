@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Monolog searching. ([#745], [#582])
     - Media panel:
-        - Improve dock animations. ([#774], [#698])
+        - Fixed dock animations. ([#774], [#698])
 
 ### Fixed
 

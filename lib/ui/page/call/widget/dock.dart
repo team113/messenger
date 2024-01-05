@@ -125,7 +125,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
   set _expanded(int index) {
     if (_expanded != index && mounted) {
       if (_expandedChanged) {
-        return SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        return SchedulerBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             setState(() => __expanded = index);
           }
@@ -135,7 +135,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
       }
 
       _expandedChanged = true;
-      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
         _expandedChanged = false;
       });
     }
