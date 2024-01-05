@@ -676,13 +676,7 @@ label_direct_chat_link_description =
     После удаления чата, созданного по прямой ссылке на чат,
     применяются Ваши настройки конфиденциальности.
 label_direct_chat_link_in_chat_description =
-    Пользователи, пришедшие по
-    прямой ссылке на чат, добавляются в список участников чата
-    автоматически. Они имеют возможность:
-
-    - просматривать профиль группы,
-    - отправлять сообщения в чат группы,
-    - совершать звонки
+    Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
 label_disabled = Отключены
 label_display_audio_and_video_call_buttons = Отображать кнопки аудио и видео звонка
 label_display_timestamps = Отображать метки времени
@@ -823,6 +817,7 @@ label_open_calls_in_app = Отображать звонки в окне прил
 label_open_calls_in_window = Отображать звонки в отдельном окне.
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participants = Участников: {$count}
 label_participants_of = Участников: {$a} из {$b}
 label_password = Пароль
 label_password_changed = Пароль изменён.
