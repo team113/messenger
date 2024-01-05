@@ -50,7 +50,7 @@ class ChatService extends DisposableService {
   /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
-  /// Returns the reactive map the currently paginated [RxChat]s.
+  /// Returns the reactive map of the currently paginated [RxChat]s.
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
   /// Returns the current reactive map of all [RxChat]s available.
