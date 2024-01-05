@@ -672,34 +672,34 @@ class CallController extends GetxController {
           ?.map((e) {
             switch (e) {
               case 'ScreenButton':
-                return ScreenButton(this, docked: true);
+                return ScreenButton(this);
 
               case 'VideoButton':
-                return VideoButton(this, docked: true);
+                return VideoButton(this);
 
               case 'EndCallButton':
-                return EndCallButton(this, docked: true);
+                return EndCallButton(this);
 
               case 'AudioButton':
-                return AudioButton(this, docked: true);
+                return AudioButton(this);
 
               case 'MoreButton':
-                return MoreButton(this, docked: true);
+                return MoreButton(this);
 
               case 'SettingsButton':
-                return SettingsButton(this, docked: true);
+                return SettingsButton(this);
 
               case 'ParticipantsButton':
-                return ParticipantsButton(this, docked: true);
+                return ParticipantsButton(this);
 
               case 'HandButton':
-                return HandButton(this, docked: true);
+                return HandButton(this);
 
               case 'RemoteVideoButton':
-                return RemoteVideoButton(this, docked: true);
+                return RemoteVideoButton(this);
 
               case 'RemoteAudioButton':
-                return RemoteAudioButton(this, docked: true);
+                return RemoteAudioButton(this);
             }
           })
           .whereNotNull()
@@ -708,22 +708,22 @@ class CallController extends GetxController {
       // Add default [CallButton]s, if none are persisted.
       if (persisted?.isNotEmpty != true) {
         persisted = [
-          ScreenButton(this, docked: true),
-          VideoButton(this, docked: true),
-          EndCallButton(this, docked: true),
-          AudioButton(this, docked: true),
-          MoreButton(this, docked: true),
+          ScreenButton(this),
+          VideoButton(this),
+          EndCallButton(this),
+          AudioButton(this),
+          MoreButton(this),
         ];
       }
 
       // Ensure [EndCallButton] is always in the list.
       if (persisted!.whereType<EndCallButton>().isEmpty) {
-        persisted.add(EndCallButton(this, docked: true));
+        persisted.add(EndCallButton(this));
       }
 
       // Ensure [MoreButton] is always in the list.
       if (persisted.whereType<MoreButton>().isEmpty) {
-        persisted.add(MoreButton(this, docked: true));
+        persisted.add(MoreButton(this));
       }
 
       return persisted;

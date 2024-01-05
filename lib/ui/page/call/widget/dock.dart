@@ -27,7 +27,7 @@ import 'animated_delayed_width.dart';
 import 'animated_transition.dart';
 
 /// Reorderable [Row] of provided [items].
-class Dock<T extends DockItem> extends StatefulWidget {
+class Dock<T extends Object> extends StatefulWidget {
   const Dock({
     super.key,
     required this.items,
@@ -73,7 +73,7 @@ class Dock<T extends DockItem> extends StatefulWidget {
 }
 
 /// State of a [Dock] maintaining a reorderable [_items] list.
-class _DockState<T extends DockItem> extends State<Dock<T>> {
+class _DockState<T extends Object> extends State<Dock<T>> {
   /// [Duration] of [_DraggedItem] jumping from one position to another.
   static const Duration jumpDuration = Duration(milliseconds: 300);
 
@@ -471,8 +471,7 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
 
   /// Calculates the position to drop the provided item at.
   void _onMove(DragTargetDetails<T> d) {
-    if (widget.onWillAccept?.call(d.data) == false ||
-        (d.data.docked == true && _dragged == null)) {
+    if (widget.onWillAccept?.call(d.data) == false) {
       return;
     }
 
@@ -494,7 +493,13 @@ class _DockState<T extends DockItem> extends State<Dock<T>> {
       }
     }
 
-    _expanded = indexToPlace;
+    // Update the [__expanded] if [_dragged] is `null` in order the [_onMove]
+    // called before [onDragStarted].
+    if (_dragged == null) {
+      setState(() => __expanded = indexToPlace);
+    } else {
+      _expanded = indexToPlace;
+    }
   }
 
   /// Sets the [_animateDuration] to [Duration.zero] for one frame.
@@ -560,14 +565,6 @@ class _DraggedItem<T> {
 
   @override
   bool operator ==(Object other) => other is _DraggedItem && item == other.item;
-}
-
-/// A item to place in the [Dock].
-class DockItem {
-  const DockItem({this.docked = false});
-
-  /// Indicator whether this [DockItem] placed in a [Dock].
-  final bool docked;
 }
 
 /// [Draggable] starting its dragging after some distance threshold is reached.

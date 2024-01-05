@@ -55,8 +55,7 @@ class CallSection {
             children: [
               DockDecorator(
                 child: Dock(
-                  // ignore: prefer_const_constructors
-                  items: List.generate(5, (i) => DockItem(docked: true)),
+                  items: List.generate(5, (i) => i),
                   itemWidth: CallController.buttonSize,
                   delayed: false,
                   onReorder: (buttons) {},
