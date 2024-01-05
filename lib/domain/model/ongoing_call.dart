@@ -483,7 +483,7 @@ class OngoingCall {
 
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
-                for (var m in dialed.members) {
+                for (final m in dialed.members) {
                   addDialing(m.user.id);
                 }
               }
@@ -499,7 +499,7 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  for (var m in (v?.chat.value.members ?? []).where((e) =>
+                  for (final m in (v?.chat.value.members ?? []).where((e) =>
                       e.user.id != me.id.userId &&
                       dialed.answeredMembers
                           .none((a) => a.user.id == e.user.id))) {
@@ -550,7 +550,7 @@ class OngoingCall {
               '$runtimeType($id)',
             );
 
-            for (var event in versioned.events) {
+            for (final event in versioned.events) {
               switch (event.kind) {
                 case ChatCallEventKind.roomReady:
                   final node = event as EventChatCallRoomReady;
@@ -1988,7 +1988,7 @@ class CallMemberId {
 
   /// Constructs a [CallMemberId] from the provided [string].
   factory CallMemberId.fromString(String string) {
-    var split = string.split('.');
+    final List<String> split = string.split('.');
     if (split.length != 2) {
       throw const FormatException('Must have a UserId.DeviceId format');
     }
@@ -2068,7 +2068,7 @@ class CallMember {
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
-    for (var t in tracks) {
+    for (final Track t in tracks) {
       t.dispose();
     }
   }

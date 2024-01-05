@@ -336,6 +336,7 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     Log.debug('leave($chatId, $deviceId)', '$runtimeType');
+
     await _graphQlProvider.leaveChatCall(chatId, deviceId);
   }
 
@@ -350,6 +351,7 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> toggleHand(ChatId chatId, bool raised) async {
     Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
+
     await _graphQlProvider.toggleChatCallHand(chatId, raised);
   }
 
@@ -466,15 +468,16 @@ class CallRepository extends DisposableInterface
         .asyncExpand((event) async* {
       Log.trace('heartbeat($id): ${event.data}', '$runtimeType');
 
-      var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+      final events =
+          CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const ChatCallEventsInitialized();
       } else if (events.$$typename == 'ChatCall') {
-        var call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
+        final call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
         yield ChatCallEventsChatCall(call.toModel(), call.ver);
       } else if (events.$$typename == 'ChatCallEventsVersioned') {
-        var mixin = events as ChatCallEventsVersionedMixin;
+        final mixin = events as ChatCallEventsVersionedMixin;
         yield ChatCallEventsEvent(
           CallEventsVersioned(
             mixin.events.map((e) => _callEvent(e)).toList(),
@@ -497,27 +500,27 @@ class CallRepository extends DisposableInterface
         .asyncExpand((event) async* {
       Log.trace('_incomingEvents($count): ${event.data}', '$runtimeType');
 
-      var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
+      final events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
           .incomingChatCallsTopEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const IncomingChatCallsTopInitialized();
       } else if (events.$$typename == 'IncomingChatCallsTop') {
-        var list = (events
+        final list = (events
                 as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
             .list;
-        for (var u in list.map((e) => e.members).expand((e) => e)) {
+        for (final u in list.map((e) => e.members).expand((e) => e)) {
           _userRepo.put(u.user.toHive());
         }
         yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
       } else if (events.$$typename ==
           'EventIncomingChatCallsTopChatCallAdded') {
-        var data = events
+        final data = events
             as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
         yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
       } else if (events.$$typename ==
           'EventIncomingChatCallsTopChatCallRemoved') {
-        var data = events
+        final data = events
             as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
         yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
       }

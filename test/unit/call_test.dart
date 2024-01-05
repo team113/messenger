@@ -237,6 +237,7 @@ void main() async {
     callService.onReady();
 
     await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'first');
 
@@ -511,6 +512,7 @@ void main() async {
       parserFn: (_) => null,
     ));
 
+    await Future.delayed(Duration.zero);
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');

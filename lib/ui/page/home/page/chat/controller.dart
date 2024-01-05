@@ -48,6 +48,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';
@@ -512,10 +513,16 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
-  // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) =>
+  Future<void> call(bool withVideo) async {
+    try {
       _callService.call(id, withVideo: withVideo);
+    } on CallAlreadyExistsException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+    }
+  }
 
   /// Joins the call in the [Chat] identified by the [id].
   Future<void> joinCall() => _callService.join(id, withVideo: false);

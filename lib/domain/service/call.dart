@@ -139,13 +139,6 @@ class CallService extends DisposableService {
         );
       } on CallAlreadyJoinedException catch (e) {
         await _callsRepo.leave(chatId, e.deviceId);
-        call = await _callsRepo.join(
-          chatId,
-          callId,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-        );
       }
 
       if (isClosed) {
@@ -329,7 +322,7 @@ class CallService extends DisposableService {
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
-    Log.debug('removeCredentials($callId)', '$runtimeType');
+    Log.debug('removeCredentials($chatId, $callId)', '$runtimeType');
     await _callsRepo.removeCredentials(chatId, callId);
   }
 

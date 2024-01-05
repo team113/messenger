@@ -1065,6 +1065,7 @@ class CallController extends GetxController {
     for (Participant r in List.from(focused, growable: false)) {
       _putVideoFrom(r, focused);
     }
+
     focused.add(participant);
     _ensureCorrectGrouping();
   }
@@ -1087,6 +1088,7 @@ class CallController extends GetxController {
       } else {
         _putVideoTo(participant, focused);
       }
+
       _ensureCorrectGrouping();
     } else {
       if (paneled.contains(participant)) {
@@ -1109,6 +1111,7 @@ class CallController extends GetxController {
       if (focused.isEmpty) {
         unfocusAll();
       }
+
       _ensureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
