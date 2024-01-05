@@ -427,12 +427,17 @@ class AppRouteInformationParser
       }
     }
 
+    // Only allow `video` query parameter to be persisted in URL.
+    final parameters = configuration.parameters.entries
+        .where((e) => e.key == 'video' && e.value != null);
+
     return RouteInformation(
-      uri: configuration.parameters.isEmpty
-          ? Uri.parse(route)
-          : Uri.parse(
-              '$route?${configuration.parameters.entries.where((e) => e.value != null).map((e) => '${e.key}=${e.value}').join('&')}',
-            ),
+      uri: Uri(
+        path: route,
+        queryParameters: parameters.isEmpty
+            ? null
+            : {for (var e in parameters) e.key: e.value},
+      ),
       state: configuration.tab?.index,
     );
   }
