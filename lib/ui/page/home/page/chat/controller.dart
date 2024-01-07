@@ -519,7 +519,7 @@ class ChatController extends GetxController {
       await _callService.call(id, withVideo: withVideo);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
-    } catch (e) {
+    } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     }
   }

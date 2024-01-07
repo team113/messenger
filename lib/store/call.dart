@@ -415,12 +415,12 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  void transferCredentials(ChatId chatId, ChatItemId callId) {
+  Future<void> transferCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
     ChatCallCredentials? creds = _credentials[chatId];
     if (creds != null) {
-      _credentialsProvider.put(callId, creds);
+      await _credentialsProvider.put(callId, creds);
     }
   }
 
@@ -438,13 +438,13 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
+  Future<void> moveCredentials(ChatItemId callId, ChatItemId newCallId) async {
     Log.debug('moveCredentials($callId, $newCallId)', '$runtimeType');
 
     ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
-      _credentialsProvider.remove(callId);
-      _credentialsProvider.put(newCallId, creds);
+      await _credentialsProvider.remove(callId);
+      await _credentialsProvider.put(newCallId, creds);
     }
   }
 

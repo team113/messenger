@@ -28,10 +28,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
-    show
-        CallAlreadyJoinedException,
-        CallAlreadyExistsException,
-        CallIsInPopupException;
+    show CallAlreadyExistsException, CallIsInPopupException;
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
@@ -382,8 +379,6 @@ class ContactsTabController extends GetxController {
   Future<void> _call(User user, bool withVideo) async {
     try {
       await _calls.call(user.dialog, withVideo: withVideo);
-    } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
