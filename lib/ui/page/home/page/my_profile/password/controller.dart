@@ -141,6 +141,7 @@ class ChangePasswordController extends GetxController {
       oldPassword.editable.value = false;
       newPassword.editable.value = false;
       repeatPassword.editable.value = false;
+      newPassword.status.value = RxStatus.loading();
       repeatPassword.status.value = RxStatus.loading();
       try {
         final bool hadPassword = myUser.value?.hasPassword ?? false;
@@ -158,6 +159,7 @@ class ChangePasswordController extends GetxController {
         repeatPassword.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {
+        newPassword.status.value = RxStatus.empty();
         repeatPassword.status.value = RxStatus.empty();
         oldPassword.editable.value = true;
         newPassword.editable.value = true;
