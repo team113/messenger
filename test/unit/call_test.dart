@@ -381,7 +381,7 @@ void main() async {
     expect(callService.calls.values.first.value.state.value,
         OngoingCallState.local);
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(1);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'outgoing');
     expect(callService.calls.values.first.value.caller?.id.val, 'me');
@@ -391,7 +391,7 @@ void main() async {
       const ChatCallDeviceId('device'),
     );
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(1);
     expect(callService.calls.length, 0);
   });
 
@@ -443,7 +443,7 @@ void main() async {
     );
     callService.onReady();
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(1);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -480,7 +480,7 @@ void main() async {
 
     await callService.decline(const ChatId('incoming'));
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(1);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -522,7 +522,7 @@ void main() async {
       withScreen: false,
     );
 
-    await Future.delayed(Duration.zero);
+    await skipEventLoopIterations(1);
     expect(callService.calls.length, 1);
   });
 }

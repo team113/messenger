@@ -323,7 +323,7 @@ class CallService extends DisposableService {
   /// provided [id].
   Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('removeCredentials($chatId, $callId)', '$runtimeType');
-    await _callsRepo.removeCredentials(chatId, callId);
+    return _callsRepo.removeCredentials(chatId, callId);
   }
 
   /// Returns a [RxChat] by the provided [id].

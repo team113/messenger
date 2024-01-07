@@ -516,7 +516,7 @@ class ChatController extends GetxController {
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     try {
-      _callService.call(id, withVideo: withVideo);
+      await _callService.call(id, withVideo: withVideo);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
