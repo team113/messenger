@@ -565,10 +565,8 @@ class ChatView extends StatelessWidget {
                               keepPositionOffset: c.active.isTrue
                                   ? c.keepPositionOffset.value
                                   : 1,
-                              onItemKey: (i) => c.elements.values
-                                  .elementAt(i)
-                                  .id
-                                  .toString(),
+                              onItemKey: (i) =>
+                                  c.elements.values.elementAt(i).id.toString(),
                               onItemSticky: (i) => c.elements.values
                                   .elementAt(i) is DateTimeElement,
                               initIndex: c.initIndex,
@@ -590,8 +588,7 @@ class ChatView extends StatelessWidget {
                           }
 
                           return SelectionArea(
-                            onSelectionChanged: (a) =>
-                                c.selection.value = a,
+                            onSelectionChanged: (a) => c.selection.value = a,
                             contextMenuBuilder: (_, __) => const SizedBox(),
                             selectionControls: EmptyTextSelectionControls(),
                             child: ContextMenuInterceptor(child: child),
@@ -618,12 +615,10 @@ class ChatView extends StatelessWidget {
                                 child: Text(
                                   key: const Key('NoMessages'),
                                   isMonolog
-                                      ? 'label_chat_monolog_description'
-                                          .l10n
+                                      ? 'label_chat_monolog_description'.l10n
                                       : 'label_no_messages'.l10n,
                                   textAlign: TextAlign.center,
-                                  style: style
-                                      .fonts.small.regular.onBackground,
+                                  style: style.fonts.small.regular.onBackground,
                                 ),
                               ),
                             );
@@ -642,14 +637,12 @@ class ChatView extends StatelessWidget {
                             top: c.callPosition == CallButtonsPosition.top
                                 ? 8
                                 : null,
-                            bottom:
-                                c.callPosition == CallButtonsPosition.bottom
-                                    ? 8
-                                    : null,
+                            bottom: c.callPosition == CallButtonsPosition.bottom
+                                ? 8
+                                : null,
                             right: 12,
                             child: Obx(() {
-                              final bool inCall =
-                                  c.chat?.inCall.value ?? false;
+                              final bool inCall = c.chat?.inCall.value ?? false;
 
                               return Column(
                                 mainAxisSize: MainAxisSize.min,

@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import 'swipeable_status.dart';
 
 /// Centered [time] label animating its [opacity] changes.
 class TimeLabelWidget extends StatelessWidget {
@@ -49,8 +48,7 @@ class TimeLabelWidget extends StatelessWidget {
           duration: const Duration(milliseconds: 250),
           child: Center(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: style.systemMessageBorder,

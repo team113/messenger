@@ -1422,6 +1422,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
+    const AvatarRadius avatarRadius = AvatarRadius.medium;
 
     if (widget.chat.value?.isGroup == true) {
       final int countUserAvatars =
@@ -1587,7 +1588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             router.chat(item.author.dialog, push: true),
                         child: AvatarWidget.fromRxUser(
                           widget.user,
-                          radius: AvatarRadius.medium,
+                          radius: avatarRadius,
                         ),
                       )
                     : const SizedBox(width: 34),
@@ -1595,7 +1596,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Flexible(
               child: LayoutBuilder(builder: (context, constraints) {
                 final BoxConstraints itemConstraints = BoxConstraints(
-                  maxWidth: min(550, constraints.maxWidth), // TODO: test message is to wide?
+                  maxWidth: min(
+                    550,
+                    constraints.maxWidth - avatarRadius.toDouble() * 2,
+                  ),
                 );
 
                 return ConstrainedBox(

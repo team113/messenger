@@ -58,7 +58,6 @@ import 'chat_item.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
-import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
 class ChatForwardWidget extends StatefulWidget {
@@ -839,6 +838,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
+    const AvatarRadius avatarRadius = AvatarRadius.medium;
 
     if (widget.chat.value?.isGroup == true) {
       final int countUserAvatars =
@@ -999,7 +999,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   onTap: () => router.user(widget.authorId, push: true),
                   child: AvatarWidget.fromRxUser(
                     widget.user,
-                    radius: AvatarRadius.medium,
+                    radius: avatarRadius,
                   ),
                 ),
               ),
@@ -1007,7 +1007,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               child: LayoutBuilder(builder: (context, constraints) {
                 return ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: min(550, constraints.maxWidth),
+                    maxWidth: min(
+                      550,
+                      constraints.maxWidth - avatarRadius.toDouble() * 2,
+                    ),
                   ),
                   child: Padding(
                     padding: EdgeInsets.zero,
