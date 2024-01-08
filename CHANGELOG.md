@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
+        - Removed timeline mode. ([#791], [#788])
     - Chats tab:
         - Monolog searching. ([#745], [#582])
     - Redesigned user page. ([#769], [#766])
@@ -54,6 +55,8 @@ All user visible changes to this project will be documented in this file. This p
 [#775]: /../../pull/775
 [#776]: /../../pull/776
 [#780]: /../../pull/780
+[#788]: /../../issues/788
+[#791]: /../../pull/791
 
 
 
