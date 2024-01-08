@@ -58,6 +58,7 @@ import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
+import 'provider/hive/temp_chat_call_credentials.dart';
 import 'provider/hive/user.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
@@ -475,6 +476,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+                deps
+                    .put(TemporaryChatCallCredentialsHiveProvider())
+                    .init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
@@ -503,6 +507,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 CallRepository(
                   graphQlProvider,
                   userRepository,
+                  Get.find(),
                   Get.find(),
                   settingsRepository,
                   me: me,
@@ -599,6 +604,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+              deps
+                  .put(TemporaryChatCallCredentialsHiveProvider())
+                  .init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
@@ -649,6 +657,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             CallRepository callRepository = CallRepository(
               graphQlProvider,
               userRepository,
+              Get.find(),
               Get.find(),
               settingsRepository,
               me: me,

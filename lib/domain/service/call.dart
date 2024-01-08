@@ -305,7 +305,7 @@ class CallService extends DisposableService {
     final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
-      _callsRepo.moveCredentials(callId, newCallId);
+      _callsRepo.moveCredentials(callId, newCallId, chatId, newChatId);
       if (WebUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
       }

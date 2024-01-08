@@ -122,18 +122,19 @@ abstract class AbstractCallRepository {
   /// These [ChatCallCredentials] are considered temporary. Use
   /// [transferCredentials] to persist them, once [ChatItemId] of the
   /// [OngoingCall] is acquired.
-  ChatCallCredentials generateCredentials(ChatId id);
+  Future<ChatCallCredentials> generateCredentials(ChatId id);
 
   /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
   /// specified [OngoingCall].
-  void transferCredentials(ChatId chatId, ChatItemId callId);
+  Future<void> transferCredentials(ChatId chatId, ChatItemId callId);
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
   /// provided [id].
   Future<ChatCallCredentials> getCredentials(ChatItemId callId);
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
-  void moveCredentials(ChatItemId callId, ChatItemId newCallId);
+  Future<void> moveCredentials(
+      ChatItemId callId, ChatItemId newCallId, ChatId chatId, ChatId newChatId);
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [chatId] and [callId].

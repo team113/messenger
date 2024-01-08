@@ -44,21 +44,21 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
-  var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
+  final credentialsHiveProvider = Get.put(CredentialsHiveProvider());
   await credentialsHiveProvider.init();
   await credentialsHiveProvider.clear();
-  var userHiveProvider = Get.put(UserHiveProvider());
+  final userHiveProvider = Get.put(UserHiveProvider());
   await userHiveProvider.init();
-  var contactProvider = Get.put(ContactHiveProvider());
+  final contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var chatHiveProvider = Get.put(ChatHiveProvider());
+  final chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
-  var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
+  final sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
   await sessionDataHiveProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  final favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
   await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  final contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -73,7 +73,7 @@ void main() async {
     await contactProvider.clear();
   });
 
-  var chatContact = {
+  const chatContact = {
     '__typename': 'ChatContact',
     'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
     'name': 'test',
@@ -85,12 +85,12 @@ void main() async {
     'ver': '0'
   };
 
-  var chatContactsData = {
+  const chatContactsData = {
     'nodes': [chatContact],
     'ver': '0'
   };
 
-  var chatContacts = {
+  const chatContacts = {
     'chatContacts': {
       'edges': [],
       'pageInfo': {
@@ -103,7 +103,7 @@ void main() async {
     }
   };
 
-  var favoriteChatContacts = {
+  const favoriteChatContacts = {
     'favoriteChatContacts': {
       'edges': [],
       'pageInfo': {
@@ -116,7 +116,7 @@ void main() async {
     }
   };
 
-  var updateChatContact = {
+  final updateChatContact = {
     'updateChatContactName': {
       '__typename': 'ChatContactEventsVersioned',
       'events': [
@@ -133,9 +133,10 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo = UserRepository(graphQlProvider, userHiveProvider);
+    final UserRepository userRepo =
+        UserRepository(graphQlProvider, userHiveProvider);
 
-    AbstractContactRepository contactRepository =
+    final AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(
       ContactRepository(
         graphQlProvider,
@@ -200,7 +201,7 @@ void main() async {
           as UpdateChatContactName$Mutation$UpdateChatContactName$ChatContactEventsVersioned),
     );
 
-    ContactService contactService = await init(graphQlProvider);
+    final ContactService contactService = await init(graphQlProvider);
 
     await contactService.changeContactName(
       const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
@@ -243,7 +244,7 @@ void main() async {
           UpdateChatContactNameErrorCode.unknownChatContact),
     );
 
-    ContactService contactService = await init(graphQlProvider);
+    final ContactService contactService = await init(graphQlProvider);
 
     expect(
       () async => await contactService.changeContactName(

@@ -45,6 +45,7 @@ import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/temp_chat_call_credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -66,39 +67,42 @@ void main() async {
 
   final graphQlProvider = Get.put(MockGraphQlProvider());
 
-  var chatProvider = Get.put(ChatHiveProvider());
+  final chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  final credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  var myUserProvider = Get.put(MyUserHiveProvider());
+  final myUserProvider = Get.put(MyUserHiveProvider());
   await myUserProvider.init();
   await myUserProvider.clear();
-  var draftProvider = DraftHiveProvider();
+  final draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  var userProvider = UserHiveProvider();
+  final userProvider = UserHiveProvider();
   await userProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  final tempCallCredentialsProvider =
+      TemporaryChatCallCredentialsHiveProvider();
+  await tempCallCredentialsProvider.init();
+  final mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  final applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
+  final backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var blockedUsersProvider = BlocklistHiveProvider();
+  final blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
-  var callRectProvider = CallRectHiveProvider();
+  final callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
+  final monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
+  final recentChatProvider = RecentChatHiveProvider();
   await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
+  final favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
+  final sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
 
-  var chatData = {
+  const chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'null',
     'members': {'nodes': []},
@@ -118,7 +122,7 @@ void main() async {
     'ver': '0',
   };
 
-  var recentChats = {
+  const recentChats = {
     'recentChats': {
       'edges': [
         {
@@ -135,7 +139,7 @@ void main() async {
     }
   };
 
-  var favoriteChats = {
+  const favoriteChats = {
     'favoriteChats': {
       'edges': [],
       'pageInfo': {
@@ -147,7 +151,7 @@ void main() async {
     }
   };
 
-  var myUserData = {
+  const myUserData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'num': '1234567890123456',
     'login': null,
@@ -163,7 +167,7 @@ void main() async {
     'blocklist': {'totalCount': 0},
   };
 
-  var blocklist = {
+  const blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -200,7 +204,7 @@ void main() async {
     (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
   );
 
-  AuthService authService = Get.put(
+  final AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
       credentialsProvider,
@@ -208,20 +212,20 @@ void main() async {
   );
   await authService.init();
 
-  UserRepository userRepository =
+  final UserRepository userRepository =
       Get.put(UserRepository(graphQlProvider, userProvider));
 
-  BlocklistRepository blocklistRepository = Get.put(
+  final BlocklistRepository blocklistRepository = Get.put(
     BlocklistRepository(graphQlProvider, blockedUsersProvider, userRepository),
   );
 
-  AbstractMyUserRepository myUserRepository = MyUserRepository(
+  final AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
     blocklistRepository,
     userRepository,
   );
-  MyUserService myUserService =
+  final MyUserService myUserService =
       Get.put(MyUserService(authService, myUserRepository));
 
   when(graphQlProvider.recentChatsTopEvents(3))
@@ -303,7 +307,7 @@ void main() async {
       }).createChatDirectLink as MyUserEventsVersionedMixin?),
     );
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -312,18 +316,20 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -337,7 +343,8 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService =
+        Get.put(ChatService(chatRepository, authService));
 
     await chatService.createChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -362,7 +369,7 @@ void main() async {
       (_) => Future.value(),
     );
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -371,18 +378,20 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -396,7 +405,8 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService =
+        Get.put(ChatService(chatRepository, authService));
 
     await chatService.deleteChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -441,7 +451,7 @@ void main() async {
           as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk),
     );
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -450,18 +460,20 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -497,7 +509,7 @@ void main() async {
         .thenThrow(const CreateChatDirectLinkException(
             CreateChatDirectLinkErrorCode.unknownChat));
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -506,18 +518,20 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -531,7 +545,8 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService =
+        Get.put(ChatService(chatRepository, authService));
 
     expect(
       () async => await chatService.createChatDirectLink(
@@ -564,7 +579,7 @@ void main() async {
     )).thenThrow(const DeleteChatDirectLinkException(
         DeleteChatDirectLinkErrorCode.unknownChat));
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -573,18 +588,20 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -598,7 +615,8 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService =
+        Get.put(ChatService(chatRepository, authService));
 
     expect(
       () async => await chatService.deleteChatDirectLink(
@@ -622,7 +640,7 @@ void main() async {
     )).thenThrow(const UseChatDirectLinkException(
         UseChatDirectLinkErrorCode.unknownDirectLink));
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -631,18 +649,20 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,

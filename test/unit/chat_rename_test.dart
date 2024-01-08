@@ -40,6 +40,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/temp_chat_call_credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -55,39 +56,42 @@ import 'chat_rename_test.mocks.dart';
 void main() async {
   setUp(Get.reset);
 
-  Hive.init('./test/.temp_hive/chat_renamte_unit');
+  Hive.init('./test/.temp_hive/chat_rename_unit');
 
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var chatProvider = ChatHiveProvider();
+  final chatProvider = ChatHiveProvider();
   await chatProvider.init();
-  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  final credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  var draftProvider = DraftHiveProvider();
+  final draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  var userProvider = UserHiveProvider();
+  final userProvider = UserHiveProvider();
   await userProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  final tempCallCredentialsProvider =
+      TemporaryChatCallCredentialsHiveProvider();
+  await tempCallCredentialsProvider.init();
+  final mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  final applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
+  final backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callRectProvider = CallRectHiveProvider();
+  final callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
+  final monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
+  final recentChatProvider = RecentChatHiveProvider();
   await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
+  final favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
+  final sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
 
-  var chatData = {
+  const chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': null,
     'avatar': null,
@@ -108,7 +112,7 @@ void main() async {
     'ver': '0'
   };
 
-  var recentChats = {
+  const recentChats = {
     'recentChats': {
       'edges': [
         {
@@ -125,7 +129,7 @@ void main() async {
     }
   };
 
-  var favoriteChats = {
+  const favoriteChats = {
     'favoriteChats': {
       'edges': [],
       'pageInfo': {
@@ -244,6 +248,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -298,6 +303,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),

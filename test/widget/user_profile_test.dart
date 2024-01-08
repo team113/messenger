@@ -50,6 +50,7 @@ import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/temp_chat_call_credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -73,7 +74,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/user_profile_widget');
 
-  var recentChats = {
+  const recentChats = {
     'recentChats': {
       'edges': [],
       'pageInfo': {
@@ -85,7 +86,7 @@ void main() async {
     }
   };
 
-  var favoriteChats = {
+  const favoriteChats = {
     'favoriteChats': {
       'edges': [],
       'pageInfo': {
@@ -97,7 +98,7 @@ void main() async {
     }
   };
 
-  var userData = {
+  const userData = {
     'id': '12345',
     'num': '1234567890123456',
     'login': 'login',
@@ -111,7 +112,7 @@ void main() async {
     'presence': 'AWAY',
   };
 
-  var newUserData = {
+  const newUserData = {
     '__typename': 'User',
     'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1be',
     'num': '5769236098621822',
@@ -131,7 +132,7 @@ void main() async {
     'ver': '1'
   };
 
-  var chatContacts = {
+  const chatContacts = {
     'chatContacts': {
       'edges': [],
       'pageInfo': {
@@ -144,7 +145,7 @@ void main() async {
     }
   };
 
-  var favoriteChatContacts = {
+  const favoriteChatContacts = {
     'favoriteChatContacts': {
       'edges': [],
       'pageInfo': {
@@ -157,7 +158,7 @@ void main() async {
     }
   };
 
-  var blacklist = {
+  const blacklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -167,8 +168,8 @@ void main() async {
     }
   };
 
-  var credentialsProvider = CredentialsHiveProvider();
-  var graphQlProvider = MockGraphQlProvider();
+  final credentialsProvider = CredentialsHiveProvider();
+  final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
     (_) => const Stream.empty(),
@@ -180,7 +181,7 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AuthService authService =
+  final AuthService authService =
       AuthService(AuthRepository(graphQlProvider), credentialsProvider);
   await authService.init();
   await credentialsProvider.init();
@@ -188,45 +189,48 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var myUserProvider = MyUserHiveProvider();
+  final myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
 
-  var contactProvider = ContactHiveProvider();
+  final contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = UserHiveProvider();
+  final userProvider = UserHiveProvider();
   await userProvider.init();
   await userProvider.clear();
-  var chatProvider = ChatHiveProvider();
+  final chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
-  var draftProvider = Get.put(DraftHiveProvider());
+  final draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
+  final mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  final applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
+  final backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  var blockedUsersProvider = BlocklistHiveProvider();
+  final tempCallCredentialsProvider =
+      TemporaryChatCallCredentialsHiveProvider();
+  await tempCallCredentialsProvider.init();
+  final blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
-  var callRectProvider = CallRectHiveProvider();
+  final callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
+  final monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
+  final recentChatProvider = RecentChatHiveProvider();
   await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
+  final favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
+  final sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  final favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
   await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  final contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
 
   Get.put(myUserProvider);
@@ -338,14 +342,14 @@ void main() async {
           ChatContactRecord(
               userId: const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'))
         ])).thenAnswer((_) {
-      var event1 = {
+      final event1 = {
         '__typename': 'EventChatContactCreated',
         'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
         'at': DateTime.now().toString(),
         'name': '1009422423626377'
       };
 
-      var event2 = {
+      final event2 = {
         '__typename': 'EventChatContactUserAdded',
         'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
         'at': DateTime.now().toString(),
@@ -396,7 +400,7 @@ void main() async {
     when(graphQlProvider.deleteChatContact(
       const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
     )).thenAnswer((_) {
-      var event = {
+      final event = {
         '__typename': 'ChatContactEventsVersioned',
         'events': [
           {
@@ -434,7 +438,7 @@ void main() async {
 
     final userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
@@ -477,6 +481,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        tempCallCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -526,7 +531,8 @@ void main() async {
 
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
+    final deleteFromContacts =
+        find.byKey(const Key('DeleteFromContactsButton'));
     expect(deleteFromContacts, findsOneWidget);
     await tester.tap(deleteFromContacts);
     await tester.pumpAndSettle(const Duration(seconds: 2));

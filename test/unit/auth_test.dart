@@ -37,7 +37,7 @@ import 'auth_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/unit_auth');
-  var provider = CredentialsHiveProvider();
+  final provider = CredentialsHiveProvider();
   await provider.init();
 
   setUp(() async {
@@ -82,8 +82,10 @@ void main() async {
       ),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, getStorage));
+    final AuthRepository authRepository =
+        Get.put(AuthRepository(graphQlProvider));
+    final AuthService authService =
+        Get.put(AuthService(authRepository, getStorage));
 
     expect(await authService.init(), Routes.auth);
 
@@ -117,8 +119,10 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    final AuthRepository authRepository =
+        Get.put(AuthRepository(graphQlProvider));
+    final AuthService authService =
+        Get.put(AuthService(authRepository, provider));
 
     expect(await authService.init(), null);
 
@@ -141,8 +145,10 @@ void main() async {
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    final AuthRepository authRepository =
+        Get.put(AuthRepository(graphQlProvider));
+    final AuthService authService =
+        Get.put(AuthService(authRepository, provider));
 
     expect(await authService.init(), Routes.auth);
     try {
@@ -160,8 +166,10 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    final AuthRepository authRepository =
+        Get.put(AuthRepository(graphQlProvider));
+    final AuthService authService =
+        Get.put(AuthService(authRepository, provider));
 
     when(graphQlProvider.recoverUserPassword(
             UserLogin('login'), null, null, null))
@@ -198,8 +206,10 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService = Get.put(AuthService(authRepository, provider));
+    final AuthRepository authRepository =
+        Get.put(AuthRepository(graphQlProvider));
+    final AuthService authService =
+        Get.put(AuthService(authRepository, provider));
 
     when(graphQlProvider.recoverUserPassword(
             UserLogin('login'), null, null, null))

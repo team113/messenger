@@ -36,6 +36,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat_call_credentials.dart';
+import '/provider/hive/temp_chat_call_credentials.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -50,6 +51,7 @@ class CallRepository extends DisposableInterface
     this._graphQlProvider,
     this._userRepo,
     this._credentialsProvider,
+    this._tempCredentialsProvider,
     this._settingsRepo, {
     required this.me,
   });
@@ -69,15 +71,23 @@ class CallRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
+  /// [ChatCallCredentials] local storage.
   final ChatCallCredentialsHiveProvider _credentialsProvider;
+
+  /// Temporary local [ChatCallCredentials] storage.
+  ///
+  /// Used to store newly generated [ChatCallCredentials] by [ChatId] until they
+  /// are saved in [ChatCallCredentialsHiveProvider].
+  final TemporaryChatCallCredentialsHiveProvider _tempCredentialsProvider;
+
+  /// Temporary in-memory [ChatCallCredentials] storage.
+  ///
+  /// Used to store newly generated [ChatCallCredentials] by [ChatId] until the
+  /// corresponding [OngoingCall] ends.
+  final Map<ChatId, ChatCallCredentials> _credentials = {};
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
-
-  /// Temporary [ChatCallCredentials] of the [Chat]s containing just started
-  /// [OngoingCall]s.
-  final Map<ChatId, ChatCallCredentials> _credentials = {};
 
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamSubscription? _events;
@@ -238,7 +248,7 @@ class CallRepository extends DisposableInterface
         withVideo: withVideo,
         withScreen: withScreen,
         mediaSettings: media.value,
-        creds: generateCredentials(chatId),
+        creds: await generateCredentials(chatId),
         state: OngoingCallState.local,
       ),
     );
@@ -301,7 +311,7 @@ class CallRepository extends DisposableInterface
           withVideo: withVideo,
           withScreen: withScreen,
           mediaSettings: media.value,
-          creds: credentials ?? generateCredentials(chatId),
+          creds: credentials ?? await generateCredentials(chatId),
           state: OngoingCallState.joining,
         ),
       );
@@ -402,14 +412,21 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  ChatCallCredentials generateCredentials(ChatId chatId) {
+  Future<ChatCallCredentials> generateCredentials(ChatId chatId) async {
     Log.debug('generateCredentials($chatId)', '$runtimeType');
 
+    // Credentials could be stored in-memory from previous attempts to start a
+    // call in [Chat] with this [ChatId] or persisted in [Hive] if
+    // [transferCredentials] was not performed for some reason.
     ChatCallCredentials? creds = _credentials[chatId];
+    creds ??= _tempCredentialsProvider.get(chatId);
+
     if (creds == null) {
+      // Generate new credentials only if they were not stored.
       creds = ChatCallCredentials(const Uuid().v4());
-      _credentials[chatId] = creds;
+      await _tempCredentialsProvider.put(chatId, creds);
     }
+    _credentials[chatId] ??= creds;
 
     return creds;
   }
@@ -419,7 +436,12 @@ class CallRepository extends DisposableInterface
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
     ChatCallCredentials? creds = _credentials[chatId];
+    creds ??= _tempCredentialsProvider.get(chatId);
+
     if (creds != null) {
+      // Credentials must be removed from persistent storage after transfer to
+      // prevent the risk of them being reused.
+      await _tempCredentialsProvider.remove(chatId);
       await _credentialsProvider.put(callId, creds);
     }
   }
@@ -438,8 +460,25 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<void> moveCredentials(ChatItemId callId, ChatItemId newCallId) async {
+  Future<void> moveCredentials(
+    ChatItemId callId,
+    ChatItemId newCallId,
+    ChatId chatId,
+    ChatId newChatId,
+  ) async {
     Log.debug('moveCredentials($callId, $newCallId)', '$runtimeType');
+
+    final ChatCallCredentials? inMemoryCreds = _credentials.remove(chatId);
+    if (inMemoryCreds != null) {
+      _credentials[newChatId] = inMemoryCreds;
+    }
+
+    final ChatCallCredentials? tempPersistedCreds =
+        _tempCredentialsProvider.get(chatId);
+    if (tempPersistedCreds != null) {
+      await _tempCredentialsProvider.remove(chatId);
+      await _tempCredentialsProvider.put(newChatId, tempPersistedCreds);
+    }
 
     ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
@@ -449,11 +488,14 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('removeCredentials($callId)', '$runtimeType');
 
+    // Remove credentials from everywhere since it's guaranteed that they won't
+    // be used again.
     _credentials.remove(chatId);
-    return _credentialsProvider.remove(callId);
+    await _tempCredentialsProvider.remove(chatId);
+    await _credentialsProvider.remove(callId);
   }
 
   @override
