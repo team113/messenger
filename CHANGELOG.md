@@ -34,11 +34,14 @@ All user visible changes to this project will be documented in this file. This p
         - Downloaded avatar missing its extension on desktop. ([#756, #726])
     - Chat page:
         - Read partially message status missing in forwards. ([#776])
+    - Media panel:
+        - Dock animations lagging when dragging buttons. ([#774], [#698])
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
 
 [#573]: /../../issues/573
 [#582]: /../../issues/582
+[#698]: /../../issues/698
 [#699]: /../../issues/699
 [#718]: /../../issues/718
 [#726]: /../../issues/726
@@ -49,6 +52,7 @@ All user visible changes to this project will be documented in this file. This p
 [#763]: /../../pull/763
 [#766]: /../../issues/766
 [#769]: /../../pull/769
+[#774]: /../../pull/774
 [#775]: /../../pull/775
 [#776]: /../../pull/776
 [#780]: /../../pull/780
