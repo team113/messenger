@@ -1456,6 +1456,16 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
+  ///
+  /// Puts it always, if [ignoreVersion] is `true`, or otherwise compares the
+  /// stored version with the provided one.
+  ///
+  /// Overwrites the stored version with the provided, if [updateVersion] is
+  /// `true`. Disabling it makes the [chat] update its fields, if version is
+  /// lower, yet doesn't update the version.
+  ///
+  /// Note, that if [chat] isn't stored, then this always puts it and stores the
+  /// version, despite the parameters.
   Future<HiveRxChat> put(
     HiveChat chat, {
     bool pagination = false,
@@ -1520,7 +1530,7 @@ class ChatRepository extends DisposableInterface
           _favoriteLocal.put(chat.value.favoritePosition!, chatId);
         }
 
-        // Use version of the stored chat if version should not be updated.
+        // Set the version to the [saved] one, if not [updateVersion].
         if (saved != null && !updateVersion) {
           chat.ver = saved.ver;
         }
@@ -2001,6 +2011,16 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Puts the provided [data] to [Hive].
+  ///
+  /// Puts it always, if [ignoreVersion] is `true`, or otherwise compares the
+  /// stored version with the provided one.
+  ///
+  /// Overwrites the stored version with the provided, if [updateVersion] is
+  /// `true`. Disabling it makes the [chat] update its fields, if version is
+  /// lower, yet doesn't update the version.
+  ///
+  /// Note, that if [data] isn't stored, then this always puts it and stores the
+  /// version, despite the parameters.
   Future<HiveRxChat> _putEntry(
     ChatData data, {
     bool pagination = false,
