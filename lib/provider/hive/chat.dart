@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -156,7 +156,7 @@ class HiveChat extends HiveObject {
   /// Cursor of the [value] when paginating through favorite [Chat]s.
   @HiveField(5)
   FavoriteChatsCursor? favoriteCursor;
- @override
+  @override
   String toString() =>
       '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
 }

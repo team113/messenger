@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ class BlocklistHiveProvider extends HiveLazyProvider<bool> {
 
   /// Indicates whether the provided [id] is stored in [Hive].
   Future<bool> get(UserId id) async {
-     return (await getSafe(id.val)) ?? false;
+    return (await getSafe(id.val)) ?? false;
   }
 
   /// Removes the provided [UserId] from [Hive].

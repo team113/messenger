@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -64,7 +64,8 @@ class UserController extends GetxController {
     this._myUserService,
     this._contactService,
     this._chatService,
-    this._callService, this._settingsRepo,{
+    this._callService,
+    this._settingsRepo, {
     this.scrollToPaid = false,
   });
 
@@ -163,7 +164,7 @@ class UserController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _favoritesSubscription;
 
-    /// Settings repository, used to update the [ApplicationSettings].
+  /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
   /// Worker to react on [myUser] changes.
