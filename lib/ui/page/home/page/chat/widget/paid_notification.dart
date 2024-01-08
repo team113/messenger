@@ -24,7 +24,7 @@ class PaidNotification extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      margin: const EdgeInsets.only(top: 0, bottom: 6, left: 8, right: 8),
+      margin: const EdgeInsets.only(top: 0, bottom: 0, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: style.cardRadius,
         boxShadow: const [

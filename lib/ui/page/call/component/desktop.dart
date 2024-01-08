@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -1896,22 +1897,34 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       : style.colors.onSecondaryOpacity88,
                                   child: Row(
                                     children: [
-                                      const SizedBox(width: 7),
-                                      Expanded(
-                                        child: Text(
-                                          'Draggable',
-                                          style: style
-                                              .fonts.small.regular.onPrimary,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                      // const SizedBox(width: 7),
+                                      const Spacer(),
+                                      // Expanded(
+                                      //   child: Text(
+                                      //     'Draggable',
+                                      //     style: style
+                                      //         .fonts.small.regular.onPrimary,
+                                      //     maxLines: 1,
+                                      //     overflow: TextOverflow.ellipsis,
+                                      //   ),
+                                      // ),
+                                      AnimatedButton(
+                                        enabled: !isAnyDrag,
+                                        onPressed: c.focusAll,
+                                        decorator: (child) => Container(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            8,
+                                            0,
+                                            12,
+                                            0,
+                                          ),
+                                          height: double.infinity,
+                                          child: child,
                                         ),
-                                      ),
-                                      InkResponse(
-                                        onTap: isAnyDrag ? null : c.focusAll,
                                         child:
                                             const SvgIcon(SvgIcons.closeSmall),
                                       ),
-                                      const SizedBox(width: 7),
+                                      // const SizedBox(width: 7),
                                     ],
                                   ),
                                 ),

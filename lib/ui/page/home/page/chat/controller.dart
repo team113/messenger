@@ -235,6 +235,7 @@ class ChatController extends GetxController {
   bool paid = false;
 
   final RxBool acceptPaid = RxBool(false);
+  final Rx<Alignment> paidAlignment = Rx(Alignment.topCenter);
 
   final RxBool paidDisclaimer = RxBool(false);
   final RxBool paidDisclaimerDismissed = RxBool(false);
@@ -459,12 +460,14 @@ class ChatController extends GetxController {
 
         if (emailNotValidated.value) {
           paidBorder.value = true;
+          paidAlignment.value = Alignment.bottomCenter;
           return;
         }
 
         if (paid && !paidDisclaimerDismissed.value) {
           if (paidDisclaimer.value) {
             paidBorder.value = true;
+            paidAlignment.value = Alignment.bottomCenter;
           }
 
           paidDisclaimer.value = true;
@@ -638,6 +641,7 @@ class ChatController extends GetxController {
     if (paid && !paidDisclaimerDismissed.value) {
       if (paidDisclaimer.value) {
         paidBorder.value = true;
+        paidAlignment.value = Alignment.topCenter;
       }
 
       paidDisclaimer.value = true;

@@ -174,6 +174,10 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
+  /// [StreamSubscription] to [AbstractCallRepository.calls] and
+  /// [WebUtils.onStorageChange] determining the [inCall] indicator.
+  StreamSubscription? _callSubscription;
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
@@ -305,6 +309,14 @@ class HiveRxChat extends RxChat {
       }
     });
 
+    _callSubscription = StreamGroup.mergeBroadcast([
+      _chatRepository.calls.changes,
+      WebUtils.onStorageChange,
+    ]).listen((_) {
+      inCall.value =
+          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
+    });
+
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
         reversed: true,
@@ -408,6 +420,7 @@ class HiveRxChat extends RxChat {
     _paginationSubscription?.cancel();
     _pagination.dispose();
     _messagesSubscription?.cancel();
+    _callSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
@@ -487,6 +500,7 @@ class HiveRxChat extends RxChat {
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
+
     await _pagination.next();
     status.value = RxStatus.success();
 
@@ -1051,7 +1065,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
-        var node = event as ChatEventsChat;
+        final node = event as ChatEventsChat;
         final HiveChat? chatEntity = await _chatLocal.get(id);
         if (chatEntity != null) {
           chatEntity.value = node.chat.value;
@@ -1066,7 +1080,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.event:
         final HiveChat? chatEntity = await _chatLocal.get(id);
-        var versioned = (event as ChatEventsEvent).event;
+        final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           Log.debug(
             '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
@@ -1083,9 +1097,9 @@ class HiveRxChat extends RxChat {
 
         chatEntity.ver = versioned.ver;
 
-        bool putChat = subscribed;
+        bool shouldPutChat = subscribed;
         for (var event in versioned.events) {
-          putChat = subscribed;
+          shouldPutChat = subscribed;
 
           // Subscription was already disposed while processing the events.
           if (!subscribed) {
@@ -1431,7 +1445,7 @@ class HiveRxChat extends RxChat {
           }
         }
 
-        if (putChat) {
+        if (shouldPutChat) {
           await _chatRepository.put(chatEntity);
         }
         break;

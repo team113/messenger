@@ -1398,8 +1398,8 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    // [pagination] is `true`, if the [chat] is received from [Pagination],
-    // thus otherwise we should try putting it to it.
+    // [pagination] is `true`, if the [chat] is received from [Pagination], thus
+    // otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden) {
       await _pagination?.put(chat);
     }
@@ -1417,7 +1417,7 @@ class ChatRepository extends DisposableInterface
       HiveChat? saved;
 
       // If version is ignored, there's no need to retrieve the stored chat.
-      if (!ignoreVersion || !updateVersion) {
+      if (!ignoreVersion) {
         saved = await _chatLocal.get(chatId);
       }
 
@@ -1425,7 +1425,7 @@ class ChatRepository extends DisposableInterface
       chat.value.firstItem ??=
           saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-      if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
+      if (saved == null || saved.ver < chat.ver) {
         _recentLocal.put(chat.value.updatedAt, chatId);
 
         if (chat.value.favoritePosition != null) {
@@ -1433,9 +1433,9 @@ class ChatRepository extends DisposableInterface
         }
 
         // Set the version to the [saved] one, if not [updateVersion].
-        if (saved != null && !updateVersion) {
-          chat.ver = saved.ver;
-        }
+        // if (saved != null && !updateVersion) {
+        //   chat.ver = saved.ver;
+        // }
 
         await _chatLocal.put(chat);
       }
@@ -1963,6 +1963,7 @@ class ChatRepository extends DisposableInterface
       entry = await put(
         data.chat,
         pagination: pagination,
+        updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
       );
 

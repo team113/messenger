@@ -816,6 +816,65 @@ class _ChatViewState extends State<ChatView>
                                       ),
                                     );
                                   }),
+                                  // Obx(() {
+                                  //   final Widget child;
+
+                                  //   if (c.paidDisclaimer.value) {
+                                  //     child = PaidNotification(
+                                  //       accepted: c.paidAccepted.value,
+                                  //       border: c.paidBorder.value
+                                  //           ? Border.all(
+                                  //               color: style.colors.primary,
+                                  //               width: 2,
+                                  //             )
+                                  //           : Border.all(
+                                  //               color: Colors.transparent,
+                                  //               width: 2,
+                                  //             ),
+                                  //       onPressed: () {
+                                  //         c.paidDisclaimer.value = false;
+                                  //         c.paidDisclaimerDismissed.value =
+                                  //             true;
+                                  //         c.paidBorder.value = false;
+                                  //         c.paidAccepted.value = true;
+                                  //       },
+                                  //     );
+                                  //   } else if (c.emailNotValidated.value) {
+                                  //     final RxUser? user = c
+                                  //         .chat?.members.values
+                                  //         .firstWhereOrNull(
+                                  //             (e) => e.user.value.id != c.me);
+
+                                  //     child = PaidNotification(
+                                  //       description:
+                                  //           'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
+                                  //       action: 'label_verify_email'.l10n,
+                                  //       border: c.paidBorder.value
+                                  //           ? Border.all(
+                                  //               color: Theme.of(context)
+                                  //                   .colorScheme
+                                  //                   .primary,
+                                  //               width: 2,
+                                  //             )
+                                  //           : Border.all(
+                                  //               color: Colors.transparent,
+                                  //               width: 2,
+                                  //             ),
+                                  //       onPressed: () {
+                                  //         router.profileSection.value =
+                                  //             ProfileTab.signing;
+                                  //         router.me(push: true);
+                                  //       },
+                                  //     );
+                                  //   } else {
+                                  //     child = const SizedBox(
+                                  //       key: Key('123'),
+                                  //       width: double.infinity,
+                                  //     );
+                                  //   }
+
+                                  //   return AnimatedSizeAndFade(child: child);
+                                  // }),
                                   Expanded(
                                     child: Stack(
                                       children: [
@@ -823,7 +882,8 @@ class _ChatViewState extends State<ChatView>
                                         // size.
                                         IgnorePointer(
                                           child: ContextMenuInterceptor(
-                                              child: Container()),
+                                            child: Container(),
+                                          ),
                                         ),
                                         Obx(() {
                                           final Widget child = FlutterListView(
@@ -938,6 +998,102 @@ class _ChatViewState extends State<ChatView>
                                           }
 
                                           return const SizedBox();
+                                        }),
+                                        Obx(() {
+                                          final Widget child;
+
+                                          if (c.paidDisclaimer.value) {
+                                            child = Padding(
+                                              padding: EdgeInsets.only(
+                                                top: c.paidAlignment.value.y < 0
+                                                    ? 8
+                                                    : 8,
+                                                bottom:
+                                                    c.paidAlignment.value.y > 0
+                                                        ? 8
+                                                        : 8,
+                                              ),
+                                              child: PaidNotification(
+                                                accepted: c.paidAccepted.value,
+                                                border: c.paidBorder.value
+                                                    ? Border.all(
+                                                        color: style
+                                                            .colors.primary,
+                                                        width: 2,
+                                                      )
+                                                    : Border.all(
+                                                        color:
+                                                            Colors.transparent,
+                                                        width: 2,
+                                                      ),
+                                                onPressed: () {
+                                                  c.paidDisclaimer.value =
+                                                      false;
+                                                  c.paidDisclaimerDismissed
+                                                      .value = true;
+                                                  c.paidBorder.value = false;
+                                                  c.paidAccepted.value = true;
+                                                },
+                                              ),
+                                            );
+                                          } else if (c
+                                              .emailNotValidated.value) {
+                                            final RxUser? user = c
+                                                .chat?.members.values
+                                                .firstWhereOrNull((e) =>
+                                                    e.user.value.id != c.me);
+
+                                            child = Padding(
+                                              padding: EdgeInsets.only(
+                                                top: c.paidAlignment.value.y < 0
+                                                    ? 8
+                                                    : 8,
+                                                bottom:
+                                                    c.paidAlignment.value.y > 0
+                                                        ? 8
+                                                        : 8,
+                                              ),
+                                              child: PaidNotification(
+                                                description:
+                                                    'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
+                                                action:
+                                                    'label_verify_email'.l10n,
+                                                border: c.paidBorder.value
+                                                    ? Border.all(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary,
+                                                        width: 2,
+                                                      )
+                                                    : Border.all(
+                                                        color:
+                                                            Colors.transparent,
+                                                        width: 2,
+                                                      ),
+                                                onPressed: () {
+                                                  router.profileSection.value =
+                                                      ProfileTab.signing;
+                                                  router.me(push: true);
+                                                },
+                                              ),
+                                            );
+                                          } else {
+                                            child = const SizedBox(
+                                              key: Key('123'),
+                                              width: double.infinity,
+                                            );
+                                          }
+
+                                          return AnimatedAlign(
+                                            duration: const Duration(
+                                              milliseconds: 300,
+                                            ),
+                                            curve: Curves.ease,
+                                            alignment: c.paidAlignment.value,
+                                            child: AnimatedSizeAndFade(
+                                              child: child,
+                                            ),
+                                          );
                                         }),
                                       ],
                                     ),
@@ -2173,50 +2329,50 @@ class _ChatViewState extends State<ChatView>
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Obx(() {
-            final Widget child;
+          // Obx(() {
+          //   final Widget child;
 
-            if (c.paidDisclaimer.value) {
-              child = PaidNotification(
-                accepted: c.paidAccepted.value,
-                border: c.paidBorder.value
-                    ? Border.all(color: style.colors.primary, width: 2)
-                    : Border.all(color: Colors.transparent, width: 2),
-                onPressed: () {
-                  c.paidDisclaimer.value = false;
-                  c.paidDisclaimerDismissed.value = true;
-                  c.paidBorder.value = false;
-                  c.paidAccepted.value = true;
-                },
-              );
-            } else if (c.emailNotValidated.value) {
-              final RxUser? user = c.chat?.members.values
-                  .firstWhereOrNull((e) => e.user.value.id != c.me);
+          //   if (c.paidDisclaimer.value) {
+          //     child = PaidNotification(
+          //       accepted: c.paidAccepted.value,
+          //       border: c.paidBorder.value
+          //           ? Border.all(color: style.colors.primary, width: 2)
+          //           : Border.all(color: Colors.transparent, width: 2),
+          //       onPressed: () {
+          //         c.paidDisclaimer.value = false;
+          //         c.paidDisclaimerDismissed.value = true;
+          //         c.paidBorder.value = false;
+          //         c.paidAccepted.value = true;
+          //       },
+          //     );
+          //   } else if (c.emailNotValidated.value) {
+          //     final RxUser? user = c.chat?.members.values
+          //         .firstWhereOrNull((e) => e.user.value.id != c.me);
 
-              child = PaidNotification(
-                description:
-                    'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
-                action: 'label_verify_email'.l10n,
-                border: c.paidBorder.value
-                    ? Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      )
-                    : Border.all(
-                        color: Colors.transparent,
-                        width: 2,
-                      ),
-                onPressed: () {
-                  router.profileSection.value = ProfileTab.signing;
-                  router.me(push: true);
-                },
-              );
-            } else {
-              child = const SizedBox(width: double.infinity);
-            }
+          //     child = PaidNotification(
+          //       description:
+          //           'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
+          //       action: 'label_verify_email'.l10n,
+          //       border: c.paidBorder.value
+          //           ? Border.all(
+          //               color: Theme.of(context).colorScheme.primary,
+          //               width: 2,
+          //             )
+          //           : Border.all(
+          //               color: Colors.transparent,
+          //               width: 2,
+          //             ),
+          //       onPressed: () {
+          //         router.profileSection.value = ProfileTab.signing;
+          //         router.me(push: true);
+          //       },
+          //     );
+          //   } else {
+          //     child = const SizedBox(width: double.infinity);
+          //   }
 
-            return AnimatedSizeAndFade(child: child);
-          }),
+          //   return AnimatedSizeAndFade(child: child);
+          // }),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),
             child: SafeArea(

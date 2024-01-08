@@ -1319,6 +1319,7 @@ class IconsView extends StatelessWidget {
                       SvgIcons.screenShareSmall,
                       SvgIcons.videoOffSmall,
                       SvgIcons.lowSignalSmall,
+                      SvgIcons.noSignalSmall,
                     ].map((e) {
                       return Padding(
                         padding: const EdgeInsets.only(left: 4, right: 4),

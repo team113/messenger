@@ -1018,9 +1018,15 @@ class SvgIcons {
   );
 
   static const SvgData lowSignalSmall = SvgData(
-    'assets/icons/low_signal_level.svg',
-    width: 12.19,
-    height: 14,
+    'assets/icons/low_signal.svg',
+    width: 13.5,
+    height: 15.5,
+  );
+
+  static const SvgData noSignalSmall = SvgData(
+    'assets/icons/no_signal.svg',
+    width: 13.5,
+    height: 15.5,
   );
 
   static const SvgData screenShareSmall = SvgData(
