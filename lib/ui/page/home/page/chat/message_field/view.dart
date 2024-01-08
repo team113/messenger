@@ -761,9 +761,7 @@ class MessageFieldView extends StatelessWidget {
             key: Key(e.id.val),
             direction: DismissDirection.up,
             onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-            onUpdate: (d) {
-              p.value = d.progress;
-            },
+            onUpdate: (d) => p.value = d.progress,
             child: attachment(),
           ),
         );
