@@ -206,7 +206,7 @@ class CallRepository extends DisposableInterface
   Rx<OngoingCall>? remove(ChatId chatId) {
     Log.debug('remove($chatId)', '$runtimeType');
 
-    Rx<OngoingCall>? call = calls.remove(chatId);
+    final Rx<OngoingCall>? call = calls.remove(chatId);
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
 
@@ -480,7 +480,7 @@ class CallRepository extends DisposableInterface
       await _tempCredentialsProvider.put(newChatId, tempPersistedCreds);
     }
 
-    ChatCallCredentials? creds = _credentialsProvider.get(callId);
+    final ChatCallCredentials? creds = _credentialsProvider.get(callId);
     if (creds != null) {
       await _credentialsProvider.remove(callId);
       await _credentialsProvider.put(newCallId, creds);
