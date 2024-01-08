@@ -411,14 +411,6 @@ class ChatsTabView extends StatelessWidget {
                                       inverted:
                                           const SvgIcon(SvgIcons.selectWhite),
                                     ),
-                                    if (c.monolog.value.isHidden)
-                                      ContextMenuButton(
-                                        key: const Key('MonologBUtton'),
-                                        label: 'label_chat_monolog'.l10n,
-                                        onPressed: () {
-                                          router.chat(c.monolog.value.id);
-                                        },
-                                      ),
                                   ],
                                   child: Container(
                                     key: c.moreKey,

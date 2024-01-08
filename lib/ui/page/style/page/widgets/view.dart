@@ -1823,6 +1823,9 @@ class DummyRxChat extends RxChat {
 
   @override
   Stream<void> get updates => const Stream.empty();
+
+  @override
+  RxBool get inCall => RxBool(false);
 }
 
 class _HoveredBuilder extends StatefulWidget {

@@ -117,4 +117,7 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  RxBool get inCall => RxBool(false);
 }

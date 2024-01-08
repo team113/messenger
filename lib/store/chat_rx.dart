@@ -55,6 +55,7 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'pagination/graphql.dart';
@@ -110,6 +111,10 @@ class HiveRxChat extends RxChat {
 
   /// [ChatVersion] of this [HiveRxChat].
   ChatVersion? ver;
+
+  @override
+  late final RxBool inCall =
+      RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;

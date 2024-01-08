@@ -19,9 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 

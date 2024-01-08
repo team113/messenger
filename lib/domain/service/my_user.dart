@@ -26,7 +26,6 @@ import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
-import '/domain/repository/user.dart';
 import '/routes.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
