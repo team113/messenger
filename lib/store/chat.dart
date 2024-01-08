@@ -1520,6 +1520,7 @@ class ChatRepository extends DisposableInterface
           _favoriteLocal.put(chat.value.favoritePosition!, chatId);
         }
 
+        // Use version of the stored chat if version should not be updated.
         if (saved != null && !updateVersion) {
           chat.ver = saved.ver;
         }
