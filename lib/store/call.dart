@@ -363,7 +363,6 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> toggleHand(ChatId chatId, bool raised) async {
     Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
-
     await _graphQlProvider.toggleChatCallHand(chatId, raised);
   }
 

@@ -82,31 +82,21 @@ class CallService extends DisposableService {
     }
 
     try {
-      Rx<OngoingCall>? call;
-
-      try {
-        call = await _callsRepo.start(
-          chatId,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-        );
-      } on CallAlreadyJoinedException catch (e) {
-        await _callsRepo.leave(chatId, e.deviceId);
-        call = await _callsRepo.join(
-          chatId,
-          null,
-          withAudio: withAudio,
-          withVideo: withVideo,
-          withScreen: withScreen,
-        );
-      }
+      final Rx<OngoingCall> call = await _callsRepo.start(
+        chatId,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
+      );
 
       if (isClosed) {
-        call?.value.dispose();
+        call.value.dispose();
       } else {
-        call?.value.connect(this);
+        call.value.connect(this);
       }
+    } on CallAlreadyJoinedException catch (e) {
+      await _callsRepo.leave(chatId, e.deviceId);
+      rethrow;
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -150,6 +140,9 @@ class CallService extends DisposableService {
         );
       } on CallAlreadyJoinedException catch (e) {
         await _callsRepo.leave(chatId, e.deviceId);
+        // Wait for the previous call to be removed through the `heartbeat`
+        // subscription and then join again.
+        await Future.delayed(1.seconds);
         call = await _callsRepo.join(
           chatId,
           callId,
@@ -164,8 +157,13 @@ class CallService extends DisposableService {
       } else {
         call?.value.connect(this);
       }
+    } on CallAlreadyJoinedException catch (e) {
+      // If an error occurs during re-joining, just leave. Don't invoke `remove`
+      // since it'll be done through the `heartbeat` subscription.
+      await _callsRepo.leave(chatId, e.deviceId);
+      rethrow;
     } catch (e) {
-      // If an error occurs, it's guaranteed that the broken call will be
+      // If any other error occurs, it's guaranteed that the broken call will be
       // removed.
       _callsRepo.remove(chatId);
       rethrow;
