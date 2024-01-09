@@ -191,12 +191,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setTimelineEnabled(bool enabled) async {
-    Log.debug('setTimelineEnabled($enabled)', '$runtimeType');
-    await _settingsLocal.setTimelineEnabled(enabled);
-  }
-
-  @override
   Future<void> setPinnedActions(List<String> buttons) async {
     Log.debug('setPinnedActions($buttons)', '$runtimeType');
     await _settingsLocal.setPinnedActions(buttons);
