@@ -16,7 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
-        - Attachments fade out when dismissing by swipe. ([#786], [#699])
+        - Removed timeline mode. ([#791], [#788])
+        - Attachments fading out when dismissed by swipe gesture. ([#786], [#699])
     - Chats tab:
         - Monolog searching. ([#745], [#582])
     - Redesigned user page. ([#769], [#766])
@@ -57,6 +58,8 @@ All user visible changes to this project will be documented in this file. This p
 [#776]: /../../pull/776
 [#780]: /../../pull/780
 [#786]: /../../pull/786
+[#788]: /../../issues/788
+[#791]: /../../pull/791
 
 
 
